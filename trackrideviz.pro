@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia concurrent openglwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,10 +25,12 @@ INCLUDEPATH += $$PWD/src
 include(src/core/core.pri)
 
 SOURCES += main.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/videocanvas.cpp
 
 HEADERS += \
-    src/mainwindow.h
+    src/mainwindow.h \
+    src/videocanvas.h
 
 win32:RC_FILE = trackrideviz.rc
 macx:ICON = trackrideviz.icns
@@ -57,7 +59,9 @@ tests {
         $(MAKE) && \
         QT_QPA_PLATFORM=offscreen ./channel/tst_channel && \
         QT_QPA_PLATFORM=offscreen ./gpx/tst_gpx && \
-        QT_QPA_PLATFORM=offscreen ./fit/tst_fit
+        QT_QPA_PLATFORM=offscreen ./fit/tst_fit && \
+        QT_QPA_PLATFORM=offscreen ./sync/tst_sync && \
+        QT_QPA_PLATFORM=offscreen ./gauge/tst_gauge
 
     QMAKE_EXTRA_TARGETS += check
 }

@@ -1,6 +1,7 @@
 #include <QtTest>
 
 #include "telemetry/channel.h"
+#include "telemetry/telemetrysession.h"
 
 class TestChannel : public QObject
 {
@@ -13,6 +14,7 @@ private slots:
     void outOfRangeClampsAndReportsNotOk();
     void rejectsNonIncreasingTime();
     void irregularSampleRate();
+    void sessionChannelReferencesStayValid();
 };
 
 void TestChannel::emptyChannel()
@@ -91,6 +93,27 @@ void TestChannel::irregularSampleRate()
 
     QCOMPARE(c.valueAt(0.05), 100.5);
     QCOMPARE(c.valueAt(5.05), 150.5);
+    QCOMPARE(c.minValue(), 100.0);
+    QCOMPARE(c.maxValue(), 200.0);
+    QCOMPARE(Channel().minValue(), 0.0);
+    QCOMPARE(Channel().maxValue(), 0.0);
+}
+
+// Importers keep references to several channels while creating more.
+void TestChannel::sessionChannelReferencesStayValid()
+{
+    TelemetrySession session;
+    Channel &first = session.channelForWriting("first", "m");
+    first.append(0.0, 1.0);
+    for (int i = 0; i < 200; ++i)
+        {
+            session.channelForWriting(QString("extra%1").arg(i), QString()).append(0.0, i);
+        }
+    QVERIFY(first.append(1.0, 2.0));
+    QCOMPARE(&first, session.channel("first"));
+    QCOMPARE(session.channel("first")->count(), 2);
+    QCOMPARE(session.channelIds().size(), 201);
+    QCOMPARE(session.channelIds().first(), QString("first"));
 }
 
 QTEST_APPLESS_MAIN(TestChannel)

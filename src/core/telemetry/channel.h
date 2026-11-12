@@ -29,6 +29,9 @@ public:
     bool isEmpty() const { return m_times.isEmpty(); }
     double startTime() const;
     double endTime() const;
+    // Smallest and largest sample; 0 for an empty channel. Scans all samples.
+    double minValue() const;
+    double maxValue() const;
 
     // timeSec is seconds from the session start. Samples that are not later
     // than the previous one are dropped (returns false) - loggers do repeat

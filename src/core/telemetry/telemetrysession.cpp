@@ -5,17 +5,17 @@
 double TelemetrySession::duration() const
 {
     double end = 0.0;
-    for (const Channel &c : m_channels)
+    for (const auto &entry : m_channels)
         {
-            end = std::max(end, c.endTime());
+            end = std::max(end, entry.second.endTime());
         }
     return end;
 }
 
 const Channel *TelemetrySession::channel(const QString &id) const
 {
-    auto it = m_channels.constFind(id);
-    return it == m_channels.constEnd() ? nullptr : &it.value();
+    const auto it = m_channels.find(id);
+    return it == m_channels.end() ? nullptr : &it->second;
 }
 
 Channel &TelemetrySession::channelForWriting(const QString &id, const QString &unit, Channel::Interpolation interpolation)
@@ -23,19 +23,20 @@ Channel &TelemetrySession::channelForWriting(const QString &id, const QString &u
     auto it = m_channels.find(id);
     if (it == m_channels.end())
         {
-            it = m_channels.insert(id, Channel(id, unit, interpolation));
+            it = m_channels.emplace(id, Channel(id, unit, interpolation)).first;
             m_order.append(id);
         }
-    return it.value();
+    return it->second;
 }
 
 void TelemetrySession::removeEmptyChannels()
 {
     for (const QString &id : QStringList(m_order))
         {
-            if (m_channels.value(id).isEmpty())
+            const auto it = m_channels.find(id);
+            if (it != m_channels.end() && it->second.isEmpty())
                 {
-                    m_channels.remove(id);
+                    m_channels.erase(it);
                     m_order.removeAll(id);
                 }
         }

@@ -142,7 +142,7 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
         run: |
           sudo apt-get update -qq
-          sudo apt-get -y install debhelper dput devscripts qt6-base-dev qt6-multimedia-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libgl1-mesa-dev libfuse2 qt6-image-formats-plugins
+          sudo apt-get -y install debhelper dput devscripts qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libgl1-mesa-dev libfuse2 qt6-image-formats-plugins
       - name: Update changelog
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
         run: bash debian/update-changelog.sh

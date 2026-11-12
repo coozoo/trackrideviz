@@ -8,13 +8,29 @@ Repo, README, GPL-3.0, qmake project, main window shell with docks, en/uk transl
 Verified: local build + tests (Qt 6.11), deb build + tests in an Ubuntu 22.04 container (Qt 6.2.4).
 Not yet verified (needs a push to GitHub): AppImage, macOS and Windows jobs.
 
-## M1 — First overlay on screen (vertical slice)
+## M1 — First overlay on screen (vertical slice) ✅ (2026-11-12)
 - ✅ GPX + FIT import → `TelemetrySession` (see [06-fit-notes.md](06-fit-notes.md)); tested on 41 real FIT files
-- Open a video, play/seek (`QMediaPlayer` + `QVideoSink` canvas)
-- Sync by UTC with manual offset
-- Gauge model + `GaugeRenderer` with `image`, `text`, `dynamicRotate`
-- One hard-coded speed gauge drawn over the video
-- Tests: importers, sampler
+- ✅ Open a video, play/seek (`QMediaPlayer` + `QVideoSink` → `VideoCanvas`, OpenGL)
+- ✅ Sync: clock match from the camera file name + the data's UTC offset, whole-hour snapping when
+  the zones disagree, manual offset (`VideoSync`, 03-architecture §3.3a)
+- ✅ Gauge model + `GaugeRenderer` with `image`, `text`, `dynamicRotate`
+- ✅ One built-in speedometer (artwork drawn in code) over the video, fixed position
+- ✅ Tests: importers, sampler, sync, renderer (75 cases); also built and run on Qt 6.2.4
+
+Checked on the real ride (IGS520 FIT + 1080p60 camera chapters): offset found automatically from
+the FIT; the mislabelled GPX export of the same ride lands on the same instant through hour
+snapping; the channel table shows the value of every channel at the frame on screen.
+
+Preview cost, 1080p60 on a laptop with Intel UHD 620 (measured, whole process):
+first version (`toImage()` + QPainter scaling on the GUI thread) 215 % CPU and visibly slow;
+now (`QOpenGLWidget`, YUV planes uploaded as textures, shader converts and scales) 108 % with
+software decoding, 46 % with VA-API. On Linux the application asks Qt Multimedia for VA-API first,
+because Qt's default order stops at CUDA on machines that only have the NVIDIA libraries installed
+and then decodes in software. What is left is mostly copying decoded frames back from the GPU;
+avoiding that needs Qt's own video output (a QML `VideoOutput`), an option for the M8 front end.
+
+Left for later milestones: speed is still interpolated across auto-pauses; 10-bit video takes the
+slow `toImage()` path; chapters are not joined yet.
 
 **Proves:** telemetry model, render path, preview.
 

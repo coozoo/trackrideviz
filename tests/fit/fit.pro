@@ -1,8 +1,8 @@
 # Unit tests for the FIT importer.
-# Core only: no QApplication, no widgets.
+# Core only: no widgets.
 
 QT += testlib
-QT -= gui
+# the core contains QtGui code (gauge rendering), so gui stays linked
 
 CONFIG += console testcase c++17
 CONFIG -= app_bundle

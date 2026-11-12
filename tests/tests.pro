@@ -7,4 +7,6 @@ CONFIG  += ordered
 SUBDIRS = \
     channel \
     gpx \
-    fit
+    fit \
+    sync \
+    gauge

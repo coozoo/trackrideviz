@@ -3,10 +3,10 @@
 #include "channel.h"
 
 #include <QDateTime>
-#include <QHash>
 #include <QStringList>
 #include <QVector>
 
+#include <map>
 #include <memory>
 
 // Everything one data file gave us: channels on a common time base (seconds
@@ -47,11 +47,12 @@ public:
 
     // Insertion order, i.e. the order the importer met them.
     QStringList channelIds() const { return m_order; }
-    bool hasChannel(const QString &id) const { return m_channels.contains(id); }
+    bool hasChannel(const QString &id) const { return m_channels.find(id) != m_channels.end(); }
     // nullptr when there is no such channel.
     const Channel *channel(const QString &id) const;
 
-    // Returns the channel with this id, creating it on first use.
+    // Returns the channel with this id, creating it on first use. The
+    // reference stays valid while other channels are created.
     Channel &channelForWriting(const QString &id, const QString &unit,
                                Channel::Interpolation interpolation = Channel::Linear);
     // Channels that never received a sample are noise in the UI.
@@ -75,7 +76,8 @@ public:
 
 private:
     QDateTime m_startUtc;
-    QHash<QString, Channel> m_channels;
+    // node based on purpose: importers hold references to several channels while adding more
+    std::map<QString, Channel> m_channels;
     QStringList m_order;
     QVector<Lap> m_laps;
     QVector<Pause> m_pauses;

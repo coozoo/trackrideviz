@@ -17,6 +17,16 @@ double Channel::endTime() const
     return m_times.isEmpty() ? 0.0 : m_times.last();
 }
 
+double Channel::minValue() const
+{
+    return m_values.isEmpty() ? 0.0 : *std::min_element(m_values.cbegin(), m_values.cend());
+}
+
+double Channel::maxValue() const
+{
+    return m_values.isEmpty() ? 0.0 : *std::max_element(m_values.cbegin(), m_values.cend());
+}
+
 bool Channel::append(double timeSec, double value)
 {
     if (!m_times.isEmpty() && timeSec <= m_times.last())
