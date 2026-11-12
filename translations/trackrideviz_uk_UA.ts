@@ -516,7 +516,7 @@
 <context>
     <name>GaugeLibrary</name>
     <message>
-        <location filename="../src/core/gauge/gaugelibrary.cpp" line="162"/>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="198"/>
         <source>The gauge has no usable name.</source>
         <translation>Прилад не має придатної назви.</translation>
     </message>
@@ -548,11 +548,6 @@
         <location filename="../src/gaugelibrarypanel.cpp" line="151"/>
         <source>Templates</source>
         <translation>Шаблони</translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="167"/>
-        <source>Brings in your .veg gauges and .vet templates. Choose the the old editor folder, or its Widgets or Templates folder.</source>
-        <translation>Імпортує ваші прилади та шаблони the old editor. Виберіть теку the old editor або її теку Widgets чи Templates.</translation>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="170"/>
@@ -595,20 +590,10 @@
         <translation>Вилучити шаблон</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="333"/>
-        <source>the old editor folder, or its Widgets or Templates folder</source>
-        <translation>Тека the old editor або її тека Widgets чи Templates</translation>
-    </message>
-    <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
         <location filename="../src/gaugelibrarypanel.cpp" line="388"/>
         <source>Import</source>
         <translation>Імпорт</translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
-        <source>There are no .veg gauges (.veg) or templates (.vet) in that folder.</source>
-        <translation>У цій теці немає приладів (.veg) чи шаблонів (.vet) the old editor.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/gaugelibrarypanel.cpp" line="377"/>
@@ -632,6 +617,21 @@
         <location filename="../src/gaugelibrarypanel.cpp" line="308"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation>Вилучити «%1» із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="167"/>
+        <source>Brings in .veg gauges and .vet templates. Choose the folder that holds them, or a folder with Widgets and Templates in it.</source>
+        <translation>Імпортує прилади (.veg) і шаблони (.vet). Виберіть теку, де вони лежать, або теку, у якій є Widgets і Templates.</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="333"/>
+        <source>Folder with .veg gauges and .vet templates</source>
+        <translation>Тека з приладами .veg і шаблонами .vet</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
+        <source>There are no gauges (.veg) or templates (.vet) in that folder.</source>
+        <translation>У цій теці немає приладів (.veg) чи шаблонів (.vet).</translation>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="348"/>
@@ -1396,19 +1396,65 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>TemplateLibrary</name>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="178"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="201"/>
         <source>The template has no usable name.</source>
         <translation>Шаблон не має придатної назви.</translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="186"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="209"/>
         <source>Cannot create the folder %1.</source>
         <translation>Не вдалося створити теку %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="258"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="282"/>
         <source>%1: without %2</source>
         <translation>%1: без %2</translation>
+    </message>
+</context>
+<context>
+    <name>VegGaugeImporter</name>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="416"/>
+        <source>This is not a .veg gauge: %1</source>
+        <translation>Це не прилад .veg: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="424"/>
+        <source>This is not a .veg gauge: it has no size or no components.</source>
+        <translation>Це не прилад .veg: немає розміру або складників.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="437"/>
+        <source>Left out, not supported yet: %1 (%2x)</source>
+        <translation>Пропущено, ще не підтримується: %1 (%2x)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="442"/>
+        <source>Image not found: %1</source>
+        <translation>Зображення не знайдено: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="446"/>
+        <source>Nothing of this gauge can be shown yet.</source>
+        <translation>Нічого з цього приладу поки що неможливо показати.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="459"/>
+        <source>Cannot open %1: %2</source>
+        <translation>Не вдалося відкрити %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>VetTemplateImporter</name>
+    <message>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="338"/>
+        <source>This is not a .vet template.</source>
+        <translation>Це не шаблон .vet.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="383"/>
+        <source>None of the gauges this template uses could be found.</source>
+        <translation>Не знайдено жодного приладу, який використовує цей шаблон.</translation>
     </message>
 </context>
 <context>
@@ -1528,52 +1574,6 @@ Open them again from where they are now and save the project.</source>
         <location filename="../src/core/sync/videosync.cpp" line="95"/>
         <source>The video and the data were not recorded at the same time.</source>
         <translation>Відео та дані записано в різний час.</translation>
-    </message>
-</context>
-<context>
-    <name>VegGaugeImporter</name>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="416"/>
-        <source>This is not a .veg gauge: %1</source>
-        <translation>Це не прилад the old editor: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="424"/>
-        <source>This is not a .veg gauge: it has no size or no components.</source>
-        <translation>Це не прилад the old editor: немає розміру або складників.</translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="437"/>
-        <source>Left out, not supported yet: %1 (%2x)</source>
-        <translation>Пропущено, ще не підтримується: %1 (%2x)</translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="442"/>
-        <source>Image not found: %1</source>
-        <translation>Зображення не знайдено: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="446"/>
-        <source>Nothing of this gauge can be shown yet.</source>
-        <translation>Нічого з цього приладу поки що неможливо показати.</translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="459"/>
-        <source>Cannot open %1: %2</source>
-        <translation>Не вдалося відкрити %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>VetTemplateImporter</name>
-    <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="314"/>
-        <source>This is not a .vet template.</source>
-        <translation>Це не шаблон the old editor.</translation>
-    </message>
-    <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="359"/>
-        <source>None of the gauges this template uses could be found.</source>
-        <translation>Не знайдено жодного приладу, який використовує цей шаблон.</translation>
     </message>
 </context>
 </TS>

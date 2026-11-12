@@ -1,0 +1,101 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                170,
+                460
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "color": "accent2",
+            "frame": [
+                0,
+                0,
+                170,
+                460
+            ],
+            "image": "images/track.png",
+            "type": "image"
+        },
+        {
+            "color": "accent",
+            "frame": [
+                0,
+                0,
+                170,
+                460
+            ],
+            "image": "images/fill.png",
+            "manipulations": [
+                {
+                    "maxY": 112,
+                    "minY": 402,
+                    "type": "heightClip"
+                }
+            ],
+            "type": "image"
+        },
+        {
+            "align": "center",
+            "autoText": "label",
+            "color": "accent2",
+            "font": {
+                "size": 20
+            },
+            "frame": [
+                85,
+                32
+            ],
+            "type": "text",
+            "upperCase": true,
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "value",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 40
+            },
+            "frame": [
+                85,
+                74
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "unit",
+            "color": "accent2",
+            "font": {
+                "size": 22
+            },
+            "frame": [
+                85,
+                428
+            ],
+            "type": "text",
+            "valign": "center"
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "Column",
+    "size": [
+        170,
+        460
+    ],
+    "supportedTypes": [
+        "power",
+        "grade",
+        "heartRate",
+        "cadence"
+    ],
+    "version": 1
+}

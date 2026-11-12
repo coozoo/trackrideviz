@@ -1,0 +1,50 @@
+{
+    "category": "Motorsport",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Arc",
+            "height": 340,
+            "offsetX": 40,
+            "offsetY": -380
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap map",
+            "height": 340,
+            "offsetX": -380,
+            "offsetY": 40
+        },
+        {
+            "channel": "gForceLateral",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:G-force",
+            "height": 260,
+            "offsetX": -300,
+            "offsetY": -300
+        },
+        {
+            "channel": "speed",
+            "edgeX": "middle",
+            "edgeY": "start",
+            "gauge": "bundled:Bar",
+            "height": 90,
+            "offsetX": -207.69230769230768,
+            "offsetY": 40
+        }
+    ],
+    "name": "Track day",
+    "theme": {
+        "accent": "#ffe61e28",
+        "accent2": "#ffffffff",
+        "background": "#a0000000",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

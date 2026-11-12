@@ -192,6 +192,8 @@ jobs:
           cp images/trackrideviz.png appdir/usr/share/icons/
           mkdir -p appdir/usr/share/applications/
           cp *.desktop appdir/usr/share/applications/
+          mkdir -p appdir/usr/share/${{ steps.build.outputs.APP_NAME }}
+          cp -r data/gauges data/templates appdir/usr/share/${{ steps.build.outputs.APP_NAME }}/
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
           ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage -qmake=$(command -v qmake6)
@@ -323,6 +325,9 @@ jobs:
           qmake6
           make -j$(nproc)
           rm -f release/*.o; rm -f release/*.cpp; rm -f release/*.h
+          # gauges and templates that come with the program, next to the .exe
+          mkdir -p release/data
+          cp -r data/gauges data/templates release/data/
           windeployqt6.exe release/${{ steps.buildwin.outputs.APP_NAME }}.exe
           # MinGW runtime and Qt's own dependencies that windeployqt does not pick up
           for pattern in 'libgcc*' 'libwinpthread*' 'libstdc*' 'libdouble*' 'libicuin*' 'libicuuc*' 'libicudt*' 'libpcre*' 'libzstd*' 'libharfbuzz*' 'libgraphite*' 'libfreetype*' 'libbrotlidec*' 'libbrotlicommon*' 'libbz*' 'libpng*' 'libglib*' 'libintl*' 'libiconv*' 'libb2*' 'libmd4c*' 'zlib*'; do

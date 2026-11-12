@@ -1,0 +1,71 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                360,
+                120
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "channelIcon": true,
+            "color": "accent",
+            "frame": [
+                18,
+                18,
+                84,
+                84
+            ],
+            "type": "image"
+        },
+        {
+            "align": "left",
+            "autoText": "label",
+            "color": "accent2",
+            "font": {
+                "size": 22
+            },
+            "frame": [
+                120,
+                36
+            ],
+            "type": "text",
+            "upperCase": true,
+            "valign": "center"
+        },
+        {
+            "align": "left",
+            "autoText": "valueAndUnit",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 40
+            },
+            "frame": [
+                120,
+                80
+            ],
+            "type": "text",
+            "valign": "center"
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "Icon readout",
+    "size": [
+        360,
+        120
+    ],
+    "supportedTypes": [
+        "heartRate",
+        "elevation",
+        "cadence",
+        "power",
+        "temperature",
+        "speed"
+    ],
+    "version": 1
+}

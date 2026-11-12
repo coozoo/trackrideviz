@@ -5,7 +5,7 @@ our native format and stored in the user's library. We never write the foreign f
 
 ## 2.1 Gauge and template formats
 
-### the old editor `.veg` (gauge) — JSON, fully understood, import is straightforward
+### `.veg` (gauge) — JSON, fully understood, import is straightforward
 
 ```
 { frame:{width,height}, supportedTypes|unsupportedTypes:[...], unlisted, isLogo,
@@ -33,7 +33,7 @@ Other keys: `auxiliaryType` (a component bound to a *second* metric — combo ga
 `minValue`/`maxValue`/`wrapValue`/`minInterval` (scale), `colorStyle`, `fontColor`,
 `hideWhenUnknown`, `clipAngle`, `invertXAxis`/`invertYAxis`, `casingTransform`.
 
-### the old editor `.vet` (template) — JSON, importable
+### `.vet` (template) — JSON, importable
 
 ```
 { category, thumbnailPath, backgroundColor, accentColor, accent2Color, activityDefault,
@@ -43,20 +43,20 @@ Other keys: `auxiliaryType` (a component bound to a *second* metric — combo ga
 360 templates add `sphericalPosition`/`sphericalTransform` — ignored.
 
 **Asset caveat:** the gauges reference Garmin's PNGs (`Widgets/images`, 394 files). We do not ship
-them. The importer asks for the user's the old editor install folder (or a folder of `.veg` files) and
+them. The importer asks for a folder of the user's `.veg` / `.vet` files (or one holding `Widgets` and `Templates`) and
 copies images into the user's own library.
 
-### another editor gauge — XML, importable with moderate effort
+### XML gauges — importable with moderate effort
 
 `<Gauge name category width height version>` → `<Components>` (Needle, ImageNeedle, NonLinear*,
 AnimatedArc/Pie, Bar, Digit, TickerTape, Dynamic/StaticGaugeText, shapes, Map*, Chart) →
 `<Inputs>` / `<InputMapping dataFileIndex dataColumn>`. Three schema versions (V1→V2→V3 upgraders
 exist in the original). Vector-drawn rather than image-based, so our model needs vector primitives
-anyway. Priority: after the old editor import.
+anyway. Priority: after `.veg` / `.vet` import.
 
-### another editor `.rro` / `.rrt` / `.rrp` — binary and undocumented, no import planned.
+### Binary, undocumented gauge formats — no import planned.
 
-### the old editor `.vet` placement, as found (2026-11-12)
+### `.vet` placement, as found (2026-11-12)
 
 Offsets are pixels of a 1920 x 1080 frame, measured from the edge named by `fromEdge`: `min`
 (left/top), `mid` (centre) or `max` (right/bottom), to the gauge's left/top side; gauges are at
@@ -76,7 +76,7 @@ strip's longer side.
 
 ### Native gauge: a folder with `gauge.json` + images (implemented)
 
-`GaugeFile` - every the old editor part has its own field; images by relative path inside the folder.
+`GaugeFile` - every `.veg` part has its own field; images by relative path inside the folder.
 Kept in the user's gauge library (`<app data>/gauges/<name>/`).
 
 ### Native template: one JSON file (implemented)
@@ -86,9 +86,9 @@ and y in 1920 x 1080 reference pixels, height. Kept in `<app data>/templates/`.
 
 ### Native, still planned
 
-Additions to the the old editor component model:
-- vector primitives (arc, pie, ellipse, rect, line, path) alongside images — from another editor
-- non-linear scales (value→position table) — from another editor
+Additions to the `.veg` component model:
+- vector primitives (arc, pie, ellipse, rect, line, path) alongside images
+- non-linear scales (value→position table)
 - per-component input: channel + optional transform, instead of one `auxiliaryType`
 - extra components: g-plot, ticker tape, lap table, sector bar, 7-segment text style
 - SVG as well as PNG images
@@ -99,9 +99,9 @@ Additions to the the old editor component model:
 | Format | Source | Approach | Phase |
 |--------|--------|----------|-------|
 | GPX (+ Garmin TrackPointExtension: hr, cad, temp, power) | everything | `QXmlStreamReader`; start from Overseer's `GpxTrack` and widen it | 1 |
-| FIT | Garmin, Wahoo, the old editor G-Metrix, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK licence terms) or the official C++ SDK — see decisions §5 | 1 |
+| FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK licence terms) or the official C++ SDK — see decisions §5 | 1 |
 | GoPro GPMF (embedded in MP4) | GoPro Hero 5+ | Demux the `gpmd` data stream via libavformat/ffprobe, parse KLV ourselves (GPS5/GPS9, ACCL, GYRO) | 2 |
-| CSV + data profile | RaceChrono, Harry's LapTimer, TrackAddict, AiM export, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators. Ship our own profiles; **import another editor profile XML** | 2 |
+| CSV + data profile | RaceChrono, Harry's LapTimer, TrackAddict, AiM export, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators. Ship our own profiles; **import data-profile XML** | 2 |
 | TCX | older Garmin, Strava export | XML | 2 |
 | NMEA 0183 | raw GPS loggers, dashcams | line parser (RMC/GGA/VTG) | 3 |
 | VBO | Racelogic VBOX, RaceChrono export | text, header-described columns | 3 |
@@ -113,7 +113,7 @@ All importers produce the same thing: a `TelemetrySession` (see 03-architecture 
 ## 2.3 Channel catalogue
 
 Internal canonical channels in SI units (m, m/s, s, rad or deg, Pa, K, W); display units are a
-presentation setting. Names follow the .veg format's `valueType` identifiers where one exists (`speed`,
+presentation setting. Names follow the `valueType` identifiers of `.veg` files where one exists (`speed`,
 `heartRate`, `engineRpm`, `gForceLat`, `currentLapTime`…) so template import is a direct mapping.
 Unknown CSV columns become user channels with a free-form name and unit.
 
@@ -131,7 +131,7 @@ Unknown CSV columns become user channels with a free-form name and unit.
   export:{ ...last used settings } }
 ```
 Paths stored relative to the project file when possible. Versioned from day one with an upgrader
-chain (both reference apps needed one).
+chain (other programs needed one too).
 
 ## 2.5 Output
 

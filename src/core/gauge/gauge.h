@@ -18,7 +18,7 @@
 // that channel and its colours from the theme. Components may name another
 // channel of their own (a compass ring inside a speedometer).
 //
-// The component set is a superset of what the old editor's gauge files hold, so
+// The component set is a superset of what .veg gauge files hold, so
 // those import one to one. Angles are degrees clockwise, 0 = 12 o'clock.
 
 // Where a component gets its colour from.

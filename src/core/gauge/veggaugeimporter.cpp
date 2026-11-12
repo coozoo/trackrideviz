@@ -262,7 +262,7 @@ bool convert(const QJsonObject &source, Context &context, GaugeComponent *compon
         }
     if (flag(source, "hitTestingOnly"))
         {
-            return false; // invisible in the old editor too
+            return false; // invisible where it was made too
         }
     bool manipulationsOk = true;
     component->manipulations = manipulationsOf(source, context, &manipulationsOk);

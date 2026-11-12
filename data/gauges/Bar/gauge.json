@@ -1,0 +1,88 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                600,
+                130
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "color": "accent2",
+            "frame": [
+                0,
+                0,
+                600,
+                130
+            ],
+            "image": "images/track.png",
+            "type": "image"
+        },
+        {
+            "color": "accent",
+            "frame": [
+                0,
+                0,
+                600,
+                130
+            ],
+            "image": "images/fill.png",
+            "manipulations": [
+                {
+                    "clipAngle": 20,
+                    "maxX": 576,
+                    "minX": 24,
+                    "type": "widthClip"
+                }
+            ],
+            "type": "image"
+        },
+        {
+            "align": "left",
+            "autoText": "label",
+            "color": "accent2",
+            "font": {
+                "size": 24
+            },
+            "frame": [
+                24,
+                38
+            ],
+            "type": "text",
+            "upperCase": true,
+            "valign": "center"
+        },
+        {
+            "align": "right",
+            "autoText": "valueAndUnit",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 34
+            },
+            "frame": [
+                576,
+                38
+            ],
+            "type": "text",
+            "valign": "center"
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "Bar",
+    "size": [
+        600,
+        130
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate"
+    ],
+    "version": 1
+}

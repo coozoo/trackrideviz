@@ -10,7 +10,7 @@ used to understand behaviour and file formats only:
 
 - no decompiled code is copied or translated line by line into our sources;
 - none of the vendors' PNGs, templates, themes, fonts or music are committed or shipped;
-- the old editor/another editor import reads from the *user's own* install folder at run time
+- Import of other programs' gauges and templates reads the *user's own* files at run time
   ("import everything from this folder" in one go, or single files the user found elsewhere).
 
 Open follow-up (manual review by Yuriy): read the licence texts in the installers to see whether any
@@ -39,8 +39,8 @@ Write our own decoder, but first collect the pitfalls others already hit - see
 
 ## §6 ✅ Native formats are JSON; foreign formats are import-only
 
-`.rtvgauge`, `.rtvtemplate`, `.rtvproj`, data profiles - all versioned JSON. the old editor `.veg`/`.vet` and
-another editor gauge/profile XML are converted on import. another editor formats are not supported (binary).
+`.rtvgauge`, `.rtvtemplate`, `.rtvproj`, data profiles - all versioned JSON. `.veg`/`.vet` and
+XML gauges/profiles are converted on import. Binary undocumented formats are not supported.
 
 ## §7 ✅ Build and structure: qmake, same shape as the other apps
 

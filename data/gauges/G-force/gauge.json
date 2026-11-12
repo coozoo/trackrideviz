@@ -1,0 +1,56 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "color": "accent2",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "image": "images/rings.png",
+            "type": "image"
+        },
+        {
+            "color": "accent",
+            "frame": [
+                178,
+                178,
+                44,
+                44
+            ],
+            "image": "images/ball.png",
+            "manipulations": [
+                {
+                    "maxRadius": 154,
+                    "type": "translate2d",
+                    "xChannel": "gForceLateral",
+                    "yChannel": "gForceLongitudinal"
+                }
+            ],
+            "type": "image"
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "G-force",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "gForceLateral",
+        "gForceLongitudinal"
+    ],
+    "version": 1
+}

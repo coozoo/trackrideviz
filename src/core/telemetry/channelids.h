@@ -2,7 +2,7 @@
 
 // Canonical channel ids. Values are stored in the unit given in the comment;
 // display units (km/h, mph, feet...) are a presentation setting.
-// Names follow the .veg format's valueType identifiers where one exists, so imported
+// Names follow the valueType identifiers of .veg gauge files where one exists, so imported
 // templates bind without a mapping table.
 namespace ChannelId
 {

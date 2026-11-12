@@ -578,7 +578,7 @@ private slots:
         ball.maxRadius = 40;
         gauge.components[0].manipulations.append(ball);
 
-        // bound to the .veg format's two-value type: the two axes are found by themselves
+        // bound to the two-value type of .veg files: the two axes are found by themselves
         const QImage right = draw(gauge, 5.0, "gForceLatLon", session);
         QVERIFY(painted(right, 90, 50));
         QVERIFY(!painted(right, 50, 50));
@@ -1125,7 +1125,7 @@ private slots:
 
     void vegGaugeIsConverted()
     {
-        // written in the shape of a the old editor file, with the byte order mark those have
+        // written in the shape of a .veg file, with the byte order mark those have
         const QByteArray veg = QByteArray("\xEF\xBB\xBF") + R"({
             "frame": {"width": 250, "height": 70},
             "supportedTypes": ["speed", "speed2d", "speed3d", "vehicleSpeed"],

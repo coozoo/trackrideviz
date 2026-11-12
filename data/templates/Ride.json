@@ -1,0 +1,59 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Arc",
+            "height": 300,
+            "offsetX": 40,
+            "offsetY": -340
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Icon readout",
+            "height": 100,
+            "offsetX": 360,
+            "offsetY": -340
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Bar",
+            "height": 100,
+            "offsetX": 360,
+            "offsetY": -140
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Profile",
+            "height": 170,
+            "offsetX": -580.9090909090909,
+            "offsetY": -210
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map",
+            "height": 300,
+            "offsetX": -340,
+            "offsetY": 40
+        }
+    ],
+    "name": "Ride",
+    "theme": {
+        "accent": "#ffff781e",
+        "accent2": "#ffdce6f0",
+        "background": "#960a0e14",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

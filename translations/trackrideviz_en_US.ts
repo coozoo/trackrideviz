@@ -512,7 +512,7 @@
 <context>
     <name>GaugeLibrary</name>
     <message>
-        <location filename="../src/core/gauge/gaugelibrary.cpp" line="162"/>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="198"/>
         <source>The gauge has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -543,11 +543,6 @@
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="151"/>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="167"/>
-        <source>Brings in your .veg gauges and .vet templates. Choose the the old editor folder, or its Widgets or Templates folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -591,19 +586,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="333"/>
-        <source>the old editor folder, or its Widgets or Templates folder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
         <location filename="../src/gaugelibrarypanel.cpp" line="388"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
-        <source>There are no .veg gauges (.veg) or templates (.vet) in that folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -625,6 +610,21 @@
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="308"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="167"/>
+        <source>Brings in .veg gauges and .vet templates. Choose the folder that holds them, or a folder with Widgets and Templates in it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="333"/>
+        <source>Folder with .veg gauges and .vet templates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
+        <source>There are no gauges (.veg) or templates (.vet) in that folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1383,18 +1383,64 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>TemplateLibrary</name>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="178"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="201"/>
         <source>The template has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="186"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="209"/>
         <source>Cannot create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="258"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="282"/>
         <source>%1: without %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VegGaugeImporter</name>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="416"/>
+        <source>This is not a .veg gauge: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="424"/>
+        <source>This is not a .veg gauge: it has no size or no components.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="437"/>
+        <source>Left out, not supported yet: %1 (%2x)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="442"/>
+        <source>Image not found: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="446"/>
+        <source>Nothing of this gauge can be shown yet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="459"/>
+        <source>Cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VetTemplateImporter</name>
+    <message>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="338"/>
+        <source>This is not a .vet template.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="383"/>
+        <source>None of the gauges this template uses could be found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1514,52 +1560,6 @@ Open them again from where they are now and save the project.</source>
     <message>
         <location filename="../src/core/sync/videosync.cpp" line="95"/>
         <source>The video and the data were not recorded at the same time.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>VegGaugeImporter</name>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="416"/>
-        <source>This is not a .veg gauge: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="424"/>
-        <source>This is not a .veg gauge: it has no size or no components.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="437"/>
-        <source>Left out, not supported yet: %1 (%2x)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="442"/>
-        <source>Image not found: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="446"/>
-        <source>Nothing of this gauge can be shown yet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="459"/>
-        <source>Cannot open %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>VetTemplateImporter</name>
-    <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="314"/>
-        <source>This is not a .vet template.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="359"/>
-        <source>None of the gauges this template uses could be found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

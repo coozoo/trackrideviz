@@ -80,7 +80,7 @@ QVector<Thumbnail> renderThumbnails(const QStringList &ids, bool templates)
     return thumbnails;
 }
 
-// What a chosen folder holds: the old editor's own folder, its Widgets, or its Templates.
+// What a chosen folder holds: a program folder with Widgets and Templates in it, or one of those.
 struct ImportFolders
 {
     QString widgets;
@@ -123,7 +123,7 @@ ImportFolders importFoldersIn(const QString &chosen)
     const QString templates = childIgnoringCase(dir, "Templates");
     if (!widgets.isEmpty() || !templates.isEmpty())
         {
-            // the the old editor folder itself: everything
+            // a folder holding both: everything
             found.widgets = widgets;
             found.gaugeFiles = filesIn(widgets, "*.veg");
             found.templateFiles = filesIn(templates, "*.vet");
@@ -164,8 +164,8 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_useButton = new QPushButton(this);
     connect(m_useButton, &QPushButton::clicked, this, &GaugeLibraryPanel::useSelected);
     m_importButton = new QPushButton(tr("Import..."), this);
-    m_importButton->setToolTip(tr("Brings in your .veg gauges and .vet templates. Choose the the old editor folder, "
-                                  "or its Widgets or Templates folder."));
+    m_importButton->setToolTip(tr("Brings in .veg gauges and .vet templates. Choose the folder that holds them, "
+                                  "or a folder with Widgets and Templates in it."));
     connect(m_importButton, &QPushButton::clicked, this, &GaugeLibraryPanel::importFiles);
     m_removeButton = new QPushButton(tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
@@ -200,7 +200,7 @@ void GaugeLibraryPanel::updateButtons()
     const QListWidgetItem *item = m_list->currentItem();
     const bool selected = item && item->isSelected();
     m_useButton->setEnabled(selected);
-    // the built-in gauges are part of the program
+    // what came with the program is part of it
     m_removeButton->setEnabled(selected && !item->data(Qt::UserRole + 1).toBool());
 }
 
@@ -243,7 +243,7 @@ void GaugeLibraryPanel::reload()
         {
             for (const TemplateLibrary::Entry &entry : TemplateLibrary::entries())
                 {
-                    addItem(entry.id, entry.name, false,
+                    addItem(entry.id, entry.name, entry.builtin,
                             entry.category.isEmpty() ? entry.name : QString("%1 (%2)").arg(entry.name, entry.category));
                 }
         }
@@ -330,7 +330,7 @@ void GaugeLibraryPanel::importFiles()
 {
     QSettings settings;
     const QString folder = QFileDialog::getExistingDirectory(this,
-                           tr("the old editor folder, or its Widgets or Templates folder"),
+                           tr("Folder with .veg gauges and .vet templates"),
                            settings.value("paths/importGauges").toString());
     if (folder.isEmpty())
         {
@@ -340,7 +340,7 @@ void GaugeLibraryPanel::importFiles()
     const ImportFolders found = importFoldersIn(folder);
     if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty())
         {
-            QMessageBox::information(this, tr("Import"), tr("There are no .veg gauges (.veg) or templates (.vet) in that folder."));
+            QMessageBox::information(this, tr("Import"), tr("There are no gauges (.veg) or templates (.vet) in that folder."));
             return;
         }
 

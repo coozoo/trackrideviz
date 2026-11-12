@@ -1,5 +1,6 @@
 #include "gaugelibrary.h"
 
+#include "../settings/bundleddata.h"
 #include "builtingauges.h"
 #include "gaugefile.h"
 #include "veggaugeimporter.h"
@@ -14,6 +15,7 @@
 namespace
 {
 const char kBuiltinPrefix[] = "builtin:";
+const char kBundledPrefix[] = "bundled:";
 const char kLibraryPrefix[] = "library:";
 
 QMutex &mutex()
@@ -46,6 +48,37 @@ QString safeFolderName(const QString &name)
             safe.remove(0, 1);
         }
     return safe.left(80);
+}
+
+// The gauge folders directly under `folder`, by name.
+QStringList gaugeFolders(const QString &folder)
+{
+    QStringList result;
+    if (folder.isEmpty())
+        {
+            return result;
+        }
+    const QDir dir(folder);
+    for (const QString &entry : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase))
+        {
+            if (QFileInfo::exists(dir.filePath(entry + "/" + GaugeFile::FileName)))
+                {
+                    result << entry;
+                }
+        }
+    return result;
+}
+
+// The folder an id with this prefix names under `base`; empty when it names none.
+QString folderOf(const QString &id, const char *prefix, const QString &base)
+{
+    if (!id.startsWith(prefix) || base.isEmpty())
+        {
+            return QString();
+        }
+    const QString folder = id.mid(int(qstrlen(prefix)));
+    // an id is text from a project file: it must name one folder of the library, nothing else
+    return !folder.isEmpty() && folder == safeFolderName(folder) ? base + "/" + folder : QString();
 }
 }
 
@@ -81,17 +114,17 @@ QVector<GaugeLibrary::Entry> GaugeLibrary::entries()
         {
             result.append({id, gauge(id).name, true});
         }
-    const QDir dir(userFolder());
-    const QStringList folders = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase);
-    for (const QString &folder : folders)
-        {
-            if (QFileInfo::exists(dir.filePath(folder + "/" + GaugeFile::FileName)))
-                {
-                    const QString id = kLibraryPrefix + folder;
-                    const QString name = gauge(id).name;
-                    result.append({id, name.isEmpty() ? folder : name, false});
-                }
-        }
+    auto addFolders = [&](const QString &base, const char *prefix, bool builtin)
+    {
+        for (const QString &folder : gaugeFolders(base))
+            {
+                const QString id = prefix + folder;
+                const QString name = gauge(id).name;
+                result.append({id, name.isEmpty() ? folder : name, builtin});
+            }
+    };
+    addFolders(BundledData::gaugesFolder(), kBundledPrefix, true);
+    addFolders(userFolder(), kLibraryPrefix, false);
     return result;
 }
 
@@ -110,13 +143,16 @@ Gauge GaugeLibrary::gauge(const QString &id)
         {
             loaded = BuiltinGauges::byId(id);
         }
-    else if (id.startsWith(kLibraryPrefix))
+    else
         {
-            const QString folder = id.mid(int(qstrlen(kLibraryPrefix)));
-            // an id is text from a project file: it must name one folder of the library, nothing else
-            if (!folder.isEmpty() && folder == safeFolderName(folder))
+            QString folder = folderOf(id, kLibraryPrefix, userFolder());
+            if (folder.isEmpty())
                 {
-                    GaugeFile::load(userFolder() + "/" + folder, &loaded);
+                    folder = folderOf(id, kBundledPrefix, BundledData::gaugesFolder());
+                }
+            if (!folder.isEmpty())
+                {
+                    GaugeFile::load(folder, &loaded);
                 }
         }
     const QMutexLocker lock(&mutex());
@@ -178,16 +214,13 @@ QString GaugeLibrary::add(const Gauge &gauge, const QString &folderName, QString
 
 bool GaugeLibrary::remove(const QString &id)
 {
-    if (!id.startsWith(kLibraryPrefix))
+    // what came with the program stays
+    const QString folder = folderOf(id, kLibraryPrefix, userFolder());
+    if (folder.isEmpty())
         {
             return false;
         }
-    const QString folder = id.mid(int(qstrlen(kLibraryPrefix)));
-    if (folder.isEmpty() || folder != safeFolderName(folder))
-        {
-            return false;
-        }
-    const bool removed = QDir(userFolder() + "/" + folder).removeRecursively();
+    const bool removed = QDir(folder).removeRecursively();
     const QMutexLocker lock(&mutex());
     cache().remove(id);
     return removed;

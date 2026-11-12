@@ -3,13 +3,13 @@
 Telemetry overlays for action camera video: speed, lap times, G-force, track map, heart rate,
 power, OBD data and more, drawn as gauges on top of your footage and exported as a new video.
 
-A cross-platform (Linux, Windows, macOS) Qt application meant to replace older overlay editors, another editor
-and another editor, which are no longer maintained and hardly run on current systems.
+A cross-platform (Linux, Windows, macOS) Qt application meant to replace older telemetry overlay
+editors that are no longer maintained and hardly run on current systems.
 
 > **Status: early development.** A video can be opened with a FIT or GPX file, synchronized
 > automatically, dressed with gauges that are placed and sized with the mouse, and exported as a
-> new video. Gauges and templates from a the old editor installation can be imported, including
-> graphs, track maps and animated gauges; two simple gauges are built in. Lap timing and
+> new video. Gauges (`.veg`) and templates (`.vet`) made elsewhere can be imported, including
+> graphs, track maps and animated gauges; a first set of own gauges and templates ships with it. Lap timing and
 > derived channels (G-force) are not there yet. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features
@@ -20,7 +20,7 @@ and another editor, which are no longer maintained and hardly run on current sys
 - Derived channels: G-force from GPS, distance, grade, gear, smoothing, math
 - Lap timing: start/finish line on the map, sectors, best / previous lap, delta to best
 - Themed gauges that are not tied to one metric; templates; built-in gauge editor
-- Import of your own .veg gauges and .vet templates and another editor gauges and data profiles
+- Import of your own gauges, templates and data profiles made with other programs
 - Export through ffmpeg with software and hardware encoders; overlay-only export with alpha
 
 ## Build
@@ -77,6 +77,5 @@ debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 
 [GPL-3.0](LICENSE)
 
-Race Track Visualizer is an independent project. It is not affiliated with other programs or
-another editor; those names belong to their owners and are mentioned only to describe file-format
-compatibility. No code or artwork from those products is included.
+Race Track Visualizer is an independent project, not affiliated with the makers of any other
+program whose files it can read. No code or artwork from other products is included.

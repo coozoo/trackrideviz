@@ -4,22 +4,18 @@ Decision: own decoder (05-decisions §5). This page collects what to get right. 
 from the public FIT protocol description and general experience; it is a **checklist to verify
 against prior art, not a verified list**. The review tasks at the bottom are still to do.
 
-## What the reference apps actually do (checked 2026-11-12)
+## What other decoders do (checked 2026-11-12)
 
 | Source | Finding |
 |--------|---------|
-| the old editor | `telemetry.dll` (native) embeds **Garmin's own FIT C++ SDK** - a generic, profile-driven decoder - and registers listeners for: `record`, `lap`, `event`, `device_info`, `gps_metadata`, `accelerometer_data`, `gyroscope_data`, `magnetometer_data`, `barometer_data`, `three_d_sensor_calibration`, `one_d_sensor_calibration`, `timestamp_correlation`, `camera_event`, `obdii_data`, `aviation_attitude`, `nmea_sentence`, and Garmin's private `garmin_iop_data`. There is no handling of other vendors' private fields at all |
-| the old editor, GPX side | Reads GPX 1.1 with Garmin extensions: TrackPointExtension v1 (hr, cad, atemp, depth), GpxExtensions v3, **AccelerationExtension v1**, **PressureExtension v1**, PowerExtension v1 and **TrackMovieOffsetExtension v1** (offset of a track inside a movie - the GPX way of syncing) |
-| the old editor, derived | Processors for 3D speed, 2D speed from distance, grade, course, trajectory, magnetic calibration/variation, power average, seated/standing time, jump detection (hang time, rotations) from accel + gyro |
-| another editor | `FIT2another editorCSV.exe` = an old Garmin FIT SDK (C++/CLI) dumping `record` only: lat, lon, altitude, distance, speed, grade, heart rate, cadence, power, temperature. Its FIT data profile then runs lat/lon through an interpolator with outlier rejection (standard-deviation ceiling 5) - i.e. they met GPS spikes |
 | GoldenCheetah `FitRideFile.cpp` | Hand-written decoder, 5.5k lines. Workarounds found: Coros declaring `uint32` with size 1; Bryton repeating timestamps; time going backwards; records arriving while the timer is "stopped" (ignored, "happens all the time"); Zwift lacking `local_timestamp`; truncated bodies kept; chained second file read; unknown messages/fields/base types skipped with a note; smart-recording gaps interpolated only up to a limit. Developer fields are mapped to "XDATA" series |
 
-**Conclusion for vendor-specific data (iGPSPORT, Bryton, Coros, Wahoo...).** None of the three has
-special code for third-party devices. What makes a decoder cope with them is being *generic*:
+**Conclusion for vendor-specific data (iGPSPORT, Bryton, Coros, Wahoo...).** None of the decoders
+looked at has special code for third-party devices. What makes a decoder cope with them is being *generic*:
 never reject an unknown message or field, expose developer fields by their self-described name,
 keep unnamed native fields as raw channels. Ours is built that way (`fit.record.<n>`,
 `dev.<name>`). Anything that still looks wrong for a particular device needs that device's file as
-a sample - there is no shortcut through the old apps.
+a sample - there is no shortcut through other programs.
 
 ## Status of our decoder (2026-11-12)
 
@@ -33,7 +29,7 @@ Found by those files and now handled + unit-tested: one Garmin file has 14 recor
 discards the remaining 95 % of the file. The importer keeps the longest consistent timeline instead
 (longest non-decreasing subsequence of timestamps).
 
-Not done yet: the old editor G-Metrix high-rate messages (need a the old editor sample file), names for more native record fields
+Not done yet: high-rate sensor messages of action cameras (need a sample file), names for more native record fields
 (29 accumulated_power, 30 left_right_balance, 39 vertical_oscillation, 53 fractional_cadence,
 67-72 pedal metrics, 87/88 cycle length, 135+ newer Garmin fields), GPS spike rejection.
 
@@ -74,7 +70,7 @@ Semantics
 - `lap` (19), `session` (18), `event` (21: timer start/stop → pauses), `activity` (34: `local_timestamp` gives the UTC offset).
 - Pauses: gaps in records between timer stop/start events. Do not interpolate speed across them.
 - `hr` messages (132) carry HR separately for some straps/swim; multi-sport files have several sessions.
-- **the old editor G-Metrix** files: high-rate sensor data is in `gyroscope_data` (164), `accelerometer_data` (165), `magnetometer_data` (208), `three_d_sensor_calibration` (167), `gps_metadata` (160, 10 Hz position/speed/heading), `obdii_data` (174), `aviation_attitude` (178), `camera_event` (161 - video start/stop: **this is what syncs data to clips**), `timestamp_correlation` (162 - system ↔ UTC time). Samples are arrays with `sample_time_offset` in ms and need the calibration message applied.
+- **Action camera** files: high-rate sensor data is in `gyroscope_data` (164), `accelerometer_data` (165), `magnetometer_data` (208), `three_d_sensor_calibration` (167), `gps_metadata` (160, 10 Hz position/speed/heading), `obdii_data` (174), `aviation_attitude` (178), `camera_event` (161 - video start/stop: **this is what syncs data to clips**), `timestamp_correlation` (162 - system ↔ UTC time). Samples are arrays with `sample_time_offset` in ms and need the calibration message applied.
 
 ## Real ride: iGPSPORT IGS520 + action camera (checked 2026-11-12)
 
@@ -97,5 +93,5 @@ Real files are the only test for quirks nobody thought of. They stay out of the 
 `RTV_FIT_SAMPLES=/dir make check` (or running `tst_fit sampleFiles`) imports every `*.fit` in a
 folder and prints what was found. Needed most:
 
-1. the old editor with G-Metrix, ideally with OBD.
+1. An action camera's own FIT with sensor data, ideally with OBD.
 2. Anything that another program refused or showed wrongly.

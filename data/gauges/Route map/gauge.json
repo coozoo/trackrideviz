@@ -1,0 +1,61 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                420,
+                420
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "color": "foreground",
+            "frame": [
+                24,
+                24,
+                372,
+                372
+            ],
+            "knob": [
+                {
+                    "color": "foreground",
+                    "frame": [
+                        -15,
+                        -15,
+                        30,
+                        30
+                    ],
+                    "image": "images/knob-ring.png",
+                    "type": "image"
+                },
+                {
+                    "color": "accent",
+                    "frame": [
+                        -15,
+                        -15,
+                        30,
+                        30
+                    ],
+                    "image": "images/knob.png",
+                    "type": "image"
+                }
+            ],
+            "lineWidth": 6,
+            "padding": 12,
+            "type": "trackMap"
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "Route map",
+    "size": [
+        420,
+        420
+    ],
+    "supportedTypes": [
+        "speed"
+    ],
+    "version": 1
+}

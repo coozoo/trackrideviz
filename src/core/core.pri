@@ -4,6 +4,11 @@
 
 INCLUDEPATH += $$PWD
 
+# A debug build run from its build folder finds the gauges and templates of
+# the source tree (see BundledData). Release builds look only where packages
+# put them.
+CONFIG(debug, debug|release):DEFINES += RTV_SOURCE_DATA=\\\"$$clean_path($$PWD/../../data)\\\"
+
 SOURCES += \
     $$PWD/gauge/builtingauges.cpp \
     $$PWD/gauge/channelicons.cpp \
@@ -17,6 +22,7 @@ SOURCES += \
     $$PWD/overlay/templatelibrary.cpp \
     $$PWD/project/project.cpp \
     $$PWD/settings/appsettings.cpp \
+    $$PWD/settings/bundleddata.cpp \
     $$PWD/sync/videosync.cpp \
     $$PWD/telemetry/channel.cpp \
     $$PWD/telemetry/demosession.cpp \
@@ -47,6 +53,7 @@ HEADERS += \
     $$PWD/overlay/templatelibrary.h \
     $$PWD/project/project.h \
     $$PWD/settings/appsettings.h \
+    $$PWD/settings/bundleddata.h \
     $$PWD/sync/videosync.h \
     $$PWD/telemetry/channel.h \
     $$PWD/telemetry/channelids.h \

@@ -2,6 +2,7 @@
 #include "gauge/gaugelibrary.h"
 #include "overlay/gaugetemplate.h"
 #include "overlay/templatelibrary.h"
+#include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 
@@ -65,6 +66,8 @@ private slots:
         QVERIFY(m_dir.isValid());
         GaugeLibrary::setUserFolder(m_dir.filePath("gauges"));
         TemplateLibrary::setUserFolder(m_dir.filePath("templates"));
+        // the library tests count what the user has; nothing ships until bundledData()
+        BundledData::setFolder(m_dir.filePath("nothing shipped"));
     }
 
     // --- placement ------------------------------------------------------------
@@ -264,7 +267,7 @@ private slots:
 
     void importBringsTheGaugesAlong()
     {
-        const QString veg = m_dir.filePath("the old editor");
+        const QString veg = m_dir.filePath("Overlay editor");
         write(veg + "/Widgets/Speed_Dial.veg", R"({"frame": {"width": 400, "height": 400}, "supportedTypes": ["speed"], "components": [
             {"type": "text", "autoTextType": "value", "frame": {"x": 200, "y": 200}}]})");
         write(veg + "/Widgets/unused.veg", R"({"frame": {"width": 10, "height": 10}, "components": [
@@ -298,6 +301,68 @@ private slots:
 
         // a second run finds the gauge already there
         QCOMPARE(TemplateLibrary::importVet({good}, veg + "/Widgets").gaugesImported, 0);
+    }
+
+    // --- what ships with the program ------------------------------------------
+
+    void bundledData()
+    {
+        BundledData::setFolder(QStringLiteral(RTV_TEST_DATA));
+        GaugeLibrary::refresh();
+
+        QStringList gaugeIds;
+        for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
+            {
+                if (entry.id.startsWith("bundled:"))
+                    {
+                        QVERIFY(entry.builtin);
+                        gaugeIds << entry.id;
+                    }
+            }
+        QVERIFY(gaugeIds.size() >= 8);
+        const TelemetrySessionPtr demo = DemoSession::create();
+        for (const QString &id : gaugeIds)
+            {
+                const BoundGauge bound(GaugeLibrary::gauge(id), ChannelId::Speed, demo, Units(), GaugeTheme());
+                QVERIFY2(!bound.isEmpty(), qPrintable(id));
+            }
+
+        // the user's own (from the import test) come after the shipped ones
+        QVector<TemplateLibrary::Entry> templates = TemplateLibrary::entries();
+        templates.erase(std::remove_if(templates.begin(), templates.end(), [](const TemplateLibrary::Entry &entry)
+        {
+            return !entry.builtin;
+        }), templates.end());
+        QVERIFY(templates.size() >= 4);
+        for (const TemplateLibrary::Entry &entry : templates)
+            {
+                QVERIFY(entry.id.startsWith("bundled-template:"));
+                const GaugeTemplate t = TemplateLibrary::get(entry.id);
+                QVERIFY2(!t.items.isEmpty(), qPrintable(entry.id));
+                // shipped templates use shipped gauges only, and every one of them is there
+                for (const TemplateItem &item : t.items)
+                    {
+                        QVERIFY2(item.gaugeId.startsWith("bundled:") || item.gaugeId.startsWith("builtin:"), qPrintable(item.gaugeId));
+                        QVERIFY2(!GaugeLibrary::gauge(item.gaugeId).isEmpty(), qPrintable(item.gaugeId));
+                    }
+                // and they stay on a 16:9 picture
+                for (const OverlayItem &placed : t.overlayItems(16.0 / 9.0))
+                    {
+                        QVERIFY2(placed.x >= 0.0 && placed.y >= 0.0 && placed.y + placed.height <= 1.0, qPrintable(entry.name));
+                    }
+            }
+
+        // what came with the program cannot be removed, nor reached around
+        QVERIFY(!GaugeLibrary::remove(gaugeIds.first()));
+        QVERIFY(!GaugeLibrary::gauge(gaugeIds.first()).isEmpty());
+        QVERIFY(!TemplateLibrary::remove(templates.first().id));
+        QVERIFY(!TemplateLibrary::get(templates.first().id).items.isEmpty());
+        QVERIFY(GaugeLibrary::gauge("bundled:../gauges/Arc").isEmpty());
+        QVERIFY(TemplateLibrary::get("bundled-template:../templates/Ride").items.isEmpty());
+
+        BundledData::setFolder(m_dir.filePath("nothing shipped"));
+        GaugeLibrary::refresh();
+        QVERIFY(GaugeLibrary::gauge(gaugeIds.first()).isEmpty());
     }
 
     // --- the demo ride for pictures ------------------------------------------------

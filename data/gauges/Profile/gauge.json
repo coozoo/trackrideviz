@@ -1,0 +1,108 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                700,
+                220
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "align": "left",
+            "autoText": "label",
+            "color": "accent2",
+            "font": {
+                "size": 22
+            },
+            "frame": [
+                24,
+                36
+            ],
+            "type": "text",
+            "upperCase": true,
+            "valign": "center"
+        },
+        {
+            "align": "right",
+            "autoText": "valueAndUnit",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 30
+            },
+            "frame": [
+                676,
+                36
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "color": "accent",
+            "fillAlpha": 80,
+            "frame": [
+                24,
+                66,
+                652,
+                132
+            ],
+            "knob": [
+                {
+                    "color": "foreground",
+                    "frame": [
+                        -11,
+                        -11,
+                        22,
+                        22
+                    ],
+                    "image": "images/knob-ring.png",
+                    "type": "image"
+                },
+                {
+                    "color": "accent",
+                    "frame": [
+                        -11,
+                        -11,
+                        22,
+                        22
+                    ],
+                    "image": "images/knob.png",
+                    "type": "image"
+                }
+            ],
+            "lineWidth": 3,
+            "padding": 4,
+            "type": "graph",
+            "xMarker": [
+                {
+                    "color": "foreground",
+                    "frame": [
+                        -2,
+                        0,
+                        4,
+                        132
+                    ],
+                    "image": "images/marker.png",
+                    "type": "image"
+                }
+            ]
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "Profile",
+    "size": [
+        700,
+        220
+    ],
+    "supportedTypes": [
+        "elevation",
+        "speed",
+        "heartRate",
+        "power"
+    ],
+    "version": 1
+}

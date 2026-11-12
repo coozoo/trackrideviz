@@ -7,7 +7,7 @@
 
 // A ready-made layout: which gauges, showing what, where, in which colours.
 //
-// Positions are kept the way the old editor keeps them: in pixels of a 1920 x 1080
+// Positions are kept the way .vet template files keep them: in pixels of a 1920 x 1080
 // frame, measured from the left, middle or right edge (top, middle, bottom).
 // Applied to a video of another shape, a gauge keeps its distance to its
 // edge and its size relative to the picture height.

@@ -66,47 +66,53 @@ ffmpeg documentation and only offered when the test encode passes, but never ran
 ## M3 — Real gauges
 
 ### M3a — gauge engine, library, editing ✅ (2026-11-12)
-- ✅ Gauge model as a superset of the .veg format's: image, text, group; manipulations rotate, radial clip,
+- ✅ Gauge model as a superset of `.veg` gauges: image, text, group; manipulations rotate, radial clip,
   translate, width clip, height clip (with own value range, wrap, reverse, clip rectangle)
 - ✅ A gauge is bound to a channel when placed; scale, unit and label come from that channel,
   round scale numbers from the data (`MetricRange`), colours from the project's theme
 - ✅ Native format: a folder with `gauge.json` + images (`GaugeFile`)
-- ✅ the old editor `.veg` import into the user's library (`VegGaugeImporter`, `GaugeLibrary`)
+- ✅ `.veg` import into the user's library (`VegGaugeImporter`, `GaugeLibrary`)
 - ✅ Library dock with pictures; add to video; select, move, resize, delete on the canvas;
   what a gauge shows and the theme colours in the Properties dock; undo/redo; unsaved-changes prompt
 - ✅ Built-in gauges with our own artwork: dial, readout
 - Project file version 2 (channel per gauge, theme); version 1 still opens
 
-Checked against the 255 gauges of a the old editor installation: 229 import (194 complete, 35 with
+Checked against a collection of 255 `.veg` gauges: 229 import (194 complete, 35 with
 parts left out), 26 are refused - 18 are nothing but a logo, 8 are only a track map or lap
 circuit. A contact sheet of the imported dials, fills, tapes and combination gauges, bound to the
 real ride, was compared by eye: needles, arc fills, numbering and tapes sit where they should.
-Not compared against the old editor's own rendering pixel for pixel - it does not run here.
+Not compared pixel for pixel against the program the files come from - it does not run here.
 
-### M3b — every the old editor part, templates, speed ✅ (2026-11-12)
+### M3b — every `.veg` part, templates, speed ✅ (2026-11-12)
 - ✅ Graph (the channel over the whole recording, with markers at the current point), track map,
   lap circuit (route of the current lap with its start line), sprite animations driven by the
   value, two-axis movement (g-force ball), fixed radial masks, slanted bar ends, channel icons
   (drawn in code)
-- ✅ the old editor `.vet` templates: imported into a template library, gauges they need imported along;
+- ✅ `.vet` templates: imported into a template library, gauges they need imported along;
   "Apply to video" places them for the video's own shape (1920 x 1080 reference, edge anchors)
-- ✅ Library dock: Gauges / Templates; one Import for the the old editor folder, Widgets or Templates
+- ✅ Library dock: Gauges / Templates; one Import for a folder of `.veg` / `.vet` files
 - ✅ Drawing 2-5x faster: static runs and route / graph lines drawn once per size and copied,
   images cropped to their content, lines simplified, clip shapes sized to the gauge
 - ✅ Export: each group of gauges is piped as its own region (stacked in one picture, cut apart
   by ffmpeg) instead of the whole frame; ffmpeg's input pipe enlarged to 1 MB
 
-Checked against a the old editor installation: 237 of 255 gauges import (2 miss an image the old editor itself
+Checked against the same collection: 237 of 255 gauges import (2 miss an image the collection itself
 lacks; 17 logos and a target mark are refused on purpose), 89 of 90 templates (the other uses
 only a gauge that is not there). Contact sheets of all newly supported parts and 24 templates,
-drawn on frames of the real ride, compared by eye. 20 s of 1080p60 with a five-gauge the old editor
+drawn on frames of the real ride, compared by eye. 20 s of 1080p60 with a five-gauge imported
 template exported in 20-30 s with VA-API on the UHD 620 laptop (was 46 s before the region split
 and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
+
+### Shipped gauges and templates ✅ (2026-11-13)
+- ✅ `data/gauges`, `data/templates` packed with every package (deb/rpm, AppImage, Windows zip, macOS
+  bundle) and found next to the program; read-only in the library
+- ✅ Own set: Arc, Bar, Column, Profile, Route map, Lap map, Icon readout, G-force; templates Ride,
+  Track day, Climb, Minimal
 
 ### M3c — what is left
 - G-force has no data yet (derived channels are M4): the ball rests in the middle
 - Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
-- A "nav" knob (arrow) is not turned to the direction of travel; the .veg format's intent is unclear
+- A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
 - Templates are placed for the video open when applied; a later video of another shape keeps
   the fractions, not the edge anchors
 - Saving the current layout as a template; units a single gauge shows
@@ -119,12 +125,12 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
-- CSV with data profiles; another editor profile import; TCX, NMEA, VBO
+- CSV with data profiles; data-profile XML import; TCX, NMEA, VBO
 - Multiple data sources per project
 
 ## M6 — Gauge editor
 - Built-in editor (components tree, properties, live preview with sample data)
-- Vector primitives, non-linear scales; another editor gauge import
+- Vector primitives, non-linear scales; XML gauge import
 - G-plot, ticker tape, lap table, sector bar
 
 ## M7 — Polish and distribution

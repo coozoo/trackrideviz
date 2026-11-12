@@ -1,0 +1,32 @@
+{
+    "category": "Simple",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Icon readout",
+            "height": 90,
+            "offsetX": 40,
+            "offsetY": -130
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Icon readout",
+            "height": 90,
+            "offsetX": 40,
+            "offsetY": -230
+        }
+    ],
+    "name": "Minimal",
+    "theme": {
+        "accent": "#ffffffff",
+        "accent2": "#ffc8c8c8",
+        "background": "#6e000000",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

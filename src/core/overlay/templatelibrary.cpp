@@ -2,6 +2,7 @@
 
 #include "../gauge/gaugelibrary.h"
 #include "../gauge/veggaugeimporter.h"
+#include "../settings/bundleddata.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -17,6 +18,7 @@
 namespace
 {
 const char kPrefix[] = "template:";
+const char kBundledPrefix[] = "bundled-template:";
 
 QMutex &mutex()
 {
@@ -42,19 +44,25 @@ QString safeFileName(const QString &name)
     return safe.left(80);
 }
 
-QString pathFor(const QString &id)
+// The file an id with this prefix names under `folder`; empty when it names none.
+QString pathFor(const QString &id, const char *prefix, const QString &folder)
 {
-    if (!id.startsWith(kPrefix))
+    if (!id.startsWith(prefix) || folder.isEmpty())
         {
             return QString();
         }
-    const QString base = id.mid(int(qstrlen(kPrefix)));
+    const QString base = id.mid(int(qstrlen(prefix)));
     // an id is text from outside: it must name one file of the library, nothing else
     if (base.isEmpty() || base != safeFileName(base))
         {
             return QString();
         }
-    return TemplateLibrary::userFolder() + "/" + base + ".json";
+    return folder + "/" + base + ".json";
+}
+
+QString userPathFor(const QString &id)
+{
+    return pathFor(id, kPrefix, TemplateLibrary::userFolder());
 }
 
 QByteArray withoutBom(const QByteArray &json)
@@ -141,26 +149,41 @@ void TemplateLibrary::setUserFolder(const QString &folder)
 QVector<TemplateLibrary::Entry> TemplateLibrary::entries()
 {
     QVector<Entry> result;
-    const QDir dir(userFolder());
-    for (const QString &file : dir.entryList({"*.json"}, QDir::Files))
-        {
-            GaugeTemplate t;
-            if (TemplateFile::load(dir.filePath(file), &t))
-                {
-                    result.append({kPrefix + QFileInfo(file).completeBaseName(), t.name, t.category});
-                }
-        }
-    std::sort(result.begin(), result.end(), [](const Entry &a, const Entry &b)
+    auto addFolder = [&result](const QString &folder, const char *prefix, bool builtin)
     {
-        return QString::compare(a.name, b.name, Qt::CaseInsensitive) < 0;
-    });
+        if (folder.isEmpty())
+            {
+                return;
+            }
+        QVector<Entry> found;
+        const QDir dir(folder);
+        for (const QString &file : dir.entryList({"*.json"}, QDir::Files))
+            {
+                GaugeTemplate t;
+                if (TemplateFile::load(dir.filePath(file), &t))
+                    {
+                        found.append({prefix + QFileInfo(file).completeBaseName(), t.name, t.category, builtin});
+                    }
+            }
+        std::sort(found.begin(), found.end(), [](const Entry &a, const Entry &b)
+        {
+            return QString::compare(a.name, b.name, Qt::CaseInsensitive) < 0;
+        });
+        result += found;
+    };
+    addFolder(BundledData::templatesFolder(), kBundledPrefix, true);
+    addFolder(userFolder(), kPrefix, false);
     return result;
 }
 
 GaugeTemplate TemplateLibrary::get(const QString &id)
 {
     GaugeTemplate t;
-    const QString path = pathFor(id);
+    QString path = userPathFor(id);
+    if (path.isEmpty())
+        {
+            path = pathFor(id, kBundledPrefix, BundledData::templatesFolder());
+        }
     if (!path.isEmpty())
         {
             TemplateFile::load(path, &t);
@@ -188,12 +211,13 @@ QString TemplateLibrary::add(const GaugeTemplate &gaugeTemplate, QString *error)
             return QString();
         }
     const QString id = kPrefix + base;
-    return TemplateFile::save(pathFor(id), gaugeTemplate, error) ? id : QString();
+    return TemplateFile::save(userPathFor(id), gaugeTemplate, error) ? id : QString();
 }
 
 bool TemplateLibrary::remove(const QString &id)
 {
-    const QString path = pathFor(id);
+    // what came with the program stays
+    const QString path = userPathFor(id);
     return !path.isEmpty() && QFile::remove(path);
 }
 

@@ -5,10 +5,12 @@
 #include <QCoreApplication>
 #include <QVector>
 
-// The gauges available on this computer: the built-in ones and the user's
-// own, each kept as a folder (see GaugeFile) under userFolder().
+// The gauges available on this computer: the ones drawn in code, the ones
+// that come with the program (folders under BundledData::gaugesFolder()) and
+// the user's own, each kept as a folder (see GaugeFile) under userFolder().
 //
-// Gauges are named by id in projects: "builtin:<name>" or "library:<folder>".
+// Gauges are named by id in projects: "builtin:<name>", "bundled:<folder>"
+// or "library:<folder>". Only the user's own can be changed or removed.
 class GaugeLibrary
 {
     Q_DECLARE_TR_FUNCTIONS(GaugeLibrary)
@@ -18,14 +20,14 @@ public:
     {
         QString id;
         QString name;
-        bool builtin{false};
+        bool builtin{false};     // comes with the program: built in or bundled
     };
 
     // <application data>/gauges unless overridden (tests).
     static QString userFolder();
     static void setUserFolder(const QString &folder);
 
-    // Built-in first, then the user's in alphabetical order.
+    // Built-in first, then the bundled and the user's, each in alphabetical order.
     static QVector<Entry> entries();
 
     // The gauge for an id; an empty gauge when there is none. Loaded once

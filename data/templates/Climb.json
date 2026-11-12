@@ -1,0 +1,59 @@
+{
+    "category": "Outdoor",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "elevation",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Profile",
+            "height": 200,
+            "offsetX": -318.1818181818182,
+            "offsetY": -240
+        },
+        {
+            "channel": "grade",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Column",
+            "height": 330,
+            "offsetX": 40,
+            "offsetY": -370
+        },
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Icon readout",
+            "height": 100,
+            "offsetX": 40,
+            "offsetY": 40
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Icon readout",
+            "height": 100,
+            "offsetX": 40,
+            "offsetY": 160
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map",
+            "height": 280,
+            "offsetX": -320,
+            "offsetY": 40
+        }
+    ],
+    "name": "Climb",
+    "theme": {
+        "accent": "#ff78dc5a",
+        "accent2": "#ffe6f0dc",
+        "background": "#9614281e",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

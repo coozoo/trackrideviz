@@ -1,0 +1,192 @@
+{
+    "components": [
+        {
+            "color": "background",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "image": "images/plate.png",
+            "type": "image"
+        },
+        {
+            "color": "accent2",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "image": "images/track.png",
+            "type": "image"
+        },
+        {
+            "color": "accent",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "image": "images/fill.png",
+            "manipulations": [
+                {
+                    "maxAngle": 125,
+                    "minAngle": -125,
+                    "pivot": [
+                        200,
+                        200
+                    ],
+                    "type": "radialClip"
+                }
+            ],
+            "type": "image"
+        },
+        {
+            "color": "accent2",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "image": "images/ticks.png",
+            "type": "image"
+        },
+        {
+            "align": "center",
+            "autoText": "intervalMarking",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 22
+            },
+            "frame": [
+                101.70175468532096,
+                268.8291723621255
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "intervalMarking",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 22
+            },
+            "frame": [
+                84.0889008453118,
+                168.9417145876975
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "intervalMarking",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 22
+            },
+            "frame": [
+                149.28580859111605,
+                91.243065555602
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "intervalMarking",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 22
+            },
+            "frame": [
+                250.71419140888395,
+                91.243065555602
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "intervalMarking",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 22
+            },
+            "frame": [
+                315.9110991546882,
+                168.9417145876975
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "intervalMarking",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 22
+            },
+            "frame": [
+                298.29824531467904,
+                268.8291723621255
+            ],
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "value",
+            "color": "foreground",
+            "font": {
+                "bold": true,
+                "size": 92
+            },
+            "frame": [
+                200,
+                212
+            ],
+            "precision": 0,
+            "type": "text",
+            "valign": "center"
+        },
+        {
+            "align": "center",
+            "autoText": "unit",
+            "color": "accent2",
+            "font": {
+                "size": 26
+            },
+            "frame": [
+                200,
+                284
+            ],
+            "type": "text",
+            "valign": "center"
+        }
+    ],
+    "format": "rtvgauge",
+    "name": "Arc",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "speed",
+        "heartRate",
+        "cadence",
+        "power"
+    ],
+    "version": 1
+}

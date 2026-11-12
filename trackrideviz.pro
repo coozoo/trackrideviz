@@ -52,7 +52,15 @@ icon.files += images/trackrideviz.png
 icon.path += /usr/share/icons/hicolor/256x256/apps
 desktop.files += $${TARGET}.desktop
 desktop.path += /usr/share/applications/
-INSTALLS += binary icon desktop
+# Gauges and templates that come with the program (see BundledData).
+bundled.files += data/gauges data/templates
+bundled.path = /usr/share/$${TARGET}
+INSTALLS += binary icon desktop bundled
+macx {
+    bundleddata.files = data/gauges data/templates
+    bundleddata.path = Contents/Resources
+    QMAKE_BUNDLE_DATA += bundleddata
+}
 
 # Tests are opt-in: pass `CONFIG+=tests` to qmake to add the `check`
 # target. Release builds (build_all.yml) never set it.

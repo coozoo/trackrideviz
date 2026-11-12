@@ -70,7 +70,7 @@ everything that is the same for every frame; `render()` is then the same call fo
 
 A bound gauge is immutable, so one `Overlay` is shared by the preview and a running export.
 
-Speed (measured with `perf` on 1080p frames of the old editor templates: 12-33 ms before, 3-10 ms after):
+Speed (measured with `perf` on 1080p frames of imported `.vet` templates: 12-33 ms before, 3-10 ms after):
 - each gauge is split into runs of parts that never change after binding (images and fixed
   texts without manipulations) and parts that do; static runs are drawn once per size into a
   picture and copied; graph lines and map routes likewise (per lap), only markers move
@@ -227,6 +227,21 @@ binary, default codec and folder) arrives with M2, because only then is there so
 
 Units are a display matter only: channels stay SI, `ChannelFormat::displayFor()` (core) gives name,
 unit, scale and offset for tables, and built-in gauges are built for the chosen `Units`.
+
+### Gauges and templates
+
+| Kind | Id | Where |
+|------|----|-------|
+| Drawn in code, always there | `builtin:<name>` | `BuiltinGauges` |
+| Ship with the program, read-only | `bundled:<folder>`, `bundled-template:<file>` | `data/` in the sources, installed as below (`BundledData`) |
+| The user's own and imported | `library:<folder>`, `template:<file>` | `<application data>/gauges`, `/templates` |
+
+Where the shipped `gauges/` and `templates/` are, first found wins: `$TRACKRIDEVIZ_DATA`;
+`<exe>/data` (Windows zip); `<exe>/../share/trackrideviz` (deb/rpm `/usr/share/trackrideviz`,
+AppImage, any `make install` prefix); `<exe>/../Resources` (macOS bundle, `QMAKE_BUNDLE_DATA`);
+the system data folders; in debug builds the source tree's `data/`. Shipped artwork is drawn by
+`tools/makebundled` (run it, look at `--preview` pictures, commit `data/`) until the gauge editor
+exists; only our own artwork goes there.
 
 ## 3.8 Touch UI (QML, later)
 
