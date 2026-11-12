@@ -1,16 +1,21 @@
 #include "settingsdialog.h"
 
 #include "settings/appsettings.h"
+#include "video/ffmpegtools.h"
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDir>
+#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QStackedWidget>
 #include <QStyleFactory>
 #include <QVBoxLayout>
@@ -45,6 +50,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     addPage(tr("Appearance"), createAppearancePage());
     addPage(tr("Preview"), createPreviewPage());
     addPage(tr("Units"), createUnitsPage());
+    addPage(tr("Export"), createExportPage());
     m_pageList->setCurrentRow(0);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this);
@@ -160,6 +166,69 @@ QWidget *SettingsDialog::createUnitsPage()
     return page;
 }
 
+QWidget *SettingsDialog::createExportPage()
+{
+    QWidget *page = new QWidget(this);
+
+    m_ffmpegEdit = new QLineEdit(page);
+    m_ffmpegEdit->setPlaceholderText(tr("Found automatically"));
+    m_ffmpegEdit->setClearButtonEnabled(true);
+    QPushButton *browseFfmpeg = new QPushButton(tr("Browse..."), page);
+    connect(browseFfmpeg, &QPushButton::clicked, this, [this]()
+    {
+        const QString path = QFileDialog::getOpenFileName(this, tr("Locate ffmpeg"), m_ffmpegEdit->text());
+        if (!path.isEmpty())
+            {
+                m_ffmpegEdit->setText(QDir::toNativeSeparators(path));
+                checkFfmpeg();
+            }
+    });
+    QPushButton *check = new QPushButton(tr("Check"), page);
+    connect(check, &QPushButton::clicked, this, &SettingsDialog::checkFfmpeg);
+    connect(m_ffmpegEdit, &QLineEdit::editingFinished, this, &SettingsDialog::checkFfmpeg);
+    QHBoxLayout *ffmpegRow = new QHBoxLayout;
+    ffmpegRow->addWidget(m_ffmpegEdit, 1);
+    ffmpegRow->addWidget(browseFfmpeg);
+    ffmpegRow->addWidget(check);
+    m_ffmpegStatus = note(QString(), page);
+
+    m_exportFolderEdit = new QLineEdit(page);
+    m_exportFolderEdit->setPlaceholderText(tr("Next to the source video"));
+    m_exportFolderEdit->setClearButtonEnabled(true);
+    QPushButton *browseFolder = new QPushButton(tr("Browse..."), page);
+    connect(browseFolder, &QPushButton::clicked, this, [this]()
+    {
+        const QString folder = QFileDialog::getExistingDirectory(this, tr("Folder for exported videos"), m_exportFolderEdit->text());
+        if (!folder.isEmpty())
+            {
+                m_exportFolderEdit->setText(QDir::toNativeSeparators(folder));
+            }
+    });
+    QHBoxLayout *folderRow = new QHBoxLayout;
+    folderRow->addWidget(m_exportFolderEdit, 1);
+    folderRow->addWidget(browseFolder);
+
+    QFormLayout *form = new QFormLayout(page);
+    form->addRow(tr("ffmpeg program:"), ffmpegRow);
+    form->addRow(QString(), m_ffmpegStatus);
+    form->addRow(tr("Save videos to:"), folderRow);
+    form->addRow(note(tr("Encoder, quality and size are chosen in the export window and remembered from the last export."), page));
+    return page;
+}
+
+void SettingsDialog::checkFfmpeg()
+{
+    const QString entered = QDir::fromNativeSeparators(m_ffmpegEdit->text().trimmed());
+    const QString program = entered.isEmpty() ? QStringLiteral("ffmpeg") : entered;
+    // a fraction of a second: not worth a worker thread, but worth a busy cursor
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    const QString version = FfmpegTools::versionLine(program);
+    QApplication::restoreOverrideCursor();
+    m_ffmpegStatus->setText(version.isEmpty()
+                            ? tr("Not found, or it cannot be run. Videos cannot be exported without it.")
+                            : version);
+}
+
 void SettingsDialog::load()
 {
     select(m_styleCombo, AppSettings::style());
@@ -170,6 +239,10 @@ void SettingsDialog::load()
     m_hardwareDecodingCheck->setChecked(AppSettings::hardwareDecoding());
     select(m_decoderCombo, AppSettings::preferredDecoder());
     m_decoderCombo->setEnabled(m_hardwareDecodingCheck->isChecked());
+
+    m_ffmpegEdit->setText(QDir::toNativeSeparators(AppSettings::ffmpegPath()));
+    m_exportFolderEdit->setText(QDir::toNativeSeparators(AppSettings::exportFolder()));
+    checkFfmpeg();
 
     const Units units = AppSettings::units();
     select(m_speedCombo, units.speed);
@@ -198,6 +271,9 @@ void SettingsDialog::accept()
     units.length = Units::Length(m_lengthCombo->currentData().toInt());
     units.temperature = Units::Temperature(m_temperatureCombo->currentData().toInt());
     AppSettings::setUnits(units);
+
+    AppSettings::setFfmpegPath(QDir::fromNativeSeparators(m_ffmpegEdit->text().trimmed()));
+    AppSettings::setExportFolder(QDir::fromNativeSeparators(m_exportFolderEdit->text().trimmed()));
 
     if (needsRestart)
         {

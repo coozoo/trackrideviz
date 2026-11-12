@@ -1,0 +1,160 @@
+#include "project.h"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSaveFile>
+
+namespace
+{
+const char kFormat[] = "rtvproj";
+const int kVersion = 1;
+
+QString toStored(const QString &path, const QDir &projectDir)
+{
+    if (path.isEmpty())
+        {
+            return QString();
+        }
+    // Relative only for what lies in the project's folder or below it. A
+    // chain of "../../.." to some unrelated place would break on the first
+    // move just the same and is harder to read than the full path.
+    const QString relative = QDir::fromNativeSeparators(projectDir.relativeFilePath(path));
+    const bool below = !relative.startsWith("../") && relative != ".." && !QFileInfo(relative).isAbsolute();
+    return below ? relative : QDir::fromNativeSeparators(path);
+}
+
+QString fromStored(const QString &stored, const QDir &projectDir)
+{
+    if (stored.isEmpty())
+        {
+            return QString();
+        }
+    const QString path = QDir::cleanPath(QFileInfo(stored).isAbsolute() ? stored : projectDir.absoluteFilePath(stored));
+    if (!QFileInfo::exists(path))
+        {
+            // moved together with the project, but was stored with its full path
+            const QString beside = projectDir.absoluteFilePath(QFileInfo(path).fileName());
+            if (QFileInfo::exists(beside))
+                {
+                    return QDir::cleanPath(beside);
+                }
+        }
+    return path;
+}
+}
+
+QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir)
+{
+    const QDir dir(projectDir);
+    QJsonArray overlay;
+    for (const OverlayItem &item : project.overlay)
+        {
+            overlay.append(QJsonObject
+            {
+                {"gauge", item.gaugeId},
+                {"x", item.x},
+                {"y", item.y},
+                {"height", item.height},
+            });
+        }
+    const QJsonObject root
+    {
+        {"format", kFormat},
+        {"version", kVersion},
+        {"video", toStored(project.videoPath, dir)},
+        {"data", toStored(project.telemetryPath, dir)},
+        {"sync", QJsonObject{{"offset", project.syncOffset}, {"manual", project.syncIsManual}}},
+        {"overlay", overlay},
+    };
+    return QJsonDocument(root).toJson(QJsonDocument::Indented);
+}
+
+bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Project *project, QString *error)
+{
+    auto fail = [error](const QString &message)
+    {
+        if (error)
+            {
+                *error = message;
+            }
+        return false;
+    };
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(json, &parseError);
+    if (document.isNull() || !document.isObject())
+        {
+            return fail(tr("This is not a project file: %1").arg(parseError.errorString()));
+        }
+    const QJsonObject root = document.object();
+    if (root.value("format").toString() != QLatin1String(kFormat))
+        {
+            return fail(tr("This is not a Race Track Visualizer project file."));
+        }
+    if (root.value("version").toInt() > kVersion)
+        {
+            return fail(tr("The project was saved by a newer version of the program (file version %1).")
+                        .arg(root.value("version").toInt()));
+        }
+
+    const QDir dir(projectDir);
+    Project loaded;
+    loaded.videoPath = fromStored(root.value("video").toString(), dir);
+    loaded.telemetryPath = fromStored(root.value("data").toString(), dir);
+    const QJsonObject sync = root.value("sync").toObject();
+    loaded.syncOffset = sync.value("offset").toDouble();
+    loaded.syncIsManual = sync.value("manual").toBool();
+    loaded.overlay.clear();
+    const QJsonArray overlay = root.value("overlay").toArray();
+    for (const QJsonValue &value : overlay)
+        {
+            const QJsonObject object = value.toObject();
+            OverlayItem item;
+            item.gaugeId = object.value("gauge").toString();
+            item.x = object.value("x").toDouble();
+            item.y = object.value("y").toDouble();
+            item.height = object.value("height").toDouble(item.height);
+            if (!item.gaugeId.isEmpty() && item.height > 0.0)
+                {
+                    loaded.overlay.append(item);
+                }
+        }
+    *project = loaded;
+    return true;
+}
+
+bool ProjectFile::save(const QString &path, const Project &project, QString *error)
+{
+    // written to a temporary file and renamed: a crash or a full disk cannot
+    // leave a half-written project in place of the good one
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly)
+            || file.write(toJson(project, QFileInfo(path).absolutePath())) < 0
+            || !file.commit())
+        {
+            if (error)
+                {
+                    *error = tr("Cannot write %1: %2").arg(path, file.errorString());
+                }
+            return false;
+        }
+    return true;
+}
+
+bool ProjectFile::load(const QString &path, Project *project, QString *error)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        {
+            if (error)
+                {
+                    *error = tr("Cannot open %1: %2").arg(path, file.errorString());
+                }
+            return false;
+        }
+    return fromJson(file.readAll(), QFileInfo(path).absolutePath(), project, error);
+}

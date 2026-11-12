@@ -95,6 +95,53 @@ private slots:
         QCOMPARE(AppSettings::decodingDeviceTypes(true, AppSettings::VaApi, true), QByteArray("vaapi,vdpau,cuda,qsv"));
     }
 
+    void exportDefaults()
+    {
+        QVERIFY(!AppSettings::hasExportDefaults());
+        ExportSettings settings = AppSettings::exportDefaults();
+        QCOMPARE(settings.encoder, QString("libx264"));
+        QCOMPARE(settings.rateControl, ExportSettings::Bitrate);
+        QCOMPARE(settings.speed, ExportSettings::Balanced);
+        QCOMPARE(settings.audio, ExportSettings::CopyAudio);
+        QCOMPARE(settings.height, 0);
+
+        settings.encoder = "hevc_vaapi";
+        settings.rateControl = ExportSettings::Quality;
+        settings.quality = 28;
+        settings.speed = ExportSettings::Fast;
+        settings.height = 720;
+        settings.audio = ExportSettings::NoAudio;
+        // these belong to one video and one export
+        settings.outputPath = "/somewhere/out.mp4";
+        settings.start = 12.0;
+        settings.duration = 30.0;
+        settings.bitrateKbps = 1234;
+        AppSettings::setExportDefaults(settings);
+
+        QVERIFY(AppSettings::hasExportDefaults());
+        const ExportSettings loaded = AppSettings::exportDefaults();
+        QCOMPARE(loaded.encoder, QString("hevc_vaapi"));
+        QCOMPARE(loaded.rateControl, ExportSettings::Quality);
+        QCOMPARE(loaded.quality, 28);
+        QCOMPARE(loaded.speed, ExportSettings::Fast);
+        QCOMPARE(loaded.height, 720);
+        QCOMPARE(loaded.audio, ExportSettings::NoAudio);
+        QVERIFY(loaded.outputPath.isEmpty());
+        QCOMPARE(loaded.start, 0.0);
+        QCOMPARE(loaded.duration, 0.0);
+        QCOMPARE(loaded.bitrateKbps, ExportSettings().bitrateKbps);
+    }
+
+    void exportToolSettings()
+    {
+        QCOMPARE(AppSettings::ffmpegPath(), QString());
+        QCOMPARE(AppSettings::exportFolder(), QString());
+        AppSettings::setFfmpegPath("/opt/ffmpeg/bin/ffmpeg");
+        AppSettings::setExportFolder("/videos/out");
+        QCOMPARE(AppSettings::ffmpegPath(), QString("/opt/ffmpeg/bin/ffmpeg"));
+        QCOMPARE(AppSettings::exportFolder(), QString("/videos/out"));
+    }
+
     void metricDisplay()
     {
         const Units units;

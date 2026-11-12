@@ -1,11 +1,13 @@
 #pragma once
 
+#include "project/project.h"
 #include "telemetry/telemetrysession.h"
 #include "units/units.h"
 
 #include <QMainWindow>
 #include <QMediaPlayer>
 
+class QAction;
 class QAudioOutput;
 class QDockWidget;
 class QDoubleSpinBox;
@@ -27,9 +29,11 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
 
 public slots:
+    // Replace the video / the data of the current project. Sync starts over.
     void openVideo(const QString &path);
     // Imports in a worker thread; the window stays usable meanwhile.
     void openTelemetry(const QString &path);
+    void openProject(const QString &path);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -37,6 +41,11 @@ protected:
 private slots:
     void chooseVideo();
     void chooseTelemetry();
+    void chooseProject();
+    // Both return false when the user backed out or writing failed.
+    bool saveProject();
+    bool saveProjectAs();
+    void exportVideo();
     void togglePlayback();
     void onPlaybackStateChanged(QMediaPlayer::PlaybackState state);
     void onDurationChanged(qint64 durationMs);
@@ -56,6 +65,11 @@ private:
     QDockWidget *addPlaceholderDock(const QString &objectName, const QString &title, Qt::DockWidgetArea area);
     // session is null when the import failed; error then says why.
     void telemetryImported(const QString &path, const TelemetrySessionPtr &session, const QString &error);
+    void loadVideo(const QString &path);
+    // keepSync: the offset comes with the project and must survive the import
+    void loadTelemetry(const QString &path, bool keepSync);
+    void rebuildOverlay();
+    void updateWindowTitle();
     void setSyncOffset(double seconds, const QString &explanation);
     void updateSourcesInfo();
     // Fills the "now" column of the channel table for the frame on screen.
@@ -75,18 +89,18 @@ private:
     QLabel *m_syncLabel{nullptr};
     QLabel *m_sourcesLabel{nullptr};
     QTreeWidget *m_channelTree{nullptr};
+    QAction *m_exportAction{nullptr};
 
     QDockWidget *m_sourcesDock{nullptr};
     QDockWidget *m_libraryDock{nullptr};
     QDockWidget *m_propertiesDock{nullptr};
     QDockWidget *m_timelineDock{nullptr};
 
-    QString m_videoPath;
-    QString m_telemetryPath;
+    Project m_project;
+    QString m_projectPath;   // empty until saved or opened
     // Import in progress; a result for any other path is stale and dropped.
     QString m_pendingTelemetryPath;
+    bool m_pendingKeepsSync{false};
     TelemetrySessionPtr m_session;
     Units m_units;
-    // The user set the offset by hand; automatic sync must not overwrite it.
-    bool m_offsetIsManual{false};
 };

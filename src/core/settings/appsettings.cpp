@@ -11,6 +11,14 @@ const char kLanguage[] = "appearance/language";
 const char kSaveWindowLayout[] = "appearance/saveWindowLayout";
 const char kHardwareDecoding[] = "preview/hardwareDecoding";
 const char kPreferredDecoder[] = "preview/preferredDecoder";
+const char kFfmpegPath[] = "export/ffmpegPath";
+const char kExportFolder[] = "export/folder";
+const char kExportEncoder[] = "export/encoder";
+const char kExportRateControl[] = "export/rateControl";
+const char kExportQuality[] = "export/quality";
+const char kExportSpeed[] = "export/speed";
+const char kExportHeight[] = "export/height";
+const char kExportAudio[] = "export/audio";
 const char kSpeedUnit[] = "units/speed";
 const char kLengthUnit[] = "units/length";
 const char kTemperatureUnit[] = "units/temperature";
@@ -33,6 +41,9 @@ Enum readEnum(const char *key, const char *const (&words)[N])
 
 const char *const kColorSchemeWords[] = {"system", "light", "dark"};
 const char *const kDecoderWords[] = {"auto", "vaapi", "cuda", "qsv", "vdpau"};
+const char *const kRateControlWords[] = {"quality", "bitrate"};
+const char *const kExportSpeedWords[] = {"fast", "balanced", "small"};
+const char *const kAudioWords[] = {"copy", "aac", "none"};
 const char *const kSpeedWords[] = {"kmh", "mph"};
 const char *const kLengthWords[] = {"metric", "imperial"};
 const char *const kTemperatureWords[] = {"celsius", "fahrenheit"};
@@ -133,6 +144,60 @@ QByteArray AppSettings::decodingDeviceTypes(bool hardwareDecoding, Decoder prefe
             order.prepend(first);
         }
     return order.join(',');
+}
+
+QString AppSettings::ffmpegPath()
+{
+    return QSettings().value(kFfmpegPath).toString();
+}
+
+void AppSettings::setFfmpegPath(const QString &path)
+{
+    QSettings().setValue(kFfmpegPath, path);
+}
+
+QString AppSettings::exportFolder()
+{
+    return QSettings().value(kExportFolder).toString();
+}
+
+void AppSettings::setExportFolder(const QString &folder)
+{
+    QSettings().setValue(kExportFolder, folder);
+}
+
+bool AppSettings::hasExportDefaults()
+{
+    return QSettings().contains(kExportEncoder);
+}
+
+ExportSettings AppSettings::exportDefaults()
+{
+    const ExportSettings fallback;
+    const QSettings stored;
+    ExportSettings settings;
+    settings.encoder = stored.value(kExportEncoder, fallback.encoder).toString();
+    // these two defaults are not the first word of their list, so readEnum's
+    // fallback would be wrong for a key that was never written
+    settings.rateControl = stored.contains(kExportRateControl)
+                           ? readEnum<ExportSettings::RateControl>(kExportRateControl, kRateControlWords) : fallback.rateControl;
+    settings.speed = stored.contains(kExportSpeed)
+                     ? readEnum<ExportSettings::Speed>(kExportSpeed, kExportSpeedWords) : fallback.speed;
+    settings.quality = stored.value(kExportQuality, fallback.quality).toInt();
+    settings.height = stored.value(kExportHeight, fallback.height).toInt();
+    settings.audio = readEnum<ExportSettings::Audio>(kExportAudio, kAudioWords);
+    return settings;
+}
+
+void AppSettings::setExportDefaults(const ExportSettings &settings)
+{
+    QSettings stored;
+    stored.setValue(kExportEncoder, settings.encoder);
+    stored.setValue(kExportRateControl, kRateControlWords[settings.rateControl]);
+    stored.setValue(kExportQuality, settings.quality);
+    stored.setValue(kExportSpeed, kExportSpeedWords[settings.speed]);
+    stored.setValue(kExportHeight, settings.height);
+    stored.setValue(kExportAudio, kAudioWords[settings.audio]);
 }
 
 Units AppSettings::units()

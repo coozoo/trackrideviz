@@ -26,12 +26,14 @@ include(src/core/core.pri)
 
 SOURCES += main.cpp \
     src/appearance.cpp \
+    src/exportdialog.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
     src/videocanvas.cpp
 
 HEADERS += \
     src/appearance.h \
+    src/exportdialog.h \
     src/mainwindow.h \
     src/settingsdialog.h \
     src/videocanvas.h
@@ -66,7 +68,9 @@ tests {
         QT_QPA_PLATFORM=offscreen ./fit/tst_fit && \
         QT_QPA_PLATFORM=offscreen ./sync/tst_sync && \
         QT_QPA_PLATFORM=offscreen ./gauge/tst_gauge && \
-        QT_QPA_PLATFORM=offscreen ./settings/tst_settings
+        QT_QPA_PLATFORM=offscreen ./settings/tst_settings && \
+        QT_QPA_PLATFORM=offscreen ./project/tst_project && \
+        QT_QPA_PLATFORM=offscreen ./export/tst_export
 
     QMAKE_EXTRA_TARGETS += check
 }

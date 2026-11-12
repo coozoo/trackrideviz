@@ -6,9 +6,9 @@ power, OBD data and more, drawn as gauges on top of your footage and exported as
 A cross-platform (Linux, Windows, macOS) Qt application meant to replace older overlay editors, another editor
 and another editor, which are no longer maintained and hardly run on current systems.
 
-> **Status: early development.** A video can be opened and played with a speedometer driven by a
-> FIT or GPX file, synchronized automatically. There is no export yet. See the
-> [roadmap](docs/planning/04-roadmap.md).
+> **Status: early development.** A video can be opened with a FIT or GPX file, synchronized
+> automatically, played with a speedometer over it and exported with it as a new video. One
+> built-in gauge so far. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features
 
@@ -25,7 +25,7 @@ and another editor, which are no longer maintained and hardly run on current sys
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Linguist
 tools) and a C++17 compiler.
-`ffmpeg` will be needed at run time for export.
+`ffmpeg` (with `ffprobe`) is needed at run time for export; its location can be set in the settings.
 
 ```bash
 qmake6

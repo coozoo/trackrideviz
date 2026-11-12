@@ -10,4 +10,6 @@ SUBDIRS = \
     fit \
     sync \
     gauge \
-    settings
+    settings \
+    project \
+    export

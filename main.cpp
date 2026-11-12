@@ -1,9 +1,11 @@
 #include "appearance.h"
 #include "mainwindow.h"
+#include "project/project.h"
 #include "settings/appsettings.h"
 #include "telemetry/telemetryimporter.h"
 
 #include <QApplication>
+#include <QFileInfo>
 #include <QIcon>
 #include <QLocale>
 #include <QTranslator>
@@ -66,11 +68,15 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    // Files given on the command line: data files by their suffix, anything else is the video.
+    // Files given on the command line: a project, or data files by their suffix; anything else is the video.
     const QStringList files = a.arguments().mid(1);
     for (const QString &file : files)
         {
-            if (TelemetryImporter::canLoad(file))
+            if (QFileInfo(file).suffix().compare(ProjectFile::Suffix, Qt::CaseInsensitive) == 0)
+                {
+                    w.openProject(file);
+                }
+            else if (TelemetryImporter::canLoad(file))
                 {
                     w.openTelemetry(file);
                 }

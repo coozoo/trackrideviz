@@ -4,6 +4,8 @@
 
 class QCheckBox;
 class QComboBox;
+class QLabel;
+class QLineEdit;
 class QListWidget;
 class QStackedWidget;
 
@@ -25,6 +27,9 @@ private:
     QWidget *createAppearancePage();
     QWidget *createPreviewPage();
     QWidget *createUnitsPage();
+    QWidget *createExportPage();
+    // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
+    void checkFfmpeg();
     void load();
 
     QListWidget *m_pageList{nullptr};
@@ -41,4 +46,8 @@ private:
     QComboBox *m_speedCombo{nullptr};
     QComboBox *m_lengthCombo{nullptr};
     QComboBox *m_temperatureCombo{nullptr};
+
+    QLineEdit *m_ffmpegEdit{nullptr};
+    QLabel *m_ffmpegStatus{nullptr};
+    QLineEdit *m_exportFolderEdit{nullptr};
 };

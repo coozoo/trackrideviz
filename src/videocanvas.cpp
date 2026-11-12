@@ -1,6 +1,5 @@
 #include "videocanvas.h"
 
-#include "gauge/gaugerenderer.h"
 
 #include <QOpenGLContext>
 #include <QOpenGLShaderProgram>
@@ -170,9 +169,9 @@ void VideoCanvas::setSession(const TelemetrySessionPtr &session)
     update();
 }
 
-void VideoCanvas::setGauge(const Gauge &gauge)
+void VideoCanvas::setOverlay(const Overlay &overlay)
 {
-    m_gauge = gauge;
+    m_overlay = overlay;
     update();
 }
 
@@ -482,14 +481,8 @@ void VideoCanvas::paintGL()
                              : tr("The video cannot be shown: OpenGL is not available."));
             return;
         }
-    if (m_session && !m_gauge.components.isEmpty())
+    if (m_session)
         {
-            // Placement is fixed until the canvas gets editing: lower left
-            // corner, a third of the frame height.
-            const QRectF video = videoRect();
-            const double side = video.height() / 3.0;
-            const double margin = video.height() * 0.04;
-            const QRectF target(video.left() + margin, video.bottom() - margin - side, side, side);
-            GaugeRenderer::render(painter, m_gauge, target, m_session.get(), telemetryTime());
+            m_overlay.render(painter, videoRect(), m_session.get(), telemetryTime());
         }
 }

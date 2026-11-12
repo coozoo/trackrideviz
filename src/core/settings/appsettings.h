@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../units/units.h"
+#include "../video/exportsettings.h"
 
 #include <QByteArray>
 #include <QString>
@@ -45,6 +46,21 @@ public:
     static QByteArray decodingDeviceTypes();
     // The rule behind it, separated from storage and platform so it can be tested.
     static QByteArray decodingDeviceTypes(bool hardwareDecoding, Decoder preferred, bool onLinux);
+
+    // --- Export ---------------------------------------------------------
+    // Full path of the ffmpeg program; empty = find "ffmpeg" on the PATH.
+    static QString ffmpegPath();
+    static void setFfmpegPath(const QString &path);
+    // Where exported videos go; empty = next to the source video.
+    static QString exportFolder();
+    static void setExportFolder(const QString &folder);
+    // What the export dialog starts with: the choices of the last export.
+    // Output file and range belong to one video and are not kept.
+    // The bitrate is not kept either: it starts from that of each video.
+    static ExportSettings exportDefaults();
+    // False until the first export: the dialog then picks an encoder itself.
+    static bool hasExportDefaults();
+    static void setExportDefaults(const ExportSettings &settings);
 
     // --- Units ------------------------------------------------------------
     static Units units();

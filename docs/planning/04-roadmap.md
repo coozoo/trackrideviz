@@ -40,11 +40,26 @@ slow `toImage()` path; chapters are not joined yet.
 - Channel table and the built-in speedometer follow the units
 - Where each kind of setting lives: [03-architecture §3.7a](03-architecture.md)
 
-## M2 — First exported video
-- `ExportBackend` A (ffmpeg process + RGBA pipe), `ExportJob`, progress/cancel, audio copy
-- Export dialog: codec, bitrate/CRF, resolution, hw encoder detection
-- Settings page *Export*: ffmpeg binary, default codec and output folder
-- Project save/load (`.rtvproj`)
+## M2 — First exported video ✅ (2026-11-12)
+- ✅ Export through an external `ffmpeg` (`ExportPlan` + `ExportJob`, 03-architecture §3.5): ffmpeg
+  decodes the source itself, the application pipes only the gauge area as RGBA, ffmpeg overlays,
+  encodes and passes the sound through. Progress; **stopping keeps a playable video** of the part
+  done so far; a failed export leaves no file
+- ✅ Export dialog: encoder (only those a test encode proves usable here), bitrate or constant
+  quality, speed, size, sound, range; last choices remembered
+- ✅ Settings page *Export*: ffmpeg program, folder for exported videos
+- ✅ Project save/load (`.rtvproj`, JSON): video, data, sync, gauge placement
+- ✅ `Overlay` (gauge placement in fractions of the frame) shared by preview and export
+
+Checked on the real ride (1080p60, Intel UHD 620): 20 s exported in 10.5 s with `h264_vaapi`,
+108 s with `libx264` medium; gauge and sync identical to the preview; sound copied.
+Constant quality turned out to be the wrong default for this kind of footage - CRF 20 gave
+64 Mbit/s and VA-API QP 20 gave 154 Mbit/s from a 26.6 Mbit/s source - so the dialog starts in
+bitrate mode at the bitrate of the source and shows the expected file size.
+
+Not done: no warning about unsaved project changes on closing; one VA-API device assumed
+(`/dev/dri/renderD128`); NVIDIA, AMD, Quick Sync and VideoToolbox options are written from the
+ffmpeg documentation and only offered when the test encode passes, but never ran on such hardware.
 
 **Proves:** the whole chain end to end. From here the app is already useful.
 

@@ -35,7 +35,8 @@ jobs:
             qt6-tools-dev \
             qt6-tools-dev-tools \
             qt6-l10n-tools \
-            libgl1-mesa-dev
+            libgl1-mesa-dev \
+            ffmpeg
 
       - name: Shadow build (Debug, with tests target)
         run: |

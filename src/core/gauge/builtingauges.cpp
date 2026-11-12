@@ -132,3 +132,12 @@ Gauge BuiltinGauges::speedometer(const Units &units)
 
     return gauge;
 }
+
+Gauge BuiltinGauges::byId(const QString &id, const Units &units)
+{
+    if (id == QLatin1String(SpeedometerId))
+        {
+            return speedometer(units);
+        }
+    return Gauge();
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gauge/gauge.h"
+#include "overlay/overlay.h"
 #include "telemetry/telemetrysession.h"
 
 #include <QMatrix4x4>
@@ -17,7 +17,7 @@ class QOpenGLShaderProgram;
 // textures; a shader converts and scales), so the GUI thread spends well
 // under a millisecond per frame. Formats the shader does not know take the
 // slow road through QVideoFrame::toImage().
-// Gauges are drawn by GaugeRenderer - the same code the export will use.
+// Gauges are drawn by Overlay::render() - the same code the export uses.
 class VideoCanvas : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -27,7 +27,7 @@ public:
     ~VideoCanvas() override;
 
     void setSession(const TelemetrySessionPtr &session);
-    void setGauge(const Gauge &gauge);
+    void setOverlay(const Overlay &overlay);
 
     // Telemetry time of the frame on screen (video time + sync offset).
     double telemetryTime() const { return m_videoTime + m_syncOffset; }
@@ -83,5 +83,5 @@ private:
     double m_positionTime{0.0};
     double m_syncOffset{0.0};
     TelemetrySessionPtr m_session;
-    Gauge m_gauge;
+    Overlay m_overlay;
 };

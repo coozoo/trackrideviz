@@ -126,9 +126,33 @@ own libav decoder behind the same `FrameSource` interface.
 Proposed: **C**. Backend A gets a working exporter early and is the pragmatic desktop answer;
 backend B is added before the touch/mobile app and can then become the default.
 
-`ExportJob` (QObject in a worker thread): for output frame n → t = n / fps → telemetry time =
-t + syncOffset → `GaugeRenderer` → backend. Signals `progress(frame, total, fps)`, `finished`,
-`failed(msg)`; slot `cancel()`.
+**As built (M2), backend A** - `src/core/video/`:
+
+```
+MediaProbe (ffprobe)  ─► MediaInfo: size, exact fps fraction, duration, bitrate
+VideoEncoders::detect ─► encoders a tiny test encode proves usable on this machine
+ExportPlan::make      ─► ffmpeg arguments + what to pipe: overlayRect, frameCount, frameTime(n)
+ExportJob (own thread)─► QProcess ffmpeg; per frame n: Overlay::render() into an RGBA image of
+                          overlayRect only → stdin; signals progress / finished(outcome, message)
+```
+
+- ffmpeg reads and decodes the source video itself; nothing but the gauges crosses the pipe.
+  With one 360 px gauge on 1080p that is 0.5 MB per frame instead of 8 MB.
+- telemetry time of piped frame n = `start + n / fps + syncOffset`, the same formula as the preview.
+- The pipe is filled a few frames ahead and refilled on `bytesWritten`, so the worker's event
+  loop stays free and `stop()` is handled between frames.
+- The overlay filter runs with `eof_action=endall`: the output ends with the last piped picture.
+  That makes stopping clean - the job closes the pipe, ffmpeg finishes the file as if the film
+  were over. ffmpeg is never killed in the normal course (killing left an unplayable file, and the
+  frames still queued were written into a dead pipe: SIGPIPE, a stop in every debugger). Copied
+  sound would run on to the end of the source, so on Unix ffmpeg gets SIGINT once the pipe is
+  empty, and the file is then rewritten with `-c copy -t <length of the picture>`.
+- For the same reason exactly as many pictures are sent as the video has frames (`nb_frames`
+  when the container gives it, otherwise the estimate rounded down).
+- Quality options differ per encoder family (CRF, QP, CQ, global_quality); `VideoEncoders` hides
+  that behind `ExportSettings`. VA-API needs `format=nv12,hwupload` at the end of the filter chain.
+- There is no `ExportBackend` interface yet: with one backend it would be an interface with one
+  implementation. It is introduced when backend B is written.
 
 ## 3.6 Threading (signals/slots, worker-object pattern)
 

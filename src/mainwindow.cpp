@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 #include "appearance.h"
-#include "gauge/builtingauges.h"
+#include "exportdialog.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
 #include "sync/videosync.h"
@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QAudioOutput>
 #include <QCloseEvent>
+#include <QDir>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
@@ -56,7 +57,6 @@ QString formatTime(qint64 ms)
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle(qApp->property("appname").toString());
     resize(1280, 800);
 
     m_player = new QMediaPlayer(this);
@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar();
 
     m_units = AppSettings::units();
-    m_canvas->setGauge(BuiltinGauges::speedometer(m_units));
+    rebuildOverlay();
 
     connect(m_videoSink, &QVideoSink::videoFrameChanged, m_canvas, &VideoCanvas::setFrame);
     connect(m_player, &QMediaPlayer::positionChanged, m_canvas, &VideoCanvas::setPosition);
@@ -91,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     updateSourcesInfo();
     updateTimeLabel();
+    updateWindowTitle();
 
     if (AppSettings::saveWindowLayout())
         {
@@ -149,7 +150,7 @@ QWidget *MainWindow::createCentralWidget()
     m_autoSyncButton->setToolTip(tr("Set the offset from the recording time of the video and the data"));
     connect(m_autoSyncButton, &QToolButton::clicked, this, [this]()
     {
-        m_offsetIsManual = false;
+        m_project.syncIsManual = false;
         autoSync();
     });
 
@@ -224,6 +225,17 @@ void MainWindow::createMenus()
     QAction *openDataAction = fileMenu->addAction(tr("Open &data..."), this, &MainWindow::chooseTelemetry);
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
     fileMenu->addSeparator();
+    QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
+    openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
+    QAction *saveAction = fileMenu->addAction(tr("&Save project"), this, &MainWindow::saveProject);
+    saveAction->setShortcut(QKeySequence::Save);
+    QAction *saveAsAction = fileMenu->addAction(tr("Save project &as..."), this, &MainWindow::saveProjectAs);
+    saveAsAction->setShortcut(QKeySequence::SaveAs);
+    fileMenu->addSeparator();
+    m_exportAction = fileMenu->addAction(tr("&Export video..."), this, &MainWindow::exportVideo);
+    m_exportAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+    m_exportAction->setEnabled(false);
+    fileMenu->addSeparator();
     QAction *settingsAction = fileMenu->addAction(tr("&Settings..."), this, &MainWindow::showSettings);
     settingsAction->setShortcut(QKeySequence::Preferences);
     // macOS moves it to the application menu, where it is expected there
@@ -270,20 +282,32 @@ void MainWindow::chooseTelemetry()
 
 void MainWindow::openVideo(const QString &path)
 {
-    m_videoPath = path;
-    m_offsetIsManual = false;
+    m_project.syncIsManual = false;
+    loadVideo(path);
+}
+
+void MainWindow::loadVideo(const QString &path)
+{
+    m_project.videoPath = path;
     m_canvas->clear();
     m_player->setSource(QUrl::fromLocalFile(path));
     // shows the first frame without starting to play
     m_player->pause();
     m_playButton->setEnabled(true);
+    m_exportAction->setEnabled(true);
     updateSourcesInfo();
     autoSync();
 }
 
 void MainWindow::openTelemetry(const QString &path)
 {
+    loadTelemetry(path, false);
+}
+
+void MainWindow::loadTelemetry(const QString &path, bool keepSync)
+{
     m_pendingTelemetryPath = path;
+    m_pendingKeepsSync = keepSync;
     statusBar()->showMessage(tr("Loading %1...").arg(QFileInfo(path).fileName()));
 
     auto *watcher = new QFutureWatcher<ImportResult>(this);
@@ -301,6 +325,149 @@ void MainWindow::openTelemetry(const QString &path)
     }));
 }
 
+void MainWindow::chooseProject()
+{
+    QSettings settings;
+    const QString path = QFileDialog::getOpenFileName(this, tr("Open project"), settings.value("paths/project").toString(),
+                         tr("Projects (*.%1);;All files (*)").arg(ProjectFile::Suffix));
+    if (!path.isEmpty())
+        {
+            settings.setValue("paths/project", QFileInfo(path).absolutePath());
+            openProject(path);
+        }
+}
+
+void MainWindow::openProject(const QString &path)
+{
+    Project project;
+    QString error;
+    if (!ProjectFile::load(path, &project, &error))
+        {
+            QMessageBox::warning(this, tr("Open project"), error);
+            return;
+        }
+    QStringList missing;
+    for (QString *file : {&project.videoPath, &project.telemetryPath})
+        {
+            if (!file->isEmpty() && !QFileInfo::exists(*file))
+                {
+                    missing << QDir::toNativeSeparators(*file);
+                    file->clear();
+                }
+        }
+
+    m_project = project;
+    m_projectPath = path;
+    m_session.reset();
+    m_pendingTelemetryPath.clear();
+    m_canvas->setSession(nullptr);
+    m_canvas->clear();
+    m_player->setSource(QUrl());
+    m_playButton->setEnabled(false);
+    m_exportAction->setEnabled(false);
+    rebuildOverlay();
+    setSyncOffset(m_project.syncOffset, m_project.syncIsManual ? tr("Set by hand.") : QString());
+    if (!m_project.videoPath.isEmpty())
+        {
+            loadVideo(m_project.videoPath);
+        }
+    if (!m_project.telemetryPath.isEmpty())
+        {
+            loadTelemetry(m_project.telemetryPath, true);
+        }
+    updateSourcesInfo();
+    updateWindowTitle();
+    if (!missing.isEmpty())
+        {
+            QMessageBox::warning(this, tr("Open project"),
+                                 tr("These files of the project were not found:\n%1\n\n"
+                                    "Open them again from where they are now and save the project.").arg(missing.join('\n')));
+        }
+}
+
+bool MainWindow::saveProject()
+{
+    if (m_projectPath.isEmpty())
+        {
+            return saveProjectAs();
+        }
+    QString error;
+    if (!ProjectFile::save(m_projectPath, m_project, &error))
+        {
+            QMessageBox::warning(this, tr("Save project"), error);
+            return false;
+        }
+    statusBar()->showMessage(tr("Project saved."), 3000);
+    return true;
+}
+
+bool MainWindow::saveProjectAs()
+{
+    QSettings settings;
+    // next to the video, named after it: the usual place to look for it later
+    QString suggestion = m_projectPath;
+    if (suggestion.isEmpty() && !m_project.videoPath.isEmpty())
+        {
+            const QFileInfo video(m_project.videoPath);
+            suggestion = video.absolutePath() + "/" + video.completeBaseName() + "." + ProjectFile::Suffix;
+        }
+    if (suggestion.isEmpty())
+        {
+            suggestion = settings.value("paths/project").toString();
+        }
+    QString path = QFileDialog::getSaveFileName(this, tr("Save project"), suggestion,
+                   tr("Projects (*.%1)").arg(ProjectFile::Suffix));
+    if (path.isEmpty())
+        {
+            return false;
+        }
+    if (QFileInfo(path).suffix().isEmpty())
+        {
+            path += QString(".") + ProjectFile::Suffix;
+        }
+    settings.setValue("paths/project", QFileInfo(path).absolutePath());
+    const QString previous = m_projectPath;
+    m_projectPath = path;
+    if (!saveProject())
+        {
+            m_projectPath = previous;
+            return false;
+        }
+    updateWindowTitle();
+    return true;
+}
+
+void MainWindow::exportVideo()
+{
+    if (m_project.videoPath.isEmpty())
+        {
+            return;
+        }
+    if (!m_session)
+        {
+            QMessageBox::information(this, tr("Export video"),
+                                     tr("Open the data for this video first: without it there is nothing to draw."));
+            return;
+        }
+    // two decoders on one file only fight for the disk and the graphics card
+    m_player->pause();
+    ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_units), m_session,
+                        m_project.syncOffset, m_player->position() / 1000.0, this);
+    dialog.exec();
+}
+
+void MainWindow::rebuildOverlay()
+{
+    m_canvas->setOverlay(Overlay(m_project.overlay, m_units));
+}
+
+void MainWindow::updateWindowTitle()
+{
+    const QString appName = qApp->property("appname").toString();
+    setWindowTitle(m_projectPath.isEmpty() ? appName
+                   : QString("%1 - %2").arg(QFileInfo(m_projectPath).completeBaseName(), appName));
+}
+
 void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPtr &session, const QString &error)
 {
     if (path != m_pendingTelemetryPath)
@@ -314,9 +481,12 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
             QMessageBox::warning(this, tr("Open data"), error);
             return;
         }
-    m_telemetryPath = path;
+    m_project.telemetryPath = path;
     m_session = session;
-    m_offsetIsManual = false;
+    if (!m_pendingKeepsSync)
+        {
+            m_project.syncIsManual = false;
+        }
     m_canvas->setSession(session);
     updateSourcesInfo();
     autoSync();
@@ -324,7 +494,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
 
 void MainWindow::togglePlayback()
 {
-    if (m_videoPath.isEmpty())
+    if (m_project.videoPath.isEmpty())
         {
             return;
         }
@@ -372,18 +542,19 @@ void MainWindow::onPlayerError(QMediaPlayer::Error error, const QString &message
 
 void MainWindow::onOffsetEdited(double seconds)
 {
-    m_offsetIsManual = true;
+    m_project.syncIsManual = true;
+    m_project.syncOffset = seconds;
     m_canvas->setSyncOffset(seconds);
     m_syncLabel->setText(tr("Set by hand."));
 }
 
 void MainWindow::autoSync()
 {
-    if (m_offsetIsManual || m_videoPath.isEmpty() || !m_session)
+    if (m_project.syncIsManual || m_project.videoPath.isEmpty() || !m_session)
         {
             return;
         }
-    const QDateTime wallClock = VideoSync::wallClockFromFileName(QFileInfo(m_videoPath).fileName());
+    const QDateTime wallClock = VideoSync::wallClockFromFileName(QFileInfo(m_project.videoPath).fileName());
     // what this computer's time zone was at that date and time
     const int systemUtcOffset = wallClock.isValid() ? QDateTime(wallClock.date(), wallClock.time()).offsetFromUtc() : 0;
     const VideoSync::Result result = VideoSync::match(*m_session, wallClock, m_player->duration() / 1000.0, systemUtcOffset);
@@ -403,6 +574,7 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
         const QSignalBlocker blocker(m_offsetSpin);
         m_offsetSpin->setValue(seconds);
     }
+    m_project.syncOffset = seconds;
     m_canvas->setSyncOffset(seconds);
     m_syncLabel->setText(explanation);
 }
@@ -415,7 +587,7 @@ void MainWindow::updateTimeLabel()
 void MainWindow::updateSourcesInfo()
 {
     QStringList lines;
-    lines << tr("Video: %1").arg(m_videoPath.isEmpty() ? tr("none") : QFileInfo(m_videoPath).fileName());
+    lines << tr("Video: %1").arg(m_project.videoPath.isEmpty() ? tr("none") : QFileInfo(m_project.videoPath).fileName());
     lines << QString();
     if (!m_session)
         {
@@ -423,7 +595,7 @@ void MainWindow::updateSourcesInfo()
         }
     else
         {
-            lines << tr("Data: %1").arg(QFileInfo(m_telemetryPath).fileName());
+            lines << tr("Data: %1").arg(QFileInfo(m_project.telemetryPath).fileName());
             lines << m_session->sourceInfo();
             if (m_session->startUtc().isValid())
                 {
@@ -505,7 +677,7 @@ void MainWindow::applySettings()
     if (units != m_units)
         {
             m_units = units;
-            m_canvas->setGauge(BuiltinGauges::speedometer(m_units));
+            rebuildOverlay();
             updateSourcesInfo();
         }
 }
