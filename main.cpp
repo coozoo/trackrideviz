@@ -1,4 +1,6 @@
+#include "appearance.h"
 #include "mainwindow.h"
+#include "settings/appsettings.h"
 #include "telemetry/telemetryimporter.h"
 
 #include <QApplication>
@@ -11,17 +13,6 @@ const QString APP_VERSION = "0.01";
 
 int main(int argc, char *argv[])
 {
-#ifdef Q_OS_LINUX
-    // Qt Multimedia tries the hardware decoders in its own fixed order and
-    // gives up on hardware altogether when the first one that opens cannot
-    // take the stream - which is what happens on Intel/AMD machines that
-    // merely have the NVIDIA libraries installed. VA-API first covers Intel,
-    // AMD and, through its VA-API driver, NVIDIA. The user's own setting wins.
-    if (!qEnvironmentVariableIsSet("QT_FFMPEG_DECODING_HW_DEVICE_TYPES"))
-        {
-            qputenv("QT_FFMPEG_DECODING_HW_DEVICE_TYPES", "vaapi,vdpau,cuda");
-        }
-#endif
     QApplication a(argc, argv);
     a.setApplicationName("trackrideviz");
     a.setApplicationDisplayName("Race Track Visualizer");
@@ -29,6 +20,12 @@ int main(int argc, char *argv[])
     a.setOrganizationName("trackrideviz");
 
     // .qm files are embedded by CONFIG += embed_translations under :/i18n
+    const QString language = AppSettings::language();
+    if (language != "system")
+        {
+            // numbers and dates follow the chosen language too
+            QLocale::setDefault(QLocale(language));
+        }
     QTranslator translator;
     if (translator.load(QLocale(), "trackrideviz", "_", ":/i18n"))
         {
@@ -52,6 +49,19 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_LINUX
     a.setWindowIcon(QIcon(":/images/trackrideviz.png"));
 #endif
+
+    // The decoder order has to be in place before Qt Multimedia is first
+    // used. A variable set by the user wins over the settings.
+    const char decoderVariable[] = "QT_FFMPEG_DECODING_HW_DEVICE_TYPES";
+    const bool decoderFromEnvironment = qEnvironmentVariableIsSet(decoderVariable);
+    const QByteArray decoderTypes = AppSettings::decodingDeviceTypes();
+    if (!decoderFromEnvironment && !decoderTypes.isNull())
+        {
+            qputenv(decoderVariable, decoderTypes);
+        }
+    a.setProperty("decoderFromEnvironment", decoderFromEnvironment);
+
+    Appearance::apply();
 
     MainWindow w;
     w.show();

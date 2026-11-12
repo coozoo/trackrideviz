@@ -9,4 +9,5 @@ SUBDIRS = \
     gpx \
     fit \
     sync \
-    gauge
+    gauge \
+    settings

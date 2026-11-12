@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 
+#include "appearance.h"
 #include "gauge/builtingauges.h"
+#include "settings/appsettings.h"
+#include "settingsdialog.h"
 #include "sync/videosync.h"
-#include "telemetry/channelids.h"
 #include "telemetry/telemetryimporter.h"
 #include "videocanvas.h"
 
@@ -39,66 +41,6 @@ struct ImportResult
     QString error;
 };
 
-// How a channel is shown to the user: stored values are SI (see channelids.h).
-struct ChannelDisplay
-{
-    QString name;
-    QString unit;
-    double scale{1.0};
-    int decimals{1};
-};
-
-ChannelDisplay displayFor(const Channel &channel)
-{
-    const QString id = channel.id();
-    if (id == ChannelId::PositionLat)
-        {
-            return {MainWindow::tr("Latitude"), "°", 1.0, 5};
-        }
-    if (id == ChannelId::PositionLon)
-        {
-            return {MainWindow::tr("Longitude"), "°", 1.0, 5};
-        }
-    if (id == ChannelId::Elevation)
-        {
-            return {MainWindow::tr("Elevation"), MainWindow::tr("m"), 1.0, 1};
-        }
-    if (id == ChannelId::Speed)
-        {
-            return {MainWindow::tr("Speed"), MainWindow::tr("km/h"), 3.6, 1};
-        }
-    if (id == ChannelId::Distance)
-        {
-            return {MainWindow::tr("Distance"), MainWindow::tr("km"), 0.001, 2};
-        }
-    if (id == ChannelId::Heading)
-        {
-            return {MainWindow::tr("Heading"), "°", 1.0, 0};
-        }
-    if (id == ChannelId::Grade)
-        {
-            return {MainWindow::tr("Grade"), "%", 1.0, 1};
-        }
-    if (id == ChannelId::HeartRate)
-        {
-            return {MainWindow::tr("Heart rate"), MainWindow::tr("bpm"), 1.0, 0};
-        }
-    if (id == ChannelId::Cadence)
-        {
-            return {MainWindow::tr("Cadence"), MainWindow::tr("rpm"), 1.0, 0};
-        }
-    if (id == ChannelId::Power)
-        {
-            return {MainWindow::tr("Power"), MainWindow::tr("W"), 1.0, 0};
-        }
-    if (id == ChannelId::Temperature)
-        {
-            return {MainWindow::tr("Temperature"), "°C", 1.0, 0};
-        }
-    // fields the importer has no name for keep their id and raw value
-    return {id, channel.unit(), 1.0, 2};
-}
-
 enum ChannelColumn { NameColumn, NowColumn, UnitColumn, MinColumn, MaxColumn };
 
 QString formatTime(qint64 ms)
@@ -128,7 +70,8 @@ MainWindow::MainWindow(QWidget *parent)
     createMenus();
     statusBar();
 
-    m_canvas->setGauge(BuiltinGauges::speedometer());
+    m_units = AppSettings::units();
+    m_canvas->setGauge(BuiltinGauges::speedometer(m_units));
 
     connect(m_videoSink, &QVideoSink::videoFrameChanged, m_canvas, &VideoCanvas::setFrame);
     connect(m_player, &QMediaPlayer::positionChanged, m_canvas, &VideoCanvas::setPosition);
@@ -149,16 +92,22 @@ MainWindow::MainWindow(QWidget *parent)
     updateSourcesInfo();
     updateTimeLabel();
 
-    QSettings settings;
-    restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
-    restoreState(settings.value("mainwindow/state").toByteArray());
+    if (AppSettings::saveWindowLayout())
+        {
+            QSettings settings;
+            restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
+            restoreState(settings.value("mainwindow/state").toByteArray());
+        }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QSettings settings;
-    settings.setValue("mainwindow/geometry", saveGeometry());
-    settings.setValue("mainwindow/state", saveState());
+    if (AppSettings::saveWindowLayout())
+        {
+            QSettings settings;
+            settings.setValue("mainwindow/geometry", saveGeometry());
+            settings.setValue("mainwindow/state", saveState());
+        }
     QMainWindow::closeEvent(event);
 }
 
@@ -274,6 +223,11 @@ void MainWindow::createMenus()
     openVideoAction->setShortcut(QKeySequence::Open);
     QAction *openDataAction = fileMenu->addAction(tr("Open &data..."), this, &MainWindow::chooseTelemetry);
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+    fileMenu->addSeparator();
+    QAction *settingsAction = fileMenu->addAction(tr("&Settings..."), this, &MainWindow::showSettings);
+    settingsAction->setShortcut(QKeySequence::Preferences);
+    // macOS moves it to the application menu, where it is expected there
+    settingsAction->setMenuRole(QAction::PreferencesRole);
     fileMenu->addSeparator();
     QAction *quitAction = fileMenu->addAction(tr("&Quit"), this, &QWidget::close);
     quitAction->setShortcut(QKeySequence::Quit);
@@ -495,12 +449,12 @@ void MainWindow::updateSourcesInfo()
             for (const QString &id : m_session->channelIds())
                 {
                     const Channel *channel = m_session->channel(id);
-                    const ChannelDisplay display = displayFor(*channel);
+                    const ChannelDisplay display = ChannelFormat::displayFor(*channel, m_units);
                     QTreeWidgetItem *item = new QTreeWidgetItem(m_channelTree);
                     item->setData(NameColumn, Qt::UserRole, id);
                     item->setText(NameColumn, display.name);
-                    item->setText(MinColumn, QLocale().toString(channel->minValue() * display.scale, 'f', display.decimals));
-                    item->setText(MaxColumn, QLocale().toString(channel->maxValue() * display.scale, 'f', display.decimals));
+                    item->setText(MinColumn, QLocale().toString(display.convert(channel->minValue()), 'f', display.decimals));
+                    item->setText(MaxColumn, QLocale().toString(display.convert(channel->maxValue()), 'f', display.decimals));
                     item->setText(UnitColumn, display.unit);
                     for (int column : {NowColumn, MinColumn, MaxColumn})
                         {
@@ -525,13 +479,34 @@ void MainWindow::updateChannelValues()
             const Channel *channel = m_session->channel(item->data(NameColumn, Qt::UserRole).toString());
             bool ok = false;
             const double value = channel ? channel->valueAt(time, &ok) : 0.0;
-            const ChannelDisplay display = channel ? displayFor(*channel) : ChannelDisplay();
+            const ChannelDisplay display = channel ? ChannelFormat::displayFor(*channel, m_units) : ChannelDisplay();
             // outside the recording there is no value, not the last one
-            const QString text = ok ? QLocale().toString(value * display.scale, 'f', display.decimals) : QString("--");
+            const QString text = ok ? QLocale().toString(display.convert(value), 'f', display.decimals) : QString("--");
             if (item->text(NowColumn) != text)
                 {
                     item->setText(NowColumn, text);
                 }
+        }
+}
+
+void MainWindow::showSettings()
+{
+    SettingsDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted)
+        {
+            applySettings();
+        }
+}
+
+void MainWindow::applySettings()
+{
+    Appearance::apply();
+    const Units units = AppSettings::units();
+    if (units != m_units)
+        {
+            m_units = units;
+            m_canvas->setGauge(BuiltinGauges::speedometer(m_units));
+            updateSourcesInfo();
         }
 }
 

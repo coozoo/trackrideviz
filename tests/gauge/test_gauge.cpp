@@ -210,7 +210,7 @@ private slots:
 
     void builtinSpeedometer()
     {
-        const Gauge gauge = BuiltinGauges::speedometer(80);
+        const Gauge gauge = BuiltinGauges::speedometer();
         QVERIFY(!gauge.components.isEmpty());
         const TelemetrySession session = makeSession();
         QImage slow = canvas(400);
@@ -226,6 +226,16 @@ private slots:
         QVERIFY(paintedPixels(slow) > 400 * 400 / 2); // the dial covers most of the square
         QVERIFY(slow != fast);
         QCOMPARE(qAlpha(slow.pixel(2, 2)), 0);        // corners stay transparent
+
+        // the same speed reads differently on a mph dial
+        Units imperial;
+        imperial.speed = Units::MilesPerHour;
+        QImage mph = canvas(400);
+        {
+            QPainter painter(&mph);
+            GaugeRenderer::render(painter, BuiltinGauges::speedometer(imperial), QRectF(0, 0, 400, 400), &session, 9.0);
+        }
+        QVERIFY(mph != fast);
     }
 };
 

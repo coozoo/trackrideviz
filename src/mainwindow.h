@@ -1,6 +1,7 @@
 #pragma once
 
 #include "telemetry/telemetrysession.h"
+#include "units/units.h"
 
 #include <QMainWindow>
 #include <QMediaPlayer>
@@ -43,6 +44,9 @@ private slots:
     void onPlayerError(QMediaPlayer::Error error, const QString &message);
     void onOffsetEdited(double seconds);
     void autoSync();
+    void showSettings();
+    // Picks up what the settings dialog changed and can change without a restart.
+    void applySettings();
     void showAbout();
 
 private:
@@ -82,6 +86,7 @@ private:
     // Import in progress; a result for any other path is stale and dropped.
     QString m_pendingTelemetryPath;
     TelemetrySessionPtr m_session;
+    Units m_units;
     // The user set the offset by hand; automatic sync must not overwrite it.
     bool m_offsetIsManual{false};
 };

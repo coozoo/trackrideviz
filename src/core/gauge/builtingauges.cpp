@@ -31,7 +31,7 @@ QPointF onDial(double angle, double radius)
     return QPointF(kSize / 2 + radius * std::sin(rad), kSize / 2 - radius * std::cos(rad));
 }
 
-QImage dialFace(int maxKmh)
+QImage dialFace(int maxSpeed)
 {
     QImage image = blankImage();
     QPainter painter(&image);
@@ -46,11 +46,11 @@ QImage dialFace(int maxKmh)
     font.setPixelSize(26);
     font.setBold(true);
     painter.setFont(font);
-    const int minorStep = maxKmh <= 100 ? 5 : 10;
+    const int minorStep = maxSpeed <= 100 ? 5 : 10;
     const int majorStep = minorStep * 2;
-    for (int value = 0; value <= maxKmh; value += minorStep)
+    for (int value = 0; value <= maxSpeed; value += minorStep)
         {
-            const double angle = kMinAngle + (kMaxAngle - kMinAngle) * value / maxKmh;
+            const double angle = kMinAngle + (kMaxAngle - kMinAngle) * value / maxSpeed;
             const bool major = value % majorStep == 0;
             painter.setPen(QPen(Qt::white, major ? 5 : 2, Qt::SolidLine, Qt::FlatCap));
             painter.drawLine(onDial(angle, major ? 158 : 170), onDial(angle, 186));
@@ -86,8 +86,9 @@ QImage needle()
 }
 }
 
-Gauge BuiltinGauges::speedometer(int maxKmh)
+Gauge BuiltinGauges::speedometer(const Units &units)
 {
+    const int maxSpeed = units.speed == Units::MilesPerHour ? 50 : 80;
     Gauge gauge;
     gauge.name = "Speedometer";
     gauge.size = QSizeF(kSize, kSize);
@@ -96,14 +97,14 @@ Gauge BuiltinGauges::speedometer(int maxKmh)
     GaugeComponent face;
     face.type = GaugeComponent::Image;
     face.rect = whole;
-    face.image = dialFace(maxKmh);
+    face.image = dialFace(maxSpeed);
     gauge.components.append(face);
 
     GaugeComponent value;
     value.type = GaugeComponent::Text;
     value.rect = QRectF(100, 262, 200, 70);
     value.channel = ChannelId::Speed;
-    value.valueScale = 3.6;
+    value.valueScale = units.speedScale();
     value.fontSize = 64;
     value.bold = true;
     gauge.components.append(value);
@@ -111,7 +112,7 @@ Gauge BuiltinGauges::speedometer(int maxKmh)
     GaugeComponent unit;
     unit.type = GaugeComponent::Text;
     unit.rect = QRectF(100, 328, 200, 30);
-    unit.text = "km/h";
+    unit.text = units.speedLabel();
     unit.fontSize = 24;
     unit.color = QColor(220, 220, 220);
     gauge.components.append(unit);
@@ -122,9 +123,9 @@ Gauge BuiltinGauges::speedometer(int maxKmh)
     hand.image = needle();
     hand.pivot = QPointF(kSize / 2, kSize / 2);
     hand.channel = ChannelId::Speed;
-    hand.valueScale = 3.6;
+    hand.valueScale = units.speedScale();
     hand.minValue = 0;
-    hand.maxValue = maxKmh;
+    hand.maxValue = maxSpeed;
     hand.minAngle = kMinAngle;
     hand.maxAngle = kMaxAngle;
     gauge.components.append(hand);

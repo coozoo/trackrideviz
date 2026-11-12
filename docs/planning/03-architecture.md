@@ -159,6 +159,28 @@ start, so the user can keep editing while it renders.
 
 Models are `QAbstractItemModel` subclasses in core-adjacent code so QML can reuse them.
 
+## 3.7a Settings
+
+Three places hold choices, and each kind has exactly one home:
+
+| What | Where | Examples |
+|------|-------|----------|
+| How the *program* behaves on this computer | `AppSettings` (`src/core/settings`, QSettings) → **Settings dialog** | style and colours, language, hardware decoding, display units, later the ffmpeg path and default folders |
+| What belongs to one *video project* | project file (`.rtvproj`, M2) | sources, sync offset, gauges and their positions, the units a particular gauge shows |
+| How one *export* is made | **Export dialog** (M2); last used values remembered, defaults in `AppSettings` | codec, quality, resolution, hardware encoder, output file |
+
+`AppSettings` is the only code that knows key names and defaults. It is in the core, without
+widgets, so the command line and the QML front end read the same file. Values are stored as words
+(`dark`, `vaapi`, `mph`), an unknown word falls back to the default.
+
+The dialog follows Overseer's: page list on the left, Save / Cancel, nothing written before Save.
+What can change at once does (colours, style, units); language and decoder are read at start-up
+and the dialog says so. Pages: **Appearance**, **Preview**, **Units** now; **Export** (ffmpeg
+binary, default codec and folder) arrives with M2, because only then is there something to use it.
+
+Units are a display matter only: channels stay SI, `ChannelFormat::displayFor()` (core) gives name,
+unit, scale and offset for tables, and built-in gauges are built for the chosen `Units`.
+
 ## 3.8 Touch UI (QML, later)
 
 Not a port of the desktop app: a 4-step flow — pick video → confirm sync → pick template → export.

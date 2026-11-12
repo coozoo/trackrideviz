@@ -25,11 +25,15 @@ INCLUDEPATH += $$PWD/src
 include(src/core/core.pri)
 
 SOURCES += main.cpp \
+    src/appearance.cpp \
     src/mainwindow.cpp \
+    src/settingsdialog.cpp \
     src/videocanvas.cpp
 
 HEADERS += \
+    src/appearance.h \
     src/mainwindow.h \
+    src/settingsdialog.h \
     src/videocanvas.h
 
 win32:RC_FILE = trackrideviz.rc
@@ -61,7 +65,8 @@ tests {
         QT_QPA_PLATFORM=offscreen ./gpx/tst_gpx && \
         QT_QPA_PLATFORM=offscreen ./fit/tst_fit && \
         QT_QPA_PLATFORM=offscreen ./sync/tst_sync && \
-        QT_QPA_PLATFORM=offscreen ./gauge/tst_gauge
+        QT_QPA_PLATFORM=offscreen ./gauge/tst_gauge && \
+        QT_QPA_PLATFORM=offscreen ./settings/tst_settings
 
     QMAKE_EXTRA_TARGETS += check
 }

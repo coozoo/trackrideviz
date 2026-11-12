@@ -34,9 +34,16 @@ slow `toImage()` path; chapters are not joined yet.
 
 **Proves:** telemetry model, render path, preview.
 
+## M1.5 — Settings ✅ (2026-11-12)
+- `AppSettings` in the core; settings dialog with Appearance (style, light/dark, language, window
+  layout), Preview (hardware decoding, preferred decoder) and Units (speed, length, temperature)
+- Channel table and the built-in speedometer follow the units
+- Where each kind of setting lives: [03-architecture §3.7a](03-architecture.md)
+
 ## M2 — First exported video
 - `ExportBackend` A (ffmpeg process + RGBA pipe), `ExportJob`, progress/cancel, audio copy
 - Export dialog: codec, bitrate/CRF, resolution, hw encoder detection
+- Settings page *Export*: ffmpeg binary, default codec and output folder
 - Project save/load (`.rtvproj`)
 
 **Proves:** the whole chain end to end. From here the app is already useful.
