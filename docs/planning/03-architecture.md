@@ -76,6 +76,21 @@ repaint. A gauge whose inputs did not change between two frames is not repainted
   the circle; lap number and gear are step-held).
 - Derived channels are a small DAG of calculators evaluated once after load, not per frame.
 
+## 3.3a Sync (video time ↔ telemetry time)
+
+One number per data source: `offset = telemetryTime − videoTime`. How it is found, in order:
+
+1. **Clock match.** Video start (container creation time, else a date in the file name such as
+   `20250715_074932A.mp4`, read as local time) against the session's `startUtc`, using the
+   session's UTC offset to convert. Chaptered files are joined first, so there is one video start.
+2. **Hour snapping.** Exports that label local time as UTC (seen from iGPSPORT GPX/TCX) and
+   cameras with the wrong time zone give errors of whole hours or 30/15 minutes. If the clock match
+   lands the video outside the recording but a shifted match lands inside it, propose the shift.
+3. **Manual.** Drag the telemetry strip on the timeline, or scrub both and press "lock". Camera
+   clocks drift by seconds, so this step is expected even after a good clock match.
+
+The UI always shows which of the three produced the current offset.
+
 ## 3.4 Lap engine
 
 Start/finish = a line segment on the map (point + heading + width). Crossing = segment intersection

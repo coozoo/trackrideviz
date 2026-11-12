@@ -55,7 +55,9 @@ tests {
         cd $$OUT_PWD/tests-shadow && \
         $(QMAKE) $$PWD/tests/tests.pro && \
         $(MAKE) && \
-        QT_QPA_PLATFORM=offscreen ./channel/tst_channel
+        QT_QPA_PLATFORM=offscreen ./channel/tst_channel && \
+        QT_QPA_PLATFORM=offscreen ./gpx/tst_gpx && \
+        QT_QPA_PLATFORM=offscreen ./fit/tst_fit
 
     QMAKE_EXTRA_TARGETS += check
 }

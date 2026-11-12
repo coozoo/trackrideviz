@@ -9,7 +9,7 @@ Verified: local build + tests (Qt 6.11), deb build + tests in an Ubuntu 22.04 co
 Not yet verified (needs a push to GitHub): AppImage, macOS and Windows jobs.
 
 ## M1 — First overlay on screen (vertical slice)
-- GPX + FIT import → `TelemetrySession` (FIT: see [06-fit-notes.md](06-fit-notes.md) first)
+- ✅ GPX + FIT import → `TelemetrySession` (see [06-fit-notes.md](06-fit-notes.md)); tested on 41 real FIT files
 - Open a video, play/seek (`QMediaPlayer` + `QVideoSink` canvas)
 - Sync by UTC with manual offset
 - Gauge model + `GaugeRenderer` with `image`, `text`, `dynamicRotate`
@@ -58,4 +58,9 @@ Not yet verified (needs a push to GitHub): AppImage, macOS and Windows jobs.
 
 ## Later / maybe
 Multi-camera picture-in-picture, side-by-side lap comparison with ghost, track database with
-auto-detected start/finish, 360 video, `rtv-cli` batch rendering, live OBD.
+auto-detected start/finish, 360 video, live OBD.
+
+**Command line (`trackrideviz --render project.rtvproj -o out.mp4`, and video + data + template
+without a project).** Cheap once M2 exists, because project loading and `ExportJob` live in the
+core and need no window: it is the same binary started with `QT_QPA_PLATFORM=offscreen` logic or a
+`QGuiApplication`. Plan it right after M3 (templates), when there is something worth batch-rendering.

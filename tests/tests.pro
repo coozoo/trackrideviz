@@ -5,4 +5,6 @@ TEMPLATE = subdirs
 CONFIG  += ordered
 
 SUBDIRS = \
-    channel
+    channel \
+    gpx \
+    fit

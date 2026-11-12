@@ -9,11 +9,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_channel
 
-INCLUDEPATH += ../../src/core
+include(../../src/core/core.pri)
 
 SOURCES += \
-    test_channel.cpp \
-    ../../src/core/telemetry/channel.cpp
-
-HEADERS += \
-    ../../src/core/telemetry/channel.h
+    test_channel.cpp

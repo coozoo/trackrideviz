@@ -40,6 +40,13 @@ make -j$(nproc)
 make check
 ```
 
+The importers can also be run over your own recordings (nothing is written, a summary is printed):
+
+```bash
+RTV_FIT_SAMPLES=/folder/with/fit/files ./tests-shadow/fit/tst_fit sampleFiles
+RTV_GPX_SAMPLE=/path/to/track.gpx      ./tests-shadow/gpx/tst_gpx sampleFile
+```
+
 ## Translations
 
 English and Ukrainian. Sources are in `translations/`, compiled `.qm` files are embedded into the
