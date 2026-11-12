@@ -8,6 +8,12 @@ on:
   pull_request:
     branches: [ slave ]
 
+# Creating a release and uploading its files needs a token that may write.
+# Repositories created since 2023 give workflows a read-only token unless
+# this is asked for (older ones, like qtjsondiff, still default to read-write).
+permissions:
+  contents: write
+
 # Same scheme as qtjsondiff / qtrfpowermeter:
 #   * push to main          -> build everything, create a GitHub release, upload assets
 #   * push to slave / PR    -> build only, results are kept as workflow artifacts
