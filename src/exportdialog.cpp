@@ -62,12 +62,11 @@ QString formatDuration(double seconds)
 }
 }
 
-ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay, const TelemetrySessionPtr &session,
+ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay,
                            double syncOffset, double currentPosition, QWidget *parent)
     : QDialog(parent)
     , m_videoPath(videoPath)
     , m_overlay(overlay)
-    , m_session(session)
     , m_syncOffset(syncOffset)
     , m_currentPosition(currentPosition)
     , m_ffmpeg(FfmpegTools::ffmpegProgram())
@@ -454,7 +453,7 @@ void ExportDialog::startExport()
     AppSettings::setExportDefaults(settings);
 
     const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay);
-    ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_session, m_syncOffset);
+    ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_syncOffset);
     m_thread = new QThread(this);
     job->moveToThread(m_thread);
     connect(m_thread, &QThread::started, job, &ExportJob::start);

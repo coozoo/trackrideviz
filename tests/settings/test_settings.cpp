@@ -178,6 +178,15 @@ private slots:
         QCOMPARE(ChannelFormat::displayFor(ChannelId::Elevation, "m", units).unit, QString("m"));
     }
 
+    void unknownNamesAreMadeReadable()
+    {
+        QCOMPARE(ChannelFormat::displayFor("relativeElevation", QString(), Units()).name, QString("Relative elevation"));
+        QCOMPARE(ChannelFormat::displayFor("power3secAverage", QString(), Units()).name, QString("Power3sec average"));
+        QCOMPARE(ChannelFormat::displayFor("engineRpm", QString(), Units()).name, QString("Engine rpm"));
+        QCOMPARE(ChannelFormat::displayFor("gForceLatLon", QString(), Units()).name, QString("G-force"));
+        QCOMPARE(ChannelFormat::displayFor("dev.Form Power", "W", Units()).name, QString("dev.Form Power"));
+    }
+
     void unknownChannelKeepsItsIdAndValue()
     {
         const ChannelDisplay display = ChannelFormat::displayFor("fit.record.87", "raw", Units());

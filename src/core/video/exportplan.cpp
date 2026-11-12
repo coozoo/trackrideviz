@@ -4,6 +4,7 @@
 #include "videoencoders.h"
 
 #include <QFileInfo>
+#include <QSysInfo>
 
 #include <algorithm>
 #include <cmath>
@@ -27,12 +28,18 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     ExportPlan plan;
     plan.outputSize = outputSizeFor(info.size, settings.height);
     plan.overlayRect = overlay.boundingRect(plan.outputSize);
+    plan.regions = overlay.regions(plan.outputSize);
+    for (const QRect &region : plan.regions)
+        {
+            plan.stackTops.append(plan.stackSize.height());
+            plan.stackSize = QSize(std::max(plan.stackSize.width(), region.width()), plan.stackSize.height() + region.height());
+        }
     plan.fpsNum = info.fpsNum;
     plan.fpsDen = info.fpsDen;
     plan.startTime = std::clamp(settings.start, 0.0, std::max(0.0, info.duration));
     const double available = std::max(0.0, info.duration - plan.startTime);
     const double length = settings.duration > 0.0 ? std::min(settings.duration, available) : available;
-    const bool piped = !plan.overlayRect.isEmpty();
+    const bool piped = !plan.regions.isEmpty();
     // The output is as long as the shorter of the video and the pictures.
     // The exact count is used when the container gives it; otherwise the
     // estimate is rounded down, because one picture too many would be written
@@ -62,8 +69,11 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     // input 1: the gauges from the application
     if (piped)
         {
-            args << "-f" << "rawvideo" << "-pixel_format" << "rgba"
-                 << "-video_size" << QString("%1x%2").arg(plan.overlayRect.width()).arg(plan.overlayRect.height())
+            // QImage::Format_ARGB32 is 0xAARRGGBB per pixel: B, G, R, A in memory on
+            // little-endian machines, A, R, G, B on big-endian ones
+            const char *pixelFormat = QSysInfo::ByteOrder == QSysInfo::LittleEndian ? "bgra" : "argb";
+            args << "-f" << "rawvideo" << "-pixel_format" << pixelFormat
+                 << "-video_size" << QString("%1x%2").arg(plan.stackSize.width()).arg(plan.stackSize.height())
                  << "-framerate" << QString("%1/%2").arg(plan.fpsNum).arg(plan.fpsDen)
                  << "-i" << "pipe:0";
         }
@@ -76,13 +86,46 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     QString graph;
     if (piped)
         {
-            // QPainter produces premultiplied alpha; the output ends when
-            // the pictures do
-            const QString overlayFilter = QString("overlay=%1:%2:alpha=premultiplied:eof_action=endall")
-                                          .arg(plan.overlayRect.x()).arg(plan.overlayRect.y());
-            const QString base = chain.isEmpty() ? QStringLiteral("[0:v]")
-                                 : QString("[0:v]%1[base];[base]").arg(chain.join(','));
-            graph = QString("%1[1:v]%2,%3[v]").arg(base, overlayFilter, VideoEncoders::outputFilter(encoder));
+            // QPainter produces premultiplied alpha; the output ends when the pictures do
+            auto overlayAt = [](const QRect &region)
+            {
+                return QString("overlay=%1:%2:alpha=premultiplied:eof_action=endall").arg(region.x()).arg(region.y());
+            };
+            QStringList parts;
+            QString video = "[0:v]";
+            if (!chain.isEmpty())
+                {
+                    parts << QString("[0:v]%1[base]").arg(chain.join(','));
+                    video = "[base]";
+                }
+            const int count = int(plan.regions.size());
+            if (count == 1)
+                {
+                    parts << QString("%1[1:v]%2,%3[v]").arg(video, overlayAt(plan.regions.first()), VideoEncoders::outputFilter(encoder));
+                }
+            else
+                {
+                    // cut the stacked picture back into its regions
+                    QString split = QString("[1:v]split=%1").arg(count);
+                    for (int i = 0; i < count; ++i)
+                        {
+                            split += QString("[s%1]").arg(i);
+                        }
+                    parts << split;
+                    for (int i = 0; i < count; ++i)
+                        {
+                            const QRect &region = plan.regions.at(i);
+                            parts << QString("[s%1]crop=%2:%3:0:%4[g%1]").arg(i).arg(region.width()).arg(region.height()).arg(plan.stackTops.at(i));
+                        }
+                    for (int i = 0; i < count; ++i)
+                        {
+                            const QString out = i == count - 1 ? QString(",%1[v]").arg(VideoEncoders::outputFilter(encoder))
+                                                : QString("[o%1]").arg(i);
+                            parts << QString("%1[g%2]%3%4").arg(video).arg(i).arg(overlayAt(plan.regions.at(i)), out);
+                            video = QString("[o%1]").arg(i);
+                        }
+                }
+            graph = parts.join(';');
         }
     else
         {

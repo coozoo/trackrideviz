@@ -17,4 +17,8 @@ inline constexpr char HeartRate[] = "heartRate";       // bpm
 inline constexpr char Cadence[] = "cadence";           // rpm
 inline constexpr char Power[] = "power";               // W
 inline constexpr char Temperature[] = "temperature";   // degrees Celsius
+// Acceleration in g. Nothing produces these yet; gauges can already be bound to them.
+inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
+inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
+inline constexpr char GForceVertical[] = "gForceVertical";         // + up
 }

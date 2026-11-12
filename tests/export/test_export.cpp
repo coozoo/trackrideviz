@@ -33,14 +33,15 @@ private:
         return info;
     }
 
+    // The dial in the lower right quarter, showing a steady 5 m/s.
     static Overlay oneGauge()
     {
         OverlayItem item;
-        item.gaugeId = BuiltinGauges::SpeedometerId;
+        item.gaugeId = BuiltinGauges::DialId;
         item.x = 0.5;
         item.y = 0.5;
         item.height = 0.25;
-        return Overlay({item}, Units());
+        return Overlay({item}, steadySession(), Units(), GaugeTheme());
     }
 
     static ExportSettings settingsFor(const QString &output)
@@ -201,7 +202,7 @@ private slots:
         QVERIFY(hasPair(args, "-i", "pipe:0"));
         QVERIFY(hasPair(args, "-video_size", "270x270"));
         QVERIFY(hasPair(args, "-framerate", "60/1"));
-        QVERIFY(hasPair(args, "-pixel_format", "rgba"));
+        QVERIFY(hasPair(args, "-pixel_format", QSysInfo::ByteOrder == QSysInfo::LittleEndian ? "bgra" : "argb"));
         QCOMPARE(valueOf(args, "-filter_complex"),
                  QString("[0:v][1:v]overlay=960:540:alpha=premultiplied:eof_action=endall,format=yuv420p[v]"));
         QVERIFY(hasPair(args, "-map", "[v]"));
@@ -306,6 +307,28 @@ private slots:
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor("out.mp4"), oneGauge());
         QVERIFY(!plan.arguments.contains("-ss"));
         QVERIFY(!plan.arguments.contains("-t"));
+    }
+
+    void planPipesSeparateRegionsStacked()
+    {
+        OverlayItem topLeft;
+        topLeft.gaugeId = BuiltinGauges::DialId;
+        topLeft.height = 0.25;
+        OverlayItem bottomRight = topLeft;
+        bottomRight.x = 0.75;
+        bottomRight.y = 0.75;
+        const Overlay overlay({topLeft, bottomRight}, steadySession(), Units(), GaugeTheme());
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor("out.mp4"), overlay);
+        QCOMPARE(plan.regions, QVector<QRect>({QRect(0, 0, 270, 270), QRect(1440, 810, 270, 270)}));
+        QCOMPARE(plan.stackTops, QVector<int>({0, 270}));
+        QCOMPARE(plan.stackSize, QSize(270, 540));
+        QVERIFY(hasPair(plan.arguments, "-video_size", "270x540"));
+        QCOMPARE(valueOf(plan.arguments, "-filter_complex"),
+                 QString("[1:v]split=2[s0][s1];[s0]crop=270:270:0:0[g0];[s1]crop=270:270:0:270[g1];"
+                         "[0:v][g0]overlay=0:0:alpha=premultiplied:eof_action=endall[o0];"
+                         "[o0][g1]overlay=1440:810:alpha=premultiplied:eof_action=endall,format=yuv420p[v]"));
+        // the whole frame is no longer sent
+        QCOMPARE(plan.overlayRect, QRect(0, 0, 1710, 1080));
     }
 
     void planWithoutGaugesHasNoPipe()
@@ -559,7 +582,7 @@ private slots:
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay);
         QCOMPARE(plan.overlayRect, QRect(160, 120, 60, 60));
 
-        ExportJob job("ffmpeg", plan, overlay, steadySession(), 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
         QSignalSpy finished(&job, &ExportJob::finished);
         QSignalSpy progress(&job, &ExportJob::progress);
         job.start();
@@ -588,6 +611,38 @@ private slots:
         QVERIFY(difference(before, after, 280, 200) < 20);
     }
 
+    void exportWithGaugesInTwoCorners()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        OverlayItem topLeft;
+        topLeft.gaugeId = BuiltinGauges::DialId;
+        topLeft.height = 0.25;
+        OverlayItem bottomRight = topLeft;
+        bottomRight.x = 0.75;
+        bottomRight.y = 0.75;
+        const Overlay overlay({topLeft, bottomRight}, steadySession(), Units(), GaugeTheme());
+        const QString output = m_dir.filePath("two-corners.mp4");
+        const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay);
+        QCOMPARE(plan.regions.size(), 2);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(finished.first().at(1).toString()));
+        const QImage before = frameAt(m_sourceVideo, 1.0);
+        const QImage after = frameAt(output, 1.0);
+        QVERIFY(difference(before, after, 30, 30) > 60);      // centre of the top left dial
+        QVERIFY(difference(before, after, 270, 210) > 60);    // centre of the bottom right one
+        QVERIFY(difference(before, after, 160, 120) < 20);    // between them: untouched
+        QVERIFY(difference(before, after, 280, 30) < 20);
+    }
+
     void exportRangeAndSmallerSize()
     {
         if (m_sourceVideo.isEmpty())
@@ -604,7 +659,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
 
-        ExportJob job("ffmpeg", plan, overlay, steadySession(), 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -630,7 +685,7 @@ private slots:
         const Overlay overlay = oneGauge();
         // a source that is not there: ffmpeg starts and gives up
         const ExportPlan plan = ExportPlan::make(m_dir.filePath("missing.mp4"), info, settingsFor(output), overlay);
-        ExportJob job("ffmpeg", plan, overlay, steadySession(), 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -644,7 +699,7 @@ private slots:
     {
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor(m_dir.filePath("x.mp4")), overlay);
-        ExportJob job("/no/such/dir/ffmpeg", plan, overlay, steadySession(), 0.0);
+        ExportJob job("/no/such/dir/ffmpeg", plan, overlay, 0.0);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.count() == 1 || finished.wait(10000));
@@ -663,7 +718,7 @@ private slots:
             }
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(source, info, settings, overlay);
-        ExportJob job("ffmpeg", plan, overlay, steadySession(), 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
         QSignalSpy finished(&job, &ExportJob::finished);
         QSignalSpy progress(&job, &ExportJob::progress);
         job.start();
@@ -743,7 +798,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const QString output = m_dir.filePath("never.mp4");
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor(output), overlay);
-        ExportJob job("ffmpeg", plan, overlay, steadySession(), 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.stop();
         QCOMPARE(finished.count(), 1);
@@ -765,7 +820,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(source, info, settingsFor(output), overlay);
         {
-            ExportJob job("ffmpeg", plan, overlay, steadySession(), 0.0);
+            ExportJob job("ffmpeg", plan, overlay, 0.0);
             QSignalSpy progress(&job, &ExportJob::progress);
             job.start();
             QVERIFY(progress.wait(30000));

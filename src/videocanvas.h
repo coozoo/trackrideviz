@@ -1,7 +1,6 @@
 #pragma once
 
 #include "overlay/overlay.h"
-#include "telemetry/telemetrysession.h"
 
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
@@ -26,8 +25,13 @@ public:
     explicit VideoCanvas(QWidget *parent = nullptr);
     ~VideoCanvas() override;
 
-    void setSession(const TelemetrySessionPtr &session);
     void setOverlay(const Overlay &overlay);
+    // Index of the selected gauge, -1 for none.
+    int selectedItem() const { return m_selected; }
+    void setSelectedItem(int index);
+
+    // Width / height of the picture as shown; 0 while there is none.
+    double pictureAspect() const;
 
     // Telemetry time of the frame on screen (video time + sync offset).
     double telemetryTime() const { return m_videoTime + m_syncOffset; }
@@ -41,7 +45,19 @@ public slots:
     void setSyncOffset(double seconds);
     void clear();
 
+signals:
+    void selectedItemChanged(int index);
+    // The user finished moving or resizing a gauge. Fractions of the frame, as in OverlayItem.
+    void itemGeometryEdited(int index, double x, double y, double height);
+    void itemDeleteRequested(int index);
+    void itemMenuRequested(int index, const QPoint &globalPosition);
+
 protected:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
     void initializeGL() override;
     void paintGL() override;
 
@@ -82,6 +98,16 @@ private:
     double m_videoTime{0.0};
     double m_positionTime{0.0};
     double m_syncOffset{0.0};
-    TelemetrySessionPtr m_session;
+    QRectF resizeHandle(const QRectF &itemRect) const;
+    void updateCursor(const QPointF &position);
+
     Overlay m_overlay;
+    int m_selected{-1};
+    // A gauge being moved or resized with the mouse. The overlay shows it
+    // where the mouse has it; the project hears about it on release.
+    enum Drag { NoDrag, Moving, Resizing };
+    Drag m_drag{NoDrag};
+    QPointF m_dragStart;
+    QRectF m_dragStartRect;
+    bool m_dragMoved{false};
 };

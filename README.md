@@ -7,8 +7,10 @@ A cross-platform (Linux, Windows, macOS) Qt application meant to replace older o
 and another editor, which are no longer maintained and hardly run on current systems.
 
 > **Status: early development.** A video can be opened with a FIT or GPX file, synchronized
-> automatically, played with a speedometer over it and exported with it as a new video. One
-> built-in gauge so far. See the [roadmap](docs/planning/04-roadmap.md).
+> automatically, dressed with gauges that are placed and sized with the mouse, and exported as a
+> new video. Gauges and templates from a the old editor installation can be imported, including
+> graphs, track maps and animated gauges; two simple gauges are built in. Lap timing and
+> derived channels (G-force) are not there yet. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features
 

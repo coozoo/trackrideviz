@@ -6,12 +6,20 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/gauge/builtingauges.cpp \
+    $$PWD/gauge/channelicons.cpp \
+    $$PWD/gauge/gaugefile.cpp \
+    $$PWD/gauge/gaugelibrary.cpp \
     $$PWD/gauge/gaugerenderer.cpp \
+    $$PWD/gauge/metricrange.cpp \
+    $$PWD/gauge/veggaugeimporter.cpp \
+    $$PWD/overlay/gaugetemplate.cpp \
     $$PWD/overlay/overlay.cpp \
+    $$PWD/overlay/templatelibrary.cpp \
     $$PWD/project/project.cpp \
     $$PWD/settings/appsettings.cpp \
     $$PWD/sync/videosync.cpp \
     $$PWD/telemetry/channel.cpp \
+    $$PWD/telemetry/demosession.cpp \
     $$PWD/telemetry/fit/fitdecoder.cpp \
     $$PWD/telemetry/fit/fitimporter.cpp \
     $$PWD/telemetry/gpximporter.cpp \
@@ -26,14 +34,23 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/gauge/builtingauges.h \
+    $$PWD/gauge/channelicons.h \
     $$PWD/gauge/gauge.h \
+    $$PWD/gauge/gaugefile.h \
+    $$PWD/gauge/gaugelibrary.h \
     $$PWD/gauge/gaugerenderer.h \
+    $$PWD/gauge/gaugetheme.h \
+    $$PWD/gauge/metricrange.h \
+    $$PWD/gauge/veggaugeimporter.h \
+    $$PWD/overlay/gaugetemplate.h \
     $$PWD/overlay/overlay.h \
+    $$PWD/overlay/templatelibrary.h \
     $$PWD/project/project.h \
     $$PWD/settings/appsettings.h \
     $$PWD/sync/videosync.h \
     $$PWD/telemetry/channel.h \
     $$PWD/telemetry/channelids.h \
+    $$PWD/telemetry/demosession.h \
     $$PWD/telemetry/fit/fitdecoder.h \
     $$PWD/telemetry/fit/fitimporter.h \
     $$PWD/telemetry/geo.h \

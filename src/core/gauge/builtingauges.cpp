@@ -1,8 +1,5 @@
 #include "builtingauges.h"
 
-#include "../telemetry/channelids.h"
-
-#include <QFont>
 #include <QPainter>
 #include <QPainterPath>
 
@@ -10,134 +7,168 @@
 
 namespace
 {
-const double kSize = 400.0;
-// The scale runs clockwise from lower left to lower right; 0 degrees is 12 o'clock.
-const double kMinAngle = -135.0;
-const double kMaxAngle = 135.0;
 const double kPi = 3.14159265358979323846;
 
-QImage blankImage()
+QImage blankImage(const QSizeF &size)
 {
-    const int side = int(kSize);
-    QImage image(QSize(side, side), QImage::Format_ARGB32_Premultiplied);
+    QImage image(size.toSize(), QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::transparent);
     return image;
 }
 
-// Point on a circle around the dial centre; angle in degrees clockwise from 12 o'clock.
-QPointF onDial(double angle, double radius)
+GaugeComponent imageComponent(const QImage &image, const QRectF &frame, GaugeColor::Role role)
 {
-    const double rad = angle * kPi / 180.0;
-    return QPointF(kSize / 2 + radius * std::sin(rad), kSize / 2 - radius * std::cos(rad));
+    GaugeComponent component;
+    component.type = GaugeComponent::Image;
+    component.image = image;
+    component.frame = frame;
+    component.color.role = role;
+    return component;
 }
 
-QImage dialFace(int maxSpeed)
+GaugeComponent textComponent(GaugeComponent::AutoText autoText, const QPointF &anchor, double fontSize,
+                             Qt::Alignment alignment, GaugeColor::Role role = GaugeColor::Foreground)
 {
-    QImage image = blankImage();
-    QPainter painter(&image);
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+    GaugeComponent component;
+    component.type = GaugeComponent::Text;
+    component.autoText = autoText;
+    component.frame = QRectF(anchor, QSizeF(0, 0));
+    component.fontSize = fontSize;
+    component.alignment = alignment;
+    component.color.role = role;
+    return component;
+}
+}
 
-    const QPointF centre(kSize / 2, kSize / 2);
-    painter.setPen(QPen(QColor(255, 255, 255, 200), 4));
-    painter.setBrush(QColor(0, 0, 0, 150));
-    painter.drawEllipse(centre, kSize / 2 - 4, kSize / 2 - 4);
+QStringList BuiltinGauges::ids()
+{
+    return {DialId, ReadoutId};
+}
 
-    QFont font = painter.font();
-    font.setPixelSize(26);
-    font.setBold(true);
-    painter.setFont(font);
-    const int minorStep = maxSpeed <= 100 ? 5 : 10;
-    const int majorStep = minorStep * 2;
-    for (int value = 0; value <= maxSpeed; value += minorStep)
+Gauge BuiltinGauges::byId(const QString &id)
+{
+    if (id == QLatin1String(DialId))
         {
-            const double angle = kMinAngle + (kMaxAngle - kMinAngle) * value / maxSpeed;
-            const bool major = value % majorStep == 0;
-            painter.setPen(QPen(Qt::white, major ? 5 : 2, Qt::SolidLine, Qt::FlatCap));
-            painter.drawLine(onDial(angle, major ? 158 : 170), onDial(angle, 186));
-            if (major)
-                {
-                    QRectF box(0, 0, 70, 34);
-                    box.moveCenter(onDial(angle, 128));
-                    painter.drawText(box, Qt::AlignCenter, QString::number(value));
-                }
+            return dial();
         }
-    return image;
+    if (id == QLatin1String(ReadoutId))
+        {
+            return readout();
+        }
+    return Gauge();
 }
 
-// Drawn pointing at 12 o'clock; the renderer turns it around the dial centre.
-QImage needle()
+// Every picture here is a white shape; the theme gives it its colour.
+Gauge BuiltinGauges::dial()
 {
-    QImage image = blankImage();
-    QPainter painter(&image);
-    painter.setRenderHint(QPainter::Antialiasing);
-    const double c = kSize / 2;
-    QPainterPath path;
-    path.moveTo(c, c - 176);
-    path.lineTo(c + 7, c + 30);
-    path.lineTo(c - 7, c + 30);
-    path.closeSubpath();
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(255, 80, 40));
-    painter.drawPath(path);
-    painter.setBrush(QColor(40, 40, 40));
-    painter.setPen(QPen(Qt::white, 3));
-    painter.drawEllipse(QPointF(c, c), 16, 16);
-    return image;
-}
-}
+    const double size = 400.0;
+    const double centre = size / 2;
+    // the scale runs clockwise from lower left to lower right
+    const double minAngle = -135.0;
+    const double maxAngle = 135.0;
+    const int majorTicks = 9;
+    const QRectF whole(0, 0, size, size);
+    auto onDial = [centre](double angle, double radius)
+    {
+        const double rad = angle * kPi / 180.0;
+        return QPointF(centre + radius * std::sin(rad), centre - radius * std::cos(rad));
+    };
 
-Gauge BuiltinGauges::speedometer(const Units &units)
-{
-    const int maxSpeed = units.speed == Units::MilesPerHour ? 50 : 80;
     Gauge gauge;
-    gauge.name = "Speedometer";
-    gauge.size = QSizeF(kSize, kSize);
-    const QRectF whole(0, 0, kSize, kSize);
+    gauge.name = "Dial";
+    gauge.size = QSizeF(size, size);
 
-    GaugeComponent face;
-    face.type = GaugeComponent::Image;
-    face.rect = whole;
-    face.image = dialFace(maxSpeed);
-    gauge.components.append(face);
+    QImage plate = blankImage(gauge.size);
+    {
+        QPainter painter(&plate);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(Qt::white);
+        painter.drawEllipse(QPointF(centre, centre), centre - 2, centre - 2);
+    }
+    gauge.components.append(imageComponent(plate, whole, GaugeColor::Background));
 
-    GaugeComponent value;
-    value.type = GaugeComponent::Text;
-    value.rect = QRectF(100, 262, 200, 70);
-    value.channel = ChannelId::Speed;
-    value.valueScale = units.speedScale();
-    value.fontSize = 64;
+    QImage ticks = blankImage(gauge.size);
+    {
+        QPainter painter(&ticks);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setBrush(Qt::NoBrush);
+        painter.setPen(QPen(Qt::white, 4));
+        painter.drawEllipse(QPointF(centre, centre), centre - 4, centre - 4);
+        const int steps = (majorTicks - 1) * 2;
+        for (int i = 0; i <= steps; ++i)
+            {
+                const double angle = minAngle + (maxAngle - minAngle) * i / steps;
+                const bool major = i % 2 == 0;
+                painter.setPen(QPen(Qt::white, major ? 5 : 2, Qt::SolidLine, Qt::FlatCap));
+                painter.drawLine(onDial(angle, major ? 158 : 170), onDial(angle, 186));
+            }
+    }
+    gauge.components.append(imageComponent(ticks, whole, GaugeColor::Accent2));
+
+    for (int i = 0; i < majorTicks; ++i)
+        {
+            const double angle = minAngle + (maxAngle - minAngle) * i / (majorTicks - 1);
+            GaugeComponent marking = textComponent(GaugeComponent::IntervalMarking, onDial(angle, 128), 26,
+                                                   Qt::AlignHCenter | Qt::AlignVCenter);
+            marking.bold = true;
+            gauge.components.append(marking);
+        }
+
+    GaugeComponent value = textComponent(GaugeComponent::Value, QPointF(centre, 297), 64, Qt::AlignHCenter | Qt::AlignVCenter);
     value.bold = true;
+    value.precision = 0;
     gauge.components.append(value);
+    gauge.components.append(textComponent(GaugeComponent::Unit, QPointF(centre, 343), 24, Qt::AlignHCenter | Qt::AlignVCenter));
 
-    GaugeComponent unit;
-    unit.type = GaugeComponent::Text;
-    unit.rect = QRectF(100, 328, 200, 30);
-    unit.text = units.speedLabel();
-    unit.fontSize = 24;
-    unit.color = QColor(220, 220, 220);
-    gauge.components.append(unit);
-
-    GaugeComponent hand;
-    hand.type = GaugeComponent::DynamicRotate;
-    hand.rect = whole;
-    hand.image = needle();
-    hand.pivot = QPointF(kSize / 2, kSize / 2);
-    hand.channel = ChannelId::Speed;
-    hand.valueScale = units.speedScale();
-    hand.minValue = 0;
-    hand.maxValue = maxSpeed;
-    hand.minAngle = kMinAngle;
-    hand.maxAngle = kMaxAngle;
+    // drawn pointing at 12 o'clock; the manipulation turns it around the centre
+    QImage needle = blankImage(gauge.size);
+    {
+        QPainter painter(&needle);
+        painter.setRenderHint(QPainter::Antialiasing);
+        QPainterPath path;
+        path.moveTo(centre, centre - 176);
+        path.lineTo(centre + 7, centre + 30);
+        path.lineTo(centre - 7, centre + 30);
+        path.closeSubpath();
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(Qt::white);
+        painter.drawPath(path);
+        painter.drawEllipse(QPointF(centre, centre), 16, 16);
+    }
+    GaugeComponent hand = imageComponent(needle, whole, GaugeColor::Accent);
+    GaugeManipulation turn;
+    turn.type = GaugeManipulation::Rotate;
+    turn.pivot = QPointF(centre, centre);
+    turn.minAngle = minAngle;
+    turn.maxAngle = maxAngle;
+    hand.manipulations.append(turn);
     gauge.components.append(hand);
-
     return gauge;
 }
 
-Gauge BuiltinGauges::byId(const QString &id, const Units &units)
+Gauge BuiltinGauges::readout()
 {
-    if (id == QLatin1String(SpeedometerId))
-        {
-            return speedometer(units);
-        }
-    return Gauge();
+    Gauge gauge;
+    gauge.name = "Readout";
+    gauge.size = QSizeF(320, 110);
+
+    QImage plate = blankImage(gauge.size);
+    {
+        QPainter painter(&plate);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(Qt::white);
+        painter.drawRoundedRect(QRectF(QPointF(0, 0), gauge.size), 16, 16);
+    }
+    gauge.components.append(imageComponent(plate, QRectF(QPointF(0, 0), gauge.size), GaugeColor::Background));
+
+    GaugeComponent label = textComponent(GaugeComponent::Label, QPointF(20, 28), 22, Qt::AlignLeft | Qt::AlignVCenter,
+                                         GaugeColor::Accent2);
+    label.upperCase = true;
+    gauge.components.append(label);
+    GaugeComponent value = textComponent(GaugeComponent::ValueAndUnit, QPointF(20, 72), 40, Qt::AlignLeft | Qt::AlignVCenter);
+    value.bold = true;
+    gauge.components.append(value);
+    return gauge;
 }

@@ -2,19 +2,20 @@
 
 #include "gauge.h"
 
-#include "../units/units.h"
-
 // Gauges that ship inside the application, with artwork drawn in code, so the
 // program is usable without anybody else's gauge files.
-// Needs a QGuiApplication (text is drawn into the dial image).
+// Needs a QGuiApplication (shapes are painted into images).
 namespace BuiltinGauges
 {
-// Round dial with a needle and a digital readout, bound to the speed channel:
-// 0..80 km/h or 0..50 mph, whichever the units ask for.
-Gauge speedometer(const Units &units = Units());
+inline constexpr char DialId[] = "builtin:speedometer"; // the name projects already use
+inline constexpr char ReadoutId[] = "builtin:readout";
 
-// Ids under which projects refer to the built-in gauges.
-inline constexpr char SpeedometerId[] = "builtin:speedometer";
+QStringList ids();
 // A gauge with no components when the id is not known.
-Gauge byId(const QString &id, const Units &units);
+Gauge byId(const QString &id);
+
+// Round dial with a needle, numbered scale and a digital readout.
+Gauge dial();
+// Label, value and unit on a rounded plate.
+Gauge readout();
 }

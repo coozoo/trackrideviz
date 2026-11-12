@@ -51,19 +51,35 @@ exposed as QObjects with properties/signals or as plain value types. Widgets are
 
 ## 3.2 The one render path
 
+As built (`src/core/gauge/gaugerenderer.h`):
+
 ```
-GaugeRenderer::paint(QPainter&, const Gauge&, const Theme&, const FrameContext&)
+BoundGauge(gauge, channel, session, units, theme)   // once: colour the images, find units,
+                                                    //       labels, scales, scale numbers
+BoundGauge::render(QPainter&, target, time)         // per frame: sample and paint
+Overlay::render(QPainter&, frame, time)             // all placed gauges of a project
 ```
-`FrameContext` = telemetry time + a sampler giving channel values (and history windows for graphs,
-track polyline for maps). The same call is used by:
+
+A `Gauge` is a description without data or colours. Binding it to a channel of a recording does
+everything that is the same for every frame; `render()` is then the same call for:
 
 - preview — painted over the video frame in the canvas widget
-- export — painted into a `QImage` (ARGB32_Premultiplied) per output frame
-- gauge editor, library thumbnails, template previews
+- export — painted into a `QImage` (RGBA premultiplied) per output frame, in the worker thread
+- library thumbnails
 - QML later — `QQuickPaintedItem` (or Canvas Painter) wrapper
 
-Static layers (dial faces, tick marks) are cached per gauge as pixmaps; only the dynamic components
-repaint. A gauge whose inputs did not change between two frames is not repainted at all.
+A bound gauge is immutable, so one `Overlay` is shared by the preview and a running export.
+
+Speed (measured with `perf` on 1080p frames of the old editor templates: 12-33 ms before, 3-10 ms after):
+- each gauge is split into runs of parts that never change after binding (images and fixed
+  texts without manipulations) and parts that do; static runs are drawn once per size into a
+  picture and copied; graph lines and map routes likewise (per lap), only markers move
+- images are cropped to their non-transparent part when bound (needles are full-dial pictures)
+- route and graph lines are simplified (Douglas-Peucker, 0.25 design units) and use bevel joins
+- clip shapes reach just past the gauge: a pie slice of radius 10 000 cost the rasteriser more
+  than everything else together
+- gauges are placed on whole pixels, so cached and live parts line up; a painter that scales or
+  turns (none of ours does) bypasses the caches
 
 ## 3.3 Telemetry model
 
@@ -137,7 +153,14 @@ ExportJob (own thread)─► QProcess ffmpeg; per frame n: Overlay::render() int
 ```
 
 - ffmpeg reads and decodes the source video itself; nothing but the gauges crosses the pipe.
-  With one 360 px gauge on 1080p that is 0.5 MB per frame instead of 8 MB.
+  Each group of touching gauges is one region (at most 8); the regions are stacked into one
+  picture per frame, and ffmpeg `split`s and `crop`s it and overlays each region in its place.
+  Gauges in two corners cost two small regions, not the whole 8 MB frame.
+- On Linux the child process enlarges its stdin pipe to 1 MB before ffmpeg starts: with 64 KB
+  every multi-megabyte picture took dozens of write / wake-up rounds (29 s -> 20 s for 20 s of
+  1080p60). Pictures are Qt's ARGB32, given to ffmpeg as `bgra`, so QPainter never converts.
+- Each `overlay` filter costs ffmpeg ~2 ms per 1080p frame whatever the region size; hardware
+  decoding (`-hwaccel vaapi`) saves CPU but no time here, so it is not used.
 - telemetry time of piped frame n = `start + n / fps + syncOffset`, the same formula as the preview.
 - The pipe is filled a few frames ahead and refilled on `bytesWritten`, so the worker's event
   loop stays free and `stop()` is handled between frames.

@@ -9,11 +9,15 @@
 
 class QAction;
 class QAudioOutput;
+class QComboBox;
 class QDockWidget;
 class QDoubleSpinBox;
 class QLabel;
 class QSlider;
 class QToolButton;
+class QPushButton;
+class QUndoStack;
+class GaugeLibraryPanel;
 class QTreeWidget;
 class QVideoSink;
 class VideoCanvas;
@@ -46,6 +50,15 @@ private slots:
     bool saveProject();
     bool saveProjectAs();
     void exportVideo();
+    // Editing what is on the video. Every one of these is one undo step.
+    void addGauge(const QString &gaugeId);
+    void applyTemplate(const QString &templateId);
+    void removeGauge(int index);
+    void onItemGeometryEdited(int index, double x, double y, double height);
+    void setGaugeChannel(int index, const QString &channel);
+    void chooseThemeColor(int role);
+    void showItemMenu(int index, const QPoint &globalPosition);
+    void updateProperties();
     void togglePlayback();
     void onPlaybackStateChanged(QMediaPlayer::PlaybackState state);
     void onDurationChanged(qint64 durationMs);
@@ -69,6 +82,21 @@ private:
     // keepSync: the offset comes with the project and must survive the import
     void loadTelemetry(const QString &path, bool keepSync);
     void rebuildOverlay();
+    QWidget *createPropertiesPanel();
+    // The part of the project the undo stack covers.
+    struct OverlayState
+    {
+        QVector<OverlayItem> items;
+        GaugeTheme theme;
+    };
+    // Pushes an undo step that takes the overlay from what it is now to `after`.
+    void changeOverlay(const QString &description, const OverlayState &after);
+    void applyOverlayState(const OverlayState &state);
+    // Channels a gauge can be bound to: those of the recording, the current one included.
+    QStringList channelChoices(const QString &current) const;
+    // Asks about unsaved changes. False: the user wants to stay.
+    bool maybeSave();
+    void setModified(bool modified);
     void updateWindowTitle();
     void setSyncOffset(double seconds, const QString &explanation);
     void updateSourcesInfo();
@@ -90,6 +118,13 @@ private:
     QLabel *m_sourcesLabel{nullptr};
     QTreeWidget *m_channelTree{nullptr};
     QAction *m_exportAction{nullptr};
+    GaugeLibraryPanel *m_libraryPanel{nullptr};
+    QComboBox *m_channelCombo{nullptr};
+    QPushButton *m_removeGaugeButton{nullptr};
+    QVector<QPushButton *> m_themeButtons;
+    QUndoStack *m_undoStack{nullptr};
+    // The project differs from what is on disk in a way worth asking about.
+    bool m_modified{false};
 
     QDockWidget *m_sourcesDock{nullptr};
     QDockWidget *m_libraryDock{nullptr};

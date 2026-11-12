@@ -2,6 +2,9 @@
 
 #include "appearance.h"
 #include "exportdialog.h"
+#include "gauge/gaugelibrary.h"
+#include "gaugelibrarypanel.h"
+#include "overlay/templatelibrary.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
 #include "sync/videosync.h"
@@ -11,17 +14,22 @@
 #include <QApplication>
 #include <QAudioOutput>
 #include <QCloseEvent>
+#include <QColorDialog>
+#include <QComboBox>
 #include <QDir>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenuBar>
+#include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSettings>
 #include <QShortcut>
 #include <QSlider>
@@ -30,6 +38,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
+#include <QUndoStack>
 #include <QVBoxLayout>
 #include <QVideoSink>
 #include <QtConcurrent>
@@ -40,6 +49,28 @@ struct ImportResult
 {
     TelemetrySessionPtr session;
     QString error;
+};
+
+// One change of the overlay. Whole states are kept rather than differences:
+// they are a handful of numbers, and "set it to exactly this" cannot go wrong.
+class OverlayCommand : public QUndoCommand
+{
+public:
+    OverlayCommand(const QString &text, std::function<void(bool)> apply)
+        : QUndoCommand(text), m_apply(std::move(apply))
+    {
+    }
+    void undo() override { m_apply(false); }
+    void redo() override { m_apply(true); }
+
+private:
+    std::function<void(bool)> m_apply; // true: the new state, false: the old one
+};
+
+struct ThemeRole
+{
+    const char *label;
+    QColor GaugeTheme::*color;
 };
 
 enum ChannelColumn { NameColumn, NowColumn, UnitColumn, MinColumn, MaxColumn };
@@ -65,6 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_player->setAudioOutput(m_audioOutput);
     m_player->setVideoSink(m_videoSink);
 
+    m_undoStack = new QUndoStack(this);
     setCentralWidget(createCentralWidget());
     createDocks();
     createMenus();
@@ -72,6 +104,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_units = AppSettings::units();
     rebuildOverlay();
+
+    connect(m_canvas, &VideoCanvas::itemGeometryEdited, this, &MainWindow::onItemGeometryEdited);
+    connect(m_canvas, &VideoCanvas::itemDeleteRequested, this, &MainWindow::removeGauge);
+    connect(m_canvas, &VideoCanvas::itemMenuRequested, this, &MainWindow::showItemMenu);
+    connect(m_canvas, &VideoCanvas::selectedItemChanged, this, &MainWindow::updateProperties);
+    connect(m_libraryPanel, &GaugeLibraryPanel::addRequested, this, &MainWindow::addGauge);
+    connect(m_libraryPanel, &GaugeLibraryPanel::applyTemplateRequested, this, &MainWindow::applyTemplate);
+    connect(m_libraryPanel, &GaugeLibraryPanel::libraryChanged, this, &MainWindow::rebuildOverlay);
+    updateProperties();
 
     connect(m_videoSink, &QVideoSink::videoFrameChanged, m_canvas, &VideoCanvas::setFrame);
     connect(m_player, &QMediaPlayer::positionChanged, m_canvas, &VideoCanvas::setPosition);
@@ -103,6 +144,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    if (!maybeSave())
+        {
+            event->ignore();
+            return;
+        }
     if (AppSettings::saveWindowLayout())
         {
             QSettings settings;
@@ -183,6 +229,9 @@ void MainWindow::createDocks()
     m_timelineDock = addPlaceholderDock("timelineDock", tr("Timeline"), Qt::BottomDockWidgetArea);
     tabifyDockWidget(m_sourcesDock, m_libraryDock);
     m_sourcesDock->raise();
+    m_libraryPanel = new GaugeLibraryPanel(m_libraryDock);
+    m_libraryDock->setWidget(m_libraryPanel);
+    m_propertiesDock->setWidget(createPropertiesPanel());
 
     QWidget *sources = new QWidget(m_sourcesDock);
     m_sourcesLabel = new QLabel(sources);
@@ -243,6 +292,14 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     QAction *quitAction = fileMenu->addAction(tr("&Quit"), this, &QWidget::close);
     quitAction->setShortcut(QKeySequence::Quit);
+
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+    QAction *undoAction = m_undoStack->createUndoAction(this, tr("&Undo"));
+    undoAction->setShortcut(QKeySequence::Undo);
+    editMenu->addAction(undoAction);
+    QAction *redoAction = m_undoStack->createRedoAction(this, tr("&Redo"));
+    redoAction->setShortcut(QKeySequence::Redo);
+    editMenu->addAction(redoAction);
 
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(m_sourcesDock->toggleViewAction());
@@ -339,6 +396,10 @@ void MainWindow::chooseProject()
 
 void MainWindow::openProject(const QString &path)
 {
+    if (!maybeSave())
+        {
+            return;
+        }
     Project project;
     QString error;
     if (!ProjectFile::load(path, &project, &error))
@@ -358,9 +419,10 @@ void MainWindow::openProject(const QString &path)
 
     m_project = project;
     m_projectPath = path;
+    m_undoStack->clear();
+    setModified(false);
     m_session.reset();
     m_pendingTelemetryPath.clear();
-    m_canvas->setSession(nullptr);
     m_canvas->clear();
     m_player->setSource(QUrl());
     m_playButton->setEnabled(false);
@@ -397,6 +459,7 @@ bool MainWindow::saveProject()
             QMessageBox::warning(this, tr("Save project"), error);
             return false;
         }
+    setModified(false);
     statusBar()->showMessage(tr("Project saved."), 3000);
     return true;
 }
@@ -451,21 +514,281 @@ void MainWindow::exportVideo()
         }
     // two decoders on one file only fight for the disk and the graphics card
     m_player->pause();
-    ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_units), m_session,
+    ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_session, m_units, m_project.theme),
                         m_project.syncOffset, m_player->position() / 1000.0, this);
     dialog.exec();
 }
 
 void MainWindow::rebuildOverlay()
 {
-    m_canvas->setOverlay(Overlay(m_project.overlay, m_units));
+    m_canvas->setOverlay(Overlay(m_project.overlay, m_session, m_units, m_project.theme));
+    updateProperties();
 }
 
 void MainWindow::updateWindowTitle()
 {
     const QString appName = qApp->property("appname").toString();
-    setWindowTitle(m_projectPath.isEmpty() ? appName
-                   : QString("%1 - %2").arg(QFileInfo(m_projectPath).completeBaseName(), appName));
+    const QString project = m_projectPath.isEmpty() ? QString() : QFileInfo(m_projectPath).completeBaseName();
+    // "[*]" is where Qt puts the mark for unsaved changes
+    setWindowTitle(project.isEmpty() ? appName + "[*]" : QString("%1[*] - %2").arg(project, appName));
+    setWindowModified(m_modified);
+}
+
+void MainWindow::setModified(bool modified)
+{
+    m_modified = modified;
+    setWindowModified(modified);
+}
+
+bool MainWindow::maybeSave()
+{
+    if (!m_modified)
+        {
+            return true;
+        }
+    const QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Unsaved changes"),
+            tr("The gauges or the synchronization were changed. Save the project?"),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
+    if (answer == QMessageBox::Save)
+        {
+            return saveProject();
+        }
+    return answer == QMessageBox::Discard;
+}
+
+// --- editing the overlay ---------------------------------------------------
+
+void MainWindow::applyOverlayState(const OverlayState &state)
+{
+    m_project.overlay = state.items;
+    m_project.theme = state.theme;
+    setModified(true);
+    rebuildOverlay();
+}
+
+void MainWindow::changeOverlay(const QString &description, const OverlayState &after)
+{
+    const OverlayState before{m_project.overlay, m_project.theme};
+    if (before.items == after.items && before.theme == after.theme)
+        {
+            return;
+        }
+    // pushing runs redo(), which applies `after`
+    m_undoStack->push(new OverlayCommand(description, [this, before, after](bool forward)
+    {
+        applyOverlayState(forward ? after : before);
+    }));
+}
+
+void MainWindow::addGauge(const QString &gaugeId)
+{
+    const Gauge gauge = GaugeLibrary::gauge(gaugeId);
+    if (gauge.isEmpty())
+        {
+            return;
+        }
+    OverlayItem item;
+    item.gaugeId = gaugeId;
+    // what the gauge was made for, if the recording has it; else speed, else anything there is
+    const QStringList available = m_session ? m_session->channelIds() : QStringList();
+    item.channel = available.contains(ChannelId::Speed) || available.isEmpty() ? QString(ChannelId::Speed) : available.first();
+    for (const QString &supported : gauge.supportedTypes)
+        {
+            if (available.contains(supported))
+                {
+                    item.channel = supported;
+                    break;
+                }
+        }
+    // near the middle, each new one a little further down right so they do not hide each other
+    const double step = 0.03 * (m_project.overlay.size() % 8);
+    item.height = 0.25;
+    item.x = 0.35 + step;
+    item.y = 0.3 + step;
+
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items.append(item);
+    changeOverlay(tr("Add gauge"), after);
+    m_canvas->setSelectedItem(int(m_project.overlay.size()) - 1);
+}
+
+void MainWindow::applyTemplate(const QString &templateId)
+{
+    const GaugeTemplate t = TemplateLibrary::get(templateId);
+    if (t.items.isEmpty())
+        {
+            return;
+        }
+    // laid out for the shape of this video; 16:9 until one is open
+    const double aspect = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
+    m_canvas->setSelectedItem(-1);
+    changeOverlay(tr("Apply template"), {t.overlayItems(aspect), t.theme});
+}
+
+void MainWindow::removeGauge(int index)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items.removeAt(index);
+    m_canvas->setSelectedItem(-1);
+    changeOverlay(tr("Remove gauge"), after);
+}
+
+void MainWindow::onItemGeometryEdited(int index, double x, double y, double height)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items[index].x = x;
+    after.items[index].y = y;
+    after.items[index].height = height;
+    changeOverlay(tr("Move gauge"), after);
+}
+
+void MainWindow::setGaugeChannel(int index, const QString &channel)
+{
+    if (index < 0 || index >= m_project.overlay.size() || channel.isEmpty())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items[index].channel = channel;
+    changeOverlay(tr("Change what a gauge shows"), after);
+}
+
+QStringList MainWindow::channelChoices(const QString &current) const
+{
+    QStringList channels = m_session ? m_session->channelIds() : QStringList();
+    if (!current.isEmpty() && !channels.contains(current))
+        {
+            // bound to something this recording lacks: still has to be shown as the choice made
+            channels.prepend(current);
+        }
+    return channels;
+}
+
+void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    const QString current = m_project.overlay.at(index).channel;
+    QMenu menu(this);
+    QMenu *showMenu = menu.addMenu(tr("Show"));
+    for (const QString &channel : channelChoices(current))
+        {
+            const Channel *data = m_session ? m_session->channel(channel) : nullptr;
+            QAction *action = showMenu->addAction(ChannelFormat::displayFor(channel, data ? data->unit() : QString(), m_units).name);
+            action->setCheckable(true);
+            action->setChecked(channel == current);
+            connect(action, &QAction::triggered, this, [this, index, channel]()
+            {
+                setGaugeChannel(index, channel);
+            });
+        }
+    menu.addSeparator();
+    menu.addAction(tr("Remove"), this, [this, index]()
+    {
+        removeGauge(index);
+    });
+    menu.exec(globalPosition);
+}
+
+namespace
+{
+const ThemeRole kThemeRoles[] =
+{
+    {QT_TRANSLATE_NOOP("MainWindow", "Text and numbers"), &GaugeTheme::foreground},
+    {QT_TRANSLATE_NOOP("MainWindow", "Background"), &GaugeTheme::background},
+    {QT_TRANSLATE_NOOP("MainWindow", "Accent"), &GaugeTheme::accent},
+    {QT_TRANSLATE_NOOP("MainWindow", "Second accent"), &GaugeTheme::accent2},
+};
+}
+
+QWidget *MainWindow::createPropertiesPanel()
+{
+    QWidget *panel = new QWidget(this);
+
+    m_channelCombo = new QComboBox(panel);
+    m_channelCombo->setToolTip(tr("The measurement the selected gauge shows"));
+    connect(m_channelCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int row)
+    {
+        setGaugeChannel(m_canvas->selectedItem(), m_channelCombo->itemData(row).toString());
+    });
+    m_removeGaugeButton = new QPushButton(tr("Remove gauge"), panel);
+    connect(m_removeGaugeButton, &QPushButton::clicked, this, [this]()
+    {
+        removeGauge(m_canvas->selectedItem());
+    });
+
+    QFormLayout *form = new QFormLayout(panel);
+    form->addRow(tr("Selected gauge shows:"), m_channelCombo);
+    form->addRow(QString(), m_removeGaugeButton);
+    QLabel *coloursTitle = new QLabel(tr("Colours of all gauges"), panel);
+    QFont bold = coloursTitle->font();
+    bold.setBold(true);
+    coloursTitle->setFont(bold);
+    form->addRow(coloursTitle);
+    for (int role = 0; role < int(std::size(kThemeRoles)); ++role)
+        {
+            QPushButton *button = new QPushButton(panel);
+            button->setMinimumWidth(80);
+            connect(button, &QPushButton::clicked, this, [this, role]()
+            {
+                chooseThemeColor(role);
+            });
+            m_themeButtons.append(button);
+            form->addRow(tr(kThemeRoles[role].label) + ":", button);
+        }
+    return panel;
+}
+
+void MainWindow::chooseThemeColor(int role)
+{
+    const QColor current = m_project.theme.*(kThemeRoles[role].color);
+    // transparency matters here: gauge plates are usually see-through
+    const QColor chosen = QColorDialog::getColor(current, this, tr(kThemeRoles[role].label), QColorDialog::ShowAlphaChannel);
+    if (!chosen.isValid())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.theme.*(kThemeRoles[role].color) = chosen;
+    changeOverlay(tr("Change gauge colours"), after);
+}
+
+void MainWindow::updateProperties()
+{
+    const int index = m_canvas->selectedItem();
+    const bool selected = index >= 0 && index < m_project.overlay.size();
+    m_channelCombo->clear();
+    m_channelCombo->setEnabled(selected);
+    m_removeGaugeButton->setEnabled(selected);
+    if (selected)
+        {
+            const QString current = m_project.overlay.at(index).channel;
+            for (const QString &channel : channelChoices(current))
+                {
+                    const Channel *data = m_session ? m_session->channel(channel) : nullptr;
+                    m_channelCombo->addItem(ChannelFormat::displayFor(channel, data ? data->unit() : QString(), m_units).name, channel);
+                }
+            m_channelCombo->setCurrentIndex(m_channelCombo->findData(current));
+        }
+    for (int role = 0; role < m_themeButtons.size(); ++role)
+        {
+            const QColor color = m_project.theme.*(kThemeRoles[role].color);
+            // a swatch; the text keeps it usable for those who cannot tell the colours apart
+            QPixmap swatch(32, 16);
+            swatch.fill(color);
+            m_themeButtons.at(role)->setIcon(QIcon(swatch));
+            m_themeButtons.at(role)->setText(color.name(color.alpha() < 255 ? QColor::HexArgb : QColor::HexRgb));
+        }
 }
 
 void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPtr &session, const QString &error)
@@ -487,7 +810,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
         {
             m_project.syncIsManual = false;
         }
-    m_canvas->setSession(session);
+    rebuildOverlay();
     updateSourcesInfo();
     autoSync();
 }
@@ -544,6 +867,7 @@ void MainWindow::onOffsetEdited(double seconds)
 {
     m_project.syncIsManual = true;
     m_project.syncOffset = seconds;
+    setModified(true);
     m_canvas->setSyncOffset(seconds);
     m_syncLabel->setText(tr("Set by hand."));
 }

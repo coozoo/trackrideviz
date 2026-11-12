@@ -56,15 +56,43 @@ anyway. Priority: after the old editor import.
 
 ### another editor `.rro` / `.rrt` / `.rrp` — binary and undocumented, no import planned.
 
-### Native: `.rtvgauge` / `.rtvtemplate` (JSON)
+### the old editor `.vet` placement, as found (2026-11-12)
 
-Superset of the the old editor component model with these additions:
+Offsets are pixels of a 1920 x 1080 frame, measured from the edge named by `fromEdge`: `min`
+(left/top), `mid` (centre) or `max` (right/bottom), to the gauge's left/top side; gauges are at
+their design size (`scale` is in the format but no shipped template uses it). Checked: 196 of the
+right/bottom-anchored entries are exactly flush with that edge. An entry may be a group
+(`origin` + `widgets`), whose members' plain `{x, y}` origins are offsets from the group's. Logos
+are named like any gauge. Colours: `backgroundColor`, `accentColor`, `accent2Color`; there is no
+text colour - we use white, black on a light, mostly opaque background.
+
+Rendering details inferred from the files and the artwork (the renderer is native code):
+graphs span the whole recording; markers' origins are the current point, the top edge at the
+current x, the left edge at the current y; `bottomFillColor` is often alpha only (the line's
+colour); track knobs and lap start lines have their origin at the point; a positive `clipAngle`
+leans a horizontal bar's edge right at the top and tilts a vertical fill's edge up to the left;
+`staticRadialClip` is a fixed mask, not a component; `animationStrip` frames run along the
+strip's longer side.
+
+### Native gauge: a folder with `gauge.json` + images (implemented)
+
+`GaugeFile` - every the old editor part has its own field; images by relative path inside the folder.
+Kept in the user's gauge library (`<app data>/gauges/<name>/`).
+
+### Native template: one JSON file (implemented)
+
+`TemplateFile` - name, category, theme, and per gauge: library id, channel, edge and offset for x
+and y in 1920 x 1080 reference pixels, height. Kept in `<app data>/templates/`.
+
+### Native, still planned
+
+Additions to the the old editor component model:
 - vector primitives (arc, pie, ellipse, rect, line, path) alongside images — from another editor
 - non-linear scales (value→position table) — from another editor
 - per-component input: channel + optional transform, instead of one `auxiliaryType`
 - extra components: g-plot, ticker tape, lap table, sector bar, 7-segment text style
 - SVG as well as PNG images
-- a gauge is a folder or zip: `gauge.json` + `images/` — self-contained and shareable
+- a gauge as one zip file for sharing
 
 ## 2.2 Telemetry formats
 

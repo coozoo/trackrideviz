@@ -1,7 +1,6 @@
 #pragma once
 
 #include "overlay/overlay.h"
-#include "telemetry/telemetrysession.h"
 #include "video/exportjob.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
@@ -31,7 +30,7 @@ class ExportDialog : public QDialog
 
 public:
     // currentPosition: where the preview stands, offered as the start of a partial export
-    ExportDialog(const QString &videoPath, const Overlay &overlay, const TelemetrySessionPtr &session,
+    ExportDialog(const QString &videoPath, const Overlay &overlay,
                  double syncOffset, double currentPosition, QWidget *parent = nullptr);
     ~ExportDialog() override;
 
@@ -63,7 +62,6 @@ private:
 
     QString m_videoPath;
     Overlay m_overlay;
-    TelemetrySessionPtr m_session;
     double m_syncOffset{0.0};
     double m_currentPosition{0.0};
     QString m_ffmpeg;

@@ -20,6 +20,7 @@ struct Project
     bool syncIsManual{false};
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
+    GaugeTheme theme;         // colours of all gauges
 };
 
 class ProjectFile

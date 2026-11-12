@@ -3,11 +3,18 @@
 
 #include <QOpenGLContext>
 #include <QOpenGLShaderProgram>
+#include <QContextMenuEvent>
+#include <QKeyEvent>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QVideoFrameFormat>
 
 namespace
 {
+const double kHandleSize = 12.0;      // resize handle, widget pixels
+const double kMinVisible = 24.0;      // of a gauge that is dragged off the picture
+const double kMinItemHeight = 0.03;   // fraction of the frame height
+
 // GLSL 1.10 / GLSL ES 1.00: runs on anything that has shaders at all,
 // including the 2.1 compatibility context macOS gives by default.
 const char kVertexShader[] = R"(
@@ -156,6 +163,8 @@ VideoCanvas::VideoCanvas(QWidget *parent)
     : QOpenGLWidget(parent)
 {
     setMinimumSize(320, 180);
+    setMouseTracking(true);          // for the cursor that says what a drag would do
+    setFocusPolicy(Qt::ClickFocus);  // Delete acts on the selected gauge
 }
 
 VideoCanvas::~VideoCanvas()
@@ -163,16 +172,160 @@ VideoCanvas::~VideoCanvas()
     releaseGl();
 }
 
-void VideoCanvas::setSession(const TelemetrySessionPtr &session)
-{
-    m_session = session;
-    update();
-}
-
 void VideoCanvas::setOverlay(const Overlay &overlay)
 {
     m_overlay = overlay;
+    m_drag = NoDrag;
+    if (m_selected >= m_overlay.count())
+        {
+            setSelectedItem(-1);
+        }
     update();
+}
+
+void VideoCanvas::setSelectedItem(int index)
+{
+    if (index < -1 || index >= m_overlay.count())
+        {
+            index = -1;
+        }
+    if (index != m_selected)
+        {
+            m_selected = index;
+            emit selectedItemChanged(index);
+            update();
+        }
+}
+
+QRectF VideoCanvas::resizeHandle(const QRectF &itemRect) const
+{
+    return QRectF(itemRect.right() - kHandleSize, itemRect.bottom() - kHandleSize, kHandleSize, kHandleSize);
+}
+
+void VideoCanvas::updateCursor(const QPointF &position)
+{
+    if (!m_hasPicture)
+        {
+            unsetCursor();
+            return;
+        }
+    const QRectF frame = videoRect();
+    if (m_selected >= 0 && resizeHandle(m_overlay.itemRect(m_selected, frame)).contains(position))
+        {
+            setCursor(Qt::SizeFDiagCursor);
+        }
+    else if (m_overlay.itemAt(position, frame) >= 0)
+        {
+            setCursor(Qt::SizeAllCursor);
+        }
+    else
+        {
+            unsetCursor();
+        }
+}
+
+void VideoCanvas::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton || !m_hasPicture)
+        {
+            QOpenGLWidget::mousePressEvent(event);
+            return;
+        }
+    const QPointF position = event->position();
+    const QRectF frame = videoRect();
+    // the handle belongs to the selected gauge even where another gauge lies under it
+    if (m_selected >= 0 && resizeHandle(m_overlay.itemRect(m_selected, frame)).contains(position))
+        {
+            m_drag = Resizing;
+        }
+    else
+        {
+            setSelectedItem(m_overlay.itemAt(position, frame));
+            m_drag = m_selected >= 0 ? Moving : NoDrag;
+        }
+    if (m_drag != NoDrag)
+        {
+            m_dragStart = position;
+            m_dragStartRect = m_overlay.itemRect(m_selected, frame);
+            m_dragMoved = false;
+        }
+}
+
+void VideoCanvas::mouseMoveEvent(QMouseEvent *event)
+{
+    const QPointF position = event->position();
+    if (m_drag == NoDrag || m_selected < 0)
+        {
+            updateCursor(position);
+            return;
+        }
+    const QRectF frame = videoRect();
+    const QPointF delta = position - m_dragStart;
+    QRectF rect = m_dragStartRect;
+    if (m_drag == Moving)
+        {
+            rect.translate(delta);
+            // at least a corner stays on the picture, so the gauge cannot be lost
+            const double keep = qMin(kMinVisible, qMin(rect.width(), rect.height()));
+            rect.moveLeft(qBound(frame.left() - rect.width() + keep, rect.left(), frame.right() - keep));
+            rect.moveTop(qBound(frame.top() - rect.height() + keep, rect.top(), frame.bottom() - keep));
+        }
+    else
+        {
+            // the shape is fixed: the height follows whichever direction the mouse went further
+            const double aspect = m_dragStartRect.width() / m_dragStartRect.height();
+            const double height = qMax(m_dragStartRect.height() + delta.y(), (m_dragStartRect.width() + delta.x()) / aspect);
+            rect.setHeight(qBound(kMinItemHeight * frame.height(), height, 2.0 * frame.height()));
+            rect.setWidth(rect.height() * aspect);
+        }
+    m_dragMoved = true;
+    m_overlay = m_overlay.withGeometry(m_selected, (rect.left() - frame.left()) / frame.width(),
+                                       (rect.top() - frame.top()) / frame.height(), rect.height() / frame.height());
+    update();
+}
+
+void VideoCanvas::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && m_drag != NoDrag)
+        {
+            const bool edited = m_dragMoved && m_selected >= 0;
+            m_drag = NoDrag;
+            if (edited)
+                {
+                    const OverlayItem &item = m_overlay.item(m_selected);
+                    emit itemGeometryEdited(m_selected, item.x, item.y, item.height);
+                }
+        }
+    updateCursor(event->position());
+}
+
+void VideoCanvas::keyPressEvent(QKeyEvent *event)
+{
+    if (m_selected >= 0 && (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace))
+        {
+            emit itemDeleteRequested(m_selected);
+            return;
+        }
+    if (event->key() == Qt::Key_Escape && m_selected >= 0)
+        {
+            setSelectedItem(-1);
+            return;
+        }
+    QOpenGLWidget::keyPressEvent(event);
+}
+
+void VideoCanvas::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (!m_hasPicture)
+        {
+            return;
+        }
+    const int index = m_overlay.itemAt(event->pos(), videoRect());
+    if (index >= 0)
+        {
+            setSelectedItem(index);
+            emit itemMenuRequested(index, event->globalPos());
+        }
 }
 
 void VideoCanvas::setFrame(const QVideoFrame &frame)
@@ -383,6 +536,12 @@ void VideoCanvas::uploadPendingFrame()
     m_hasPicture = !m_pictureSize.isEmpty();
 }
 
+double VideoCanvas::pictureAspect() const
+{
+    const QSizeF size = displaySize();
+    return m_hasPicture && size.height() > 0 ? size.width() / size.height() : 0.0;
+}
+
 QSizeF VideoCanvas::displaySize() const
 {
     return m_rotation % 180 == 0 ? QSizeF(m_pictureSize) : QSizeF(m_pictureSize.height(), m_pictureSize.width());
@@ -481,8 +640,30 @@ void VideoCanvas::paintGL()
                              : tr("The video cannot be shown: OpenGL is not available."));
             return;
         }
-    if (m_session)
+    const QRectF frame = videoRect();
+    // the export has nothing outside the picture, so the preview shows nothing there either
+    painter.save();
+    painter.setClipRect(frame);
+    m_overlay.render(painter, frame, telemetryTime());
+    painter.restore();
+
+    if (m_selected >= 0 && m_selected < m_overlay.count())
         {
-            m_overlay.render(painter, videoRect(), m_session.get(), telemetryTime());
+            // two pens, so the outline shows on bright and on dark footage alike
+            const QRectF rect = m_overlay.itemRect(m_selected, frame);
+            painter.setRenderHint(QPainter::Antialiasing, false);
+            painter.setBrush(Qt::NoBrush);
+            painter.setPen(QPen(Qt::black, 1));
+            painter.drawRect(rect);
+            painter.setPen(QPen(Qt::white, 1, Qt::DashLine));
+            painter.drawRect(rect);
+            painter.setPen(QPen(Qt::black, 1));
+            painter.setBrush(Qt::white);
+            painter.drawRect(resizeHandle(rect));
+            if (!m_overlay.hasGauge(m_selected))
+                {
+                    painter.setPen(Qt::white);
+                    painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, tr("This gauge is not in the library"));
+                }
         }
 }

@@ -10,6 +10,9 @@
 #include <signal.h>
 #include <sys/types.h>
 #endif
+#ifdef Q_OS_LINUX
+#include <fcntl.h>
+#endif
 
 namespace
 {
@@ -24,12 +27,11 @@ const int kHurryDelayMs = 1500;
 }
 
 ExportJob::ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const Overlay &overlay,
-                     const TelemetrySessionPtr &session, double syncOffset, QObject *parent)
+                     double syncOffset, QObject *parent)
     : QObject(parent)
     , m_ffmpegProgram(ffmpegProgram)
     , m_plan(plan)
     , m_overlay(overlay)
-    , m_session(session)
     , m_syncOffset(syncOffset)
 {
     qRegisterMetaType<ExportJob::Outcome>();
@@ -57,9 +59,10 @@ ExportJob::~ExportJob()
 
 void ExportJob::start()
 {
-    if (!m_plan.overlayRect.isEmpty())
+    if (!m_plan.regions.isEmpty())
         {
-            m_frame = QImage(m_plan.overlayRect.size(), QImage::Format_RGBA8888_Premultiplied);
+            // Qt's own format: drawing into anything else converts at every step
+            m_frame = QImage(m_plan.stackSize, QImage::Format_ARGB32_Premultiplied);
         }
     m_process = new QProcess(this);
     connect(m_process, &QProcess::started, this, &ExportJob::pump);
@@ -75,6 +78,16 @@ void ExportJob::start()
     });
     connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &ExportJob::onProcessFinished);
     connect(m_process, &QProcess::errorOccurred, this, &ExportJob::onProcessError);
+#ifdef Q_OS_LINUX
+    // A pipe holds 64 KB; a picture of gauges is megabytes, so every frame
+    // would take dozens of write / wake-up rounds. The child enlarges its
+    // end before ffmpeg starts (a pipe has one buffer for both ends); the
+    // system may cap the size, and failing changes nothing but speed.
+    m_process->setChildProcessModifier([]()
+    {
+        ::fcntl(0, F_SETPIPE_SZ, 1024 * 1024);
+    });
+#endif
     m_clock.start();
     m_process->start(m_ffmpegProgram, m_plan.arguments);
 }
@@ -150,10 +163,18 @@ void ExportJob::renderFrame(qint64 index)
 {
     m_frame.fill(Qt::transparent);
     QPainter painter(&m_frame);
-    // the picture is a window onto the full output frame
-    painter.translate(-m_plan.overlayRect.topLeft());
-    m_overlay.render(painter, QRectF(QPointF(0, 0), QSizeF(m_plan.outputSize)), m_session.get(),
-                     m_plan.frameTime(index) + m_syncOffset);
+    const QRectF frame(QPointF(0, 0), QSizeF(m_plan.outputSize));
+    const double time = m_plan.frameTime(index) + m_syncOffset;
+    for (int i = 0; i < m_plan.regions.size(); ++i)
+        {
+            // each region is a window onto the full output frame, at its place in the stack
+            const QRect &region = m_plan.regions.at(i);
+            painter.save();
+            painter.translate(-region.x(), m_plan.stackTops.at(i) - region.y());
+            painter.setClipRect(region);
+            m_overlay.render(painter, frame, time, region);
+            painter.restore();
+        }
 }
 
 void ExportJob::pump()

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../overlay/overlay.h"
-#include "../telemetry/telemetrysession.h"
 #include "exportplan.h"
 
 #include <QElapsedTimer>
@@ -15,7 +14,7 @@ class QProcess;
 //
 // A worker object: move it to its own thread and call start() through a
 // signal. Nothing here blocks for long, so stop() sent from the GUI thread
-// is handled between frames. The session and the overlay are only read.
+// is handled between frames. The overlay is only read.
 //
 // Stopping does not kill ffmpeg. The pipe is closed, ffmpeg takes that as
 // the end of the film and finishes the file properly, so what was exported
@@ -36,7 +35,7 @@ public:
     Q_ENUM(Outcome)
 
     ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const Overlay &overlay,
-              const TelemetrySessionPtr &session, double syncOffset, QObject *parent = nullptr);
+              double syncOffset, QObject *parent = nullptr);
     // Destroying a job that is still running stops ffmpeg and removes the unfinished file.
     ~ExportJob() override;
 
@@ -69,7 +68,6 @@ private:
     QString m_ffmpegProgram;
     ExportPlan m_plan;
     Overlay m_overlay;
-    TelemetrySessionPtr m_session;
     double m_syncOffset{0.0};
 
     QProcess *m_process{nullptr};

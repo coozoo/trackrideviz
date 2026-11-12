@@ -12,15 +12,21 @@ class Overlay;
 // what the application has to feed into it.
 //
 // ffmpeg reads and decodes the source video itself. The application sends
-// only the gauges: raw RGBA pictures of `overlayRect`, one per video frame,
-// through ffmpeg's standard input. ffmpeg lays them over the video, encodes,
-// and passes the sound through.
+// only the gauges, through ffmpeg's standard input: for every video frame one
+// raw picture (Qt's premultiplied ARGB32) holding each region with gauges,
+// stacked one above the other. ffmpeg cuts the regions apart again, lays
+// each where it belongs, encodes, and passes the sound through. Gauges in two
+// corners so cost two small regions, not the whole frame.
 struct ExportPlan
 {
     QStringList arguments;      // for ffmpeg
     QSize outputSize;
-    // Part of the output frame the piped pictures cover. Empty: nothing is
-    // drawn, no pictures are expected and the video is simply re-encoded.
+    // Parts of the output frame with gauges on them. None: nothing is drawn,
+    // no pictures are expected and the video is simply re-encoded.
+    QVector<QRect> regions;
+    QVector<int> stackTops;     // where each region starts in the piped picture
+    QSize stackSize{0, 0};      // the piped picture (QSize() would be -1 x -1)
+    // Smallest rectangle holding all regions.
     QRect overlayRect;
     int fpsNum{0};              // rate of the piped pictures = rate of the video
     int fpsDen{1};

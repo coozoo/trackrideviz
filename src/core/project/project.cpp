@@ -11,7 +11,8 @@
 namespace
 {
 const char kFormat[] = "rtvproj";
-const int kVersion = 1;
+// 2: gauges are bound to a channel, the project has a colour theme
+const int kVersion = 2;
 
 QString toStored(const QString &path, const QDir &projectDir)
 {
@@ -56,6 +57,7 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
             overlay.append(QJsonObject
             {
                 {"gauge", item.gaugeId},
+                {"channel", item.channel},
                 {"x", item.x},
                 {"y", item.y},
                 {"height", item.height},
@@ -69,6 +71,13 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
         {"data", toStored(project.telemetryPath, dir)},
         {"sync", QJsonObject{{"offset", project.syncOffset}, {"manual", project.syncIsManual}}},
         {"overlay", overlay},
+        {"theme", QJsonObject{
+                {"foreground", project.theme.foreground.name(QColor::HexArgb)},
+                {"background", project.theme.background.name(QColor::HexArgb)},
+                {"accent", project.theme.accent.name(QColor::HexArgb)},
+                {"accent2", project.theme.accent2.name(QColor::HexArgb)},
+            }
+        },
     };
     return QJsonDocument(root).toJson(QJsonDocument::Indented);
 }
@@ -115,6 +124,8 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             const QJsonObject object = value.toObject();
             OverlayItem item;
             item.gaugeId = object.value("gauge").toString();
+            // version 1 knew only the speedometer
+            item.channel = object.value("channel").toString(item.channel);
             item.x = object.value("x").toDouble();
             item.y = object.value("y").toDouble();
             item.height = object.value("height").toDouble(item.height);
@@ -123,6 +134,19 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                     loaded.overlay.append(item);
                 }
         }
+    const QJsonObject theme = root.value("theme").toObject();
+    auto readColor = [&theme](const char *key, QColor *color)
+    {
+        const QColor stored(theme.value(QLatin1String(key)).toString());
+        if (stored.isValid())
+            {
+                *color = stored;
+            }
+    };
+    readColor("foreground", &loaded.theme.foreground);
+    readColor("background", &loaded.theme.background);
+    readColor("accent", &loaded.theme.accent);
+    readColor("accent2", &loaded.theme.accent2);
     *project = loaded;
     return true;
 }

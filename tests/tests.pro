@@ -12,4 +12,5 @@ SUBDIRS = \
     gauge \
     settings \
     project \
-    export
+    export \
+    template
