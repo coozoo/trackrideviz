@@ -93,12 +93,12 @@ def metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
 
 
 def thin_metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
-    """A thin brushed rim on the outer third; the rest a shade, mostly see-through, the ticks reaching over it."""
-    silver = r_outer - (r_outer - r_inner) / 3
-    defs, body = metal_bezel(cx, cy, r_outer, silver, gid)
-    mid = (silver + r_inner) / 2
+    """A thin brushed rim on the inner third; outside it a shade, mostly see-through."""
+    silver = r_inner + (r_outer - r_inner) / 3
+    defs, body = metal_bezel(cx, cy, silver, r_inner, gid)
+    mid = (silver + r_outer) / 2
     shade = (f"<circle cx='{cx}' cy='{cy}' r='{fmt(mid)}' fill='none' stroke='#000000' stroke-opacity='0.2' "
-             f"stroke-width='{fmt(silver - r_inner)}'/>")
+             f"stroke-width='{fmt(r_outer - silver)}'/>")
     return defs, shade + body
 
 
@@ -466,12 +466,12 @@ def main():
                tick_outer=171, major_length=32, minor_length=18, minor_width=1.2, minor_opacity=0.5,
                needle_base=75, needle_tip=164)
     # a thin rim, the ticks reaching out over a shade to it, the thin ones see-through
-    metal_ticks = dict(bezel="thin metal", tick_outer=187, major_length=34, minor_length=20, minor_width=1.2,
+    metal_ticks = dict(bezel="thin metal", tick_outer=168, major_length=30, minor_length=18, minor_width=1.2,
                        minor_opacity=0.5)
-    round_dial("Dial metal", sweep="silver", needle_style="outer", labels=13, label_radius=136, label_size=19,
-               value_y=196, needle_base=75, needle_tip=180, **metal_ticks)
+    round_dial("Dial metal", sweep="silver", needle_style="outer", labels=13, label_radius=124, label_size=19,
+               value_y=196, needle_base=75, needle_tip=164, **metal_ticks)
     round_dial("Dial metal arc", sweep="silver+accent", needle_style="pointer", labels=13, label_radius=124,
-               label_size=19, value_y=186, second_readout=True, needle_tip=184, **metal_ticks)
+               label_size=19, value_y=186, second_readout=True, needle_tip=166, **metal_ticks)
     round_dial("Dial ring", bezel="ring", labels=7, needle_style="outer", unit_caps=True, value_size=72)
     # the value low, clear of the needle, which starts in the middle without a pin
     round_dial("Dial sport", bezel="flat", face="sport", needle_style="glow", inner_disc=False, value_y=262,
