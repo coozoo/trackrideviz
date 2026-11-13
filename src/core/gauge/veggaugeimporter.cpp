@@ -392,7 +392,14 @@ QString VegGaugeImporter::channelFor(const QString &sourceType)
         {"speed2d", ChannelId::Speed}, {"speed3d", ChannelId::Speed}, {"vehicleSpeed", ChannelId::Speed},
         {"speedOverGround", ChannelId::Speed},
         {"compass", ChannelId::Heading}, {"magneticHeading", ChannelId::Heading},
-        {"trueCourseOverGround", ChannelId::Heading},
+        {"trueCourseOverGround", ChannelId::Heading}, {"aviationTrackAngle", ChannelId::Heading},
+        {"altitude", ChannelId::Elevation}, {"aviationAltitude", ChannelId::Elevation},
+        {"relativeElevation", ChannelId::Elevation},
+        {"currentLapTime", ChannelId::LapTime}, {"lastLapTime", ChannelId::PreviousLapTime},
+        {"lapNumber", ChannelId::Lap}, {"currentLap", ChannelId::Lap},
+        {"gForceLat", ChannelId::GForceLateral}, {"gForceLatLon", ChannelId::GForceLateral},
+        {"gForceLon", ChannelId::GForceLongitudinal}, {"acceleration", ChannelId::GForceLongitudinal},
+        {"airTemperature", ChannelId::Temperature},
     };
     return aliases.value(sourceType, sourceType);
 }

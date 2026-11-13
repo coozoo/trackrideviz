@@ -92,17 +92,9 @@ QVector<Thumbnail> renderThumbnails(const QStringList &ids, bool templates)
             image.fill(kThumbnailBackground);
             if (!gauge.isEmpty())
                 {
-                    // shown with what it was made for, if the demo has it
-                    QString channel = ChannelId::Speed;
-                    for (const QString &supported : gauge.supportedTypes)
-                        {
-                            if (session->hasChannel(supported))
-                                {
-                                    channel = supported;
-                                    break;
-                                }
-                        }
-                    const BoundGauge bound(gauge, channel, session, Units(), GaugeTheme());
+                    // shown with what it was made for
+                    const BoundGauge bound(gauge, GaugeLibrary::defaultChannel(gauge, session->channelIds()), session,
+                                           Units(), GaugeTheme());
                     const QSizeF size = bound.size().scaled(kGaugeThumbnail - 4, kGaugeThumbnail - 4, Qt::KeepAspectRatio);
                     QPainter painter(&image);
                     bound.render(painter, QRectF((kGaugeThumbnail - size.width()) / 2, (kGaugeThumbnail - size.height()) / 2,

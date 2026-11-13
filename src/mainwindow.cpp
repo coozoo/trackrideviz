@@ -691,17 +691,7 @@ void MainWindow::addGauge(const QString &gaugeId)
         }
     OverlayItem item;
     item.gaugeId = gaugeId;
-    // what the gauge was made for, if the recording has it; else speed, else anything there is
-    const QStringList available = m_session ? m_session->channelIds() : QStringList();
-    item.channel = available.contains(ChannelId::Speed) || available.isEmpty() ? QString(ChannelId::Speed) : available.first();
-    for (const QString &supported : gauge.supportedTypes)
-        {
-            if (available.contains(supported))
-                {
-                    item.channel = supported;
-                    break;
-                }
-        }
+    item.channel = GaugeLibrary::defaultChannel(gauge, m_session ? m_session->channelIds() : QStringList());
     // near the middle, each new one a little further down right so they do not hide each other
     const double step = 0.03 * (m_project.overlay.size() % 8);
     item.height = 0.25;

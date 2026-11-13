@@ -33,6 +33,12 @@ public:
     // The gauge for an id; an empty gauge when there is none. Loaded once
     // and kept; call refresh() after the folder changed.
     static Gauge gauge(const QString &id);
+
+    // The channel a gauge shows when it is put on the video: the first it was
+    // made for that `available` has; else the first it was made for at all,
+    // even if the data lacks it; speed (or the first available) only for a
+    // gauge made for nothing in particular.
+    static QString defaultChannel(const Gauge &gauge, const QStringList &available);
     static void refresh();
 
     // The id a gauge stored under this name gets (whether it exists or not).

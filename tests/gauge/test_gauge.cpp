@@ -337,6 +337,27 @@ private slots:
         QCOMPARE(untouched.pixelColor(50, 50), QColor(Qt::magenta));
     }
 
+    void gaugeStartsOnWhatItWasMadeFor()
+    {
+        Gauge gauge;
+        gauge.supportedTypes = {"coolantTemp", "temperature"};
+        const QStringList ride{ChannelId::Speed, ChannelId::Temperature};
+        // the first it was made for that the data has
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, ride), QString(ChannelId::Temperature));
+        // the data lacks it, or there is none yet: still its own, not speed
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, {ChannelId::Speed}), QString("coolantTemp"));
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, {}), QString("coolantTemp"));
+        // the other program's names, as gauges imported earlier keep them
+        gauge.supportedTypes = {"currentLapTime"};
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, {}), QString(ChannelId::LapTime));
+        gauge.supportedTypes = {"gForceLatLon"};
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, {}), QString(ChannelId::GForceLateral));
+        // made for nothing in particular
+        gauge.supportedTypes = {"defaultDynamic"};
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, ride), QString(ChannelId::Speed));
+        QCOMPARE(GaugeLibrary::defaultChannel(gauge, {ChannelId::HeartRate}), QString(ChannelId::HeartRate));
+    }
+
     void svgDrawingInThemeColours()
     {
         // a plate in the theme's background (half transparent) with an accent dot, as a drawing

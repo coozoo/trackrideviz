@@ -5,6 +5,7 @@
 #include "gaugefile.h"
 #include "veggaugeimporter.h"
 #include "xmlgaugeimporter.h"
+#include "../telemetry/channelids.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -271,4 +272,30 @@ GaugeLibrary::ImportSummary GaugeLibrary::importXml(const QStringList &gaugeFold
             store(QFileInfo(folder).fileName(), XmlGaugeImporter::importFolder(folder), &summary);
         }
     return summary;
+}
+
+QString GaugeLibrary::defaultChannel(const Gauge &gauge, const QStringList &available)
+{
+    QStringList made;
+    for (const QString &type : gauge.supportedTypes)
+        {
+            // gauges imported earlier keep the other program's names; "default..." stands for anything
+            const QString channel = VegGaugeImporter::channelFor(type);
+            if (!channel.isEmpty() && !channel.startsWith(QLatin1String("default")) && !made.contains(channel))
+                {
+                    made << channel;
+                }
+        }
+    for (const QString &channel : made)
+        {
+            if (available.contains(channel))
+                {
+                    return channel;
+                }
+        }
+    if (!made.isEmpty())
+        {
+            return made.first();
+        }
+    return available.contains(ChannelId::Speed) || available.isEmpty() ? QString(ChannelId::Speed) : available.first();
 }
