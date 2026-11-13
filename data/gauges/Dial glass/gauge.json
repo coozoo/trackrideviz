@@ -41,13 +41,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                112.3,
-                287.7
+                110.9,
+                289.1
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -58,13 +57,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                85.4,
-                247.5
+                83.6,
+                248.2
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -75,13 +73,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                76.0,
+                74.0,
                 200.0
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -92,13 +89,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                85.4,
-                152.5
+                83.6,
+                151.8
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -109,13 +105,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                112.3,
-                112.3
+                110.9,
+                110.9
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -126,13 +121,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                152.5,
-                85.4
+                151.8,
+                83.6
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -144,12 +138,11 @@
             "autoText": "intervalMarking",
             "frame": [
                 200.0,
-                76.0
+                74.0
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -160,13 +153,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                247.5,
-                85.4
+                248.2,
+                83.6
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -177,13 +169,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                287.7,
-                112.3
+                289.1,
+                110.9
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -194,13 +185,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                314.6,
-                152.5
+                316.4,
+                151.8
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -211,13 +201,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                324.0,
+                326.0,
                 200.0
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -228,13 +217,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                314.6,
-                247.5
+                316.4,
+                248.2
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -245,13 +233,12 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                287.7,
-                287.7
+                289.1,
+                289.1
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26
             },
             "color": "foreground",
             "align": "center",
@@ -263,11 +250,11 @@
             "autoText": "value",
             "frame": [
                 200,
-                286
+                300
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 48,
+                "size": 50,
                 "bold": true,
                 "italic": true
             },
@@ -281,7 +268,7 @@
             "autoText": "unit",
             "frame": [
                 200,
-                315.76
+                330.0
             ],
             "font": {
                 "family": "Barlow Semi Condensed",

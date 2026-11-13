@@ -200,9 +200,35 @@ def pointer():
             f"<path d='M{C},{C - 104} L{C - 11},{C - 82} L{C + 11},{C - 82} Z' {theme('accent')}/>")
 
 
+def glow_needle():
+    """Wide at the middle, narrowing to the tip, light fading into the accent; a soft glow for a hub."""
+    return ("<defs><linearGradient id='glowNeedle' x1='0' y1='1' x2='0' y2='0'>"
+            "<stop offset='0' stop-color='#ffffff' stop-opacity='0.95'/>"
+            "<stop offset='1' stop-color='@accent2' stop-opacity='@accent2-opacity'/></linearGradient>"
+            "<radialGradient id='hub' cx='0.5' cy='0.5' r='0.5'>"
+            "<stop offset='0' stop-color='@accent' stop-opacity='0.55'/>"
+            "<stop offset='1' stop-color='@accent' stop-opacity='0'/></radialGradient></defs>"
+            f"<circle cx='{C}' cy='{C}' r='34' fill='url(#hub)'/>"
+            f"<path d='M{C - 7},{C} L{C - 1.2},{C - 162} L{C + 1.2},{C - 162} L{C + 7},{C} Z' fill='url(#glowNeedle)'/>")
+
+
+def taper_needle():
+    """A thick taper with a rounded foot at the middle, no pin."""
+    return (f"<path d='M{C - 9},{C} L{C - 2},{C - 150} L{C + 2},{C - 150} L{C + 9},{C} "
+            f"A9,9 0 0 1 {C - 9},{C} Z' {theme('accent')}/>")
+
+
+def half_gloss():
+    """Glass over the upper half, its lower edge straight through the middle."""
+    return ("<defs><linearGradient id='halfGloss' x1='0' y1='0' x2='0' y2='1'>"
+            "<stop offset='0' stop-color='#ffffff' stop-opacity='0.22'/>"
+            "<stop offset='1' stop-color='#ffffff' stop-opacity='0.10'/></linearGradient></defs>"
+            f"<path d='M{C - 166},{C} A166,166 0 0 1 {C + 166},{C} Z' fill='url(#halfGloss)'/>")
+
+
 def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, needle_style="slim",
-               labels=7, label_radius=118, label_size=24, majors=13, value_y=240, value_size=64,
-               ring_only=False, unit_caps=False, second_readout=False):
+               labels=7, label_radius=118, label_size=24, label_italic=True, majors=13, value_y=240, value_size=64,
+               minor_ticks=True, inner_disc=True, unit_caps=False, second_readout=False, unit_gap=0.62):
     defs, body = plate(C, C, 168)
     drawings = {}
     components = []
@@ -213,6 +239,9 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         body = f"<circle cx='{C}' cy='{C}' r='196' fill='#202020'/>" + body + b
     elif bezel == "flat":
         body += f"<circle cx='{C}' cy='{C}' r='168' fill='none' {theme('accent2', 'stroke')} stroke-width='3'/>"
+    elif bezel == "rim":
+        body = (f"<circle cx='{C}' cy='{C}' r='174' fill='#141414'/>"
+                f"<circle cx='{C}' cy='{C}' r='172' fill='none' stroke='#9a9a9a' stroke-width='4'/>" + body)
     elif bezel == "ring":
         body = (f"<circle cx='{C}' cy='{C}' r='182' fill='none' {theme('accent2', 'stroke')} stroke-width='2'/>"
                 + body)
@@ -224,7 +253,7 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
                  "<stop offset='1' stop-color='@accent' stop-opacity='0'/></radialGradient>")
         body += f"<circle cx='{C}' cy='{C}' r='166' fill='url(#sport)'/>"
 
-    if not ring_only:
+    if inner_disc:
         # an inner disc behind the readout
         body += (f"<circle cx='{C}' cy='{C}' r='80' fill='#000000' fill-opacity='0.3'/>"
                  f"<circle cx='{C}' cy='{C}' r='80' fill='none' stroke='#ffffff' stroke-opacity='0.08' stroke-width='2'/>")
@@ -249,13 +278,15 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
 
     minors = (majors - 1) * 5 + 1
     scale = ticks(C, C, *SWEEP, majors, 162, 22, 4)
-    if not ring_only:
+    if minor_ticks:
         scale += ticks(C, C, *SWEEP, minors, 162, 10, 1.6, skip_every=5)
     drawings["scale.svg"] = svg(400, 400, scale)
     components.append(image("scale.svg", (0, 0, 400, 400)))
-    components += markings(C, C, label_radius, *SWEEP, labels, label_size, italic=True)
+    components += markings(C, C, label_radius, *SWEEP, labels, label_size, italic=label_italic)
 
-    if gloss_on:
+    if gloss_on == "half":
+        drawings["glass.svg"] = svg(400, 400, half_gloss())
+    elif gloss_on:
         d, b = gloss(C, C, 166)
         drawings["glass.svg"] = svg(400, 400, b, d)
 
@@ -263,6 +294,10 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         drawn = outer_needle()
     elif needle_style == "pointer":
         drawn = pointer()
+    elif needle_style == "glow":
+        drawn = glow_needle()
+    elif needle_style == "taper":
+        drawn = taper_needle()
     elif needle_style == "slim":
         drawn = needle(C, C, 160, 26, 7, cap=16)
     elif needle_style == "bold":
@@ -275,7 +310,7 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         components.append(text("unit", (C, 336), 26, bold=True, upperCase=True))
     else:
         components.append(text("value", (C, value_y), value_size, bold=True, italic=True, precision=0))
-        components.append(text("unit", (C, value_y + value_size * 0.62), 24, "accent2", italic=True))
+        components.append(text("unit", (C, value_y + value_size * unit_gap), 24, "accent2", italic=True))
     if second_readout:
         # the same value more precisely, small, under the unit
         components.append(text("valueAndUnit", (C, value_y + value_size * 1.05), 20, italic=True, precision=1))
@@ -384,11 +419,12 @@ def main():
                label_size=19, value_y=196)
     round_dial("Dial metal arc", bezel="metal", sweep="silver+accent", needle_style="pointer", labels=13,
                label_radius=124, label_size=19, value_y=186, second_readout=True)
-    round_dial("Dial ring", bezel="ring", ring_only=True, labels=7, needle_style="outer", unit_caps=True,
-               value_size=72)
-    round_dial("Dial sport", bezel="flat", face="sport", needle_style="light")
-    round_dial("Dial glass", bezel="metal", gloss_on=True, needle_style="bold", labels=13, label_radius=124,
-               value_y=286, value_size=48)
+    round_dial("Dial ring", bezel="ring", labels=7, needle_style="outer", unit_caps=True, value_size=72)
+    # the value low, clear of the needle, which starts in the middle without a pin
+    round_dial("Dial sport", bezel="flat", face="sport", needle_style="glow", inner_disc=False, value_y=262,
+               value_size=60)
+    round_dial("Dial glass", bezel="rim", gloss_on="half", needle_style="taper", inner_disc=False, labels=13,
+               label_radius=126, label_size=26, label_italic=False, value_y=300, value_size=50, unit_gap=0.6)
     small_dial("Dial small")
     small_dial("Dial small metal", metal=True)
     open_arc("Open arc")

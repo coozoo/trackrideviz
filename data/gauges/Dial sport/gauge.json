@@ -161,11 +161,11 @@
             "autoText": "value",
             "frame": [
                 200,
-                240
+                262
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 64,
+                "size": 60,
                 "bold": true,
                 "italic": true
             },
@@ -179,7 +179,7 @@
             "autoText": "unit",
             "frame": [
                 200,
-                279.68
+                299.2
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
