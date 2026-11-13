@@ -47,7 +47,7 @@ public:
     explicit TrackView(QWidget *parent)
         : QWidget(parent)
     {
-        setMinimumSize(160, 140);
+        setMinimumSize(120, 80);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     }
 
@@ -233,9 +233,12 @@ LapsPanel::LapsPanel(QWidget *parent)
 
     m_info = new QLabel(this);
     m_info->setWordWrap(true);
+    // a long line wraps rather than making the dock taller than it needs
+    m_info->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
     m_lapTable = new QTreeWidget(this);
     m_lapTable->setRootIsDecorated(false);
+    m_lapTable->setMinimumHeight(60);
     m_lapTable->setUniformRowHeights(true);
     m_lapTable->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_lapTable->setToolTip(tr("Double-click a lap to go to its start; select several to compare them"));

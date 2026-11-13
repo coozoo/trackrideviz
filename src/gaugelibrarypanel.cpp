@@ -16,7 +16,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFutureWatcher>
-#include <QHBoxLayout>
+#include <QGridLayout>
 #include <QListWidget>
 #include <QMenu>
 #include <QMessageBox>
@@ -262,12 +262,13 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_removeButton = new QPushButton(tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
 
-    QHBoxLayout *buttons = new QHBoxLayout;
-    buttons->addWidget(m_useButton);
-    buttons->addWidget(m_importButton);
-    buttons->addWidget(m_exportButton);
-    buttons->addWidget(m_removeButton);
-    buttons->addStretch(1);
+    // two rows: one would make the dock, and so the window, too wide for small screens
+    QGridLayout *buttons = new QGridLayout;
+    buttons->addWidget(m_useButton, 0, 0);
+    buttons->addWidget(m_removeButton, 0, 1);
+    buttons->addWidget(m_importButton, 1, 0);
+    buttons->addWidget(m_exportButton, 1, 1);
+    buttons->setColumnStretch(2, 1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
     layout->addWidget(m_tabs);

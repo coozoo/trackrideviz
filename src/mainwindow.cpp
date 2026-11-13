@@ -44,6 +44,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSettings>
 #include <QShortcut>
 #include <QSlider>
@@ -59,6 +60,25 @@
 
 namespace
 {
+// Selects all of a line edit's text when it is clicked or tabbed into.
+class SelectAllOnFocus : public QObject
+{
+public:
+    using QObject::QObject;
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::FocusIn)
+            {
+                // after the click that gave the focus has placed the cursor
+                QLineEdit *edit = qobject_cast<QLineEdit *>(watched);
+                QTimer::singleShot(0, edit, [edit]() { edit->selectAll(); });
+            }
+        return false;
+    }
+};
+
 struct ImportResult
 {
     TelemetrySessionPtr raw;       // as the file gave it
@@ -310,7 +330,12 @@ void MainWindow::createDocks()
     m_sourcesDock->raise();
     m_libraryPanel = new GaugeLibraryPanel(m_libraryDock);
     m_libraryDock->setWidget(m_libraryPanel);
-    m_propertiesDock->setWidget(createPropertiesPanel());
+    // scrolls rather than making the window wider than the screen
+    QScrollArea *propertiesScroll = new QScrollArea(m_propertiesDock);
+    propertiesScroll->setWidgetResizable(true);
+    propertiesScroll->setFrameShape(QFrame::NoFrame);
+    propertiesScroll->setWidget(createPropertiesPanel());
+    m_propertiesDock->setWidget(propertiesScroll);
 
     QWidget *sources = new QWidget(m_sourcesDock);
     m_sourcesLabel = new QLabel(sources);
@@ -822,6 +847,8 @@ QWidget *MainWindow::createPropertiesPanel()
 
     m_channelCombo = new QComboBox(panel);
     m_channelCombo->setToolTip(tr("The measurement the selected gauge shows"));
+    m_channelCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_channelCombo->setMinimumContentsLength(12);
     connect(m_channelCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int row)
     {
         setGaugeChannel(m_canvas->selectedItem(), m_channelCombo->itemData(row).toString());
@@ -904,6 +931,8 @@ QWidget *MainWindow::createPropertiesPanel()
     m_fontCombo->completer()->setCaseSensitivity(Qt::CaseInsensitive);
     m_fontCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
     m_fontCombo->lineEdit()->setPlaceholderText(tr("Type to find a font"));
+    // clicking into it selects the name, so typing replaces it
+    m_fontCombo->lineEdit()->installEventFilter(new SelectAllOnFocus(m_fontCombo->lineEdit()));
     connect(m_fontCombo->lineEdit(), &QLineEdit::editingFinished, this, [this, changeFont]()
     {
         const int row = m_fontCombo->findText(m_fontCombo->currentText(), Qt::MatchFixedString);
