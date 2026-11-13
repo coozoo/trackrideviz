@@ -240,10 +240,10 @@ def glow_needle(tail=38):
             + glow + f"<path d='{shape(0)}' fill='url(#glowNeedle)'/>")
 
 
-def taper_needle():
+def taper_needle(foot=12, tip=3):
     """A thick taper with a rounded foot at the middle, no pin."""
-    return (f"<path d='M{C - 9},{C} L{C - 2},{C - 150} L{C + 2},{C - 150} L{C + 9},{C} "
-            f"A9,9 0 0 1 {C - 9},{C} Z' {theme('accent')}/>")
+    return (f"<path d='M{C - foot},{C} L{C - tip},{C - 150} L{C + tip},{C - 150} L{C + foot},{C} "
+            f"A{foot},{foot} 0 0 1 {C - foot},{C} Z' {theme('accent')}/>")
 
 
 def half_gloss():
@@ -280,8 +280,10 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
     elif bezel == "flat":
         body += f"<circle cx='{C}' cy='{C}' r='168' fill='none' {theme('accent2', 'stroke')} stroke-width='3'/>"
     elif bezel == "rim":
-        body = (f"<circle cx='{C}' cy='{C}' r='174' fill='#141414'/>"
-                f"<circle cx='{C}' cy='{C}' r='172' fill='none' stroke='#9a9a9a' stroke-width='4'/>" + body)
+        # a thin brushed silver ring just outside the face
+        d, b = metal_bezel(C, C, 177, 168, gid="rim")
+        defs += d
+        body = f"<circle cx='{C}' cy='{C}' r='177' fill='#141414'/>" + body + b
     elif bezel == "ring":
         body = (f"<circle cx='{C}' cy='{C}' r='182' fill='none' {theme('accent2', 'stroke')} stroke-width='2'/>"
                 + body)
@@ -502,7 +504,8 @@ def main():
                value_size=60, unit_gap=0.6, major_length=18, minor_length=14, minor_width=1.2, minor_opacity=0.5,
                tick_outer=168)
     round_dial("Dial glass", bezel="rim", gloss_on="half", needle_style="taper", inner_disc=False, labels=13,
-               label_radius=126, label_size=26, label_italic=False, value_y=300, value_size=50, unit_gap=0.6)
+               label_radius=130, label_size=26, label_italic=False, value_y=300, value_size=50, unit_gap=0.6,
+               tick_outer=165, major_length=11, minor_length=7, minor_width=1.2, minor_opacity=0.5)
     segmented_dial("Dial small")
     small_dial("Dial small metal", metal=True)
     open_arc("Open arc")

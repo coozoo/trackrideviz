@@ -41,8 +41,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                110.9,
-                289.1
+                108.1,
+                291.9
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -57,8 +57,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                83.6,
-                248.2
+                79.9,
+                249.7
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -73,7 +73,7 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                74.0,
+                70.0,
                 200.0
             ],
             "font": {
@@ -89,8 +89,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                83.6,
-                151.8
+                79.9,
+                150.3
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -105,8 +105,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                110.9,
-                110.9
+                108.1,
+                108.1
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -121,8 +121,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                151.8,
-                83.6
+                150.3,
+                79.9
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -138,7 +138,7 @@
             "autoText": "intervalMarking",
             "frame": [
                 200.0,
-                74.0
+                70.0
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -153,8 +153,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                248.2,
-                83.6
+                249.7,
+                79.9
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -169,8 +169,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                289.1,
-                110.9
+                291.9,
+                108.1
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -185,8 +185,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                316.4,
-                151.8
+                320.1,
+                150.3
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -201,7 +201,7 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                326.0,
+                330.0,
                 200.0
             ],
             "font": {
@@ -217,8 +217,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                316.4,
-                248.2
+                320.1,
+                249.7
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -233,8 +233,8 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                289.1,
-                289.1
+                291.9,
+                291.9
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
