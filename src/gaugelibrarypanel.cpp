@@ -26,6 +26,35 @@
 
 namespace
 {
+// A small padlock in the top right corner: this one comes with the program.
+QImage withLock(QImage image)
+{
+    if (image.isNull())
+        {
+            return image;
+        }
+    image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    const double size = std::max(14.0, image.height() / 6.0);
+    const QRectF badge(image.width() - size - 3, 3, size, size);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(0, 0, 0, 170));
+    painter.drawRoundedRect(badge, size * 0.25, size * 0.25);
+    // the shackle and the body
+    const double u = size / 14.0;
+    QPen shackle(QColor(235, 235, 235), 1.6 * u);
+    painter.setPen(shackle);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawArc(QRectF(badge.left() + 4.5 * u, badge.top() + 2.5 * u, 5 * u, 6 * u), 0, 180 * 16);
+    painter.drawLine(QPointF(badge.left() + 4.5 * u, badge.top() + 5.5 * u), QPointF(badge.left() + 4.5 * u, badge.top() + 7 * u));
+    painter.drawLine(QPointF(badge.left() + 9.5 * u, badge.top() + 5.5 * u), QPointF(badge.left() + 9.5 * u, badge.top() + 7 * u));
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(235, 235, 235));
+    painter.drawRoundedRect(QRectF(badge.left() + 3 * u, badge.top() + 6.5 * u, 8 * u, 5.5 * u), u, u);
+    return image;
+}
+
 const int kGaugeThumbnail = 96;
 const QSize kTemplateThumbnail(160, 90);
 const QColor kThumbnailBackground(60, 70, 85);
@@ -258,7 +287,13 @@ void GaugeLibraryPanel::updateButtons()
     const bool selected = item && item->isSelected();
     m_useButton->setEnabled(selected);
     // what came with the program is part of it
-    m_removeButton->setEnabled(selected && !item->data(Qt::UserRole + 1).toBool());
+    const bool builtin = selected && item->data(Qt::UserRole + 1).toBool();
+    m_removeButton->setEnabled(selected && !builtin);
+    const bool templates = showingTemplates();
+    m_removeButton->setToolTip(builtin ? (templates ? tr("This template comes with the program and cannot be deleted")
+                                                    : tr("This gauge comes with the program and cannot be deleted"))
+                               : templates ? tr("Deletes the selected template from the library")
+                               : tr("Deletes the selected gauge from the library"));
 }
 
 void GaugeLibraryPanel::reload()
@@ -274,8 +309,6 @@ void GaugeLibraryPanel::reload()
     m_useButton->setText(templates ? tr("Apply to video") : tr("Add to video"));
     m_useButton->setToolTip(templates ? tr("Replaces the gauges on the video with this template. A double click does the same.")
                             : tr("Puts the selected gauge on the video. A double click does the same."));
-    m_removeButton->setToolTip(templates ? tr("Deletes the selected template from the library")
-                               : tr("Deletes the selected gauge from the library"));
 
     // something of the right size until the picture is drawn, so the list does not jump
     QPixmap blank(iconSize);
@@ -287,7 +320,7 @@ void GaugeLibraryPanel::reload()
         QListWidgetItem *item = new QListWidgetItem(placeholder, name, m_list);
         item->setData(Qt::UserRole, id);
         item->setData(Qt::UserRole + 1, builtin);
-        item->setToolTip(tooltip);
+        item->setToolTip(builtin ? tr("%1\nComes with the program; it cannot be deleted.").arg(tooltip) : tooltip);
         item->setTextAlignment(Qt::AlignHCenter | Qt::AlignTop);
         item->setSizeHint(m_list->gridSize());
         if (id == keep)
@@ -329,7 +362,8 @@ void GaugeLibraryPanel::reload()
         for (int row = 0; row < m_list->count(); ++row)
             {
                 QListWidgetItem *item = m_list->item(row);
-                item->setIcon(QIcon(QPixmap::fromImage(images.value(item->data(Qt::UserRole).toString()))));
+                const QImage image = images.value(item->data(Qt::UserRole).toString());
+                item->setIcon(QIcon(QPixmap::fromImage(item->data(Qt::UserRole + 1).toBool() ? withLock(image) : image)));
             }
     });
     watcher->setFuture(QtConcurrent::run(renderThumbnails, ids, templates));

@@ -757,17 +757,17 @@ Shift+перетягування над каналом вибирає зразк
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="718"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="730"/>
         <source>Cannot create the folder %1.</source>
         <translation>Не вдалося створити теку %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="748"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="770"/>
         <source>Cannot write %1.</source>
         <translation>Не вдалося записати %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="753"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="775"/>
         <source>Cannot write %1: %2</source>
         <translation>Не вдалося записати %1: %2</translation>
     </message>
@@ -783,94 +783,111 @@ Shift+перетягування над каналом вибирає зразк
 <context>
     <name>GaugeLibraryPanel</name>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="274"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="309"/>
         <source>Add to video</source>
         <translation>Додати на відео</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="276"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="311"/>
         <source>Puts the selected gauge on the video. A double click does the same.</source>
         <translation>Розміщує вибраний прилад на відео. Те саме робить подвійне клацання.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="222"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="414"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="251"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="448"/>
         <source>Import...</source>
         <translation>Імпорт...</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="206"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="235"/>
         <source>Gauges</source>
         <translation>Прилади</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="207"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="236"/>
         <source>Templates</source>
         <translation>Шаблони</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="223"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="252"/>
         <source>Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a gauge.xml or project.cdp) and XML data profiles. Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges, Templates and DataProfiles in it.</source>
         <translation>Додає прилади .veg, шаблони .vet, прилади й шаблони XML (теки з файлом gauge.xml чи project.cdp) і профілі даних XML. Виберіть теку, де вони лежать, або теку, у якій є Widgets і Templates чи Gauges, Templates і DataProfiles.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="227"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="256"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="274"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="309"/>
         <source>Apply to video</source>
         <translation>Застосувати до відео</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="275"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="310"/>
         <source>Replaces the gauges on the video with this template. A double click does the same.</source>
         <translation>Замінює прилади на відео цим шаблоном. Те саме робить подвійне клацання.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="277"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="295"/>
         <source>Deletes the selected template from the library</source>
         <translation>Вилучає вибраний шаблон із бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="278"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="293"/>
+        <source>This template comes with the program and cannot be deleted</source>
+        <translation>Цей шаблон постачається з програмою, його не можна вилучити</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="294"/>
+        <source>This gauge comes with the program and cannot be deleted</source>
+        <translation>Цей прилад постачається з програмою, його не можна вилучити</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="296"/>
         <source>Deletes the selected gauge from the library</source>
         <translation>Вилучає вибраний прилад із бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="364"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="323"/>
+        <source>%1
+Comes with the program; it cannot be deleted.</source>
+        <translation>%1
+Постачається з програмою; його не можна вилучити.</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="398"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
         <translation>Вилучити шаблон «%1» із бібліотеки? Його прилади залишаться.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="366"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="400"/>
         <source>Remove gauge</source>
         <translation>Вилучити прилад</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="366"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="400"/>
         <source>Remove template</source>
         <translation>Вилучити шаблон</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="390"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="424"/>
         <source>Folder with gauges and templates</source>
         <translation>Тека з приладами та шаблонами</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="401"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="452"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="435"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="486"/>
         <source>Import</source>
         <translation>Імпорт</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="402"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="436"/>
         <source>There are no gauges (.veg, gauge.xml), templates (.vet, project.cdp) or data profiles in that folder.</source>
         <translation>У цій теці немає приладів (.veg, gauge.xml), шаблонів (.vet, project.cdp) чи профілів даних.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="436"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="470"/>
         <source>%n of them have parts that cannot be shown.</source>
         <translation>
             <numerusform>%n із них має частини, які неможливо показати.</numerusform>
@@ -879,7 +896,7 @@ Shift+перетягування над каналом вибирає зразк
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="440"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="474"/>
         <source>%n template(s) imported.</source>
         <translation>
             <numerusform>Імпортовано %n шаблон.</numerusform>
@@ -888,17 +905,17 @@ Shift+перетягування над каналом вибирає зразк
         </translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="365"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="399"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation>Вилучити «%1» із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="407"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="441"/>
         <source>Importing...</source>
         <translation>Імпортування...</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="432"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="466"/>
         <source>%n gauge(s) imported.</source>
         <translation>
             <numerusform>Імпортовано %n прилад.</numerusform>
@@ -907,7 +924,7 @@ Shift+перетягування над каналом вибирає зразк
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="444"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="478"/>
         <source>%n data profile(s) imported: CSV files of those loggers can now be opened as data.</source>
         <translation>
             <numerusform>Імпортовано %n профіль даних: файли CSV цих реєстраторів тепер можна відкривати як дані.</numerusform>
@@ -916,7 +933,7 @@ Shift+перетягування над каналом вибирає зразк
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="450"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="484"/>
         <source>%n file(s) could not be used.</source>
         <translation>
             <numerusform>%n файл не вдалося використати.</numerusform>

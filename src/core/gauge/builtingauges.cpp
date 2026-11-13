@@ -75,7 +75,7 @@ Gauge BuiltinGauges::dial()
     };
 
     Gauge gauge;
-    gauge.name = "Dial";
+    gauge.name = "Dial basic";
     gauge.size = QSizeF(size, size);
 
     QImage plate = blankImage(gauge.size);
