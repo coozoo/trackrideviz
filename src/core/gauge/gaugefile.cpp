@@ -13,8 +13,11 @@ namespace
 const char kFormat[] = "rtvgauge";
 const int kVersion = 1;
 
-const char *const kComponentTypes[] = {"image", "text", "group", "graph", "trackMap", "lapMap"};
+const char *const kComponentTypes[] = {"image", "text", "group", "graph", "trackMap", "lapMap", "shape", "dial", "tape"};
 const char *const kAutoTexts[] = {"fixed", "value", "unit", "valueAndUnit", "label", "labelValueUnit", "intervalMarking"};
+const char *const kShapeKinds[] = {"rectangle", "ellipse", "arc", "pie", "line"};
+const char *const kValueFormats[] = {"number", "wholeNumber", "duration", "degreesMinutesSeconds", "clock"};
+const char *const kTapeOrientations[] = {"numbersAbove", "numbersBelow", "numbersLeft", "numbersRight"};
 const char *const kManipulationTypes[] = {"rotate", "radialClip", "translate", "widthClip", "heightClip",
                                           "staticRadialClip", "translate2d", "animationStrip"
                                          };
@@ -64,6 +67,128 @@ GaugeColor colorFromJson(const QJsonValue &value)
             color.role = GaugeColor::Role(indexOf(kColorRoles, text));
         }
     return color;
+}
+
+QJsonArray pointsToJson(const QVector<QPointF> &points)
+{
+    QJsonArray array;
+    for (const QPointF &p : points)
+        {
+            array.append(QJsonArray{p.x(), p.y()});
+        }
+    return array;
+}
+
+QVector<QPointF> pointsFromJson(const QJsonValue &value)
+{
+    QVector<QPointF> points;
+    for (const QJsonValue &item : value.toArray())
+        {
+            const QJsonArray p = item.toArray();
+            points.append(QPointF(p.at(0).toDouble(), p.at(1).toDouble()));
+        }
+    return points;
+}
+
+QJsonObject ticksToJson(const GaugeTicks &ticks)
+{
+    return {{"unit", ticks.unit}, {"length", ticks.length}, {"width", ticks.width}, {"color", colorToJson(ticks.color)}};
+}
+
+GaugeTicks ticksFromJson(const QJsonValue &value)
+{
+    const QJsonObject object = value.toObject();
+    GaugeTicks ticks;
+    ticks.unit = object.value("unit").toDouble();
+    ticks.length = object.value("length").toDouble();
+    ticks.width = object.value("width").toDouble(1.0);
+    ticks.color = colorFromJson(object.value("color"));
+    return ticks;
+}
+
+QJsonObject scaleToJson(const GaugeScale &s, GaugeComponent::Type type)
+{
+    QJsonObject object
+    {
+        {"minValue", s.minValue}, {"maxValue", s.maxValue},
+        {"minor", ticksToJson(s.minor)}, {"major", ticksToJson(s.major)},
+        {"labelOffset", s.labelOffset},
+    };
+    if (type == GaugeComponent::Dial)
+        {
+            object["startAngle"] = s.startAngle;
+            object["endAngle"] = s.endAngle;
+            object["radius"] = s.radius;
+            if (s.arcWidth > 0.0)
+                {
+                    object["arcWidth"] = s.arcWidth;
+                    object["arcColor"] = colorToJson(s.arcColor);
+                }
+        }
+    else
+        {
+            object["orientation"] = kTapeOrientations[s.orientation];
+            object["length"] = s.length;
+            object["spacing"] = s.spacing;
+            if (s.loop)
+                {
+                    object["loop"] = true;
+                }
+            if (s.reverse)
+                {
+                    object["reverse"] = true;
+                }
+            if (s.markerLength > 0.0)
+                {
+                    object["markerLength"] = s.markerLength;
+                    object["markerWidth"] = s.markerWidth;
+                    object["markerColor"] = colorToJson(s.markerColor);
+                }
+        }
+    return object;
+}
+
+GaugeScale scaleFromJson(const QJsonValue &value)
+{
+    const QJsonObject object = value.toObject();
+    GaugeScale s;
+    s.minValue = object.value("minValue").toDouble(s.minValue);
+    s.maxValue = object.value("maxValue").toDouble(s.maxValue);
+    s.loop = object.value("loop").toBool();
+    s.minor = ticksFromJson(object.value("minor"));
+    s.major = ticksFromJson(object.value("major"));
+    s.labelOffset = object.value("labelOffset").toDouble();
+    s.startAngle = object.value("startAngle").toDouble();
+    s.endAngle = object.value("endAngle").toDouble();
+    s.radius = object.value("radius").toDouble();
+    s.arcWidth = object.value("arcWidth").toDouble();
+    s.arcColor = colorFromJson(object.value("arcColor"));
+    s.orientation = GaugeScale::Orientation(indexOf(kTapeOrientations, object.value("orientation").toString()));
+    s.reverse = object.value("reverse").toBool();
+    s.length = object.value("length").toDouble(s.length);
+    s.spacing = object.value("spacing").toDouble(s.spacing);
+    s.markerLength = object.value("markerLength").toDouble();
+    s.markerWidth = object.value("markerWidth").toDouble(1.0);
+    s.markerColor = colorFromJson(object.value("markerColor"));
+    return s;
+}
+
+QJsonObject fontToJson(const GaugeComponent &c)
+{
+    QJsonObject font{{"size", c.fontSize}};
+    if (!c.fontFamily.isEmpty())
+        {
+            font["family"] = c.fontFamily;
+        }
+    if (c.bold)
+        {
+            font["bold"] = true;
+        }
+    if (c.italic)
+        {
+            font["italic"] = true;
+        }
+    return font;
 }
 
 QJsonObject manipulationToJson(const GaugeManipulation &m)
@@ -135,6 +260,10 @@ QJsonObject manipulationToJson(const GaugeManipulation &m)
         {
             object["reversed"] = true;
         }
+    if (!m.curve.isEmpty())
+        {
+            object["curve"] = pointsToJson(m.curve);
+        }
     if (!m.clipRect.isNull())
         {
             object["clip"] = toArray(m.clipRect);
@@ -159,6 +288,7 @@ GaugeManipulation manipulationFromJson(const QJsonObject &object)
     m.maxValue = object.value("maxValue").toDouble();
     m.wrapValue = object.value("wrap").toBool();
     m.reversed = object.value("reversed").toBool();
+    m.curve = pointsFromJson(object.value("curve"));
     if (object.contains("clip"))
         {
             m.clipRect = toRect(object.value("clip"));
@@ -196,7 +326,7 @@ QJsonObject componentToJson(const GaugeComponent &c)
     QJsonObject object{{"type", kComponentTypes[c.type]}};
     if (c.type != GaugeComponent::Group)
         {
-            object["frame"] = c.type == GaugeComponent::Text ? QJsonArray{c.frame.x(), c.frame.y()} : toArray(c.frame);
+            object["frame"] = c.type == GaugeComponent::Text && !c.boxed ? QJsonArray{c.frame.x(), c.frame.y()} : toArray(c.frame);
         }
     if (c.color.role != GaugeColor::Original)
         {
@@ -205,6 +335,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
     if (!c.channel.isEmpty())
         {
             object["channel"] = c.channel;
+        }
+    if (!c.unit.isEmpty())
+        {
+            object["unit"] = c.unit;
         }
     if (c.hideWhenUnknown)
         {
@@ -238,20 +372,7 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["text"] = c.text;
                 }
-            QJsonObject font{{"size", c.fontSize}};
-            if (!c.fontFamily.isEmpty())
-                {
-                    font["family"] = c.fontFamily;
-                }
-            if (c.bold)
-                {
-                    font["bold"] = true;
-                }
-            if (c.italic)
-                {
-                    font["italic"] = true;
-                }
-            object["font"] = font;
+            object["font"] = fontToJson(c);
             if (c.precision >= 0)
                 {
                     object["precision"] = c.precision;
@@ -262,15 +383,81 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["upperCase"] = true;
                 }
+            if (c.boxed)
+                {
+                    object["boxed"] = true;
+                }
+            if (c.valueFormat != GaugeComponent::Number)
+                {
+                    object["format"] = kValueFormats[c.valueFormat];
+                }
+            if (c.valueFormat == GaugeComponent::Clock)
+                {
+                    object["clockFormat"] = c.clockFormat;
+                    if (!c.localTime)
+                        {
+                            object["utc"] = true;
+                        }
+                }
+            if (c.showPlus)
+                {
+                    object["showPlus"] = true;
+                }
+            if (c.clampValue)
+                {
+                    object["clamp"] = QJsonArray{c.clampMin, c.clampMax};
+                }
             break;
         }
         case GaugeComponent::Group:
             object["components"] = componentsToJson(c.children);
             break;
+        case GaugeComponent::Shape:
+            object["shape"] = kShapeKinds[c.shape];
+            if (c.shape == GaugeComponent::Line)
+                {
+                    object.remove("frame");
+                    object["points"] = pointsToJson(c.points);
+                }
+            if (c.shape == GaugeComponent::Line || c.shape == GaugeComponent::Arc || !c.filled)
+                {
+                    object["lineWidth"] = c.lineWidth;
+                }
+            if (!c.filled && c.shape != GaugeComponent::Line && c.shape != GaugeComponent::Arc)
+                {
+                    object["filled"] = false;
+                }
+            if (c.cornerRadius > 0.0)
+                {
+                    object["cornerRadius"] = c.cornerRadius;
+                }
+            if (c.shape == GaugeComponent::Arc || c.shape == GaugeComponent::Pie)
+                {
+                    object["startAngle"] = c.startAngle;
+                    object["sweepAngle"] = c.sweepAngle;
+                }
+            if (c.gradientColor.role != GaugeColor::Original)
+                {
+                    object["gradientColor"] = colorToJson(c.gradientColor);
+                    object["gradientLine"] = QJsonArray{c.gradientLine.x1(), c.gradientLine.y1(),
+                                                        c.gradientLine.x2(), c.gradientLine.y2()};
+                }
+            break;
+        case GaugeComponent::Dial:
+        case GaugeComponent::Tape:
+            object["scale"] = scaleToJson(c.scale, c.type);
+            object["font"] = fontToJson(c);
+            object["align"] = c.alignment & Qt::AlignHCenter ? "center" : c.alignment & Qt::AlignRight ? "right" : "left";
+            object["valign"] = c.alignment & Qt::AlignTop ? "top" : c.alignment & Qt::AlignBottom ? "bottom" : "center";
+            break;
         case GaugeComponent::Graph:
         case GaugeComponent::TrackMap:
         case GaugeComponent::LapMap:
             object["lineWidth"] = c.lineWidth;
+            if (c.windowBefore > 0.0 || c.windowAfter > 0.0)
+                {
+                    object["window"] = QJsonArray{c.windowBefore, c.windowAfter};
+                }
             if (c.padding != 0.0)
                 {
                     object["padding"] = c.padding;
@@ -324,6 +511,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.frame = frame.size() >= 4 ? toRect(frame) : QRectF(frame.at(0).toDouble(), frame.at(1).toDouble(), 0, 0);
     c.color = colorFromJson(object.value("color"));
     c.channel = object.value("channel").toString();
+    c.unit = object.value("unit").toString();
     c.hideWhenUnknown = object.value("hideWhenUnknown").toBool();
     const QJsonArray manipulations = object.value("manipulations").toArray();
     for (const QJsonValue &m : manipulations)
@@ -345,7 +533,30 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.alignment = (align == "center" ? Qt::AlignHCenter : align == "right" ? Qt::AlignRight : Qt::AlignLeft)
                   | (valign == "top" ? Qt::AlignTop : valign == "bottom" ? Qt::AlignBottom : Qt::AlignVCenter);
     c.upperCase = object.value("upperCase").toBool();
+    c.boxed = object.value("boxed").toBool();
+    c.valueFormat = GaugeComponent::ValueFormat(indexOf(kValueFormats, object.value("format").toString()));
+    c.clockFormat = object.value("clockFormat").toString();
+    c.localTime = !object.value("utc").toBool();
+    c.showPlus = object.value("showPlus").toBool();
+    const QJsonArray clamp = object.value("clamp").toArray();
+    c.clampValue = clamp.size() == 2;
+    c.clampMin = clamp.at(0).toDouble();
+    c.clampMax = clamp.at(1).toDouble();
     c.children = componentsFromJson(object.value("components"));
+    c.shape = GaugeComponent::ShapeKind(indexOf(kShapeKinds, object.value("shape").toString()));
+    c.points = pointsFromJson(object.value("points"));
+    // arcs and lines are only ever drawn with a pen
+    c.filled = object.value("filled").toBool(true) && c.shape != GaugeComponent::Arc && c.shape != GaugeComponent::Line;
+    c.cornerRadius = object.value("cornerRadius").toDouble();
+    c.startAngle = object.value("startAngle").toDouble();
+    c.sweepAngle = object.value("sweepAngle").toDouble();
+    c.gradientColor = colorFromJson(object.value("gradientColor"));
+    const QJsonArray gradient = object.value("gradientLine").toArray();
+    c.gradientLine = QLineF(gradient.at(0).toDouble(), gradient.at(1).toDouble(), gradient.at(2).toDouble(), gradient.at(3).toDouble());
+    c.scale = scaleFromJson(object.value("scale"));
+    const QJsonArray window = object.value("window").toArray();
+    c.windowBefore = window.at(0).toDouble();
+    c.windowAfter = window.at(1).toDouble();
     c.lineWidth = object.value("lineWidth").toDouble(c.lineWidth);
     c.padding = object.value("padding").toDouble();
     c.fillAlpha = object.value("fillAlpha").toInt(-1);

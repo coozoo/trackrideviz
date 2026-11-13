@@ -4,10 +4,12 @@
 #include "gauge/gaugerenderer.h"
 #include "gauge/metricrange.h"
 #include "gauge/veggaugeimporter.h"
+#include "gauge/xmlgaugeimporter.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 
 #include <QPainter>
+#include <QTimeZone>
 #include <QTemporaryDir>
 #include <QtTest>
 
@@ -105,6 +107,34 @@ private:
                     }
             }
         return count;
+    }
+
+    // A text drawn as `component` looks the same as the fixed text `expected`.
+    static void compareText(const GaugeComponent &component, const QString &expected, const TelemetrySessionPtr &session,
+                     double time)
+    {
+        Gauge shown;
+        shown.size = QSizeF(200, 100);
+        shown.components.append(component);
+        GaugeComponent fixed = component;
+        fixed.autoText = GaugeComponent::FixedText;
+        fixed.text = expected;
+        fixed.valueFormat = GaugeComponent::Number;
+        Gauge wanted = shown;
+        wanted.components[0] = fixed;
+        const BoundGauge a(shown, ChannelId::Speed, session, Units(), GaugeTheme());
+        const BoundGauge b(wanted, ChannelId::Speed, session, Units(), GaugeTheme());
+        QImage left(200, 100, QImage::Format_ARGB32_Premultiplied);
+        left.fill(Qt::transparent);
+        QImage right = left;
+        QPainter p1(&left);
+        a.render(p1, QRectF(0, 0, 200, 100), time);
+        p1.end();
+        QPainter p2(&right);
+        b.render(p2, QRectF(0, 0, 200, 100), time);
+        p2.end();
+        QVERIFY2(left == right, qPrintable(expected));
+        QVERIFY(paintedPixels(left) > 0);
     }
 
 private slots:
@@ -1437,6 +1467,759 @@ private slots:
                 count += entry.id == "library:good one" ? 1 : 0;
             }
         QCOMPARE(count, 1);
+    }
+
+    // --- shapes, scales, formats -------------------------------------------
+
+    void shapesAreDrawn()
+    {
+        auto one = [](GaugeComponent::ShapeKind kind, const QRectF &frame, bool filled, double lineWidth = 4.0)
+        {
+            GaugeComponent c;
+            c.type = GaugeComponent::Shape;
+            c.shape = kind;
+            c.frame = frame;
+            c.filled = filled;
+            c.lineWidth = lineWidth;
+            c.color.role = GaugeColor::Accent;
+            Gauge gauge;
+            gauge.size = QSizeF(100, 100);
+            gauge.components.append(c);
+            return gauge;
+        };
+        const QImage rect = draw(one(GaugeComponent::Rectangle, QRectF(10, 10, 30, 30), true), 0.0);
+        QVERIFY(painted(rect, 25, 25));
+        QVERIFY(!painted(rect, 50, 50));
+        QCOMPARE(QColor(rect.pixel(25, 25)), GaugeTheme().accent);
+
+        const QImage ring = draw(one(GaugeComponent::Ellipse, QRectF(10, 10, 80, 80), false), 0.0);
+        QVERIFY(painted(ring, 50, 10));
+        QVERIFY(!painted(ring, 50, 50));
+
+        // 12 to 3 o'clock
+        Gauge arc = one(GaugeComponent::Arc, QRectF(10, 10, 80, 80), false);
+        arc.components[0].startAngle = 0;
+        arc.components[0].sweepAngle = 90;
+        const QImage quarter = draw(arc, 0.0);
+        QVERIFY(painted(quarter, 78, 22));      // on the circle, up right
+        QVERIFY(!painted(quarter, 22, 78));
+        QVERIFY(!painted(quarter, 22, 22));
+
+        Gauge pie = one(GaugeComponent::Pie, QRectF(10, 10, 80, 80), true);
+        pie.components[0].startAngle = 90;      // 3 to 6 o'clock
+        pie.components[0].sweepAngle = 90;
+        const QImage slice = draw(pie, 0.0);
+        QVERIFY(painted(slice, 65, 65));
+        QVERIFY(!painted(slice, 35, 65));
+        QVERIFY(!painted(slice, 65, 35));
+
+        Gauge line = one(GaugeComponent::Line, QRectF(), false, 6.0);
+        line.components[0].points = {QPointF(50, 10), QPointF(50, 90)};
+        const QImage stroke = draw(line, 0.0);
+        QVERIFY(painted(stroke, 50, 50));
+        QVERIFY(!painted(stroke, 60, 50));
+
+        // a fill running from the colour to the gradient's end colour
+        Gauge gradient = one(GaugeComponent::Rectangle, QRectF(0, 0, 100, 100), true);
+        gradient.components[0].color = GaugeColor{GaugeColor::Custom, QColor(255, 0, 0)};
+        gradient.components[0].gradientColor = GaugeColor{GaugeColor::Custom, QColor(0, 0, 255)};
+        gradient.components[0].gradientLine = QLineF(0, 0, 100, 0);
+        const QImage shaded = draw(gradient, 0.0);
+        QVERIFY(qRed(shaded.pixel(2, 50)) > 200 && qBlue(shaded.pixel(2, 50)) < 50);
+        QVERIFY(qBlue(shaded.pixel(97, 50)) > 200 && qRed(shaded.pixel(97, 50)) < 50);
+    }
+
+    void unevenScaleFollowsItsCurve()
+    {
+        GaugeManipulation m;
+        m.curve = {QPointF(0, 0.0), QPointF(10, 0.5), QPointF(100, 1.0)};
+        const MetricRange range;
+        QCOMPARE(BoundGauge::fraction(m, range, 0.0), 0.0);
+        QCOMPARE(BoundGauge::fraction(m, range, 5.0), 0.25);
+        QCOMPARE(BoundGauge::fraction(m, range, 10.0), 0.5);
+        QCOMPARE(BoundGauge::fraction(m, range, 55.0), 0.75);
+        QCOMPARE(BoundGauge::fraction(m, range, 500.0), 1.0);
+        QCOMPARE(BoundGauge::fraction(m, range, -5.0), 0.0);
+        m.reversed = true;
+        QCOMPARE(BoundGauge::fraction(m, range, 5.0), 0.75);
+    }
+
+    void dialDrawsArcTicksAndNumbers()
+    {
+        GaugeComponent dial;
+        dial.type = GaugeComponent::Dial;
+        dial.frame = QRectF(10, 10, 80, 80);
+        dial.color.role = GaugeColor::Foreground;
+        dial.fontSize = 10;
+        dial.alignment = Qt::AlignCenter;
+        GaugeScale &s = dial.scale;
+        s.radius = 40;
+        s.startAngle = -90;     // 9 o'clock...
+        s.endAngle = 90;        // ...over the top to 3 o'clock
+        s.minValue = 0;
+        s.maxValue = 100;
+        s.major = GaugeTicks{50, 10, 3, GaugeColor{GaugeColor::Custom, Qt::red}};
+        s.minor = GaugeTicks{10, 5, 1, GaugeColor{GaugeColor::Custom, Qt::green}};
+        s.labelOffset = 22;
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(dial);
+        const QImage image = draw(gauge, 0.0);
+        // major ticks at 9, 12 and 3 o'clock, inside the circle
+        QVERIFY(qRed(image.pixel(50, 14)) > 200);
+        QVERIFY(qRed(image.pixel(14, 50)) > 200);
+        QVERIFY(qRed(image.pixel(86, 50)) > 200);
+        // no scale below
+        QVERIFY(!painted(image, 50, 86));
+        // the number for the middle under the top tick
+        bool numberThere = false;
+        for (int y = 22; y < 40; ++y)
+            {
+                for (int x = 40; x < 60; ++x)
+                    {
+                        numberThere = numberThere || painted(image, x, y);
+                    }
+            }
+        QVERIFY(numberThere);
+    }
+
+    void tapeSlidesWithTheValue()
+    {
+        GaugeComponent tape;
+        tape.type = GaugeComponent::Tape;
+        tape.frame = QRectF(0, 0, 100, 40);
+        tape.color.role = GaugeColor::Foreground;
+        tape.fontSize = 8;
+        tape.alignment = Qt::AlignCenter;
+        GaugeScale &s = tape.scale;
+        s.orientation = GaugeScale::NumbersAbove;
+        s.minValue = 0;
+        s.maxValue = 100;
+        s.length = 80;
+        s.spacing = 20;     // 10 km/h every 20 units
+        s.major = GaugeTicks{10, 10, 2, GaugeColor{GaugeColor::Custom, Qt::red}};
+        s.labelOffset = 4;
+        s.markerLength = 30;
+        s.markerWidth = 2;
+        s.markerColor = GaugeColor{GaugeColor::Custom, Qt::blue};
+        tape.unit = "km/h";
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(tape);
+        const QImage at18 = draw(gauge, 5.0);    // 18 km/h
+        const QImage at36 = draw(gauge, 10.0);   // 36 km/h
+        QVERIFY(at18 != at36);
+        // the marker stays in the middle
+        const QFontMetricsF metrics([] { QFont f; f.setPixelSize(8); return f; }());
+        const int middle = int(std::lround(metrics.horizontalAdvance("100") / 2.0 + 40.0));
+        bool blue = false;
+        for (int x = middle - 1; x <= middle + 1; ++x)
+            {
+                for (int y = 0; y < 40; ++y)
+                    {
+                        blue = blue || (qBlue(at18.pixel(x, y)) > 200 && qRed(at18.pixel(x, y)) < 50);
+                    }
+            }
+        QVERIFY(blue);
+    }
+
+    void valueFormats()
+    {
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+        speed.append(0.0, -3.75);
+        speed.append(1.0, 125.5);
+        speed.append(2.0, 49.5);
+        session->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(4, 47, 11), QTimeZone::UTC));
+        session->setUtcOffsetSeconds(3 * 3600);
+
+        GaugeComponent c;
+        c.type = GaugeComponent::Text;
+        c.autoText = GaugeComponent::Value;
+        c.frame = QRectF(5, 5, 190, 90);
+        c.boxed = true;
+        c.alignment = Qt::AlignLeft | Qt::AlignTop;
+        c.unit = "m/s";
+        c.precision = 1;
+
+        compareText(c, "-3.8", session, 0.0);
+        c.valueFormat = GaugeComponent::WholeNumber;
+        compareText(c, "-3", session, 0.0);              // cut off, not rounded
+        c.showPlus = true;
+        compareText(c, "+125", session, 1.0);
+        c.showPlus = false;
+        c.clampValue = true;
+        c.clampMin = 0;
+        c.clampMax = 100;
+        compareText(c, "100", session, 1.0);
+        compareText(c, "0", session, 0.0);
+        c.clampValue = false;
+        c.valueFormat = GaugeComponent::Duration;
+        compareText(c, "2:05.5", session, 1.0);
+        c.valueFormat = GaugeComponent::DegreesMinutesSeconds;
+        c.precision = 0;
+        compareText(c, "49° 30' 0\"", session, 2.0);
+        c.valueFormat = GaugeComponent::Clock;
+        c.clockFormat = "HH:mm:ss";
+        compareText(c, "07:47:13", session, 2.0);        // the recording's local time
+        c.localTime = false;
+        compareText(c, "04:47:13", session, 2.0);
+    }
+
+    void fixedUnitIsKeptWhateverTheDisplayUnits()
+    {
+        GaugeComponent c;
+        c.type = GaugeComponent::Text;
+        c.autoText = GaugeComponent::Value;
+        c.valueFormat = GaugeComponent::WholeNumber;
+        c.frame = QRectF(5, 5, 190, 90);
+        c.boxed = true;
+        c.unit = "mph";
+        // 10 m/s
+        compareText(c, "22", makeSession(), 10.0);
+        c.unit = "km/h";
+        compareText(c, "36", makeSession(), 10.0);
+        c.unit = "kn";
+        compareText(c, "19", makeSession(), 10.0);
+        // a unit that does not fit the channel is ignored: m/s as stored
+        c.unit = "ft";
+        compareText(c, "36", makeSession(), 10.0);
+        QCOMPARE(ChannelFormat::displayIn(ChannelId::Elevation, "m", "ft", Units()).unit, QString("ft"));
+        QCOMPARE(ChannelFormat::displayIn(ChannelId::Temperature, "C", "°F", Units()).convert(100.0), 212.0);
+        QCOMPARE(ChannelFormat::displayIn(ChannelId::HeartRate, "bpm", "mph", Units()).scale, 1.0);
+    }
+
+    void graphWindowMovesAlong()
+    {
+        GaugeComponent graph;
+        graph.type = GaugeComponent::Graph;
+        graph.frame = QRectF(0, 0, 100, 100);
+        graph.lineWidth = 2;
+        graph.windowBefore = 3.0;
+        graph.windowAfter = 1.0;
+        GaugeComponent knob;
+        knob.type = GaugeComponent::Shape;
+        knob.shape = GaugeComponent::Ellipse;
+        knob.frame = QRectF(-4, -4, 8, 8);
+        knob.color = GaugeColor{GaugeColor::Custom, Qt::red};
+        graph.knob.append(knob);
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(graph);
+        // the current point sits three quarters along, at any time
+        for (const double time : {4.0, 6.0})
+            {
+                const QImage image = draw(gauge, time);
+                bool red = false;
+                for (int y = 0; y < 100; ++y)
+                    {
+                        red = red || (qRed(image.pixel(75, y)) > 200 && qGreen(image.pixel(75, y)) < 50);
+                    }
+                QVERIFY2(red, qPrintable(QString::number(time)));
+            }
+        QVERIFY(draw(gauge, 4.0) != draw(gauge, 6.0));
+    }
+
+    void jsonRoundTripOfShapesAndScales()
+    {
+        Gauge gauge;
+        gauge.name = "Vector";
+        gauge.size = QSizeF(300, 200);
+        GaugeComponent rect;
+        rect.type = GaugeComponent::Shape;
+        rect.shape = GaugeComponent::Rectangle;
+        rect.frame = QRectF(1, 2, 3, 4);
+        rect.cornerRadius = 5;
+        rect.color = GaugeColor{GaugeColor::Custom, QColor(1, 2, 3, 4)};
+        rect.gradientColor = GaugeColor{GaugeColor::Accent, QColor()};
+        rect.gradientLine = QLineF(1, 2, 3, 4);
+        rect.unit = "mph";
+        GaugeManipulation clip;
+        clip.type = GaugeManipulation::WidthClip;
+        clip.curve = {QPointF(0, 0), QPointF(5, 0.8), QPointF(10, 1)};
+        rect.manipulations.append(clip);
+        GaugeComponent arc;
+        arc.type = GaugeComponent::Shape;
+        arc.shape = GaugeComponent::Arc;
+        arc.filled = false;
+        arc.frame = QRectF(0, 0, 50, 50);
+        arc.startAngle = -120;
+        arc.sweepAngle = 240;
+        arc.lineWidth = 7;
+        GaugeComponent outline = rect;
+        outline.filled = false;
+        outline.lineWidth = 2;
+        outline.gradientColor = GaugeColor();
+        outline.manipulations.clear();
+        GaugeComponent line;
+        line.type = GaugeComponent::Shape;
+        line.shape = GaugeComponent::Line;
+        line.filled = false;
+        line.points = {QPointF(1, 1), QPointF(2, 3), QPointF(4, 5)};
+        line.lineWidth = 3;
+        GaugeComponent dial;
+        dial.type = GaugeComponent::Dial;
+        dial.frame = QRectF(0, 0, 100, 100);
+        dial.scale.startAngle = -135;
+        dial.scale.endAngle = 135;
+        dial.scale.radius = 48;
+        dial.scale.arcWidth = 2;
+        dial.scale.arcColor = GaugeColor{GaugeColor::Foreground, QColor()};
+        dial.scale.major = GaugeTicks{20, 8, 2, GaugeColor{GaugeColor::Accent, QColor()}};
+        dial.scale.minor = GaugeTicks{5, 4, 1, GaugeColor{GaugeColor::Custom, QColor(9, 8, 7)}};
+        dial.scale.labelOffset = 15;
+        dial.fontFamily = "Arial";
+        dial.fontSize = 11;
+        dial.bold = true;
+        dial.alignment = Qt::AlignRight | Qt::AlignBottom;
+        GaugeComponent tape;
+        tape.type = GaugeComponent::Tape;
+        tape.frame = QRectF(0, 0, 40, 200);
+        tape.scale.orientation = GaugeScale::NumbersLeft;
+        tape.scale.reverse = true;
+        tape.scale.loop = true;
+        tape.scale.minValue = 0;
+        tape.scale.maxValue = 360;
+        tape.scale.length = 180;
+        tape.scale.spacing = 30;
+        tape.scale.markerLength = 20;
+        tape.scale.markerWidth = 2;
+        tape.scale.markerColor = GaugeColor{GaugeColor::Accent2, QColor()};
+        GaugeComponent text;
+        text.type = GaugeComponent::Text;
+        text.autoText = GaugeComponent::Value;
+        text.boxed = true;
+        text.frame = QRectF(10, 20, 30, 40);
+        text.valueFormat = GaugeComponent::Clock;
+        text.clockFormat = "hh:mm AP";
+        text.localTime = false;
+        text.showPlus = true;
+        text.clampValue = true;
+        text.clampMin = -1;
+        text.clampMax = 2;
+        GaugeComponent graph;
+        graph.type = GaugeComponent::Graph;
+        graph.frame = QRectF(0, 0, 100, 50);
+        graph.windowBefore = 60;
+        graph.windowAfter = 10;
+        gauge.components = {rect, arc, outline, line, dial, tape, text, graph};
+
+        const QByteArray json = GaugeFile::toJson(gauge);
+        Gauge loaded;
+        QString error;
+        QVERIFY2(GaugeFile::fromJson(json, &loaded, &error), qPrintable(error));
+        QCOMPARE(GaugeFile::toJson(loaded), json);
+        const QVector<GaugeComponent> &c = loaded.components;
+        QCOMPARE(c[0].shape, GaugeComponent::Rectangle);
+        QVERIFY(c[0].filled);
+        QCOMPARE(c[0].cornerRadius, 5.0);
+        QCOMPARE(c[0].color.custom, QColor(1, 2, 3, 4));
+        QCOMPARE(c[0].gradientColor.role, GaugeColor::Accent);
+        QCOMPARE(c[0].gradientLine, QLineF(1, 2, 3, 4));
+        QCOMPARE(c[0].unit, QString("mph"));
+        QCOMPARE(c[0].manipulations[0].curve.size(), 3);
+        QCOMPARE(c[0].manipulations[0].curve[1], QPointF(5, 0.8));
+        QCOMPARE(c[1].shape, GaugeComponent::Arc);
+        QVERIFY(!c[1].filled);
+        QCOMPARE(c[1].startAngle, -120.0);
+        QCOMPARE(c[1].sweepAngle, 240.0);
+        QCOMPARE(c[1].lineWidth, 7.0);
+        QVERIFY(!c[2].filled);
+        QCOMPARE(c[2].lineWidth, 2.0);
+        QCOMPARE(c[3].points.size(), 3);
+        QCOMPARE(c[3].points[2], QPointF(4, 5));
+        QCOMPARE(c[4].type, GaugeComponent::Dial);
+        QCOMPARE(c[4].scale.endAngle, 135.0);
+        QCOMPARE(c[4].scale.radius, 48.0);
+        QCOMPARE(c[4].scale.arcWidth, 2.0);
+        QVERIFY(c[4].scale.major == dial.scale.major);
+        QVERIFY(c[4].scale.minor == dial.scale.minor);
+        QCOMPARE(c[4].scale.labelOffset, 15.0);
+        QVERIFY(c[4].bold);
+        QCOMPARE(c[4].alignment, Qt::AlignRight | Qt::AlignBottom);
+        QCOMPARE(c[5].scale.orientation, GaugeScale::NumbersLeft);
+        QVERIFY(c[5].scale.reverse && c[5].scale.loop);
+        QCOMPARE(c[5].scale.spacing, 30.0);
+        QCOMPARE(c[5].scale.markerColor.role, GaugeColor::Accent2);
+        QVERIFY(c[6].boxed);
+        QCOMPARE(c[6].frame, QRectF(10, 20, 30, 40));
+        QCOMPARE(c[6].valueFormat, GaugeComponent::Clock);
+        QCOMPARE(c[6].clockFormat, QString("hh:mm AP"));
+        QVERIFY(!c[6].localTime && c[6].showPlus && c[6].clampValue);
+        QCOMPARE(c[6].clampMax, 2.0);
+        QCOMPARE(c[7].windowBefore, 60.0);
+        QCOMPARE(c[7].windowAfter, 10.0);
+    }
+
+    // --- XML gauges -----------------------------------------------------------
+
+    void xmlChannels()
+    {
+        QString unit;
+        QCOMPARE(XmlGaugeImporter::channelFor("Speed (MPH)", &unit), QString("speed"));
+        QCOMPARE(unit, QString("mph"));
+        QCOMPARE(XmlGaugeImporter::channelFor("Speed (KPH)", &unit), QString("speed"));
+        QCOMPARE(unit, QString("km/h"));
+        QCOMPARE(XmlGaugeImporter::channelFor("Altitude / Z Position (Feet)", &unit), QString("elevation"));
+        QCOMPARE(unit, QString("ft"));
+        QCOMPARE(XmlGaugeImporter::channelFor("Latitude / Y Position (Degrees)", &unit), QString("positionLat"));
+        QCOMPARE(unit, QString());
+        QCOMPARE(XmlGaugeImporter::channelFor("Air Temperature (F)", &unit), QString("temperature"));
+        QCOMPARE(unit, QString("°F"));
+        QCOMPARE(XmlGaugeImporter::channelFor("Lateral Gs"), QString("gForceLateral"));
+        QCOMPARE(XmlGaugeImporter::channelFor("Heart Rate"), QString("heartRate"));
+        // kept for when such data exists
+        QCOMPARE(XmlGaugeImporter::channelFor("Engine Oil Pressure (psi)", &unit), QString("engineOilPressurePsi"));
+        QCOMPARE(XmlGaugeImporter::channelFor("Power Balance Right (%)"), QString("powerBalanceRight"));
+    }
+
+    void xmlGaugeIsConverted()
+    {
+        // made up here in the shape of such a file: one of everything
+        const QByteArray xml = R"xml(<?xml version="1.0" encoding="utf-8"?>
+<Gauge version="3" x="0" y="0" width="300" height="200" transparency="0.5">
+  <Components>
+    <FilledRectangle x="0" y="0" width="300" height="200" roundCorners="True" cornerRadius="8" transparency="1" red="10" green="20" blue="30" />
+    <AnalogFace x="100" y="100" minValue="0" maxValue="200" minAngle="-225" maxAngle="45" arcRadius="90" labelOffset="20"
+        arcPenWidth="2" arcTransparency="1" arcRed="255" arcGreen="255" arcBlue="255"
+        minorTickUnit="10" minorTickLength="4" minorTickPenWidth="1" minorTickTransparency="1" minorTickRed="200" minorTickGreen="200" minorTickBlue="200"
+        majorTickUnit="20" majorTickLength="8" majorTickPenWidth="2" majorTickTransparency="1" majorTickRed="255" majorTickGreen="0" majorTickBlue="0"
+        fontFace="Arial" fontSize="9" fontBold="True" fontItalic="False" fontUnderline="False" fontDirection="horizontal" fontAlign="left" fontVAlign="top"
+        fontTransparency="1" fontRed="1" fontGreen="2" fontBlue="3">
+      <Components>
+        <Needle x="0" y="0" length="80" offset="-10" syncValueRangeWithParent="True" syncAngleRangeWithParent="True" minValue="0" maxValue="1" minAngle="0" maxAngle="1"
+            penWidth="3" transparency="1" red="255" green="0" blue="0">
+          <Inputs><Input name="Value">MPH</Input></Inputs>
+        </Needle>
+        <AnimatedArc x="0" y="0" radius="70" syncValueRangeWithParent="False" syncAngleRangeWithParent="True" minValue="0" maxValue="100" loop="True"
+            penWidth="5" transparency="1" red="0" green="255" blue="0">
+          <Inputs><Input name="Value">MPH</Input></Inputs>
+        </AnimatedArc>
+        <NonLinearNeedle x="0" y="0" length="50" syncValueRangeWithParent="False" syncAngleRangeWithParent="False" minValue="0" maxValue="100" minAngle="-180" maxAngle="0"
+            stepCount="1" stepValue0="10" stepAngle0="-90" penWidth="1" transparency="1" red="0" green="0" blue="255">
+          <Inputs><Input name="Value">BPM</Input></Inputs>
+        </NonLinearNeedle>
+      </Components>
+    </AnalogFace>
+    <Bar x="200" y="10" width="80" height="10" minValue="0" maxValue="50" direction="BottomToTop"
+        startTransparency="1" startRed="0" startGreen="255" startBlue="0" endTransparency="1" endRed="255" endGreen="0" endBlue="0">
+      <Inputs><Input name="Value">BPM</Input></Inputs>
+    </Bar>
+    <Text x="200" y="30" text="MPH" fontRectWidth="60" fontRectHeight="20" fontFace="Arial" fontSize="12" fontBold="False" fontItalic="True" fontUnderline="False"
+        fontDirection="horizontal" fontAlign="right" fontVAlign="bottom" fontTransparency="1" fontRed="255" fontGreen="255" fontBlue="255" />
+    <DynamicText x="200" y="50" displayType="Running Time" decimalPrecision="1" showPlus="True" restrictRange="True" restrictedMinValue="0" restrictedMaxValue="99"
+        fontRectWidth="60" fontRectHeight="20" fontFace="Courier New" fontSize="12" fontBold="False" fontItalic="False" fontUnderline="False"
+        fontDirection="horizontal" fontAlign="center" fontVAlign="center" fontTransparency="1" fontRed="255" fontGreen="255" fontBlue="255">
+      <Inputs><Input name="Value">MPH</Input></Inputs>
+    </DynamicText>
+    <DynamicText x="200" y="70" displayType="Time: HH:mm:ss.ff" decimalPrecision="0" showPlus="False" restrictRange="False" convertFromGMT="False"
+        fontRectWidth="60" fontRectHeight="20" fontFace="Arial" fontSize="12" fontBold="False" fontItalic="False" fontUnderline="False"
+        fontDirection="horizontal" fontAlign="left" fontVAlign="top" fontTransparency="1" fontRed="255" fontGreen="255" fontBlue="255">
+      <Inputs><Input name="Value">Time</Input></Inputs>
+    </DynamicText>
+    <ImageNeedle x="250" y="150" axisX="5" axisY="20" width="10" height="25" src="Needle.PNG" transparency="1" syncValueRangeWithParent="False"
+        syncAngleRangeWithParent="False" minValue="0" maxValue="360" minAngle="0" maxAngle="360" loop="True">
+      <Inputs><Input name="Value">Heading</Input></Inputs>
+    </ImageNeedle>
+    <TickerTape x="10" y="10" orientation="Vertial, Units on Left" reverse="False" minValue="0" maxValue="1000" loop="False" length="150" spacing="25"
+        minorTickUnit="10" minorTickLength="3" minorTickPenWidth="1" minorTickTransparency="1" minorTickRed="255" minorTickGreen="255" minorTickBlue="255"
+        majorTickUnit="50" majorTickLength="6" majorTickPenWidth="1" majorTickTransparency="1" majorTickRed="255" majorTickGreen="255" majorTickBlue="255"
+        labelOffset="3" valueLineLength="20" valueLinePenWidth="2" valueLineTransparency="1" valueLineRed="255" valueLineGreen="0" valueLineBlue="0"
+        fontFace="Arial" fontSize="7" fontBold="False" fontItalic="False" fontUnderline="False" fontDirection="horizontal" fontAlign="right" fontVAlign="center"
+        fontTransparency="1" fontRed="255" fontGreen="255" fontBlue="255">
+      <Inputs><Input name="Value">ALT</Input></Inputs>
+    </TickerTape>
+    <GPlot x="150" y="150" radius="40" maxG="2" flipXAxis="False" flipYAxis="False" majorUnit="1" minorUnit="0.5" showTail="True" tailDuration="3"
+        axesPenWidth="1" axesTransparency="1" axesRed="255" axesGreen="255" axesBlue="255"
+        majorPenWidth="1" majorTransparency="1" majorRed="255" majorGreen="255" majorBlue="255"
+        minorPenWidth="1" minorTransparency="1" minorRed="128" minorGreen="128" minorBlue="128"
+        stickPenWidth="1" stickTransparency="1" stickRed="0" stickGreen="0" stickBlue="255" ballRadius="4" ballTransparency="1" ballRed="255" ballGreen="0" ballBlue="0"
+        fontFace="Arial" fontSize="7" fontBold="False" fontItalic="False" fontUnderline="False" fontDirection="horizontal" fontAlign="left" fontVAlign="top"
+        fontTransparency="1" fontRed="255" fontGreen="255" fontBlue="255">
+      <Inputs><Input name="Lateral G">LAT</Input><Input name="Acceleration G">ACC</Input></Inputs>
+    </GPlot>
+    <Map x="0" y="100" width="100" height="100" align="Center" vAlign="Center" EvenPenWidth="3" EvenTransparency="1" EvenRed="0" EvenGreen="0" EvenBlue="255"
+        OddPenWidth="3" OddTransparency="1" OddRed="0" OddGreen="0" OddBlue="255">
+      <Components>
+        <MapDot x="1" y="2" radius="5" transparency="1" red="255" green="0" blue="0">
+          <Inputs><Input name="X">LON</Input><Input name="Y">LAT</Input></Inputs>
+        </MapDot>
+        <Map x="2" y="2" width="100" height="100" align="Center" vAlign="Center" EvenPenWidth="5" EvenTransparency="0.5" EvenRed="0" EvenGreen="0" EvenBlue="0"
+            OddPenWidth="5" OddTransparency="1" OddRed="0" OddGreen="0" OddBlue="0" />
+      </Components>
+      <Inputs><Input name="X">LON</Input><Input name="Y">LAT</Input></Inputs>
+    </Map>
+    <ChartComponent x="0" y="0" width="200" height="50" fillChart="True" showAllLaps="False" showAxisLines="True" showCurrentLine="True"
+        xScaleAuto="False" xUnitsBackward="60" xUnitsForward="10" yScaleAuto="True" xAxisShowLabel="True"
+        backgroundTransparency="0" backgroundRed="0" backgroundGreen="0" backgroundBlue="0"
+        axisPenWidth="1" axisTransparency="1" axisRed="200" axisGreen="200" axisBlue="200"
+        linePenWidth="2" lineTransparency="1" lineRed="0" lineGreen="0" lineBlue="255"
+        fillTransparency="0.5" fillRed="0" fillGreen="0" fillBlue="128"
+        currentLinePenWidth="1" currentLineTransparency="1" currentLineRed="255" currentLineGreen="0" currentLineBlue="0"
+        currentDotRadius="3" currentDotTransparency="1" currentDotRed="255" currentDotGreen="0" currentDotBlue="0">
+      <Inputs><Input name="Value">ALT</Input></Inputs>
+    </ChartComponent>
+    <Hologram x="0" y="0" />
+  </Components>
+  <Inputs>
+    <Input category="Velocity" name="Speed (MPH)" fromFastestLapSamePos="False">MPH</Input>
+    <Input category="Sports" name="Heart Rate" fromFastestLapSamePos="False">BPM</Input>
+    <Input category="Positional" name="Altitude / Z Position (Feet)" fromFastestLapSamePos="False">ALT</Input>
+    <Input category="Date Time" name="Time of Day" fromFastestLapSamePos="False">Time</Input>
+    <Input category="Positional" name="Heading" fromFastestLapSamePos="False">Heading</Input>
+    <Input category="G-Forces" name="Lateral Gs" fromFastestLapSamePos="False">LAT</Input>
+    <Input category="G-Forces" name="Acceleration Gs" fromFastestLapSamePos="False">ACC</Input>
+    <Input category="Positional" name="Longitude / X Position (Degrees)" fromFastestLapSamePos="False">LON</Input>
+  </Inputs>
+</Gauge>)xml";
+        const QString folder = m_dir.filePath("xml/Test Cluster");
+        QVERIFY(QDir().mkpath(folder));
+        QVERIFY(filled(Qt::white, 10).save(folder + "/needle.png"));
+        QFile file(folder + "/gauge.xml");
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(xml);
+        file.close();
+
+        const XmlGaugeImporter::Result result = XmlGaugeImporter::importFolder(folder);
+        QVERIFY2(result.ok, qPrintable(result.error));
+        const Gauge &gauge = result.gauge;
+        QCOMPARE(gauge.name, QString("Test Cluster"));
+        QCOMPARE(gauge.size, QSizeF(300, 200));
+        QCOMPARE(gauge.supportedTypes, QStringList({"speed"}));
+        const QString warnings = result.warnings.join('\n');
+        QVERIFY2(warnings.contains("Hologram") && warnings.contains("G-plot") && warnings.contains("axis labels"), qPrintable(warnings));
+
+        auto find = [&gauge](GaugeComponent::Type type, int skip = 0) -> const GaugeComponent *
+        {
+            for (const GaugeComponent &c : gauge.components)
+                {
+                    if (c.type == type && skip-- == 0)
+                        {
+                            return &c;
+                        }
+                }
+            return nullptr;
+        };
+        // the gauge's transparency applies to everything
+        const GaugeComponent &plate = gauge.components.first();
+        QCOMPARE(plate.shape, GaugeComponent::Rectangle);
+        QCOMPARE(plate.cornerRadius, 8.0);
+        QCOMPARE(plate.color.custom, QColor(10, 20, 30, 128));
+
+        const GaugeComponent *dial = find(GaugeComponent::Dial);
+        QVERIFY(dial);
+        QCOMPARE(dial->frame, QRectF(10, 10, 180, 180));
+        QCOMPARE(dial->scale.startAngle, -135.0);   // counted from 12 o'clock here
+        QCOMPARE(dial->scale.endAngle, 135.0);
+        QCOMPARE(dial->scale.maxValue, 200.0);
+        QCOMPARE(dial->scale.major.unit, 20.0);
+        QCOMPARE(dial->scale.major.color.custom, QColor(255, 0, 0, 128));
+        QCOMPARE(dial->scale.minor.length, 4.0);
+        QCOMPARE(dial->scale.arcWidth, 2.0);
+        QCOMPARE(dial->fontSize, 12.0);              // 9 points
+        QVERIFY(dial->bold);
+        // a number beside a point: "left" puts it to the left, "top" above
+        QCOMPARE(dial->alignment, Qt::AlignRight | Qt::AlignBottom);
+
+        // after the dial: the parts inside it, from its middle
+        const GaugeComponent *needle = find(GaugeComponent::Shape, 1);
+        QVERIFY(needle);
+        QCOMPARE(needle->shape, GaugeComponent::Line);
+        QCOMPARE(needle->points, QVector<QPointF>({QPointF(100, 110), QPointF(100, 20)}));
+        QCOMPARE(needle->lineWidth, 3.0);
+        QVERIFY(needle->channel.isEmpty());          // the gauge's own channel
+        QCOMPARE(needle->unit, QString("mph"));
+        const GaugeManipulation &turn = needle->manipulations.first();
+        QCOMPARE(turn.type, GaugeManipulation::Rotate);
+        QCOMPARE(turn.pivot, QPointF(100, 100));
+        QCOMPARE(turn.minAngle, -135.0);             // the dial's
+        QCOMPARE(turn.maxAngle, 135.0);
+        QCOMPARE(turn.maxValue, 200.0);
+
+        const GaugeComponent *arc = find(GaugeComponent::Shape, 2);
+        QCOMPARE(arc->shape, GaugeComponent::Arc);
+        QCOMPARE(arc->frame, QRectF(30, 30, 140, 140));
+        QCOMPARE(arc->startAngle, -135.0);
+        QCOMPARE(arc->sweepAngle, 270.0);
+        QCOMPARE(arc->manipulations.first().type, GaugeManipulation::RadialClip);
+        QCOMPARE(arc->manipulations.first().maxValue, 100.0);   // its own values, the dial's angles
+        QVERIFY(arc->manipulations.first().wrapValue);
+
+        const GaugeComponent *uneven = find(GaugeComponent::Shape, 3);
+        QCOMPARE(uneven->channel, QString("heartRate"));
+        QVERIFY(uneven->unit.isEmpty());
+        QCOMPARE(uneven->manipulations.first().curve, QVector<QPointF>({QPointF(0, 0), QPointF(10, 0.5), QPointF(100, 1)}));
+
+        const GaugeComponent *bar = find(GaugeComponent::Shape, 4);
+        QCOMPARE(bar->shape, GaugeComponent::Rectangle);
+        QCOMPARE(bar->gradientColor.custom, QColor(255, 0, 0, 128));
+        QCOMPARE(bar->gradientLine, QLineF(200, 20, 200, 9));
+        QCOMPARE(bar->manipulations.first().type, GaugeManipulation::HeightClip);
+        QCOMPARE(bar->manipulations.first().minY, 20.0);
+        QCOMPARE(bar->manipulations.first().maxY, 10.0);
+
+        const GaugeComponent *label = find(GaugeComponent::Text);
+        QCOMPARE(label->text, QString("MPH"));
+        QVERIFY(label->boxed && label->italic);
+        QCOMPARE(label->frame, QRectF(200, 30, 60, 20));
+        QCOMPARE(label->alignment, Qt::AlignRight | Qt::AlignBottom);
+        QCOMPARE(label->fontSize, 16.0);
+
+        const GaugeComponent *running = find(GaugeComponent::Text, 1);
+        QCOMPARE(running->autoText, GaugeComponent::Value);
+        QCOMPARE(running->valueFormat, GaugeComponent::Duration);
+        QCOMPARE(running->precision, 1);
+        QVERIFY(running->showPlus && running->clampValue);
+        QCOMPARE(running->clampMax, 99.0);
+        QCOMPARE(running->fontFamily, QString("Courier New"));
+
+        const GaugeComponent *clock = find(GaugeComponent::Text, 2);
+        QCOMPARE(clock->valueFormat, GaugeComponent::Clock);
+        QCOMPARE(clock->clockFormat, QString("HH:mm:ss.zzz"));
+        QVERIFY(!clock->localTime);
+
+        const GaugeComponent *picture = find(GaugeComponent::Image);
+        QCOMPARE(picture->frame, QRectF(245, 130, 10, 25));
+        QCOMPARE(picture->imagePath, QString("images/Needle.PNG"));
+        QVERIFY(!picture->image.isNull());           // found ignoring case
+        QVERIFY(std::abs(qAlpha(picture->image.pixel(5, 5)) - 128) <= 1);   // half: the gauge's transparency
+        QCOMPARE(picture->channel, QString("heading"));
+        QCOMPARE(picture->manipulations.first().minAngle, 0.0);   // the picture's own turn
+        QCOMPARE(picture->manipulations.first().maxAngle, 360.0);
+
+        const GaugeComponent *tape = find(GaugeComponent::Tape);
+        QCOMPARE(tape->scale.orientation, GaugeScale::NumbersLeft);
+        QCOMPARE(tape->scale.length, 150.0);
+        QCOMPARE(tape->scale.spacing, 25.0);
+        QCOMPARE(tape->scale.markerLength, 20.0);
+        QCOMPARE(tape->channel, QString("elevation"));
+        QCOMPARE(tape->unit, QString("ft"));
+
+        // the G-plot: axes, rings, numbers and a ball that moves
+        bool ball = false;
+        for (const GaugeComponent &c : gauge.components)
+            {
+                for (const GaugeManipulation &m : c.manipulations)
+                    {
+                        if (m.type == GaugeManipulation::Translate2D)
+                            {
+                                ball = true;
+                                QCOMPARE(c.frame, QRectF(146, 146, 8, 8));
+                                QCOMPARE(m.maxRadius, 40.0);
+                                QCOMPARE(m.maxValue, 2.0);
+                                QCOMPARE(m.xChannel, QString("gForceLateral"));
+                                QCOMPARE(m.yChannel, QString("gForceLongitudinal"));
+                                QVERIFY(!m.invertX && m.invertY);
+                            }
+                    }
+            }
+        QVERIFY(ball);
+
+        const GaugeComponent *map = find(GaugeComponent::TrackMap);
+        QCOMPARE(map->frame, QRectF(0, 100, 100, 100));
+        QCOMPARE(map->lineWidth, 3.0);
+        QCOMPARE(map->knob.size(), 1);
+        QCOMPARE(map->knob.first().frame, QRectF(-4, -3, 10, 10));
+        const GaugeComponent *shadow = find(GaugeComponent::TrackMap, 1);
+        QVERIFY(shadow);
+        QCOMPARE(shadow->frame, QRectF(2, 102, 100, 100));
+        QCOMPARE(shadow->lineWidth, 5.0);
+
+        const GaugeComponent *chart = find(GaugeComponent::Graph);
+        QCOMPARE(chart->windowBefore, 60.0);
+        QCOMPARE(chart->windowAfter, 10.0);
+        QCOMPARE(chart->fillAlpha, 64);
+        QCOMPARE(chart->xMarker.size(), 1);
+        QCOMPARE(chart->knob.size(), 1);
+        QCOMPARE(chart->channel, QString("elevation"));
+
+        // and it draws, and survives being saved
+        QVERIFY(paintedPixels(draw(gauge, 5.0, ChannelId::Speed, makeSession(), 300)) > 1000);
+        Gauge loaded;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded));
+        QCOMPARE(GaugeFile::toJson(loaded), GaugeFile::toJson(gauge));
+    }
+
+    void xmlNeedlePointsWhereTheOriginalDoes()
+    {
+        // angles in these files count clockwise from 3 o'clock: 180 is 9 o'clock, 270 is 12
+        const QByteArray xml = R"xml(<Gauge version="3" width="100" height="100"><Components>
+            <Needle x="50" y="50" length="40" syncValueRangeWithParent="False" syncAngleRangeWithParent="False"
+                minValue="0" maxValue="36" minAngle="180" maxAngle="270" penWidth="4" transparency="1" red="255" green="255" blue="255">
+              <Inputs><Input name="Value">KPH</Input></Inputs>
+            </Needle></Components>
+            <Inputs><Input category="Velocity" name="Speed (KPH)">KPH</Input></Inputs></Gauge>)xml";
+        const XmlGaugeImporter::Result result = XmlGaugeImporter::parse(xml, "Needle", QString());
+        QVERIFY2(result.ok, qPrintable(result.error));
+        const QImage atRest = draw(result.gauge, 0.0);
+        QVERIFY(painted(atRest, 20, 50));
+        QVERIFY(!painted(atRest, 50, 20));
+        const QImage atTop = draw(result.gauge, 10.0);   // 36 km/h
+        QVERIFY(painted(atTop, 50, 20));
+        QVERIFY(!painted(atTop, 20, 50));
+    }
+
+    void xmlRejectsWhatIsNotAGauge()
+    {
+        QVERIFY(!XmlGaugeImporter::parse("not xml", "x", QString()).ok);
+        QVERIFY(!XmlGaugeImporter::parse("<Project/>", "x", QString()).ok);
+        QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="2" width="10" height="10"/>)", "x", QString()).ok);
+        QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="3" width="0" height="10"/>)", "x", QString()).ok);
+        QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="3" width="10" height="10"><Components/></Gauge>)", "x", QString()).ok);
+        QVERIFY(!XmlGaugeImporter::importFolder(m_dir.filePath("nowhere")).ok);
+    }
+
+    void libraryImportsXmlGauges()
+    {
+        const QString folder = m_dir.filePath("xml-import/Plate");
+        QVERIFY(QDir().mkpath(folder));
+        QFile file(folder + "/GAUGE.XML");
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(R"(<Gauge version="3" width="50" height="50"><Components>
+            <Image x="0" y="0" width="50" height="50" src="plate.png" transparency="1"/></Components></Gauge>)");
+        file.close();
+        QVERIFY(filled(Qt::white, 20).save(folder + "/plate.png"));
+        const GaugeLibrary::ImportSummary summary = GaugeLibrary::importXml({folder, m_dir.filePath("xml-import/none")});
+        QCOMPARE(summary.imported, 1);
+        QCOMPARE(summary.failed.size(), 1);
+        GaugeLibrary::refresh();
+        const Gauge imported = GaugeLibrary::gauge("library:Plate");
+        QVERIFY(!imported.isEmpty());
+        QVERIFY(QFile::exists(GaugeLibrary::userFolder() + "/Plate/images/plate.png"));
+        QVERIFY(paintedPixels(draw(imported, 1.0)) > 0);
+    }
+
+    // Imports every gauge folder in RTV_XML_GAUGES and prints what was found.
+    void xmlSampleGauges()
+    {
+        const QString folder = qEnvironmentVariable("RTV_XML_GAUGES");
+        if (folder.isEmpty())
+            {
+                QSKIP("Set RTV_XML_GAUGES to a folder of XML gauges");
+            }
+        const QDir dir(folder);
+        const TelemetrySessionPtr demo = DemoSession::create();
+        int imported = 0;
+        int failed = 0;
+        for (const QString &name : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+            {
+                const XmlGaugeImporter::Result result = XmlGaugeImporter::importFolder(dir.filePath(name));
+                if (!result.ok)
+                    {
+                        ++failed;
+                        qInfo("%s: %s", qPrintable(name), qPrintable(result.error));
+                        continue;
+                    }
+                ++imported;
+                if (!result.warnings.isEmpty())
+                    {
+                        qInfo("%s: %s", qPrintable(name), qPrintable(result.warnings.join("; ")));
+                    }
+                QVERIFY2(paintedPixels(draw(result.gauge, DemoSession::ShowcaseTime, result.gauge.supportedTypes.value(0), demo)) > 0,
+                         qPrintable(name));
+            }
+        qInfo("%d imported, %d failed", imported, failed);
+        QCOMPARE(failed, 0);
     }
 };
 

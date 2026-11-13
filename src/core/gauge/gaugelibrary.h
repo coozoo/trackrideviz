@@ -56,4 +56,6 @@ public:
     // Converts .veg gauge files (.veg) into the library. Blocking: call
     // from a worker thread, then refresh() on the GUI thread.
     static ImportSummary importVeg(const QStringList &vegFiles);
+    // The same for XML gauges: folders holding a gauge.xml.
+    static ImportSummary importXml(const QStringList &gaugeFolders);
 };

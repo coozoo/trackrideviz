@@ -8,8 +8,8 @@ editors that are no longer maintained and hardly run on current systems.
 
 > **Status: early development.** A video can be opened with a FIT or GPX file, synchronized
 > automatically, dressed with gauges that are placed and sized with the mouse, and exported as a
-> new video. Gauges (`.veg`) and templates (`.vet`) made elsewhere can be imported, including
-> graphs, track maps and animated gauges; a first set of own gauges and templates ships with it. Lap timing and
+> new video. Gauges (`.veg`, XML gauges) and templates (`.vet`) made elsewhere can be imported,
+> including graphs, track maps, dials and tapes; a first set of own gauges and templates ships with it. Lap timing and
 > derived channels (G-force) are not there yet. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features

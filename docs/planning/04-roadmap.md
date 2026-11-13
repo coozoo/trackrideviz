@@ -109,6 +109,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Own set: Arc, Bar, Column, Profile, Route map, Lap map, Icon readout, G-force; templates Ride,
   Track day, Climb, Minimal
 
+### XML gauges ✅ (2026-11-13)
+- ✅ Gauge model: `Shape` (rectangle, ellipse, arc, pie, line; pen or fill, gradient), `Dial`,
+  `Tape`, non-linear value curves, a fixed unit per part, text formats (whole number, running time,
+  degrees-minutes-seconds, time of day), texts in a box, graphs over a moving window
+- ✅ `XmlGaugeImporter`; one Import for `.veg` / `.vet` files and XML gauge folders
+- ✅ Checked on a full installation: 185 of 185 import, 28 with a note (chart labels, G-plot
+  stick and tail, digit pictures); contact sheets of all of them compared by eye
+- XML templates (`project.cdp`) and data profiles are not imported yet
+
 ### M3c — what is left
 - G-force has no data yet (derived channels are M4): the ball rests in the middle
 - Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
@@ -130,8 +139,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 
 ## M6 — Gauge editor
 - Built-in editor (components tree, properties, live preview with sample data)
-- Vector primitives, non-linear scales; XML gauge import
-- G-plot, ticker tape, lap table, sector bar
+- Path shapes; G-plot with a tail, lap table, sector bar
 
 ## M7 — Polish and distribution
 - Export backend B (in-process libav) if/when needed; overlay-only alpha export; export queue

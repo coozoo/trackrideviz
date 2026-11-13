@@ -5,6 +5,8 @@
 
 #include <QRegularExpression>
 
+#include <iterator>
+
 namespace
 {
 // "relativeElevation" -> "Relative elevation", "engineRpm" -> "Engine rpm".
@@ -118,4 +120,50 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
             return {tr("G-force"), "g", 1.0, 0.0, 2};
         }
     return {readable(id), storedUnit, 1.0, 0.0, 2};
+}
+
+ChannelDisplay ChannelFormat::displayIn(const QString &id, const QString &storedUnit, const QString &unit,
+                                        const Units &units)
+{
+    ChannelDisplay display = displayFor(id, storedUnit, units);
+    struct Conversion
+    {
+        const char *unit;
+        double scale;
+        double offset;
+    };
+    // from what the channels store (channelids.h)
+    static const Conversion speeds[] = {{"mph", kMetresPerSecondToMph, 0.0}, {"km/h", kMetresPerSecondToKmh, 0.0},
+        {"m/s", 1.0, 0.0}, {"kn", 3600.0 / 1852.0, 0.0}
+    };
+    static const Conversion lengths[] = {{"ft", kMetresToFeet, 0.0}, {"m", 1.0, 0.0}, {"mi", kMetresToMiles, 0.0},
+        {"km", 0.001, 0.0}
+    };
+    static const Conversion temperatures[] = {{"°F", 9.0 / 5.0, 32.0}, {"°C", 1.0, 0.0}};
+    auto apply = [&](const Conversion *table, int count)
+    {
+        for (int i = 0; i < count; ++i)
+            {
+                if (unit == QString::fromUtf8(table[i].unit))
+                    {
+                        display.scale = table[i].scale;
+                        display.offset = table[i].offset;
+                        display.unit = unit;
+                        return;
+                    }
+            }
+    };
+    if (id == ChannelId::Speed)
+        {
+            apply(speeds, int(std::size(speeds)));
+        }
+    else if (id == ChannelId::Elevation || id == ChannelId::Distance)
+        {
+            apply(lengths, int(std::size(lengths)));
+        }
+    else if (id == ChannelId::Temperature)
+        {
+            apply(temperatures, int(std::size(temperatures)));
+        }
+    return display;
 }

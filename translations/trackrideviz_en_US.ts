@@ -4,125 +4,125 @@
 <context>
     <name>ChannelFormat</name>
     <message>
-        <location filename="../src/core/units/units.cpp" line="45"/>
+        <location filename="../src/core/units/units.cpp" line="47"/>
         <source>mph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="45"/>
+        <location filename="../src/core/units/units.cpp" line="47"/>
         <source>km/h</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="58"/>
+        <location filename="../src/core/units/units.cpp" line="60"/>
         <source>Latitude</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="62"/>
+        <location filename="../src/core/units/units.cpp" line="64"/>
         <source>Longitude</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="66"/>
-        <location filename="../src/core/units/units.cpp" line="67"/>
+        <location filename="../src/core/units/units.cpp" line="68"/>
+        <location filename="../src/core/units/units.cpp" line="69"/>
         <source>Elevation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="66"/>
+        <location filename="../src/core/units/units.cpp" line="68"/>
         <source>ft</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="67"/>
+        <location filename="../src/core/units/units.cpp" line="69"/>
         <source>m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="71"/>
+        <location filename="../src/core/units/units.cpp" line="73"/>
         <source>Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="75"/>
-        <location filename="../src/core/units/units.cpp" line="76"/>
+        <location filename="../src/core/units/units.cpp" line="77"/>
+        <location filename="../src/core/units/units.cpp" line="78"/>
         <source>Distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="75"/>
+        <location filename="../src/core/units/units.cpp" line="77"/>
         <source>mi</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="76"/>
+        <location filename="../src/core/units/units.cpp" line="78"/>
         <source>km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="80"/>
+        <location filename="../src/core/units/units.cpp" line="82"/>
         <source>Heading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="84"/>
+        <location filename="../src/core/units/units.cpp" line="86"/>
         <source>Grade</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="88"/>
+        <location filename="../src/core/units/units.cpp" line="90"/>
         <source>Heart rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="88"/>
+        <location filename="../src/core/units/units.cpp" line="90"/>
         <source>bpm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="92"/>
+        <location filename="../src/core/units/units.cpp" line="94"/>
         <source>Cadence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="92"/>
+        <location filename="../src/core/units/units.cpp" line="94"/>
         <source>rpm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="96"/>
+        <location filename="../src/core/units/units.cpp" line="98"/>
         <source>Power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="96"/>
+        <location filename="../src/core/units/units.cpp" line="98"/>
         <source>W</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="101"/>
-        <location filename="../src/core/units/units.cpp" line="102"/>
+        <location filename="../src/core/units/units.cpp" line="103"/>
+        <location filename="../src/core/units/units.cpp" line="104"/>
         <source>Temperature</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="106"/>
+        <location filename="../src/core/units/units.cpp" line="108"/>
         <source>Lateral G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="110"/>
+        <location filename="../src/core/units/units.cpp" line="112"/>
         <source>Longitudinal G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="114"/>
+        <location filename="../src/core/units/units.cpp" line="116"/>
         <source>Vertical G</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="118"/>
+        <location filename="../src/core/units/units.cpp" line="120"/>
         <source>G-force</source>
         <translation type="unfinished"></translation>
     </message>
@@ -469,42 +469,42 @@
 <context>
     <name>GaugeFile</name>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="431"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="642"/>
         <source>This is not a gauge file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="436"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="647"/>
         <source>This is not a Race Track Visualizer gauge file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="440"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="651"/>
         <source>The gauge was saved by a newer version of the program (file version %1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="458"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="669"/>
         <source>The gauge has no size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="472"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="683"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="507"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="718"/>
         <source>Cannot create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="537"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="748"/>
         <source>Cannot write %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="542"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="753"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -512,7 +512,7 @@
 <context>
     <name>GaugeLibrary</name>
     <message>
-        <location filename="../src/core/gauge/gaugelibrary.cpp" line="198"/>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="199"/>
         <source>The gauge has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -520,79 +520,94 @@
 <context>
     <name>GaugeLibraryPanel</name>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="217"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="247"/>
         <source>Add to video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="219"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="249"/>
         <source>Puts the selected gauge on the video. A double click does the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="166"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="355"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="195"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="386"/>
         <source>Import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="150"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="179"/>
         <source>Gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="151"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="180"/>
         <source>Templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="170"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="196"/>
+        <source>Brings in .veg gauges, .vet templates and XML gauges (folders with a gauge.xml). Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges in it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="200"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="217"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="247"/>
         <source>Apply to video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="218"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="248"/>
         <source>Replaces the gauges on the video with this template. A double click does the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="220"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="250"/>
         <source>Deletes the selected template from the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="221"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="251"/>
         <source>Deletes the selected gauge from the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="307"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="337"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="309"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="339"/>
         <source>Remove gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="309"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="339"/>
         <source>Remove template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="388"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="363"/>
+        <source>Folder with gauges and templates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="373"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="419"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="374"/>
+        <source>There are no gauges (.veg, gauge.xml) or templates (.vet) in that folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="377"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="408"/>
         <source>%n of them have parts that cannot be shown.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -600,7 +615,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="381"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="412"/>
         <source>%n template(s) imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -608,32 +623,17 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="308"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="338"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="167"/>
-        <source>Brings in .veg gauges and .vet templates. Choose the folder that holds them, or a folder with Widgets and Templates in it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="333"/>
-        <source>Folder with .veg gauges and .vet templates</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
-        <source>There are no gauges (.veg) or templates (.vet) in that folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="348"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="379"/>
         <source>Importing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="373"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="404"/>
         <source>%n gauge(s) imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -641,7 +641,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="386"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="417"/>
         <source>%n file(s) could not be used.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -1560,6 +1560,85 @@ Open them again from where they are now and save the project.</source>
     <message>
         <location filename="../src/core/sync/videosync.cpp" line="95"/>
         <source>The video and the data were not recorded at the same time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>XmlGaugeImporter</name>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="217"/>
+        <source>vertical text is drawn horizontally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="244"/>
+        <source>values from the fastest lap are not there yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="299"/>
+        <source>an uneven scale running backwards is drawn even</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="348"/>
+        <source>image %1 not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="501"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="788"/>
+        <source>%1 is not supported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="733"/>
+        <source>the G-plot&apos;s stick and tail are not drawn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="831"/>
+        <source>a chart over distance is drawn over time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="840"/>
+        <source>a chart&apos;s fixed value scale is set from the data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="844"/>
+        <source>chart axis labels are not drawn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="952"/>
+        <source>This is not an XML gauge: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="957"/>
+        <source>This is not an XML gauge.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="962"/>
+        <source>Gauge file version %1 is not supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="970"/>
+        <source>The gauge has no size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="994"/>
+        <source>The gauge has nothing in it that can be shown.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1009"/>
+        <source>There is no %1 in %2.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

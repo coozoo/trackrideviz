@@ -73,6 +73,14 @@ private:
     {
         GaugeComponent component;         // without sub-components; image already coloured
         QColor color;                     // text and line colour
+        // Shape: its outline, and the fill's gradient end (invalid = none)
+        QPainterPath shape;
+        QColor gradient;
+        // Dial, Tape
+        QColor minorColor;
+        QColor majorColor;
+        QColor arcColor;
+        QColor markerColor;
         int metric{0};
         int marking{-1};                  // for IntervalMarking texts: which number
         QVector<Node> children;
@@ -106,7 +114,7 @@ private:
         bool topLevel{false};             // drawing one of m_nodes itself, not a part inside one
     };
 
-    int metricFor(const QString &channel, const Units &units);
+    int metricFor(const QString &channel, const Units &units, const QString &unit = QString());
     Node bind(const GaugeComponent &component, const Units &units, const GaugeTheme &theme);
     QVector<Node> bindAll(const QVector<GaugeComponent> &components, const Units &units, const GaugeTheme &theme);
     void prepareGraph(Node &node) const;
@@ -122,7 +130,11 @@ private:
     // A graph's line and fill, or one route of a map, drawn once at this size.
     QImage linePicture(const Node &node, int route, const Context &context) const;
     void drawLine(QPainter &painter, const Node &node, int route) const;
-    void drawText(QPainter &painter, const Node &node, const Metric &metric, bool known, double value) const;
+    void drawText(QPainter &painter, const Node &node, const Metric &metric, bool known, double value, double time) const;
+    QString clockText(const GaugeComponent &component, double time) const;
+    void drawShape(QPainter &painter, const Node &node) const;
+    void drawDial(QPainter &painter, const Node &node) const;
+    void drawTape(QPainter &painter, const Node &node, bool known, double value) const;
     static bool isStatic(const Node &node);
     // Pictures of the static runs of m_nodes at this size in device pixels.
     QVector<QImage> staticLayers(const QSize &size, qreal devicePixelRatio) const;

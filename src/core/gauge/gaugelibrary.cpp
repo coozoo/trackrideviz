@@ -4,6 +4,7 @@
 #include "builtingauges.h"
 #include "gaugefile.h"
 #include "veggaugeimporter.h"
+#include "xmlgaugeimporter.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -226,30 +227,48 @@ bool GaugeLibrary::remove(const QString &id)
     return removed;
 }
 
+namespace
+{
+// Stores what an importer made of one file and counts it.
+template <typename Result>
+void store(const QString &source, const Result &result, GaugeLibrary::ImportSummary *summary)
+{
+    if (!result.ok)
+        {
+            summary->failed << QString("%1: %2").arg(source, result.error);
+            return;
+        }
+    QString error;
+    if (GaugeLibrary::add(result.gauge, result.gauge.name, &error).isEmpty())
+        {
+            summary->failed << QString("%1: %2").arg(source, error);
+            return;
+        }
+    ++summary->imported;
+    if (!result.warnings.isEmpty())
+        {
+            ++summary->incomplete;
+            summary->notes << QString("%1: %2").arg(result.gauge.name, result.warnings.join("; "));
+        }
+}
+}
+
 GaugeLibrary::ImportSummary GaugeLibrary::importVeg(const QStringList &vegFiles)
 {
     ImportSummary summary;
     for (const QString &file : vegFiles)
         {
-            const QString fileName = QFileInfo(file).fileName();
-            const VegGaugeImporter::Result result = VegGaugeImporter::importFile(file);
-            if (!result.ok)
-                {
-                    summary.failed << QString("%1: %2").arg(fileName, result.error);
-                    continue;
-                }
-            QString error;
-            if (add(result.gauge, result.gauge.name, &error).isEmpty())
-                {
-                    summary.failed << QString("%1: %2").arg(fileName, error);
-                    continue;
-                }
-            ++summary.imported;
-            if (!result.warnings.isEmpty())
-                {
-                    ++summary.incomplete;
-                    summary.notes << QString("%1: %2").arg(result.gauge.name, result.warnings.join("; "));
-                }
+            store(QFileInfo(file).fileName(), VegGaugeImporter::importFile(file), &summary);
+        }
+    return summary;
+}
+
+GaugeLibrary::ImportSummary GaugeLibrary::importXml(const QStringList &gaugeFolders)
+{
+    ImportSummary summary;
+    for (const QString &folder : gaugeFolders)
+        {
+            store(QFileInfo(folder).fileName(), XmlGaugeImporter::importFolder(folder), &summary);
         }
     return summary;
 }

@@ -17,6 +17,7 @@ SOURCES += \
     $$PWD/gauge/gaugerenderer.cpp \
     $$PWD/gauge/metricrange.cpp \
     $$PWD/gauge/veggaugeimporter.cpp \
+    $$PWD/gauge/xmlgaugeimporter.cpp \
     $$PWD/overlay/gaugetemplate.cpp \
     $$PWD/overlay/overlay.cpp \
     $$PWD/overlay/templatelibrary.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     $$PWD/gauge/gaugetheme.h \
     $$PWD/gauge/metricrange.h \
     $$PWD/gauge/veggaugeimporter.h \
+    $$PWD/gauge/xmlgaugeimporter.h \
     $$PWD/overlay/gaugetemplate.h \
     $$PWD/overlay/overlay.h \
     $$PWD/overlay/templatelibrary.h \

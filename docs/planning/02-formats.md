@@ -46,13 +46,38 @@ Other keys: `auxiliaryType` (a component bound to a *second* metric — combo ga
 them. The importer asks for a folder of the user's `.veg` / `.vet` files (or one holding `Widgets` and `Templates`) and
 copies images into the user's own library.
 
-### XML gauges — importable with moderate effort
+### XML gauges — imported (2026-11-13)
 
-`<Gauge name category width height version>` → `<Components>` (Needle, ImageNeedle, NonLinear*,
-AnimatedArc/Pie, Bar, Digit, TickerTape, Dynamic/StaticGaugeText, shapes, Map*, Chart) →
-`<Inputs>` / `<InputMapping dataFileIndex dataColumn>`. Three schema versions (V1→V2→V3 upgraders
-exist in the original). Vector-drawn rather than image-based, so our model needs vector primitives
-anyway. Priority: after `.veg` / `.vet` import.
+A folder with `gauge.xml` and its pictures. `<Gauge version="3" width height transparency>` →
+`<Components>` (nested; a child's `x`, `y` count from its parent's) → `<Inputs>`: per gauge, input
+names → data types (`Speed (MPH)`); per part, its input slots (`Value`, `X`, `Y`, `Lateral G`...)
+→ those names. All 185 gauges of a full installation are version 3. Drawn rather than painted.
+
+`XmlGaugeImporter` converts on import:
+
+| Part | Becomes |
+|------|---------|
+| Rectangle, Ellipse, Arc, Pie (outlined or filled) | `Shape` |
+| Bar (gradient, four directions) | filled `Shape` with a gradient + width or height clip |
+| Needle, NonLinearNeedle | `Shape` line + `Rotate` (non-linear: a value curve) |
+| ImageNeedle, NonLinearImageNeedle, Image | `Image` (+ `Rotate` about the axis point) |
+| AnimatedArc / Pie, NonLinear… | `Shape` arc / pie + `RadialClip` |
+| AnalogFace | `Dial` (arc, minor/major ticks, numbers); parts inside may take its value or angle range |
+| TickerTape | `Tape` |
+| Text, DynamicText | boxed `Text`; integer (cut), decimal, running time, degrees-minutes-seconds, time of day |
+| Map (+ MapDot, MapPositionImage, a Map inside a Map) | `TrackMap` with knobs |
+| ChartComponent | `Graph`, optionally a window that moves along (seconds back / forward) |
+| GPlot | axes, rings and numbers as shapes, a ball on `Translate2D` |
+
+Angles count clockwise from 3 o'clock (ours from 12: +90°; a picture's own turn stays as it is).
+Font sizes are points at 96 dpi. Every colour has its own `transparency` (opacity), multiplied by
+the gauge's. A text at a point is placed beside it on the side its alignment names; a text with a
+rectangle is aligned inside it. A gauge is made for a data type in a fixed unit: the parts keep
+that unit (`GaugeComponent::unit`), so a needle matches the printed numbers.
+
+Left out, and reported: Digit (picture per digit, 1 gauge), the G-plot's stick and tail, chart
+axis labels and grids, charts over distance (drawn over time), values from the fastest lap
+(ghost), vertical text.
 
 ### Binary, undocumented gauge formats — no import planned.
 
@@ -87,10 +112,10 @@ and y in 1920 x 1080 reference pixels, height. Kept in `<app data>/templates/`.
 ### Native, still planned
 
 Additions to the `.veg` component model:
-- vector primitives (arc, pie, ellipse, rect, line, path) alongside images
-- non-linear scales (value→position table)
-- per-component input: channel + optional transform, instead of one `auxiliaryType`
-- extra components: g-plot, ticker tape, lap table, sector bar, 7-segment text style
+- ✅ vector shapes (rectangle, ellipse, arc, pie, line), dials, tapes, non-linear scales, value
+  formats, a unit per component (for XML gauges)
+- a path shape; per-component input transform
+- extra components: g-plot with a tail, lap table, sector bar, 7-segment text style
 - SVG as well as PNG images
 - a gauge as one zip file for sharing
 
