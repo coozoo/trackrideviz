@@ -1,0 +1,92 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Tile speed",
+    "size": [
+        360,
+        110
+    ],
+    "supportedTypes": [
+        "speed"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/icon.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/needle.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": -135,
+                    "maxAngle": 135,
+                    "pivot": [
+                        54,
+                        55
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                104,
+                34
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                104,
+                76
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 42,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        }
+    ]
+}

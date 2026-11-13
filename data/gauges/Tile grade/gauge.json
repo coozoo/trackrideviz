@@ -1,0 +1,88 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Tile grade",
+    "size": [
+        360,
+        110
+    ],
+    "supportedTypes": [
+        "grade"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/icon.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 24,
+                    "maxX": 84
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                104,
+                34
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                104,
+                76
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 42,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        }
+    ]
+}

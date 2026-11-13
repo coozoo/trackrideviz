@@ -71,7 +71,8 @@
             "color": "foreground",
             "align": "left",
             "valign": "center",
-            "upperCase": true
+            "upperCase": true,
+            "precision": 0
         }
     ]
 }

@@ -484,16 +484,75 @@ def heart(name):
     write(name, (400, 400), components, drawings, ["heartRate"])
 
 
-def tile(name):
-    """Icon, label and value on a plate with an accent edge; the icon follows the channel."""
+TILE_ICON = (22, 23, 64, 64)       # where the icon sits on a tile
+IX, IY = 54, 55                    # its middle
+
+
+def stroke(colour, width):
+    return f"fill='none' stroke='@{colour}' stroke-opacity='@{colour}-opacity' stroke-width='{fmt(width)}'"
+
+
+def live_icon(kind):
+    """The icon of a tile that shows the value itself: (drawings, components)."""
+    full = (0, 0, 360, 110)
+    if kind == "speed":
+        # a small speedometer: an open dial and a needle that turns
+        dial = (f"<path d='{ring_path(IX, IY, 30, 25, -135, 135)}' {theme('accent')}/>"
+                + ticks(IX, IY, -135, 135, 7, 23, 5, 2.4, "accent"))
+        needle_ = (f"<path d='M{IX - 2.4},{IY} L{IX - 0.8},{IY - 22} L{IX + 0.8},{IY - 22} L{IX + 2.4},{IY} Z' "
+                   f"{theme('accent')}/><circle cx='{IX}' cy='{IY}' r='4.5' {theme('accent')}/>")
+        return ({"icon.svg": svg(360, 110, dial), "needle.svg": svg(360, 110, needle_)},
+                [image("icon.svg", full), image("needle.svg", full, manipulations=[rotate(-135, 135, (IX, IY))])])
+    if kind == "elevation":
+        # a mountain that fills up as the road climbs
+        mountain = f"M{IX - 30},{IY + 26} L{IX - 8},{IY - 22} L{IX + 3},{IY - 4} L{IX + 12},{IY - 16} L{IX + 30},{IY + 26} Z"
+        outline = f"<path d='{mountain}' {stroke('accent', 3)} stroke-linejoin='round'/>"
+        fill = f"<path d='{mountain}' {theme('accent')}/>"
+        clip = {"type": "heightClip", "minY": IY + 26, "maxY": IY - 22}
+        return ({"icon.svg": svg(360, 110, outline), "fill.svg": svg(360, 110, fill)},
+                [image("icon.svg", full), image("fill.svg", full, manipulations=[clip])])
+    if kind == "heading":
+        # a compass needle, the north half solid
+        ring = f"<circle cx='{IX}' cy='{IY}' r='29' {stroke('accent', 3)}/>"
+        needle_ = (f"<path d='M{IX},{IY - 24} L{IX + 7},{IY} L{IX - 7},{IY} Z' {theme('accent')}/>"
+                   f"<path d='M{IX},{IY + 24} L{IX + 7},{IY} L{IX - 7},{IY} Z' fill='@accent' fill-opacity='0.4'/>")
+        turn = rotate(0, 360, (IX, IY), minValue=0, maxValue=360, wrap=True)
+        return ({"icon.svg": svg(360, 110, ring), "needle.svg": svg(360, 110, needle_)},
+                [image("icon.svg", full), image("needle.svg", full, manipulations=[turn])])
+    if kind == "grade":
+        # a slope that fills from the left as it gets steeper
+        slope = f"M{IX - 30},{IY + 22} L{IX + 30},{IY + 22} L{IX + 30},{IY - 22} Z"
+        outline = f"<path d='{slope}' {stroke('accent', 3)} stroke-linejoin='round'/>"
+        fill = f"<path d='{slope}' {theme('accent')}/>"
+        clip = {"type": "widthClip", "minX": IX - 30, "maxX": IX + 30}
+        return ({"icon.svg": svg(360, 110, outline), "fill.svg": svg(360, 110, fill)},
+                [image("icon.svg", full), image("fill.svg", full, manipulations=[clip])])
+    if kind == "arc":
+        # an arc that fills round: cadence, engine speed, power
+        track = f"<path d='{ring_path(IX, IY, 30, 22, -135, 135)}' fill='@accent' fill-opacity='0.25'/>"
+        fill = (f"<path d='{ring_path(IX, IY, 30, 22, -135, 135)}' {theme('accent')}/>")
+        dot = f"<circle cx='{IX}' cy='{IY}' r='5' {theme('accent')}/>"
+        return ({"icon.svg": svg(360, 110, track + dot), "fill.svg": svg(360, 110, fill)},
+                [image("icon.svg", full), image("fill.svg", full, manipulations=[radial_clip(-135, 135, (IX, IY))])])
+    raise ValueError(kind)
+
+
+def tile(name, kind=None, types=None):
+    """Icon, label and value on a plate with an accent edge. Without `kind` the icon is a picture of
+    whatever channel the tile shows; with it, the icon moves with the value."""
     body = (f"<rect x='0' y='0' width='360' height='110' rx='6' {theme('background')}/>"
             f"<rect x='0' y='0' width='5' height='110' {theme('accent')}/>")
     drawings = {"plate.svg": svg(360, 110, body)}
-    components = [image("plate.svg", (0, 0, 360, 110)),
-                  {"type": "image", "channelIcon": True, "color": "accent", "frame": [22, 23, 64, 64]},
-                  text("label", (104, 34), 22, "accent2", align="left", upperCase=True),
-                  text("valueAndUnit", (104, 76), 42, align="left", bold=True, upperCase=True)]
-    write(name, (360, 110), components, drawings,
+    components = [image("plate.svg", (0, 0, 360, 110))]
+    if kind:
+        icon_drawings, icon_components = live_icon(kind)
+        drawings.update(icon_drawings)
+        components += icon_components
+    else:
+        components.append({"type": "image", "channelIcon": True, "color": "accent", "frame": list(TILE_ICON)})
+    components += [text("label", (104, 34), 22, "accent2", align="left", upperCase=True),
+                   text("valueAndUnit", (104, 76), 42, align="left", bold=True, upperCase=True, precision=0)]
+    write(name, (360, 110), components, drawings, types or
           ["speed", "heartRate", "elevation", "cadence", "power", "temperature", "distance", "heading", "grade"])
 
 
@@ -526,6 +585,11 @@ def main():
     compass("Compass rose")
     heart("Heart")
     tile("Tile")
+    tile("Tile speed", "speed", ["speed"])
+    tile("Tile elevation", "elevation", ["elevation"])
+    tile("Tile heading", "heading", ["heading"])
+    tile("Tile grade", "grade", ["grade"])
+    tile("Tile cadence", "arc", ["cadence", "power", "engineRpm", "heartRate"])
 
 
 if __name__ == "__main__":
