@@ -206,11 +206,12 @@ def outer_needle(colour="accent", tip=164, base=84, inverted=False):
             f"{theme(colour)}/>")
 
 
-def pointer(tip=166):
-    """A bright line at the scale and an arrowhead at the inner disc, both turning together."""
-    return (f"<path d='M{C - 1.6},{C - tip} L{C + 1.6},{C - tip} L{C + 1.6},{C - 128} L{C - 1.6},{C - 128} Z' "
-            f"{theme('accent2')}/>"
-            f"<path d='M{C},{C - 104} L{C - 11},{C - 82} L{C + 11},{C - 82} Z' {theme('accent')}/>")
+def pointer(tip=168, base=75):
+    """A white needle, thin at the root and widening to the rim, with an accent arrowhead riding on
+    its inner part: only a sliver of white shows between the inner disc and the arrowhead."""
+    white = outer_needle("accent2", tip=tip, base=base, inverted=True)
+    root, head = 82, 116
+    return white + f"<path d='M{C},{C - head} L{C - 15},{C - root} L{C + 15},{C - root} Z' {theme('accent')}/>"
 
 
 def glow_needle():
@@ -312,7 +313,7 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
     if needle_style == "outer":
         drawn = outer_needle(tip=needle_tip or max(164, tick_outer - 2), base=needle_base, inverted=needle_inverted)
     elif needle_style == "pointer":
-        drawn = pointer(tip=needle_tip or 166)
+        drawn = pointer(tip=needle_tip or 168, base=needle_base)
     elif needle_style == "glow":
         drawn = glow_needle()
     elif needle_style == "taper":
@@ -472,7 +473,7 @@ def main():
     round_dial("Dial metal", sweep="silver", needle_style="outer", labels=13, label_radius=124, label_size=19,
                value_y=196, needle_base=75, needle_tip=168, needle_inverted=True, **metal_ticks)
     round_dial("Dial metal arc", sweep="silver+accent", needle_style="pointer", labels=13, label_radius=124,
-               label_size=19, value_y=186, second_readout=True, needle_tip=166, **metal_ticks)
+               label_size=19, value_y=186, second_readout=True, needle_base=75, needle_tip=168, **metal_ticks)
     round_dial("Dial ring", bezel="ring", labels=7, needle_style="outer", unit_caps=True, value_size=72)
     # the value low, clear of the needle, which starts in the middle without a pin
     round_dial("Dial sport", bezel="flat", face="sport", needle_style="glow", inner_disc=False, value_y=262,
