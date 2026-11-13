@@ -74,6 +74,16 @@ QSvgRenderer *svgRenderer(const QByteArray &svg)
     return found.value().get();
 }
 
+// "25 km/h", but "204°": a plain degree sign sits on the number.
+QString withUnit(const QString &number, const QString &unit)
+{
+    if (unit.isEmpty())
+        {
+            return number;
+        }
+    return unit == QStringLiteral("°") ? number + unit : number + QLatin1Char(' ') + unit;
+}
+
 // Gauge artwork is a shape, not a picture: only its transparency is kept
 // and the colour comes from the theme.
 QImage tinted(const QImage &image, const QColor &color)
@@ -1302,13 +1312,13 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
             text = metric.display.unit;
             break;
         case GaugeComponent::ValueAndUnit:
-            text = number + " " + metric.display.unit;
+            text = withUnit(number, metric.display.unit);
             break;
         case GaugeComponent::Label:
             text = metric.display.name;
             break;
         case GaugeComponent::LabelValueUnit:
-            text = metric.display.name + " " + number + " " + metric.display.unit;
+            text = metric.display.name + " " + withUnit(number, metric.display.unit);
             break;
         case GaugeComponent::IntervalMarking:
             text = metric.markings.value(node.marking);

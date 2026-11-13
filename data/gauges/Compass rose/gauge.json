@@ -59,7 +59,7 @@
         },
         {
             "type": "text",
-            "autoText": "value",
+            "autoText": "valueAndUnit",
             "frame": [
                 200,
                 200
@@ -73,21 +73,6 @@
             "align": "center",
             "valign": "center",
             "precision": 0
-        },
-        {
-            "type": "text",
-            "autoText": "unit",
-            "frame": [
-                200,
-                244
-            ],
-            "font": {
-                "family": "Barlow Semi Condensed",
-                "size": 22
-            },
-            "color": "accent2",
-            "align": "center",
-            "valign": "center"
         }
     ]
 }

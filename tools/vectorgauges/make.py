@@ -445,7 +445,8 @@ def open_arc(name):
 
 def compass(name):
     """A rose that turns with the heading under a fixed mark at the top."""
-    defs, body = plate(C, C, 190, gid="plate")
+    # mostly see-through: a compass sits over the picture for the whole video
+    defs, body = plate(C, C, 190, gid="plate", opacity=0.3)
     body += f"<circle cx='{C}' cy='{C}' r='190' fill='none' {theme('accent2', 'stroke')} stroke-width='2'/>"
     drawings = {"face.svg": svg(400, 400, body, defs)}
     rose = ticks(C, C, 0, 360, 73, 184, 10, 1.6, "foreground") + ticks(C, C, 0, 360, 13, 184, 20, 3.5)
@@ -464,8 +465,7 @@ def compass(name):
                   image("rose.svg", (0, 0, 400, 400), manipulations=[
                       rotate(0, -360, (C, C), minValue=0, maxValue=360, wrap=True)]),
                   image("mark.svg", (0, 0, 400, 400)),
-                  text("value", (C, C), 64, bold=True, precision=0),
-                  text("unit", (C, C + 44), 22, "accent2")]
+                  text("valueAndUnit", (C, C), 64, bold=True, precision=0)]
     write(name, (400, 400), components, drawings, ["heading"])
 
 
