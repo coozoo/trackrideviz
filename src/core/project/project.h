@@ -2,6 +2,7 @@
 
 #include "../laps/lapengine.h"
 #include "../overlay/overlay.h"
+#include "../telemetry/dataedits.h"
 #include "../sync/syncmap.h"
 #include "../video/cutlist.h"
 
@@ -33,6 +34,8 @@ struct Project
 
     // parts of the video left out of the export, video time
     QVector<TimeRange> cuts;
+    // corrections of the data, applied before anything is worked out from it
+    QVector<DataEdit> dataEdits;
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
     GaugeTheme theme;         // colours of all gauges

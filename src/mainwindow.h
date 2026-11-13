@@ -19,6 +19,7 @@ class QPushButton;
 class QUndoStack;
 class GaugeLibraryPanel;
 class QTreeWidget;
+class DataPanel;
 class LapComparePanel;
 class LapsPanel;
 class TimelinePanel;
@@ -82,7 +83,9 @@ private:
     void createMenus();
     QDockWidget *addPlaceholderDock(const QString &objectName, const QString &title, Qt::DockWidgetArea area);
     // session is null when the import failed; error then says why.
-    void telemetryImported(const QString &path, const TelemetrySessionPtr &session, const QString &error);
+    void telemetryImported(const QString &path, const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session,
+                           const QString &error);
+    void setDataEdits(const QVector<DataEdit> &edits, const QString &description);
     void loadVideo(const QString &path);
     // keepSync: the offset comes with the project and must survive the import
     void loadTelemetry(const QString &path, bool keepSync);
@@ -137,6 +140,8 @@ private:
     TimelinePanel *m_timelinePanel{nullptr};
     QDockWidget *m_compareDock{nullptr};
     LapComparePanel *m_comparePanel{nullptr};
+    QDockWidget *m_dataDock{nullptr};
+    DataPanel *m_dataPanel{nullptr};
     QDockWidget *m_lapsDock{nullptr};
     QComboBox *m_channelCombo{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
@@ -156,6 +161,7 @@ private:
     QString m_pendingTelemetryPath;
     bool m_pendingKeepsSync{false};
     TelemetrySessionPtr m_session;          // with the laps of the project's start/finish line
+    TelemetrySessionPtr m_rawSession;       // as the file gave it
     TelemetrySessionPtr m_recordedSession;  // as the file gave it (and what could be worked out)
     Units m_units;
 };

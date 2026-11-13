@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 
+#include "datapanel.h"
 #include "joindialog.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
@@ -13,6 +14,8 @@
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
 #include "sync/videosync.h"
+#include "telemetry/dataedits.h"
+#include "telemetry/derivedchannels.h"
 #include "telemetry/telemetryimporter.h"
 #include "videocanvas.h"
 
@@ -52,7 +55,8 @@ namespace
 {
 struct ImportResult
 {
-    TelemetrySessionPtr session;
+    TelemetrySessionPtr raw;       // as the file gave it
+    TelemetrySessionPtr session;   // corrected, and completed with what could be worked out
     QString error;
 };
 
@@ -135,6 +139,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(valuesTimer, &QTimer::timeout, this, &MainWindow::updateChannelValues);
     connect(valuesTimer, &QTimer::timeout, this, [this]()
     {
+        if (m_dataDock->isVisible())
+            {
+                m_dataPanel->setTime(m_canvas->telemetryTime());
+            }
         if (m_lapsDock->isVisible())
             {
                 m_lapsPanel->setTime(m_canvas->telemetryTime());
@@ -256,6 +264,13 @@ void MainWindow::createDocks()
     m_timelineDock->raise();
     m_comparePanel = new LapComparePanel(m_compareDock);
     m_compareDock->setWidget(m_comparePanel);
+    m_dataDock = addPlaceholderDock("dataDock", tr("Data"), Qt::BottomDockWidgetArea);
+    tabifyDockWidget(m_compareDock, m_dataDock);
+    m_timelineDock->raise();
+    m_dataPanel = new DataPanel(m_dataDock);
+    m_dataDock->setWidget(m_dataPanel);
+    connect(m_dataPanel, &DataPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
+    connect(m_dataPanel, &DataPanel::editsChanged, this, &MainWindow::setDataEdits);
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
@@ -359,6 +374,7 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_propertiesDock->toggleViewAction());
     viewMenu->addAction(m_timelineDock->toggleViewAction());
     viewMenu->addAction(m_compareDock->toggleViewAction());
+    viewMenu->addAction(m_dataDock->toggleViewAction());
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&About"), this, &MainWindow::showAbout);
@@ -431,6 +447,9 @@ void MainWindow::loadVideo(const QString &path)
 
 void MainWindow::openTelemetry(const QString &path)
 {
+    // corrections belong to the data before
+    m_project.dataEdits.clear();
+    m_dataPanel->setEdits(m_project.dataEdits);
     loadTelemetry(path, false);
 }
 
@@ -445,12 +464,14 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     {
         const ImportResult result = watcher->result();
         watcher->deleteLater();
-        telemetryImported(path, result.session, result.error);
+        telemetryImported(path, result.raw, result.session, result.error);
     });
-    watcher->setFuture(QtConcurrent::run([path]()
+    const QVector<DataEdit> edits = m_project.dataEdits;
+    watcher->setFuture(QtConcurrent::run([path, edits]()
     {
         ImportResult result;
-        result.session = TelemetryImporter::load(path, &result.error);
+        result.raw = TelemetryImporter::loadRecorded(path, &result.error);
+        result.session = DerivedChannels::complete(DataEdits::apply(result.raw, edits));
         return result;
     }));
 }
@@ -496,10 +517,13 @@ void MainWindow::openProject(const QString &path)
     setModified(false);
     m_session.reset();
     m_recordedSession.reset();
+    m_rawSession.reset();
+    m_dataPanel->setSessions(nullptr, nullptr, m_units);
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
     m_timelinePanel->setSession(nullptr, m_units);
     m_comparePanel->setSession(nullptr, m_units);
     m_timelinePanel->setCuts(m_project.cuts);
+    m_dataPanel->setEdits(m_project.dataEdits);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
     m_player->setSource(QUrl());
@@ -869,7 +893,8 @@ void MainWindow::updateProperties()
         }
 }
 
-void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPtr &session, const QString &error)
+void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session,
+                                   const QString &error)
 {
     if (path != m_pendingTelemetryPath)
         {
@@ -883,7 +908,9 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
             return;
         }
     m_project.telemetryPath = path;
+    m_rawSession = raw;
     m_recordedSession = session;
+    m_dataPanel->setSessions(raw, session, m_units);
     m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     m_timelinePanel->setSession(m_session, m_units);
@@ -1154,6 +1181,27 @@ void MainWindow::setCuts(const QVector<TimeRange> &cuts, const QString &descript
     }));
 }
 
+void MainWindow::setDataEdits(const QVector<DataEdit> &edits, const QString &description)
+{
+    const QVector<DataEdit> before = m_project.dataEdits;
+    if (before == edits)
+        {
+            return;
+        }
+    m_undoStack->push(new OverlayCommand(description, [this, before, edits](bool forward)
+    {
+        m_project.dataEdits = forward ? edits : before;
+        setModified(true);
+        if (m_rawSession)
+            {
+                m_recordedSession = DerivedChannels::complete(DataEdits::apply(m_rawSession, m_project.dataEdits));
+                m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
+                updateLaps();
+            }
+        m_dataPanel->setEdits(m_project.dataEdits);
+    }));
+}
+
 void MainWindow::seekTelemetryTime(double time)
 {
     if (m_project.videoPath.isEmpty())
@@ -1205,6 +1253,7 @@ void MainWindow::applySettings()
             m_units = units;
             m_timelinePanel->setSession(m_session, m_units);
             m_comparePanel->setSession(m_session, m_units);
+            m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
             rebuildOverlay();
             updateSourcesInfo();
         }

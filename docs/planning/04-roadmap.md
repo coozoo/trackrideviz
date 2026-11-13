@@ -154,7 +154,12 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Laps compared side by side (2026-11-13): laps selected in the lap table are drawn against
   distance into the lap (a chosen channel), with the time each is behind the fastest of them at the
   same point below; hovering reads all of them at one place
-- Data viewer + charts
+- ✅ Data viewer and corrections (2026-11-13, `DataEdits`): a Data tab with ticked channels as
+  charts on the data's time axis (min/max per pixel, so a single spike shows), hover values,
+  zoom, click to go there, and a table of one channel's samples. Samples picked by Shift+drag or
+  in the table are taken out (latitude and longitude together) and put back; kept in the
+  project and undoable. The order is: recording, corrections, derived channels, laps - so speed,
+  distance, grade and laps follow a removed GPS jump
 - ✅ Cuts (2026-11-13, `CutList`): parts of the video left out of the export, marked A–B on the
   timeline (`[` `]`, Shift+drag, Delete cuts) or found in the data ("Cut stops": speed under
   0.5 m/s or a device pause for 10 s or more, 2 s kept at each end). Kept in the project, undoable,

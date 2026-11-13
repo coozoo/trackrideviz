@@ -38,6 +38,19 @@ bool Channel::append(double timeSec, double value)
     return true;
 }
 
+int Channel::removeBetween(double from, double to)
+{
+    const int first = int(std::lower_bound(m_times.cbegin(), m_times.cend(), from) - m_times.cbegin());
+    const int last = int(std::upper_bound(m_times.cbegin(), m_times.cend(), to) - m_times.cbegin());
+    if (last <= first)
+        {
+            return 0;
+        }
+    m_times.remove(first, last - first);
+    m_values.remove(first, last - first);
+    return last - first;
+}
+
 double Channel::valueAt(double timeSec, bool *ok) const
 {
     if (ok)

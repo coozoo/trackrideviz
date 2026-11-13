@@ -1,4 +1,5 @@
 #include "telemetry/channelids.h"
+#include "telemetry/dataedits.h"
 #include "telemetry/derivedchannels.h"
 
 #include <QtTest>
@@ -42,6 +43,38 @@ private:
     }
 
 private slots:
+    void editTakesOutAGlitch()
+    {
+        // north at 10 m/s, with one position 300 m off to the east at 50 s
+        auto recorded = ride(100.0, 1.0, [](double t) { return QPointF(10.0 * t, 0.0); });
+        auto raw = std::make_shared<TelemetrySession>(*recorded);
+        {
+            Channel lat = *raw->channel(ChannelId::PositionLat);
+            Channel lon = *raw->channel(ChannelId::PositionLon);
+            raw->removeChannel(ChannelId::PositionLat);
+            raw->removeChannel(ChannelId::PositionLon);
+            Channel &la = raw->channelForWriting(ChannelId::PositionLat, "deg");
+            Channel &lo = raw->channelForWriting(ChannelId::PositionLon, "deg");
+            for (int i = 0; i < lat.count(); ++i)
+                {
+                    la.append(lat.timeAt(i), lat.valueAtIndex(i));
+                    lo.append(lon.timeAt(i), lon.valueAtIndex(i) + (lat.timeAt(i) == 50.0 ? 0.004 : 0.0));
+                }
+        }
+        const double glitched = at(DerivedChannels::complete(raw), ChannelId::Speed, 50.0);
+        QVERIFY2(std::fabs(glitched - 10.0) > 3.0, qPrintable(QString::number(glitched)));
+        // an edit of the latitude takes the longitude with it
+        const QVector<DataEdit> edits{{ChannelId::PositionLat, 49.5, 50.5}};
+        const TelemetrySessionPtr edited = DataEdits::apply(raw, edits);
+        QCOMPARE(edited->channel(ChannelId::PositionLon)->count(), raw->channel(ChannelId::PositionLon)->count() - 1);
+        QCOMPARE(raw->channel(ChannelId::PositionLon)->count(), 101);   // the recording is not touched
+        const double fixed = at(DerivedChannels::complete(edited), ChannelId::Speed, 50.0);
+        QVERIFY2(std::fabs(fixed - 10.0) < 0.5, qPrintable(QString::number(fixed)));
+        QCOMPARE(DataEdits::apply(raw, {}), TelemetrySessionPtr(raw));
+        QVERIFY(DataEdits::restored(edits, ChannelId::PositionLon, 40.0, 60.0).isEmpty());
+        QCOMPARE(DataEdits::restored(edits, ChannelId::Speed, 40.0, 60.0).size(), 1);
+    }
+
     void straightClimb()
     {
         // north at 10 m/s for 5 minutes, climbing 5 %

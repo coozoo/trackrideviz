@@ -40,6 +40,9 @@ public:
     // than the previous one are dropped (returns false) - loggers do repeat
     // and reorder records.
     bool append(double timeSec, double value);
+    // Drops the samples from `from` to `to` (both included); returns how many.
+    // Reading in between then interpolates across the gap.
+    int removeBetween(double from, double to);
 
     // Value at timeSec. Outside the recorded range, and for an empty channel,
     // *ok is set to false and the nearest sample (or 0) is returned.

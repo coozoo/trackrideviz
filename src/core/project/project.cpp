@@ -93,6 +93,15 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 }
             root["videoShifts"] = shifts;
         }
+    if (!project.dataEdits.isEmpty())
+        {
+            QJsonArray edits;
+            for (const DataEdit &edit : project.dataEdits)
+                {
+                    edits.append(QJsonObject{{"channel", edit.channel}, {"start", edit.start}, {"end", edit.end}});
+                }
+            root["dataEdits"] = edits;
+        }
     if (!project.cuts.isEmpty())
         {
             QJsonArray cuts;
@@ -158,6 +167,12 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
         {
             const QJsonArray step = value.toArray();
             loaded.videoShifts.append({step.at(0).toDouble(), step.at(1).toDouble()});
+        }
+    for (const QJsonValue &value : root.value("dataEdits").toArray())
+        {
+            const QJsonObject edit = value.toObject();
+            loaded.dataEdits.append({edit.value("channel").toString(), edit.value("start").toDouble(),
+                                     edit.value("end").toDouble()});
         }
     for (const QJsonValue &value : root.value("cuts").toArray())
         {
