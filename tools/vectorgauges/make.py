@@ -59,8 +59,9 @@ def ring_path(cx, cy, r_outer, r_inner, start, end):
             f"L{fmt(x2)},{fmt(y2)} A{fmt(r_inner)},{fmt(r_inner)} 0 {large} 0 {fmt(x3)},{fmt(y3)} Z")
 
 
-def ticks(cx, cy, start, end, count, r_outer, length, width, colour="accent2", every=1, skip_every=0):
-    """`count` ticks evenly from start to end; with skip_every, every n-th is left out."""
+def ticks(cx, cy, start, end, count, r_outer, length, width, colour="accent2", every=1, skip_every=0, opacity=None):
+    """`count` ticks evenly from start to end; with skip_every, every n-th is left out.
+    `opacity`: their own transparency instead of the theme colour's."""
     lines = []
     for i in range(count):
         if skip_every and i % skip_every == 0:
@@ -71,7 +72,8 @@ def ticks(cx, cy, start, end, count, r_outer, length, width, colour="accent2", e
         x0, y0 = polar(cx, cy, r_outer, angle)
         x1, y1 = polar(cx, cy, r_outer - length, angle)
         lines.append(f"M{fmt(x0)},{fmt(y0)} L{fmt(x1)},{fmt(y1)}")
-    return (f"<path d='{' '.join(lines)}' fill='none' stroke='@{colour}' stroke-opacity='@{colour}-opacity' "
+    alpha = f"@{colour}-opacity" if opacity is None else fmt(opacity)
+    return (f"<path d='{' '.join(lines)}' fill='none' stroke='@{colour}' stroke-opacity='{alpha}' "
             f"stroke-width='{fmt(width)}' stroke-linecap='butt'/>")
 
 
@@ -186,10 +188,10 @@ C = 200          # centre of a 400 x 400 round gauge
 SWEEP = (-135, 135)
 
 
-def outer_needle(colour="accent"):
+def outer_needle(colour="accent", tip=164):
     """Only the outer part of a needle, from the edge of the inner disc to the scale."""
     x0, x1 = 4.5, 1.2
-    return (f"<path d='M{C - x0},{C - 84} L{C - x1},{C - 164} L{C + x1},{C - 164} L{C + x0},{C - 84} Z' "
+    return (f"<path d='M{C - x0},{C - 84} L{C - x1},{C - tip} L{C + x1},{C - tip} L{C + x0},{C - 84} Z' "
             f"{theme(colour)}/>")
 
 
@@ -228,7 +230,8 @@ def half_gloss():
 
 def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, needle_style="slim",
                labels=7, label_radius=118, label_size=24, label_italic=True, majors=13, value_y=240, value_size=64,
-               minor_ticks=True, inner_disc=True, unit_caps=False, second_readout=False, unit_gap=0.62):
+               minor_ticks=True, inner_disc=True, tick_outer=162, major_length=22, minor_length=10,
+               minor_width=1.6, minor_opacity=None, unit_caps=False, second_readout=False, unit_gap=0.62):
     defs, body = plate(C, C, 168)
     drawings = {}
     components = []
@@ -277,9 +280,10 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         components.append(image("band.svg", (0, 0, 400, 400), manipulations=[radial_clip(*SWEEP, (C, C))]))
 
     minors = (majors - 1) * 5 + 1
-    scale = ticks(C, C, *SWEEP, majors, 162, 22, 4)
+    scale = ticks(C, C, *SWEEP, majors, tick_outer, major_length, 4)
     if minor_ticks:
-        scale += ticks(C, C, *SWEEP, minors, 162, 10, 1.6, skip_every=5)
+        scale += ticks(C, C, *SWEEP, minors, tick_outer, minor_length, minor_width, skip_every=5,
+                       opacity=minor_opacity)
     drawings["scale.svg"] = svg(400, 400, scale)
     components.append(image("scale.svg", (0, 0, 400, 400)))
     components += markings(C, C, label_radius, *SWEEP, labels, label_size, italic=label_italic)
@@ -291,7 +295,7 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         drawings["glass.svg"] = svg(400, 400, b, d)
 
     if needle_style == "outer":
-        drawn = outer_needle()
+        drawn = outer_needle(tip=max(164, tick_outer - 2))
     elif needle_style == "pointer":
         drawn = pointer()
     elif needle_style == "glow":
@@ -443,7 +447,9 @@ def tile(name):
 def main():
     os.makedirs(GAUGES, exist_ok=True)
     # numbers every major tick, the needle only outside the inner disc
-    round_dial("Dial", needle_style="outer", labels=13, label_radius=124, label_size=19, value_y=196)
+    # no rim: long ticks reaching a little past the face's edge, the thin ones see-through
+    round_dial("Dial", bezel=None, needle_style="outer", labels=13, label_radius=124, label_size=19, value_y=196,
+               tick_outer=171, major_length=32, minor_length=18, minor_width=1.2, minor_opacity=0.5)
     round_dial("Dial metal", bezel="metal", sweep="silver", needle_style="outer", labels=13, label_radius=124,
                label_size=19, value_y=196)
     round_dial("Dial metal arc", bezel="metal", sweep="silver+accent", needle_style="pointer", labels=13,
