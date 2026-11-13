@@ -45,6 +45,9 @@ make -j$(nproc)
 make check
 ```
 
+Export tests that stop a running export take about a minute together and are left out unless
+`RTV_SLOW_TESTS=1` is set.
+
 The importers can also be run over your own recordings (nothing is written, a summary is printed):
 
 ```bash

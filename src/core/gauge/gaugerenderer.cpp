@@ -904,8 +904,9 @@ void BoundGauge::draw(QPainter &painter, const Node &node, double time, const Co
     for (int i = 0; i < component.manipulations.size(); ++i)
         {
             const GaugeManipulation &m = component.manipulations.at(i);
-            // without a value everything rests at the start of its scale
-            const double f = known ? fraction(m, metric.range, value) : (m.reversed ? 1.0 : 0.0);
+            // without a value everything rests at 0, or at the end of its scale nearest to it:
+            // a grade or g-force scale around 0 sits level, a speedometer at its start
+            const double f = fraction(m, metric.range, known ? value : 0.0);
             if (!m.clipRect.isNull())
                 {
                     painter.setClipRect(m.clipRect, Qt::IntersectClip);
@@ -1366,7 +1367,7 @@ void BoundGauge::drawTape(QPainter &painter, const Node &node, bool known, doubl
         }
     if (!known)
         {
-            value = s.minValue;
+            value = std::clamp(0.0, s.minValue, s.maxValue);
         }
     else if (s.loop)
         {

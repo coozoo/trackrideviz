@@ -19,6 +19,10 @@ class TestExport : public QObject
     Q_OBJECT
 
 private:
+    // Tests that let an export run for a while before stopping it are left
+    // out unless asked for: together they take a minute.
+    static bool slowTests() { return qEnvironmentVariableIntValue("RTV_SLOW_TESTS") != 0; }
+
     QTemporaryDir m_dir;
     QString m_sourceVideo;   // made by ffmpeg in initTestCase; empty when ffmpeg is missing
 
@@ -742,6 +746,10 @@ private slots:
             {
                 QSKIP("ffmpeg is not installed");
             }
+        if (!slowTests())
+            {
+                QSKIP("Takes about 20 s; set RTV_SLOW_TESTS=1 to run it");
+            }
         const QString source = longSource(false);
         QVERIFY(!source.isEmpty());
         const QString output = m_dir.filePath("stopped.mp4");
@@ -766,6 +774,10 @@ private slots:
         if (m_sourceVideo.isEmpty())
             {
                 QSKIP("ffmpeg is not installed");
+            }
+        if (!slowTests())
+            {
+                QSKIP("Takes about 20 s; set RTV_SLOW_TESTS=1 to run it");
             }
         const QString source = longSource(true);
         QVERIFY(!source.isEmpty());
@@ -811,6 +823,10 @@ private slots:
         if (m_sourceVideo.isEmpty())
             {
                 QSKIP("ffmpeg is not installed");
+            }
+        if (!slowTests())
+            {
+                QSKIP("Takes about 20 s; set RTV_SLOW_TESTS=1 to run it");
             }
         const QString source = longSource(false);
         QVERIFY(!source.isEmpty());

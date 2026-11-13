@@ -268,6 +268,24 @@ private slots:
             }
     }
 
+    void needleRestsAtZeroWithoutData()
+    {
+        // a scale around 0 (grade, g-force): level, not at its end
+        Gauge gauge = needleGauge();
+        GaugeManipulation &turn = gauge.components[0].manipulations[0];
+        turn.minValue = -36;
+        turn.maxValue = 36;
+        turn.minAngle = -90;
+        turn.maxAngle = 90;
+        const QImage missing = draw(gauge, 5.0, "grade");
+        QVERIFY(painted(missing, 50, 25));     // straight up
+        QVERIFY(!painted(missing, 25, 50));
+        // a scale that does not reach 0 rests at the end nearest to it
+        turn.minValue = 10;
+        const QImage start = draw(gauge, 5.0, "grade");
+        QVERIFY(painted(start, 25, 50));
+    }
+
     void gaugeIsScaledIntoTarget()
     {
         const BoundGauge bound(needleGauge(), ChannelId::Speed, makeSession(), Units(), GaugeTheme());
