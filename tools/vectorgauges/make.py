@@ -320,6 +320,35 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
     write(name, (400, 400), components, drawings, ROUND_TYPES)
 
 
+def segmented_dial(name):
+    """A 200 x 200 dial: a ring of light segments, four numbers round it, a short needle."""
+    c = 100
+    defs, body = plate(c, c, 98)
+    # light and dark in about equal parts
+    segments = []
+    count = 20
+    for i in range(count):
+        start = i * 360 / count - 360 / count * 0.26
+        segments.append(f"<path d='{ring_path(c, c, 98, 88, start, start + 360 / count * 0.52)}' "
+                        "fill='#d8d8d8' fill-opacity='0.85'/>")
+    body += (f"<circle cx='{c}' cy='{c}' r='93' fill='none' stroke='#000000' stroke-opacity='0.35' stroke-width='10'/>"
+             + "".join(segments)
+             + f"<circle cx='{c}' cy='{c}' r='52' fill='#ffffff' fill-opacity='0.03'/>")
+    drawings = {"face.svg": svg(200, 200, body, defs)}
+    # a taper with a rounded foot, reaching two thirds of the way out
+    drawings["needle.svg"] = svg(200, 200, f"<path d='M{c - 5.5},{c} L{c - 1},{c - 66} L{c + 1},{c - 66} "
+                                           f"L{c + 5.5},{c} A5.5,5.5 0 0 1 {c - 5.5},{c} Z' {theme('accent')}/>")
+    components = [image("face.svg", (0, 0, 200, 200))]
+    # bottom, left, top, right: the needle turns from the first to the last
+    components += [text("intervalMarking", at, 12, align=align, precision=0)
+                   for at, align in (((100, 182), "center"), ((16, 100), "left"), ((100, 18), "center"),
+                                     ((184, 100), "right"))]
+    components += [text("value", (c, 130), 45, italic=True, precision=0),
+                   text("unit", (c, 160), 22, italic=True),
+                   image("needle.svg", (0, 0, 200, 200), manipulations=[rotate(-180, 90, (c, c))])]
+    write(name, (200, 200), components, drawings, ["cadence", "heartRate", "speed", "power"])
+
+
 def small_dial(name, *, metal=False):
     """A 200 x 200 dial: fewer numbers, a big value."""
     c = 100
@@ -425,7 +454,7 @@ def main():
                value_size=60)
     round_dial("Dial glass", bezel="rim", gloss_on="half", needle_style="taper", inner_disc=False, labels=13,
                label_radius=126, label_size=26, label_italic=False, value_y=300, value_size=50, unit_gap=0.6)
-    small_dial("Dial small")
+    segmented_dial("Dial small")
     small_dial("Dial small metal", metal=True)
     open_arc("Open arc")
     compass("Compass rose")

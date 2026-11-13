@@ -7,12 +7,10 @@
         200
     ],
     "supportedTypes": [
-        "speed",
         "cadence",
-        "power",
         "heartRate",
-        "engineRpm",
-        "engineRpmX1000"
+        "speed",
+        "power"
     ],
     "components": [
         {
@@ -27,26 +25,15 @@
             "color": "original"
         },
         {
-            "type": "image",
-            "image": "images/scale.svg",
-            "frame": [
-                0,
-                0,
-                200,
-                200
-            ],
-            "color": "original"
-        },
-        {
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                59.0,
-                141.0
+                100,
+                182
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 13
+                "size": 12
             },
             "color": "foreground",
             "align": "center",
@@ -57,12 +44,28 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                46.4,
-                77.8
+                16,
+                100
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 13
+                "size": 12
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                100,
+                18
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 12
             },
             "color": "foreground",
             "align": "center",
@@ -73,47 +76,15 @@
             "type": "text",
             "autoText": "intervalMarking",
             "frame": [
-                100.0,
-                42.0
+                184,
+                100
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 13
+                "size": 12
             },
             "color": "foreground",
-            "align": "center",
-            "valign": "center",
-            "precision": 0
-        },
-        {
-            "type": "text",
-            "autoText": "intervalMarking",
-            "frame": [
-                153.6,
-                77.8
-            ],
-            "font": {
-                "family": "Barlow Semi Condensed",
-                "size": 13
-            },
-            "color": "foreground",
-            "align": "center",
-            "valign": "center",
-            "precision": 0
-        },
-        {
-            "type": "text",
-            "autoText": "intervalMarking",
-            "frame": [
-                141.0,
-                141.0
-            ],
-            "font": {
-                "family": "Barlow Semi Condensed",
-                "size": 13
-            },
-            "color": "foreground",
-            "align": "center",
+            "align": "right",
             "valign": "center",
             "precision": 0
         },
@@ -122,12 +93,11 @@
             "autoText": "value",
             "frame": [
                 100,
-                128
+                130
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 40,
-                "bold": true,
+                "size": 45,
                 "italic": true
             },
             "color": "foreground",
@@ -140,14 +110,14 @@
             "autoText": "unit",
             "frame": [
                 100,
-                158
+                160
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 15,
+                "size": 22,
                 "italic": true
             },
-            "color": "accent2",
+            "color": "foreground",
             "align": "center",
             "valign": "center"
         },
@@ -164,8 +134,8 @@
             "manipulations": [
                 {
                     "type": "rotate",
-                    "minAngle": -135,
-                    "maxAngle": 135,
+                    "minAngle": -180,
+                    "maxAngle": 90,
                     "pivot": [
                         100,
                         100
