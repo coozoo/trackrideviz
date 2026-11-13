@@ -1,6 +1,7 @@
 #include "xmlgaugeimporter.h"
 
 #include "../telemetry/channelids.h"
+#include "../telemetry/datatypes.h"
 
 #include <QDir>
 #include <QFile>
@@ -881,84 +882,11 @@ QString withVersion2Unit(const QString &category, const QString &type)
     return type;
 }
 
-struct TypeMapping
-{
-    const char *type;
-    const char *channel;
-};
-
-// The measurements we have, or will have, a channel for. Anything else gets
-// an id made from its name.
-const TypeMapping kTypes[] =
-{
-    {"Speed", ChannelId::Speed},
-    {"Altitude / Z Position", ChannelId::Elevation},
-    {"Ground-Based Altitude", ChannelId::Elevation},
-    {"Distance", ChannelId::Distance},
-    {"Distance from Beginning", ChannelId::Distance},
-    {"Heading", ChannelId::Heading},
-    {"Grade", ChannelId::Grade},
-    {"Latitude / Y Position", ChannelId::PositionLat},
-    {"Longitude / X Position", ChannelId::PositionLon},
-    {"Heart Rate", ChannelId::HeartRate},
-    {"Cadence", ChannelId::Cadence},
-    {"Power", ChannelId::Power},
-    {"Air Temperature", ChannelId::Temperature},
-    {"Lateral Gs", ChannelId::GForceLateral},
-    {"Acceleration Gs", ChannelId::GForceLongitudinal},
-    {"Vertical Gs", ChannelId::GForceVertical},
-    {"Engine RPM", "engineRpm"},
-    {"Current Lap Time", "lapTime"},
-    {"Current Lap #", "lap"},
-    {"Previous Lap Time", "previousLapTime"},
-    {"Fastest Lap So Far, Time", "bestLapTime"},
-    {"Fastest Lap So Far, Same Pos, Time Diff", "lapDelta"},
-    {"Total Lap Count", "lapCount"},
-    {"Data Running Time, Seconds", "elapsedTime"},
-};
 }
 
 QString XmlGaugeImporter::channelFor(const QString &dataType, QString *unit)
 {
-    // "Speed (MPH)": the unit is in brackets at the end
-    static const QRegularExpression withUnit("^(.*?)\\s*\\(([^()]*)\\)\\s*$");
-    QString name = dataType.trimmed();
-    QString found;
-    const QRegularExpressionMatch match = withUnit.match(name);
-    if (match.hasMatch())
-        {
-            static const QHash<QString, QString> units
-            {
-                {"mph", "mph"}, {"kph", "km/h"}, {"m/s", "m/s"}, {"knots", "kn"}, {"feet", "ft"}, {"meters", "m"},
-                {"miles", "mi"}, {"kilometers", "km"}, {"f", "°F"}, {"c", "°C"}, {"degrees", QString()},
-            };
-            const QString bracket = match.captured(2).trimmed().toLower();
-            if (units.contains(bracket))
-                {
-                    name = match.captured(1);
-                    found = units.value(bracket);
-                }
-        }
-    if (unit)
-        {
-            *unit = found;
-        }
-    for (const TypeMapping &mapping : kTypes)
-        {
-            if (name.compare(QLatin1String(mapping.type), Qt::CaseInsensitive) == 0)
-                {
-                    return QString::fromLatin1(mapping.channel);
-                }
-        }
-    // "Engine Oil Temperature" -> "engineOilTemperature"
-    static const QRegularExpression separators("[^A-Za-z0-9]+");
-    const QStringList words = name.split(separators, Qt::SkipEmptyParts);
-    QString id;
-    for (const QString &word : words)
-        {
-            id += id.isEmpty() ? word.toLower() : word.left(1).toUpper() + word.mid(1).toLower();
-        }
-    return id;
+    return DataTypes::channelFor(dataType, unit);
 }
 
 XmlGaugeImporter::Result XmlGaugeImporter::parse(const QByteArray &xml, const QString &name, const QString &imageFolder)

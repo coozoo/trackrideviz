@@ -48,9 +48,9 @@ public:
     // Channels the application has no name for keep their id, unit and raw value.
     static ChannelDisplay displayFor(const QString &channelId, const QString &storedUnit, const Units &units);
     static ChannelDisplay displayFor(const Channel &channel, const Units &units);
-    // The same in a unit of its own ("mph", "km/h", "m/s", "kn", "ft", "m",
-    // "mi", "km", "°F", "°C"), for gauges printed in one. The ordinary display
-    // when the channel does not measure what that unit does.
+    // The same in a unit of its own ("mph", "km/h", "m/s", "kn", "ft/min", "ft",
+    // "m", "mi", "km", "°F", "°C"), for gauges printed in one. The ordinary
+    // display when the channel does not measure what that unit does.
     static ChannelDisplay displayIn(const QString &channelId, const QString &storedUnit, const QString &unit,
                                     const Units &units);
 };

@@ -134,7 +134,7 @@ ChannelDisplay ChannelFormat::displayIn(const QString &id, const QString &stored
     };
     // from what the channels store (channelids.h)
     static const Conversion speeds[] = {{"mph", kMetresPerSecondToMph, 0.0}, {"km/h", kMetresPerSecondToKmh, 0.0},
-        {"m/s", 1.0, 0.0}, {"kn", 3600.0 / 1852.0, 0.0}
+        {"m/s", 1.0, 0.0}, {"kn", 3600.0 / 1852.0, 0.0}, {"ft/min", 60.0 / 0.3048, 0.0}
     };
     static const Conversion lengths[] = {{"ft", kMetresToFeet, 0.0}, {"m", 1.0, 0.0}, {"mi", kMetresToMiles, 0.0},
         {"km", 0.001, 0.0}
@@ -153,15 +153,16 @@ ChannelDisplay ChannelFormat::displayIn(const QString &id, const QString &stored
                     }
             }
     };
-    if (id == ChannelId::Speed)
+    // what is measured: known from the channel, or from the unit it stores
+    if (id == ChannelId::Speed || storedUnit == QLatin1String("m/s"))
         {
             apply(speeds, int(std::size(speeds)));
         }
-    else if (id == ChannelId::Elevation || id == ChannelId::Distance)
+    else if (id == ChannelId::Elevation || id == ChannelId::Distance || storedUnit == QLatin1String("m"))
         {
             apply(lengths, int(std::size(lengths)));
         }
-    else if (id == ChannelId::Temperature)
+    else if (id == ChannelId::Temperature || storedUnit == QLatin1String("C") || storedUnit == QString::fromUtf8("°C"))
         {
             apply(temperatures, int(std::size(temperatures)));
         }

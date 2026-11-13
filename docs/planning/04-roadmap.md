@@ -136,7 +136,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
-- CSV with data profiles; data-profile XML import; TCX, NMEA, VBO
+- ✅ CSV with data profiles; XML data profile import (2026-11-13)
+- AiM and DriftBox CSV layouts; our own profiles for common loggers; TCX, NMEA, VBO
 - Multiple data sources per project
 
 ## M6 — Gauge editor

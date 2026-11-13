@@ -4,6 +4,8 @@
 #include "gauge/gaugerenderer.h"
 #include "gauge/xmlgaugeimporter.h"
 #include "overlay/xmltemplateimporter.h"
+#include "telemetry/csv/dataprofilelibrary.h"
+#include "telemetry/csv/xmldataprofileimporter.h"
 #include "overlay/templatelibrary.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
@@ -92,7 +94,9 @@ struct ImportFolders
     QStringList templateFiles;
     QStringList xmlGauges;
     QStringList xmlTemplates;
+    QStringList dataProfiles;
 };
+
 
 QString childIgnoringCase(const QDir &dir, const QString &name)
 {
@@ -119,6 +123,21 @@ QStringList filesIn(const QString &folder, const QString &pattern)
             files << dir.filePath(name);
         }
     return files;
+}
+
+// XML data profiles: in the chosen folder, or in its DataProfiles.
+QStringList dataProfilesIn(const QString &chosen)
+{
+    const QString child = childIgnoringCase(QDir(chosen), "DataProfiles");
+    QStringList found;
+    for (const QString &file : filesIn(child.isEmpty() ? chosen : child, "*.xml"))
+        {
+            if (XmlDataProfileImporter::isDataProfile(file))
+                {
+                    found << file;
+                }
+        }
+    return found;
 }
 
 bool holds(const QString &folder, const QString &fileName)
@@ -149,6 +168,7 @@ QStringList foldersWith(const QString &chosen, const QString &fileName, const QS
 ImportFolders importFoldersIn(const QString &chosen)
 {
     ImportFolders found;
+    found.dataProfiles = dataProfilesIn(chosen);
     found.xmlTemplates = foldersWith(chosen, XmlTemplateImporter::FileName, "Templates");
     // a template's own gauges come in with it
     found.xmlGauges = found.xmlTemplates.contains(chosen) ? QStringList()
@@ -175,6 +195,7 @@ struct ImportReport
 {
     GaugeLibrary::ImportSummary gauges;
     TemplateLibrary::ImportSummary templates;
+    DataProfileLibrary::ImportSummary profiles;
 };
 }
 
@@ -200,8 +221,8 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     connect(m_useButton, &QPushButton::clicked, this, &GaugeLibraryPanel::useSelected);
     m_importButton = new QPushButton(tr("Import..."), this);
     m_importButton->setToolTip(tr("Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a "
-                                  "gauge.xml or project.cdp). Choose the folder that holds them, or a folder with "
-                                  "Widgets and Templates or with Gauges and Templates in it."));
+                                  "gauge.xml or project.cdp) and XML data profiles. Choose the folder that holds them, "
+                                  "or a folder with Widgets and Templates or with Gauges, Templates and DataProfiles in it."));
     connect(m_importButton, &QPushButton::clicked, this, &GaugeLibraryPanel::importFiles);
     m_removeButton = new QPushButton(tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
@@ -374,10 +395,11 @@ void GaugeLibraryPanel::importFiles()
         }
     settings.setValue("paths/importGauges", folder);
     const ImportFolders found = importFoldersIn(folder);
-    if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty() && found.xmlGauges.isEmpty() && found.xmlTemplates.isEmpty())
+    if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty() && found.xmlGauges.isEmpty() && found.xmlTemplates.isEmpty()
+            && found.dataProfiles.isEmpty())
         {
             QMessageBox::information(this, tr("Import"),
-                                     tr("There are no gauges (.veg, gauge.xml) or templates (.vet, project.cdp) in that folder."));
+                                     tr("There are no gauges (.veg, gauge.xml), templates (.vet, project.cdp) or data profiles in that folder."));
             return;
         }
 
@@ -405,7 +427,7 @@ void GaugeLibraryPanel::importFiles()
 
         QStringList lines;
         const int gauges = report.gauges.imported + report.templates.gaugesImported;
-        if (gauges > 0 || report.templates.imported == 0)
+        if (gauges > 0 || (report.templates.imported == 0 && report.profiles.imported == 0))
             {
                 lines << tr("%n gauge(s) imported.", nullptr, gauges);
             }
@@ -417,13 +439,19 @@ void GaugeLibraryPanel::importFiles()
             {
                 lines << tr("%n template(s) imported.", nullptr, report.templates.imported);
             }
-        const int failed = int(report.gauges.failed.size() + report.templates.failed.size());
+        if (report.profiles.imported > 0)
+            {
+                lines << tr("%n data profile(s) imported: CSV files of those loggers can now be opened as data.", nullptr,
+                            report.profiles.imported);
+            }
+        const int failed = int(report.gauges.failed.size() + report.templates.failed.size() + report.profiles.failed.size());
         if (failed > 0)
             {
                 lines << tr("%n file(s) could not be used.", nullptr, failed);
             }
         QMessageBox box(QMessageBox::Information, tr("Import"), lines.join('\n'), QMessageBox::Ok, this);
-        const QStringList details = report.gauges.failed + report.templates.failed + report.gauges.notes + report.templates.notes;
+        const QStringList details = report.gauges.failed + report.templates.failed + report.profiles.failed
+                                    + report.gauges.notes + report.templates.notes + report.profiles.notes;
         if (!details.isEmpty())
             {
                 box.setDetailedText(details.join('\n'));
@@ -446,6 +474,7 @@ void GaugeLibraryPanel::importFiles()
         report.templates.gaugesImported += xmlTemplates.gaugesImported;
         report.templates.failed += xmlTemplates.failed;
         report.templates.notes += xmlTemplates.notes;
+        report.profiles = DataProfileLibrary::importXml(found.dataProfiles);
         return report;
     }));
 }

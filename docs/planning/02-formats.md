@@ -137,6 +137,29 @@ Additions to the `.veg` component model:
 - SVG as well as PNG images
 - a gauge as one zip file for sharing
 
+### XML data profiles — imported (2026-11-13)
+
+`<DataProfile version="2">`: header line indices (several are joined "name - unit"), data start line,
+separator characters, decimal comma, file line matchers (line, text, contains / exact, case),
+calculators (input columns → output columns) and column mappings (column text, exact / contains,
+case → data type). `XmlDataProfileImporter` converts them to our JSON profiles
+(`<app data>/dataprofiles`); `.csv`, `.txt` and `.log` files are read with the first one that
+recognises them.
+
+Cells, as found: numbers (decimal comma when set), clock times and dates (seconds from the first in
+the column), mm:ss.fff and 1' 23" 456, hemisphere letters (N/E = 1, S/W = -1, "12.5S" = -12.5).
+"Data Running Time, Seconds" is the time base; "Time of Day" and "Date" give the start (taken as
+UTC); "Lap Indicator" starts a lap wherever it changes to anything but 0.
+
+Kept as calculators: unit converters (distance, speed, temperature, pressure — relative to the
+atmosphere if asked —, angle and grade, pulses to RPM), math (+ − × ÷, √, power, modulus, log,
+hypotenuse, trigonometry, inverse; with a constant or a second column), gap filling with outlier
+removal, time-window averages (plain or of angles), deltas, last value. Left out and noted:
+calculators that derive measurements (lap statistics, ascent/descent, heading and distance from
+positions, G from speed, speed from distance; for every source alike in M4), positions projected
+to feet or metres. Refused: AiM and DriftBox layouts (header found by blank lines / sections), and
+profiles without line matchers. Of a full installation's 54: 49 import.
+
 ## 2.2 Telemetry formats
 
 | Format | Source | Approach | Phase |
@@ -144,7 +167,7 @@ Additions to the `.veg` component model:
 | GPX (+ Garmin TrackPointExtension: hr, cad, temp, power) | everything | `QXmlStreamReader`; start from Overseer's `GpxTrack` and widen it | 1 |
 | FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK licence terms) or the official C++ SDK — see decisions §5 | 1 |
 | GoPro GPMF (embedded in MP4) | GoPro Hero 5+ | Demux the `gpmd` data stream via libavformat/ffprobe, parse KLV ourselves (GPS5/GPS9, ACCL, GYRO) | 2 |
-| CSV + data profile | RaceChrono, Harry's LapTimer, TrackAddict, AiM export, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators. Ship our own profiles; **import data-profile XML** | 2 |
+| CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own profiles to ship later | 2 |
 | TCX | older Garmin, Strava export | XML | 2 |
 | NMEA 0183 | raw GPS loggers, dashcams | line parser (RMC/GGA/VTG) | 3 |
 | VBO | Racelogic VBOX, RaceChrono export | text, header-described columns | 3 |

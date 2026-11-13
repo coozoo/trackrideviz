@@ -13,4 +13,5 @@ SUBDIRS = \
     settings \
     project \
     export \
-    template
+    template \
+    csv

@@ -27,6 +27,11 @@ SOURCES += \
     $$PWD/settings/bundleddata.cpp \
     $$PWD/sync/videosync.cpp \
     $$PWD/telemetry/channel.cpp \
+    $$PWD/telemetry/csv/csvimporter.cpp \
+    $$PWD/telemetry/csv/dataprofile.cpp \
+    $$PWD/telemetry/csv/dataprofilelibrary.cpp \
+    $$PWD/telemetry/csv/xmldataprofileimporter.cpp \
+    $$PWD/telemetry/datatypes.cpp \
     $$PWD/telemetry/demosession.cpp \
     $$PWD/telemetry/fit/fitdecoder.cpp \
     $$PWD/telemetry/fit/fitimporter.cpp \
@@ -61,6 +66,11 @@ HEADERS += \
     $$PWD/sync/videosync.h \
     $$PWD/telemetry/channel.h \
     $$PWD/telemetry/channelids.h \
+    $$PWD/telemetry/csv/csvimporter.h \
+    $$PWD/telemetry/csv/dataprofile.h \
+    $$PWD/telemetry/csv/dataprofilelibrary.h \
+    $$PWD/telemetry/csv/xmldataprofileimporter.h \
+    $$PWD/telemetry/datatypes.h \
     $$PWD/telemetry/demosession.h \
     $$PWD/telemetry/fit/fitdecoder.h \
     $$PWD/telemetry/fit/fitimporter.h \

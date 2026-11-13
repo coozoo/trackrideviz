@@ -9,9 +9,14 @@
 #include "telemetry/demosession.h"
 
 #include <QPainter>
-#include <QTimeZone>
 #include <QTemporaryDir>
 #include <QtTest>
+
+// A moment in UTC, built the same way on every Qt version.
+static QDateTime utc(const QDate &date, const QTime &time)
+{
+    return QDateTime::fromMSecsSinceEpoch(QDate(1970, 1, 1).daysTo(date) * 86400000 + time.msecsSinceStartOfDay()).toUTC();
+}
 
 class TestGauge : public QObject
 {
@@ -1630,7 +1635,7 @@ private slots:
         speed.append(0.0, -3.75);
         speed.append(1.0, 125.5);
         speed.append(2.0, 49.5);
-        session->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(4, 47, 11), QTimeZone::UTC));
+        session->setStartUtc(utc(QDate(2025, 7, 15), QTime(4, 47, 11)));
         session->setUtcOffsetSeconds(3 * 3600);
 
         GaugeComponent c;

@@ -1,5 +1,7 @@
 #include "telemetryimporter.h"
 
+#include "csv/csvimporter.h"
+#include "csv/dataprofilelibrary.h"
 #include "fit/fitimporter.h"
 #include "gpximporter.h"
 
@@ -7,7 +9,8 @@
 
 QStringList TelemetryImporter::suffixes()
 {
-    return {"fit", "gpx"};
+    // CSV through the data profiles; loggers also write .txt and .log
+    return {"fit", "gpx", "csv", "txt", "log"};
 }
 
 bool TelemetryImporter::canLoad(const QString &path)
@@ -35,6 +38,10 @@ TelemetrySessionPtr TelemetryImporter::load(const QString &path, QString *error)
     if (suffix == "gpx")
         {
             return GpxImporter::load(path, error);
+        }
+    if (suffix == "csv" || suffix == "txt" || suffix == "log")
+        {
+            return CsvImporter::load(path, DataProfileLibrary::profiles(), error);
         }
     if (error)
         {

@@ -128,6 +128,94 @@
     </message>
 </context>
 <context>
+    <name>CsvImporter</name>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="481"/>
+        <source>Cannot open %1: %2</source>
+        <translation>Не вдалося відкрити %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="492"/>
+        <source>%1: there are no data profiles to read CSV files with. Import some first (Library, Import).</source>
+        <translation>%1: немає профілів даних, щоб читати файли CSV. Спершу імпортуйте їх (Бібліотека, Імпорт).</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="494"/>
+        <source>%1: none of the %n data profile(s) recognises this file.</source>
+        <translation>
+            <numerusform>%1: жоден із %n профілю даних не розпізнає цей файл.</numerusform>
+            <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл.</numerusform>
+            <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="521"/>
+        <source>The file has no line %1 for the column names.</source>
+        <translation>У файлі немає рядка %1 з назвами стовпців.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="528"/>
+        <source>Line %1 does not hold column names.</source>
+        <translation>Рядок %1 не містить назв стовпців.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="541"/>
+        <source>The column name lines differ in length.</source>
+        <translation>Рядки з назвами стовпців мають різну довжину.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="565"/>
+        <source>The file has no data.</source>
+        <translation>У файлі немає даних.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="681"/>
+        <source>The file has no time column the profile knows.</source>
+        <translation>У файлі немає стовпця часу, відомого профілю.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="696"/>
+        <source>The time column is empty.</source>
+        <translation>Стовпець часу порожній.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="700"/>
+        <source>CSV, data profile &quot;%1&quot;</source>
+        <translation>CSV, профіль даних «%1»</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="764"/>
+        <source>None of the columns this data profile names are in the file.</source>
+        <translation>У файлі немає жодного стовпця, названого в цьому профілі даних.</translation>
+    </message>
+</context>
+<context>
+    <name>DataProfileFile</name>
+    <message>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="225"/>
+        <source>This is not a data profile.</source>
+        <translation>Це не профіль даних.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="229"/>
+        <source>The data profile was saved by a newer version of the program.</source>
+        <translation>Профіль даних збережено новішою версією програми.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="265"/>
+        <source>The data profile is incomplete.</source>
+        <translation>Профіль даних неповний.</translation>
+    </message>
+</context>
+<context>
+    <name>DataProfileLibrary</name>
+    <message>
+        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="83"/>
+        <source>Cannot write %1: %2</source>
+        <translation>Не вдалося записати %1: %2</translation>
+    </message>
+</context>
+<context>
     <name>ExportDialog</name>
     <message>
         <location filename="../src/exportdialog.cpp" line="74"/>
@@ -524,84 +612,94 @@
 <context>
     <name>GaugeLibraryPanel</name>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="253"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="274"/>
         <source>Add to video</source>
         <translation>Додати на відео</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="255"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="276"/>
         <source>Puts the selected gauge on the video. A double click does the same.</source>
         <translation>Розміщує вибраний прилад на відео. Те саме робить подвійне клацання.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="201"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="392"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="222"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="414"/>
         <source>Import...</source>
         <translation>Імпорт...</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="185"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="206"/>
         <source>Gauges</source>
         <translation>Прилади</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="186"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="207"/>
         <source>Templates</source>
         <translation>Шаблони</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="206"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="223"/>
+        <source>Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a gauge.xml or project.cdp) and XML data profiles. Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges, Templates and DataProfiles in it.</source>
+        <translation>Додає прилади .veg, шаблони .vet, прилади й шаблони XML (теки з файлом gauge.xml чи project.cdp) і профілі даних XML. Виберіть теку, де вони лежать, або теку, у якій є Widgets і Templates чи Gauges, Templates і DataProfiles.</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="227"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="253"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="274"/>
         <source>Apply to video</source>
         <translation>Застосувати до відео</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="254"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="275"/>
         <source>Replaces the gauges on the video with this template. A double click does the same.</source>
         <translation>Замінює прилади на відео цим шаблоном. Те саме робить подвійне клацання.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="256"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="277"/>
         <source>Deletes the selected template from the library</source>
         <translation>Вилучає вибраний шаблон із бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="257"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="278"/>
         <source>Deletes the selected gauge from the library</source>
         <translation>Вилучає вибраний прилад із бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="364"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
         <translation>Вилучити шаблон «%1» із бібліотеки? Його прилади залишаться.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="345"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="366"/>
         <source>Remove gauge</source>
         <translation>Вилучити прилад</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="345"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="366"/>
         <source>Remove template</source>
         <translation>Вилучити шаблон</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="369"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="390"/>
         <source>Folder with gauges and templates</source>
         <translation>Тека з приладами та шаблонами</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="379"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="425"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="401"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="452"/>
         <source>Import</source>
         <translation>Імпорт</translation>
     </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="402"/>
+        <source>There are no gauges (.veg, gauge.xml), templates (.vet, project.cdp) or data profiles in that folder.</source>
+        <translation>У цій теці немає приладів (.veg, gauge.xml), шаблонів (.vet, project.cdp) чи профілів даних.</translation>
+    </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="414"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="436"/>
         <source>%n of them have parts that cannot be shown.</source>
         <translation>
             <numerusform>%n із них має частини, які неможливо показати.</numerusform>
@@ -610,7 +708,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="418"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="440"/>
         <source>%n template(s) imported.</source>
         <translation>
             <numerusform>Імпортовано %n шаблон.</numerusform>
@@ -619,27 +717,17 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="344"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="365"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation>Вилучити «%1» із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="202"/>
-        <source>Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a gauge.xml or project.cdp). Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges and Templates in it.</source>
-        <translation>Додає прилади .veg, шаблони .vet, прилади й шаблони XML (теки з файлом gauge.xml чи project.cdp). Виберіть теку, де вони лежать, або теку, у якій є Widgets і Templates чи Gauges і Templates.</translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="380"/>
-        <source>There are no gauges (.veg, gauge.xml) or templates (.vet, project.cdp) in that folder.</source>
-        <translation>У цій теці немає приладів (.veg, gauge.xml) чи шаблонів (.vet, project.cdp).</translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="385"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="407"/>
         <source>Importing...</source>
         <translation>Імпортування...</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="410"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="432"/>
         <source>%n gauge(s) imported.</source>
         <translation>
             <numerusform>Імпортовано %n прилад.</numerusform>
@@ -648,7 +736,16 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="423"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="444"/>
+        <source>%n data profile(s) imported: CSV files of those loggers can now be opened as data.</source>
+        <translation>
+            <numerusform>Імпортовано %n профіль даних: файли CSV цих реєстраторів тепер можна відкривати як дані.</numerusform>
+            <numerusform>Імпортовано %n профілі даних: файли CSV цих реєстраторів тепер можна відкривати як дані.</numerusform>
+            <numerusform>Імпортовано %n профілів даних: файли CSV цих реєстраторів тепер можна відкривати як дані.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/gaugelibrarypanel.cpp" line="450"/>
         <source>%n file(s) could not be used.</source>
         <translation>
             <numerusform>%n файл не вдалося використати.</numerusform>
@@ -1355,12 +1452,12 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>TelemetryImporter</name>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="25"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="28"/>
         <source>Telemetry files (%1);;All files (*)</source>
         <translation>Файли телеметрії (%1);;Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="41"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="48"/>
         <source>%1: unsupported file type. Supported: %2.</source>
         <translation>%1: непідтримуваний тип файлу. Підтримуються: %2.</translation>
     </message>
@@ -1582,80 +1679,138 @@ Open them again from where they are now and save the project.</source>
     </message>
 </context>
 <context>
-    <name>XmlGaugeImporter</name>
+    <name>XmlDataProfileImporter</name>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="217"/>
-        <source>vertical text is drawn horizontally</source>
-        <translation>вертикальний текст показано горизонтально</translation>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="145"/>
+        <source>Cannot open %1: %2</source>
+        <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="244"/>
-        <source>values from the fastest lap are not there yet</source>
-        <translation>значень із найшвидшого кола ще немає</translation>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="162"/>
+        <source>This is not an XML data profile.</source>
+        <translation>Це не профіль даних XML.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="299"/>
-        <source>an uneven scale running backwards is drawn even</source>
-        <translation>нерівномірну шкалу, що йде у зворотний бік, показано рівномірною</translation>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="167"/>
+        <source>Files of this logger are laid out in a way that is not supported yet.</source>
+        <translation>Файли цього реєстратора мають будову, яка ще не підтримується.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="348"/>
-        <source>image %1 not found</source>
-        <translation>зображення %1 не знайдено</translation>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="227"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="265"/>
+        <source>unknown units %1, %2</source>
+        <translation>невідомі одиниці %1, %2</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="501"/>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="788"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="251"/>
+        <source>unknown operation %1</source>
+        <translation>невідома дія %1</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="300"/>
+        <source>RPM is worked out for %n cylinder(s)</source>
+        <translation>
+            <numerusform>оберти обчислено для %n циліндра</numerusform>
+            <numerusform>оберти обчислено для %n циліндрів</numerusform>
+            <numerusform>оберти обчислено для %n циліндрів</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="316"/>
         <source>%1 is not supported</source>
         <translation>%1 не підтримується</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="733"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="376"/>
+        <source>The data profile has no time column.</source>
+        <translation>У профілі даних немає стовпця часу.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="381"/>
+        <source>The data profile does not say how to recognise its files.</source>
+        <translation>Профіль даних не вказує, як розпізнати його файли.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="386"/>
+        <source>worked out later: %1</source>
+        <translation>буде обчислено пізніше: %1</translation>
+    </message>
+</context>
+<context>
+    <name>XmlGaugeImporter</name>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="218"/>
+        <source>vertical text is drawn horizontally</source>
+        <translation>вертикальний текст показано горизонтально</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="245"/>
+        <source>values from the fastest lap are not there yet</source>
+        <translation>значень із найшвидшого кола ще немає</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="300"/>
+        <source>an uneven scale running backwards is drawn even</source>
+        <translation>нерівномірну шкалу, що йде у зворотний бік, показано рівномірною</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="349"/>
+        <source>image %1 not found</source>
+        <translation>зображення %1 не знайдено</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="502"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="789"/>
+        <source>%1 is not supported</source>
+        <translation>%1 не підтримується</translation>
+    </message>
+    <message>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="734"/>
         <source>the G-plot&apos;s stick and tail are not drawn</source>
         <translation>стрижень і слід на графіку перевантажень не показано</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="831"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="832"/>
         <source>a chart over distance is drawn over time</source>
         <translation>графік за відстанню показано за часом</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="840"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="841"/>
         <source>a chart&apos;s fixed value scale is set from the data</source>
         <translation>сталу шкалу графіка взято з даних</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="844"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="845"/>
         <source>chart axis labels are not drawn</source>
         <translation>підписи осей графіка не показано</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="975"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="903"/>
         <source>This is not an XML gauge: %1</source>
         <translation>Це не прилад XML: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="980"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="908"/>
         <source>This is not an XML gauge.</source>
         <translation>Це не прилад XML.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="986"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="914"/>
         <source>Gauge file version %1 is not supported.</source>
         <translation>Версія файлу приладу %1 не підтримується.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="994"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="922"/>
         <source>The gauge has no size.</source>
         <translation>Прилад не має розміру.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1019"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="947"/>
         <source>The gauge has nothing in it that can be shown.</source>
         <translation>У приладі немає нічого, що можна показати.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1034"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="962"/>
         <source>There is no %1 in %2.</source>
         <translation>У %2 немає %1.</translation>
     </message>
