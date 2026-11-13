@@ -1,6 +1,9 @@
 #include <QtTest>
 
+#include <cmath>
+
 #include "telemetry/channel.h"
+#include "telemetry/smoothing.h"
 #include "telemetry/telemetrysession.h"
 
 class TestChannel : public QObject
@@ -8,6 +11,32 @@ class TestChannel : public QObject
     Q_OBJECT
 
 private slots:
+    void smoothingEvensOutNoise()
+    {
+        // 10 up and down around 20, once a second; a pause of a minute; then a step up to 40
+        Channel speed("speed", "m/s");
+        for (int t = 0; t < 30; ++t)
+            {
+                speed.append(t, t % 2 ? 30.0 : 10.0);
+            }
+        for (int t = 90; t < 100; ++t)
+            {
+                speed.append(t, 40.0);
+            }
+        const Channel smooth = Smoothing::movingAverage(speed, 4.0);
+        QCOMPARE(smooth.count(), speed.count());
+        QVERIFY(std::fabs(smooth.valueAt(15.0) - 20.0) < 2.5);   // the swings mostly gone
+        QCOMPARE(smooth.valueAt(95.0), 40.0);                     // nothing of before the pause
+        QCOMPARE(smooth.valueAt(90.0), 40.0);
+        // nothing to do
+        QCOMPARE(Smoothing::movingAverage(speed, 0.0).valueAt(15.0), speed.valueAt(15.0));
+        Channel lap("lap", QString(), Channel::Step);
+        lap.append(0, 1);
+        lap.append(10, 2);
+        lap.append(20, 3);
+        QCOMPARE(Smoothing::movingAverage(lap, 30.0).valueAt(12.0), 2.0);
+    }
+
     void emptyChannel();
     void linearInterpolation();
     void stepInterpolation();

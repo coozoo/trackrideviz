@@ -5,8 +5,12 @@
 
 #include <QWidget>
 
+#include <memory>
+#include <vector>
+
 class DataChart;
 class DataTableModel;
+class QComboBox;
 class QListWidget;
 class QListWidgetItem;
 class QTableView;
@@ -28,10 +32,13 @@ public:
     void setEdits(const QVector<DataEdit> &edits);
     // telemetry time on screen
     void setTime(double time);
+    // seconds charts are smoothed over; 0 = not
+    void setSmoothing(double seconds);
 
 signals:
     void seekRequested(double time);
     void editsChanged(const QVector<DataEdit> &edits, const QString &description);
+    void smoothingChanged(double seconds);
 
 private:
     void fillChannels();
@@ -50,6 +57,9 @@ private:
     QToolButton *m_removeButton{nullptr};
     QToolButton *m_restoreButton{nullptr};
     QToolButton *m_tableButton{nullptr};
+    QComboBox *m_smoothingCombo{nullptr};
+    double m_smoothing{0.0};
+    std::vector<std::unique_ptr<Channel>> m_smoothed;   // what the chart draws when smoothing
     TelemetrySessionPtr m_raw;
     TelemetrySessionPtr m_session;
     Units m_units;

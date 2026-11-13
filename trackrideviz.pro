@@ -41,6 +41,7 @@ HEADERS += \
     src/appearance.h \
     src/exportdialog.h \
     src/gaugelibrarypanel.h \
+    src/chartsmoothing.h \
     src/datapanel.h \
     src/joindialog.h \
     src/lapcomparepanel.h \

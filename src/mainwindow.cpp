@@ -26,6 +26,7 @@
 #include <QCloseEvent>
 #include <QCheckBox>
 #include <QColorDialog>
+#include <QCompleter>
 #include <QFontDatabase>
 #include <QComboBox>
 #include <QDir>
@@ -38,6 +39,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
@@ -275,6 +277,13 @@ void MainWindow::createDocks()
     m_dataDock->setWidget(m_dataPanel);
     connect(m_dataPanel, &DataPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
     connect(m_dataPanel, &DataPanel::editsChanged, this, &MainWindow::setDataEdits);
+    // one smoothing for all charts
+    connect(m_dataPanel, &DataPanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
+    connect(m_dataPanel, &DataPanel::smoothingChanged, m_comparePanel, &LapComparePanel::setSmoothing);
+    connect(m_timelinePanel, &TimelinePanel::smoothingChanged, m_dataPanel, &DataPanel::setSmoothing);
+    connect(m_timelinePanel, &TimelinePanel::smoothingChanged, m_comparePanel, &LapComparePanel::setSmoothing);
+    connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_dataPanel, &DataPanel::setSmoothing);
+    connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
@@ -888,6 +897,27 @@ QWidget *MainWindow::createPropertiesPanel()
             }
     };
     connect(m_fontCombo, QOverload<int>::of(&QComboBox::activated), this, changeFont);
+    // typing filters the list by any part of the name; Enter or a click picks one
+    m_fontCombo->setEditable(true);
+    m_fontCombo->setInsertPolicy(QComboBox::NoInsert);
+    m_fontCombo->completer()->setFilterMode(Qt::MatchContains);
+    m_fontCombo->completer()->setCaseSensitivity(Qt::CaseInsensitive);
+    m_fontCombo->completer()->setCompletionMode(QCompleter::PopupCompletion);
+    m_fontCombo->lineEdit()->setPlaceholderText(tr("Type to find a font"));
+    connect(m_fontCombo->lineEdit(), &QLineEdit::editingFinished, this, [this, changeFont]()
+    {
+        const int row = m_fontCombo->findText(m_fontCombo->currentText(), Qt::MatchFixedString);
+        if (row >= 0)
+            {
+                m_fontCombo->setCurrentIndex(row);
+                changeFont();
+            }
+        else
+            {
+                // not a font: back to the one chosen
+                updateProperties();
+            }
+    });
     connect(m_fontWeightCombo, QOverload<int>::of(&QComboBox::activated), this, changeFont);
     connect(m_fontEverywhereCheck, &QCheckBox::clicked, this, changeFont);
     form->addRow(tr("Font:"), m_fontCombo);

@@ -41,6 +41,7 @@ SOURCES += \
     $$PWD/telemetry/datatypes.cpp \
     $$PWD/telemetry/dataedits.cpp \
     $$PWD/telemetry/derivedchannels.cpp \
+    $$PWD/telemetry/smoothing.cpp \
     $$PWD/telemetry/demosession.cpp \
     $$PWD/telemetry/fit/fitdecoder.cpp \
     $$PWD/telemetry/fit/fitimporter.cpp \
@@ -89,6 +90,7 @@ HEADERS += \
     $$PWD/telemetry/datatypes.h \
     $$PWD/telemetry/dataedits.h \
     $$PWD/telemetry/derivedchannels.h \
+    $$PWD/telemetry/smoothing.h \
     $$PWD/telemetry/demosession.h \
     $$PWD/telemetry/fit/fitdecoder.h \
     $$PWD/telemetry/fit/fitimporter.h \

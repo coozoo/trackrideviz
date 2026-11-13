@@ -1,6 +1,8 @@
 #include "timelinepanel.h"
 
+#include "chartsmoothing.h"
 #include "telemetry/channelids.h"
+#include "telemetry/smoothing.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -94,6 +96,7 @@ public:
         m_traceMin = std::numeric_limits<double>::max();
         m_traceMax = std::numeric_limits<double>::lowest();
         const Channel *channel = m_session && !channelId.isEmpty() ? m_session->channel(channelId) : nullptr;
+        m_smoothedTrace = channel && m_smoothing > 0.0 ? Smoothing::movingAverage(*channel, m_smoothing) : Channel();
         if (channel)
             {
                 for (int i = 0; i < channel->count(); ++i)
@@ -104,6 +107,22 @@ public:
                     }
             }
         update();
+    }
+
+    void setSmoothing(double seconds)
+    {
+        m_smoothing = seconds;
+        setTrace(m_traceId, m_display);
+    }
+
+    // the line drawn: smoothed when asked
+    const Channel *traceChannel() const
+    {
+        if (!m_session || m_traceId.isEmpty())
+            {
+                return nullptr;
+            }
+        return m_smoothing > 0.0 && !m_smoothedTrace.isEmpty() ? &m_smoothedTrace : m_session->channel(m_traceId);
     }
 
     void setVideoDuration(double seconds)
@@ -416,7 +435,7 @@ private:
 
     void drawTrace(QPainter &painter, const QRect &area)
     {
-        const Channel *channel = m_traceId.isEmpty() ? nullptr : m_session->channel(m_traceId);
+        const Channel *channel = traceChannel();
         if (!channel || channel->isEmpty())
             {
                 return;
@@ -510,6 +529,8 @@ private:
 
     TelemetrySessionPtr m_session;
     QString m_traceId;
+    double m_smoothing{0.0};
+    Channel m_smoothedTrace;
     ChannelDisplay m_display;
     double m_traceMin{0.0};
     double m_traceMax{0.0};
@@ -537,8 +558,18 @@ TimelinePanel::TimelinePanel(QWidget *parent)
     m_strip->dragOffset = [this](double offset) { emit offsetDragged(offset); };
 
     m_channelCombo = new QComboBox(this);
-    m_channelCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_channelCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_channelCombo->setMinimumContentsLength(10);
     m_channelCombo->setToolTip(tr("The measurement drawn along the timeline"));
+    m_smoothingCombo = ChartSmoothing::makeCombo(this);
+    m_strip->setSmoothing(ChartSmoothing::saved());
+    connect(m_smoothingCombo, QOverload<int>::of(&QComboBox::activated), this, [this]()
+    {
+        const double seconds = m_smoothingCombo->currentData().toDouble();
+        setSmoothing(seconds);
+        ChartSmoothing::save(seconds);
+        emit smoothingChanged(seconds);
+    });
     connect(m_channelCombo, QOverload<int>::of(&QComboBox::activated), this, [this](int)
     {
         const QString id = m_channelCombo->currentData().toString();
@@ -597,20 +628,27 @@ TimelinePanel::TimelinePanel(QWidget *parent)
     m_clearButton = button(tr("Keep all"), tr("Remove all cuts"));
     connect(m_clearButton, &QToolButton::clicked, this, [this]() { emit cutsChanged({}, tr("Remove all cuts")); });
     m_keptLabel = new QLabel(this);
+    // a long text is cut rather than widening the window
+    m_keptLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
+    // two rows: one row of everything would make the window wider than many screens
     QHBoxLayout *top = new QHBoxLayout;
     top->addWidget(new QLabel(tr("Show:"), this));
     top->addWidget(m_channelCombo);
-    top->addSpacing(12);
-    for (QToolButton *b : {markA, markB, m_cutButton, m_keepButton, m_stopsButton, m_clearButton})
-        {
-            top->addWidget(b);
-        }
+    top->addWidget(m_smoothingCombo);
     top->addSpacing(12);
     top->addWidget(m_keptLabel, 1);
+    QHBoxLayout *cuts = new QHBoxLayout;
+    for (QToolButton *b : {markA, markB, m_cutButton, m_keepButton, m_stopsButton, m_clearButton})
+        {
+            cuts->addWidget(b);
+        }
+    cuts->addStretch(1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 4, 6, 4);
+    layout->setSpacing(2);
     layout->addLayout(top);
+    layout->addLayout(cuts);
     layout->addWidget(m_strip, 1);
     updateCutButtons();
 }
@@ -649,6 +687,12 @@ void TimelinePanel::fillChannels()
     const QString id = m_channelCombo->currentData().toString();
     const Channel *channel = m_session ? m_session->channel(id) : nullptr;
     m_strip->setTrace(id, channel ? ChannelFormat::displayFor(*channel, m_units) : ChannelDisplay());
+}
+
+void TimelinePanel::setSmoothing(double seconds)
+{
+    ChartSmoothing::select(m_smoothingCombo, seconds);
+    m_strip->setSmoothing(seconds);
 }
 
 void TimelinePanel::setVideoDuration(double seconds)

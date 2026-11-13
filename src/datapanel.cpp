@@ -1,6 +1,8 @@
 #include "datapanel.h"
 
+#include "chartsmoothing.h"
 #include "telemetry/channelids.h"
+#include "telemetry/smoothing.h"
 
 #include <QAbstractTableModel>
 #include <QHBoxLayout>
@@ -21,6 +23,8 @@
 #include <cmath>
 #include <functional>
 #include <limits>
+#include <memory>
+#include <vector>
 
 namespace
 {
@@ -132,7 +136,8 @@ public:
     {
         QString id;
         ChannelDisplay display;
-        const Channel *shown{nullptr};     // corrected
+        const Channel *shown{nullptr};     // the line: corrected, and smoothed when asked
+        const Channel *actual{nullptr};    // corrected, not smoothed: hover values; faint under a smoothed line
         const Channel *recorded{nullptr};  // as recorded, drawn faintly under it; may be null
         double low{0.0};
         double high{1.0};
@@ -407,28 +412,67 @@ private:
             }
         else
             {
+                // many samples to a pixel: a line through each pixel's mean, and what it spans
+                // (lowest to highest) as a faint band behind it, so a spike is still seen
+                struct Column
+                {
+                    double x, low, high, mean;
+                };
+                QVector<QVector<Column>> runs(1);
                 index = first;
+                double lastSample = index > 0 ? channel->timeAt(index - 1) : m_viewStart;
                 for (int x = 0; x < width() && index < count; ++x)
                     {
                         const double until = m_viewStart + (x + 1) * secondsPerPixel;
                         double low = std::numeric_limits<double>::max();
                         double high = std::numeric_limits<double>::lowest();
+                        double sum = 0.0;
+                        int n = 0;
                         while (index < count && channel->timeAt(index) < until)
                             {
-                                low = std::min(low, channel->valueAtIndex(index));
-                                high = std::max(high, channel->valueAtIndex(index));
-                                ++index;
+                                const double v = channel->valueAtIndex(index++);
+                                low = std::min(low, v);
+                                high = std::max(high, v);
+                                sum += v;
+                                ++n;
                             }
-                        if (low > high)
+                        if (n == 0)
                             {
                                 continue;
                             }
-                        const QPointF a(x, yOf(low));
-                        started ? path.lineTo(a) : path.moveTo(a);
-                        started = true;
-                        if (high != low)
+                        // only a real gap breaks the line, not samples a few seconds apart
+                        const double gap = channel->timeAt(index - n) - lastSample;
+                        if (gap > 30.0 && gap > 4.0 * secondsPerPixel && !runs.last().isEmpty())
                             {
-                                path.lineTo(QPointF(x, yOf(high)));
+                                runs.append(QVector<Column>());
+                            }
+                        lastSample = channel->timeAt(index - 1);
+                        runs.last().append({double(x), yOf(low), yOf(high), yOf(sum / n)});
+                    }
+                QColor band = pen.color();
+                band.setAlphaF(band.alphaF() * 0.25);
+                for (const QVector<Column> &run : runs)
+                    {
+                        if (run.isEmpty())
+                            {
+                                continue;
+                            }
+                        QPainterPath span;
+                        span.moveTo(run.first().x, run.first().high);
+                        for (const Column &c : run)
+                            {
+                                span.lineTo(c.x, c.high);
+                            }
+                        for (int k = int(run.size()) - 1; k >= 0; --k)
+                            {
+                                span.lineTo(run.at(k).x, run.at(k).low);
+                            }
+                        span.closeSubpath();
+                        painter.fillPath(span, band);
+                        path.moveTo(run.first().x, run.first().mean);
+                        for (const Column &c : run)
+                            {
+                                path.lineTo(c.x, c.mean);
                             }
                     }
             }
@@ -461,7 +505,11 @@ private:
         painter.setRenderHint(QPainter::Antialiasing);
         QColor faint = palette().color(QPalette::Text);
         faint.setAlpha(70);
-        if (lane.recorded && !m_edits.isEmpty())
+        if (lane.actual && lane.actual != lane.shown)
+            {
+                drawTrace(painter, lane.actual, lane, area, QPen(faint, 1.0));
+            }
+        else if (lane.recorded && !m_edits.isEmpty())
             {
                 drawTrace(painter, lane.recorded, lane, area, QPen(faint, 1.0, Qt::DashLine));
             }
@@ -485,7 +533,7 @@ private:
             {
                 const Lane &lane = m_lanes.at(i);
                 bool ok = false;
-                const double v = lane.shown ? lane.shown->valueAt(t, &ok) : 0.0;
+                const double v = lane.actual ? lane.actual->valueAt(t, &ok) : 0.0;
                 const QString text = QString("%1  %2").arg(clock(t, true),
                                                            ok ? QString::number(lane.display.convert(v), 'f', lane.display.decimals) : QStringLiteral("--"));
                 const QRect area = laneRect(i);
@@ -574,6 +622,14 @@ DataPanel::DataPanel(QWidget *parent)
     connect(m_removeButton, &QToolButton::clicked, this, &DataPanel::removeSelected);
     m_restoreButton = button(tr("Put back"), tr("Put back samples taken out in the picked stretch"));
     connect(m_restoreButton, &QToolButton::clicked, this, &DataPanel::restoreSelected);
+    m_smoothingCombo = ChartSmoothing::makeCombo(this);
+    m_smoothing = ChartSmoothing::saved();
+    connect(m_smoothingCombo, QOverload<int>::of(&QComboBox::activated), this, [this]()
+    {
+        setSmoothing(m_smoothingCombo->currentData().toDouble());
+        ChartSmoothing::save(m_smoothing);
+        emit smoothingChanged(m_smoothing);
+    });
     m_tableButton = button(tr("Table"), tr("Show the samples of the channel last clicked"));
     m_tableButton->setCheckable(true);
     connect(m_tableButton, &QToolButton::toggled, m_table, &QTableView::setVisible);
@@ -582,6 +638,7 @@ DataPanel::DataPanel(QWidget *parent)
     tools->addWidget(m_removeButton);
     tools->addWidget(m_restoreButton);
     tools->addStretch(1);
+    tools->addWidget(m_smoothingCombo);
     tools->addWidget(m_tableButton);
 
     QWidget *right = new QWidget(this);
@@ -624,6 +681,13 @@ void DataPanel::setEdits(const QVector<DataEdit> &edits)
     m_edits = edits;
     updateCharts();
     showTableOf(m_tableChannel);
+}
+
+void DataPanel::setSmoothing(double seconds)
+{
+    m_smoothing = seconds;
+    ChartSmoothing::select(m_smoothingCombo, seconds);
+    updateCharts();
 }
 
 void DataPanel::setTime(double time)
@@ -675,6 +739,9 @@ void DataPanel::fillChannels()
 void DataPanel::updateCharts()
 {
     QVector<DataChart::Lane> lanes;
+    // the smoothed lines of the last time stay alive until the chart has the new ones
+    std::vector<std::unique_ptr<Channel>> previous;
+    previous.swap(m_smoothed);
     for (int i = 0; m_session && i < m_channelList->count(); ++i)
         {
             if (m_channelList->item(i)->checkState() != Qt::Checked)
@@ -683,16 +750,22 @@ void DataPanel::updateCharts()
                 }
             DataChart::Lane lane;
             lane.id = m_channelList->item(i)->data(Qt::UserRole).toString();
-            lane.shown = m_session->channel(lane.id);
+            lane.actual = m_session->channel(lane.id);
             lane.recorded = m_raw ? m_raw->channel(lane.id) : nullptr;
-            if (!lane.shown)
+            if (!lane.actual)
                 {
                     continue;
                 }
-            lane.display = ChannelFormat::displayFor(*lane.shown, m_units);
-            // the scale of what is shown: a taken-out spike should not squash the rest
-            const double a = lane.display.convert(lane.shown->minValue());
-            const double b = lane.display.convert(lane.shown->maxValue());
+            lane.shown = lane.actual;
+            if (m_smoothing > 0.0)
+                {
+                    m_smoothed.push_back(std::make_unique<Channel>(Smoothing::movingAverage(*lane.actual, m_smoothing)));
+                    lane.shown = m_smoothed.back().get();
+                }
+            lane.display = ChannelFormat::displayFor(*lane.actual, m_units);
+            // the scale of the data, smoothed or not: a taken-out spike should not squash the rest
+            const double a = lane.display.convert(lane.actual->minValue());
+            const double b = lane.display.convert(lane.actual->maxValue());
             lane.low = std::min(a, b);
             lane.high = std::max(a, b);
             if (lane.high <= lane.low)

@@ -29,6 +29,8 @@ public:
     void setSync(const SyncMap &sync);
     void setPosition(double videoSeconds);
     void setCuts(const QVector<TimeRange> &cuts);
+    // seconds the trace is smoothed over; 0 = not
+    void setSmoothing(double seconds);
 
 signals:
     void seekRequested(double videoSeconds);
@@ -36,6 +38,7 @@ signals:
     void offsetDragged(double seconds);
     // the user changed what is cut; `description` names it for undo
     void cutsChanged(const QVector<TimeRange> &cuts, const QString &description);
+    void smoothingChanged(double seconds);
 
 private:
     void fillChannels();
@@ -43,6 +46,7 @@ private:
     void findStops();
 
     QComboBox *m_channelCombo{nullptr};
+    QComboBox *m_smoothingCombo{nullptr};
     QToolButton *m_cutButton{nullptr};
     QToolButton *m_keepButton{nullptr};
     QToolButton *m_clearButton{nullptr};

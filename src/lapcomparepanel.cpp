@@ -1,7 +1,9 @@
 #include "lapcomparepanel.h"
 
 #include "laps/lapengine.h"
+#include "chartsmoothing.h"
 #include "telemetry/channelids.h"
+#include "telemetry/smoothing.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -295,15 +297,28 @@ LapComparePanel::LapComparePanel(QWidget *parent)
 {
     m_chart = new LapCompareChart(this);
     m_channelCombo = new QComboBox(this);
-    m_channelCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    m_channelCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_channelCombo->setMinimumContentsLength(10);
     m_channelCombo->setToolTip(tr("The measurement compared"));
     connect(m_channelCombo, QOverload<int>::of(&QComboBox::activated), this, &LapComparePanel::rebuild);
+    m_smoothingCombo = ChartSmoothing::makeCombo(this);
+    m_smoothing = ChartSmoothing::saved();
+    connect(m_smoothingCombo, QOverload<int>::of(&QComboBox::activated), this, [this]()
+    {
+        setSmoothing(m_smoothingCombo->currentData().toDouble());
+        ChartSmoothing::save(m_smoothing);
+        emit smoothingChanged(m_smoothing);
+    });
     QLabel *hint = new QLabel(tr("Select laps in the Laps panel with Ctrl+click or Shift+click"), this);
     hint->setForegroundRole(QPalette::PlaceholderText);
+    // the panel may be narrower than the hint: it is cut, not the window widened
+    hint->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    hint->setToolTip(hint->text());
 
     QHBoxLayout *top = new QHBoxLayout;
     top->addWidget(new QLabel(tr("Show:"), this));
     top->addWidget(m_channelCombo);
+    top->addWidget(m_smoothingCombo);
     top->addSpacing(12);
     top->addWidget(hint, 1);
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -320,6 +335,13 @@ void LapComparePanel::setSession(const TelemetrySessionPtr &session, const Units
     // laps may be others now
     m_laps.clear();
     fillChannels();
+    rebuild();
+}
+
+void LapComparePanel::setSmoothing(double seconds)
+{
+    m_smoothing = seconds;
+    ChartSmoothing::select(m_smoothingCombo, seconds);
     rebuild();
 }
 
@@ -378,6 +400,20 @@ void LapComparePanel::rebuild()
                     chosen.append(i);
                 }
         }
+    // smoothed: the same session with that one channel evened out
+    TelemetrySessionPtr source = m_session;
+    if (chosen.size() >= 2 && channel && m_smoothing > 0.0)
+        {
+            const Channel smooth = Smoothing::movingAverage(*channel, m_smoothing);
+            auto copy = std::make_shared<TelemetrySession>(*m_session);
+            copy->removeChannel(id);
+            Channel &replaced = copy->channelForWriting(id, smooth.unit(), smooth.interpolation());
+            for (int i = 0; i < smooth.count(); ++i)
+                {
+                    replaced.append(smooth.timeAt(i), smooth.valueAtIndex(i));
+                }
+            source = copy;
+        }
     if (chosen.size() >= 2 && channel)
         {
             // the fastest is what the others are measured against
@@ -395,7 +431,7 @@ void LapComparePanel::rebuild()
                     LapCompareChart::Series s;
                     s.label = tr("Lap %1 (%2)").arg(chosen.at(k) + 1).arg(lapTime(lap.endTime - lap.startTime));
                     s.colour = colours[k % 6];
-                    for (const QPointF &p : LapEngine::byDistance(*m_session, lap, id))
+                    for (const QPointF &p : LapEngine::byDistance(*source, lap, id))
                         {
                             s.values.append(QPointF(p.x(), value.convert(p.y())));
                         }

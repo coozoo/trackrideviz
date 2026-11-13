@@ -1,4 +1,5 @@
 #include "appearance.h"
+#include "gauge/gaugefonts.h"
 #include "mainwindow.h"
 #include "project/project.h"
 #include "settings/appsettings.h"
@@ -20,6 +21,8 @@ int main(int argc, char *argv[])
     a.setApplicationDisplayName("Race Track Visualizer");
     a.setApplicationVersion(APP_VERSION);
     a.setOrganizationName("trackrideviz");
+    // before anything draws gauges in another thread (library pictures, export)
+    GaugeFonts::load();
 
     // .qm files are embedded by CONFIG += embed_translations under :/i18n
     const QString language = AppSettings::language();

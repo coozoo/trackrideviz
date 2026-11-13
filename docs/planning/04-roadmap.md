@@ -173,6 +173,14 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Checked on four camera files: three chapters followed on, a 36:37 break before the fourth
 - Joining videos of different kinds (re-encoding), keeping camera data streams (GPMF) in the join
 
+## Maps (planned)
+- Optional map tiles under the route and lap gauges (OpenStreetMap and other tile servers with their
+  attribution and usage rules; a key where a provider needs one), a choice of style per gauge, tiles
+  cached on disk so export works offline once a ride has been previewed
+- A map in the Laps panel and the Data viewer to place lines and read the route against roads
+- Elevation from a terrain model (e.g. SRTM / Copernicus DEM tiles) for recordings without it or
+  with poor barometric data, as a derived channel the recording's own elevation always wins over
+
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
@@ -188,6 +196,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
   theme colours, kept in projects and templates; Barlow Semi Condensed bundled in all weights
 - Per gauge on the video: own font, size, colours, opacity (later)
+- ✅ Charts (2026-11-14): one smoothing for Data, Timeline and Compare laps (none, 2, 5, 15 s, display
+  only); the Data chart draws each pixel's mean with its span as a faint band
 - 🔄 Own vector set, batch 1 (2026-11-13, `tools/vectorgauges`): Dial, Dial metal, Dial metal arc,
   Dial ring, Dial sport, Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart,
   Tile (one tile for every channel: the icon follows it). Under review

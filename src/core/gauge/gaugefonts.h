@@ -6,7 +6,8 @@ namespace GaugeFonts
 {
 inline constexpr char Family[] = "Barlow Semi Condensed";
 
-// Makes them known to Qt; once is enough, later calls do nothing.
-// Needs a QGuiApplication.
+// Makes them known to Qt; once is enough, later calls do nothing. Needs a
+// QGuiApplication, and works on its thread only (elsewhere it does nothing):
+// call it at start, before gauges are drawn in other threads.
 void load();
 }

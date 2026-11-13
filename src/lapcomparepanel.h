@@ -21,12 +21,19 @@ public:
     void setSession(const TelemetrySessionPtr &session, const Units &units);
     // indexes into the session's laps
     void setLaps(const QVector<int> &laps);
+    // seconds the lines are smoothed over; 0 = not
+    void setSmoothing(double seconds);
+
+signals:
+    void smoothingChanged(double seconds);
 
 private:
     void fillChannels();
     void rebuild();
 
     QComboBox *m_channelCombo{nullptr};
+    QComboBox *m_smoothingCombo{nullptr};
+    double m_smoothing{0.0};
     LapCompareChart *m_chart{nullptr};
     TelemetrySessionPtr m_session;
     Units m_units;
