@@ -215,19 +215,23 @@ def pointer(tip=168, base=75):
 
 
 def glow_needle(tail=38):
-    """Wide at the middle, narrowing to the tip, light fading into the accent, with a tail past the
-    middle; a soft glow for a hub and a faint accent glow round the needle."""
+    """Wide at the middle, narrowing to the tip, light fading into the accent, with a straight strip
+    for a tail past the middle; a soft glow for a hub and an accent glow round the needle, fading
+    towards the tip."""
     def shape(grow):
-        # the needle widened by `grow` on every side
-        return (f"M{fmt(C - 7 - grow)},{C} L{fmt(C - 1.2 - grow)},{fmt(C - 162 - grow)} "
-                f"L{fmt(C + 1.2 + grow)},{fmt(C - 162 - grow)} L{fmt(C + 7 + grow)},{C} "
-                f"L{fmt(C + 4 + grow)},{fmt(C + tail + grow)} L{fmt(C - 4 - grow)},{fmt(C + tail + grow)} Z")
+        # the needle and its tail widened by `grow` on every side
+        return (f"M{fmt(C - 7 - grow)},{fmt(C + tail + grow)} L{fmt(C - 7 - grow)},{C} "
+                f"L{fmt(C - 1.2 - grow)},{fmt(C - 162 - grow)} L{fmt(C + 1.2 + grow)},{fmt(C - 162 - grow)} "
+                f"L{fmt(C + 7 + grow)},{C} L{fmt(C + 7 + grow)},{fmt(C + tail + grow)} Z")
     # SVG Tiny has no blur: a few ever wider, ever fainter copies make the glow
-    glow = "".join(f"<path d='{shape(g)}' fill='@accent' fill-opacity='{o}'/>"
-                   for g, o in ((7, 0.05), (4.5, 0.07), (2.5, 0.1)))
+    glow = "".join(f"<path d='{shape(g)}' fill='url(#needleGlow)' fill-opacity='{o}'/>"
+                   for g, o in ((9, 0.35), (6, 0.5), (3.5, 0.7), (1.5, 1.0)))
     return ("<defs><linearGradient id='glowNeedle' x1='0' y1='1' x2='0' y2='0'>"
             "<stop offset='0' stop-color='#ffffff' stop-opacity='0.95'/>"
             "<stop offset='1' stop-color='@accent2' stop-opacity='@accent2-opacity'/></linearGradient>"
+            "<linearGradient id='needleGlow' x1='0' y1='1' x2='0' y2='0'>"
+            "<stop offset='0' stop-color='@accent' stop-opacity='0.3'/>"
+            "<stop offset='1' stop-color='@accent' stop-opacity='0.04'/></linearGradient>"
             "<radialGradient id='hub' cx='0.5' cy='0.5' r='0.5'>"
             "<stop offset='0' stop-color='@accent' stop-opacity='0.55'/>"
             "<stop offset='1' stop-color='@accent' stop-opacity='0'/></radialGradient></defs>"
@@ -261,6 +265,9 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         d, b = metal_bezel(C, C, 196, 170)
         defs += d
         body = f"<circle cx='{C}' cy='{C}' r='196' fill='#202020'/>" + body + b
+    elif bezel == "shade":
+        # a dark band round the face, mostly see-through
+        body += f"<circle cx='{C}' cy='{C}' r='182' fill='none' stroke='#000000' stroke-opacity='0.2' stroke-width='28'/>"
     elif bezel == "thin metal":
         d, b = thin_metal_bezel(C, C, 196, 168)
         defs += d
@@ -486,7 +493,7 @@ def main():
     round_dial("Dial ring", bezel=None, labels=7, needle_style="outer", unit_caps=True, value_size=72,
                major_length=18, minor_length=14, minor_width=1.2, minor_opacity=0.5, needle_base=75)
     # the value low, clear of the needle, which starts in the middle without a pin
-    round_dial("Dial sport", bezel="thin metal", face="sport", needle_style="glow", inner_disc=False, value_y=284,
+    round_dial("Dial sport", bezel="shade", face="sport", needle_style="glow", inner_disc=False, value_y=284,
                value_size=60, unit_gap=0.6, major_length=18, minor_length=14, minor_width=1.2, minor_opacity=0.5,
                tick_outer=168)
     round_dial("Dial glass", bezel="rim", gloss_on="half", needle_style="taper", inner_disc=False, labels=13,
