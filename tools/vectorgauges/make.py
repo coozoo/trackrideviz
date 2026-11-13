@@ -474,7 +474,8 @@ def main():
                value_y=196, needle_base=75, needle_tip=168, needle_inverted=True, **metal_ticks)
     round_dial("Dial metal arc", sweep="silver+accent", needle_style="pointer", labels=13, label_radius=124,
                label_size=19, value_y=186, second_readout=True, needle_base=75, needle_tip=168, **metal_ticks)
-    round_dial("Dial ring", bezel="ring", labels=7, needle_style="outer", unit_caps=True, value_size=72)
+    round_dial("Dial ring", bezel=None, labels=7, needle_style="outer", unit_caps=True, value_size=72,
+               major_length=18, minor_length=14, minor_width=1.2, minor_opacity=0.5, needle_base=75)
     # the value low, clear of the needle, which starts in the middle without a pin
     round_dial("Dial sport", bezel="flat", face="sport", needle_style="glow", inner_disc=False, value_y=262,
                value_size=60)
