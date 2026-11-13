@@ -20,6 +20,7 @@
 #include "telemetry/telemetryimporter.h"
 #include "videocanvas.h"
 
+#include <QAbstractItemView>
 #include <QApplication>
 #include <QAudioOutput>
 #include <QCloseEvent>
@@ -856,6 +857,15 @@ QWidget *MainWindow::createPropertiesPanel()
                 }
         }
     m_fontCombo->setMaxVisibleItems(20);
+    // some font names are very long: the box stays narrow, the list opens wide enough to read them
+    m_fontCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_fontCombo->setMinimumContentsLength(14);
+    m_fontCombo->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    m_fontCombo->view()->setMinimumWidth(m_fontCombo->view()->sizeHintForColumn(0) + 24);
+    connect(m_fontCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]()
+    {
+        m_fontCombo->setToolTip(tr("The font of the gauges' texts") + "\n" + m_fontCombo->currentText());
+    });
     m_fontWeightCombo = new QComboBox(panel);
     m_fontWeightCombo->addItem(tr("As designed"), 0);
     m_fontWeightCombo->addItem(tr("Light"), 300);
