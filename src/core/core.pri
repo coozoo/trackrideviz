@@ -32,6 +32,7 @@ SOURCES += \
     $$PWD/telemetry/csv/dataprofilelibrary.cpp \
     $$PWD/telemetry/csv/xmldataprofileimporter.cpp \
     $$PWD/telemetry/datatypes.cpp \
+    $$PWD/telemetry/derivedchannels.cpp \
     $$PWD/telemetry/demosession.cpp \
     $$PWD/telemetry/fit/fitdecoder.cpp \
     $$PWD/telemetry/fit/fitimporter.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     $$PWD/telemetry/csv/dataprofilelibrary.h \
     $$PWD/telemetry/csv/xmldataprofileimporter.h \
     $$PWD/telemetry/datatypes.h \
+    $$PWD/telemetry/derivedchannels.h \
     $$PWD/telemetry/demosession.h \
     $$PWD/telemetry/fit/fitdecoder.h \
     $$PWD/telemetry/fit/fitimporter.h \

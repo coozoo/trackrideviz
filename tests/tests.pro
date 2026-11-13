@@ -14,4 +14,5 @@ SUBDIRS = \
     project \
     export \
     template \
-    csv
+    csv \
+    derived

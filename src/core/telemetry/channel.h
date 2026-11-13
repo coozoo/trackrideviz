@@ -26,6 +26,9 @@ public:
     Interpolation interpolation() const { return m_interpolation; }
 
     int count() const { return m_times.size(); }
+    // The i-th sample, 0 <= i < count().
+    double timeAt(int i) const { return m_times.at(i); }
+    double valueAtIndex(int i) const { return m_values.at(i); }
     bool isEmpty() const { return m_times.isEmpty(); }
     double startTime() const;
     double endTime() const;

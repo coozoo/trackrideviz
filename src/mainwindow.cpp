@@ -949,6 +949,14 @@ void MainWindow::updateSourcesInfo()
                     QTreeWidgetItem *item = new QTreeWidgetItem(m_channelTree);
                     item->setData(NameColumn, Qt::UserRole, id);
                     item->setText(NameColumn, display.name);
+                    if (m_session->derivedChannels().contains(id))
+                        {
+                            // not in the file: say so, it is an estimate
+                            QFont font = item->font(NameColumn);
+                            font.setItalic(true);
+                            item->setFont(NameColumn, font);
+                            item->setToolTip(NameColumn, tr("Not recorded: worked out from the other measurements"));
+                        }
                     item->setText(MinColumn, QLocale().toString(display.convert(channel->minValue()), 'f', display.decimals));
                     item->setText(MaxColumn, QLocale().toString(display.convert(channel->maxValue()), 'f', display.decimals));
                     item->setText(UnitColumn, display.unit);

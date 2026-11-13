@@ -70,6 +70,10 @@ public:
     QString sourceInfo() const { return m_sourceInfo; }
     void setSourceInfo(const QString &info) { m_sourceInfo = info; }
 
+    // Channels worked out from others (DerivedChannels), not recorded.
+    QStringList derivedChannels() const { return m_derived; }
+    void addDerivedChannel(const QString &id) { m_derived.append(id); }
+
     // Non-fatal problems met while importing (bad CRC, truncated file...).
     QStringList warnings() const { return m_warnings; }
     void addWarning(const QString &warning) { m_warnings.append(warning); }
@@ -84,6 +88,7 @@ private:
     bool m_hasUtcOffset{false};
     int m_utcOffsetSeconds{0};
     QString m_sourceInfo;
+    QStringList m_derived;
     QStringList m_warnings;
 };
 

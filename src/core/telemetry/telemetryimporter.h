@@ -18,6 +18,9 @@ public:
     static QString fileDialogFilter();
 
     // Returns nullptr on failure and sets *error (if given) to a user-facing message.
-    // Blocking; safe to call from a worker thread.
+    // Blocking; safe to call from a worker thread. What the file lacks and
+    // can be worked out is added (DerivedChannels).
     static TelemetrySessionPtr load(const QString &path, QString *error = nullptr);
+    // What the file holds, nothing added.
+    static TelemetrySessionPtr loadRecorded(const QString &path, QString *error = nullptr);
 };

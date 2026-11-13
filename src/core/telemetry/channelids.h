@@ -17,7 +17,12 @@ inline constexpr char HeartRate[] = "heartRate";       // bpm
 inline constexpr char Cadence[] = "cadence";           // rpm
 inline constexpr char Power[] = "power";               // W
 inline constexpr char Temperature[] = "temperature";   // degrees Celsius
-// Acceleration in g. Nothing produces these yet; gauges can already be bound to them.
+// Worked out from the others when a recording lacks them (derivedchannels.h)
+inline constexpr char GradeAngle[] = "gradeAngle";     // degrees, + uphill
+inline constexpr char VerticalSpeed[] = "verticalSpeed"; // m/s, + up
+inline constexpr char TotalAscent[] = "totalAscent";   // m since the start
+inline constexpr char TotalDescent[] = "totalDescent"; // m since the start
+// Acceleration in g, recorded or worked out from speed and heading.
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
 inline constexpr char GForceVertical[] = "gForceVertical";         // + up

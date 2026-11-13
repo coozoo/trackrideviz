@@ -115,6 +115,20 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("Vertical G"), "g", 1.0, 0.0, 2};
         }
+    if (id == ChannelId::GradeAngle)
+        {
+            return {tr("Grade angle"), "°", 1.0, 0.0, 1};
+        }
+    if (id == ChannelId::VerticalSpeed)
+        {
+            return imperial ? ChannelDisplay{tr("Vertical speed"), tr("ft/min"), kMetresToFeet * 60.0, 0.0, 0}
+                   : ChannelDisplay{tr("Vertical speed"), tr("m/s"), 1.0, 0.0, 1};
+        }
+    if (id == ChannelId::TotalAscent || id == ChannelId::TotalDescent)
+        {
+            const QString name = id == ChannelId::TotalAscent ? tr("Total ascent") : tr("Total descent");
+            return imperial ? ChannelDisplay{name, tr("ft"), kMetresToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
+        }
     if (id == QLatin1String("gForceLatLon") || id == QLatin1String("gForceLatVert"))
         {
             return {tr("G-force"), "g", 1.0, 0.0, 2};

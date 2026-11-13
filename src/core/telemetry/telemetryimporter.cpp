@@ -2,6 +2,7 @@
 
 #include "csv/csvimporter.h"
 #include "csv/dataprofilelibrary.h"
+#include "derivedchannels.h"
 #include "fit/fitimporter.h"
 #include "gpximporter.h"
 
@@ -29,6 +30,11 @@ QString TelemetryImporter::fileDialogFilter()
 }
 
 TelemetrySessionPtr TelemetryImporter::load(const QString &path, QString *error)
+{
+    return DerivedChannels::complete(loadRecorded(path, error));
+}
+
+TelemetrySessionPtr TelemetryImporter::loadRecorded(const QString &path, QString *error)
 {
     const QString suffix = QFileInfo(path).suffix().toLower();
     if (suffix == "fit")

@@ -31,11 +31,13 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="68"/>
+        <location filename="../src/core/units/units.cpp" line="130"/>
         <source>ft</source>
         <translation>фут</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="69"/>
+        <location filename="../src/core/units/units.cpp" line="130"/>
         <source>m</source>
         <translation>м</translation>
     </message>
@@ -123,6 +125,37 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="120"/>
+        <source>Grade angle</source>
+        <translation>Кут нахилу</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="124"/>
+        <location filename="../src/core/units/units.cpp" line="125"/>
+        <source>Vertical speed</source>
+        <translation>Вертикальна швидкість</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="124"/>
+        <source>ft/min</source>
+        <translation>фут/хв</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="125"/>
+        <source>m/s</source>
+        <translation>м/с</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="129"/>
+        <source>Total ascent</source>
+        <translation>Загальний підйом</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="129"/>
+        <source>Total descent</source>
+        <translation>Загальний спуск</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="134"/>
         <source>G-force</source>
         <translation>Перевантаження</translation>
     </message>
@@ -1161,8 +1194,13 @@ Open them again from where they are now and save the project.</source>
         <source>Warnings:</source>
         <translation>Попередження:</translation>
     </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="958"/>
+        <source>Not recorded: worked out from the other measurements</source>
+        <translation>Не записано: обчислено з інших вимірів</translation>
+    </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="959"/>
+        <location filename="../src/mainwindow.cpp" line="967"/>
         <source>%1: %n samples</source>
         <translation>
             <numerusform>%1: %n відлік</numerusform>
@@ -1171,12 +1209,12 @@ Open them again from where they are now and save the project.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1011"/>
+        <location filename="../src/mainwindow.cpp" line="1019"/>
         <source>About</source>
         <translation>Про програму</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1012"/>
+        <location filename="../src/mainwindow.cpp" line="1020"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;Ліцензія GNU GPL v3.</translation>
     </message>
@@ -1452,12 +1490,12 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>TelemetryImporter</name>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="28"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="29"/>
         <source>Telemetry files (%1);;All files (*)</source>
         <translation>Файли телеметрії (%1);;Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="48"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="54"/>
         <source>%1: unsupported file type. Supported: %2.</source>
         <translation>%1: непідтримуваний тип файлу. Підтримуються: %2.</translation>
     </message>

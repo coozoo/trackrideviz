@@ -121,7 +121,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Data profiles are not imported yet (M5)
 
 ### M3c — what is left
-- G-force has no data yet (derived channels are M4): the ball rests in the middle
+- ✅ G-force comes from GPS now (M4); without data a part rests at 0, not at its scale's start
 - Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
 - A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
 - Templates are placed for the video open when applied; a later video of another shape keeps
@@ -129,9 +129,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Saving the current layout as a template; units a single gauge shows
 
 ## M4 — Track day features
+- ✅ Derived channels (2026-11-13, `DerivedChannels`), for every source, only where the recording
+  lacks them: distance from positions (glitches skipped), speed from distance, heading between
+  positions a moment apart (held while standing), grade over ±20 m of distance from smoothed
+  elevation, grade angle, total ascent/descent (2 m hysteresis), vertical speed, G forwards from the
+  change of speed and sideways from speed × turn rate. Even grid of 0.1-1 s, nothing inside pauses.
+  Checked on the IGS520 ride: 3 % read on a climb of 3 %, ascent = descent = 249 m on a round trip.
+  Shown in italics in the channel list
 - Lap engine: start/finish on map, sectors, lap table, best/previous/delta channels
 - Map & Laps view, lap markers on the timeline
-- Derived channels: G from GPS, distance, grade, smoothing, math
 - Data viewer + charts; timeline telemetry strip and drag-to-sync
 
 ## M5 — More data
