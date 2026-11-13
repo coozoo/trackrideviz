@@ -228,7 +228,8 @@ def glow_needle(tail=38):
                    for g, o in ((9, 0.35), (6, 0.5), (3.5, 0.7), (1.5, 1.0)))
     return ("<defs><linearGradient id='glowNeedle' x1='0' y1='1' x2='0' y2='0'>"
             "<stop offset='0' stop-color='#ffffff' stop-opacity='0.95'/>"
-            "<stop offset='1' stop-color='@accent2' stop-opacity='@accent2-opacity'/></linearGradient>"
+            "<stop offset='0.35' stop-color='#ffffff' stop-opacity='0.95'/>"
+            "<stop offset='1' stop-color='@accent' stop-opacity='@accent-opacity'/></linearGradient>"
             "<linearGradient id='needleGlow' x1='0' y1='1' x2='0' y2='0'>"
             "<stop offset='0' stop-color='@accent' stop-opacity='0.3'/>"
             "<stop offset='1' stop-color='@accent' stop-opacity='0.04'/></linearGradient>"
@@ -266,8 +267,12 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         defs += d
         body = f"<circle cx='{C}' cy='{C}' r='196' fill='#202020'/>" + body + b
     elif bezel == "shade":
-        # a dark band round the face, mostly see-through
-        body += f"<circle cx='{C}' cy='{C}' r='182' fill='none' stroke='#000000' stroke-opacity='0.2' stroke-width='28'/>"
+        # a black ring round the face, and outside it a dark band, darker at the top
+        defs += ("<linearGradient id='shade' x1='0' y1='0' x2='0' y2='1'>"
+                 "<stop offset='0' stop-color='#000000' stop-opacity='0.5'/>"
+                 "<stop offset='1' stop-color='#000000' stop-opacity='0.08'/></linearGradient>")
+        body += (f"<circle cx='{C}' cy='{C}' r='172.5' fill='none' stroke='#000000' stroke-width='9'/>"
+                 f"<path d='{ring_path(C, C, 186.5, 177, 0, 359.99)}' fill='url(#shade)'/>")
     elif bezel == "thin metal":
         d, b = thin_metal_bezel(C, C, 196, 168)
         defs += d
