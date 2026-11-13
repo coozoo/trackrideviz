@@ -8,6 +8,7 @@
 
 #include "appearance.h"
 #include "exportdialog.h"
+#include "gauge/gaugefonts.h"
 #include "gauge/gaugelibrary.h"
 #include "gaugelibrarypanel.h"
 #include "overlay/templatelibrary.h"
@@ -22,7 +23,9 @@
 #include <QApplication>
 #include <QAudioOutput>
 #include <QCloseEvent>
+#include <QCheckBox>
 #include <QColorDialog>
+#include <QFontDatabase>
 #include <QComboBox>
 #include <QDir>
 #include <QDockWidget>
@@ -822,7 +825,7 @@ QWidget *MainWindow::createPropertiesPanel()
     QFormLayout *form = new QFormLayout(panel);
     form->addRow(tr("Selected gauge shows:"), m_channelCombo);
     form->addRow(QString(), m_removeGaugeButton);
-    QLabel *coloursTitle = new QLabel(tr("Colours of all gauges"), panel);
+    QLabel *coloursTitle = new QLabel(tr("Colours and font of all gauges"), panel);
     QFont bold = coloursTitle->font();
     bold.setBold(true);
     coloursTitle->setFont(bold);
@@ -838,6 +841,48 @@ QWidget *MainWindow::createPropertiesPanel()
             m_themeButtons.append(button);
             form->addRow(tr(kThemeRoles[role].label) + ":", button);
         }
+
+    GaugeFonts::load();
+    m_fontCombo = new QComboBox(panel);
+    m_fontCombo->setToolTip(tr("The font of the gauges' texts"));
+    m_fontCombo->addItem(tr("As each gauge is designed"), QString());
+    m_fontCombo->addItem(tr("%1 (comes with the program)").arg(GaugeFonts::Family), QString(GaugeFonts::Family));
+    m_fontCombo->insertSeparator(m_fontCombo->count());
+    for (const QString &family : QFontDatabase::families())
+        {
+            if (family != QLatin1String(GaugeFonts::Family) && !QFontDatabase::isPrivateFamily(family))
+                {
+                    m_fontCombo->addItem(family, family);
+                }
+        }
+    m_fontCombo->setMaxVisibleItems(20);
+    m_fontWeightCombo = new QComboBox(panel);
+    m_fontWeightCombo->addItem(tr("As designed"), 0);
+    m_fontWeightCombo->addItem(tr("Light"), 300);
+    m_fontWeightCombo->addItem(tr("Regular"), 400);
+    m_fontWeightCombo->addItem(tr("Medium"), 500);
+    m_fontWeightCombo->addItem(tr("Semibold"), 600);
+    m_fontWeightCombo->addItem(tr("Bold"), 700);
+    m_fontWeightCombo->setToolTip(tr("One weight for every text; as designed keeps bold values and lighter labels"));
+    m_fontEverywhereCheck = new QCheckBox(tr("Also gauges with a font of their own"), panel);
+    m_fontEverywhereCheck->setToolTip(tr("Imported gauges often name a font (Arial...); with this they use the one chosen here too"));
+    auto changeFont = [this]()
+    {
+        OverlayState after{m_project.overlay, m_project.theme};
+        after.theme.font = m_fontCombo->currentData().toString();
+        after.theme.fontWeight = m_fontWeightCombo->currentData().toInt();
+        after.theme.fontEverywhere = m_fontEverywhereCheck->isChecked();
+        if (after.theme != m_project.theme)
+            {
+                changeOverlay(tr("Change gauge font"), after);
+            }
+    };
+    connect(m_fontCombo, QOverload<int>::of(&QComboBox::activated), this, changeFont);
+    connect(m_fontWeightCombo, QOverload<int>::of(&QComboBox::activated), this, changeFont);
+    connect(m_fontEverywhereCheck, &QCheckBox::clicked, this, changeFont);
+    form->addRow(tr("Font:"), m_fontCombo);
+    form->addRow(tr("Weight:"), m_fontWeightCombo);
+    form->addRow(QString(), m_fontEverywhereCheck);
     return panel;
 }
 
@@ -881,6 +926,22 @@ void MainWindow::updateProperties()
             m_themeButtons.at(role)->setIcon(QIcon(swatch));
             m_themeButtons.at(role)->setText(color.name(color.alpha() < 255 ? QColor::HexArgb : QColor::HexRgb));
         }
+    {
+        const QSignalBlocker fontBlocker(m_fontCombo);
+        const QSignalBlocker weightBlocker(m_fontWeightCombo);
+        const QSignalBlocker everywhereBlocker(m_fontEverywhereCheck);
+        int row = m_fontCombo->findData(m_project.theme.font);
+        if (row < 0)
+            {
+                // a font this computer does not have: still shown as the one chosen
+                m_fontCombo->addItem(m_project.theme.font, m_project.theme.font);
+                row = m_fontCombo->count() - 1;
+            }
+        m_fontCombo->setCurrentIndex(row);
+        m_fontWeightCombo->setCurrentIndex(std::max(0, m_fontWeightCombo->findData(m_project.theme.fontWeight)));
+        m_fontEverywhereCheck->setChecked(m_project.theme.fontEverywhere);
+        m_fontEverywhereCheck->setEnabled(!m_project.theme.font.isEmpty() || m_project.theme.fontWeight > 0);
+    }
 }
 
 void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session,

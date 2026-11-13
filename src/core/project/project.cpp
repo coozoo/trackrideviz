@@ -71,13 +71,7 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
         {"data", toStored(project.telemetryPath, dir)},
         {"sync", QJsonObject{{"offset", project.syncOffset}, {"manual", project.syncIsManual}}},
         {"overlay", overlay},
-        {"theme", QJsonObject{
-                {"foreground", project.theme.foreground.name(QColor::HexArgb)},
-                {"background", project.theme.background.name(QColor::HexArgb)},
-                {"accent", project.theme.accent.name(QColor::HexArgb)},
-                {"accent2", project.theme.accent2.name(QColor::HexArgb)},
-            }
-        },
+        {"theme", project.theme.toJson()},
     };
     if (project.startFinish.isValid())
         {
@@ -207,19 +201,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                     loaded.overlay.append(item);
                 }
         }
-    const QJsonObject theme = root.value("theme").toObject();
-    auto readColor = [&theme](const char *key, QColor *color)
-    {
-        const QColor stored(theme.value(QLatin1String(key)).toString());
-        if (stored.isValid())
-            {
-                *color = stored;
-            }
-    };
-    readColor("foreground", &loaded.theme.foreground);
-    readColor("background", &loaded.theme.background);
-    readColor("accent", &loaded.theme.accent);
-    readColor("accent2", &loaded.theme.accent2);
+    loaded.theme = GaugeTheme::fromJson(root.value("theme").toObject());
     *project = loaded;
     return true;
 }

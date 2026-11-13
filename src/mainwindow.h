@@ -9,6 +9,7 @@
 
 class QAction;
 class QAudioOutput;
+class QCheckBox;
 class QComboBox;
 class QDockWidget;
 class QDoubleSpinBox;
@@ -146,6 +147,9 @@ private:
     QComboBox *m_channelCombo{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
     QVector<QPushButton *> m_themeButtons;
+    QComboBox *m_fontCombo{nullptr};
+    QComboBox *m_fontWeightCombo{nullptr};
+    QCheckBox *m_fontEverywhereCheck{nullptr};
     QUndoStack *m_undoStack{nullptr};
     // The project differs from what is on disk in a way worth asking about.
     bool m_modified{false};

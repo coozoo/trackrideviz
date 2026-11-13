@@ -16,6 +16,7 @@ SOURCES += \
     $$PWD/gauge/channelicons.cpp \
     $$PWD/gauge/gaugefile.cpp \
     $$PWD/gauge/gaugefonts.cpp \
+    $$PWD/gauge/gaugetheme.cpp \
     $$PWD/gauge/gaugelibrary.cpp \
     $$PWD/gauge/gaugerenderer.cpp \
     $$PWD/gauge/metricrange.cpp \

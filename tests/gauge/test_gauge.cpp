@@ -1,5 +1,6 @@
 #include "gauge/builtingauges.h"
 #include "gauge/gaugefile.h"
+#include "gauge/gaugefonts.h"
 #include "gauge/gaugelibrary.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/metricrange.h"
@@ -8,6 +9,7 @@
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 
+#include <QJsonObject>
 #include <QPainter>
 #include <QTemporaryDir>
 #include <QtTest>
@@ -335,6 +337,53 @@ private slots:
         // "original" keeps the picture as it is
         const QImage untouched = draw(imageGauge(filled(Qt::magenta), QRectF(20, 20, 60, 60)), 0.0);
         QCOMPARE(untouched.pixelColor(50, 50), QColor(Qt::magenta));
+    }
+
+    void themeFontAndWeight()
+    {
+        // a value in big letters
+        Gauge gauge;
+        gauge.size = QSizeF(200, 100);
+        GaugeComponent value;
+        value.type = GaugeComponent::Text;
+        value.autoText = GaugeComponent::FixedText;
+        value.text = "888";
+        value.frame = QRectF(100, 50, 0, 0);
+        value.alignment = Qt::AlignCenter;
+        value.fontSize = 70;
+        gauge.components << value;
+        auto ink = [&gauge](const GaugeTheme &theme)
+        {
+            const BoundGauge bound(gauge, ChannelId::Speed, nullptr, Units(), theme);
+            QImage image(200, 100, QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);
+            QPainter painter(&image);
+            bound.render(painter, QRectF(0, 0, 200, 100), 0.0);
+            painter.end();
+            int count = 0;
+            for (int y = 0; y < image.height(); ++y)
+                {
+                    for (int x = 0; x < image.width(); ++x)
+                        {
+                            count += qAlpha(image.pixel(x, y)) > 128;
+                        }
+                }
+            return count;
+        };
+        GaugeTheme light;
+        light.font = GaugeFonts::Family;
+        light.fontWeight = 300;
+        GaugeTheme bold = light;
+        bold.fontWeight = 700;
+        QVERIFY2(ink(bold) > ink(light) * 1.3, qPrintable(QString("%1 %2").arg(ink(bold)).arg(ink(light))));
+        // a gauge that names a font of its own keeps it, and its weight, until told otherwise
+        gauge.components[0].fontFamily = "DejaVu Serif";
+        QCOMPARE(ink(bold), ink(GaugeTheme()));
+        bold.fontEverywhere = true;
+        QVERIFY(ink(bold) != ink(GaugeTheme()));
+        // kept with projects and templates
+        QCOMPARE(GaugeTheme::fromJson(bold.toJson()), bold);
+        QCOMPARE(GaugeTheme::fromJson(QJsonObject()), GaugeTheme());
     }
 
     void gaugeStartsOnWhatItWasMadeFor()

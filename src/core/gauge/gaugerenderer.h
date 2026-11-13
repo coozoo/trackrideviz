@@ -172,6 +172,7 @@ private:
     const Channel *m_lon{nullptr};
     double m_lonScale{1.0};
     TelemetrySessionPtr m_session;        // keeps the channels alive
+    GaugeTheme m_theme;                   // its font, for texts
     QVector<Metric> m_metrics;
     QHash<QString, int> m_metricIndex;
     QVector<Node> m_nodes;

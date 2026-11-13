@@ -44,6 +44,13 @@ QColor themeColor(const GaugeColor &color, const GaugeTheme &theme)
 // so on (the SVG renderer reads no transparency in a colour itself).
 QByteArray themedSvg(QByteArray svg, const GaugeTheme &theme)
 {
+    // texts in a drawing follow the theme's font as other texts do
+    if (!theme.font.isEmpty())
+        {
+            svg.replace(QByteArray("font-family='") + GaugeFonts::Family + "'", "font-family='" + theme.font.toUtf8() + "'");
+        }
+    // bold in our drawings is semibold, as in our texts, unless the theme says
+    svg.replace("font-weight='bold'", "font-weight='" + QByteArray::number(theme.fontWeight > 0 ? theme.fontWeight : 600) + "'");
     const QPair<const char *, QColor> colours[] = {{"foreground", theme.foreground}, {"background", theme.background},
         {"accent2", theme.accent2}, {"accent", theme.accent}
     };
@@ -340,16 +347,36 @@ QPainterPath shapePath(const GaugeComponent &c)
     return path;
 }
 
-QFont fontOf(const QPainter &painter, const GaugeComponent &c)
+// The font a text is drawn in: as the gauge says, unless the theme says otherwise.
+QFont fontOf(const QPainter &painter, const GaugeComponent &c, const GaugeTheme &theme)
 {
     QFont font = painter.font();
-    if (!c.fontFamily.isEmpty())
+    QString family = c.fontFamily;
+    // gauges naming a font of their own keep it, and its weights, unless told otherwise
+    const bool themed = family.isEmpty() || family == QLatin1String(GaugeFonts::Family) || theme.fontEverywhere;
+    if (!theme.font.isEmpty() && themed)
         {
-            font.setFamily(c.fontFamily);
+            family = theme.font;
+        }
+    if (!family.isEmpty())
+        {
+            font.setFamily(family);
         }
     font.setPixelSize(std::max(1, int(std::lround(c.fontSize))));
-    font.setBold(c.bold);
     font.setItalic(c.italic);
+    if (theme.fontWeight > 0 && themed)
+        {
+            font.setWeight(QFont::Weight(theme.fontWeight));
+        }
+    else if (family == QLatin1String(GaugeFonts::Family))
+        {
+            // our gauges are designed in medium, and semibold for bold
+            font.setWeight(c.bold ? QFont::DemiBold : QFont::Medium);
+        }
+    else
+        {
+            font.setBold(c.bold);
+        }
     return font;
 }
 
@@ -402,6 +429,7 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     : m_size(gauge.size)
     , m_channel(channel)
     , m_session(session)
+    , m_theme(theme)
 {
     // before any text of a gauge is measured
     GaugeFonts::load();
@@ -1333,7 +1361,7 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
             return;
         }
 
-    painter.setFont(fontOf(painter, component));
+    painter.setFont(fontOf(painter, component, m_theme));
     painter.setPen(node.color);
     if (component.boxed)
         {
@@ -1420,7 +1448,7 @@ void BoundGauge::drawDial(QPainter &painter, const Node &node) const
         }
     // ticks reach in from the arc's inner edge
     const double edge = s.radius - s.arcWidth / 2.0;
-    painter.setFont(fontOf(painter, c));
+    painter.setFont(fontOf(painter, c, m_theme));
     for (const GaugeTicks *ticks : {&s.minor, &s.major})
         {
             if (ticks->unit <= 0.0 || s.maxValue < s.minValue)
@@ -1472,7 +1500,7 @@ void BoundGauge::drawTape(QPainter &painter, const Node &node, bool known, doubl
         {
             value = std::clamp(value, s.minValue, s.maxValue);
         }
-    painter.setFont(fontOf(painter, c));
+    painter.setFont(fontOf(painter, c, m_theme));
     const QFontMetricsF metrics(painter.font());
     // the scale starts half a number in, so the end numbers fit
     const double labelWidth = std::max(metrics.horizontalAdvance(scaleNumber(s.minValue)),

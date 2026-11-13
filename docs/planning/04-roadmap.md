@@ -185,6 +185,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
   with its gauges on; Export and Import in the library panel. Built-in gauges and templates marked
   with a padlock. Next: file associations (MIME types) so a double click imports
+- ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
+  theme colours, kept in projects and templates; Barlow Semi Condensed bundled in all weights
+- Per gauge on the video: own font, size, colours, opacity (later)
 - 🔄 Own vector set, batch 1 (2026-11-13, `tools/vectorgauges`): Dial, Dial metal, Dial metal arc,
   Dial ring, Dial sport, Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart,
   Tile (one tile for every channel: the icon follows it). Under review

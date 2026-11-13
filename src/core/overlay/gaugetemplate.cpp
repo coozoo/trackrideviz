@@ -71,13 +71,7 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
         {"version", kVersion},
         {"name", t.name},
         {"category", t.category},
-        {"theme", QJsonObject{
-                {"foreground", t.theme.foreground.name(QColor::HexArgb)},
-                {"background", t.theme.background.name(QColor::HexArgb)},
-                {"accent", t.theme.accent.name(QColor::HexArgb)},
-                {"accent2", t.theme.accent2.name(QColor::HexArgb)},
-            }
-        },
+        {"theme", t.theme.toJson()},
         {"items", items},
     };
     return QJsonDocument(root).toJson(QJsonDocument::Indented);
@@ -112,19 +106,7 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
     GaugeTemplate loaded;
     loaded.name = root.value("name").toString();
     loaded.category = root.value("category").toString();
-    const QJsonObject theme = root.value("theme").toObject();
-    auto readColor = [&theme](const char *key, QColor *color)
-    {
-        const QColor stored(theme.value(QLatin1String(key)).toString());
-        if (stored.isValid())
-            {
-                *color = stored;
-            }
-    };
-    readColor("foreground", &loaded.theme.foreground);
-    readColor("background", &loaded.theme.background);
-    readColor("accent", &loaded.theme.accent);
-    readColor("accent2", &loaded.theme.accent2);
+    loaded.theme = GaugeTheme::fromJson(root.value("theme").toObject());
     for (const QJsonValue &value : root.value("items").toArray())
         {
             const QJsonObject object = value.toObject();
