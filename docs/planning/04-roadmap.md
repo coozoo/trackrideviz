@@ -155,6 +155,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   distance into the lap (a chosen channel), with the time each is behind the fastest of them at the
   same point below; hovering reads all of them at one place
 - Data viewer + charts
+- Cut and join (an editor in the spirit of simple video cutters): several videos joined into one
+  timeline, parts marked out (standing at lights, a stop), keyframe-aligned cuts copied without
+  re-encoding where possible, re-encoded around the cut otherwise. The data is cut the same way,
+  so gauges stay in sync; laps, distance and timers count only what is kept. Marks can be
+  suggested from the data (speed ~0 for longer than N s). Kept in the project, done at export
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
@@ -163,6 +168,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Multiple data sources per project
 
 ## M6 — Gauge editor
+- Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
+  job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
+  rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a
+  local page showing the imported gauge and ours side by side with the same sample data
 - Built-in editor (components tree, properties, live preview with sample data)
 - Path shapes; G-plot with a tail, lap table, sector bar
 
