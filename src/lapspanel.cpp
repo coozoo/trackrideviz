@@ -13,6 +13,7 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 
@@ -237,8 +238,19 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_lapTable->setRootIsDecorated(false);
     m_lapTable->setUniformRowHeights(true);
     m_lapTable->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    m_lapTable->setToolTip(tr("Double-click a lap to go to its start"));
+    m_lapTable->setToolTip(tr("Double-click a lap to go to its start; select several to compare them"));
     connect(m_lapTable, &QTreeWidget::itemActivated, this, &LapsPanel::lapActivated);
+    m_lapTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    connect(m_lapTable, &QTreeWidget::itemSelectionChanged, this, [this]()
+    {
+        QVector<int> laps;
+        for (const QTreeWidgetItem *item : m_lapTable->selectedItems())
+            {
+                laps.append(m_lapTable->indexOfTopLevelItem(const_cast<QTreeWidgetItem *>(item)));
+            }
+        std::sort(laps.begin(), laps.end());
+        emit lapsSelected(laps);
+    });
 
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addWidget(m_placeButton);

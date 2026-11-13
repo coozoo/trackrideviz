@@ -32,6 +32,8 @@ signals:
     void removeSectorsRequested();
     // Telemetry time to show: a lap was double-clicked.
     void seekRequested(double time);
+    // the laps selected in the table, as indexes into the session's laps
+    void lapsSelected(const QVector<int> &laps);
 
 private:
     void placeToggled(QPushButton *button, bool checked);

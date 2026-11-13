@@ -103,10 +103,11 @@ QVector<QPointF> profile(const Channel &distance, double start, double end, doub
 {
     QVector<QPointF> points;
     const double d0 = distance.valueAt(start);
-    for (double t = start; t <= end; t += 0.25)
+    for (double t = start; t < end; t += 0.25)
         {
             points.append(QPointF((distance.valueAt(t) - d0) / length, t - start));
         }
+    points.append(QPointF(1.0, end - start));
     return points;
 }
 
@@ -287,6 +288,61 @@ double LapEngine::nearestTime(const TelemetrySession &session, double la, double
             *distance = time >= 0.0 ? best : -1.0;
         }
     return time;
+}
+
+QVector<QPointF> LapEngine::byDistance(const TelemetrySession &session, const TelemetrySession::Lap &lap,
+                                       const QString &channelId, double step)
+{
+    QVector<QPointF> points;
+    const Channel *distance = session.channel(ChannelId::Distance);
+    const Channel *channel = session.channel(channelId);
+    if (!distance || distance->isEmpty() || !channel || channel->isEmpty() || lap.endTime <= lap.startTime)
+        {
+            return points;
+        }
+    // through the lap in small steps of time, a point each time `step` more metres are done
+    const double d0 = distance->valueAt(lap.startTime);
+    double next = 0.0;
+    for (double t = lap.startTime; t <= lap.endTime; t += 0.1)
+        {
+            const double into = distance->valueAt(t) - d0;
+            if (into >= next)
+                {
+                    bool ok = false;
+                    const double value = channel->valueAt(t, &ok);
+                    if (ok)
+                        {
+                            points.append(QPointF(into, value));
+                        }
+                    next = (std::floor(into / step) + 1.0) * step;
+                }
+        }
+    return points;
+}
+
+QVector<QPointF> LapEngine::deltaByDistance(const TelemetrySession &session, const TelemetrySession::Lap &reference,
+        const TelemetrySession::Lap &lap, double step)
+{
+    QVector<QPointF> points;
+    const Channel *distance = session.channel(ChannelId::Distance);
+    if (!distance || distance->isEmpty())
+        {
+            return points;
+        }
+    const double referenceLength = distance->valueAt(reference.endTime) - distance->valueAt(reference.startTime);
+    const double length = distance->valueAt(lap.endTime) - distance->valueAt(lap.startTime);
+    if (referenceLength <= 0.0 || length <= 0.0)
+        {
+            return points;
+        }
+    const QVector<QPointF> referenceProfile = profile(*distance, reference.startTime, reference.endTime, referenceLength);
+    const QVector<QPointF> lapProfile = profile(*distance, lap.startTime, lap.endTime, length);
+    for (double into = 0.0; into <= referenceLength; into += step)
+        {
+            const double fraction = into / referenceLength;
+            points.append(QPointF(into, timeAt(lapProfile, fraction) - timeAt(referenceProfile, fraction)));
+        }
+    return points;
 }
 
 TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const StartFinishLine &line,

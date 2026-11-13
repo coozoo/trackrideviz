@@ -151,7 +151,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   channel, laps as bands with sector ticks (the best outlined), pauses hatched and the playhead.
   Click or drag to go there, wheel to zoom about the mouse (Shift: pan), Ctrl+drag slides the data
   against the video (sets the offset)
-- Laps compared side by side
+- ✅ Laps compared side by side (2026-11-13): laps selected in the lap table are drawn against
+  distance into the lap (a chosen channel), with the time each is behind the fastest of them at the
+  same point below; hovering reads all of them at one place
 - Data viewer + charts
 
 ## M5 — More data

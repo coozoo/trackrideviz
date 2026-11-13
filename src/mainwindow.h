@@ -19,6 +19,7 @@ class QPushButton;
 class QUndoStack;
 class GaugeLibraryPanel;
 class QTreeWidget;
+class LapComparePanel;
 class LapsPanel;
 class TimelinePanel;
 class QVideoSink;
@@ -131,6 +132,8 @@ private:
     GaugeLibraryPanel *m_libraryPanel{nullptr};
     LapsPanel *m_lapsPanel{nullptr};
     TimelinePanel *m_timelinePanel{nullptr};
+    QDockWidget *m_compareDock{nullptr};
+    LapComparePanel *m_comparePanel{nullptr};
     QDockWidget *m_lapsDock{nullptr};
     QComboBox *m_channelCombo{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};

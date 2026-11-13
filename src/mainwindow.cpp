@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 
+#include "lapcomparepanel.h"
 #include "lapspanel.h"
 #include "timelinepanel.h"
 
@@ -248,6 +249,11 @@ void MainWindow::createDocks()
     });
     // the spin box does what typing the value would
     connect(m_timelinePanel, &TimelinePanel::offsetDragged, m_offsetSpin, &QDoubleSpinBox::setValue);
+    m_compareDock = addPlaceholderDock("lapCompareDock", tr("Compare laps"), Qt::BottomDockWidgetArea);
+    tabifyDockWidget(m_timelineDock, m_compareDock);
+    m_timelineDock->raise();
+    m_comparePanel = new LapComparePanel(m_compareDock);
+    m_compareDock->setWidget(m_comparePanel);
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
@@ -261,6 +267,15 @@ void MainWindow::createDocks()
         setLapLines(m_project.startFinish, {}, tr("Remove sector lines"));
     });
     connect(m_lapsPanel, &LapsPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
+    connect(m_lapsPanel, &LapsPanel::lapsSelected, this, [this](const QVector<int> &laps)
+    {
+        m_comparePanel->setLaps(laps);
+        if (laps.size() >= 2)
+            {
+                m_compareDock->show();
+                m_compareDock->raise();
+            }
+    });
     tabifyDockWidget(m_sourcesDock, m_libraryDock);
     m_sourcesDock->raise();
     m_libraryPanel = new GaugeLibraryPanel(m_libraryDock);
@@ -340,6 +355,7 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_libraryDock->toggleViewAction());
     viewMenu->addAction(m_propertiesDock->toggleViewAction());
     viewMenu->addAction(m_timelineDock->toggleViewAction());
+    viewMenu->addAction(m_compareDock->toggleViewAction());
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&About"), this, &MainWindow::showAbout);
@@ -459,6 +475,7 @@ void MainWindow::openProject(const QString &path)
     m_recordedSession.reset();
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
     m_timelinePanel->setSession(nullptr, m_units);
+    m_comparePanel->setSession(nullptr, m_units);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
     m_player->setSource(QUrl());
@@ -846,6 +863,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
     m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     m_timelinePanel->setSession(m_session, m_units);
+    m_comparePanel->setSession(m_session, m_units);
     if (!m_pendingKeepsSync)
         {
             m_project.syncIsManual = false;
@@ -1020,11 +1038,13 @@ void MainWindow::updateLaps()
         {
             m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
             m_timelinePanel->setSession(nullptr, m_units);
+            m_comparePanel->setSession(nullptr, m_units);
             return;
         }
     m_session = LapEngine::apply(m_recordedSession, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     m_timelinePanel->setSession(m_session, m_units);
+    m_comparePanel->setSession(m_session, m_units);
     rebuildOverlay();
     updateSourcesInfo();
 }
@@ -1137,6 +1157,7 @@ void MainWindow::applySettings()
         {
             m_units = units;
             m_timelinePanel->setSession(m_session, m_units);
+            m_comparePanel->setSession(m_session, m_units);
             rebuildOverlay();
             updateSourcesInfo();
         }

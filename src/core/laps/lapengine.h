@@ -2,6 +2,8 @@
 
 #include "../telemetry/telemetrysession.h"
 
+#include <QPointF>
+
 // A line across the track: a lap begins wherever the route crosses it.
 struct StartFinishLine
 {
@@ -50,6 +52,17 @@ QVector<double> splits(const TelemetrySession &session, const QVector<StartFinis
 
 // When the route came nearest to a place; -1 without positions. *distance: how near, in metres.
 double nearestTime(const TelemetrySession &session, double lat, double lon, double *distance = nullptr);
+
+// One lap against distance into it: (metres, channel value as stored) every
+// `step` metres. Empty without distance or the channel.
+QVector<QPointF> byDistance(const TelemetrySession &session, const TelemetrySession::Lap &lap, const QString &channelId,
+                            double step = 5.0);
+
+// How far behind `reference` (+, seconds) `lap` is at the same point of the
+// lap, against distance into `reference` in metres. Points are matched by
+// how much of the lap is done, so laps of a slightly different length line up.
+QVector<QPointF> deltaByDistance(const TelemetrySession &session, const TelemetrySession::Lap &reference,
+                                 const TelemetrySession::Lap &lap, double step = 5.0);
 
 // `base` with the laps from `line` (when valid) and the lap channels. Lap
 // channels already in `base` are kept unless a line is given. With `sectors`

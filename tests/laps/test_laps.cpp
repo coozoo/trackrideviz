@@ -232,6 +232,33 @@ private slots:
         QVERIFY(!missed->channel(ChannelId::PreviousSectorTime));
     }
 
+    void lapsCompared()
+    {
+        const TelemetrySessionPtr s = LapEngine::apply(circuit({60.0, 50.0}), topLine());
+        QCOMPARE(s->laps().size(), 2);
+        const TelemetrySession::Lap first = s->laps().at(0);
+        const TelemetrySession::Lap second = s->laps().at(1);
+        const double round = 2.0 * kPi * kRadius;
+        // a point every 5 m at the first lap's steady speed
+        const QVector<QPointF> speed = LapEngine::byDistance(*s, first, ChannelId::Speed);
+        QVERIFY(std::abs(speed.size() - int(round / 5.0)) <= 2);
+        QVERIFY(std::fabs(speed.at(speed.size() / 2).y() - round / 60.0) < 0.3);
+        QVERIFY(speed.first().x() < 1.0);
+        // the second lap gains on the first all the way round: 5 s by halfway, 10 s at the line
+        const QVector<QPointF> delta = LapEngine::deltaByDistance(*s, first, second);
+        QVERIFY(std::abs(delta.size() - int(round / 5.0)) <= 2);
+        QVERIFY(std::fabs(delta.first().y()) < 0.1);
+        const QPointF half = delta.at(delta.size() / 2);
+        QVERIFY2(std::fabs(half.y() + 10.0 * half.x() / round) < 0.3, qPrintable(QString::number(half.y())));
+        QVERIFY(std::fabs(delta.last().y() + 10.0 * delta.last().x() / round) < 0.3);
+        // and against itself, nothing
+        for (const QPointF &p : LapEngine::deltaByDistance(*s, first, first))
+            {
+                QVERIFY(std::fabs(p.y()) < 1e-9);
+            }
+        QVERIFY(LapEngine::byDistance(*s, first, "nothing").isEmpty());
+    }
+
     void projectKeepsTheLine()
     {
         Project project;
