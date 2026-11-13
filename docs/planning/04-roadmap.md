@@ -143,7 +143,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   count, delta to the best lap so far at the same point of the lap (by distance)
 - ✅ Laps panel: route map with the line and the current position, lap table (best in bold,
   double-click goes to the lap)
-- Sectors, lap markers on the timeline, laps compared side by side
+- ✅ Sectors (2026-11-13): sector lines placed on the route like the start/finish line (kept in
+  the project as `sectors`), each crossed once a lap, either way. A lap that crosses them all gets
+  its splits; the lap table shows sector times, the fastest of each in purple. Channels: sector,
+  sector time, previous sector, that against the best of it so far
+- Lap markers on the timeline, laps compared side by side
 - Data viewer + charts; timeline telemetry strip and drag-to-sync
 
 ## M5 — More data

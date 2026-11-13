@@ -16,7 +16,8 @@ const double kEarthRadius = 6371008.8;
 const char *const kLapChannels[] =
 {
     ChannelId::Lap, ChannelId::LapTime, ChannelId::PreviousLapTime, ChannelId::BestLapTime,
-    ChannelId::LapDelta, ChannelId::LapCount,
+    ChannelId::LapDelta, ChannelId::LapCount, ChannelId::Sector, ChannelId::SectorTime, ChannelId::PreviousSectorTime,
+    ChannelId::SectorDelta,
 };
 
 // Metres east and north of a reference point; good for a few kilometres.
@@ -46,6 +47,49 @@ struct Plane
 double cross(const QPointF &a, const QPointF &b)
 {
     return a.x() * b.y() - a.y() * b.x();
+}
+
+struct Crossing
+{
+    double time;
+    int side;   // which way: +1 or -1
+};
+
+// Every time the route crosses `line`, timed between the samples either side.
+QVector<Crossing> crossingsOf(const TelemetrySession &session, const StartFinishLine &line)
+{
+    QVector<Crossing> crossings;
+    const Channel *lat = session.channel(ChannelId::PositionLat);
+    const Channel *lon = session.channel(ChannelId::PositionLon);
+    if (!line.isValid() || !lat || !lon || lat->count() < 2)
+        {
+            return crossings;
+        }
+    const Plane plane((line.lat1 + line.lat2) / 2.0, (line.lon1 + line.lon2) / 2.0);
+    const QPointF a = plane.toPlane(line.lat1, line.lon1);
+    const QPointF ab = plane.toPlane(line.lat2, line.lon2) - a;
+    QPointF previous = plane.toPlane(lat->valueAtIndex(0), lon->valueAt(lat->timeAt(0)));
+    for (int i = 1; i < lat->count(); ++i)
+        {
+            const double t0 = lat->timeAt(i - 1);
+            const double t1 = lat->timeAt(i);
+            const QPointF p = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t1));
+            const QPointF step = p - previous;
+            const double denominator = cross(step, ab);
+            if (denominator != 0.0)
+                {
+                    // where along the step (u) and along the line (v) the two meet
+                    const QPointF ap = a - previous;
+                    const double u = cross(ap, ab) / denominator;
+                    const double v = cross(ap, step) / denominator;
+                    if (u >= 0.0 && u < 1.0 && v >= 0.0 && v <= 1.0)
+                        {
+                            crossings.append({t0 + u * (t1 - t0), denominator > 0.0 ? 1 : -1});
+                        }
+                }
+            previous = p;
+        }
+    return crossings;
 }
 
 bool has(const TelemetrySession &session, const char *id)
@@ -83,50 +127,83 @@ double timeAt(const QVector<QPointF> &profile, double fraction)
     const QPointF b = *next;
     return b.x() > a.x() ? a.y() + (b.y() - a.y()) * (fraction - a.x()) / (b.x() - a.x()) : b.y();
 }
+// Sector channels from the laps' splits and the lap under way (`openEnd` < 0: none).
+void addSectorChannels(TelemetrySession &session, const QVector<TelemetrySession::Lap> &laps,
+                       const QVector<double> &openSplits, double openStart, double openEnd, int count)
+{
+    for (const char *id : {ChannelId::Sector, ChannelId::SectorTime, ChannelId::PreviousSectorTime,
+                           ChannelId::SectorDelta})
+        {
+            session.removeChannel(id);
+            session.addDerivedChannel(id);
+        }
+    Channel &number = session.channelForWriting(ChannelId::Sector, QString(), Channel::Step);
+    Channel &running = session.channelForWriting(ChannelId::SectorTime, "s", Channel::Linear);
+    Channel &previous = session.channelForWriting(ChannelId::PreviousSectorTime, "s", Channel::Step);
+    Channel &delta = session.channelForWriting(ChannelId::SectorDelta, "s", Channel::Step);
+    QVector<double> best(count, std::numeric_limits<double>::max());
+    auto lap = [&](const QVector<double> &bounds, bool finished)
+    {
+        for (int k = 0; k + 1 < bounds.size(); ++k)
+            {
+                const double from = bounds.at(k);
+                const double to = bounds.at(k + 1);
+                number.append(from, k + 1);
+                running.append(from, 0.0);
+                const bool done = finished || k + 2 < bounds.size();
+                running.append(done ? to - 0.001 : to, (done ? to - 0.001 : to) - from);
+                if (!done)
+                    {
+                        break;
+                    }
+                const double duration = to - from;
+                previous.append(to, duration);
+                // the first time round there is nothing to compare with
+                delta.append(to, best.at(k) < std::numeric_limits<double>::max() ? duration - best.at(k) : 0.0);
+                best[k] = std::min(best.at(k), duration);
+            }
+    };
+    bool complete = false;
+    for (const TelemetrySession::Lap &l : laps)
+        {
+            if (l.splits.size() + 1 == count)
+                {
+                    lap(QVector<double>{l.startTime} + l.splits + QVector<double>{l.endTime}, true);
+                    complete = true;
+                }
+        }
+    // only when the lines are known to work: a line the route misses would shift the numbers
+    if (complete && openEnd > openStart && openSplits.size() < count)
+        {
+            // the lap under way: sectors finished so far, then the one being driven
+            lap(QVector<double>{openStart} + openSplits + QVector<double>{openEnd}, false);
+        }
+    for (const char *id : {ChannelId::Sector, ChannelId::SectorTime, ChannelId::PreviousSectorTime,
+                           ChannelId::SectorDelta})
+        {
+            const Channel *channel = session.channel(id);
+            if (!channel || channel->isEmpty())
+                {
+                    session.removeChannel(id);
+                }
+        }
+}
 }
 
 QVector<TelemetrySession::Lap> LapEngine::detect(const TelemetrySession &session, const StartFinishLine &line,
         double minimumLap)
 {
     QVector<TelemetrySession::Lap> laps;
-    const Channel *lat = session.channel(ChannelId::PositionLat);
-    const Channel *lon = session.channel(ChannelId::PositionLon);
-    if (!line.isValid() || !lat || !lon || lat->count() < 2)
-        {
-            return laps;
-        }
-    const Plane plane((line.lat1 + line.lat2) / 2.0, (line.lon1 + line.lon2) / 2.0);
-    const QPointF a = plane.toPlane(line.lat1, line.lon1);
-    const QPointF ab = plane.toPlane(line.lat2, line.lon2) - a;
-
     QVector<double> crossings;
     int direction = 0;
-    QPointF previous = plane.toPlane(lat->valueAtIndex(0), lon->valueAt(lat->timeAt(0)));
-    for (int i = 1; i < lat->count(); ++i)
+    for (const Crossing &crossing : crossingsOf(session, line))
         {
-            const double t0 = lat->timeAt(i - 1);
-            const double t1 = lat->timeAt(i);
-            const QPointF p = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t1));
-            const QPointF step = p - previous;
-            const double denominator = cross(step, ab);
-            if (denominator != 0.0)
+            if ((direction == 0 || crossing.side == direction)
+                    && (crossings.isEmpty() || crossing.time - crossings.last() >= minimumLap))
                 {
-                    // where along the step (u) and along the line (v) the two meet
-                    const QPointF ap = a - previous;
-                    const double u = cross(ap, ab) / denominator;
-                    const double v = cross(ap, step) / denominator;
-                    const int side = denominator > 0.0 ? 1 : -1;
-                    if (u >= 0.0 && u < 1.0 && v >= 0.0 && v <= 1.0 && (direction == 0 || side == direction))
-                        {
-                            const double t = t0 + u * (t1 - t0);
-                            if (crossings.isEmpty() || t - crossings.last() >= minimumLap)
-                                {
-                                    direction = side;
-                                    crossings.append(t);
-                                }
-                        }
+                    direction = crossing.side;
+                    crossings.append(crossing.time);
                 }
-            previous = p;
         }
     for (int i = 1; i < crossings.size(); ++i)
         {
@@ -138,6 +215,26 @@ QVector<TelemetrySession::Lap> LapEngine::detect(const TelemetrySession &session
             laps.append({crossings.first(), crossings.first()});
         }
     return laps;
+}
+
+QVector<double> LapEngine::splits(const TelemetrySession &session, const QVector<StartFinishLine> &sectors,
+                                  double start, double end)
+{
+    QVector<double> times;
+    for (const StartFinishLine &line : sectors)
+        {
+            // the first time inside the lap, either way: a sector line is crossed once a lap
+            for (const Crossing &crossing : crossingsOf(session, line))
+                {
+                    if (crossing.time > start && crossing.time < end)
+                        {
+                            times.append(crossing.time);
+                            break;
+                        }
+                }
+        }
+    std::sort(times.begin(), times.end());
+    return times;
 }
 
 StartFinishLine LapEngine::lineAt(const TelemetrySession &session, double time, double width)
@@ -192,7 +289,8 @@ double LapEngine::nearestTime(const TelemetrySession &session, double la, double
     return time;
 }
 
-TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const StartFinishLine &line)
+TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const StartFinishLine &line,
+                                     const QVector<StartFinishLine> &sectors)
 {
     if (!base)
         {
@@ -240,6 +338,19 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
     const double lastStart = all.isEmpty() ? laps.last().startTime : all.last().endTime;
     const bool underWay = line.isValid() && end - lastStart > 1.0;
     const int finished = int(all.size());
+    if (!sectors.isEmpty())
+        {
+            for (TelemetrySession::Lap &lap : all)
+                {
+                    lap.splits = splits(*session, sectors, lap.startTime, lap.endTime);
+                    // a lap that missed a line has no sector times
+                    if (lap.splits.size() != sectors.size())
+                        {
+                            lap.splits.clear();
+                        }
+                }
+            session->setLaps(all);
+        }
 
     auto add = [&](const char *id, const QString &unit, Channel::Interpolation interpolation) -> Channel *
     {
@@ -343,6 +454,11 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
                             session->removeChannel(ChannelId::LapDelta);
                         }
                 }
+        }
+    if (!sectors.isEmpty())
+        {
+            addSectorChannels(*session, all, underWay ? splits(*session, sectors, lastStart, end) : QVector<double>(),
+                              lastStart, underWay ? end : -1.0, int(sectors.size()) + 1);
         }
     return session;
 }

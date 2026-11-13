@@ -84,6 +84,15 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
             const StartFinishLine &l = project.startFinish;
             root["startFinish"] = QJsonArray{l.lat1, l.lon1, l.lat2, l.lon2};
         }
+    if (!project.sectors.isEmpty())
+        {
+            QJsonArray sectors;
+            for (const StartFinishLine &l : project.sectors)
+                {
+                    sectors.append(QJsonArray{l.lat1, l.lon1, l.lat2, l.lon2});
+                }
+            root["sectors"] = sectors;
+        }
     return QJsonDocument(root).toJson(QJsonDocument::Indented);
 }
 
@@ -126,6 +135,16 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
     if (line.size() == 4)
         {
             loaded.startFinish = {line.at(0).toDouble(), line.at(1).toDouble(), line.at(2).toDouble(), line.at(3).toDouble()};
+        }
+    for (const QJsonValue &value : root.value("sectors").toArray())
+        {
+            const QJsonArray sector = value.toArray();
+            const StartFinishLine l{sector.at(0).toDouble(), sector.at(1).toDouble(), sector.at(2).toDouble(),
+                                    sector.at(3).toDouble()};
+            if (sector.size() == 4 && l.isValid())
+                {
+                    loaded.sectors.append(l);
+                }
         }
     loaded.overlay.clear();
     const QJsonArray overlay = root.value("overlay").toArray();

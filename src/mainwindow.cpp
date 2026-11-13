@@ -244,7 +244,12 @@ void MainWindow::createDocks()
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
     connect(m_lapsPanel, &LapsPanel::removeLineRequested, this, [this]()
     {
-        setStartFinish(StartFinishLine(), tr("Remove start/finish line"));
+        setLapLines(StartFinishLine(), m_project.sectors, tr("Remove start/finish line"));
+    });
+    connect(m_lapsPanel, &LapsPanel::sectorRequested, this, &MainWindow::placeSector);
+    connect(m_lapsPanel, &LapsPanel::removeSectorsRequested, this, [this]()
+    {
+        setLapLines(m_project.startFinish, {}, tr("Remove sector lines"));
     });
     connect(m_lapsPanel, &LapsPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
     tabifyDockWidget(m_sourcesDock, m_libraryDock);
@@ -443,7 +448,7 @@ void MainWindow::openProject(const QString &path)
     setModified(false);
     m_session.reset();
     m_recordedSession.reset();
-    m_lapsPanel->setSession(nullptr, m_project.startFinish);
+    m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
     m_player->setSource(QUrl());
@@ -828,8 +833,8 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
         }
     m_project.telemetryPath = path;
     m_recordedSession = session;
-    m_session = LapEngine::apply(session, m_project.startFinish);
-    m_lapsPanel->setSession(m_session, m_project.startFinish);
+    m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors);
+    m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     if (!m_pendingKeepsSync)
         {
             m_project.syncIsManual = false;
@@ -998,48 +1003,68 @@ void MainWindow::updateLaps()
 {
     if (!m_recordedSession)
         {
-            m_lapsPanel->setSession(nullptr, m_project.startFinish);
+            m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
             return;
         }
-    m_session = LapEngine::apply(m_recordedSession, m_project.startFinish);
-    m_lapsPanel->setSession(m_session, m_project.startFinish);
+    m_session = LapEngine::apply(m_recordedSession, m_project.startFinish, m_project.sectors);
+    m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     rebuildOverlay();
     updateSourcesInfo();
 }
 
-void MainWindow::placeStartFinish(double lat, double lon)
+StartFinishLine MainWindow::lineNear(double lat, double lon, const QString &offRoute)
 {
     if (!m_recordedSession)
         {
-            return;
+            return StartFinishLine();
         }
     double distance = 0.0;
     const double time = LapEngine::nearestTime(*m_recordedSession, lat, lon, &distance);
     // a click well off the route is not meant for it
     if (time < 0.0 || distance > 60.0)
         {
-            statusBar()->showMessage(tr("Click on the route to place the start/finish line."), 5000);
-            return;
+            statusBar()->showMessage(offRoute, 5000);
+            return StartFinishLine();
         }
     const StartFinishLine line = LapEngine::lineAt(*m_recordedSession, time);
     if (!line.isValid())
         {
             statusBar()->showMessage(tr("The direction of travel is not known there."), 5000);
-            return;
         }
-    setStartFinish(line, tr("Place start/finish line"));
+    return line;
 }
 
-void MainWindow::setStartFinish(const StartFinishLine &line, const QString &description)
+void MainWindow::placeStartFinish(double lat, double lon)
+{
+    const StartFinishLine line = lineNear(lat, lon, tr("Click on the route to place the start/finish line."));
+    if (line.isValid())
+        {
+            setLapLines(line, m_project.sectors, tr("Place start/finish line"));
+        }
+}
+
+void MainWindow::placeSector(double lat, double lon)
+{
+    const StartFinishLine line = lineNear(lat, lon, tr("Click on the route to place the sector line."));
+    if (line.isValid())
+        {
+            setLapLines(m_project.startFinish, m_project.sectors + QVector<StartFinishLine>{line}, tr("Add sector line"));
+        }
+}
+
+void MainWindow::setLapLines(const StartFinishLine &line, const QVector<StartFinishLine> &sectors,
+                             const QString &description)
 {
     const StartFinishLine before = m_project.startFinish;
-    if (before == line)
+    const QVector<StartFinishLine> sectorsBefore = m_project.sectors;
+    if (before == line && sectorsBefore == sectors)
         {
             return;
         }
-    m_undoStack->push(new OverlayCommand(description, [this, before, line](bool forward)
+    m_undoStack->push(new OverlayCommand(description, [this, before, sectorsBefore, line, sectors](bool forward)
     {
         m_project.startFinish = forward ? line : before;
+        m_project.sectors = forward ? sectors : sectorsBefore;
         setModified(true);
         updateLaps();
     }));

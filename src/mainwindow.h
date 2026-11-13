@@ -104,8 +104,11 @@ private:
     // Fills the "now" column of the channel table for the frame on screen.
     // Laps from the project's start/finish line on the recorded session; m_session follows.
     void updateLaps();
+    // A line across the route near a click on the map; invalid (and said why) when off it.
+    StartFinishLine lineNear(double lat, double lon, const QString &offRoute);
     void placeStartFinish(double lat, double lon);
-    void setStartFinish(const StartFinishLine &line, const QString &description);
+    void placeSector(double lat, double lon);
+    void setLapLines(const StartFinishLine &line, const QVector<StartFinishLine> &sectors, const QString &description);
     void seekTelemetryTime(double time);
     void updateChannelValues();
     void updateTimeLabel();

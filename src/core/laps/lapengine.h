@@ -43,10 +43,19 @@ QVector<TelemetrySession::Lap> detect(const TelemetrySession &session, const Sta
 // Invalid without positions there.
 StartFinishLine lineAt(const TelemetrySession &session, double time, double width = DefaultLineWidth);
 
+// Where the route crosses each of `sectors` between `start` and `end` (the first
+// time, either way), in order of time. Lines not crossed there are missing.
+QVector<double> splits(const TelemetrySession &session, const QVector<StartFinishLine> &sectors, double start,
+                       double end);
+
 // When the route came nearest to a place; -1 without positions. *distance: how near, in metres.
 double nearestTime(const TelemetrySession &session, double lat, double lon, double *distance = nullptr);
 
 // `base` with the laps from `line` (when valid) and the lap channels. Lap
-// channels already in `base` are kept unless a line is given.
-TelemetrySessionPtr apply(const TelemetrySessionPtr &base, const StartFinishLine &line);
+// channels already in `base` are kept unless a line is given. With `sectors`
+// (lines across the track inside the lap), each lap that crosses all of them
+// gets its splits, and the sector channels are added: sector, its running
+// time, the previous sector's time and that against the best of it so far.
+TelemetrySessionPtr apply(const TelemetrySessionPtr &base, const StartFinishLine &line,
+                          const QVector<StartFinishLine> &sectors = {});
 }

@@ -65,6 +65,22 @@ private:
         return {kLat0 + north, 28.0 - halfWidth, kLat0 + north, 28.0 + halfWidth};
     }
 
+    // 40 m across the circle's edge where it is `north`, `east` of the centre, pointing at the centre
+    static StartFinishLine sectorLine(double north, double east)
+    {
+        const double length = std::hypot(north, east);
+        const double cosLat = std::cos(kLat0 * kPi / 180.0);
+        auto point = [&](double r, double *lat, double *lon)
+        {
+            *lat = kLat0 + north / length * r / kMetresPerDegree;
+            *lon = 28.0 + east / length * r / (kMetresPerDegree * cosLat);
+        };
+        StartFinishLine line;
+        point(length - 20.0, &line.lat1, &line.lon1);
+        point(length + 20.0, &line.lat2, &line.lon2);
+        return line;
+    }
+
     static double at(const TelemetrySessionPtr &s, const char *id, double t, bool *ok = nullptr)
     {
         const Channel *c = s->channel(id);
@@ -182,13 +198,50 @@ private slots:
         QVERIFY(!LapEngine::lineAt(TelemetrySession(), 5.0).isValid());
     }
 
+    void sectors()
+    {
+        // at 3 o'clock and at 6 o'clock, given in reverse: a quarter, a quarter and a half of each lap
+        const QVector<StartFinishLine> lines{sectorLine(-kRadius, 0.0), sectorLine(0.0, kRadius)};
+        const TelemetrySessionPtr s = LapEngine::apply(circuit({60.0, 50.0, 55.0}), topLine(), lines);
+        QCOMPARE(s->laps().size(), 3);
+        QCOMPARE(s->laps().at(0).splits.size(), 2);
+        QVERIFY(std::fabs(s->laps().at(0).splits.at(0) - 20.0) < 0.05);
+        QVERIFY(std::fabs(s->laps().at(0).splits.at(1) - 35.0) < 0.05);
+        QVERIFY(std::fabs(s->laps().at(1).splits.at(0) - 77.5) < 0.05);
+        for (const char *id : {ChannelId::Sector, ChannelId::SectorTime, ChannelId::PreviousSectorTime,
+                               ChannelId::SectorDelta})
+            {
+                QVERIFY2(s->derivedChannels().contains(id), id);
+            }
+        QCOMPARE(at(s, ChannelId::Sector, 10.0), 1.0);
+        QCOMPARE(at(s, ChannelId::Sector, 25.0), 2.0);
+        QCOMPARE(at(s, ChannelId::Sector, 40.0), 3.0);
+        QCOMPARE(at(s, ChannelId::Sector, 66.0), 1.0);
+        QCOMPARE(at(s, ChannelId::Sector, 185.0), 2.0);   // the lap under way has its sectors too
+        QVERIFY(std::fabs(at(s, ChannelId::SectorTime, 30.0) - 10.0) < 0.1);
+        QVERIFY(std::fabs(at(s, ChannelId::PreviousSectorTime, 36.0) - 15.0) < 0.1);
+        bool ok = true;
+        at(s, ChannelId::PreviousSectorTime, 10.0, &ok);
+        QVERIFY(!ok);
+        // the second time through sector 1: 12.5 s against 15
+        QVERIFY(std::fabs(at(s, ChannelId::SectorDelta, 78.0) + 2.5) < 0.1);
+        // a line the route never crosses: no sector times
+        const TelemetrySessionPtr missed
+            = LapEngine::apply(circuit({60.0}), topLine(), {sectorLine(0.0, kRadius), sectorLine(0.0, 3.0 * kRadius)});
+        QVERIFY(missed->laps().at(0).splits.isEmpty());
+        QVERIFY(!missed->channel(ChannelId::PreviousSectorTime));
+    }
+
     void projectKeepsTheLine()
     {
         Project project;
         project.startFinish = topLine();
+        project.sectors = {sectorLine(0.0, kRadius)};
         Project loaded;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(project, "/tmp"), "/tmp", &loaded));
         QVERIFY(loaded.startFinish == project.startFinish);
+        QCOMPARE(loaded.sectors.size(), 1);
+        QVERIFY(loaded.sectors.first() == project.sectors.first());
         Project none;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(Project(), "/tmp"), "/tmp", &none));
         QVERIFY(!none.startFinish.isValid());

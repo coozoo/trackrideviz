@@ -22,6 +22,8 @@ struct Project
 
     // where laps begin; invalid = the laps the device recorded
     StartFinishLine startFinish;
+    // lines inside the lap that split it into sectors, in any order
+    QVector<StartFinishLine> sectors;
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
     GaugeTheme theme;         // colours of all gauges

@@ -29,6 +29,10 @@ inline constexpr char PreviousLapTime[] = "previousLapTime"; // s, the last fini
 inline constexpr char BestLapTime[] = "bestLapTime";       // s, the fastest finished so far
 inline constexpr char LapDelta[] = "lapDelta";             // s behind (+) the best lap so far at the same point
 inline constexpr char LapCount[] = "lapCount";             // finished laps in the recording
+inline constexpr char Sector[] = "sector";                 // number within the lap, 1 = from the start/finish line
+inline constexpr char SectorTime[] = "sectorTime";         // s since the sector began
+inline constexpr char PreviousSectorTime[] = "previousSectorTime"; // s, the last finished sector
+inline constexpr char SectorDelta[] = "sectorDelta";       // s, the last finished sector against the best of it so far
 // Acceleration in g, recorded or worked out from speed and heading.
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards

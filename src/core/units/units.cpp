@@ -133,6 +133,18 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("Delta to best lap"), tr("s"), 1.0, 0.0, 2};
         }
+    if (id == ChannelId::Sector)
+        {
+            return {tr("Sector"), QString(), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::SectorTime || id == ChannelId::PreviousSectorTime)
+        {
+            return {id == ChannelId::SectorTime ? tr("Sector time") : tr("Previous sector"), tr("s"), 1.0, 0.0, 2};
+        }
+    if (id == ChannelId::SectorDelta)
+        {
+            return {tr("Sector against best"), tr("s"), 1.0, 0.0, 2};
+        }
     if (id == ChannelId::GradeAngle)
         {
             return {tr("Grade angle"), "°", 1.0, 0.0, 1};
