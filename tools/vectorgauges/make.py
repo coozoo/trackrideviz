@@ -198,9 +198,10 @@ C = 200          # centre of a 400 x 400 round gauge
 SWEEP = (-135, 135)
 
 
-def outer_needle(colour="accent", tip=164, base=84):
-    """Only the outer part of a needle, from about the edge of the inner disc to the scale."""
-    x0, x1 = 4.5, 1.2
+def outer_needle(colour="accent", tip=164, base=84, inverted=False):
+    """Only the outer part of a needle, from about the edge of the inner disc to the scale.
+    Inverted: thin at the root, widening outwards."""
+    x0, x1 = (1.2, 5.0) if inverted else (4.5, 1.2)
     return (f"<path d='M{C - x0},{C - base} L{C - x1},{C - tip} L{C + x1},{C - tip} L{C + x0},{C - base} Z' "
             f"{theme(colour)}/>")
 
@@ -241,7 +242,7 @@ def half_gloss():
 def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, needle_style="slim",
                labels=7, label_radius=118, label_size=24, label_italic=True, majors=13, value_y=240, value_size=64,
                minor_ticks=True, inner_disc=True, tick_outer=162, major_length=22, minor_length=10,
-               minor_width=1.6, minor_opacity=None, needle_base=84, needle_tip=None, unit_caps=False, second_readout=False, unit_gap=0.62):
+               minor_width=1.6, minor_opacity=None, needle_base=84, needle_tip=None, needle_inverted=False, unit_caps=False, second_readout=False, unit_gap=0.62):
     defs, body = plate(C, C, 168)
     drawings = {}
     components = []
@@ -309,7 +310,7 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         drawings["glass.svg"] = svg(400, 400, b, d)
 
     if needle_style == "outer":
-        drawn = outer_needle(tip=needle_tip or max(164, tick_outer - 2), base=needle_base)
+        drawn = outer_needle(tip=needle_tip or max(164, tick_outer - 2), base=needle_base, inverted=needle_inverted)
     elif needle_style == "pointer":
         drawn = pointer(tip=needle_tip or 166)
     elif needle_style == "glow":
@@ -469,7 +470,7 @@ def main():
     metal_ticks = dict(bezel="thin metal", tick_outer=168, major_length=30, minor_length=18, minor_width=1.2,
                        minor_opacity=0.5)
     round_dial("Dial metal", sweep="silver", needle_style="outer", labels=13, label_radius=124, label_size=19,
-               value_y=196, needle_base=75, needle_tip=164, **metal_ticks)
+               value_y=196, needle_base=75, needle_tip=168, needle_inverted=True, **metal_ticks)
     round_dial("Dial metal arc", sweep="silver+accent", needle_style="pointer", labels=13, label_radius=124,
                label_size=19, value_y=186, second_readout=True, needle_tip=166, **metal_ticks)
     round_dial("Dial ring", bezel="ring", labels=7, needle_style="outer", unit_caps=True, value_size=72)
