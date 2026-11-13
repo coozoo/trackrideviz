@@ -53,10 +53,9 @@ QString channelFor(const Gauge &gauge, const QString &wanted, const TelemetrySes
 
 // The gauge fitted into a square of `size`, on a dark checked ground so
 // transparent parts show.
-QImage render(const Gauge &gauge, const QString &channel, const TelemetrySessionPtr &ride, double time, int size)
+void paint(QPainter &painter, const Gauge &gauge, const QString &channel, const TelemetrySessionPtr &ride,
+           double time, int size)
 {
-    QImage image(size, size, QImage::Format_ARGB32_Premultiplied);
-    QPainter painter(&image);
     const int cell = 16;
     for (int y = 0; y < size; y += cell)
         {
@@ -68,8 +67,8 @@ QImage render(const Gauge &gauge, const QString &channel, const TelemetrySession
     if (gauge.isEmpty())
         {
             painter.setPen(Qt::white);
-            painter.drawText(image.rect(), Qt::AlignCenter, "missing");
-            return image;
+            painter.drawText(QRect(0, 0, size, size), Qt::AlignCenter, "missing");
+            return;
         }
     const double scale = std::min(size / gauge.size.width(), size / gauge.size.height()) * 0.92;
     const QSizeF shown = gauge.size * scale;
@@ -78,6 +77,13 @@ QImage render(const Gauge &gauge, const QString &channel, const TelemetrySession
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     const BoundGauge bound(gauge, channel, ride, Units(), GaugeTheme());
     bound.render(painter, target, time);
+}
+
+QImage render(const Gauge &gauge, const QString &channel, const TelemetrySessionPtr &ride, double time, int size)
+{
+    QImage image(size, size, QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&image);
+    paint(painter, gauge, channel, ride, time, size);
     return image;
 }
 
@@ -144,9 +150,10 @@ int pairs(const QString &mappingFile, const QString &theirs, const QString &ours
     QString html = "<!doctype html><html><head><meta charset='utf-8'><title>Gauge review</title><style>"
                    "body{background:#1e1e1e;color:#ddd;font:14px sans-serif;margin:16px}"
                    "table{border-collapse:collapse}td{padding:6px;vertical-align:top;border-bottom:1px solid #444}"
-                   "img{width:220px;height:220px;display:block}h3{margin:4px 0}.n{color:#999;max-width:260px}"
+                   "img{width:220px;height:220px;display:inline-block;margin-right:4px}"
+                   "h3{margin:4px 0}.n{color:#999;max-width:260px}"
                    "</style></head><body><h1>Gauge review</h1>"
-                   "<p>Left: the gauge it replaces. Right: ours. Same sample data, three moments.</p><table>";
+                   "<p>Left: the gauge it replaces. Right: ours. Same sample data, three moments. These are snapshots; the gauges themselves are drawings.</p><table>";
     int row = 0;
     for (const QJsonValue &value : mapping)
         {
@@ -165,9 +172,10 @@ int pairs(const QString &mappingFile, const QString &theirs, const QString &ours
                     html += "<td>";
                     for (int m = 0; m < 3; ++m)
                         {
+                            // twice the size shown, so it is sharp on any screen and when zoomed
                             const QString name = QString("img/%1-%2-%3.png").arg(row, 3, 10, QChar('0')).arg(mine ? "ours" : "theirs").arg(m);
-                            render(mine ? our : their, channel, ride, kMoments[m], 440).save(out + "/" + name);
-                            html += QString("<img src='%1' style='display:inline-block;margin-right:4px'>").arg(name);
+                            render(mine ? our : their, channel, ride, kMoments[m], 880).save(out + "/" + name);
+                            html += QString("<img src='%1'>").arg(name);
                         }
                     html += "</td>";
                 }

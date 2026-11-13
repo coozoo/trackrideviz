@@ -8,6 +8,7 @@
 #include <QFont>
 #include <QFontMetricsF>
 #include <QLinearGradient>
+#include <QPaintEngine>
 #include <QPainter>
 #include <QSvgRenderer>
 
@@ -872,10 +873,13 @@ void BoundGauge::render(QPainter &painter, const QRectF &target, double time) co
         {
             return;
         }
-    // cached pictures only fit a painter that does not scale or turn them
+    // cached pictures only fit a painter that does not scale or turn them, and
+    // one that paints pixels: drawn into an SVG or a PDF the gauge stays lines
+    const QPaintEngine *engine = painter.paintEngine();
+    const bool pixels = engine && (engine->type() == QPaintEngine::Raster || engine->type() == QPaintEngine::OpenGL2);
     Context context;
     context.box = box.size();
-    context.cached = painter.worldTransform().type() <= QTransform::TxTranslate;
+    context.cached = pixels && painter.worldTransform().type() <= QTransform::TxTranslate;
     context.devicePixelRatio = painter.device() ? painter.device()->devicePixelRatioF() : 1.0;
     context.topLevel = true;
     const QVector<QImage> layers = context.cached ? staticLayers(box.size(), context.devicePixelRatio) : QVector<QImage>();

@@ -161,11 +161,11 @@
             "autoText": "value",
             "frame": [
                 200,
-                240
+                200
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 64,
+                "size": 72,
                 "bold": true,
                 "italic": true
             },
@@ -179,16 +179,17 @@
             "autoText": "unit",
             "frame": [
                 200,
-                279.68
+                336
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 24,
-                "italic": true
+                "size": 26,
+                "bold": true
             },
-            "color": "accent2",
+            "color": "foreground",
             "align": "center",
-            "valign": "center"
+            "valign": "center",
+            "upperCase": true
         },
         {
             "type": "image",

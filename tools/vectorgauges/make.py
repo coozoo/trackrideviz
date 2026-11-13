@@ -186,8 +186,23 @@ C = 200          # centre of a 400 x 400 round gauge
 SWEEP = (-135, 135)
 
 
-def round_dial(name, *, bezel="flat", fill=False, face="plain", gloss_on=False, needle_style="slim",
-               labels=7, label_radius=118, majors=13, value_y=240, value_size=64, ring_only=False):
+def outer_needle(colour="accent"):
+    """Only the outer part of a needle, from the edge of the inner disc to the scale."""
+    x0, x1 = 4.5, 1.2
+    return (f"<path d='M{C - x0},{C - 84} L{C - x1},{C - 164} L{C + x1},{C - 164} L{C + x0},{C - 84} Z' "
+            f"{theme(colour)}/>")
+
+
+def pointer():
+    """A bright line at the scale and an arrowhead at the inner disc, both turning together."""
+    return (f"<path d='M{C - 1.6},{C - 166} L{C + 1.6},{C - 166} L{C + 1.6},{C - 128} L{C - 1.6},{C - 128} Z' "
+            f"{theme('accent2')}/>"
+            f"<path d='M{C},{C - 104} L{C - 11},{C - 82} L{C + 11},{C - 82} Z' {theme('accent')}/>")
+
+
+def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, needle_style="slim",
+               labels=7, label_radius=118, label_size=24, majors=13, value_y=240, value_size=64,
+               ring_only=False, unit_caps=False, second_readout=False):
     defs, body = plate(C, C, 168)
     drawings = {}
     components = []
@@ -211,18 +226,26 @@ def round_dial(name, *, bezel="flat", fill=False, face="plain", gloss_on=False, 
 
     if not ring_only:
         # an inner disc behind the readout
-        body += (f"<circle cx='{C}' cy='{C}' r='78' fill='#000000' fill-opacity='0.25'/>"
-                 f"<circle cx='{C}' cy='{C}' r='78' fill='none' stroke='#ffffff' stroke-opacity='0.08' stroke-width='2'/>")
+        body += (f"<circle cx='{C}' cy='{C}' r='80' fill='#000000' fill-opacity='0.3'/>"
+                 f"<circle cx='{C}' cy='{C}' r='80' fill='none' stroke='#ffffff' stroke-opacity='0.08' stroke-width='2'/>")
     drawings["face.svg"] = svg(400, 400, body, defs)
     components.append(image("face.svg", (0, 0, 400, 400)))
 
-    if fill:
-        track = f"<path d='{ring_path(C, C, 160, 138, *SWEEP)}' fill='#ffffff' fill-opacity='0.08'/>"
+    # what has been reached so far, swept from the start of the scale up to the needle
+    if sweep in ("silver", "silver+accent"):
+        band = ("<defs><linearGradient id='silver' x1='0' y1='0' x2='1' y2='1'>"
+                "<stop offset='0' stop-color='#ffffff' stop-opacity='0.85'/>"
+                "<stop offset='0.6' stop-color='#bdbdbd' stop-opacity='0.75'/>"
+                "<stop offset='1' stop-color='#8c8c8c' stop-opacity='0.7'/></linearGradient></defs>"
+                f"<path d='{ring_path(C, C, 162, 84, *SWEEP)}' fill='url(#silver)'/>")
+        drawings["sweep.svg"] = svg(400, 400, band)
+        components.append(image("sweep.svg", (0, 0, 400, 400), manipulations=[radial_clip(*SWEEP, (C, C))]))
+    if sweep in ("accent", "silver+accent"):
+        track = f"<path d='{ring_path(C, C, 140, 106, *SWEEP)}' fill='#ffffff' fill-opacity='0.06'/>"
         drawings["track.svg"] = svg(400, 400, track)
         components.append(image("track.svg", (0, 0, 400, 400)))
-        bar = f"<path d='{ring_path(C, C, 160, 138, *SWEEP)}' {theme('accent')}/>"
-        drawings["fill.svg"] = svg(400, 400, bar)
-        components.append(image("fill.svg", (0, 0, 400, 400), manipulations=[radial_clip(*SWEEP, (C, C))]))
+        drawings["band.svg"] = svg(400, 400, f"<path d='{ring_path(C, C, 140, 106, *SWEEP)}' {theme('accent')}/>")
+        components.append(image("band.svg", (0, 0, 400, 400), manipulations=[radial_clip(*SWEEP, (C, C))]))
 
     minors = (majors - 1) * 5 + 1
     scale = ticks(C, C, *SWEEP, majors, 162, 22, 4)
@@ -230,21 +253,32 @@ def round_dial(name, *, bezel="flat", fill=False, face="plain", gloss_on=False, 
         scale += ticks(C, C, *SWEEP, minors, 162, 10, 1.6, skip_every=5)
     drawings["scale.svg"] = svg(400, 400, scale)
     components.append(image("scale.svg", (0, 0, 400, 400)))
-    components += markings(C, C, label_radius, *SWEEP, labels, 24, italic=True)
+    components += markings(C, C, label_radius, *SWEEP, labels, label_size, italic=True)
 
     if gloss_on:
         d, b = gloss(C, C, 166)
         drawings["glass.svg"] = svg(400, 400, b, d)
 
-    if needle_style == "slim":
+    if needle_style == "outer":
+        drawn = outer_needle()
+    elif needle_style == "pointer":
+        drawn = pointer()
+    elif needle_style == "slim":
         drawn = needle(C, C, 160, 26, 7, cap=16)
     elif needle_style == "bold":
         drawn = needle(C, C, 150, 34, 14, cap=24)
     else:   # "light": a bright needle for a coloured face
         drawn = needle(C, C, 160, 22, 6, colour="accent2", cap=14)
     drawings["needle.svg"] = svg(400, 400, drawn)
-    components.append(text("value", (C, value_y), value_size, bold=True, italic=True, precision=0))
-    components.append(text("unit", (C, value_y + value_size * 0.62), 24, "accent2", italic=True))
+    if unit_caps:
+        components.append(text("value", (C, C), value_size, bold=True, italic=True, precision=0))
+        components.append(text("unit", (C, 336), 26, bold=True, upperCase=True))
+    else:
+        components.append(text("value", (C, value_y), value_size, bold=True, italic=True, precision=0))
+        components.append(text("unit", (C, value_y + value_size * 0.62), 24, "accent2", italic=True))
+    if second_readout:
+        # the same value more precisely, small, under the unit
+        components.append(text("valueAndUnit", (C, value_y + value_size * 1.05), 20, italic=True, precision=1))
     components.append(image("needle.svg", (0, 0, 400, 400), manipulations=[rotate(*SWEEP, (C, C))]))
     if gloss_on:
         components.append(image("glass.svg", (0, 0, 400, 400)))
@@ -344,10 +378,14 @@ def tile(name):
 
 def main():
     os.makedirs(GAUGES, exist_ok=True)
-    round_dial("Dial")
-    round_dial("Dial metal", bezel="metal")
-    round_dial("Dial metal arc", bezel="metal", fill=True)
-    round_dial("Dial ring", bezel="ring", ring_only=True, labels=7)
+    # numbers every major tick, the needle only outside the inner disc
+    round_dial("Dial", needle_style="outer", labels=13, label_radius=124, label_size=19, value_y=196)
+    round_dial("Dial metal", bezel="metal", sweep="silver", needle_style="outer", labels=13, label_radius=124,
+               label_size=19, value_y=196)
+    round_dial("Dial metal arc", bezel="metal", sweep="silver+accent", needle_style="pointer", labels=13,
+               label_radius=124, label_size=19, value_y=186, second_readout=True)
+    round_dial("Dial ring", bezel="ring", ring_only=True, labels=7, needle_style="outer", unit_caps=True,
+               value_size=72)
     round_dial("Dial sport", bezel="flat", face="sport", needle_style="light")
     round_dial("Dial glass", bezel="metal", gloss_on=True, needle_style="bold", labels=13, label_radius=124,
                value_y=286, value_size=48)
