@@ -11,7 +11,9 @@ editors that are no longer maintained and hardly run on current systems.
 > new video. Gauges and templates made elsewhere (`.veg`, `.vet`, XML gauges and templates) can be imported,
 > including graphs, track maps, dials and tapes; a first set of own gauges and templates ships with it. Channels a
 > recording lacks (grade, G-force, heading...) are worked out from GPS; laps and sectors are timed from lines placed
-> on the route, and a timeline shows the laps over the whole recording. See the [roadmap](docs/planning/04-roadmap.md).
+> on the route, and a timeline shows the laps over the whole recording. Videos can be joined, parts cut out
+> (stops found from the data), the data viewed and corrected. Our own gauges are drawn in SVG and can be
+> passed on as `.rtvgauge` / `.rtvtemplate` files. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features
 

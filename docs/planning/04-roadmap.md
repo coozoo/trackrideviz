@@ -198,9 +198,13 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Per gauge on the video: own font, size, colours, opacity (later)
 - ✅ Charts (2026-11-14): one smoothing for Data, Timeline and Compare laps (none, 2, 5, 15 s, display
   only); the Data chart draws each pixel's mean with its span as a faint band
-- 🔄 Own vector set, batch 1 (2026-11-13, `tools/vectorgauges`): Dial, Dial metal, Dial metal arc,
-  Dial ring, Dial sport, Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart,
-  Tile (one tile for every channel: the icon follows it). Under review
+- ✅ Own vector set, batch 1 (2026-11-14, `tools/vectorgauges`, reviewed one by one against what
+  they replace with `tools/gaugereview`): Dial, Dial metal, Dial metal arc, Dial ring, Dial sport,
+  Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart, Tile (a picture of any
+  channel) and tiles whose icon moves with the value (speed, elevation, heading, grade, cadence).
+  A gauge starts on the channel it was made for; imported type names are mapped to ours
+- Batch 2: half dials and side arcs, the other compasses, G-force plots, tapes, track and lap
+  maps, lap and time readouts
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a
