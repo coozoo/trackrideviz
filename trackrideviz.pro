@@ -29,6 +29,7 @@ SOURCES += main.cpp \
     src/exportdialog.cpp \
     src/gaugelibrarypanel.cpp \
     src/lapspanel.cpp \
+    src/timelinepanel.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
     src/videocanvas.cpp
@@ -38,6 +39,7 @@ HEADERS += \
     src/exportdialog.h \
     src/gaugelibrarypanel.h \
     src/lapspanel.h \
+    src/timelinepanel.h \
     src/mainwindow.h \
     src/settingsdialog.h \
     src/videocanvas.h

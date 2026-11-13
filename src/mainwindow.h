@@ -20,6 +20,7 @@ class QUndoStack;
 class GaugeLibraryPanel;
 class QTreeWidget;
 class LapsPanel;
+class TimelinePanel;
 class QVideoSink;
 class VideoCanvas;
 
@@ -129,6 +130,7 @@ private:
     QAction *m_exportAction{nullptr};
     GaugeLibraryPanel *m_libraryPanel{nullptr};
     LapsPanel *m_lapsPanel{nullptr};
+    TimelinePanel *m_timelinePanel{nullptr};
     QDockWidget *m_lapsDock{nullptr};
     QComboBox *m_channelCombo{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};

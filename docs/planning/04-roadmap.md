@@ -147,8 +147,12 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   the project as `sectors`), each crossed once a lap, either way. A lap that crosses them all gets
   its splits; the lap table shows sector times, the fastest of each in purple. Channels: sector,
   sector time, previous sector, that against the best of it so far
-- Lap markers on the timeline, laps compared side by side
-- Data viewer + charts; timeline telemetry strip and drag-to-sync
+- ✅ Timeline (2026-11-13): the video and the data where the offset puts them, a trace of a chosen
+  channel, laps as bands with sector ticks (the best outlined), pauses hatched and the playhead.
+  Click or drag to go there, wheel to zoom about the mouse (Shift: pan), Ctrl+drag slides the data
+  against the video (sets the offset)
+- Laps compared side by side
+- Data viewer + charts
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join

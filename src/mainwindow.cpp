@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include "lapspanel.h"
+#include "timelinepanel.h"
 
 #include "appearance.h"
 #include "exportdialog.h"
@@ -239,6 +240,14 @@ void MainWindow::createDocks()
     m_lapsDock = addPlaceholderDock("lapsDock", tr("Laps"), Qt::RightDockWidgetArea);
     tabifyDockWidget(m_propertiesDock, m_lapsDock);
     m_propertiesDock->raise();
+    m_timelinePanel = new TimelinePanel(m_timelineDock);
+    m_timelineDock->setWidget(m_timelinePanel);
+    connect(m_timelinePanel, &TimelinePanel::seekRequested, this, [this](double seconds)
+    {
+        m_player->setPosition(qint64(std::llround(seconds * 1000.0)));
+    });
+    // the spin box does what typing the value would
+    connect(m_timelinePanel, &TimelinePanel::offsetDragged, m_offsetSpin, &QDoubleSpinBox::setValue);
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
@@ -449,6 +458,7 @@ void MainWindow::openProject(const QString &path)
     m_session.reset();
     m_recordedSession.reset();
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
+    m_timelinePanel->setSession(nullptr, m_units);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
     m_player->setSource(QUrl());
@@ -835,6 +845,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
     m_recordedSession = session;
     m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
+    m_timelinePanel->setSession(m_session, m_units);
     if (!m_pendingKeepsSync)
         {
             m_project.syncIsManual = false;
@@ -870,6 +881,7 @@ void MainWindow::onDurationChanged(qint64 durationMs)
 {
     m_seekSlider->setRange(0, int(durationMs));
     m_seekSlider->setEnabled(durationMs > 0);
+    m_timelinePanel->setVideoDuration(durationMs / 1000.0);
     updateTimeLabel();
     // the overlap check of the clock match needs the duration
     autoSync();
@@ -881,6 +893,7 @@ void MainWindow::onPositionChanged(qint64 positionMs)
         {
             m_seekSlider->setValue(int(positionMs));
         }
+    m_timelinePanel->setPosition(positionMs / 1000.0);
     updateTimeLabel();
 }
 
@@ -898,6 +911,7 @@ void MainWindow::onOffsetEdited(double seconds)
     m_project.syncOffset = seconds;
     setModified(true);
     m_canvas->setSyncOffset(seconds);
+    m_timelinePanel->setOffset(seconds);
     m_syncLabel->setText(tr("Set by hand."));
 }
 
@@ -929,6 +943,7 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
     }
     m_project.syncOffset = seconds;
     m_canvas->setSyncOffset(seconds);
+    m_timelinePanel->setOffset(seconds);
     m_syncLabel->setText(explanation);
 }
 
@@ -1004,10 +1019,12 @@ void MainWindow::updateLaps()
     if (!m_recordedSession)
         {
             m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
+            m_timelinePanel->setSession(nullptr, m_units);
             return;
         }
     m_session = LapEngine::apply(m_recordedSession, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
+    m_timelinePanel->setSession(m_session, m_units);
     rebuildOverlay();
     updateSourcesInfo();
 }
@@ -1119,6 +1136,7 @@ void MainWindow::applySettings()
     if (units != m_units)
         {
             m_units = units;
+            m_timelinePanel->setSession(m_session, m_units);
             rebuildOverlay();
             updateSourcesInfo();
         }

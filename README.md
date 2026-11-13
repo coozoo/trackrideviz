@@ -9,8 +9,9 @@ editors that are no longer maintained and hardly run on current systems.
 > **Status: early development.** A video can be opened with a FIT or GPX file, synchronized
 > automatically, dressed with gauges that are placed and sized with the mouse, and exported as a
 > new video. Gauges and templates made elsewhere (`.veg`, `.vet`, XML gauges and templates) can be imported,
-> including graphs, track maps, dials and tapes; a first set of own gauges and templates ships with it. Lap timing and
-> derived channels (G-force) are not there yet. See the [roadmap](docs/planning/04-roadmap.md).
+> including graphs, track maps, dials and tapes; a first set of own gauges and templates ships with it. Channels a
+> recording lacks (grade, G-force, heading...) are worked out from GPS; laps and sectors are timed from lines placed
+> on the route, and a timeline shows the laps over the whole recording. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features
 
