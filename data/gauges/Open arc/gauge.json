@@ -17,17 +17,6 @@
     "components": [
         {
             "type": "image",
-            "image": "images/track.svg",
-            "frame": [
-                0,
-                0,
-                400,
-                400
-            ],
-            "color": "original"
-        },
-        {
-            "type": "image",
             "image": "images/fill.svg",
             "frame": [
                 0,

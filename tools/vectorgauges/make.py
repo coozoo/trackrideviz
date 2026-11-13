@@ -434,11 +434,10 @@ def small_metal_dial(name):
 def open_arc(name):
     """A thick three-quarter arc from 6 o'clock round to 3, the value in the open corner."""
     start, end = -180, 90
-    track = f"<path d='{ring_path(C, C, 180, 130, start, end)}' {theme('background')}/>"
+    # only the indicator, no track behind it
     bar = f"<path d='{ring_path(C, C, 176, 134, start, end)}' {theme('accent')}/>"
-    drawings = {"track.svg": svg(400, 400, track), "fill.svg": svg(400, 400, bar)}
-    components = [image("track.svg", (0, 0, 400, 400)),
-                  image("fill.svg", (0, 0, 400, 400), manipulations=[radial_clip(start, end, (C, C))]),
+    drawings = {"fill.svg": svg(400, 400, bar)}
+    components = [image("fill.svg", (0, 0, 400, 400), manipulations=[radial_clip(start, end, (C, C))]),
                   text("value", (300, 316), 84, bold=True, italic=True, precision=0),
                   text("unit", (300, 368), 28, "accent2", italic=True)]
     write(name, (400, 400), components, drawings, ROUND_TYPES)
