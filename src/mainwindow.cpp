@@ -105,6 +105,7 @@ private:
 struct ThemeRole
 {
     const char *label;
+    const char *tip;
     QColor GaugeTheme::*color;
 };
 
@@ -834,10 +835,13 @@ namespace
 {
 const ThemeRole kThemeRoles[] =
 {
-    {QT_TRANSLATE_NOOP("MainWindow", "Text and numbers"), &GaugeTheme::foreground},
-    {QT_TRANSLATE_NOOP("MainWindow", "Background"), &GaugeTheme::background},
-    {QT_TRANSLATE_NOOP("MainWindow", "Accent"), &GaugeTheme::accent},
-    {QT_TRANSLATE_NOOP("MainWindow", "Second accent"), &GaugeTheme::accent2},
+    {QT_TRANSLATE_NOOP("MainWindow", "Text"), QT_TRANSLATE_NOOP("MainWindow", "Text and numbers"), &GaugeTheme::foreground},
+    {QT_TRANSLATE_NOOP("MainWindow", "Background"), QT_TRANSLATE_NOOP("MainWindow", "Plates behind the gauges"),
+     &GaugeTheme::background},
+    {QT_TRANSLATE_NOOP("MainWindow", "Accent"), QT_TRANSLATE_NOOP("MainWindow", "Needles, bars and highlights"),
+     &GaugeTheme::accent},
+    {QT_TRANSLATE_NOOP("MainWindow", "2nd accent"), QT_TRANSLATE_NOOP("MainWindow", "Scales, units and labels"),
+     &GaugeTheme::accent2},
 };
 }
 
@@ -860,9 +864,12 @@ QWidget *MainWindow::createPropertiesPanel()
     });
 
     QFormLayout *form = new QFormLayout(panel);
-    form->addRow(tr("Selected gauge shows:"), m_channelCombo);
+    QLabel *channelLabel = new QLabel(tr("Gauge data:"), panel);
+    channelLabel->setToolTip(m_channelCombo->toolTip());
+    form->addRow(channelLabel, m_channelCombo);
     form->addRow(QString(), m_removeGaugeButton);
-    QLabel *coloursTitle = new QLabel(tr("Colours and font of all gauges"), panel);
+    QLabel *coloursTitle = new QLabel(tr("All gauges"), panel);
+    coloursTitle->setToolTip(tr("Colours and font of every gauge on the video"));
     QFont bold = coloursTitle->font();
     bold.setBold(true);
     coloursTitle->setFont(bold);
@@ -876,13 +883,16 @@ QWidget *MainWindow::createPropertiesPanel()
                 chooseThemeColor(role);
             });
             m_themeButtons.append(button);
-            form->addRow(tr(kThemeRoles[role].label) + ":", button);
+            QLabel *label = new QLabel(tr(kThemeRoles[role].label) + ":", panel);
+            label->setToolTip(tr(kThemeRoles[role].tip));
+            button->setToolTip(tr(kThemeRoles[role].tip));
+            form->addRow(label, button);
         }
 
     GaugeFonts::load();
     m_fontCombo = new QComboBox(panel);
-    m_fontCombo->setToolTip(tr("The font of the gauges' texts"));
-    m_fontCombo->addItem(tr("As each gauge is designed"), QString());
+    m_fontCombo->setToolTip(tr("The font of the gauges' texts; Default: as each gauge is designed"));
+    m_fontCombo->addItem(tr("Default"), QString());
     m_fontCombo->addItem(tr("%1 (comes with the program)").arg(GaugeFonts::Family), QString(GaugeFonts::Family));
     m_fontCombo->insertSeparator(m_fontCombo->count());
     for (const QString &family : QFontDatabase::families())
@@ -900,17 +910,18 @@ QWidget *MainWindow::createPropertiesPanel()
     m_fontCombo->view()->setMinimumWidth(m_fontCombo->view()->sizeHintForColumn(0) + 24);
     connect(m_fontCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]()
     {
-        m_fontCombo->setToolTip(tr("The font of the gauges' texts") + "\n" + m_fontCombo->currentText());
+        m_fontCombo->setToolTip(tr("The font of the gauges' texts; Default: as each gauge is designed") + "\n"
+                                + m_fontCombo->currentText());
     });
     m_fontWeightCombo = new QComboBox(panel);
-    m_fontWeightCombo->addItem(tr("As designed"), 0);
+    m_fontWeightCombo->addItem(tr("Default", "font weight"), 0);
     m_fontWeightCombo->addItem(tr("Light"), 300);
     m_fontWeightCombo->addItem(tr("Regular"), 400);
     m_fontWeightCombo->addItem(tr("Medium"), 500);
     m_fontWeightCombo->addItem(tr("Semibold"), 600);
     m_fontWeightCombo->addItem(tr("Bold"), 700);
-    m_fontWeightCombo->setToolTip(tr("One weight for every text; as designed keeps bold values and lighter labels"));
-    m_fontEverywhereCheck = new QCheckBox(tr("Also gauges with a font of their own"), panel);
+    m_fontWeightCombo->setToolTip(tr("One weight for every text; Default keeps each gauge's bold values and lighter labels"));
+    m_fontEverywhereCheck = new QCheckBox(tr("Override own fonts"), panel);
     m_fontEverywhereCheck->setToolTip(tr("Imported gauges often name a font (Arial...); with this they use the one chosen here too"));
     auto changeFont = [this]()
     {
