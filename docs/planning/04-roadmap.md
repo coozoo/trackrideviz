@@ -136,8 +136,14 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   change of speed and sideways from speed × turn rate. Even grid of 0.1-1 s, nothing inside pauses.
   Checked on the IGS520 ride: 3 % read on a climb of 3 %, ascent = descent = 249 m on a round trip.
   Shown in italics in the channel list
-- Lap engine: start/finish on map, sectors, lap table, best/previous/delta channels
-- Map & Laps view, lap markers on the timeline
+- ✅ Lap engine (2026-11-13, `LapEngine`): a start/finish line placed by clicking the route (40 m
+  across the direction of travel there, kept in the project); laps between crossings in the first
+  crossing's direction, timed between samples, none within 20 s of the last (jitter at the line).
+  Without a line the device's laps are used. Channels: lap, lap time, previous, best so far, lap
+  count, delta to the best lap so far at the same point of the lap (by distance)
+- ✅ Laps panel: route map with the line and the current position, lap table (best in bold,
+  double-click goes to the lap)
+- Sectors, lap markers on the timeline, laps compared side by side
 - Data viewer + charts; timeline telemetry strip and drag-to-sync
 
 ## M5 — More data

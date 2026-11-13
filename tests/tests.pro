@@ -15,4 +15,5 @@ SUBDIRS = \
     export \
     template \
     csv \
-    derived
+    derived \
+    laps

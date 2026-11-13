@@ -1,0 +1,52 @@
+#pragma once
+
+#include "../telemetry/telemetrysession.h"
+
+// A line across the track: a lap begins wherever the route crosses it.
+struct StartFinishLine
+{
+    double lat1{0.0};
+    double lon1{0.0};
+    double lat2{0.0};
+    double lon2{0.0};
+
+    bool isValid() const { return lat1 != lat2 || lon1 != lon2; }
+    bool operator==(const StartFinishLine &other) const
+    {
+        return lat1 == other.lat1 && lon1 == other.lon1 && lat2 == other.lat2 && lon2 == other.lon2;
+    }
+    bool operator!=(const StartFinishLine &other) const { return !(*this == other); }
+};
+
+// Laps and what gauges show about them.
+//
+// With a start/finish line, laps are the stretches between two crossings of
+// it in the same direction as the first one; a crossing sooner than
+// `minimumLap` after the last is GPS jitter at the line, not a lap. Without
+// one, the laps the device recorded are used.
+//
+// From the laps come the lap channels (channelids.h): the lap under way, its
+// running time, the previous and the best lap so far, the number of laps,
+// and the delta to the best lap so far at the same point of the lap (by
+// distance). The stretch before the first crossing is no lap; the one after
+// the last is, unfinished.
+namespace LapEngine
+{
+const double DefaultMinimumLap = 20.0;   // seconds
+const double DefaultLineWidth = 40.0;    // metres: a track and GPS error on both sides
+
+// The finished laps between crossings of `line`.
+QVector<TelemetrySession::Lap> detect(const TelemetrySession &session, const StartFinishLine &line,
+                                      double minimumLap = DefaultMinimumLap);
+
+// A line `width` wide across the direction of travel where the route is at `time`.
+// Invalid without positions there.
+StartFinishLine lineAt(const TelemetrySession &session, double time, double width = DefaultLineWidth);
+
+// When the route came nearest to a place; -1 without positions. *distance: how near, in metres.
+double nearestTime(const TelemetrySession &session, double lat, double lon, double *distance = nullptr);
+
+// `base` with the laps from `line` (when valid) and the lap channels. Lap
+// channels already in `base` are kept unless a line is given.
+TelemetrySessionPtr apply(const TelemetrySessionPtr &base, const StartFinishLine &line);
+}

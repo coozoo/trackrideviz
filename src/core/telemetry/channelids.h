@@ -22,6 +22,13 @@ inline constexpr char GradeAngle[] = "gradeAngle";     // degrees, + uphill
 inline constexpr char VerticalSpeed[] = "verticalSpeed"; // m/s, + up
 inline constexpr char TotalAscent[] = "totalAscent";   // m since the start
 inline constexpr char TotalDescent[] = "totalDescent"; // m since the start
+// Laps (lapengine.h): from a start/finish line or the laps the device recorded
+inline constexpr char Lap[] = "lap";                       // number, 1 = the first full lap
+inline constexpr char LapTime[] = "lapTime";               // s since the lap began
+inline constexpr char PreviousLapTime[] = "previousLapTime"; // s, the last finished lap
+inline constexpr char BestLapTime[] = "bestLapTime";       // s, the fastest finished so far
+inline constexpr char LapDelta[] = "lapDelta";             // s behind (+) the best lap so far at the same point
+inline constexpr char LapCount[] = "lapCount";             // finished laps in the recording
 // Acceleration in g, recorded or worked out from speed and heading.
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards

@@ -19,6 +19,7 @@ class QPushButton;
 class QUndoStack;
 class GaugeLibraryPanel;
 class QTreeWidget;
+class LapsPanel;
 class QVideoSink;
 class VideoCanvas;
 
@@ -101,6 +102,11 @@ private:
     void setSyncOffset(double seconds, const QString &explanation);
     void updateSourcesInfo();
     // Fills the "now" column of the channel table for the frame on screen.
+    // Laps from the project's start/finish line on the recorded session; m_session follows.
+    void updateLaps();
+    void placeStartFinish(double lat, double lon);
+    void setStartFinish(const StartFinishLine &line, const QString &description);
+    void seekTelemetryTime(double time);
     void updateChannelValues();
     void updateTimeLabel();
 
@@ -119,6 +125,8 @@ private:
     QTreeWidget *m_channelTree{nullptr};
     QAction *m_exportAction{nullptr};
     GaugeLibraryPanel *m_libraryPanel{nullptr};
+    LapsPanel *m_lapsPanel{nullptr};
+    QDockWidget *m_lapsDock{nullptr};
     QComboBox *m_channelCombo{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
     QVector<QPushButton *> m_themeButtons;
@@ -136,6 +144,7 @@ private:
     // Import in progress; a result for any other path is stale and dropped.
     QString m_pendingTelemetryPath;
     bool m_pendingKeepsSync{false};
-    TelemetrySessionPtr m_session;
+    TelemetrySessionPtr m_session;          // with the laps of the project's start/finish line
+    TelemetrySessionPtr m_recordedSession;  // as the file gave it (and what could be worked out)
     Units m_units;
 };

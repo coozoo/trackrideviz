@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../laps/lapengine.h"
 #include "../overlay/overlay.h"
 
 #include <QCoreApplication>
@@ -18,6 +19,9 @@ struct Project
     double syncOffset{0.0};
     // false: the offset is whatever automatic sync finds; true: the user's value
     bool syncIsManual{false};
+
+    // where laps begin; invalid = the laps the device recorded
+    StartFinishLine startFinish;
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
     GaugeTheme theme;         // colours of all gauges

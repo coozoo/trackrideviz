@@ -115,6 +115,24 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("Vertical G"), "g", 1.0, 0.0, 2};
         }
+    if (id == ChannelId::Lap)
+        {
+            return {tr("Lap"), QString(), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::LapCount)
+        {
+            return {tr("Laps"), QString(), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::LapTime || id == ChannelId::PreviousLapTime || id == ChannelId::BestLapTime)
+        {
+            const QString name = id == ChannelId::LapTime ? tr("Lap time")
+                                 : id == ChannelId::PreviousLapTime ? tr("Previous lap") : tr("Best lap");
+            return {name, tr("s"), 1.0, 0.0, 2};
+        }
+    if (id == ChannelId::LapDelta)
+        {
+            return {tr("Delta to best lap"), tr("s"), 1.0, 0.0, 2};
+        }
     if (id == ChannelId::GradeAngle)
         {
             return {tr("Grade angle"), "°", 1.0, 0.0, 1};

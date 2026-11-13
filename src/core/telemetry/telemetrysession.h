@@ -57,9 +57,11 @@ public:
                                Channel::Interpolation interpolation = Channel::Linear);
     // Channels that never received a sample are noise in the UI.
     void removeEmptyChannels();
+    void removeChannel(const QString &id);
 
     const QVector<Lap> &laps() const { return m_laps; }
     void addLap(const Lap &lap) { m_laps.append(lap); }
+    void setLaps(const QVector<Lap> &laps) { m_laps = laps; }
 
     // Stretches where the device was not recording. Channels have no samples
     // there; values in between must not be read as real movement.

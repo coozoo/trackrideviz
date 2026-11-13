@@ -29,6 +29,13 @@ Channel &TelemetrySession::channelForWriting(const QString &id, const QString &u
     return it->second;
 }
 
+void TelemetrySession::removeChannel(const QString &id)
+{
+    m_channels.erase(id);
+    m_order.removeAll(id);
+    m_derived.removeAll(id);
+}
+
 void TelemetrySession::removeEmptyChannels()
 {
     for (const QString &id : QStringList(m_order))

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+#include "lapspanel.h"
+
 #include "appearance.h"
 #include "exportdialog.h"
 #include "gauge/gaugelibrary.h"
@@ -128,6 +130,13 @@ MainWindow::MainWindow(QWidget *parent)
     QTimer *valuesTimer = new QTimer(this);
     valuesTimer->setInterval(200);
     connect(valuesTimer, &QTimer::timeout, this, &MainWindow::updateChannelValues);
+    connect(valuesTimer, &QTimer::timeout, this, [this]()
+    {
+        if (m_lapsDock->isVisible())
+            {
+                m_lapsPanel->setTime(m_canvas->telemetryTime());
+            }
+    });
     valuesTimer->start();
 
     updateSourcesInfo();
@@ -227,6 +236,17 @@ void MainWindow::createDocks()
     m_libraryDock = addPlaceholderDock("libraryDock", tr("Gauge library"), Qt::LeftDockWidgetArea);
     m_propertiesDock = addPlaceholderDock("propertiesDock", tr("Properties"), Qt::RightDockWidgetArea);
     m_timelineDock = addPlaceholderDock("timelineDock", tr("Timeline"), Qt::BottomDockWidgetArea);
+    m_lapsDock = addPlaceholderDock("lapsDock", tr("Laps"), Qt::RightDockWidgetArea);
+    tabifyDockWidget(m_propertiesDock, m_lapsDock);
+    m_propertiesDock->raise();
+    m_lapsPanel = new LapsPanel(m_lapsDock);
+    m_lapsDock->setWidget(m_lapsPanel);
+    connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
+    connect(m_lapsPanel, &LapsPanel::removeLineRequested, this, [this]()
+    {
+        setStartFinish(StartFinishLine(), tr("Remove start/finish line"));
+    });
+    connect(m_lapsPanel, &LapsPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
     tabifyDockWidget(m_sourcesDock, m_libraryDock);
     m_sourcesDock->raise();
     m_libraryPanel = new GaugeLibraryPanel(m_libraryDock);
@@ -422,6 +442,8 @@ void MainWindow::openProject(const QString &path)
     m_undoStack->clear();
     setModified(false);
     m_session.reset();
+    m_recordedSession.reset();
+    m_lapsPanel->setSession(nullptr, m_project.startFinish);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
     m_player->setSource(QUrl());
@@ -805,7 +827,9 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
             return;
         }
     m_project.telemetryPath = path;
-    m_session = session;
+    m_recordedSession = session;
+    m_session = LapEngine::apply(session, m_project.startFinish);
+    m_lapsPanel->setSession(m_session, m_project.startFinish);
     if (!m_pendingKeepsSync)
         {
             m_project.syncIsManual = false;
@@ -968,6 +992,67 @@ void MainWindow::updateSourcesInfo()
                 }
         }
     updateChannelValues();
+}
+
+void MainWindow::updateLaps()
+{
+    if (!m_recordedSession)
+        {
+            m_lapsPanel->setSession(nullptr, m_project.startFinish);
+            return;
+        }
+    m_session = LapEngine::apply(m_recordedSession, m_project.startFinish);
+    m_lapsPanel->setSession(m_session, m_project.startFinish);
+    rebuildOverlay();
+    updateSourcesInfo();
+}
+
+void MainWindow::placeStartFinish(double lat, double lon)
+{
+    if (!m_recordedSession)
+        {
+            return;
+        }
+    double distance = 0.0;
+    const double time = LapEngine::nearestTime(*m_recordedSession, lat, lon, &distance);
+    // a click well off the route is not meant for it
+    if (time < 0.0 || distance > 60.0)
+        {
+            statusBar()->showMessage(tr("Click on the route to place the start/finish line."), 5000);
+            return;
+        }
+    const StartFinishLine line = LapEngine::lineAt(*m_recordedSession, time);
+    if (!line.isValid())
+        {
+            statusBar()->showMessage(tr("The direction of travel is not known there."), 5000);
+            return;
+        }
+    setStartFinish(line, tr("Place start/finish line"));
+}
+
+void MainWindow::setStartFinish(const StartFinishLine &line, const QString &description)
+{
+    const StartFinishLine before = m_project.startFinish;
+    if (before == line)
+        {
+            return;
+        }
+    m_undoStack->push(new OverlayCommand(description, [this, before, line](bool forward)
+    {
+        m_project.startFinish = forward ? line : before;
+        setModified(true);
+        updateLaps();
+    }));
+}
+
+void MainWindow::seekTelemetryTime(double time)
+{
+    if (m_project.videoPath.isEmpty())
+        {
+            return;
+        }
+    // telemetry time = video time + offset
+    m_player->setPosition(std::max<qint64>(0, qint64(std::llround((time - m_project.syncOffset) * 1000.0))));
 }
 
 void MainWindow::updateChannelValues()
