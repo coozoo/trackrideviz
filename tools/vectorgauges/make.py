@@ -214,8 +214,17 @@ def pointer(tip=168, base=75):
     return white + f"<path d='M{C},{C - head} L{C - 15},{C - root} L{C + 15},{C - root} Z' {theme('accent')}/>"
 
 
-def glow_needle():
-    """Wide at the middle, narrowing to the tip, light fading into the accent; a soft glow for a hub."""
+def glow_needle(tail=38):
+    """Wide at the middle, narrowing to the tip, light fading into the accent, with a tail past the
+    middle; a soft glow for a hub and a faint accent glow round the needle."""
+    def shape(grow):
+        # the needle widened by `grow` on every side
+        return (f"M{fmt(C - 7 - grow)},{C} L{fmt(C - 1.2 - grow)},{fmt(C - 162 - grow)} "
+                f"L{fmt(C + 1.2 + grow)},{fmt(C - 162 - grow)} L{fmt(C + 7 + grow)},{C} "
+                f"L{fmt(C + 4 + grow)},{fmt(C + tail + grow)} L{fmt(C - 4 - grow)},{fmt(C + tail + grow)} Z")
+    # SVG Tiny has no blur: a few ever wider, ever fainter copies make the glow
+    glow = "".join(f"<path d='{shape(g)}' fill='@accent' fill-opacity='{o}'/>"
+                   for g, o in ((7, 0.05), (4.5, 0.07), (2.5, 0.1)))
     return ("<defs><linearGradient id='glowNeedle' x1='0' y1='1' x2='0' y2='0'>"
             "<stop offset='0' stop-color='#ffffff' stop-opacity='0.95'/>"
             "<stop offset='1' stop-color='@accent2' stop-opacity='@accent2-opacity'/></linearGradient>"
@@ -223,7 +232,7 @@ def glow_needle():
             "<stop offset='0' stop-color='@accent' stop-opacity='0.55'/>"
             "<stop offset='1' stop-color='@accent' stop-opacity='0'/></radialGradient></defs>"
             f"<circle cx='{C}' cy='{C}' r='34' fill='url(#hub)'/>"
-            f"<path d='M{C - 7},{C} L{C - 1.2},{C - 162} L{C + 1.2},{C - 162} L{C + 7},{C} Z' fill='url(#glowNeedle)'/>")
+            + glow + f"<path d='{shape(0)}' fill='url(#glowNeedle)'/>")
 
 
 def taper_needle():
@@ -477,8 +486,9 @@ def main():
     round_dial("Dial ring", bezel=None, labels=7, needle_style="outer", unit_caps=True, value_size=72,
                major_length=18, minor_length=14, minor_width=1.2, minor_opacity=0.5, needle_base=75)
     # the value low, clear of the needle, which starts in the middle without a pin
-    round_dial("Dial sport", bezel="flat", face="sport", needle_style="glow", inner_disc=False, value_y=262,
-               value_size=60)
+    round_dial("Dial sport", bezel="thin metal", face="sport", needle_style="glow", inner_disc=False, value_y=284,
+               value_size=60, unit_gap=0.6, major_length=18, minor_length=14, minor_width=1.2, minor_opacity=0.5,
+               tick_outer=168)
     round_dial("Dial glass", bezel="rim", gloss_on="half", needle_style="taper", inner_disc=False, labels=13,
                label_radius=126, label_size=26, label_italic=False, value_y=300, value_size=50, unit_gap=0.6)
     segmented_dial("Dial small")
