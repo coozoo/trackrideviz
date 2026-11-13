@@ -102,12 +102,14 @@ def thin_metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
     return defs, shade + body
 
 
-def plate(cx, cy, r, glow=True, gid="plate"):
-    """The dial's face in the theme's background, a little lighter in the middle."""
+def plate(cx, cy, r, glow=True, gid="plate", opacity=None):
+    """The dial's face in the theme's background, a little lighter in the middle.
+    `opacity`: its own instead of the theme colour's."""
     defs = (f"<radialGradient id='{gid}' cx='0.5' cy='0.42' r='0.6'>"
             "<stop offset='0' stop-color='#ffffff' stop-opacity='0.10'/>"
             "<stop offset='1' stop-color='#ffffff' stop-opacity='0'/></radialGradient>")
-    body = f"<circle cx='{cx}' cy='{cy}' r='{fmt(r)}' {theme('background')}/>"
+    fill = theme('background') if opacity is None else f"fill='@background' fill-opacity='{fmt(opacity)}'"
+    body = f"<circle cx='{cx}' cy='{cy}' r='{fmt(r)}' {fill}/>"
     if glow:
         body += f"<circle cx='{cx}' cy='{cy}' r='{fmt(r)}' fill='url(#{gid})'/>"
     return defs, body
@@ -393,27 +395,39 @@ def segmented_dial(name):
     write(name, (200, 200), components, drawings, ["cadence", "heartRate", "speed", "power"])
 
 
-def small_dial(name, *, metal=False):
-    """A 200 x 200 dial: fewer numbers, a big value."""
+def knob(cx, cy, r):
+    """A round knob lit from the top left, its edge in shadow."""
+    return (f"<defs><radialGradient id='knob' cx='0.35' cy='0.3' r='0.75'>"
+            "<stop offset='0' stop-color='#6a6a6a'/><stop offset='0.55' stop-color='#2a2a2a'/>"
+            "<stop offset='1' stop-color='#111111'/></radialGradient></defs>"
+            f"<circle cx='{cx}' cy='{cy}' r='{fmt(r + 2)}' fill='#000000' fill-opacity='0.35'/>"
+            f"<circle cx='{cx}' cy='{cy}' r='{fmt(r)}' fill='url(#knob)'/>"
+            f"<circle cx='{cx}' cy='{cy}' r='{fmt(r - 0.6)}' fill='none' stroke='#000000' stroke-width='1.2'/>")
+
+
+def small_metal_dial(name):
+    """A 200 x 200 dial: a thin silver rim with a shade outside it, a see-through face, a strip of a
+    needle on a big knob, the unit above it and the value below."""
     c = 100
-    defs, body = plate(c, c, 86)
-    if metal:
-        d, b = metal_bezel(c, c, 98, 86)
-        defs += d
-        body = f"<circle cx='{c}' cy='{c}' r='98' fill='#202020'/>" + body + b
-    else:
-        # a broken outer ring
-        body += (f"<circle cx='{c}' cy='{c}' r='94' fill='none' {theme('background', 'stroke')} stroke-width='8'/>"
-                 + ticks(c, c, 0, 345, 24, 98, 8, 3, "foreground"))
+    defs, body = plate(c, c, 86, opacity=0.4)
+    d, b = thin_metal_bezel(c, c, 98, 86)
+    defs += d
+    body += b
     drawings = {"face.svg": svg(200, 200, body, defs)}
-    scale = ticks(c, c, *SWEEP, 9, 84, 11, 3) + ticks(c, c, *SWEEP, 33, 84, 5, 1.2, skip_every=4)
+    # thin ticks a little longer than the main ones, both up to the silver
+    scale = (ticks(c, c, *SWEEP, 9, 85, 7, 2.6)
+             + ticks(c, c, *SWEEP, 33, 85, 10, 1, skip_every=4, opacity=0.5))
     drawings["scale.svg"] = svg(200, 200, scale)
-    drawings["needle.svg"] = svg(200, 200, needle(c, c, 80, 12, 5, cap=8))
+    strip = f"<path d='M{c - 2.2},{c + 10} L{c - 2.2},{c - 80} L{c + 2.2},{c - 80} L{c + 2.2},{c + 10} Z' {theme('accent')}/>"
+    drawings["needle.svg"] = svg(200, 200, strip)
+    # its own drawing, so the light on it stays where it is while the needle turns
+    drawings["knob.svg"] = svg(200, 200, knob(c, c, 24))
     components = [image("face.svg", (0, 0, 200, 200)), image("scale.svg", (0, 0, 200, 200))]
-    components += markings(c, c, 58, *SWEEP, 5, 13)
-    components += [text("value", (c, 128), 40, bold=True, italic=True, precision=0),
-                   text("unit", (c, 158), 15, "accent2", italic=True),
-                   image("needle.svg", (0, 0, 200, 200), manipulations=[rotate(*SWEEP, (c, c))])]
+    components += markings(c, c, 62, *SWEEP, 5, 13)
+    components += [text("unit", (c, 56), 15, "accent2", italic=True),
+                   text("value", (c, 150), 40, bold=True, italic=True, precision=0),
+                   image("needle.svg", (0, 0, 200, 200), manipulations=[rotate(*SWEEP, (c, c))]),
+                   image("knob.svg", (0, 0, 200, 200))]
     write(name, (200, 200), components, drawings, ROUND_TYPES)
 
 
@@ -508,7 +522,7 @@ def main():
                label_radius=130, label_size=26, label_italic=False, value_y=300, value_size=50, unit_gap=0.6,
                tick_outer=165, major_length=11, minor_length=7, minor_width=1.2, minor_opacity=0.5)
     segmented_dial("Dial small")
-    small_dial("Dial small metal", metal=True)
+    small_metal_dial("Dial small metal")
     open_arc("Open arc")
     compass("Compass rose")
     heart("Heart")
