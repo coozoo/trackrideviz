@@ -2,6 +2,7 @@
 
 #include "../laps/lapengine.h"
 #include "../overlay/overlay.h"
+#include "../sync/syncmap.h"
 #include "../video/cutlist.h"
 
 #include <QCoreApplication>
@@ -20,6 +21,10 @@ struct Project
     double syncOffset{0.0};
     // false: the offset is whatever automatic sync finds; true: the user's value
     bool syncIsManual{false};
+    // a video joined from recordings with breaks between them: each part's shift
+    QVector<TimeShift> videoShifts;
+
+    SyncMap sync() const { return SyncMap(syncOffset, videoShifts); }
 
     // where laps begin; invalid = the laps the device recorded
     StartFinishLine startFinish;

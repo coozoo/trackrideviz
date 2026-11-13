@@ -1,6 +1,7 @@
 #pragma once
 
 #include "telemetry/telemetrysession.h"
+#include "sync/syncmap.h"
 #include "units/units.h"
 #include "video/cutlist.h"
 
@@ -25,14 +26,13 @@ public:
 
     void setSession(const TelemetrySessionPtr &session, const Units &units);
     void setVideoDuration(double seconds);
-    // telemetry time = video time + offset
-    void setOffset(double seconds);
+    void setSync(const SyncMap &sync);
     void setPosition(double videoSeconds);
     void setCuts(const QVector<TimeRange> &cuts);
 
 signals:
     void seekRequested(double videoSeconds);
-    // while the data is dragged
+    // while the data is dragged: the new offset of the sync map
     void offsetDragged(double seconds);
     // the user changed what is cut; `description` names it for undo
     void cutsChanged(const QVector<TimeRange> &cuts, const QString &description);
@@ -49,7 +49,7 @@ private:
     QToolButton *m_stopsButton{nullptr};
     QLabel *m_keptLabel{nullptr};
     double m_videoDuration{0.0};
-    double m_offset{0.0};
+    SyncMap m_sync;
     QVector<TimeRange> m_cuts;
     TimelineStrip *m_strip{nullptr};
     TelemetrySessionPtr m_session;

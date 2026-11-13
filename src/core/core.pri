@@ -26,6 +26,7 @@ SOURCES += \
     $$PWD/project/project.cpp \
     $$PWD/settings/appsettings.cpp \
     $$PWD/settings/bundleddata.cpp \
+    $$PWD/sync/syncmap.cpp \
     $$PWD/sync/videosync.cpp \
     $$PWD/telemetry/channel.cpp \
     $$PWD/telemetry/csv/csvimporter.cpp \
@@ -46,7 +47,8 @@ SOURCES += \
     $$PWD/video/exportplan.cpp \
     $$PWD/video/ffmpegtools.cpp \
     $$PWD/video/mediainfo.cpp \
-    $$PWD/video/videoencoders.cpp
+    $$PWD/video/videoencoders.cpp \
+    $$PWD/video/videojoin.cpp
 
 HEADERS += \
     $$PWD/gauge/builtingauges.h \
@@ -67,6 +69,7 @@ HEADERS += \
     $$PWD/project/project.h \
     $$PWD/settings/appsettings.h \
     $$PWD/settings/bundleddata.h \
+    $$PWD/sync/syncmap.h \
     $$PWD/sync/videosync.h \
     $$PWD/telemetry/channel.h \
     $$PWD/telemetry/channelids.h \
@@ -90,4 +93,5 @@ HEADERS += \
     $$PWD/video/exportsettings.h \
     $$PWD/video/ffmpegtools.h \
     $$PWD/video/mediainfo.h \
-    $$PWD/video/videoencoders.h
+    $$PWD/video/videoencoders.h \
+    $$PWD/video/videojoin.h

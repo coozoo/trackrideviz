@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 
+#include "joindialog.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
 #include "timelinepanel.h"
@@ -323,6 +324,7 @@ void MainWindow::createMenus()
     openVideoAction->setShortcut(QKeySequence::Open);
     QAction *openDataAction = fileMenu->addAction(tr("Open &data..."), this, &MainWindow::chooseTelemetry);
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+    fileMenu->addAction(tr("&Join videos..."), this, &MainWindow::joinVideos);
     fileMenu->addSeparator();
     QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
     openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
@@ -388,10 +390,30 @@ void MainWindow::chooseTelemetry()
         }
 }
 
-void MainWindow::openVideo(const QString &path)
+void MainWindow::openVideo(const QString &path, const QVector<TimeShift> &shifts)
 {
     m_project.syncIsManual = false;
+    // what was cut and where breaks were belong to the video before
+    m_project.videoShifts = shifts;
+    m_project.cuts.clear();
+    m_timelinePanel->setCuts(m_project.cuts);
     loadVideo(path);
+}
+
+void MainWindow::joinVideos()
+{
+    JoinDialog dialog(QStringList(), this);
+    if (dialog.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+    openVideo(dialog.outputPath(), dialog.shifts());
+    setModified(true);
+    if (!dialog.shifts().isEmpty())
+        {
+            statusBar()->showMessage(tr("Joined; the data follows the %n break(s) between the recordings.", nullptr,
+                                        int(dialog.shifts().size())), 8000);
+        }
 }
 
 void MainWindow::loadVideo(const QString &path)
@@ -571,7 +593,7 @@ void MainWindow::exportVideo()
     // two decoders on one file only fight for the disk and the graphics card
     m_player->pause();
     ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_session, m_units, m_project.theme),
-                        m_project.syncOffset, m_project.cuts, m_player->position() / 1000.0, this);
+                        m_project.sync(), m_project.cuts, m_player->position() / 1000.0, this);
     dialog.exec();
 }
 
@@ -938,8 +960,8 @@ void MainWindow::onOffsetEdited(double seconds)
     m_project.syncIsManual = true;
     m_project.syncOffset = seconds;
     setModified(true);
-    m_canvas->setSyncOffset(seconds);
-    m_timelinePanel->setOffset(seconds);
+    m_canvas->setSync(m_project.sync());
+    m_timelinePanel->setSync(m_project.sync());
     m_syncLabel->setText(tr("Set by hand."));
 }
 
@@ -970,8 +992,8 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
         m_offsetSpin->setValue(seconds);
     }
     m_project.syncOffset = seconds;
-    m_canvas->setSyncOffset(seconds);
-    m_timelinePanel->setOffset(seconds);
+    m_canvas->setSync(m_project.sync());
+    m_timelinePanel->setSync(m_project.sync());
     m_syncLabel->setText(explanation);
 }
 
@@ -1139,7 +1161,7 @@ void MainWindow::seekTelemetryTime(double time)
             return;
         }
     // telemetry time = video time + offset
-    m_player->setPosition(std::max<qint64>(0, qint64(std::llround((time - m_project.syncOffset) * 1000.0))));
+    m_player->setPosition(std::max<qint64>(0, qint64(std::llround(m_project.sync().videoTime(time) * 1000.0))));
 }
 
 void MainWindow::updateChannelValues()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "overlay/overlay.h"
+#include "sync/syncmap.h"
 
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
@@ -34,7 +35,7 @@ public:
     double pictureAspect() const;
 
     // Telemetry time of the frame on screen (video time + sync offset).
-    double telemetryTime() const { return m_videoTime + m_syncOffset; }
+    double telemetryTime() const { return m_sync.telemetryTime(m_videoTime); }
 
 public slots:
     // Connected to QVideoSink::videoFrameChanged.
@@ -42,7 +43,7 @@ public slots:
     // Player position in ms; used for frames that carry no timestamp.
     void setPosition(qint64 positionMs);
     // telemetry time = video time + offset
-    void setSyncOffset(double seconds);
+    void setSync(const SyncMap &sync);
     void clear();
 
 signals:
@@ -97,7 +98,7 @@ private:
 
     double m_videoTime{0.0};
     double m_positionTime{0.0};
-    double m_syncOffset{0.0};
+    SyncMap m_sync;
     QRectF resizeHandle(const QRectF &itemRect) const;
     void updateCursor(const QPointF &position);
 

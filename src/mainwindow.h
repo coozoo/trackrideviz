@@ -37,7 +37,8 @@ public:
 
 public slots:
     // Replace the video / the data of the current project. Sync starts over.
-    void openVideo(const QString &path);
+    // shifts: breaks in a video joined from several recordings
+    void openVideo(const QString &path, const QVector<TimeShift> &shifts = {});
     // Imports in a worker thread; the window stays usable meanwhile.
     void openTelemetry(const QString &path);
     void openProject(const QString &path);
@@ -47,6 +48,7 @@ protected:
 
 private slots:
     void chooseVideo();
+    void joinVideos();
     void chooseTelemetry();
     void chooseProject();
     // Both return false when the user backed out or writing failed.

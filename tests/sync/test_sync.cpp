@@ -1,3 +1,4 @@
+#include "sync/syncmap.h"
 #include "sync/videosync.h"
 #include "telemetry/channelids.h"
 
@@ -27,6 +28,21 @@ private:
     }
 
 private slots:
+    void syncMapWithABreak()
+    {
+        // two recordings joined: the first 100 s long, then a break of 60 s
+        const SyncMap sync(30.0, {{100.0, 60.0}});
+        QCOMPARE(sync.telemetryTime(10.0), 40.0);
+        QCOMPARE(sync.telemetryTime(99.0), 129.0);
+        QCOMPARE(sync.telemetryTime(100.0), 190.0);
+        QCOMPARE(sync.videoTime(40.0), 10.0);
+        QCOMPARE(sync.videoTime(190.0), 100.0);
+        QCOMPARE(sync.videoTime(200.0), 110.0);
+        QCOMPARE(sync.videoTime(150.0), 100.0);   // in the break: no picture, the next part
+        // one recording: a plain offset
+        QCOMPARE(SyncMap(-5.0).videoTime(0.0), 5.0);
+    }
+
     void fileNames_data()
     {
         QTest::addColumn<QString>("name");

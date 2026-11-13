@@ -100,6 +100,8 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
             // Matroska keeps the duration only at file level
             result.duration = root.value("format").toObject().value("duration").toVariant().toDouble();
         }
+    result.created = QDateTime::fromString(root.value("format").toObject().value("tags").toObject()
+                                           .value("creation_time").toString(), Qt::ISODateWithMs);
     if (result.bitrateKbps <= 0)
         {
             result.bitrateKbps = int(root.value("format").toObject().value("bit_rate").toVariant().toLongLong() / 1000);

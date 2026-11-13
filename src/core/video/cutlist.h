@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../sync/syncmap.h"
 #include "../telemetry/telemetrysession.h"
 
 #include <QVector>
@@ -39,8 +40,8 @@ double sourceTime(const QVector<TimeRange> &kept, double outputTime);
 const TimeRange *cutAt(const QVector<TimeRange> &cuts, double t);
 
 // Where the data stood still (speed below `maxSpeed` m/s for at least
-// `minimum` s), in video time (telemetry time = video time + offset), within
+// `minimum` s), in video time (placed by `sync`), within
 // 0..videoDuration. `margin` s at each end stay, so the stop and the start are seen.
-QVector<TimeRange> stops(const TelemetrySession &session, double offset, double videoDuration,
+QVector<TimeRange> stops(const TelemetrySession &session, const SyncMap &sync, double videoDuration,
                          double minimum = 10.0, double maxSpeed = 0.5, double margin = 2.0);
 }

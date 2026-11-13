@@ -125,7 +125,7 @@ const TimeRange *CutList::cutAt(const QVector<TimeRange> &cuts, double t)
     return nullptr;
 }
 
-QVector<TimeRange> CutList::stops(const TelemetrySession &session, double offset, double videoDuration,
+QVector<TimeRange> CutList::stops(const TelemetrySession &session, const SyncMap &sync, double videoDuration,
                                   double minimum, double maxSpeed, double margin)
 {
     // in telemetry time first
@@ -167,7 +167,11 @@ QVector<TimeRange> CutList::stops(const TelemetrySession &session, double offset
                 {
                     continue;
                 }
-            cuts.append({range.start + margin - offset, range.end - margin - offset});
+            const TimeRange cut{sync.videoTime(range.start + margin), sync.videoTime(range.end - margin)};
+            if (cut.length() > 0.0)
+                {
+                    cuts.append(cut);
+                }
         }
     return normalized(cuts, videoDuration > 0.0 ? videoDuration : std::numeric_limits<double>::max());
 }

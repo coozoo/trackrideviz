@@ -160,7 +160,13 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   0.5 m/s or a device pause for 10 s or more, 2 s kept at each end). Kept in the project, undoable,
   skipped while playing. The export drops them with ffmpeg's select/aselect (sound is then AAC);
   gauges keep the real values of the moments that are kept (lap times stay true)
-- Join: several videos (camera chapters, separate recordings) as one, each with its own sync
+- ✅ Join (2026-11-13, `VideoJoin`, `SyncMap`): File > Join videos copies the streams of several
+  videos of one kind into one file (ffmpeg concat, no re-encoding), camera chapters put in order
+  (GX01xxxx, GX02xxxx...). Breaks between recordings are found from their times (file name, else
+  creation_time) and kept in the project as shifts: telemetry time = video time + offset + the
+  part's shift, so the data stays in step after each break and one offset still tunes it all.
+  Checked on four camera files: three chapters followed on, a 36:37 break before the fourth
+- Joining videos of different kinds (re-encoding), keeping camera data streams (GPMF) in the join
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join

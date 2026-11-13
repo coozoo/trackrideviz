@@ -27,12 +27,12 @@ const int kHurryDelayMs = 1500;
 }
 
 ExportJob::ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const Overlay &overlay,
-                     double syncOffset, QObject *parent)
+                     const SyncMap &sync, QObject *parent)
     : QObject(parent)
     , m_ffmpegProgram(ffmpegProgram)
     , m_plan(plan)
     , m_overlay(overlay)
-    , m_syncOffset(syncOffset)
+    , m_sync(sync)
 {
     qRegisterMetaType<ExportJob::Outcome>();
 }
@@ -164,7 +164,7 @@ void ExportJob::renderFrame(qint64 index)
     m_frame.fill(Qt::transparent);
     QPainter painter(&m_frame);
     const QRectF frame(QPointF(0, 0), QSizeF(m_plan.outputSize));
-    const double time = m_plan.frameTime(index) + m_syncOffset;
+    const double time = m_sync.telemetryTime(m_plan.frameTime(index));
     for (int i = 0; i < m_plan.regions.size(); ++i)
         {
             // each region is a window onto the full output frame, at its place in the stack

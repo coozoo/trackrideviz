@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../overlay/overlay.h"
+#include "../sync/syncmap.h"
 #include "exportplan.h"
 
 #include <QElapsedTimer>
@@ -35,7 +36,7 @@ public:
     Q_ENUM(Outcome)
 
     ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const Overlay &overlay,
-              double syncOffset, QObject *parent = nullptr);
+              const SyncMap &sync, QObject *parent = nullptr);
     // Destroying a job that is still running stops ffmpeg and removes the unfinished file.
     ~ExportJob() override;
 
@@ -68,7 +69,7 @@ private:
     QString m_ffmpegProgram;
     ExportPlan m_plan;
     Overlay m_overlay;
-    double m_syncOffset{0.0};
+    SyncMap m_sync;
 
     QProcess *m_process{nullptr};
     QProcess *m_trimProcess{nullptr};

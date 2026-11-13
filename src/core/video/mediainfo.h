@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QSize>
 #include <QString>
 
@@ -16,6 +17,9 @@ struct MediaInfo
     QString videoCodec;
     bool hasAudio{false};
     QString audioCodec;
+    // when the camera says it recorded the file (creation_time); cameras
+    // differ in whether that is the start or the end, and in the time zone
+    QDateTime created;
 
     bool isValid() const { return !size.isEmpty() && fpsNum > 0 && fpsDen > 0; }
     double fps() const { return fpsDen > 0 ? double(fpsNum) / fpsDen : 0.0; }

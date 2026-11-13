@@ -7,6 +7,7 @@
 #include "video/ffmpegtools.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
+#include "video/videojoin.h"
 
 #include <QDir>
 #include <QHash>
@@ -756,6 +757,54 @@ private slots:
         const QHash<QString, double> durations = streamDurations(output);
         QVERIFY2(std::fabs(durations.value("video") - 1.3) < 0.1, qPrintable(QString::number(durations.value("video"))));
         QVERIFY2(std::fabs(durations.value("audio") - 1.3) < 0.1, qPrintable(QString::number(durations.value("audio"))));
+    }
+
+    void joinOrderAndShifts()
+    {
+        const QStringList ordered = VideoJoin::ordered({"/v/GX020124.MP4", "/v/GX010125.MP4", "/v/GX010124.MP4",
+                                                        "/v/GOPR0100.MP4", "/v/GP010100.MP4"});
+        QCOMPARE(ordered, QStringList({"/v/GOPR0100.MP4", "/v/GP010100.MP4", "/v/GX010124.MP4", "/v/GX020124.MP4",
+                                       "/v/GX010125.MP4"}));
+        QCOMPARE(VideoJoin::ordered({"/v/clip10.mp4", "/v/clip9.mp4"}), QStringList({"/v/clip9.mp4", "/v/clip10.mp4"}));
+
+        MediaInfo minute = fullHd60();
+        minute.duration = 60.0;
+        MediaInfo half = minute;
+        half.duration = 30.0;
+        // recorded at 07:49, 07:51 (a minute's break after the first) and straight on at 07:51:30
+        const QVector<VideoJoin::Part> recordings{{"/v/20250715_074900.mp4", minute}, {"/v/20250715_075100.mp4", half},
+            {"/v/20250715_075130.mp4", minute}};
+        QVERIFY(VideoJoin::whyNot(recordings).isEmpty());
+        const QVector<TimeShift> shifts = VideoJoin::shifts(recordings);
+        QCOMPARE(shifts.size(), 1);
+        QVERIFY(shifts.first() == (TimeShift{60.0, 60.0}));
+        // chapters without clocks follow on
+        QVERIFY(VideoJoin::shifts({{"/v/GX010001.MP4", minute}, {"/v/GX020001.MP4", half}}).isEmpty());
+        MediaInfo other = minute;
+        other.size = QSize(1280, 720);
+        QVERIFY(!VideoJoin::whyNot({{"/v/a.mp4", minute}, {"/v/b.mp4", other}}).isEmpty());
+        QVERIFY(VideoJoin::listFile({"/v/it's.mp4"}).contains("file '/v/it'\\''s.mp4'"));
+    }
+
+    void joinTwoVideos()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        const QString list = m_dir.filePath("join.ffconcat");
+        QFile file(list);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(VideoJoin::listFile({m_sourceVideo, m_sourceVideo}));
+        file.close();
+        const QString output = m_dir.filePath("joined.mp4");
+        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output), 60000);
+        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        MediaInfo joined;
+        QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
+        QVERIFY2(std::fabs(joined.duration - 4.0) < 0.1, qPrintable(QString::number(joined.duration)));
+        QVERIFY(joined.hasAudio);
+        QCOMPARE(countFrames(output), 120);
     }
 
     void failedExportExplainsAndLeavesNoFile()

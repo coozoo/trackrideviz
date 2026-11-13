@@ -36,7 +36,7 @@ QString clock(double seconds)
 }
 }
 
-// The drawing itself. Time on it is video time; data at telemetry time t is at t - offset.
+// The drawing itself. Time on it is video time; data at telemetry time t is where the sync map puts it.
 class TimelineStrip : public QWidget
 {
 public:
@@ -112,9 +112,9 @@ public:
         fitRange();
     }
 
-    void setOffset(double seconds)
+    void setSync(const SyncMap &sync)
     {
-        m_offset = seconds;
+        m_sync = sync;
         // while dragging the view stays put, or the data would not move under the mouse
         if (!m_dragging)
             {
@@ -167,7 +167,7 @@ protected:
             {
                 const Channel *channel = m_session->channel(m_traceId);
                 bool ok = false;
-                const double value = channel ? channel->valueAt(m_position + m_offset, &ok) : 0.0;
+                const double value = channel ? channel->valueAt(m_sync.telemetryTime(m_position), &ok) : 0.0;
                 const QString text = ok ? QString("%1 %2").arg(m_display.convert(value), 0, 'f', m_display.decimals)
                                      .arg(m_display.unit).trimmed() : QStringLiteral("--");
                 painter.setPen(palette().color(QPalette::Text));
@@ -202,7 +202,7 @@ protected:
                 return;
             }
         m_pressX = event->position().x();
-        m_pressOffset = m_offset;
+        m_pressOffset = m_sync.offset;
         m_dragging = (event->modifiers() & Qt::ControlModifier) && m_session;
         m_selecting = !m_dragging && (event->modifiers() & Qt::ShiftModifier) && m_videoDuration > 0.0;
         if (m_selecting)
@@ -306,8 +306,8 @@ private:
         m_end = m_videoDuration;
         if (m_session && m_session->duration() > 0.0)
             {
-                m_start = std::min(m_start, -m_offset);
-                m_end = std::max(m_end, m_session->duration() - m_offset);
+                m_start = std::min(m_start, m_sync.videoTime(0.0));
+                m_end = std::max(m_end, m_sync.videoTime(m_session->duration()));
             }
         if (whole)
             {
@@ -395,8 +395,8 @@ private:
         colour.setAlpha(60);
         for (const TelemetrySession::Pause &pause : m_session->pauses())
             {
-                const double x0 = xOf(pause.startTime - m_offset);
-                const double x1 = xOf(pause.endTime - m_offset);
+                const double x0 = xOf(m_sync.videoTime(pause.startTime));
+                const double x1 = xOf(m_sync.videoTime(pause.endTime));
                 painter.fillRect(QRectF(x0, area.top(), std::max(1.0, x1 - x0), area.height()),
                                  QBrush(colour, Qt::BDiagPattern));
             }
@@ -430,7 +430,7 @@ private:
         bool drawing = false;
         for (int x = 0; x <= width(); ++x)
             {
-                const double t = timeOf(x) + m_offset;
+                const double t = m_sync.telemetryTime(timeOf(x));
                 bool ok = false;
                 const double v = t >= first && t <= last && !inPause(t) ? channel->valueAt(t, &ok) : 0.0;
                 if (!ok)
@@ -478,8 +478,8 @@ private:
         for (int i = 0; i < laps.size(); ++i)
             {
                 const TelemetrySession::Lap &lap = laps.at(i);
-                const QRectF band(QPointF(xOf(lap.startTime - m_offset), row.top()),
-                                  QPointF(xOf(lap.endTime - m_offset), row.bottom()));
+                const QRectF band(QPointF(xOf(m_sync.videoTime(lap.startTime)), row.top()),
+                                  QPointF(xOf(m_sync.videoTime(lap.endTime)), row.bottom()));
                 if (band.right() < 0 || band.left() > width())
                     {
                         continue;
@@ -488,7 +488,7 @@ private:
                 painter.setPen(palette().color(QPalette::Text));
                 for (const double split : lap.splits)
                     {
-                        const double x = xOf(split - m_offset);
+                        const double x = xOf(m_sync.videoTime(split));
                         painter.drawLine(QPointF(x, row.top() + row.height() / 2.0), QPointF(x, row.bottom()));
                     }
                 if (i == best && laps.size() > 1)
@@ -514,7 +514,7 @@ private:
     double m_traceMin{0.0};
     double m_traceMax{0.0};
     double m_videoDuration{0.0};
-    double m_offset{0.0};
+    SyncMap m_sync;
     double m_position{0.0};
     double m_start{0.0};          // all there is, video time
     double m_end{0.0};
@@ -658,10 +658,10 @@ void TimelinePanel::setVideoDuration(double seconds)
     updateCutButtons();
 }
 
-void TimelinePanel::setOffset(double seconds)
+void TimelinePanel::setSync(const SyncMap &sync)
 {
-    m_offset = seconds;
-    m_strip->setOffset(seconds);
+    m_sync = sync;
+    m_strip->setSync(sync);
 }
 
 void TimelinePanel::setCuts(const QVector<TimeRange> &cuts)
@@ -694,7 +694,7 @@ void TimelinePanel::findStops()
         {
             return;
         }
-    const QVector<TimeRange> stops = CutList::stops(*m_session, m_offset, m_videoDuration);
+    const QVector<TimeRange> stops = CutList::stops(*m_session, m_sync, m_videoDuration);
     if (stops.isEmpty())
         {
             m_keptLabel->setText(tr("No stops of 10 s or more in the video."));

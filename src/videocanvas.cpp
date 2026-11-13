@@ -348,9 +348,9 @@ void VideoCanvas::setPosition(qint64 positionMs)
     m_positionTime = positionMs / 1000.0;
 }
 
-void VideoCanvas::setSyncOffset(double seconds)
+void VideoCanvas::setSync(const SyncMap &sync)
 {
-    m_syncOffset = seconds;
+    m_sync = sync;
     update();
 }
 

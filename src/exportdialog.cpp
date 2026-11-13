@@ -62,12 +62,12 @@ QString formatDuration(double seconds)
 }
 }
 
-ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay, double syncOffset,
+ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay, const SyncMap &sync,
                            const QVector<TimeRange> &cuts, double currentPosition, QWidget *parent)
     : QDialog(parent)
     , m_videoPath(videoPath)
     , m_overlay(overlay)
-    , m_syncOffset(syncOffset)
+    , m_sync(sync)
     , m_cuts(cuts)
     , m_currentPosition(currentPosition)
     , m_ffmpeg(FfmpegTools::ffmpegProgram())
@@ -456,7 +456,7 @@ void ExportDialog::startExport()
     AppSettings::setExportDefaults(settings);
 
     const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts);
-    ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_syncOffset);
+    ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync);
     m_thread = new QThread(this);
     job->moveToThread(m_thread);
     connect(m_thread, &QThread::started, job, &ExportJob::start);

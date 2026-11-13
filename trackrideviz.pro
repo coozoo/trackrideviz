@@ -28,6 +28,7 @@ SOURCES += main.cpp \
     src/appearance.cpp \
     src/exportdialog.cpp \
     src/gaugelibrarypanel.cpp \
+    src/joindialog.cpp \
     src/lapcomparepanel.cpp \
     src/lapspanel.cpp \
     src/timelinepanel.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
     src/appearance.h \
     src/exportdialog.h \
     src/gaugelibrarypanel.h \
+    src/joindialog.h \
     src/lapcomparepanel.h \
     src/lapspanel.h \
     src/timelinepanel.h \
