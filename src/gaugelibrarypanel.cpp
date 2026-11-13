@@ -6,23 +6,38 @@
 #include "overlay/xmltemplateimporter.h"
 #include "telemetry/csv/dataprofilelibrary.h"
 #include "telemetry/csv/xmldataprofileimporter.h"
+#include "overlay/librarypackage.h"
 #include "overlay/templatelibrary.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 
 #include <QApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileDialog>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
 #include <QListWidget>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
+#include <QSaveFile>
 #include <QSettings>
 #include <QTabBar>
 #include <QVBoxLayout>
 #include <QtConcurrent>
+
+struct GaugeLibraryPanel::ImportFolders
+{
+    QString widgets;
+    QStringList gaugeFiles;
+    QStringList templateFiles;
+    QStringList xmlGauges;
+    QStringList xmlTemplates;
+    QStringList dataProfiles;
+    QStringList packages;      // .rtvgauge, .rtvtemplate
+};
 
 namespace
 {
@@ -108,15 +123,7 @@ QVector<Thumbnail> renderThumbnails(const QStringList &ids, bool templates)
 // What a chosen folder holds: a program folder with Widgets and Templates in it, or one of those;
 // XML gauges and templates, each a folder (with gauge.xml, project.cdp), or a folder of
 // them, or one with Gauges and Templates in it.
-struct ImportFolders
-{
-    QString widgets;
-    QStringList gaugeFiles;
-    QStringList templateFiles;
-    QStringList xmlGauges;
-    QStringList xmlTemplates;
-    QStringList dataProfiles;
-};
+using ImportFolders = GaugeLibraryPanel::ImportFolders;
 
 
 QString childIgnoringCase(const QDir &dir, const QString &name)
@@ -189,6 +196,8 @@ QStringList foldersWith(const QString &chosen, const QString &fileName, const QS
 ImportFolders importFoldersIn(const QString &chosen)
 {
     ImportFolders found;
+    found.packages = filesIn(chosen, QString("*.%1").arg(LibraryPackage::GaugeSuffix))
+                     + filesIn(chosen, QString("*.%1").arg(LibraryPackage::TemplateSuffix));
     found.dataProfiles = dataProfilesIn(chosen);
     found.xmlTemplates = foldersWith(chosen, XmlTemplateImporter::FileName, "Templates");
     // a template's own gauges come in with it
@@ -244,13 +253,19 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_importButton->setToolTip(tr("Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a "
                                   "gauge.xml or project.cdp) and XML data profiles. Choose the folder that holds them, "
                                   "or a folder with Widgets and Templates or with Gauges, Templates and DataProfiles in it."));
-    connect(m_importButton, &QPushButton::clicked, this, &GaugeLibraryPanel::importFiles);
+    QMenu *importMenu = new QMenu(m_importButton);
+    importMenu->addAction(tr("Gauge or template files (.rtvgauge, .rtvtemplate)..."), this, &GaugeLibraryPanel::importPackages);
+    importMenu->addAction(tr("A folder of gauges, templates or data profiles..."), this, &GaugeLibraryPanel::importFiles);
+    m_importButton->setMenu(importMenu);
+    m_exportButton = new QPushButton(tr("Export..."), this);
+    connect(m_exportButton, &QPushButton::clicked, this, &GaugeLibraryPanel::exportSelected);
     m_removeButton = new QPushButton(tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
 
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addWidget(m_useButton);
     buttons->addWidget(m_importButton);
+    buttons->addWidget(m_exportButton);
     buttons->addWidget(m_removeButton);
     buttons->addStretch(1);
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -278,6 +293,9 @@ void GaugeLibraryPanel::updateButtons()
     const QListWidgetItem *item = m_list->currentItem();
     const bool selected = item && item->isSelected();
     m_useButton->setEnabled(selected);
+    m_exportButton->setEnabled(selected);
+    m_exportButton->setToolTip(showingTemplates() ? tr("Saves the selected template, with the gauges it uses, as one file to pass on")
+                               : tr("Saves the selected gauge as one file to pass on"));
     // what came with the program is part of it
     const bool builtin = selected && item->data(Qt::UserRole + 1).toBool();
     m_removeButton->setEnabled(selected && !builtin);
@@ -422,13 +440,81 @@ void GaugeLibraryPanel::importFiles()
     settings.setValue("paths/importGauges", folder);
     const ImportFolders found = importFoldersIn(folder);
     if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty() && found.xmlGauges.isEmpty() && found.xmlTemplates.isEmpty()
-            && found.dataProfiles.isEmpty())
+            && found.dataProfiles.isEmpty() && found.packages.isEmpty())
         {
             QMessageBox::information(this, tr("Import"),
-                                     tr("There are no gauges (.veg, gauge.xml), templates (.vet, project.cdp) or data profiles in that folder."));
+                                     tr("There are no gauges (.rtvgauge, .veg, gauge.xml), templates (.rtvtemplate, .vet, "
+                                        "project.cdp) or data profiles in that folder."));
             return;
         }
+    startImport(found);
+}
 
+void GaugeLibraryPanel::importPackages()
+{
+    QSettings settings;
+    ImportFolders found;
+    found.packages = QFileDialog::getOpenFileNames(this, tr("Gauges and templates"), settings.value("paths/importGauges").toString(),
+                     tr("Gauges and templates (*.%1 *.%2)").arg(LibraryPackage::GaugeSuffix, LibraryPackage::TemplateSuffix));
+    if (found.packages.isEmpty())
+        {
+            return;
+        }
+    settings.setValue("paths/importGauges", QFileInfo(found.packages.first()).path());
+    startImport(found);
+}
+
+void GaugeLibraryPanel::exportSelected()
+{
+    const QString id = selectedId();
+    if (id.isEmpty())
+        {
+            return;
+        }
+    const bool templates = showingTemplates();
+    QString error;
+    QString name;
+    QByteArray package;
+    if (templates)
+        {
+            const GaugeTemplate t = TemplateLibrary::get(id);
+            name = t.name;
+            package = LibraryPackage::packTemplate(t, &error);
+        }
+    else
+        {
+            const Gauge gauge = GaugeLibrary::gauge(id);
+            name = gauge.name;
+            package = LibraryPackage::packGauge(gauge, &error);
+        }
+    if (package.isEmpty())
+        {
+            QMessageBox::warning(this, tr("Export"), error);
+            return;
+        }
+    QSettings settings;
+    const char *suffix = templates ? LibraryPackage::TemplateSuffix : LibraryPackage::GaugeSuffix;
+    const QString start = QDir(settings.value("paths/exportGauges", QDir::homePath()).toString()).filePath(name + "." + suffix);
+    QString path = QFileDialog::getSaveFileName(this, templates ? tr("Export template") : tr("Export gauge"), start,
+                   templates ? tr("Templates (*.%1)").arg(suffix) : tr("Gauges (*.%1)").arg(suffix));
+    if (path.isEmpty())
+        {
+            return;
+        }
+    if (!path.endsWith(QString(".") + suffix, Qt::CaseInsensitive))
+        {
+            path += QString(".") + suffix;
+        }
+    settings.setValue("paths/exportGauges", QFileInfo(path).path());
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly) || file.write(package) != package.size() || !file.commit())
+        {
+            QMessageBox::warning(this, tr("Export"), tr("Cannot write %1: %2").arg(path, file.errorString()));
+        }
+}
+
+void GaugeLibraryPanel::startImport(const ImportFolders &found)
+{
     m_importButton->setEnabled(false);
     m_importButton->setText(tr("Importing..."));
     auto *watcher = new QFutureWatcher<ImportReport>(this);
@@ -501,6 +587,32 @@ void GaugeLibraryPanel::importFiles()
         report.templates.failed += xmlTemplates.failed;
         report.templates.notes += xmlTemplates.notes;
         report.profiles = DataProfileLibrary::importXml(found.dataProfiles);
+        // our own files, one gauge or one template with its gauges each
+        for (const QString &path : found.packages)
+            {
+                QFile file(path);
+                QString error;
+                const bool isTemplate = path.endsWith(QString(".") + LibraryPackage::TemplateSuffix, Qt::CaseInsensitive);
+                int gaugesAdded = 0;
+                const QString id = !file.open(QIODevice::ReadOnly) ? QString()
+                                   : isTemplate ? LibraryPackage::importTemplate(file.readAll(), &gaugesAdded, &error)
+                                   : LibraryPackage::importGauge(file.readAll(), &error);
+                if (id.isEmpty())
+                    {
+                        (isTemplate ? report.templates.failed : report.gauges.failed)
+                                << QString("%1: %2").arg(QFileInfo(path).fileName(), error.isEmpty() ? file.errorString() : error);
+                    }
+                else if (isTemplate)
+                    {
+                        ++report.templates.imported;
+                        report.templates.gaugesImported += gaugesAdded;
+                    }
+                else
+                    {
+                        ++report.gauges.imported;
+                    }
+                GaugeLibrary::refresh();
+            }
         return report;
     }));
 }

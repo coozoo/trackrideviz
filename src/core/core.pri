@@ -23,6 +23,7 @@ SOURCES += \
     $$PWD/gauge/xmlgaugeimporter.cpp \
     $$PWD/laps/lapengine.cpp \
     $$PWD/overlay/gaugetemplate.cpp \
+    $$PWD/overlay/librarypackage.cpp \
     $$PWD/overlay/overlay.cpp \
     $$PWD/overlay/templatelibrary.cpp \
     $$PWD/overlay/xmltemplateimporter.cpp \
@@ -46,6 +47,7 @@ SOURCES += \
     $$PWD/telemetry/telemetryimporter.cpp \
     $$PWD/telemetry/telemetrysession.cpp \
     $$PWD/units/units.cpp \
+    $$PWD/util/gzip.cpp \
     $$PWD/video/cutlist.cpp \
     $$PWD/video/exportjob.cpp \
     $$PWD/video/exportplan.cpp \
@@ -68,6 +70,7 @@ HEADERS += \
     $$PWD/gauge/xmlgaugeimporter.h \
     $$PWD/laps/lapengine.h \
     $$PWD/overlay/gaugetemplate.h \
+    $$PWD/overlay/librarypackage.h \
     $$PWD/overlay/overlay.h \
     $$PWD/overlay/templatelibrary.h \
     $$PWD/overlay/xmltemplateimporter.h \
@@ -93,6 +96,7 @@ HEADERS += \
     $$PWD/telemetry/telemetryimporter.h \
     $$PWD/telemetry/telemetrysession.h \
     $$PWD/units/units.h \
+    $$PWD/util/gzip.h \
     $$PWD/video/cutlist.h \
     $$PWD/video/exportjob.h \
     $$PWD/video/exportplan.h \
@@ -103,3 +107,6 @@ HEADERS += \
     $$PWD/video/videojoin.h
 
 RESOURCES += $$PWD/gauge/fonts/fonts.qrc
+
+# gzip for the library's own files (Gzip); zlib is there wherever Qt is
+LIBS += -lz

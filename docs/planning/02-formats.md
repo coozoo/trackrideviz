@@ -160,6 +160,19 @@ positions, G from speed, speed from distance; for every source alike in M4), pos
 to feet or metres. Refused: AiM and DriftBox layouts (header found by blank lines / sections), and
 profiles without line matchers. Of a full installation's 54: 49 import.
 
+### Files to pass on: `.rtvgauge`, `.rtvtemplate` (`LibraryPackage`)
+The library keeps gauges as folders and templates as JSON files. To pass one on, it is exported
+as a single file: gzipped JSON (`zcat file | jq` reads it; plain JSON is read too).
+```
+.rtvgauge:    { format: "rtvgauge-package", version: 1,
+                files: { "gauge.json": {text}, "images/face.svg": {text}, "images/x.png": {base64} } }
+.rtvtemplate: { format: "rtvtemplate-package", version: 1, template: {...the template...},
+                gauges: { "library:<folder>": { "gauge.json": {...}, ... } } }
+```
+A template carries every gauge of the user's library it uses; gauges that come with the program
+are only named. On import a gauge already in the library unchanged is reused, a different one of
+the same name is added as "<name> (2)", and a template of an existing name gets one of its own.
+
 ## 2.2 Telemetry formats
 
 | Format | Source | Approach | Phase |

@@ -1,11 +1,13 @@
 #include "gauge/builtingauges.h"
 #include "gauge/gaugelibrary.h"
 #include "overlay/gaugetemplate.h"
+#include "overlay/librarypackage.h"
 #include "overlay/templatelibrary.h"
 #include "overlay/xmltemplateimporter.h"
 #include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
+#include "util/gzip.h"
 
 #include <QDir>
 #include <QJsonDocument>
@@ -503,6 +505,81 @@ private slots:
             }
         QCOMPARE(demo->laps().size(), 2);
         QVERIFY(DemoSession::ShowcaseTime > 0 && DemoSession::ShowcaseTime < demo->duration());
+    }
+
+    void packagesCarryGaugesAndTemplates()
+    {
+        // a library of its own: earlier tests count what is in theirs
+        GaugeLibrary::setUserFolder(m_dir.filePath("package-gauges"));
+        TemplateLibrary::setUserFolder(m_dir.filePath("package-templates"));
+
+        // a drawing and a picture
+        Gauge gauge;
+        gauge.name = "Shared";
+        gauge.size = QSizeF(100, 50);
+        GaugeComponent drawing;
+        drawing.type = GaugeComponent::Image;
+        drawing.frame = QRectF(0, 0, 100, 50);
+        drawing.imagePath = "images/plate.svg";
+        drawing.svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 5'><rect width='10' height='5' fill='@accent'/></svg>";
+        GaugeComponent picture = drawing;
+        picture.imagePath = "images/dot.png";
+        picture.svg.clear();
+        picture.image = QImage(8, 8, QImage::Format_ARGB32);
+        picture.image.fill(Qt::red);
+        gauge.components << drawing << picture;
+
+        const QByteArray packed = LibraryPackage::packGauge(gauge);
+        QVERIFY(Gzip::isGzip(packed));
+        bool ok = false;
+        const QByteArray json = Gzip::decompress(packed, &ok);
+        QVERIFY(ok);
+        QVERIFY(json.contains("<svg"));          // drawings stay readable inside
+        Gauge back;
+        QVERIFY(LibraryPackage::unpackGauge(packed, &back));
+        QCOMPARE(back.name, QString("Shared"));
+        QCOMPARE(back.components.at(0).svg, drawing.svg);
+        QCOMPARE(back.components.at(1).image.pixelColor(4, 4), QColor(Qt::red));
+        // plain JSON is read too
+        QVERIFY(LibraryPackage::unpackGauge(json, &back));
+        QVERIFY(!LibraryPackage::unpackGauge("not a package", &back));
+
+        // a template with a gauge of the library and one that comes with the program
+        const QString sharedId = GaugeLibrary::add(gauge, gauge.name);
+        GaugeTemplate t;
+        t.name = "Shared layout";
+        TemplateItem mine;
+        mine.gaugeId = sharedId;
+        mine.channel = ChannelId::Speed;
+        mine.height = 200;
+        TemplateItem builtin = mine;
+        builtin.gaugeId = BuiltinGauges::DialId;
+        t.items << mine << builtin;
+        const QByteArray templatePackage = LibraryPackage::packTemplate(t);
+        QVERIFY(!templatePackage.isEmpty());
+
+        // somewhere else: an empty library
+        GaugeLibrary::setUserFolder(m_dir.filePath("elsewhere-gauges"));
+        TemplateLibrary::setUserFolder(m_dir.filePath("elsewhere-templates"));
+        int added = 0;
+        const QString templateId = LibraryPackage::importTemplate(templatePackage, &added);
+        QVERIFY(!templateId.isEmpty());
+        QCOMPARE(added, 1);
+        const GaugeTemplate imported = TemplateLibrary::get(templateId);
+        QCOMPARE(imported.items.size(), 2);
+        QCOMPARE(imported.items.at(1).gaugeId, QString(BuiltinGauges::DialId));
+        QCOMPARE(GaugeLibrary::gauge(imported.items.at(0).gaugeId).components.at(0).svg, drawing.svg);
+        // again: the gauge is there as it is, nothing new; the template gets a name of its own
+        const QString again = LibraryPackage::importTemplate(templatePackage, &added);
+        QCOMPARE(added, 0);
+        QVERIFY(again != templateId);
+        QCOMPARE(TemplateLibrary::get(again).items.at(0).gaugeId, imported.items.at(0).gaugeId);
+        // a different gauge of the same name does not replace the one there
+        gauge.size = QSizeF(200, 50);
+        const QString other = LibraryPackage::importGauge(LibraryPackage::packGauge(gauge));
+        QVERIFY(!other.isEmpty() && other != imported.items.at(0).gaugeId);
+        QCOMPARE(GaugeLibrary::gauge(other).name, QString("Shared (2)"));
+        QCOMPARE(GaugeLibrary::gauge(imported.items.at(0).gaugeId).size, QSizeF(100, 50));
     }
 };
 

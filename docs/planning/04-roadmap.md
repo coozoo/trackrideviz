@@ -182,6 +182,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 ## M6 — Gauge editor
 - ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colours inside the drawing;
   Barlow Semi Condensed (OFL) bundled for gauge texts
+- ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
+  with its gauges on; Export and Import in the library panel. Built-in gauges and templates marked
+  with a padlock. Next: file associations (MIME types) so a double click imports
 - 🔄 Own vector set, batch 1 (2026-11-13, `tools/vectorgauges`): Dial, Dial metal, Dial metal arc,
   Dial ring, Dial sport, Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart,
   Tile (one tile for every channel: the icon follows it). Under review
