@@ -283,7 +283,8 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         # a thin brushed silver ring just outside the face
         d, b = metal_bezel(C, C, 177, 168, gid="rim")
         defs += d
-        body = f"<circle cx='{C}' cy='{C}' r='177' fill='#141414'/>" + body + b
+        # partly see-through under the face: with the theme's background about 80 % opaque in all
+        body = f"<circle cx='{C}' cy='{C}' r='177' fill='#141414' fill-opacity='0.55'/>" + body + b
     elif bezel == "ring":
         body = (f"<circle cx='{C}' cy='{C}' r='182' fill='none' {theme('accent2', 'stroke')} stroke-width='2'/>"
                 + body)
