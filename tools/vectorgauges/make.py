@@ -92,6 +92,16 @@ def metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
     return defs, body
 
 
+def thin_metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
+    """A thin brushed rim on the outer third; the rest a shade, mostly see-through, the ticks reaching over it."""
+    silver = r_outer - (r_outer - r_inner) / 3
+    defs, body = metal_bezel(cx, cy, r_outer, silver, gid)
+    mid = (silver + r_inner) / 2
+    shade = (f"<circle cx='{cx}' cy='{cy}' r='{fmt(mid)}' fill='none' stroke='#000000' stroke-opacity='0.2' "
+             f"stroke-width='{fmt(silver - r_inner)}'/>")
+    return defs, shade + body
+
+
 def plate(cx, cy, r, glow=True, gid="plate"):
     """The dial's face in the theme's background, a little lighter in the middle."""
     defs = (f"<radialGradient id='{gid}' cx='0.5' cy='0.42' r='0.6'>"
@@ -195,9 +205,9 @@ def outer_needle(colour="accent", tip=164, base=84):
             f"{theme(colour)}/>")
 
 
-def pointer():
+def pointer(tip=166):
     """A bright line at the scale and an arrowhead at the inner disc, both turning together."""
-    return (f"<path d='M{C - 1.6},{C - 166} L{C + 1.6},{C - 166} L{C + 1.6},{C - 128} L{C - 1.6},{C - 128} Z' "
+    return (f"<path d='M{C - 1.6},{C - tip} L{C + 1.6},{C - tip} L{C + 1.6},{C - 128} L{C - 1.6},{C - 128} Z' "
             f"{theme('accent2')}/>"
             f"<path d='M{C},{C - 104} L{C - 11},{C - 82} L{C + 11},{C - 82} Z' {theme('accent')}/>")
 
@@ -240,6 +250,10 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         d, b = metal_bezel(C, C, 196, 170)
         defs += d
         body = f"<circle cx='{C}' cy='{C}' r='196' fill='#202020'/>" + body + b
+    elif bezel == "thin metal":
+        d, b = thin_metal_bezel(C, C, 196, 168)
+        defs += d
+        body += b
     elif bezel == "flat":
         body += f"<circle cx='{C}' cy='{C}' r='168' fill='none' {theme('accent2', 'stroke')} stroke-width='3'/>"
     elif bezel == "rim":
@@ -266,10 +280,10 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
     # what has been reached so far, swept from the start of the scale up to the needle
     if sweep in ("silver", "silver+accent"):
         band = ("<defs><linearGradient id='silver' x1='0' y1='0' x2='1' y2='1'>"
-                "<stop offset='0' stop-color='#ffffff' stop-opacity='0.85'/>"
-                "<stop offset='0.6' stop-color='#bdbdbd' stop-opacity='0.75'/>"
-                "<stop offset='1' stop-color='#8c8c8c' stop-opacity='0.7'/></linearGradient></defs>"
-                f"<path d='{ring_path(C, C, 162, 84, *SWEEP)}' fill='url(#silver)'/>")
+                "<stop offset='0' stop-color='#ffffff' stop-opacity='0.6'/>"
+                "<stop offset='0.6' stop-color='#bdbdbd' stop-opacity='0.5'/>"
+                "<stop offset='1' stop-color='#8c8c8c' stop-opacity='0.45'/></linearGradient></defs>"
+                f"<path d='{ring_path(C, C, max(162, tick_outer - 1), 84, *SWEEP)}' fill='url(#silver)'/>")
         drawings["sweep.svg"] = svg(400, 400, band)
         components.append(image("sweep.svg", (0, 0, 400, 400), manipulations=[radial_clip(*SWEEP, (C, C))]))
     if sweep in ("accent", "silver+accent"):
@@ -297,7 +311,7 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
     if needle_style == "outer":
         drawn = outer_needle(tip=needle_tip or max(164, tick_outer - 2), base=needle_base)
     elif needle_style == "pointer":
-        drawn = pointer()
+        drawn = pointer(tip=needle_tip or 166)
     elif needle_style == "glow":
         drawn = glow_needle()
     elif needle_style == "taper":
@@ -451,10 +465,13 @@ def main():
     round_dial("Dial", bezel=None, needle_style="outer", labels=13, label_radius=124, label_size=19, value_y=196,
                tick_outer=171, major_length=32, minor_length=18, minor_width=1.2, minor_opacity=0.5,
                needle_base=75, needle_tip=164)
-    round_dial("Dial metal", bezel="metal", sweep="silver", needle_style="outer", labels=13, label_radius=124,
-               label_size=19, value_y=196)
-    round_dial("Dial metal arc", bezel="metal", sweep="silver+accent", needle_style="pointer", labels=13,
-               label_radius=124, label_size=19, value_y=186, second_readout=True)
+    # a thin rim, the ticks reaching out over a shade to it, the thin ones see-through
+    metal_ticks = dict(bezel="thin metal", tick_outer=187, major_length=34, minor_length=20, minor_width=1.2,
+                       minor_opacity=0.5)
+    round_dial("Dial metal", sweep="silver", needle_style="outer", labels=13, label_radius=136, label_size=19,
+               value_y=196, needle_base=75, needle_tip=180, **metal_ticks)
+    round_dial("Dial metal arc", sweep="silver+accent", needle_style="pointer", labels=13, label_radius=124,
+               label_size=19, value_y=186, second_readout=True, needle_tip=184, **metal_ticks)
     round_dial("Dial ring", bezel="ring", labels=7, needle_style="outer", unit_caps=True, value_size=72)
     # the value low, clear of the needle, which starts in the middle without a pin
     round_dial("Dial sport", bezel="flat", face="sport", needle_style="glow", inner_disc=False, value_y=262,
