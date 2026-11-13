@@ -2,6 +2,7 @@
 
 #include "../telemetry/channelids.h"
 #include "channelicons.h"
+#include "gaugefonts.h"
 
 #include <QDateTime>
 #include <QFont>
@@ -391,6 +392,8 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     , m_channel(channel)
     , m_session(session)
 {
+    // before any text of a gauge is measured
+    GaugeFonts::load();
     if (m_session)
         {
             m_lat = m_session->channel(ChannelId::PositionLat);

@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
             args.remove(previewAt, 2);
         }
     const QString folder = !args.isEmpty() ? args.first() : QStringLiteral(RTV_DATA_FOLDER);
-    QDir(folder + "/gauges").removeRecursively();
+    // only what is drawn here: the drawn (SVG) gauges in data/gauges are made by hand
     QDir(folder + "/templates").removeRecursively();
     if (!QDir().mkpath(folder + "/templates"))
         {

@@ -180,6 +180,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Multiple data sources per project
 
 ## M6 — Gauge editor
+- ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colours inside the drawing;
+  Barlow Semi Condensed (OFL) bundled for gauge texts
+- 🔄 Own vector set, batch 1 (2026-11-13, `tools/vectorgauges`): Dial, Dial metal, Dial metal arc,
+  Dial ring, Dial sport, Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart,
+  Tile (one tile for every channel: the icon follows it). Under review
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a

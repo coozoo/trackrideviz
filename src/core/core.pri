@@ -15,6 +15,7 @@ SOURCES += \
     $$PWD/gauge/builtingauges.cpp \
     $$PWD/gauge/channelicons.cpp \
     $$PWD/gauge/gaugefile.cpp \
+    $$PWD/gauge/gaugefonts.cpp \
     $$PWD/gauge/gaugelibrary.cpp \
     $$PWD/gauge/gaugerenderer.cpp \
     $$PWD/gauge/metricrange.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     $$PWD/gauge/channelicons.h \
     $$PWD/gauge/gauge.h \
     $$PWD/gauge/gaugefile.h \
+    $$PWD/gauge/gaugefonts.h \
     $$PWD/gauge/gaugelibrary.h \
     $$PWD/gauge/gaugerenderer.h \
     $$PWD/gauge/gaugetheme.h \
@@ -99,3 +101,5 @@ HEADERS += \
     $$PWD/video/mediainfo.h \
     $$PWD/video/videoencoders.h \
     $$PWD/video/videojoin.h
+
+RESOURCES += $$PWD/gauge/fonts/fonts.qrc

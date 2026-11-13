@@ -1,0 +1,177 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Dial small metal",
+    "size": [
+        200,
+        200
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                59.0,
+                141.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 13
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                46.4,
+                77.8
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 13
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                100.0,
+                42.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 13
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                153.6,
+                77.8
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 13
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                141.0,
+                141.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 13
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                100,
+                128
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 40,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                100,
+                158
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        },
+        {
+            "type": "image",
+            "image": "images/needle.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": -135,
+                    "maxAngle": 135,
+                    "pivot": [
+                        100,
+                        100
+                    ]
+                }
+            ]
+        }
+    ]
+}

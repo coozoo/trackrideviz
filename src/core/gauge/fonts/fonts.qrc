@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/gaugefonts">
+        <file>BarlowSemiCondensed-Medium.ttf</file>
+        <file>BarlowSemiCondensed-MediumItalic.ttf</file>
+        <file>BarlowSemiCondensed-SemiBold.ttf</file>
+        <file>BarlowSemiCondensed-SemiBoldItalic.ttf</file>
+    </qresource>
+</RCC>

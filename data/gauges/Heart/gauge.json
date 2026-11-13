@@ -1,0 +1,73 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Heart",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "heartRate"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/heart.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                200,
+                190
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 84,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                200,
+                250
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                200,
+                372
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

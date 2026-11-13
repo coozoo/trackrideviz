@@ -81,5 +81,8 @@ debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 
 [GPL-3.0](LICENSE)
 
+Gauges use the Barlow Semi Condensed font by Jeremy Tribby, under the SIL Open Font License
+([text](src/core/gauge/fonts/OFL-BarlowSemiCondensed.txt)).
+
 Race Track Visualizer is an independent project, not affiliated with the makers of any other
 program whose files it can read. No code or artwork from other products is included.

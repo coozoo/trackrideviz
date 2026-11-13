@@ -240,8 +240,15 @@ Where the shipped `gauges/` and `templates/` are, first found wins: `$TRACKRIDEV
 `<exe>/data` (Windows zip); `<exe>/../share/trackrideviz` (deb/rpm `/usr/share/trackrideviz`,
 AppImage, any `make install` prefix); `<exe>/../Resources` (macOS bundle, `QMAKE_BUNDLE_DATA`);
 the system data folders; in debug builds the source tree's `data/`. Shipped artwork is drawn by
-`tools/makebundled` (run it, look at `--preview` pictures, commit `data/`) until the gauge editor
-exists; only our own artwork goes there.
+`tools/makebundled` (pictures) and `tools/vectorgauges/make.py` (SVG gauges) - run them, look at
+the result, commit `data/` - until the gauge editor exists; only our own artwork goes there.
+`tools/gaugereview` renders a gauge from elsewhere and ours side by side on a local page; its
+output shows other people's artwork and stays out of the repository.
+
+SVG drawings in gauges are drawn as vectors at the size they end up. They name the theme's
+colours as `@foreground`, `@background`, `@accent`, `@accent2`, and their transparency as
+`@<name>-opacity` (Qt SVG reads no transparency inside a colour). Texts use the bundled
+Barlow Semi Condensed (`GaugeFonts`).
 
 ## 3.8 Touch UI (QML, later)
 

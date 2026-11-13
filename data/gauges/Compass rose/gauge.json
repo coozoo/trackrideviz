@@ -1,0 +1,93 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Compass rose",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "heading"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/rose.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": -360,
+                    "pivot": [
+                        200,
+                        200
+                    ],
+                    "minValue": 0,
+                    "maxValue": 360,
+                    "wrap": true
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                200,
+                200
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 64,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                200,
+                244
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

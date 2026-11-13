@@ -1,0 +1,77 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Tile",
+    "size": [
+        360,
+        110
+    ],
+    "supportedTypes": [
+        "speed",
+        "heartRate",
+        "elevation",
+        "cadence",
+        "power",
+        "temperature",
+        "distance",
+        "heading",
+        "grade"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "channelIcon": true,
+            "color": "accent",
+            "frame": [
+                22,
+                23,
+                64,
+                64
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                104,
+                34
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                104,
+                76
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 42,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        }
+    ]
+}
