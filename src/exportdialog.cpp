@@ -62,12 +62,13 @@ QString formatDuration(double seconds)
 }
 }
 
-ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay,
-                           double syncOffset, double currentPosition, QWidget *parent)
+ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay, double syncOffset,
+                           const QVector<TimeRange> &cuts, double currentPosition, QWidget *parent)
     : QDialog(parent)
     , m_videoPath(videoPath)
     , m_overlay(overlay)
     , m_syncOffset(syncOffset)
+    , m_cuts(cuts)
     , m_currentPosition(currentPosition)
     , m_ffmpeg(FfmpegTools::ffmpegProgram())
 {
@@ -377,7 +378,9 @@ void ExportDialog::updateEstimate()
             return;
         }
     const ExportSettings settings = currentSettings();
-    const double length = m_rangeCheck->isChecked() ? qMax(0.0, settings.duration) : m_info.duration;
+    const double start = m_rangeCheck->isChecked() ? settings.start : 0.0;
+    const double end = m_rangeCheck->isChecked() ? settings.start + qMax(0.0, settings.duration) : m_info.duration;
+    const double length = CutList::keptLength(CutList::kept(m_cuts, start, end));
     const double megabytes = m_bitrateSpin->value() * length / 8.0;
     const QString size = megabytes >= 1000.0 ? tr("about %1 GB").arg(QLocale().toString(megabytes / 1000.0, 'f', 1))
                          : tr("about %1 MB").arg(QLocale().toString(megabytes, 'f', 0));
@@ -452,7 +455,7 @@ void ExportDialog::startExport()
         }
     AppSettings::setExportDefaults(settings);
 
-    const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay);
+    const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts);
     ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_syncOffset);
     m_thread = new QThread(this);
     job->moveToThread(m_thread);

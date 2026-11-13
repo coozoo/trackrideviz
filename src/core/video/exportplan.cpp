@@ -23,7 +23,8 @@ QSize ExportPlan::outputSizeFor(const QSize &source, int wantedHeight)
 }
 
 ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
-                            const ExportSettings &settings, const Overlay &overlay)
+                            const ExportSettings &settings, const Overlay &overlay,
+                            const QVector<TimeRange> &cuts)
 {
     ExportPlan plan;
     plan.outputSize = outputSizeFor(info.size, settings.height);
@@ -39,13 +40,21 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     plan.startTime = std::clamp(settings.start, 0.0, std::max(0.0, info.duration));
     const double available = std::max(0.0, info.duration - plan.startTime);
     const double length = settings.duration > 0.0 ? std::min(settings.duration, available) : available;
+    const QVector<TimeRange> kept = CutList::kept(cuts, plan.startTime, plan.startTime + length);
+    // only when a cut falls inside what is exported
+    if (kept.size() != 1 || kept.first() != TimeRange{plan.startTime, plan.startTime + length})
+        {
+            plan.kept = kept;
+        }
+    const bool cut = !plan.kept.isEmpty();
+    const double outputLength = cut ? CutList::keptLength(plan.kept) : length;
     const bool piped = !plan.regions.isEmpty();
     // The output is as long as the shorter of the video and the pictures.
     // The exact count is used when the container gives it; otherwise the
     // estimate is rounded down, because one picture too many would be written
     // into a pipe ffmpeg has already left.
-    const bool wholeVideo = plan.startTime <= 0.0 && settings.duration <= 0.0;
-    const qint64 estimated = std::max<qint64>(1, qint64(std::floor(length * info.fps() + 1e-6)));
+    const bool wholeVideo = plan.startTime <= 0.0 && settings.duration <= 0.0 && !cut;
+    const qint64 estimated = std::max<qint64>(1, qint64(std::floor(outputLength * info.fps() + 1e-6)));
     plan.frameCount = !piped ? 0 : wholeVideo && info.frameCount > 0 ? info.frameCount : estimated;
     plan.outputPath = settings.outputPath;
     plan.hasAudio = info.hasAudio && settings.audio != ExportSettings::NoAudio;
@@ -78,7 +87,19 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                  << "-i" << "pipe:0";
         }
 
+    // the kept parts, by time from the first frame read (the input starts at startTime)
+    QString keptExpression;
+    for (const TimeRange &part : plan.kept)
+        {
+            keptExpression += QString("%1gte(t\\,%2)*lt(t\\,%3)").arg(keptExpression.isEmpty() ? "" : "+")
+                              .arg(part.start - plan.startTime, 0, 'f', 3).arg(part.end - plan.startTime, 0, 'f', 3);
+        }
     QStringList chain;
+    if (cut)
+        {
+            // what is left closes up: timestamps counted again from the kept frames
+            chain << QString("select=%1").arg(keptExpression) << "setpts=N/FRAME_RATE/TB";
+        }
     if (plan.outputSize != info.size)
         {
             chain << QString("scale=%1:%2").arg(plan.outputSize.width()).arg(plan.outputSize.height());
@@ -132,9 +153,19 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             chain << VideoEncoders::outputFilter(encoder);
             graph = QString("[0:v]%1[v]").arg(chain.join(','));
         }
+    // sound cut the same way can not be copied
+    const bool cutAudio = cut && plan.hasAudio;
+    if (cutAudio)
+        {
+            graph += QString(";[0:a]aselect=%1,asetpts=N/SR/TB[a]").arg(keptExpression);
+        }
     args << "-filter_complex" << graph << "-map" << "[v]";
 
-    switch (settings.audio)
+    if (cutAudio)
+        {
+            args << "-map" << "[a]" << "-c:a" << "aac" << "-b:a" << "192k";
+        }
+    else switch (settings.audio)
         {
         case ExportSettings::CopyAudio:
             // "?": a video without sound is not an error

@@ -5,9 +5,12 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QShortcut>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWheelEvent>
 
@@ -43,10 +46,40 @@ public:
         setMinimumHeight(90);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         setMouseTracking(true);
+        setFocusPolicy(Qt::ClickFocus);
     }
 
     std::function<void(double)> seek;
     std::function<void(double)> dragOffset;
+    std::function<void()> marksChanged;
+    std::function<void(const TimeRange &)> keepAgain;
+
+    void setCuts(const QVector<TimeRange> &cuts)
+    {
+        m_cuts = cuts;
+        update();
+    }
+
+    // -1: not set
+    void setMark(bool b, double t)
+    {
+        (b ? m_markB : m_markA) = t;
+        update();
+        if (marksChanged)
+            {
+                marksChanged();
+            }
+    }
+
+    // A..B in order; invalid (length 0) unless both are set
+    TimeRange marked() const
+    {
+        if (m_markA < 0.0 || m_markB < 0.0)
+            {
+                return TimeRange();
+            }
+        return {std::min(m_markA, m_markB), std::max(m_markA, m_markB)};
+    }
 
     void setSession(const TelemetrySessionPtr &session)
     {
@@ -96,6 +129,8 @@ public:
         update();
     }
 
+    double position() const { return m_position; }
+
 protected:
     void paintEvent(QPaintEvent *) override
     {
@@ -123,6 +158,7 @@ protected:
                 painter.setRenderHint(QPainter::Antialiasing, false);
                 drawLaps(painter, laps);
             }
+        drawCuts(painter);
         // the playhead
         const double x = xOf(m_position);
         painter.setPen(QPen(palette().color(QPalette::Highlight), 2));
@@ -144,14 +180,37 @@ protected:
 
     void mousePressEvent(QMouseEvent *event) override
     {
-        if (event->button() != Qt::LeftButton || m_end <= m_start)
+        if (m_end <= m_start)
+            {
+                return;
+            }
+        const double t = std::clamp(timeOf(event->position().x()), 0.0, std::max(0.0, m_videoDuration));
+        if (event->button() == Qt::RightButton)
+            {
+                const TimeRange *cut = CutList::cutAt(m_cuts, timeOf(event->position().x()));
+                if (cut && keepAgain)
+                    {
+                        const TimeRange range = *cut;
+                        QMenu menu(this);
+                        menu.addAction(TimelinePanel::tr("Keep this part again"), this, [this, range]() { keepAgain(range); });
+                        menu.exec(event->globalPosition().toPoint());
+                    }
+                return;
+            }
+        if (event->button() != Qt::LeftButton)
             {
                 return;
             }
         m_pressX = event->position().x();
         m_pressOffset = m_offset;
         m_dragging = (event->modifiers() & Qt::ControlModifier) && m_session;
-        if (!m_dragging)
+        m_selecting = !m_dragging && (event->modifiers() & Qt::ShiftModifier) && m_videoDuration > 0.0;
+        if (m_selecting)
+            {
+                m_markA = t;
+                setMark(true, t);
+            }
+        else if (!m_dragging)
             {
                 seekTo(event->position().x());
             }
@@ -164,7 +223,11 @@ protected:
                 setCursor((event->modifiers() & Qt::ControlModifier) && m_session ? Qt::SizeHorCursor : Qt::ArrowCursor);
                 return;
             }
-        if (m_dragging)
+        if (m_selecting)
+            {
+                setMark(true, std::clamp(timeOf(event->position().x()), 0.0, m_videoDuration));
+            }
+        else if (m_dragging)
             {
                 // the data follows the mouse: later in the video means a smaller offset
                 const double shift = (event->position().x() - m_pressX) / pixelsPerSecond();
@@ -181,6 +244,7 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *) override
     {
+        m_selecting = false;
         if (m_dragging)
             {
                 m_dragging = false;
@@ -287,6 +351,41 @@ private:
                 painter.drawLine(QPointF(x, kRulerHeight - 4), QPointF(x, height()));
                 painter.setPen(palette().color(QPalette::PlaceholderText));
                 painter.drawText(QPointF(x + 2, kRulerHeight - 5), clock(t));
+            }
+    }
+
+    // what is cut darkened and crossed out; the marks and what is between them
+    void drawCuts(QPainter &painter)
+    {
+        const QRect all(0, kRulerHeight, width(), height() - kRulerHeight);
+        for (const TimeRange &cut : m_cuts)
+            {
+                const QRectF band(QPointF(xOf(cut.start), all.top()), QPointF(xOf(cut.end), all.bottom()));
+                if (band.right() < 0 || band.left() > width())
+                    {
+                        continue;
+                    }
+                painter.fillRect(band, QColor(0, 0, 0, 110));
+                painter.fillRect(band, QBrush(QColor(220, 40, 40, 150), Qt::FDiagPattern));
+                painter.fillRect(QRectF(band.left(), all.top(), band.width(), 3), QColor(220, 40, 40));
+            }
+        const TimeRange selection = marked();
+        if (selection.length() > 0.0)
+            {
+                QColor fill = palette().color(QPalette::Highlight);
+                fill.setAlpha(50);
+                painter.fillRect(QRectF(QPointF(xOf(selection.start), all.top()), QPointF(xOf(selection.end), all.bottom())), fill);
+            }
+        painter.setPen(QPen(QColor(240, 170, 0), 2));
+        for (const bool b : {false, true})
+            {
+                const double mark = b ? m_markB : m_markA;
+                if (mark >= 0.0)
+                    {
+                        const double x = xOf(mark);
+                        painter.drawLine(QPointF(x, all.top()), QPointF(x, all.bottom()));
+                        painter.drawText(QPointF(x + 3, all.top() + fontMetrics().ascent()), b ? "B" : "A");
+                    }
             }
     }
 
@@ -422,6 +521,10 @@ private:
     double m_viewStart{0.0};      // what is shown of it
     double m_viewEnd{0.0};
     bool m_dragging{false};
+    bool m_selecting{false};
+    QVector<TimeRange> m_cuts;
+    double m_markA{-1.0};
+    double m_markB{-1.0};
     double m_pressX{0.0};
     double m_pressOffset{0.0};
 };
@@ -442,18 +545,74 @@ TimelinePanel::TimelinePanel(QWidget *parent)
         const Channel *channel = m_session ? m_session->channel(id) : nullptr;
         m_strip->setTrace(id, channel ? ChannelFormat::displayFor(*channel, m_units) : ChannelDisplay());
     });
-    QLabel *hint = new QLabel(tr("Click to go there, wheel to zoom, Ctrl+drag to slide the data against the video"), this);
-    hint->setForegroundRole(QPalette::PlaceholderText);
+    m_strip->setToolTip(tr("Click to go there, wheel to zoom, Ctrl+drag to slide the data against the video.\n"
+                           "Shift+drag marks a part; right-click a cut part to keep it again."));
+    m_strip->marksChanged = [this]() { updateCutButtons(); };
+    m_strip->keepAgain = [this](const TimeRange &range)
+    {
+        emit cutsChanged(CutList::removed(m_cuts, range), tr("Keep part again"));
+    };
+
+    auto button = [this](const QString &text, const QString &tip)
+    {
+        QToolButton *b = new QToolButton(this);
+        b->setText(text);
+        b->setToolTip(tip);
+        b->setAutoRaise(true);
+        return b;
+    };
+    QToolButton *markA = button(tr("A"), tr("Mark the start of a part here ([)"));
+    QToolButton *markB = button(tr("B"), tr("Mark the end of a part here (])"));
+    connect(markA, &QToolButton::clicked, this, [this]() { m_strip->setMark(false, m_strip->position()); });
+    connect(markB, &QToolButton::clicked, this, [this]() { m_strip->setMark(true, m_strip->position()); });
+    for (const bool b : {false, true})
+        {
+            QShortcut *shortcut = new QShortcut(QKeySequence(b ? Qt::Key_BracketRight : Qt::Key_BracketLeft), window());
+            connect(shortcut, &QShortcut::activated, this, [this, b]() { m_strip->setMark(b, m_strip->position()); });
+        }
+    m_cutButton = button(tr("Cut A–B"), tr("Leave the part between A and B out of the export (Delete)"));
+    connect(m_cutButton, &QToolButton::clicked, this, [this]()
+    {
+        const TimeRange part = m_strip->marked();
+        if (part.length() > 0.0)
+            {
+                emit cutsChanged(CutList::added(m_cuts, part), tr("Cut part"));
+                m_strip->setMark(false, -1.0);
+                m_strip->setMark(true, -1.0);
+            }
+    });
+    QShortcut *cutShortcut = new QShortcut(QKeySequence::Delete, this, nullptr, nullptr, Qt::WidgetWithChildrenShortcut);
+    connect(cutShortcut, &QShortcut::activated, m_cutButton, &QToolButton::click);
+    m_keepButton = button(tr("Keep A–B"), tr("Put the part between A and B back"));
+    connect(m_keepButton, &QToolButton::clicked, this, [this]()
+    {
+        const TimeRange part = m_strip->marked();
+        if (part.length() > 0.0)
+            {
+                emit cutsChanged(CutList::removed(m_cuts, part), tr("Keep part again"));
+            }
+    });
+    m_stopsButton = button(tr("Cut stops"), tr("Leave out every stop of 10 s or more, keeping 2 s at each end"));
+    connect(m_stopsButton, &QToolButton::clicked, this, &TimelinePanel::findStops);
+    m_clearButton = button(tr("Keep all"), tr("Remove all cuts"));
+    connect(m_clearButton, &QToolButton::clicked, this, [this]() { emit cutsChanged({}, tr("Remove all cuts")); });
+    m_keptLabel = new QLabel(this);
 
     QHBoxLayout *top = new QHBoxLayout;
     top->addWidget(new QLabel(tr("Show:"), this));
     top->addWidget(m_channelCombo);
     top->addSpacing(12);
-    top->addWidget(hint, 1);
+    for (QToolButton *b : {markA, markB, m_cutButton, m_keepButton, m_stopsButton, m_clearButton})
+        {
+            top->addWidget(b);
+        }
+    top->addSpacing(12);
+    top->addWidget(m_keptLabel, 1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 4, 6, 4);
     layout->addLayout(top);
     layout->addWidget(m_strip, 1);
+    updateCutButtons();
 }
 
 void TimelinePanel::setSession(const TelemetrySessionPtr &session, const Units &units)
@@ -462,6 +621,7 @@ void TimelinePanel::setSession(const TelemetrySessionPtr &session, const Units &
     m_units = units;
     m_strip->setSession(session);
     fillChannels();
+    updateCutButtons();
 }
 
 void TimelinePanel::fillChannels()
@@ -493,12 +653,59 @@ void TimelinePanel::fillChannels()
 
 void TimelinePanel::setVideoDuration(double seconds)
 {
+    m_videoDuration = seconds;
     m_strip->setVideoDuration(seconds);
+    updateCutButtons();
 }
 
 void TimelinePanel::setOffset(double seconds)
 {
+    m_offset = seconds;
     m_strip->setOffset(seconds);
+}
+
+void TimelinePanel::setCuts(const QVector<TimeRange> &cuts)
+{
+    m_cuts = cuts;
+    m_strip->setCuts(cuts);
+    updateCutButtons();
+}
+
+void TimelinePanel::updateCutButtons()
+{
+    const bool marked = m_strip->marked().length() > 0.0;
+    m_cutButton->setEnabled(marked);
+    m_keepButton->setEnabled(marked && !m_cuts.isEmpty());
+    m_clearButton->setEnabled(!m_cuts.isEmpty());
+    m_stopsButton->setEnabled(m_session && m_videoDuration > 0.0);
+    if (m_cuts.isEmpty() || m_videoDuration <= 0.0)
+        {
+            m_keptLabel->clear();
+            return;
+        }
+    const double kept = CutList::keptLength(CutList::kept(m_cuts, 0.0, m_videoDuration));
+    m_keptLabel->setText(tr("%n part(s) cut, %1 of %2 kept", nullptr, int(m_cuts.size()))
+                         .arg(clock(kept), clock(m_videoDuration)));
+}
+
+void TimelinePanel::findStops()
+{
+    if (!m_session)
+        {
+            return;
+        }
+    const QVector<TimeRange> stops = CutList::stops(*m_session, m_offset, m_videoDuration);
+    if (stops.isEmpty())
+        {
+            m_keptLabel->setText(tr("No stops of 10 s or more in the video."));
+            return;
+        }
+    QVector<TimeRange> cuts = m_cuts;
+    for (const TimeRange &stop : stops)
+        {
+            cuts = CutList::added(cuts, stop);
+        }
+    emit cutsChanged(cuts, tr("Cut stops"));
 }
 
 void TimelinePanel::setPosition(double videoSeconds)

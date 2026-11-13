@@ -1,6 +1,7 @@
 #include "gauge/builtingauges.h"
 #include "overlay/overlay.h"
 #include "telemetry/channelids.h"
+#include "video/cutlist.h"
 #include "video/exportjob.h"
 #include "video/exportplan.h"
 #include "video/ffmpegtools.h"
@@ -675,6 +676,86 @@ private slots:
         QCOMPARE(result.size, QSize(160, 120));
         QVERIFY2(qAbs(result.duration - 1.0) < 0.1, qPrintable(QString::number(result.duration)));
         QVERIFY(!result.hasAudio);
+    }
+
+    void cutList()
+    {
+        const QVector<TimeRange> cuts = CutList::normalized({{5.0, 8.0}, {1.0, 2.0}, {7.0, 9.0}, {-3.0, -1.0}}, 20.0);
+        QCOMPARE(cuts.size(), 2);
+        QVERIFY(cuts.at(0) == (TimeRange{1.0, 2.0}));
+        QVERIFY(cuts.at(1) == (TimeRange{5.0, 9.0}));
+        const QVector<TimeRange> kept = CutList::kept(cuts, 0.0, 10.0);
+        QCOMPARE(kept.size(), 3);
+        QCOMPARE(CutList::keptLength(kept), 5.0);
+        QCOMPARE(CutList::sourceTime(kept, 0.5), 0.5);
+        QCOMPARE(CutList::sourceTime(kept, 1.5), 2.5);   // past the first cut
+        QCOMPARE(CutList::sourceTime(kept, 4.5), 9.5);
+        // taking a piece back out of a cut splits it
+        const QVector<TimeRange> split = CutList::removed(cuts, {6.0, 7.0});
+        QCOMPARE(split.size(), 3);
+        QVERIFY(split.at(1) == (TimeRange{5.0, 6.0}));
+        QVERIFY(split.at(2) == (TimeRange{7.0, 9.0}));
+        QCOMPARE(CutList::added(split, {5.5, 7.5}).size(), 2);
+        QVERIFY(CutList::cutAt(cuts, 6.0));
+        QVERIFY(!CutList::cutAt(cuts, 3.0));
+    }
+
+    void stopsFromTheData()
+    {
+        // moving, standing 20 s from 30 s on, a short stop of 5 s at 80 s, then moving to 120 s
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+        for (double t = 0.0; t <= 120.0; t += 1.0)
+            {
+                const bool standing = (t >= 30.0 && t < 50.0) || (t >= 80.0 && t < 85.0);
+                speed.append(t, standing ? 0.1 : 8.0);
+            }
+        // data 10 s ahead of the video
+        const QVector<TimeRange> stops = CutList::stops(*session, 10.0, 200.0);
+        QCOMPARE(stops.size(), 1);
+        QVERIFY(std::fabs(stops.first().start - 22.0) < 1e-9);   // 30 + 2 s margin - 10 s offset
+        QVERIFY(std::fabs(stops.first().end - 38.0) < 1e-9);
+    }
+
+    void planLeavesOutCuts()
+    {
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor("out.mp4"), oneGauge(),
+                                                 {{10.0, 20.0}});
+        QCOMPARE(plan.kept.size(), 2);
+        QCOMPARE(plan.frameTime(0), 0.0);
+        QVERIFY(std::fabs(plan.frameTime(600) - 20.0) < 1e-9);    // the 10 s mark of the output
+        const QString graph = valueOf(plan.arguments, "-filter_complex");
+        QVERIFY2(graph.contains("select=gte(t\\,0.000)*lt(t\\,10.000)+gte(t\\,20.000)"), qPrintable(graph));
+        QVERIFY(graph.contains("setpts=N/FRAME_RATE/TB"));
+        // a cut outside the exported range changes nothing
+        ExportSettings range = settingsFor("out.mp4");
+        range.start = 30.0;
+        range.duration = 5.0;
+        QVERIFY(ExportPlan::make("in.mp4", fullHd60(), range, oneGauge(), {{10.0, 20.0}}).kept.isEmpty());
+    }
+
+    void exportLeavesOutCuts()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        const QString output = m_dir.filePath("cut.mp4");
+        const Overlay overlay = oneGauge();
+        const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay, {{0.5, 1.2}});
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(finished.first().at(1).toString()));
+        // 2 s less 0.7 s at 30 fps, and the sound as long
+        QVERIFY2(std::abs(countFrames(output) - 39) <= 1, qPrintable(QString::number(countFrames(output))));
+        const QHash<QString, double> durations = streamDurations(output);
+        QVERIFY2(std::fabs(durations.value("video") - 1.3) < 0.1, qPrintable(QString::number(durations.value("video"))));
+        QVERIFY2(std::fabs(durations.value("audio") - 1.3) < 0.1, qPrintable(QString::number(durations.value("audio"))));
     }
 
     void failedExportExplainsAndLeavesNoFile()

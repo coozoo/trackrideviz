@@ -155,11 +155,12 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   distance into the lap (a chosen channel), with the time each is behind the fastest of them at the
   same point below; hovering reads all of them at one place
 - Data viewer + charts
-- Cut and join (an editor in the spirit of simple video cutters): several videos joined into one
-  timeline, parts marked out (standing at lights, a stop), keyframe-aligned cuts copied without
-  re-encoding where possible, re-encoded around the cut otherwise. The data is cut the same way,
-  so gauges stay in sync; laps, distance and timers count only what is kept. Marks can be
-  suggested from the data (speed ~0 for longer than N s). Kept in the project, done at export
+- ✅ Cuts (2026-11-13, `CutList`): parts of the video left out of the export, marked A–B on the
+  timeline (`[` `]`, Shift+drag, Delete cuts) or found in the data ("Cut stops": speed under
+  0.5 m/s or a device pause for 10 s or more, 2 s kept at each end). Kept in the project, undoable,
+  skipped while playing. The export drops them with ffmpeg's select/aselect (sound is then AAC);
+  gauges keep the real values of the moments that are kept (lap times stay true)
+- Join: several videos (camera chapters, separate recordings) as one, each with its own sync
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join

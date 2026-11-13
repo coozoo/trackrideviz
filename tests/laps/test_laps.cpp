@@ -264,11 +264,13 @@ private slots:
         Project project;
         project.startFinish = topLine();
         project.sectors = {sectorLine(0.0, kRadius)};
+        project.cuts = {{12.5, 30.0}, {40.0, 41.0}};
         Project loaded;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(project, "/tmp"), "/tmp", &loaded));
         QVERIFY(loaded.startFinish == project.startFinish);
         QCOMPARE(loaded.sectors.size(), 1);
         QVERIFY(loaded.sectors.first() == project.sectors.first());
+        QVERIFY(loaded.cuts == project.cuts);
         Project none;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(Project(), "/tmp"), "/tmp", &none));
         QVERIFY(!none.startFinish.isValid());

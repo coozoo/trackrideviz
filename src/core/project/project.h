@@ -2,6 +2,7 @@
 
 #include "../laps/lapengine.h"
 #include "../overlay/overlay.h"
+#include "../video/cutlist.h"
 
 #include <QCoreApplication>
 #include <QString>
@@ -24,6 +25,9 @@ struct Project
     StartFinishLine startFinish;
     // lines inside the lap that split it into sectors, in any order
     QVector<StartFinishLine> sectors;
+
+    // parts of the video left out of the export, video time
+    QVector<TimeRange> cuts;
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
     GaugeTheme theme;         // colours of all gauges

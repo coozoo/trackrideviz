@@ -249,6 +249,7 @@ void MainWindow::createDocks()
     });
     // the spin box does what typing the value would
     connect(m_timelinePanel, &TimelinePanel::offsetDragged, m_offsetSpin, &QDoubleSpinBox::setValue);
+    connect(m_timelinePanel, &TimelinePanel::cutsChanged, this, &MainWindow::setCuts);
     m_compareDock = addPlaceholderDock("lapCompareDock", tr("Compare laps"), Qt::BottomDockWidgetArea);
     tabifyDockWidget(m_timelineDock, m_compareDock);
     m_timelineDock->raise();
@@ -476,6 +477,7 @@ void MainWindow::openProject(const QString &path)
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
     m_timelinePanel->setSession(nullptr, m_units);
     m_comparePanel->setSession(nullptr, m_units);
+    m_timelinePanel->setCuts(m_project.cuts);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
     m_player->setSource(QUrl());
@@ -569,7 +571,7 @@ void MainWindow::exportVideo()
     // two decoders on one file only fight for the disk and the graphics card
     m_player->pause();
     ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_session, m_units, m_project.theme),
-                        m_project.syncOffset, m_player->position() / 1000.0, this);
+                        m_project.syncOffset, m_project.cuts, m_player->position() / 1000.0, this);
     dialog.exec();
 }
 
@@ -912,6 +914,14 @@ void MainWindow::onPositionChanged(qint64 positionMs)
             m_seekSlider->setValue(int(positionMs));
         }
     m_timelinePanel->setPosition(positionMs / 1000.0);
+    // playing goes over what is cut, as the export will
+    if (m_player->playbackState() == QMediaPlayer::PlayingState)
+        {
+            if (const TimeRange *cut = CutList::cutAt(m_project.cuts, positionMs / 1000.0))
+                {
+                    m_player->setPosition(qint64(std::ceil(cut->end * 1000.0)));
+                }
+        }
     updateTimeLabel();
 }
 
@@ -1104,6 +1114,21 @@ void MainWindow::setLapLines(const StartFinishLine &line, const QVector<StartFin
         m_project.sectors = forward ? sectors : sectorsBefore;
         setModified(true);
         updateLaps();
+    }));
+}
+
+void MainWindow::setCuts(const QVector<TimeRange> &cuts, const QString &description)
+{
+    const QVector<TimeRange> before = m_project.cuts;
+    if (before == cuts)
+        {
+            return;
+        }
+    m_undoStack->push(new OverlayCommand(description, [this, before, cuts](bool forward)
+    {
+        m_project.cuts = forward ? cuts : before;
+        setModified(true);
+        m_timelinePanel->setCuts(m_project.cuts);
     }));
 }
 

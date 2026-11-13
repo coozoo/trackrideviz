@@ -110,6 +110,7 @@ private:
     StartFinishLine lineNear(double lat, double lon, const QString &offRoute);
     void placeStartFinish(double lat, double lon);
     void placeSector(double lat, double lon);
+    void setCuts(const QVector<TimeRange> &cuts, const QString &description);
     void setLapLines(const StartFinishLine &line, const QVector<StartFinishLine> &sectors, const QString &description);
     void seekTelemetryTime(double time);
     void updateChannelValues();

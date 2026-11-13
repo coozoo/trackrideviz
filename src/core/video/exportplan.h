@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cutlist.h"
 #include "exportsettings.h"
 #include "mediainfo.h"
 
@@ -34,17 +35,26 @@ struct ExportPlan
     // pipe earlier is how an export is stopped with a playable file.
     qint64 frameCount{0};
     double startTime{0.0};      // video time of the first one
+    // With cuts, the parts of the video that are exported, one after another
+    // (video time); empty: all from startTime on.
+    QVector<TimeRange> kept;
     QString outputPath;
     bool hasAudio{false};       // the output gets a sound track
     QStringList muxerArguments; // container options, needed again if the file is rewritten
 
     // Video time of picture `index`.
-    double frameTime(qint64 index) const { return startTime + double(index) * fpsDen / fpsNum; }
+    double frameTime(qint64 index) const
+    {
+        const double into = double(index) * fpsDen / fpsNum;
+        return kept.isEmpty() ? startTime + into : CutList::sourceTime(kept, into);
+    }
     // Length of `frames` pictures in seconds.
     double lengthOf(qint64 frames) const { return double(frames) * fpsDen / fpsNum; }
 
+    // `cuts`: parts of the video left out (video time).
     static ExportPlan make(const QString &videoPath, const MediaInfo &info,
-                           const ExportSettings &settings, const Overlay &overlay);
+                           const ExportSettings &settings, const Overlay &overlay,
+                           const QVector<TimeRange> &cuts = {});
     // Output size for a wanted height (0 = keep): never upscaled, always even.
     static QSize outputSizeFor(const QSize &source, int wantedHeight);
 };

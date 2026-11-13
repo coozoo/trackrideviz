@@ -84,6 +84,15 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
             const StartFinishLine &l = project.startFinish;
             root["startFinish"] = QJsonArray{l.lat1, l.lon1, l.lat2, l.lon2};
         }
+    if (!project.cuts.isEmpty())
+        {
+            QJsonArray cuts;
+            for (const TimeRange &cut : project.cuts)
+                {
+                    cuts.append(QJsonArray{cut.start, cut.end});
+                }
+            root["cuts"] = cuts;
+        }
     if (!project.sectors.isEmpty())
         {
             QJsonArray sectors;
@@ -136,6 +145,12 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
         {
             loaded.startFinish = {line.at(0).toDouble(), line.at(1).toDouble(), line.at(2).toDouble(), line.at(3).toDouble()};
         }
+    for (const QJsonValue &value : root.value("cuts").toArray())
+        {
+            const QJsonArray cut = value.toArray();
+            loaded.cuts.append({cut.at(0).toDouble(), cut.at(1).toDouble()});
+        }
+    loaded.cuts = CutList::normalized(loaded.cuts);
     for (const QJsonValue &value : root.value("sectors").toArray())
         {
             const QJsonArray sector = value.toArray();
