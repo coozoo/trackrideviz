@@ -858,6 +858,29 @@ private:
     }
 };
 
+// Version 2 named some data types without their unit; it was always the same one.
+QString withVersion2Unit(const QString &category, const QString &type)
+{
+    if (category == "Positional")
+        {
+            static const QStringList inFeet{"Longitude / X Position", "Latitude / Y Position", "Altitude / Z Position", "Distance"};
+            return inFeet.contains(type) ? type + " (Feet)" : type;
+        }
+    if (category == "Velocity")
+        {
+            return type.endsWith(')') ? type : type + " (MPH)";
+        }
+    if (type.endsWith("Temperature"))
+        {
+            return type + " (F)";
+        }
+    if (type.endsWith("Pressure"))
+        {
+            return type + " (psi)";
+        }
+    return type;
+}
+
 struct TypeMapping
 {
     const char *type;
@@ -957,7 +980,8 @@ XmlGaugeImporter::Result XmlGaugeImporter::parse(const QByteArray &xml, const QS
             result.error = tr("This is not an XML gauge.");
             return result;
         }
-    if (root.number("version", 3) != 3)
+    const int version = int(root.number("version", 3));
+    if (version != 2 && version != 3)
         {
             result.error = tr("Gauge file version %1 is not supported.").arg(root.string("version"));
             return result;
@@ -974,15 +998,16 @@ XmlGaugeImporter::Result XmlGaugeImporter::parse(const QByteArray &xml, const QS
     Converter converter(std::clamp(root.number("transparency", 1.0), 0.0, 1.0), imageFolder);
     if (const Element *inputs = root.child("Inputs"))
         {
+            QString first;
             for (const Element &input : inputs->children)
                 {
-                    converter.inputTypes.insert(input.text, input.string("name"));
+                    const QString type = version == 2 ? withVersion2Unit(input.string("category"), input.string("name"))
+                                         : input.string("name");
+                    converter.inputTypes.insert(input.text, type);
+                    first = first.isEmpty() ? type : first;
                 }
             // the first one is what the gauge is about
-            if (!inputs->children.isEmpty())
-                {
-                    converter.mainChannel = channelFor(inputs->children.first().string("name"), &converter.mainUnit);
-                }
+            converter.mainChannel = channelFor(first, &converter.mainUnit);
         }
     if (!converter.mainChannel.isEmpty())
         {

@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 
 // Converts an XML gauge (a folder holding gauge.xml and its pictures, file
-// version 3) into a native gauge.
+// version 2 or 3) into a native gauge.
 //
 // These gauges are drawn rather than painted: their parts are shapes, scales,
 // needles and texts, which become Shape, Dial, Tape and Text components.

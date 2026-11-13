@@ -2,6 +2,7 @@
 #include "gauge/gaugelibrary.h"
 #include "overlay/gaugetemplate.h"
 #include "overlay/templatelibrary.h"
+#include "overlay/xmltemplateimporter.h"
 #include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
@@ -58,6 +59,23 @@ private:
                 file.write(content);
             }
         return path;
+    }
+
+    static XmlTemplateImporter::FoundGauge fakeGauge(const QString &name)
+    {
+        XmlTemplateImporter::FoundGauge found;
+        if (name == "Dial")
+            {
+                found.id = "library:Dial";
+                found.size = QSizeF(200, 200);
+                found.supportedTypes = QStringList{"speed"};
+            }
+        else if (name == "Bar")
+            {
+                found.id = "library:Bar";
+                found.size = QSizeF(600, 40);
+            }
+        return found;
     }
 
 private slots:
@@ -301,6 +319,113 @@ private slots:
 
         // a second run finds the gauge already there
         QCOMPARE(TemplateLibrary::importVet({good}, veg + "/Widgets").gaugesImported, 0);
+    }
+
+    // --- XML templates --------------------------------------------------------
+
+    void xmlTemplateIsPlaced()
+    {
+        // dial in the bottom right corner of a 1280 x 720 frame, a bar along the top middle
+        const QByteArray cdp = R"(<Project version="2"><Information/><GaugeSettings>
+            <Gauge name="Dial" transparency="1" x="1070" y="510" />
+            <Gauge name="Bar" transparency="0.5" x="340" y="0" />
+            <Gauge name="Logo" transparency="1" x="0" y="0" />
+            </GaugeSettings></Project>)";
+        const XmlTemplateImporter::Result result = XmlTemplateImporter::parse(cdp, "Racing", fakeGauge);
+        QVERIFY2(result.ok, qPrintable(result.error));
+        QCOMPARE(result.frameSize, QSize(1280, 720));     // the smallest that holds them
+        QCOMPARE(result.missingGauges, QStringList{"Logo"});
+        QCOMPARE(result.notes.size(), 1);                  // the bar's transparency
+        const GaugeTemplate &t = result.gaugeTemplate;
+        QCOMPARE(t.name, QString("Racing"));
+        QCOMPARE(t.items.size(), 2);
+        const TemplateItem &dial = t.items[0];
+        QCOMPARE(dial.gaugeId, QString("library:Dial"));
+        QCOMPARE(dial.channel, QString("speed"));
+        QCOMPARE(dial.edgeX, TemplateItem::End);
+        QCOMPARE(dial.edgeY, TemplateItem::End);
+        QCOMPARE(dial.height, 300.0);                      // 200 of 720 -> of 1080
+        QCOMPARE(dial.offsetX, -315.0);
+        QCOMPARE(dial.offsetY, -315.0);
+        const TemplateItem &bar = t.items[1];
+        QCOMPARE(bar.edgeX, TemplateItem::Middle);
+        QCOMPARE(bar.edgeY, TemplateItem::Start);
+        QCOMPARE(bar.offsetX, -450.0);
+        QCOMPARE(bar.offsetY, 0.0);
+        // on the 16:9 video it was made for, exactly where it was
+        const OverlayItem placed = t.overlayItems(16.0 / 9.0).first();
+        QCOMPARE(placed.x, 1070.0 / 1280.0);
+        QCOMPARE(placed.y, 510.0 / 720.0);
+
+        // the name may say what it was made for
+        const XmlTemplateImporter::Result named = XmlTemplateImporter::parse(cdp, "Racing 1080p", fakeGauge);
+        QCOMPARE(named.frameSize, QSize(1920, 1080));
+        QCOMPARE(named.gaugeTemplate.items[0].height, 200.0);
+        // a small layout is standard definition
+        const XmlTemplateImporter::Result small = XmlTemplateImporter::parse(
+                    R"(<Project><GaugeSettings><Gauge name="Dial" x="500" y="270"/></GaugeSettings></Project>)", "Small", fakeGauge);
+        QCOMPARE(small.frameSize, QSize(720, 480));
+        QCOMPARE(XmlTemplateImporter::gaugeNames(cdp), QStringList({"Dial", "Bar", "Logo"}));
+    }
+
+    void xmlTemplateRejectsWhatIsNotOne()
+    {
+        QVERIFY(!XmlTemplateImporter::parse("garbage", "x", fakeGauge).ok);
+        QVERIFY(!XmlTemplateImporter::parse("<Gauge/>", "x", fakeGauge).ok);
+        QVERIFY(!XmlTemplateImporter::parse("<Project><GaugeSettings/></Project>", "x", fakeGauge).ok);
+        QVERIFY(!XmlTemplateImporter::parse(R"(<Project><GaugeSettings><Gauge name="Logo" x="0" y="0"/></GaugeSettings></Project>)",
+                                            "x", fakeGauge).ok);
+    }
+
+    void xmlTemplateImportBringsItsOwnGauges()
+    {
+        const QString root = m_dir.filePath("xml");
+        auto gauge = [](int size)
+        {
+            return QString("<Gauge version='3' width='%1' height='%1'><Components>"
+                           "<FilledEllipse x='10' y='10' horizontalRadius='5' verticalRadius='5' transparency='1' red='255' green='0' blue='0'/>"
+                           "</Components><Inputs><Input category='Velocity' name='Speed (KPH)'>KPH</Input></Inputs></Gauge>")
+                   .arg(size).toUtf8();
+        };
+        // the same gauge on its own, and a template for a smaller frame with a smaller copy
+        write(root + "/Gauges/Round/gauge.xml", gauge(300));
+        write(root + "/Templates/Small 720p/project.cdp",
+              R"(<Project version="2"><GaugeSettings><Gauge name="Round" x="10" y="10"/></GaugeSettings></Project>)");
+        write(root + "/Templates/Small 720p/Gauges/Round/gauge.xml", gauge(200));
+        write(root + "/Templates/Same 720p/project.cdp",
+              R"(<Project version="2"><GaugeSettings><Gauge name="Round" x="10" y="10"/></GaugeSettings></Project>)");
+        write(root + "/Templates/Same 720p/Gauges/Round/gauge.xml", gauge(300));
+
+        QCOMPARE(GaugeLibrary::importXml({root + "/Gauges/Round"}).imported, 1);
+        GaugeLibrary::refresh();
+        const TemplateLibrary::ImportSummary summary = TemplateLibrary::importXml(
+                    {root + "/Templates/Small 720p", root + "/Templates/Same 720p", root + "/Templates/missing"});
+        QCOMPARE(summary.imported, 2);
+        QCOMPARE(summary.gaugesImported, 1);        // only the copy that differs
+        QCOMPARE(summary.failed.size(), 1);
+        GaugeLibrary::refresh();
+        QCOMPARE(GaugeLibrary::gauge("library:Round").size, QSizeF(300, 300));
+        QCOMPARE(GaugeLibrary::gauge("library:Round - Small 720p").size, QSizeF(200, 200));
+
+        GaugeTemplate small;
+        GaugeTemplate same;
+        for (const TemplateLibrary::Entry &entry : TemplateLibrary::entries())
+            {
+                if (entry.name == "Small 720p")
+                    {
+                        small = TemplateLibrary::get(entry.id);
+                    }
+                else if (entry.name == "Same 720p")
+                    {
+                        same = TemplateLibrary::get(entry.id);
+                    }
+            }
+        QCOMPARE(small.items.size(), 1);
+        QCOMPARE(small.items.first().gaugeId, QString("library:Round - Small 720p"));
+        QCOMPARE(small.items.first().height, 300.0);
+        QCOMPARE(small.items.first().channel, QString("speed"));
+        QCOMPARE(same.items.first().gaugeId, QString("library:Round"));
+        QCOMPARE(same.items.first().height, 450.0);
     }
 
     // --- what ships with the program ------------------------------------------

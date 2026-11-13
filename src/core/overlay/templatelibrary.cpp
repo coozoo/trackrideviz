@@ -1,11 +1,16 @@
 #include "templatelibrary.h"
 
+#include "../gauge/gaugefile.h"
 #include "../gauge/gaugelibrary.h"
+#include "../gauge/xmlgaugeimporter.h"
 #include "../gauge/veggaugeimporter.h"
 #include "../settings/bundleddata.h"
+#include "xmltemplateimporter.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -280,6 +285,107 @@ TemplateLibrary::ImportSummary TemplateLibrary::importVet(const QStringList &vet
             if (!result.missingGauges.isEmpty())
                 {
                     summary.notes << tr("%1: without %2").arg(result.gaugeTemplate.name, result.missingGauges.join(", "));
+                }
+        }
+    return summary;
+}
+
+TemplateLibrary::ImportSummary TemplateLibrary::importXml(const QStringList &templateFolders)
+{
+    ImportSummary summary;
+    for (const QString &folder : templateFolders)
+        {
+            const QDir dir(folder);
+            const QString name = dir.dirName();
+            QFile input(dir.filePath(XmlTemplateImporter::FileName));
+            if (!input.open(QIODevice::ReadOnly))
+                {
+                    summary.failed << QString("%1: %2").arg(name, input.errorString());
+                    continue;
+                }
+            const QByteArray xml = input.readAll();
+            // the template carries a copy of each gauge it uses
+            QDir gauges(dir);
+            for (const QString &entry : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+                {
+                    if (entry.compare("Gauges", Qt::CaseInsensitive) == 0)
+                        {
+                            gauges.setPath(dir.filePath(entry));
+                        }
+                }
+            // A gauge of the same name may already be in the library, and
+            // be another one: templates for other frame sizes carry their
+            // own, smaller copies. Those are kept under a name of their own.
+            QHash<QString, QString> ids;
+            for (const QString &gaugeName : XmlTemplateImporter::gaugeNames(xml))
+                {
+                    QString source;
+                    for (const QString &entry : gauges.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+                        {
+                            if (entry.compare(gaugeName, Qt::CaseInsensitive) == 0)
+                                {
+                                    source = gauges.filePath(entry);
+                                }
+                        }
+                    const QString existing = GaugeLibrary::findByName(gaugeName);
+                    XmlGaugeImporter::Result copy = source.isEmpty() ? XmlGaugeImporter::Result() : XmlGaugeImporter::importFolder(source);
+                    if (!copy.ok)
+                        {
+                            continue;   // the library's, if there is one
+                        }
+                    if (!existing.isEmpty() && GaugeFile::toJson(GaugeLibrary::gauge(existing)) == GaugeFile::toJson(copy.gauge))
+                        {
+                            continue;
+                        }
+                    if (!existing.isEmpty())
+                        {
+                            copy.gauge.name = QString("%1 - %2").arg(gaugeName, name);
+                        }
+                    const QString id = GaugeLibrary::add(copy.gauge, copy.gauge.name);
+                    if (!id.isEmpty())
+                        {
+                            GaugeLibrary::refresh();
+                            ids.insert(gaugeName, id);
+                            ++summary.gaugesImported;
+                        }
+                }
+            auto findGauge = [&ids](const QString &gaugeName)
+            {
+                if (!ids.contains(gaugeName))
+                    {
+                        return XmlTemplateImporter::findInLibrary(gaugeName);
+                    }
+                XmlTemplateImporter::FoundGauge found;
+                const Gauge gauge = GaugeLibrary::gauge(ids.value(gaugeName));
+                if (!gauge.isEmpty())
+                    {
+                        found.id = ids.value(gaugeName);
+                        found.size = gauge.size;
+                        found.supportedTypes = gauge.supportedTypes;
+                    }
+                return found;
+            };
+            const XmlTemplateImporter::Result result = XmlTemplateImporter::parse(xml, name, findGauge);
+            if (!result.ok)
+                {
+                    summary.failed << QString("%1: %2").arg(name, result.error);
+                    continue;
+                }
+            QString error;
+            if (add(result.gaugeTemplate, &error).isEmpty())
+                {
+                    summary.failed << QString("%1: %2").arg(name, error);
+                    continue;
+                }
+            ++summary.imported;
+            QStringList notes = result.notes;
+            if (!result.missingGauges.isEmpty())
+                {
+                    notes.prepend(tr("without %1").arg(result.missingGauges.join(", ")));
+                }
+            if (!notes.isEmpty())
+                {
+                    summary.notes << QString("%1: %2").arg(name, notes.join("; "));
                 }
         }
     return summary;

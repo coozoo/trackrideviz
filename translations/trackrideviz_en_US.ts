@@ -520,94 +520,84 @@
 <context>
     <name>GaugeLibraryPanel</name>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="247"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="253"/>
         <source>Add to video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="249"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="255"/>
         <source>Puts the selected gauge on the video. A double click does the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="195"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="386"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="201"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="392"/>
         <source>Import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="179"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="185"/>
         <source>Gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="180"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="186"/>
         <source>Templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="196"/>
-        <source>Brings in .veg gauges, .vet templates and XML gauges (folders with a gauge.xml). Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges in it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="200"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="206"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="247"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="253"/>
         <source>Apply to video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="248"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="254"/>
         <source>Replaces the gauges on the video with this template. A double click does the same.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="250"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="256"/>
         <source>Deletes the selected template from the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="251"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="257"/>
         <source>Deletes the selected gauge from the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="337"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="339"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="345"/>
         <source>Remove gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="339"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="345"/>
         <source>Remove template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="363"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="369"/>
         <source>Folder with gauges and templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="373"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="419"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="379"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="425"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="374"/>
-        <source>There are no gauges (.veg, gauge.xml) or templates (.vet) in that folder.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="408"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="414"/>
         <source>%n of them have parts that cannot be shown.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -615,7 +605,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="412"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="418"/>
         <source>%n template(s) imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -623,17 +613,27 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="338"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="344"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="379"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="202"/>
+        <source>Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a gauge.xml or project.cdp). Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges and Templates in it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="380"/>
+        <source>There are no gauges (.veg, gauge.xml) or templates (.vet, project.cdp) in that folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="385"/>
         <source>Importing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="404"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="410"/>
         <source>%n gauge(s) imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -641,7 +641,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="417"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="423"/>
         <source>%n file(s) could not be used.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -1383,18 +1383,23 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>TemplateLibrary</name>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="201"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="206"/>
         <source>The template has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="209"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="214"/>
         <source>Cannot create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="282"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="287"/>
         <source>%1: without %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="384"/>
+        <source>without %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1434,12 +1439,12 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>VetTemplateImporter</name>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="338"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="444"/>
         <source>This is not a .vet template.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="383"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="489"/>
         <source>None of the gauges this template uses could be found.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1612,33 +1617,61 @@ Open them again from where they are now and save the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="952"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="975"/>
         <source>This is not an XML gauge: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="957"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="980"/>
         <source>This is not an XML gauge.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="962"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="986"/>
         <source>Gauge file version %1 is not supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="970"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="994"/>
         <source>The gauge has no size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="994"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1019"/>
         <source>The gauge has nothing in it that can be shown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1009"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1034"/>
         <source>There is no %1 in %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>XmlTemplateImporter</name>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="65"/>
+        <source>This is not an XML template: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="66"/>
+        <source>This is not an XML template.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="159"/>
+        <source>%1 is drawn fully opaque</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="164"/>
+        <source>The template places no gauges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="165"/>
+        <source>None of the gauges this template uses could be found.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

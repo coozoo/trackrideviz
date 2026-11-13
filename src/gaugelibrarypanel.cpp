@@ -3,6 +3,7 @@
 #include "gauge/gaugelibrary.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/xmlgaugeimporter.h"
+#include "overlay/xmltemplateimporter.h"
 #include "overlay/templatelibrary.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
@@ -82,13 +83,15 @@ QVector<Thumbnail> renderThumbnails(const QStringList &ids, bool templates)
 }
 
 // What a chosen folder holds: a program folder with Widgets and Templates in it, or one of those;
-// XML gauges, each a folder with gauge.xml, or a folder of them, or one with Gauges in it.
+// XML gauges and templates, each a folder (with gauge.xml, project.cdp), or a folder of
+// them, or one with Gauges and Templates in it.
 struct ImportFolders
 {
     QString widgets;
     QStringList gaugeFiles;
     QStringList templateFiles;
     QStringList xmlGauges;
+    QStringList xmlTemplates;
 };
 
 QString childIgnoringCase(const QDir &dir, const QString &name)
@@ -118,24 +121,24 @@ QStringList filesIn(const QString &folder, const QString &pattern)
     return files;
 }
 
-bool isXmlGauge(const QString &folder)
+bool holds(const QString &folder, const QString &fileName)
 {
-    const QDir dir(folder);
-    return !dir.entryList({XmlGaugeImporter::FileName}, QDir::Files).isEmpty();
+    return !QDir(folder).entryList({fileName}, QDir::Files).isEmpty();
 }
 
-QStringList xmlGaugesIn(const QString &chosen)
+// Folders holding `fileName`: the chosen one, those in it, or those in its child `childName`.
+QStringList foldersWith(const QString &chosen, const QString &fileName, const QString &childName)
 {
-    if (isXmlGauge(chosen))
+    if (holds(chosen, fileName))
         {
             return {chosen};
         }
     QStringList folders;
-    const QString gauges = childIgnoringCase(QDir(chosen), "Gauges");
-    const QDir dir(gauges.isEmpty() ? chosen : gauges);
+    const QString child = childIgnoringCase(QDir(chosen), childName);
+    const QDir dir(child.isEmpty() ? chosen : child);
     for (const QString &name : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
         {
-            if (isXmlGauge(dir.filePath(name)))
+            if (holds(dir.filePath(name), fileName))
                 {
                     folders << dir.filePath(name);
                 }
@@ -146,7 +149,10 @@ QStringList xmlGaugesIn(const QString &chosen)
 ImportFolders importFoldersIn(const QString &chosen)
 {
     ImportFolders found;
-    found.xmlGauges = xmlGaugesIn(chosen);
+    found.xmlTemplates = foldersWith(chosen, XmlTemplateImporter::FileName, "Templates");
+    // a template's own gauges come in with it
+    found.xmlGauges = found.xmlTemplates.contains(chosen) ? QStringList()
+                      : foldersWith(chosen, XmlGaugeImporter::FileName, "Gauges");
     const QDir dir(chosen);
     const QString widgets = childIgnoringCase(dir, "Widgets");
     const QString templates = childIgnoringCase(dir, "Templates");
@@ -193,9 +199,9 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_useButton = new QPushButton(this);
     connect(m_useButton, &QPushButton::clicked, this, &GaugeLibraryPanel::useSelected);
     m_importButton = new QPushButton(tr("Import..."), this);
-    m_importButton->setToolTip(tr("Brings in .veg gauges, .vet templates and XML gauges (folders with a gauge.xml). "
-                                  "Choose the folder that holds them, or a folder with Widgets and Templates "
-                                  "or with Gauges in it."));
+    m_importButton->setToolTip(tr("Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a "
+                                  "gauge.xml or project.cdp). Choose the folder that holds them, or a folder with "
+                                  "Widgets and Templates or with Gauges and Templates in it."));
     connect(m_importButton, &QPushButton::clicked, this, &GaugeLibraryPanel::importFiles);
     m_removeButton = new QPushButton(tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
@@ -368,10 +374,10 @@ void GaugeLibraryPanel::importFiles()
         }
     settings.setValue("paths/importGauges", folder);
     const ImportFolders found = importFoldersIn(folder);
-    if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty() && found.xmlGauges.isEmpty())
+    if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty() && found.xmlGauges.isEmpty() && found.xmlTemplates.isEmpty())
         {
             QMessageBox::information(this, tr("Import"),
-                                     tr("There are no gauges (.veg, gauge.xml) or templates (.vet) in that folder."));
+                                     tr("There are no gauges (.veg, gauge.xml) or templates (.vet, project.cdp) in that folder."));
             return;
         }
 
@@ -435,6 +441,11 @@ void GaugeLibraryPanel::importFiles()
         report.gauges.notes += xml.notes;
         GaugeLibrary::refresh();
         report.templates = TemplateLibrary::importVet(found.templateFiles, found.widgets);
+        const TemplateLibrary::ImportSummary xmlTemplates = TemplateLibrary::importXml(found.xmlTemplates);
+        report.templates.imported += xmlTemplates.imported;
+        report.templates.gaugesImported += xmlTemplates.gaugesImported;
+        report.templates.failed += xmlTemplates.failed;
+        report.templates.notes += xmlTemplates.notes;
         return report;
     }));
 }

@@ -524,94 +524,84 @@
 <context>
     <name>GaugeLibraryPanel</name>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="247"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="253"/>
         <source>Add to video</source>
         <translation>Додати на відео</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="249"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="255"/>
         <source>Puts the selected gauge on the video. A double click does the same.</source>
         <translation>Розміщує вибраний прилад на відео. Те саме робить подвійне клацання.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="195"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="386"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="201"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="392"/>
         <source>Import...</source>
         <translation>Імпорт...</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="179"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="185"/>
         <source>Gauges</source>
         <translation>Прилади</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="180"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="186"/>
         <source>Templates</source>
         <translation>Шаблони</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="196"/>
-        <source>Brings in .veg gauges, .vet templates and XML gauges (folders with a gauge.xml). Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges in it.</source>
-        <translation>Додає прилади .veg, шаблони .vet і прилади XML (теки з файлом gauge.xml). Виберіть теку, де вони лежать, або теку, у якій є Widgets і Templates чи Gauges.</translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="200"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="206"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="247"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="253"/>
         <source>Apply to video</source>
         <translation>Застосувати до відео</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="248"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="254"/>
         <source>Replaces the gauges on the video with this template. A double click does the same.</source>
         <translation>Замінює прилади на відео цим шаблоном. Те саме робить подвійне клацання.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="250"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="256"/>
         <source>Deletes the selected template from the library</source>
         <translation>Вилучає вибраний шаблон із бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="251"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="257"/>
         <source>Deletes the selected gauge from the library</source>
         <translation>Вилучає вибраний прилад із бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="337"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="343"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
         <translation>Вилучити шаблон «%1» із бібліотеки? Його прилади залишаться.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="339"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="345"/>
         <source>Remove gauge</source>
         <translation>Вилучити прилад</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="339"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="345"/>
         <source>Remove template</source>
         <translation>Вилучити шаблон</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="363"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="369"/>
         <source>Folder with gauges and templates</source>
         <translation>Тека з приладами та шаблонами</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="373"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="419"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="379"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="425"/>
         <source>Import</source>
         <translation>Імпорт</translation>
     </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="374"/>
-        <source>There are no gauges (.veg, gauge.xml) or templates (.vet) in that folder.</source>
-        <translation>У цій теці немає приладів (.veg, gauge.xml) чи шаблонів (.vet).</translation>
-    </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="408"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="414"/>
         <source>%n of them have parts that cannot be shown.</source>
         <translation>
             <numerusform>%n із них має частини, які неможливо показати.</numerusform>
@@ -620,7 +610,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="412"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="418"/>
         <source>%n template(s) imported.</source>
         <translation>
             <numerusform>Імпортовано %n шаблон.</numerusform>
@@ -629,17 +619,27 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="338"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="344"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation>Вилучити «%1» із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="379"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="202"/>
+        <source>Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a gauge.xml or project.cdp). Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges and Templates in it.</source>
+        <translation>Додає прилади .veg, шаблони .vet, прилади й шаблони XML (теки з файлом gauge.xml чи project.cdp). Виберіть теку, де вони лежать, або теку, у якій є Widgets і Templates чи Gauges і Templates.</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="380"/>
+        <source>There are no gauges (.veg, gauge.xml) or templates (.vet, project.cdp) in that folder.</source>
+        <translation>У цій теці немає приладів (.veg, gauge.xml) чи шаблонів (.vet, project.cdp).</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="385"/>
         <source>Importing...</source>
         <translation>Імпортування...</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="404"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="410"/>
         <source>%n gauge(s) imported.</source>
         <translation>
             <numerusform>Імпортовано %n прилад.</numerusform>
@@ -648,7 +648,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="417"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="423"/>
         <source>%n file(s) could not be used.</source>
         <translation>
             <numerusform>%n файл не вдалося використати.</numerusform>
@@ -1396,19 +1396,24 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>TemplateLibrary</name>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="201"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="206"/>
         <source>The template has no usable name.</source>
         <translation>Шаблон не має придатної назви.</translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="209"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="214"/>
         <source>Cannot create the folder %1.</source>
         <translation>Не вдалося створити теку %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="282"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="287"/>
         <source>%1: without %2</source>
         <translation>%1: без %2</translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="384"/>
+        <source>without %1</source>
+        <translation>без %1</translation>
     </message>
 </context>
 <context>
@@ -1447,12 +1452,12 @@ Open them again from where they are now and save the project.</source>
 <context>
     <name>VetTemplateImporter</name>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="338"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="444"/>
         <source>This is not a .vet template.</source>
         <translation>Це не шаблон .vet.</translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/templatelibrary.cpp" line="383"/>
+        <location filename="../src/core/overlay/templatelibrary.cpp" line="489"/>
         <source>None of the gauges this template uses could be found.</source>
         <translation>Не знайдено жодного приладу, який використовує цей шаблон.</translation>
     </message>
@@ -1625,34 +1630,62 @@ Open them again from where they are now and save the project.</source>
         <translation>підписи осей графіка не показано</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="952"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="975"/>
         <source>This is not an XML gauge: %1</source>
         <translation>Це не прилад XML: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="957"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="980"/>
         <source>This is not an XML gauge.</source>
         <translation>Це не прилад XML.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="962"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="986"/>
         <source>Gauge file version %1 is not supported.</source>
         <translation>Версія файлу приладу %1 не підтримується.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="970"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="994"/>
         <source>The gauge has no size.</source>
         <translation>Прилад не має розміру.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="994"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1019"/>
         <source>The gauge has nothing in it that can be shown.</source>
         <translation>У приладі немає нічого, що можна показати.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1009"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="1034"/>
         <source>There is no %1 in %2.</source>
         <translation>У %2 немає %1.</translation>
+    </message>
+</context>
+<context>
+    <name>XmlTemplateImporter</name>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="65"/>
+        <source>This is not an XML template: %1</source>
+        <translation>Це не шаблон XML: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="66"/>
+        <source>This is not an XML template.</source>
+        <translation>Це не шаблон XML.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="159"/>
+        <source>%1 is drawn fully opaque</source>
+        <translation>%1 показано повністю непрозорим</translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="164"/>
+        <source>The template places no gauges.</source>
+        <translation>Шаблон не розміщує жодного приладу.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/overlay/xmltemplateimporter.cpp" line="165"/>
+        <source>None of the gauges this template uses could be found.</source>
+        <translation>Не знайдено жодного приладу, який використовує цей шаблон.</translation>
     </message>
 </context>
 </TS>

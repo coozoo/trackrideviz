@@ -21,6 +21,7 @@ SOURCES += \
     $$PWD/overlay/gaugetemplate.cpp \
     $$PWD/overlay/overlay.cpp \
     $$PWD/overlay/templatelibrary.cpp \
+    $$PWD/overlay/xmltemplateimporter.cpp \
     $$PWD/project/project.cpp \
     $$PWD/settings/appsettings.cpp \
     $$PWD/settings/bundleddata.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     $$PWD/overlay/gaugetemplate.h \
     $$PWD/overlay/overlay.h \
     $$PWD/overlay/templatelibrary.h \
+    $$PWD/overlay/xmltemplateimporter.h \
     $$PWD/project/project.h \
     $$PWD/settings/appsettings.h \
     $$PWD/settings/bundleddata.h \

@@ -75,9 +75,27 @@ the gauge's. A text at a point is placed beside it on the side its alignment nam
 rectangle is aligned inside it. A gauge is made for a data type in a fixed unit: the parts keep
 that unit (`GaugeComponent::unit`), so a needle matches the printed numbers.
 
+Gauge files of version 2 (still found inside templates) are the same except that some data types
+lack their unit, which was always the same: positions and distance in feet, speeds in mph,
+temperatures in °F, pressures in psi. The importer adds it.
+
 Left out, and reported: Digit (picture per digit, 1 gauge), the G-plot's stick and tail, chart
 axis labels and grids, charts over distance (drawn over time), values from the fastest lap
 (ghost), vertical text.
+
+### XML templates — imported (2026-11-13)
+
+A folder with `project.cdp` (`<Project version="2">`) and `Gauges/<name>/` holding a copy of each
+gauge it uses. `<GaugeSettings>` lists `<Gauge name x y transparency>` in drawing order: the top
+left corner in pixels of the video, at the gauge's design size. The rest (titles, video profile,
+data input mappings, chart tabs) is not used.
+
+The file does not state the frame size. `XmlTemplateImporter` takes it from the template's name
+("720p", "1080p"), otherwise the smallest of 720 x 480, 1280 x 720 and 1920 x 1080 that holds every
+gauge (all 20 of a full installation come out as their names and video profiles suggest). Each gauge
+is anchored to the edge or middle nearest its centre. A template's copy of a gauge that differs from
+the library's gauge of that name (templates for 720p carry smaller copies) is stored as
+"<gauge> - <template>". A gauge's `transparency` in the template is not used (noted).
 
 ### Binary, undocumented gauge formats — no import planned.
 

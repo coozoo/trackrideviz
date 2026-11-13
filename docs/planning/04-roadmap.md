@@ -116,7 +116,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ `XmlGaugeImporter`; one Import for `.veg` / `.vet` files and XML gauge folders
 - ✅ Checked on a full installation: 185 of 185 import, 28 with a note (chart labels, G-plot
   stick and tail, digit pictures); contact sheets of all of them compared by eye
-- XML templates (`project.cdp`) and data profiles are not imported yet
+- ✅ XML templates (`project.cdp`) with the gauges they carry, version 2 gauges too: 20 of 20
+  of a full installation, laid out as in the originals
+- Data profiles are not imported yet (M5)
 
 ### M3c — what is left
 - G-force has no data yet (derived channels are M4): the ball rests in the middle

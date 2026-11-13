@@ -2159,11 +2159,27 @@ private slots:
         QVERIFY(!painted(atTop, 20, 50));
     }
 
+    void xmlVersion2NamesGetTheirUnit()
+    {
+        const QString xml = "<Gauge version='2' width='100' height='100'><Components>"
+                            "<DynamicText x='0' y='0' displayType='Integer' fontRectWidth='100' fontRectHeight='100' fontFace='Arial' fontSize='12'"
+                            " fontBold='False' fontItalic='False' fontUnderline='False' fontDirection='horizontal' fontAlign='left' fontVAlign='top'"
+                            " fontTransparency='1' fontRed='255' fontGreen='255' fontBlue='255'>"
+                            "<Inputs><Input name='Value'>ALT</Input></Inputs></DynamicText></Components>"
+                            "<Inputs><Input category='Velocity' name='Speed'>MPH</Input>"
+                            "<Input category='Positional' name='Altitude / Z Position'>ALT</Input></Inputs></Gauge>";
+        const XmlGaugeImporter::Result result = XmlGaugeImporter::parse(xml.toUtf8(), "Old", QString());
+        QVERIFY2(result.ok, qPrintable(result.error));
+        QCOMPARE(result.gauge.supportedTypes, QStringList{"speed"});
+        QCOMPARE(result.gauge.components.first().channel, QString("elevation"));
+        QCOMPARE(result.gauge.components.first().unit, QString("ft"));
+    }
+
     void xmlRejectsWhatIsNotAGauge()
     {
         QVERIFY(!XmlGaugeImporter::parse("not xml", "x", QString()).ok);
         QVERIFY(!XmlGaugeImporter::parse("<Project/>", "x", QString()).ok);
-        QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="2" width="10" height="10"/>)", "x", QString()).ok);
+        QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="1" width="10" height="10"/>)", "x", QString()).ok);
         QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="3" width="0" height="10"/>)", "x", QString()).ok);
         QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="3" width="10" height="10"><Components/></Gauge>)", "x", QString()).ok);
         QVERIFY(!XmlGaugeImporter::importFolder(m_dir.filePath("nowhere")).ok);

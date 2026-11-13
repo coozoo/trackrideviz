@@ -50,6 +50,9 @@ public:
     // a "Widgets" folder). Blocking: call from a worker thread, then
     // GaugeLibrary::refresh() on the GUI thread.
     static ImportSummary importVet(const QStringList &vetFiles, const QString &widgetsFolder);
+    // Converts XML templates: folders holding project.cdp. Gauges the
+    // library lacks are imported from the template's own Gauges folder.
+    static ImportSummary importXml(const QStringList &templateFolders);
 };
 
 // Converts one .vet template. `findGauge` tells, for a gauge file name
