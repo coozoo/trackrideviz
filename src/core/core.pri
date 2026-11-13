@@ -1,7 +1,9 @@
 # rtvcore - everything that is not a widget.
 # Included by trackrideviz.pro and by every test .pro.
-# Rule: QtCore + QtGui only here, so widgets and QML front ends can both use it.
+# Rule: QtCore + QtGui (and QtSvg, which needs no more) only here, so widgets
+# and QML front ends can both use it.
 
+QT += svg
 INCLUDEPATH += $$PWD
 
 # A debug build run from its build folder finds the gauges and templates of

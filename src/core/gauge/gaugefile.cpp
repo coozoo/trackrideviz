@@ -692,7 +692,19 @@ bool GaugeFile::load(const QString &folder, Gauge *gauge, QString *error)
     // a missing picture leaves a hole in the gauge, it does not make it unusable
     forEachImage(loaded.components, [&dir](GaugeComponent &c)
     {
-        if (isSafeRelativePath(c.imagePath))
+        if (!isSafeRelativePath(c.imagePath))
+            {
+                return true;
+            }
+        if (c.imagePath.endsWith(".svg", Qt::CaseInsensitive))
+            {
+                QFile svg(dir.filePath(c.imagePath));
+                if (svg.open(QIODevice::ReadOnly))
+                    {
+                        c.svg = svg.readAll();
+                    }
+            }
+        else
             {
                 c.image = QImage(dir.filePath(c.imagePath));
             }
@@ -722,13 +734,14 @@ bool GaugeFile::save(const QString &folder, const Gauge &gauge, QString *error)
     QString failedImage;
     const bool imagesWritten = forEachImage(copy.components, [&](GaugeComponent &c)
     {
-        if (c.image.isNull())
+        const bool drawing = !c.svg.isEmpty();
+        if (c.image.isNull() && !drawing)
             {
                 return true;
             }
-        if (!isSafeRelativePath(c.imagePath))
+        if (!isSafeRelativePath(c.imagePath) || drawing != c.imagePath.endsWith(".svg", Qt::CaseInsensitive))
             {
-                c.imagePath = QString("images/image%1.png").arg(++unnamed);
+                c.imagePath = QString("images/image%1.%2").arg(++unnamed).arg(drawing ? "svg" : "png");
             }
         const QString target = dir.filePath(c.imagePath);
         // the same picture is often used by several components
@@ -736,7 +749,16 @@ bool GaugeFile::save(const QString &folder, const Gauge &gauge, QString *error)
             {
                 return true;
             }
-        if (!dir.mkpath(QFileInfo(c.imagePath).path()) || !c.image.save(target))
+        auto write = [&]()
+        {
+            if (!drawing)
+                {
+                    return c.image.save(target);
+                }
+            QSaveFile file(target);
+            return file.open(QIODevice::WriteOnly) && file.write(c.svg) == c.svg.size() && file.commit();
+        };
+        if (!dir.mkpath(QFileInfo(c.imagePath).path()) || !write())
             {
                 failedImage = target;
                 return false;

@@ -26,7 +26,7 @@ editors that are no longer maintained and hardly run on current systems.
 
 ## Build
 
-Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Linguist
+Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools) and a C++17 compiler.
 `ffmpeg` (with `ffprobe`) is needed at run time for export; its location can be set in the settings.
 

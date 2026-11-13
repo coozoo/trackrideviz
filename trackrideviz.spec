@@ -19,6 +19,7 @@ Url: https://github.com/coozoo/trackrideviz
 %if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version}
 BuildRequires: qt6-qtbase-devel >= 6.2
 BuildRequires: qt6-qtmultimedia-devel >= 6.2
+BuildRequires: qt6-qtsvg-devel >= 6.2
 BuildRequires: qt6-linguist >= 6.2
 BuildRequires: desktop-file-utils
 Requires:      desktop-file-utils
@@ -30,6 +31,7 @@ BuildRequires:  pkgconfig(Qt6Widgets)
 BuildRequires:  qt6-tools-linguist
 BuildRequires:  qt6-base-devel
 BuildRequires:  qt6-multimedia-devel
+BuildRequires:  qt6-svg-devel
 BuildRequires:  qt6-tools-devel
 BuildRequires:  update-desktop-files
 Requires(post): update-desktop-files
@@ -39,6 +41,7 @@ Requires(postun): update-desktop-files
 BuildRequires: qtbase6-common-devel >= 6.2
 BuildRequires: lib64qt6base6-devel >= 6.2
 BuildRequires: lib64qt6multimedia-devel >= 6.2
+BuildRequires: lib64qt6svg-devel >= 6.2
 BuildRequires: lib64qt6help-devel >= 6.2
 %endif
 

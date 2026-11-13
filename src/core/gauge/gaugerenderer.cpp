@@ -8,6 +8,7 @@
 #include <QFontMetricsF>
 #include <QLinearGradient>
 #include <QPainter>
+#include <QSvgRenderer>
 
 #include <algorithm>
 #include <cmath>
@@ -34,6 +35,41 @@ QColor themeColor(const GaugeColor &color, const GaugeTheme &theme)
         default:
             return theme.foreground;
         }
+}
+
+// A drawing with the theme's colours put in for @foreground, @background,
+// @accent and @accent2, and their transparency for @foreground-opacity and
+// so on (the SVG renderer reads no transparency in a colour itself).
+QByteArray themedSvg(QByteArray svg, const GaugeTheme &theme)
+{
+    const QPair<const char *, QColor> colours[] = {{"foreground", theme.foreground}, {"background", theme.background},
+        {"accent2", theme.accent2}, {"accent", theme.accent}
+    };
+    // the longer names first: "@accent" is the start of "@accent2"
+    for (const auto &colour : colours)
+        {
+            const QByteArray name = QByteArray("@") + colour.first;
+            svg.replace(name + "-opacity", QByteArray::number(colour.second.alphaF(), 'f', 3));
+            svg.replace(name, colour.second.name(QColor::HexRgb).toLatin1());
+        }
+    return svg;
+}
+
+// Parsing a drawing for every frame would cost more than drawing it. Each
+// thread keeps its own: preview and export draw at the same time.
+QSvgRenderer *svgRenderer(const QByteArray &svg)
+{
+    thread_local QHash<QByteArray, std::shared_ptr<QSvgRenderer>> cache;
+    auto found = cache.find(svg);
+    if (found == cache.end())
+        {
+            if (cache.size() > 200)
+                {
+                    cache.clear();
+                }
+            found = cache.insert(svg, std::make_shared<QSvgRenderer>(svg));
+        }
+    return found.value().get();
 }
 
 // Gauge artwork is a shape, not a picture: only its transparency is kept
@@ -555,7 +591,11 @@ BoundGauge::Node BoundGauge::bind(const GaugeComponent &component, const Units &
             node.arcColor = themeColor(component.scale.arcColor, theme);
             node.markerColor = themeColor(component.scale.markerColor, theme);
         }
-    if (component.type == GaugeComponent::Image)
+    if (component.type == GaugeComponent::Image && !component.svg.isEmpty())
+        {
+            node.component.svg = themedSvg(component.svg, theme);
+        }
+    else if (component.type == GaugeComponent::Image)
         {
             if (component.channelIcon)
                 {
@@ -997,7 +1037,11 @@ void BoundGauge::draw(QPainter &painter, const Node &node, double time, const Co
     switch (component.type)
         {
         case GaugeComponent::Image:
-            if (!component.image.isNull())
+            if (!component.svg.isEmpty())
+                {
+                    drawSvg(painter, node);
+                }
+            else if (!component.image.isNull())
                 {
                     painter.drawImage(component.frame, component.image);
                 }
@@ -1281,6 +1325,39 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
         }
     // the frame's corner is the anchor; the alignment says which point of the text sits on it
     drawAnchored(painter, text, component.frame.topLeft(), component.alignment);
+}
+
+// Drawn as lines and curves at whatever size it ends up, so it is sharp in a
+// 4K export too. With a colour of its own it is one shape in that colour, as
+// a picture would be: then it is drawn at the size it covers on the device.
+void BoundGauge::drawSvg(QPainter &painter, const Node &node) const
+{
+    QSvgRenderer *renderer = svgRenderer(node.component.svg);
+    if (!renderer->isValid())
+        {
+            return;
+        }
+    const QRectF &frame = node.component.frame;
+    if (node.component.color.role == GaugeColor::Original)
+        {
+            renderer->render(&painter, frame);
+            return;
+        }
+    const double scale = std::sqrt(std::fabs(painter.worldTransform().determinant()))
+                         * (painter.device() ? painter.device()->devicePixelRatioF() : 1.0);
+    const QSize size(std::max(1, int(std::ceil(frame.width() * scale))), std::max(1, int(std::ceil(frame.height() * scale))));
+    if (size.width() > 8192 || size.height() > 8192)
+        {
+            return;
+        }
+    QImage picture(size, QImage::Format_ARGB32_Premultiplied);
+    picture.fill(Qt::transparent);
+    {
+        QPainter drawing(&picture);
+        drawing.setRenderHint(QPainter::Antialiasing);
+        renderer->render(&drawing);
+    }
+    painter.drawImage(frame, tinted(picture, node.color));
 }
 
 void BoundGauge::drawShape(QPainter &painter, const Node &node) const

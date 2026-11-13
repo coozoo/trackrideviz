@@ -337,6 +337,51 @@ private slots:
         QCOMPARE(untouched.pixelColor(50, 50), QColor(Qt::magenta));
     }
 
+    void svgDrawingInThemeColours()
+    {
+        // a plate in the theme's background (half transparent) with an accent dot, as a drawing
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        GaugeComponent drawing;
+        drawing.type = GaugeComponent::Image;
+        drawing.color.role = GaugeColor::Original;
+        drawing.frame = QRectF(0, 0, 100, 100);
+        drawing.imagePath = "images/plate.svg";
+        drawing.svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'>"
+                      "<rect width='10' height='5' fill='@background' fill-opacity='@background-opacity'/>"
+                      "<circle cx='5' cy='7.5' r='2' fill='@accent'/></svg>";
+        gauge.components << drawing;
+        GaugeTheme theme;
+        theme.background = QColor(0, 0, 255, 128);
+        theme.accent = QColor(0, 200, 0);
+        // drawn big: a vector drawing stays sharp, its edge a single pixel wide
+        const int size = 1000;
+        const BoundGauge bound(gauge, ChannelId::Speed, nullptr, Units(), theme);
+        QImage image = canvas(size);
+        QPainter painter(&image);
+        bound.render(painter, QRectF(0, 0, size, size), 0.0);
+        painter.end();
+        const QColor plate = image.pixelColor(500, 200);
+        QVERIFY2(plate.blue() > 240 && std::abs(plate.alpha() - 128) <= 2, qPrintable(plate.name(QColor::HexArgb)));
+        QCOMPARE(image.pixelColor(500, 750), QColor(0, 200, 0));
+        QCOMPARE(qAlpha(image.pixel(500, 503)), 0);
+        // with a colour of its own it is one shape in that colour, as transparent as drawn
+        gauge.components[0].color.role = GaugeColor::Accent;
+        const QColor tinted = draw(gauge, 0.0).pixelColor(50, 20);
+        QVERIFY2(tinted.red() == 255 && std::abs(tinted.green() - 80) <= 2 && std::abs(tinted.blue() - 40) <= 2,
+                 qPrintable(tinted.name()));
+        QVERIFY2(std::abs(tinted.alpha() - GaugeTheme().background.alpha()) <= 2, qPrintable(tinted.name(QColor::HexArgb)));
+
+        // saved as an .svg next to the gauge, and read back
+        const QString folder = m_dir.filePath("svg-gauge");
+        QVERIFY(GaugeFile::save(folder, gauge));
+        QVERIFY(QFile::exists(folder + "/images/plate.svg"));
+        Gauge loaded;
+        QVERIFY(GaugeFile::load(folder, &loaded));
+        QCOMPARE(loaded.components.first().svg, drawing.svg);
+        QVERIFY(loaded.components.first().image.isNull());
+    }
+
     void themeColourKeepsTransparency()
     {
         const Gauge gauge = imageGauge(filled(QColor(255, 255, 255, 128)), QRectF(0, 0, 100, 100), GaugeColor::Background);

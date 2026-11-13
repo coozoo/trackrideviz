@@ -200,6 +200,9 @@ struct GaugeComponent
     // Image
     QString imagePath;             // relative to the gauge's folder; empty for images made in code
     QImage image;
+    // A drawing instead of a picture (an .svg file), drawn sharp at any size.
+    // It may name theme colours as @foreground, @background, @accent and @accent2.
+    QByteArray svg;
     bool channelIcon{false};       // instead of `image`, a picture of the measurement (heart, mountain...)
 
     // Text
