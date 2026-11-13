@@ -540,7 +540,8 @@ def live_icon(kind):
 def tile(name, kind=None, types=None):
     """Icon, label and value on a plate with an accent edge. Without `kind` the icon is a picture of
     whatever channel the tile shows; with it, the icon moves with the value."""
-    body = (f"<rect x='0' y='0' width='360' height='110' rx='6' {theme('background')}/>"
+    # mostly see-through, so a row of tiles hides little of the video
+    body = (f"<rect x='0' y='0' width='360' height='110' rx='6' fill='@background' fill-opacity='0.35'/>"
             f"<rect x='0' y='0' width='5' height='110' {theme('accent')}/>")
     drawings = {"plate.svg": svg(360, 110, body)}
     components = [image("plate.svg", (0, 0, 360, 110))]
