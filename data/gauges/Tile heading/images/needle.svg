@@ -1,1 +1,1 @@
-<svg xmlns='http://www.w3.org/2000/svg' version='1.2' baseProfile='tiny' viewBox='0 0 360 110' width='360' height='110'><path d='M54,31 L61,55 L47,55 Z' fill='@accent' fill-opacity='@accent-opacity'/><path d='M54,79 L61,55 L47,55 Z' fill='@accent' fill-opacity='0.4'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' version='1.2' baseProfile='tiny' viewBox='0 0 360 110' width='360' height='110'><path d='M54,32 L69,72 L54,63 L39,72 Z' fill='@accent' fill-opacity='@accent-opacity' stroke-linejoin='round'/></svg>

@@ -512,10 +512,10 @@ def live_icon(kind):
         return ({"icon.svg": svg(360, 110, outline), "fill.svg": svg(360, 110, fill)},
                 [image("icon.svg", full), image("fill.svg", full, manipulations=[clip])])
     if kind == "heading":
-        # a compass needle, the north half solid
+        # one big arrowhead with a notch at its back, pointing the way
         ring = f"<circle cx='{IX}' cy='{IY}' r='29' {stroke('accent', 3)}/>"
-        needle_ = (f"<path d='M{IX},{IY - 24} L{IX + 7},{IY} L{IX - 7},{IY} Z' {theme('accent')}/>"
-                   f"<path d='M{IX},{IY + 24} L{IX + 7},{IY} L{IX - 7},{IY} Z' fill='@accent' fill-opacity='0.4'/>")
+        needle_ = (f"<path d='M{IX},{IY - 23} L{IX + 15},{IY + 17} L{IX},{IY + 8} L{IX - 15},{IY + 17} Z' "
+                   f"{theme('accent')} stroke-linejoin='round'/>")
         turn = rotate(0, 360, (IX, IY), minValue=0, maxValue=360, wrap=True)
         return ({"icon.svg": svg(360, 110, ring), "needle.svg": svg(360, 110, needle_)},
                 [image("icon.svg", full), image("needle.svg", full, manipulations=[turn])])
