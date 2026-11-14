@@ -516,78 +516,89 @@
 <context>
     <name>DataPanel</name>
     <message>
-        <location filename="../src/datapanel.cpp" line="111"/>
+        <location filename="../src/datapanel.cpp" line="113"/>
         <source>Taken out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="122"/>
+        <location filename="../src/datapanel.cpp" line="124"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="220"/>
+        <location filename="../src/datapanel.cpp" line="223"/>
         <source>Open data and tick channels to see them</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="571"/>
+        <location filename="../src/datapanel.cpp" line="575"/>
         <source>Tick the channels to chart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="582"/>
+        <location filename="../src/datapanel.cpp" line="589"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Shift+drag over a channel picks samples to take out.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="595"/>
+        <location filename="../src/datapanel.cpp" line="602"/>
         <source>Double-click a sample to go there; select samples to take them out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="621"/>
+        <location filename="../src/datapanel.cpp" line="628"/>
         <source>Take out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="621"/>
+        <location filename="../src/datapanel.cpp" line="628"/>
         <source>Leave the picked samples out; the channel is read across the gap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="623"/>
+        <location filename="../src/datapanel.cpp" line="630"/>
         <source>Put back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="623"/>
+        <location filename="../src/datapanel.cpp" line="630"/>
         <source>Put back samples taken out in the picked stretch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="633"/>
+        <location filename="../src/datapanel.cpp" line="640"/>
         <source>Table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="633"/>
+        <location filename="../src/datapanel.cpp" line="640"/>
         <source>Show the samples of the channel last clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="734"/>
-        <source>Worked out from the other data</source>
+        <location filename="../src/datapanel.cpp" line="742"/>
+        <source>%1
+Worked out from the other data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="842"/>
+        <location filename="../src/datapanel.cpp" line="749"/>
+        <source>The colour of this line in the chart. Click to choose another.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="797"/>
+        <source>Colour of the line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="923"/>
         <source>Take out samples</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="856"/>
+        <location filename="../src/datapanel.cpp" line="937"/>
         <source>Put back samples</source>
         <translation type="unfinished"></translation>
     </message>

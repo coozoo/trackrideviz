@@ -517,79 +517,95 @@
 <context>
     <name>DataPanel</name>
     <message>
-        <location filename="../src/datapanel.cpp" line="111"/>
+        <location filename="../src/datapanel.cpp" line="113"/>
         <source>Taken out</source>
         <translation>Вилучено</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="122"/>
+        <location filename="../src/datapanel.cpp" line="124"/>
         <source>Time</source>
         <translation>Час</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="220"/>
+        <location filename="../src/datapanel.cpp" line="223"/>
         <source>Open data and tick channels to see them</source>
         <translation>Відкрийте дані й позначте канали, щоб їх побачити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="571"/>
+        <location filename="../src/datapanel.cpp" line="575"/>
         <source>Tick the channels to chart</source>
         <translation>Позначте канали для графіків</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="582"/>
+        <location filename="../src/datapanel.cpp" line="589"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Shift+drag over a channel picks samples to take out.</source>
         <translation>Клацання — перейти туди, коліщатко — масштаб (Shift+коліщатко — зсув).
 Shift+перетягування над каналом вибирає зразки, щоб їх вилучити.</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="595"/>
+        <location filename="../src/datapanel.cpp" line="602"/>
         <source>Double-click a sample to go there; select samples to take them out</source>
         <translation>Двічі клацніть зразок, щоб перейти до нього; виберіть зразки, щоб їх вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="621"/>
+        <location filename="../src/datapanel.cpp" line="628"/>
         <source>Take out</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="621"/>
+        <location filename="../src/datapanel.cpp" line="628"/>
         <source>Leave the picked samples out; the channel is read across the gap</source>
         <translation>Не враховувати вибрані зразки; канал читається через проміжок</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="623"/>
+        <location filename="../src/datapanel.cpp" line="630"/>
         <source>Put back</source>
         <translation>Повернути</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="623"/>
+        <location filename="../src/datapanel.cpp" line="630"/>
         <source>Put back samples taken out in the picked stretch</source>
         <translation>Повернути вилучені зразки у вибраному відрізку</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="633"/>
+        <location filename="../src/datapanel.cpp" line="640"/>
         <source>Table</source>
         <translation>Таблиця</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="633"/>
+        <location filename="../src/datapanel.cpp" line="640"/>
         <source>Show the samples of the channel last clicked</source>
         <translation>Показати зразки каналу, клацнутого останнім</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="734"/>
-        <source>Worked out from the other data</source>
-        <translation>Обчислено з інших даних</translation>
+        <location filename="../src/datapanel.cpp" line="742"/>
+        <source>%1
+Worked out from the other data</source>
+        <translation>%1
+Обчислено з інших даних</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="842"/>
+        <location filename="../src/datapanel.cpp" line="749"/>
+        <source>The colour of this line in the chart. Click to choose another.</source>
+        <translation>Колір цієї лінії на графіку. Клацніть, щоб вибрати інший.</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="797"/>
+        <source>Colour of the line</source>
+        <translation>Колір лінії</translation>
+    </message>
+    <message>
+        <source>Worked out from the other data</source>
+        <translation type="vanished">Обчислено з інших даних</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="923"/>
         <source>Take out samples</source>
         <translation>Вилучити зразки</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="856"/>
+        <location filename="../src/datapanel.cpp" line="937"/>
         <source>Put back samples</source>
         <translation>Повернути зразки</translation>
     </message>

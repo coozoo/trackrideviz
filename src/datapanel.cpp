@@ -5,6 +5,7 @@
 #include "telemetry/smoothing.h"
 
 #include <QAbstractTableModel>
+#include <QColorDialog>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
@@ -13,6 +14,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QSettings>
 #include <QSplitter>
 #include <QTableView>
 #include <QToolButton>
@@ -141,6 +143,7 @@ public:
         const Channel *recorded{nullptr};  // as recorded, drawn faintly under it; may be null
         double low{0.0};
         double high{1.0};
+        QColor color;                      // of its line and its name
     };
 
     explicit DataChart(QWidget *parent)
@@ -513,11 +516,12 @@ private:
             {
                 drawTrace(painter, lane.recorded, lane, area, QPen(faint, 1.0, Qt::DashLine));
             }
-        drawTrace(painter, lane.shown, lane, area, QPen(palette().color(QPalette::Text), 1.2));
+        drawTrace(painter, lane.shown, lane, area, QPen(lane.color.isValid() ? lane.color : palette().color(QPalette::Text), 1.4));
         painter.restore();
-        painter.setPen(palette().color(QPalette::PlaceholderText));
+        painter.setPen(lane.color.isValid() ? lane.color : palette().color(QPalette::PlaceholderText));
         const QString title = QString("%1 %2").arg(lane.display.name, lane.display.unit).trimmed();
         painter.drawText(area.adjusted(4, 1, -4, -1), Qt::AlignLeft | Qt::AlignTop, title);
+        painter.setPen(palette().color(QPalette::PlaceholderText));
         painter.drawText(area.adjusted(4, 1, -4, -1), Qt::AlignRight | Qt::AlignTop,
                          QString::number(lane.high, 'f', lane.display.decimals));
         painter.drawText(area.adjusted(4, 1, -4, -1), Qt::AlignRight | Qt::AlignBottom,
@@ -569,6 +573,9 @@ DataPanel::DataPanel(QWidget *parent)
 {
     m_channelList = new QListWidget(this);
     m_channelList->setToolTip(tr("Tick the channels to chart"));
+    // rows as wide as the list, so that the colour at their end is always in sight
+    m_channelList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_channelList->setTextElideMode(Qt::ElideRight);
     connect(m_channelList, &QListWidget::itemChanged, this, &DataPanel::updateCharts);
     connect(m_channelList, &QListWidget::currentItemChanged, this, [this](QListWidgetItem *item)
     {
@@ -726,14 +733,87 @@ void DataPanel::fillChannels()
             item->setData(Qt::UserRole, id);
             item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
             item->setCheckState(ticked.contains(id) ? Qt::Checked : Qt::Unchecked);
+            item->setToolTip(item->text());   // a long name is cut short by the colour at the end
             if (m_session->derivedChannels().contains(id))
                 {
                     QFont font = item->font();
                     font.setItalic(true);
                     item->setFont(font);
-                    item->setToolTip(tr("Worked out from the other data"));
+                    item->setToolTip(tr("%1\nWorked out from the other data").arg(item->text()));
+                }
+            // at the end of the row: the colour of its line, and the way to another
+            QWidget *row = new QWidget(m_channelList);
+            QToolButton *swatch = new QToolButton(row);
+            swatch->setObjectName("swatch");
+            swatch->setAutoRaise(true);
+            swatch->setToolTip(tr("The colour of this line in the chart. Click to choose another."));
+            const int side = std::max(10, m_channelList->fontMetrics().height() - 4);
+            swatch->setIconSize(QSize(side, side));
+            swatch->setFixedSize(side + 6, side + 6);
+            QPixmap colour(side, side);
+            colour.fill(colourOf(id));
+            swatch->setIcon(QIcon(colour));
+            connect(swatch, &QToolButton::clicked, this, [this, id]() { chooseColour(id); });
+            QHBoxLayout *rowLayout = new QHBoxLayout(row);
+            rowLayout->setContentsMargins(0, 0, 4, 0);
+            rowLayout->addStretch(1);
+            rowLayout->addWidget(swatch);
+            m_channelList->setItemWidget(item, row);
+        }
+}
+
+QColor DataPanel::colourOf(const QString &channelId) const
+{
+    const QColor chosen(QSettings().value("dataColours/" + channelId).toString());
+    if (chosen.isValid())
+        {
+            return chosen;
+        }
+    // to start with: the usual colour for the usual measurements, for the others one made
+    // from the name, the same every time
+    static const QHash<QString, int> usual
+    {
+        {ChannelId::Speed, 210}, {ChannelId::Elevation, 125}, {ChannelId::HeartRate, 0}, {ChannelId::Power, 30},
+        {ChannelId::Cadence, 280}, {ChannelId::Temperature, 55}, {ChannelId::Grade, 165}, {ChannelId::Distance, 240},
+        {ChannelId::Heading, 310},
+    };
+    int hue = usual.value(channelId, -1);
+    if (hue < 0)
+        {
+            quint32 sum = 2166136261u;
+            for (const QChar c : channelId)
+                {
+                    sum = (sum ^ c.unicode()) * 16777619u;
+                }
+            hue = int(sum % 360u);
+        }
+    // strong enough on a pale list, light enough on a dark one
+    const bool dark = palette().color(QPalette::Base).lightness() < 128;
+    return QColor::fromHsv(hue, dark ? 150 : 215, dark ? 240 : 185);
+}
+
+void DataPanel::chooseColour(const QString &channelId)
+{
+    const QColor chosen = QColorDialog::getColor(colourOf(channelId), this, tr("Colour of the line"));
+    if (!chosen.isValid())
+        {
+            return;
+        }
+    QSettings().setValue("dataColours/" + channelId, chosen.name());
+    for (int i = 0; i < m_channelList->count(); ++i)
+        {
+            QListWidgetItem *item = m_channelList->item(i);
+            if (item->data(Qt::UserRole).toString() == channelId)
+                {
+                    if (QToolButton *swatch = m_channelList->itemWidget(item)->findChild<QToolButton *>("swatch"))
+                        {
+                            QPixmap colour(swatch->iconSize());
+                            colour.fill(chosen);
+                            swatch->setIcon(QIcon(colour));
+                        }
                 }
         }
+    updateCharts();
 }
 
 void DataPanel::updateCharts()
@@ -763,6 +843,7 @@ void DataPanel::updateCharts()
                     lane.shown = m_smoothed.back().get();
                 }
             lane.display = ChannelFormat::displayFor(*lane.actual, m_units);
+            lane.color = colourOf(lane.id);
             // the scale of the data, smoothed or not: a taken-out spike should not squash the rest
             const double a = lane.display.convert(lane.actual->minValue());
             const double b = lane.display.convert(lane.actual->maxValue());
