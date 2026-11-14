@@ -539,8 +539,8 @@ void GaugeLibraryPanel::rebuildGroups()
     const QString chosen = m_groups->currentData().toString();
     m_groups->clear();
     m_groups->addItem(tr("All"), QString());
-    m_groups->addItem(tr("Come with the program"), QString(kBuiltinGroup));
-    m_groups->addItem(showingTemplates() ? tr("My own and imported") : tr("Imported"), QString(kUserGroup));
+    m_groups->addItem(tr("Built-in"), QString(kBuiltinGroup));
+    m_groups->addItem(tr("Imported"), QString(kUserGroup));
     m_groups->insertSeparator(m_groups->count());
     present.remove(kBuiltinGroup);
     present.remove(kUserGroup);

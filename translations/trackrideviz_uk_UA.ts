@@ -1082,16 +1082,6 @@ Comes with the program; it cannot be deleted.</source>
         <translation>Усі</translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="542"/>
-        <source>Come with the program</source>
-        <translation>Постачаються з програмою</translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="543"/>
-        <source>My own and imported</source>
-        <translation>Власні та імпортовані</translation>
-    </message>
-    <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="543"/>
         <source>Imported</source>
         <translation>Імпортовані</translation>
@@ -1144,6 +1134,11 @@ Comes with the program; it cannot be deleted.</source>
         <location filename="../src/gaugelibrarypanel.cpp" line="618"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation>Вилучити «%1» із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="542"/>
+        <source>Built-in</source>
+        <translation>Вбудовані</translation>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="655"/>
@@ -2535,14 +2530,6 @@ Open them again from where they are now and save the project.</source>
         <location filename="../src/settingsdialog.cpp" line="261"/>
         <source>The makers of these maps ask to be named wherever the map is shown. Switch the credit off only when the video names them elsewhere, in its end credits or its description.</source>
         <translation>Автори цих карт просять згадувати їх усюди, де показано карту. Вимикайте підпис лише тоді, коли відео згадує їх деінде: у фінальних титрах або в описі.</translation>
-    </message>
-    <message>
-        <source>An address with {z}, {x} and {y} in it. Empty: OpenStreetMap&apos;s own server, which allows light use only.</source>
-        <translation type="vanished">Адреса з {z}, {x} та {y}. Порожньо: власний сервер OpenStreetMap, який дозволяє лише помірне використання.</translation>
-    </message>
-    <message>
-        <source>Credit shown on the map:</source>
-        <translation type="vanished">Підпис авторства на карті:</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="285"/>

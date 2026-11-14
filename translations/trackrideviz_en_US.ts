@@ -1075,16 +1075,6 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="542"/>
-        <source>Come with the program</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="543"/>
-        <source>My own and imported</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="543"/>
         <source>Imported</source>
         <translation type="unfinished"></translation>
@@ -1134,6 +1124,11 @@ Comes with the program; it cannot be deleted.</source>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="618"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="542"/>
+        <source>Built-in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
