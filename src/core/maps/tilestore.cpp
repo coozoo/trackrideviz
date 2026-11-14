@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QNetworkAccessManager>
@@ -178,6 +179,45 @@ void TileStore::setDownloads(bool allowed)
         {
             QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
         }
+}
+
+int TileStore::pending() const
+{
+    const QMutexLocker lock(&m_mutex);
+    return m_downloads ? int(m_wanted.size() + m_running.size()) : 0;
+}
+
+qint64 TileStore::storedBytes() const
+{
+    QString folder;
+    {
+        const QMutexLocker lock(&m_mutex);
+        folder = m_folder;
+    }
+    qint64 bytes = 0;
+    QDirIterator files(folder, QDir::Files, QDirIterator::Subdirectories);
+    while (files.hasNext())
+        {
+            files.next();
+            bytes += files.fileInfo().size();
+        }
+    return bytes;
+}
+
+void TileStore::clearStored()
+{
+    {
+        const QMutexLocker lock(&m_mutex);
+        // only what is ours: a folder of tiles named by this store
+        if (!m_folder.isEmpty() && (m_folder.endsWith("/tiles") || m_folder.endsWith("/terrain")))
+            {
+                QDir(m_folder).removeRecursively();
+            }
+        m_pictures.clear();
+        m_tiles.clear();
+        m_failed.clear();
+    }
+    emit arrived();
 }
 
 void TileStore::setFolder(const QString &folder)

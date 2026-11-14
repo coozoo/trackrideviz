@@ -29,6 +29,22 @@ const int kRunLength = 64;
 const double kFollowPixels = 512.0;
 const double kMetresPerDegree = 111320.0;
 
+// What a map that follows the rider shows around a point, in its frame's units: the frame,
+// or - turned to the way ahead - the square the frame fits into at any angle. And the tile
+// pixels across that, so that both come from tiles of the same zoom.
+QSizeF followSize(const GaugeComponent &component)
+{
+    const QSizeF frame = component.frame.size();
+    const double diagonal = std::hypot(frame.width(), frame.height());
+    return component.headingUp ? QSizeF(diagonal, diagonal) : frame;
+}
+
+double followPixels(const GaugeComponent &component)
+{
+    const double longer = std::max(component.frame.width(), component.frame.height());
+    return component.headingUp ? kFollowPixels * followSize(component).width() / longer : kFollowPixels;
+}
+
 QColor themeColor(const GaugeColor &color, const GaugeTheme &theme)
 {
     switch (color.role)
@@ -444,6 +460,7 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
         {
             m_lat = m_session->channel(ChannelId::PositionLat);
             m_lon = m_session->channel(ChannelId::PositionLon);
+            m_heading = m_session->channel(ChannelId::Heading);
             if (!m_lat || !m_lon || m_lat->isEmpty())
                 {
                     m_lat = m_lon = nullptr;
@@ -490,7 +507,7 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
                         prepareRoutes(node);
                         node.lineSlot = m_lineSlots++;
                     }
-                for (QVector<Node> *list : {&node.children, &node.knob, &node.xMarker, &node.yMarker, &node.startLine})
+                for (QVector<Node> *list : {&node.children, &node.knob, &node.knobTurning, &node.xMarker, &node.yMarker, &node.startLine})
                     {
                         finish(*list);
                     }
@@ -757,6 +774,16 @@ void BoundGauge::prepareRoutes(Node &node) const
         {
             return;
         }
+    if (node.component.span > 0.0 && node.component.headingUp)
+        {
+            // what shows the heading turns with the map
+            QVector<Node> upright;
+            for (const Node &part : std::as_const(node.knob))
+                {
+                    (part.component.channel == QLatin1String(ChannelId::Heading) ? node.knobTurning : upright).append(part);
+                }
+            node.knob = upright;
+        }
     // what to draw: the whole recording, or one route per lap
     QVector<QPair<double, double>> spans;
     if (node.component.type == GaugeComponent::LapMap)
@@ -844,8 +871,8 @@ void BoundGauge::prepareRoutes(Node &node) const
                         {
                             // the tiles of the whole way, so that an export needs no connection:
                             // what the frame shows around points a third of it apart
-                            const QSizeF shown = node.component.frame.size();
-                            const double step = std::min(shown.width(), shown.height()) / 3.0;
+                            const QSizeF shown = followSize(node.component);
+                            const double step = std::min(node.component.frame.width(), node.component.frame.height()) / 3.0;
                             const QTransform toMap = route.toFrame.inverted();
                             QVector<QRectF> areas;
                             QPointF last;
@@ -858,7 +885,7 @@ void BoundGauge::prepareRoutes(Node &node) const
                                             last = p;
                                         }
                                 }
-                            TileStore::instance()->want(areas, kFollowPixels);
+                            TileStore::instance()->want(areas, followPixels(node.component));
                         }
                 }
             else
@@ -1323,17 +1350,27 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
     QPointF position;
     const QPointF here = positionAt(time, &position) ? route.toFrame.map(position) : route.startPoint;
     const QPointF shift = frame.center() - here;
-    const QRectF shown = frame.translated(-shift);
+    const QSizeF size = followSize(node.component);
+    const QRectF shown(here.x() - size.width() / 2.0, here.y() - size.height() / 2.0, size.width(), size.height());
+    bool headingKnown = false;
+    const double heading = node.component.headingUp && m_heading ? m_heading->valueAt(time, &headingKnown) : 0.0;
 
     painter.save();
     QPainterPath shape;
     shape.addRoundedRect(frame, node.component.cornerRadius, node.component.cornerRadius);
     painter.setClipPath(shape, Qt::IntersectClip);
+    if (headingKnown)
+        {
+            // the way ahead up: everything turns back by the heading, about the rider
+            painter.translate(frame.center());
+            painter.rotate(-heading);
+            painter.translate(-frame.center());
+        }
     painter.translate(shift);
     bool streets = false;
     if (node.component.tiles)
         {
-            const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(shown), kFollowPixels);
+            const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(shown), followPixels(node.component));
             if (!map.image.isNull())
                 {
                     painter.save();
@@ -1361,6 +1398,9 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
                 }
         }
     drawAt(painter, node.startLine, route.startPoint, time, context, route.startAngle);
+    // (back at the frame, still turned)
+    painter.translate(-shift);
+    drawAt(painter, node.knobTurning, frame.center(), time, context);
     painter.restore();
     if (streets)
         {

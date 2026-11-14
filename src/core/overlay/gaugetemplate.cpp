@@ -46,6 +46,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.height = item.height / height;
             placed.streets = item.streets;
             placed.closeUp = item.closeUp;
+            placed.headingUp = item.headingUp;
             result.append(placed);
         }
     return result;
@@ -73,6 +74,10 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             if (item.closeUp >= 0.0)
                 {
                     object.insert("closeUp", item.closeUp);
+                }
+            if (item.headingUp >= 0)
+                {
+                    object.insert("headingUp", item.headingUp > 0);
                 }
             items.append(object);
         }
@@ -134,6 +139,10 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
                     item.streets = object.value("streets").toBool() ? OverlayItem::Shown : OverlayItem::Hidden;
                 }
             item.closeUp = object.value("closeUp").toDouble(-1.0);
+            if (object.contains("headingUp"))
+                {
+                    item.headingUp = object.value("headingUp").toBool() ? 1 : 0;
+                }
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.items.append(item);

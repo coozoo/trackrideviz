@@ -257,6 +257,9 @@ struct GaugeComponent
     // TrackMap, LapMap: metres across the frame's shorter side, the map moving under
     // the current position kept in the middle; 0 = the whole route, standing still
     double span{0.0};
+    // ... turned so that the way ahead points up, not north; parts of `knob` bound to the
+    // heading turn with the map (an arrow then points up), the others stay upright
+    bool headingUp{false};
     // Graph: only this many seconds before and after the current point; 0 = the whole recording
     double windowBefore{0.0};
     double windowAfter{0.0};

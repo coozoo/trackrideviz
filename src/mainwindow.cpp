@@ -702,6 +702,19 @@ void MainWindow::exportVideo()
                                      tr("Open the data for this video first: without it there is nothing to draw."));
             return;
         }
+    const int pending = TileStore::instance()->pending();
+    if (pending > 0 || m_terrainWaiting)
+        {
+            // what is drawn before they come stays as it is in the exported file
+            const QString what = pending > 0 ? tr("%n piece(s) of the map under the gauges are still being fetched.", nullptr, pending)
+                                 : tr("The heights of the terrain are still being fetched.");
+            if (QMessageBox::question(this, tr("Export video"),
+                                      tr("%1\nAn export started now would be drawn without them. Export anyway?").arg(what))
+                    != QMessageBox::Yes)
+                {
+                    return;
+                }
+        }
     // two decoders on one file only fight for the disk and the graphics card
     m_player->pause();
     ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_session, m_units, m_project.theme),
@@ -923,6 +936,21 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                         setGaugeCloseUp(index, metres);
                     });
                 }
+            closeUp->addSeparator();
+            QAction *ahead = closeUp->addAction(tr("The way ahead up"));
+            ahead->setToolTip(tr("Turns the close-up so that the direction of travel points up; north is up otherwise"));
+            ahead->setCheckable(true);
+            ahead->setChecked(overlay.headingUp(index));
+            ahead->setEnabled(current > 0.0);
+            connect(ahead, &QAction::triggered, this, [this, index](bool up)
+            {
+                if (index < m_project.overlay.size())
+                    {
+                        OverlayState after{m_project.overlay, m_project.theme};
+                        after.items[index].headingUp = up ? 1 : 0;
+                        changeOverlay(up ? tr("Turn the map to the way ahead") : tr("Turn the map north up"), after);
+                    }
+            });
         }
     menu.addSeparator();
     menu.addAction(tr("Remove"), this, [this, index]()

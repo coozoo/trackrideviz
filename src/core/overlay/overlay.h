@@ -27,12 +27,14 @@ struct OverlayItem
     // Its route close up, the map moving under the rider: metres across;
     // 0 = the whole route, negative = as the gauge was drawn.
     double closeUp{-1.0};
+    // The close-up turned so that the way ahead points up: 1, north up: 0, as the gauge was drawn: -1.
+    int headingUp{-1};
 
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
                && x == other.x && y == other.y && height == other.height && streets == other.streets
-               && closeUp == other.closeUp;
+               && closeUp == other.closeUp && headingUp == other.headingUp;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
 };
@@ -63,6 +65,7 @@ public:
     bool hasStreets(int index) const { return m_placed.at(index).streets; }
     // Metres its route shows around the rider; 0 = the whole route.
     double closeUp(int index) const { return m_placed.at(index).closeUp; }
+    bool headingUp(int index) const { return m_placed.at(index).headingUp; }
 
     // What a new project starts with: the dial in the lower left corner, showing speed.
     static QVector<OverlayItem> defaultItems();
@@ -102,6 +105,7 @@ private:
         bool route{false};
         bool streets{false};
         double closeUp{0.0};
+        bool headingUp{false};
     };
     QVector<Placed> m_placed;
 };

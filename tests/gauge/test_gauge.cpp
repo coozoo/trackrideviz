@@ -1038,10 +1038,27 @@ private slots:
         QVERIFY(painted(turning, 90, 50));
         QVERIFY(!painted(turning, 50, 10));
         QVERIFY(!painted(turning, 10, 50));
+        // turned to the way ahead: on the second leg, going east, the route runs up the middle
+        Channel &heading = session->channelForWriting(ChannelId::Heading, "deg");
+        for (int t = 0; t <= 20; ++t)
+            {
+                heading.append(t, t <= 10 ? 0.0 : 90.0);
+            }
+        const QImage northUp = draw(gauge, 15.0, ChannelId::Speed, session);
+        QVERIFY(painted(northUp, 10, 50));
+        QVERIFY(painted(northUp, 90, 50));
+        QVERIFY(!painted(northUp, 50, 10));
+        gauge.components[0].headingUp = true;
+        const QImage ahead = draw(gauge, 15.0, ChannelId::Speed, session);
+        QVERIFY(painted(ahead, 50, 10));
+        QVERIFY(painted(ahead, 50, 90));
+        QVERIFY(!painted(ahead, 10, 50));
+        QVERIFY(!painted(ahead, 90, 50));
         // the setting is kept in the gauge's file
         Gauge loaded;
         QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded));
         QCOMPARE(loaded.components.first().span, 100.0);
+        QVERIFY(loaded.components.first().headingUp);
     }
 
     void lapMapShowsTheCurrentLapWithItsStartLine()

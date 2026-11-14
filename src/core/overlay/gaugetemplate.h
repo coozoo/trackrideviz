@@ -24,12 +24,13 @@ struct TemplateItem
     double height{0.0};      // reference pixels
     OverlayItem::Streets streets{OverlayItem::AsDesigned};
     double closeUp{-1.0};    // as OverlayItem's
+    int headingUp{-1};
 
     bool operator==(const TemplateItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel && edgeX == other.edgeX && edgeY == other.edgeY
                && offsetX == other.offsetX && offsetY == other.offsetY && height == other.height
-               && streets == other.streets && closeUp == other.closeUp;
+               && streets == other.streets && closeUp == other.closeUp && headingUp == other.headingUp;
     }
 };
 

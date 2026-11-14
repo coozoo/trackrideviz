@@ -93,6 +93,7 @@ private:
         int marking{-1};                  // for IntervalMarking texts: which number
         QVector<Node> children;
         QVector<Node> knob;
+        QVector<Node> knobTurning;        // of a map turned to the way ahead: the parts that turn with it
         QVector<Node> xMarker;
         QVector<Node> yMarker;
         QVector<Node> startLine;
@@ -181,6 +182,7 @@ private:
     // projection of positions onto a plane, the same for every map of the gauge
     const Channel *m_lat{nullptr};
     const Channel *m_lon{nullptr};
+    const Channel *m_heading{nullptr};
     TelemetrySessionPtr m_session;        // keeps the channels alive
     GaugeTheme m_theme;                   // its font, for texts
     QVector<Metric> m_metrics;

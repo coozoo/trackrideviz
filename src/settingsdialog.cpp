@@ -257,11 +257,29 @@ QWidget *SettingsDialog::createMapsPage()
     form->addRow(tr("Tile server:"), m_mapUrlEdit);
     form->addRow(note(tr("An address with {z}, {x} and {y} in it."), page));
     form->addRow(tr("Its credit:"), m_mapAttributionEdit);
+    m_mapClearButton = new QPushButton(page);
+    m_mapClearButton->setToolTip(tr("Deletes the map pieces and terrain heights kept on this computer. "
+                                    "They are fetched again when a gauge needs them."));
+    connect(m_mapClearButton, &QPushButton::clicked, this, [this]()
+    {
+        TileStore::instance()->clearStored();
+        TileStore::terrain()->clearStored();
+        updateStoredMaps();
+    });
+    updateStoredMaps();
     form->addRow(m_mapCreditCheck);
     form->addRow(note(tr("The makers of these maps ask to be named wherever the map is shown. "
                          "Switch the credit off only when the video names them elsewhere, "
                          "in its end credits or its description."), page));
+    form->addRow(m_mapClearButton);
     return page;
+}
+
+void SettingsDialog::updateStoredMaps()
+{
+    const qint64 bytes = TileStore::instance()->storedBytes() + TileStore::terrain()->storedBytes();
+    m_mapClearButton->setText(tr("Delete the stored maps (%1)").arg(QLocale().formattedDataSize(bytes)));
+    m_mapClearButton->setEnabled(bytes > 0);
 }
 
 void SettingsDialog::updateMapFields()

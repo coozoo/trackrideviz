@@ -188,7 +188,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   (`"streets"`). The credit on the map can be switched off for videos that name the map's makers
   elsewhere. Packages: the Windows one now carries libssl / libcrypto and the AppImage Qt's `tls`
   plugins - to be confirmed on the first packages built with them
-- A map of its own per gauge; clearing the tile cache
+- A map of its own per gauge
 - ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
   of map under it - the same choice as in the settings, so the gauges follow it
 - A map in the Data viewer to read the route against roads
@@ -205,8 +205,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   ("Close-up", kept in projects and templates as `"closeUp"`)
 - ✅ The library panel finds gauges and templates by name and by group (2026-11-14): where they
   come from, what a gauge shows (maps, speed, laps, ...), a template's category
-- The close-up map turned to the direction of travel; a warning before an export while tiles of
-  the way are still being fetched
+- ✅ The close-up turned so that the way ahead points up (`"headingUp"`, in the same menu); a
+  question before an export while map tiles or terrain heights are still being fetched; a button
+  in Settings > Maps that deletes the stored tiles and says how much they take (2026-11-14)
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join

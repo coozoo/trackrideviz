@@ -32,6 +32,7 @@ private:
     // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
     void checkFfmpeg();
     void updateMapFields();
+    void updateStoredMaps();
     void load();
 
     QListWidget *m_pageList{nullptr};
@@ -56,6 +57,7 @@ private:
     QComboBox *m_mapProviderCombo{nullptr};
     QLineEdit *m_mapApiKeyEdit{nullptr};
     QCheckBox *m_mapCreditCheck{nullptr};
+    QPushButton *m_mapClearButton{nullptr};
     QLineEdit *m_mapUrlEdit{nullptr};
     QLineEdit *m_mapAttributionEdit{nullptr};
 };

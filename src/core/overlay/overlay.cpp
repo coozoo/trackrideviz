@@ -10,7 +10,8 @@ namespace
 {
 // The item's choices for its map (streets under it, close up), put into the gauge's routes;
 // says what it found.
-void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, bool *route, bool *streets, double *closeUp)
+void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, bool *route, bool *streets, double *closeUp,
+               bool *headingUp)
 {
     const OverlayItem::Streets choice = item.streets;
     for (GaugeComponent &component : components)
@@ -21,7 +22,12 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                         {
                             component.span = item.closeUp;
                         }
+                    if (item.headingUp >= 0)
+                        {
+                            component.headingUp = item.headingUp > 0;
+                        }
                     *closeUp = component.span;
+                    *headingUp = component.headingUp;
                     if (choice == OverlayItem::Shown && !component.tiles)
                         {
                             // a gauge drawn without a map in mind: dimmed, corners taken off
@@ -39,7 +45,7 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                     *route = true;
                     *streets = *streets || component.tiles;
                 }
-            chooseMap(component.children, item, route, streets, closeUp);
+            chooseMap(component.children, item, route, streets, closeUp, headingUp);
         }
 }
 }
@@ -52,7 +58,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
             Gauge gauge = GaugeLibrary::gauge(item.gaugeId);
             Placed placed;
             placed.item = item;
-            chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp);
+            chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp);
             if (!gauge.isEmpty())
                 {
                     placed.gauge = BoundGauge(gauge, item.channel, session, units, theme);

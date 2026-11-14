@@ -81,6 +81,14 @@ public:
     // Tiles of other tests or users are never mixed in: the folder of the cache.
     void setFolder(const QString &folder);
 
+    // Tiles asked for and not there yet, while downloading is allowed: an export begun now
+    // would draw without them.
+    int pending() const;
+    // Bytes on disk, of every server's tiles; and all of them thrown away (arrived() follows:
+    // what is shown asks again).
+    qint64 storedBytes() const;
+    void clearStored();
+
     // What the store starts with.
     static QString defaultUrlTemplate();
     static QString defaultAttribution();

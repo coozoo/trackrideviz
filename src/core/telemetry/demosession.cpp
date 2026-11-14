@@ -52,7 +52,10 @@ TelemetrySessionPtr DemoSession::create()
             travelled += v;
             distance.append(t, travelled);
             elevation.append(t, 230.0 + 25.0 * std::sin(a + 0.6));
-            heading.append(t, std::fmod(360.0 + 90.0 - a * 180.0 / pi, 360.0));
+            // the way the positions above move: north and east per turn of `a`, at this latitude
+            const double north = 0.004 * std::cos(a) + 0.0024 * std::cos(3.0 * a);
+            const double east = -0.008 * std::sin(a) * std::cos(50.0 * pi / 180.0);
+            heading.append(t, std::fmod(360.0 + std::atan2(east, north) * 180.0 / pi, 360.0));
             grade.append(t, 6.0 * std::cos(a + 0.6));
             heartRate.append(t, 140.0 + 22.0 * std::sin(a + 1.0) + 0.02 * t);
             cadence.append(t, 85.0 + 8.0 * std::sin(2.0 * a));
