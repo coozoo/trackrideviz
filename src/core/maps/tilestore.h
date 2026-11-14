@@ -45,7 +45,11 @@ public:
     // Tiles covering at least `area` (projected), at the zoom level where it
     // is about a thousand pixels across - the same tiles whatever the size
     // drawn, so a ride previewed once exports without a connection.
-    Picture picture(const QRectF &area);
+    // `pixels`: how many tile pixels the larger side of the area gets at least half of.
+    Picture picture(const QRectF &area, double pixels = 1024.0);
+    // The tiles pictures of these areas would need, asked for without drawing any:
+    // for a map that follows the rider, the whole way ahead.
+    void want(const QVector<QRectF> &areas, double pixels);
 
     // A map that can be chosen by name.
     struct Provider
@@ -83,7 +87,7 @@ public:
         int right{0};
         int bottom{0};
     };
-    static Block blockFor(const QRectF &area, int maxZoom = 19);
+    static Block blockFor(const QRectF &area, int maxZoom = 19, double pixels = 1024.0);
     // Where a tile is kept on disk (for the server set now).
     QString tilePath(int zoom, int x, int y) const;
 

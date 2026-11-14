@@ -1087,10 +1087,12 @@ def crank(name):
     write(name, (s, s), components, drawings, ["cadence"])
 
 
-def map_gauge(name, lap, streets=False):
+def map_gauge(name, lap, streets=False, span=0):
     """The route (or the lap under way) as a line; where the rider is, an arrow pointing the way
     with the speed and the distance beside it. With `streets`, on a street map (dimmed, so the
-    line and the texts stand out) in a plate with rounded corners."""
+    line and the texts stand out) in a plate with rounded corners. With `span`, only that many
+    metres around the rider, who stays in the middle while the map moves: on a round plate, or
+    on the street map's."""
     s = 420
     arrow = (f"<path d='M20,6 L33,34 L20,27 L7,34 Z' {theme('accent')} stroke='#000000' stroke-opacity='0.4' "
              "stroke-width='1.5' stroke-linejoin='round'/>")
@@ -1112,6 +1114,14 @@ def map_gauge(name, lap, streets=False):
         drawings["start.svg"] = svg(32, 12, squares)
         route["startLine"] = [image("start.svg", (-16, -6, 32, 12))]
     components = [route]
+    if span:
+        route.update({"span": span, "padding": 0})
+    if span and not streets:
+        route.update({"frame": [6, 6, s - 12, s - 12], "cornerRadius": (s - 12) / 2, "lineWidth": 6})
+        drawings["plate.svg"] = svg(s, s, f"<circle cx='{s / 2}' cy='{s / 2}' r='{s / 2}' fill='@background' fill-opacity='0.6'/>")
+        drawings["rim.svg"] = svg(s, s, f"<circle cx='{s / 2}' cy='{s / 2}' r='{s / 2 - 3}' fill='none' "
+                                        "stroke='@foreground' stroke-opacity='0.55' stroke-width='3'/>")
+        components = [image("plate.svg", (0, 0, s, s)), route, image("rim.svg", (0, 0, s, s))]
     if streets:
         drawings["plate.svg"] = svg(s, s, f"<rect width='{s}' height='{s}' rx='30' fill='#10141a'/>")
         drawings["rim.svg"] = svg(s, s, f"<rect x='1.5' y='1.5' width='{s - 3}' height='{s - 3}' rx='28.5' fill='none' "
@@ -2078,6 +2088,8 @@ def main():
     map_gauge("Lap map arrow", lap=True)
     map_gauge("Route map streets", lap=False, streets=True)
     map_gauge("Lap map streets", lap=True, streets=True)
+    map_gauge("Route map close-up", lap=False, span=600)
+    map_gauge("Route map streets close-up", lap=False, streets=True, span=600)
     half_dial("Half dial left", "left")
     half_dial("Half dial right", "right")
     tape("Tape elevation")

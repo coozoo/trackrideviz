@@ -263,6 +263,10 @@ and export use the same tiles. Nothing is fetched until the application allows i
 (`setDownloads`), so tests and tools stay off the network; a tile that failed is not asked for
 again in the same run. Routes and tiles share one projection (Mercator, in degrees).
 
+A map part with `span` follows the rider: the route is kept as points in runs with their bounds,
+only the runs near the frame are drawn each frame, and the picture of tiles is asked for the
+frame's area at that moment (`want()` has queued the tiles of the whole way at binding).
+
 The maps to choose from are `TileStore::providers()` (address, credit, closest zoom); the main
 window turns the settings (map, key, own address, credit shown or not) into `setSource`. Each
 server has its own folder in the cache. Whether an item shows a map is `OverlayItem::streets`

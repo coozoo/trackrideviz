@@ -140,6 +140,7 @@ private slots:
         t.items[0].gaugeId = "library:My dial";
         t.items[0].channel = ChannelId::HeartRate;
         t.items[0].streets = OverlayItem::Shown;
+        t.items[0].closeUp = 0.0;
         GaugeTemplate loaded;
         QString error;
         QVERIFY2(TemplateFile::fromJson(TemplateFile::toJson(t), &loaded, &error), qPrintable(error));

@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class QComboBox;
+class QLineEdit;
 class QListWidget;
 class QPushButton;
 class QTabBar;
@@ -41,8 +43,14 @@ private:
     bool showingTemplates() const;
     QString selectedId() const;
     void startImport(const ImportFolders &found);
+    // The groups the listed entries fall into, offered for choosing; then applyFilter().
+    void rebuildGroups();
+    // Shows the entries of the chosen group whose name has the text typed.
+    void applyFilter();
 
     QTabBar *m_tabs{nullptr};
+    QLineEdit *m_search{nullptr};
+    QComboBox *m_groups{nullptr};
     QListWidget *m_list{nullptr};
     QPushButton *m_useButton{nullptr};
     QPushButton *m_importButton{nullptr};

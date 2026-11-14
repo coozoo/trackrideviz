@@ -254,6 +254,9 @@ struct GaugeComponent
     // with its corners rounded by cornerRadius
     bool tiles{false};
     double tileOpacity{1.0};
+    // TrackMap, LapMap: metres across the frame's shorter side, the map moving under
+    // the current position kept in the middle; 0 = the whole route, standing still
+    double span{0.0};
     // Graph: only this many seconds before and after the current point; 0 = the whole recording
     double windowBefore{0.0};
     double windowAfter{0.0};

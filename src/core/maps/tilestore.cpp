@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -18,8 +19,6 @@ namespace
 const double kPi = 3.14159265358979323846;
 const int kTileSize = 256;
 const int kMaxZoom = 19;
-// the larger side of an area in tile pixels: sharp on a gauge half a 4K frame high
-const double kAreaPixels = 1024.0;
 // servers ask for no more than two requests at a time
 const int kParallel = 2;
 // Mercator maps end here
@@ -131,6 +130,7 @@ void TileStore::setDownloads(bool allowed)
         if (allowed)
             {
                 m_failed.clear();
+                m_pictures.clear();
             }
     }
     if (allowed)
@@ -151,12 +151,12 @@ double TileStore::latitudeOf(double mercatorLatitude)
     return (2.0 * std::atan(std::exp(mercatorLatitude * kPi / 180.0)) - kPi / 2.0) * 180.0 / kPi;
 }
 
-TileStore::Block TileStore::blockFor(const QRectF &area, int maxZoom)
+TileStore::Block TileStore::blockFor(const QRectF &area, int maxZoom, double pixels)
 {
     // the world is 360 projected degrees each way; a tile at zoom z is 360 / 2^z of it
     const double extent = std::max({area.width(), area.height(), 1e-9});
     Block block;
-    block.zoom = std::clamp(int(std::floor(std::log2(kAreaPixels / kTileSize * 360.0 / extent))), 0, std::min(maxZoom, kMaxZoom));
+    block.zoom = std::clamp(int(std::floor(std::log2(pixels / kTileSize * 360.0 / extent))), 0, std::min(maxZoom, kMaxZoom));
     const int count = 1 << block.zoom;
     auto number = [count](double projected)
     {
@@ -182,14 +182,44 @@ QString TileStore::tilePath(int zoom, int x, int y) const
     return pathOf({zoom, x, y});
 }
 
-TileStore::Picture TileStore::picture(const QRectF &area)
+void TileStore::want(const QVector<QRectF> &areas, double pixels)
+{
+    const QMutexLocker lock(&m_mutex);
+    QSet<Tile> tiles;
+    for (const QRectF &area : areas)
+        {
+            const Block block = blockFor(area, m_maxZoom, pixels);
+            for (int y = block.top; y <= block.bottom; ++y)
+                {
+                    for (int x = block.left; x <= block.right; ++x)
+                        {
+                            tiles.insert({block.zoom, x, y});
+                        }
+                }
+        }
+    bool asked = false;
+    for (const Tile &tile : std::as_const(tiles))
+        {
+            if (!m_wanted.contains(tile) && !m_failed.contains(tile) && !m_running.contains(tile) && !QFile::exists(pathOf(tile)))
+                {
+                    m_wanted.insert(tile);
+                    asked = true;
+                }
+        }
+    if (asked && m_downloads)
+        {
+            QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
+        }
+}
+
+TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
 {
     if (!area.isValid())
         {
             return {};
         }
     const QMutexLocker lock(&m_mutex);
-    const Block block = blockFor(area, m_maxZoom);
+    const Block block = blockFor(area, m_maxZoom, pixels);
     const QString key = QString("%1/%2/%3/%4/%5").arg(block.zoom).arg(block.left).arg(block.top).arg(block.right).arg(block.bottom);
     if (const Picture *known = m_pictures.object(key))
         {
@@ -229,9 +259,9 @@ TileStore::Picture TileStore::picture(const QRectF &area)
             result.image = image;
             result.bounds = QRectF(block.left * size - 180.0, block.top * size - 180.0, columns * size, rows * size);
         }
-    if (found == columns * rows)
+    if (found > 0)
         {
-            // only whole blocks are remembered: the others change as tiles come
+            // remembered until a tile comes; a block with nothing yet costs nothing to look at again
             m_pictures.insert(key, new Picture(result));
         }
     if (asked && m_downloads)
@@ -298,6 +328,10 @@ void TileStore::startNext()
                 {
                     const QMutexLocker lock(&m_mutex);
                     m_running.remove(tile);
+                    if (kept)
+                        {
+                            m_pictures.clear();
+                        }
                     if (!kept)
                         {
                             m_failed.insert(tile);

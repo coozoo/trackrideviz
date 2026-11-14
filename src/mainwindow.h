@@ -64,6 +64,7 @@ private slots:
     void onItemGeometryEdited(int index, double x, double y, double height);
     void setGaugeChannel(int index, const QString &channel);
     void setGaugeStreets(int index, bool shown);
+    void setGaugeCloseUp(int index, double metres);
     void chooseThemeColor(int role);
     void showItemMenu(int index, const QPoint &globalPosition);
     void updateProperties();

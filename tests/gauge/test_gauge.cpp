@@ -1002,6 +1002,48 @@ private slots:
         store->setFolder(m_dir.filePath("no-tiles"));
     }
 
+    void mapFollowsTheRider()
+    {
+        // 111 m north, then as far east; the frame shows 100 m, a metre to a unit
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+        const double north = 0.001;
+        const double east = north / std::cos(60.0 * 3.14159265358979323846 / 180.0);
+        for (int t = 0; t <= 20; ++t)
+            {
+                lat.append(t, 60.0 + north * std::min(t, 10) / 10.0);
+                lon.append(t, 10.0 + east * std::max(0, t - 10) / 10.0);
+            }
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 100, 100);
+        map.lineWidth = 4;
+        map.span = 100.0;
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(map);
+
+        // half way up the first leg: the route runs through the middle from top to bottom
+        const QImage going = draw(gauge, 5.0, ChannelId::Speed, session);
+        QVERIFY(painted(going, 50, 50));
+        QVERIFY(painted(going, 50, 10));
+        QVERIFY(painted(going, 50, 90));
+        QVERIFY(!painted(going, 20, 50));
+        QVERIFY(!painted(going, 80, 50));
+        // at the corner: it comes from below and leaves to the right
+        const QImage turning = draw(gauge, 10.0, ChannelId::Speed, session);
+        QVERIFY(painted(turning, 50, 50));
+        QVERIFY(painted(turning, 50, 90));
+        QVERIFY(painted(turning, 90, 50));
+        QVERIFY(!painted(turning, 50, 10));
+        QVERIFY(!painted(turning, 10, 50));
+        // the setting is kept in the gauge's file
+        Gauge loaded;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded));
+        QCOMPARE(loaded.components.first().span, 100.0);
+    }
+
     void lapMapShowsTheCurrentLapWithItsStartLine()
     {
         // lap 1 a square in the west, lap 2 a square in the east

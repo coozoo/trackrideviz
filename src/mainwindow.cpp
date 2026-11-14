@@ -808,6 +808,17 @@ void MainWindow::setGaugeStreets(int index, bool shown)
     changeOverlay(shown ? tr("Show the street map") : tr("Hide the street map"), after);
 }
 
+void MainWindow::setGaugeCloseUp(int index, double metres)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items[index].closeUp = metres;
+    changeOverlay(metres > 0.0 ? tr("Show the route close up") : tr("Show the whole route"), after);
+}
+
 QStringList MainWindow::channelChoices(const QString &current) const
 {
     QStringList channels = m_session ? m_session->channelIds() : QStringList();
@@ -849,6 +860,25 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             {
                 setGaugeStreets(index, shown);
             });
+            // the whole route, or this much of it around the rider
+            QMenu *closeUp = menu.addMenu(tr("Close-up"));
+            const double current = overlay.closeUp(index);
+            const QVector<QPair<QString, double>> choices
+            {
+                {tr("Off: the whole route"), 0.0}, {tr("300 m"), 300.0}, {tr("600 m"), 600.0},
+                {tr("1 km"), 1000.0}, {tr("2 km"), 2000.0}, {tr("5 km"), 5000.0},
+            };
+            for (const auto &choice : choices)
+                {
+                    QAction *action = closeUp->addAction(choice.first);
+                    action->setCheckable(true);
+                    action->setChecked(choice.second == current);
+                    const double metres = choice.second;
+                    connect(action, &QAction::triggered, this, [this, index, metres]()
+                    {
+                        setGaugeCloseUp(index, metres);
+                    });
+                }
         }
     menu.addSeparator();
     menu.addAction(tr("Remove"), this, [this, index]()

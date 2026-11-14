@@ -12,17 +12,21 @@
 #include "telemetry/demosession.h"
 
 #include <QApplication>
+#include <QComboBox>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
 #include <QFutureWatcher>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
 #include <QSaveFile>
+#include <QSet>
 #include <QSettings>
 #include <QTabBar>
 #include <QVBoxLayout>
@@ -80,7 +84,128 @@ struct Thumbnail
 {
     QString id;
     QImage image;
+    QStringList groups{};   // gauges: what they show (see groupsOf)
 };
+
+// item data: the id, whether it comes with the program, the groups it is in
+const int kIdRole = Qt::UserRole;
+const int kBuiltinRole = Qt::UserRole + 1;
+const int kGroupsRole = Qt::UserRole + 2;
+
+// Groups every entry is in one of: where it comes from.
+const char kBuiltinGroup[] = "@builtin";
+const char kUserGroup[] = "@user";
+
+// What gauges show, coarsely enough for a short list to choose from.
+struct GaugeGroup
+{
+    const char *key;
+    const char *name;
+};
+const GaugeGroup kGaugeGroups[] =
+{
+    {"map", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Maps")},
+    {"speed", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Speed")},
+    {"height", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Elevation and grade")},
+    {"distance", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Distance and time")},
+    {"heart", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Heart rate")},
+    {"cadence", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Cadence")},
+    {"power", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Power and pedalling")},
+    {"laps", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Laps and sectors")},
+    {"g", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "G-force")},
+    {"heading", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Heading")},
+    {"engine", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Engine and vehicle")},
+    {"other", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Other")},
+};
+
+QString groupOfChannel(const QString &channel)
+{
+    const QString c = channel.toLower();
+    auto has = [&c](std::initializer_list<const char *> words)
+    {
+        for (const char *word : words)
+            {
+                if (c.contains(QLatin1String(word)))
+                    {
+                        return true;
+                    }
+            }
+        return false;
+    };
+    // the order matters: "lapTime" is a lap's, "verticalSpeed" a height's, "powerPhase" the power's
+    if (has({"lap", "sector"}))
+        {
+            return "laps";
+        }
+    if (has({"gforce", "acceleration", "braking"}))
+        {
+            return "g";
+        }
+    if (has({"power", "torque", "pedal", "platform"}))
+        {
+            return "power";
+        }
+    if (has({"elevation", "altitude", "grade", "vertical", "ascent", "descent", "glide", "falling"}))
+        {
+            return "height";
+        }
+    if (has({"rpm", "engine", "throttle", "gear", "brake", "steering", "fuel", "manifold", "coolant", "oil", "lambda"}))
+        {
+            return "engine";
+        }
+    if (has({"speed", "pace"}))
+        {
+            return "speed";
+        }
+    if (has({"distance", "time", "date"}))
+        {
+            return "distance";
+        }
+    if (has({"heart"}))
+        {
+            return "heart";
+        }
+    if (has({"cadence"}))
+        {
+            return "cadence";
+        }
+    if (has({"heading", "compass", "course"}))
+        {
+            return "heading";
+        }
+    return "other";
+}
+
+bool hasRoute(const QVector<GaugeComponent> &components)
+{
+    for (const GaugeComponent &component : components)
+        {
+            if (component.type == GaugeComponent::TrackMap || component.type == GaugeComponent::LapMap
+                    || hasRoute(component.children))
+                {
+                    return true;
+                }
+        }
+    return false;
+}
+
+QStringList groupsOf(const Gauge &gauge)
+{
+    if (hasRoute(gauge.components))
+        {
+            return {"map"};
+        }
+    QStringList groups;
+    for (const QString &channel : gauge.supportedTypes)
+        {
+            const QString group = groupOfChannel(channel);
+            if (!groups.contains(group))
+                {
+                    groups << group;
+                }
+        }
+    return groups.isEmpty() ? QStringList{"other"} : groups;
+}
 
 QVector<Thumbnail> renderThumbnails(const QStringList &ids, bool templates)
 {
@@ -115,7 +240,7 @@ QVector<Thumbnail> renderThumbnails(const QStringList &ids, bool templates)
                     bound.render(painter, QRectF((kGaugeThumbnail - size.width()) / 2, (kGaugeThumbnail - size.height()) / 2,
                                                  size.width(), size.height()), DemoSession::ShowcaseTime);
                 }
-            thumbnails.append({id, image});
+            thumbnails.append({id, image, groupsOf(gauge)});
         }
     return thumbnails;
 }
@@ -239,6 +364,13 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_tabs->setDocumentMode(true);
     connect(m_tabs, &QTabBar::currentChanged, this, &GaugeLibraryPanel::reload);
 
+    m_search = new QLineEdit(this);
+    m_search->setPlaceholderText(tr("Find by name"));
+    m_search->setClearButtonEnabled(true);
+    connect(m_search, &QLineEdit::textChanged, this, &GaugeLibraryPanel::applyFilter);
+    m_groups = new QComboBox(this);
+    connect(m_groups, &QComboBox::activated, this, &GaugeLibraryPanel::applyFilter);
+
     m_list = new QListWidget(this);
     m_list->setViewMode(QListView::IconMode);
     m_list->setResizeMode(QListView::Adjust);
@@ -271,7 +403,11 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     buttons->setColumnStretch(2, 1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
+    QHBoxLayout *filter = new QHBoxLayout;
+    filter->addWidget(m_search, 1);
+    filter->addWidget(m_groups);
     layout->addWidget(m_tabs);
+    layout->addLayout(filter);
     layout->addWidget(m_list, 1);
     layout->addLayout(buttons);
 
@@ -286,7 +422,7 @@ bool GaugeLibraryPanel::showingTemplates() const
 QString GaugeLibraryPanel::selectedId() const
 {
     const QListWidgetItem *item = m_list->currentItem();
-    return item && item->isSelected() ? item->data(Qt::UserRole).toString() : QString();
+    return item && item->isSelected() ? item->data(kIdRole).toString() : QString();
 }
 
 void GaugeLibraryPanel::updateButtons()
@@ -298,7 +434,7 @@ void GaugeLibraryPanel::updateButtons()
     m_exportButton->setToolTip(showingTemplates() ? tr("Saves the selected template, with the gauges it uses, as one file to pass on")
                                : tr("Saves the selected gauge as one file to pass on"));
     // what came with the program is part of it
-    const bool builtin = selected && item->data(Qt::UserRole + 1).toBool();
+    const bool builtin = selected && item->data(kBuiltinRole).toBool();
     m_removeButton->setEnabled(selected && !builtin);
     const bool templates = showingTemplates();
     m_removeButton->setToolTip(builtin ? (templates ? tr("This template comes with the program and cannot be deleted")
@@ -326,11 +462,17 @@ void GaugeLibraryPanel::reload()
     blank.fill(kThumbnailBackground);
     const QIcon placeholder(blank);
     QStringList ids;
-    auto addItem = [&](const QString &id, const QString &name, bool builtin, const QString &tooltip)
+    auto addItem = [&](const QString &id, const QString &name, bool builtin, const QString &tooltip, const QString &category)
     {
         QListWidgetItem *item = new QListWidgetItem(placeholder, name, m_list);
-        item->setData(Qt::UserRole, id);
-        item->setData(Qt::UserRole + 1, builtin);
+        item->setData(kIdRole, id);
+        item->setData(kBuiltinRole, builtin);
+        QStringList groups{builtin ? kBuiltinGroup : kUserGroup};
+        if (!category.isEmpty())
+            {
+                groups << category;
+            }
+        item->setData(kGroupsRole, groups);
         item->setToolTip(builtin ? tr("%1\nComes with the program; it cannot be deleted.").arg(tooltip) : tooltip);
         item->setTextAlignment(Qt::AlignHCenter | Qt::AlignTop);
         item->setSizeHint(m_list->gridSize());
@@ -345,16 +487,18 @@ void GaugeLibraryPanel::reload()
             for (const TemplateLibrary::Entry &entry : TemplateLibrary::entries())
                 {
                     addItem(entry.id, entry.name, entry.builtin,
-                            entry.category.isEmpty() ? entry.name : QString("%1 (%2)").arg(entry.name, entry.category));
+                            entry.category.isEmpty() ? entry.name : QString("%1 (%2)").arg(entry.name, entry.category),
+                            entry.category);
                 }
         }
     else
         {
             for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
                 {
-                    addItem(entry.id, entry.name, entry.builtin, entry.name);
+                    addItem(entry.id, entry.name, entry.builtin, entry.name, QString());
                 }
         }
+    rebuildGroups();
     updateButtons();
 
     auto *watcher = new QFutureWatcher<QVector<Thumbnail>>(this);
@@ -365,19 +509,83 @@ void GaugeLibraryPanel::reload()
             {
                 return; // the list was rebuilt meanwhile
             }
-        QHash<QString, QImage> images;
+        QHash<QString, Thumbnail> drawn;
         for (const Thumbnail &thumbnail : watcher->result())
             {
-                images.insert(thumbnail.id, thumbnail.image);
+                drawn.insert(thumbnail.id, thumbnail);
             }
         for (int row = 0; row < m_list->count(); ++row)
             {
                 QListWidgetItem *item = m_list->item(row);
-                const QImage image = images.value(item->data(Qt::UserRole).toString());
-                item->setIcon(QIcon(QPixmap::fromImage(item->data(Qt::UserRole + 1).toBool() ? withLock(image) : image)));
+                const Thumbnail thumbnail = drawn.value(item->data(kIdRole).toString());
+                item->setIcon(QIcon(QPixmap::fromImage(item->data(kBuiltinRole).toBool() ? withLock(thumbnail.image)
+                                                       : thumbnail.image)));
+                // what a gauge shows is known once it has been read
+                item->setData(kGroupsRole, item->data(kGroupsRole).toStringList() + thumbnail.groups);
             }
+        rebuildGroups();
     });
     watcher->setFuture(QtConcurrent::run(renderThumbnails, ids, templates));
+}
+
+void GaugeLibraryPanel::rebuildGroups()
+{
+    QSet<QString> present;
+    for (int row = 0; row < m_list->count(); ++row)
+        {
+            const QStringList groups = m_list->item(row)->data(kGroupsRole).toStringList();
+            present.unite(QSet<QString>(groups.begin(), groups.end()));
+        }
+    const QString chosen = m_groups->currentData().toString();
+    m_groups->clear();
+    m_groups->addItem(tr("All"), QString());
+    m_groups->addItem(tr("Come with the program"), QString(kBuiltinGroup));
+    m_groups->addItem(showingTemplates() ? tr("My own and imported") : tr("Imported"), QString(kUserGroup));
+    m_groups->insertSeparator(m_groups->count());
+    present.remove(kBuiltinGroup);
+    present.remove(kUserGroup);
+    if (showingTemplates())
+        {
+            // templates: their categories, as written in them
+            QStringList categories(present.begin(), present.end());
+            categories.sort(Qt::CaseInsensitive);
+            for (const QString &category : std::as_const(categories))
+                {
+                    m_groups->addItem(category, category);
+                }
+        }
+    else
+        {
+            for (const GaugeGroup &group : kGaugeGroups)
+                {
+                    if (present.contains(QLatin1String(group.key)))
+                        {
+                            m_groups->addItem(tr(group.name), QString(group.key));
+                        }
+                }
+        }
+    const int index = m_groups->findData(chosen);
+    m_groups->setCurrentIndex(index >= 0 ? index : 0);
+    applyFilter();
+}
+
+void GaugeLibraryPanel::applyFilter()
+{
+    const QString text = m_search->text().trimmed();
+    const QString group = m_groups->currentData().toString();
+    for (int row = 0; row < m_list->count(); ++row)
+        {
+            QListWidgetItem *item = m_list->item(row);
+            const bool shown = (text.isEmpty() || item->text().contains(text, Qt::CaseInsensitive))
+                               && (group.isEmpty() || item->data(kGroupsRole).toStringList().contains(group));
+            item->setHidden(!shown);
+        }
+    if (m_list->currentItem() && m_list->currentItem()->isHidden())
+        {
+            // nothing out of sight is added or removed
+            m_list->setCurrentItem(nullptr);
+        }
+    updateButtons();
 }
 
 void GaugeLibraryPanel::useSelected()

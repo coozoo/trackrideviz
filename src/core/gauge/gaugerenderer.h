@@ -70,6 +70,11 @@ private:
         double startAngle{0.0};           // direction of travel there, clockwise from up
         QImage map;                       // street map under it (null: none), drawn into mapRect
         QRectF mapRect;                   // design units
+        // A map that follows the current position (component.span): the route as points,
+        // in runs with their bounds, so that only what is near is drawn
+        bool follows{false};
+        QVector<QPointF> points;
+        QVector<QRectF> runBounds;
     };
     struct Node
     {
@@ -122,6 +127,8 @@ private:
     void prepareGraph(Node &node) const;
     void prepareRoutes(Node &node) const;
     void drawTiles(QPainter &painter, const Node &node, int route) const;
+    void drawCredit(QPainter &painter, const Node &node) const;
+    void drawFollowing(QPainter &painter, const Node &node, const Route &route, double time, const Context &context) const;
     void preparePhases(Node &node, const GaugeManipulation &strip) const;
     double phaseAt(const Node &node, const GaugeManipulation &strip, double time) const;
     bool positionAt(double time, QPointF *projected) const;

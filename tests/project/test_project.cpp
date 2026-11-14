@@ -175,6 +175,7 @@ private slots:
         // a street map switched on for one gauge, off for the other
         project.overlay[0].streets = OverlayItem::Shown;
         project.overlay[1].streets = OverlayItem::Hidden;
+        project.overlay[1].closeUp = 600.0;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);
 

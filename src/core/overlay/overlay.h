@@ -24,11 +24,15 @@ struct OverlayItem
     // A street map under the gauge's route: as the gauge was drawn, or the user's choice.
     enum Streets { AsDesigned, Shown, Hidden };
     Streets streets{AsDesigned};
+    // Its route close up, the map moving under the rider: metres across;
+    // 0 = the whole route, negative = as the gauge was drawn.
+    double closeUp{-1.0};
 
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
-               && x == other.x && y == other.y && height == other.height && streets == other.streets;
+               && x == other.x && y == other.y && height == other.height && streets == other.streets
+               && closeUp == other.closeUp;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
 };
@@ -57,6 +61,8 @@ public:
     // True when the item's gauge draws a route, with or without a street map under it.
     bool hasRoute(int index) const { return m_placed.at(index).route; }
     bool hasStreets(int index) const { return m_placed.at(index).streets; }
+    // Metres its route shows around the rider; 0 = the whole route.
+    double closeUp(int index) const { return m_placed.at(index).closeUp; }
 
     // What a new project starts with: the dial in the lower left corner, showing speed.
     static QVector<OverlayItem> defaultItems();
@@ -95,6 +101,7 @@ private:
         BoundGauge gauge;
         bool route{false};
         bool streets{false};
+        double closeUp{0.0};
     };
     QVector<Placed> m_placed;
 };

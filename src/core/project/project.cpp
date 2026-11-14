@@ -66,6 +66,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {
                     object.insert("streets", item.streets == OverlayItem::Shown);
                 }
+            if (item.closeUp >= 0.0)
+                {
+                    object.insert("closeUp", item.closeUp);
+                }
             overlay.append(object);
         }
     QJsonObject root
@@ -205,6 +209,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                 {
                     item.streets = object.value("streets").toBool() ? OverlayItem::Shown : OverlayItem::Hidden;
                 }
+            item.closeUp = object.value("closeUp").toDouble(-1.0);
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.overlay.append(item);

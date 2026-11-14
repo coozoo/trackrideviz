@@ -8,13 +8,20 @@
 
 namespace
 {
-// The item's choice of a street map, put into the gauge's routes; says what it found.
-void chooseStreets(QVector<GaugeComponent> &components, OverlayItem::Streets choice, bool *route, bool *streets)
+// The item's choices for its map (streets under it, close up), put into the gauge's routes;
+// says what it found.
+void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, bool *route, bool *streets, double *closeUp)
 {
+    const OverlayItem::Streets choice = item.streets;
     for (GaugeComponent &component : components)
         {
             if (component.type == GaugeComponent::TrackMap || component.type == GaugeComponent::LapMap)
                 {
+                    if (item.closeUp >= 0.0)
+                        {
+                            component.span = item.closeUp;
+                        }
+                    *closeUp = component.span;
                     if (choice == OverlayItem::Shown && !component.tiles)
                         {
                             // a gauge drawn without a map in mind: dimmed, corners taken off
@@ -32,7 +39,7 @@ void chooseStreets(QVector<GaugeComponent> &components, OverlayItem::Streets cho
                     *route = true;
                     *streets = *streets || component.tiles;
                 }
-            chooseStreets(component.children, choice, route, streets);
+            chooseMap(component.children, item, route, streets, closeUp);
         }
 }
 }
@@ -45,7 +52,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
             Gauge gauge = GaugeLibrary::gauge(item.gaugeId);
             Placed placed;
             placed.item = item;
-            chooseStreets(gauge.components, item.streets, &placed.route, &placed.streets);
+            chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp);
             if (!gauge.isEmpty())
                 {
                     placed.gauge = BoundGauge(gauge, item.channel, session, units, theme);

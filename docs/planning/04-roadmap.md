@@ -195,13 +195,27 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Elevation from a terrain model (height tiles through `TileStore`; the pictures of a cycling or
   topographic map carry no heights that could be read back) for recordings without it or
   with poor barometric data, as a derived channel the recording's own elevation always wins over
-- A map that shows only the part of the route around the rider, enlarged
+- ✅ A map that shows only the part of the route around the rider, enlarged (2026-11-14): a map
+  part with `"span"` (metres across) keeps the rider in the middle and moves the map under them,
+  north up. With a street map the tiles of the whole way are fetched when the gauge is placed.
+  Gauges Route map close-up and Route map streets close-up; any gauge with a route is switched
+  between the whole route and 300 m to 5 km around the rider from its menu on the video
+  ("Close-up", kept in projects and templates as `"closeUp"`)
+- ✅ The library panel finds gauges and templates by name and by group (2026-11-14): where they
+  come from, what a gauge shows (maps, speed, laps, ...), a template's category
+- The close-up map turned to the direction of travel; a warning before an export while tiles of
+  the way are still being fetched
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; TCX, NMEA, VBO
 - Multiple data sources per project
+- Measurements imported gauges ask for that could be worked out from a ride but are not yet:
+  running time, time of day and date as channels, pace, power averaged over 3 and 30 seconds,
+  the lap's top and average speed and average power, the highest and lowest elevation and the
+  distance in all, the number of the fastest lap, braking apart from acceleration, glide ratio.
+  (Engine, boat, dive and flight measurements need a logger's file and come with its profile.)
 
 ## M6 — Gauge editor
 - ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colours inside the drawing;

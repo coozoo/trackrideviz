@@ -22,6 +22,12 @@ namespace
 const double kPi = 3.14159265358979323846;
 // most points a graph line or a route is drawn with
 const int kMaxPathPoints = 2000;
+// a map that follows the rider shows a short stretch large: more points, drawn in runs of this many
+const int kMaxFollowPoints = 20000;
+const int kRunLength = 64;
+// tile pixels across what such a map shows: sharp on a gauge a quarter of a 4K frame high
+const double kFollowPixels = 512.0;
+const double kMetresPerDegree = 111320.0;
 
 QColor themeColor(const GaugeColor &color, const GaugeTheme &theme)
 {
@@ -768,7 +774,8 @@ void BoundGauge::prepareRoutes(Node &node) const
     for (const auto &span : spans)
         {
             // evenly in time across the span, as many points as a path needs and no more
-            const int count = std::clamp(m_lat->count(), 2, kMaxPathPoints);
+            const bool follows = node.component.span > 0.0;
+            const int count = std::clamp(m_lat->count(), 2, follows ? kMaxFollowPoints : kMaxPathPoints);
             QVector<QPointF> points;
             for (int i = 0; i < count; ++i)
                 {
@@ -796,9 +803,17 @@ void BoundGauge::prepareRoutes(Node &node) const
                 }
             const QRectF bounds(QPointF(left, top), QPointF(right, bottom));
             // keep the shape: one scale for both directions, centred
-            const double scale = std::min(area.width() / std::max(bounds.width(), 1e-9),
-                                          area.height() / std::max(bounds.height(), 1e-9));
+            double scale = std::min(area.width() / std::max(bounds.width(), 1e-9),
+                                    area.height() / std::max(bounds.height(), 1e-9));
+            if (follows)
+                {
+                    // a projected degree is this long on the ground at the route's latitude
+                    const double metres = kMetresPerDegree * std::cos(TileStore::latitudeOf(-bounds.center().y()) * kPi / 180.0);
+                    scale = std::min(node.component.frame.width(), node.component.frame.height())
+                            / (node.component.span / std::max(metres, 1.0));
+                }
             Route route;
+            route.follows = follows;
             route.toFrame.translate(area.center().x(), area.center().y());
             route.toFrame.scale(scale, scale);
             route.toFrame.translate(-bounds.center().x(), -bounds.center().y());
@@ -808,8 +823,47 @@ void BoundGauge::prepareRoutes(Node &node) const
                 {
                     placed.append(route.toFrame.map(p));
                 }
-            route.path = polyline(simplified(placed, kLineTolerance));
-            if (node.component.tiles)
+            if (follows)
+                {
+                    route.points = simplified(placed, kLineTolerance);
+                    for (int from = 0; from + 1 < route.points.size(); from += kRunLength)
+                        {
+                            const int to = std::min(from + kRunLength, int(route.points.size()) - 1);
+                            QRectF run(route.points.at(from), QSizeF(0, 0));
+                            for (int i = from + 1; i <= to; ++i)
+                                {
+                                    const QPointF &p = route.points.at(i);
+                                    run.setCoords(std::min(run.left(), p.x()), std::min(run.top(), p.y()),
+                                                  std::max(run.right(), p.x()), std::max(run.bottom(), p.y()));
+                                }
+                            route.runBounds.append(run);
+                        }
+                    if (node.component.tiles)
+                        {
+                            // the tiles of the whole way, so that an export needs no connection:
+                            // what the frame shows around points a third of it apart
+                            const QSizeF shown = node.component.frame.size();
+                            const double step = std::min(shown.width(), shown.height()) / 3.0;
+                            const QTransform toMap = route.toFrame.inverted();
+                            QVector<QRectF> areas;
+                            QPointF last;
+                            for (const QPointF &p : std::as_const(route.points))
+                                {
+                                    if (areas.isEmpty() || std::hypot(p.x() - last.x(), p.y() - last.y()) >= step)
+                                        {
+                                            areas.append(toMap.mapRect(QRectF(p.x() - shown.width() / 2.0, p.y() - shown.height() / 2.0,
+                                                                              shown.width(), shown.height())));
+                                            last = p;
+                                        }
+                                }
+                            TileStore::instance()->want(areas, kFollowPixels);
+                        }
+                }
+            else
+                {
+                    route.path = polyline(simplified(placed, kLineTolerance));
+                }
+            if (node.component.tiles && !follows)
                 {
                     // what the frame shows, back on the map
                     const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(node.component.frame));
@@ -1257,7 +1311,65 @@ void BoundGauge::drawTiles(QPainter &painter, const Node &node, int route) const
     painter.setOpacity(painter.opacity() * node.component.tileOpacity);
     painter.drawImage(node.routes.at(route).mapRect, map);
     painter.restore();
+    drawCredit(painter, node);
+}
 
+void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route &route, double time, const Context &context) const
+{
+    const QRectF frame = node.component.frame;
+    // where the rider is goes to the middle; before there is a position, the start does
+    QPointF position;
+    const QPointF here = positionAt(time, &position) ? route.toFrame.map(position) : route.startPoint;
+    const QPointF shift = frame.center() - here;
+    const QRectF shown = frame.translated(-shift);
+
+    painter.save();
+    QPainterPath shape;
+    shape.addRoundedRect(frame, node.component.cornerRadius, node.component.cornerRadius);
+    painter.setClipPath(shape, Qt::IntersectClip);
+    painter.translate(shift);
+    bool streets = false;
+    if (node.component.tiles)
+        {
+            const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(shown), kFollowPixels);
+            if (!map.image.isNull())
+                {
+                    painter.save();
+                    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+                    painter.setOpacity(painter.opacity() * node.component.tileOpacity);
+                    painter.drawImage(route.toFrame.mapRect(map.bounds), map.image);
+                    painter.restore();
+                    streets = true;
+                }
+        }
+    painter.setBrush(Qt::NoBrush);
+    painter.setPen(QPen(node.color, node.component.lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    const double edge = node.component.lineWidth;
+    const QRectF reach = shown.adjusted(-edge, -edge, edge, edge);
+    for (int run = 0; run < route.runBounds.size(); ++run)
+        {
+            // a run straight north or east has bounds of no width: intersects() would miss it
+            const QRectF &bounds = route.runBounds.at(run);
+            if (bounds.right() >= reach.left() && bounds.left() <= reach.right()
+                    && bounds.bottom() >= reach.top() && bounds.top() <= reach.bottom())
+                {
+                    const int from = run * kRunLength;
+                    painter.drawPolyline(route.points.constData() + from,
+                                         std::min(kRunLength + 1, int(route.points.size()) - from));
+                }
+        }
+    drawAt(painter, node.startLine, route.startPoint, time, context, route.startAngle);
+    painter.restore();
+    if (streets)
+        {
+            drawCredit(painter, node);
+        }
+    drawAt(painter, node.knob, frame.center(), time, context);
+}
+
+void BoundGauge::drawCredit(QPainter &painter, const Node &node) const
+{
+    const QRectF frame = node.component.frame;
     // the credit the map's makers ask for, small in the corner
     const QString credit = TileStore::instance()->attribution();
     if (credit.isEmpty())
@@ -1335,6 +1447,11 @@ void BoundGauge::drawRoute(QPainter &painter, const Node &node, double time, con
                 }
         }
     const Route &route = node.routes.at(index);
+    if (route.follows)
+        {
+            drawFollowing(painter, node, route, time, context);
+            return;
+        }
     if (context.cached && context.topLevel)
         {
             // the painter stands at the gauge's corner, scaled to its size: the picture fits exactly
