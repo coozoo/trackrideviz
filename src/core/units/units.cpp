@@ -31,15 +31,15 @@ QString readable(const QString &id)
     return words;
 }
 
-const double kMetresPerSecondToKmh = 3.6;
-const double kMetresPerSecondToMph = 2.2369362920544;
-const double kMetresToFeet = 3.280839895;
-const double kMetresToMiles = 1.0 / 1609.344;
+const double kMetersPerSecondToKmh = 3.6;
+const double kMetersPerSecondToMph = 2.2369362920544;
+const double kMetersToFeet = 3.280839895;
+const double kMetersToMiles = 1.0 / 1609.344;
 }
 
 double Units::speedScale() const
 {
-    return speed == MilesPerHour ? kMetresPerSecondToMph : kMetresPerSecondToKmh;
+    return speed == MilesPerHour ? kMetersPerSecondToMph : kMetersPerSecondToKmh;
 }
 
 QString Units::speedLabel() const
@@ -65,7 +65,7 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         }
     if (id == ChannelId::Elevation)
         {
-            return imperial ? ChannelDisplay{tr("Elevation"), tr("ft"), kMetresToFeet, 0.0, 0}
+            return imperial ? ChannelDisplay{tr("Elevation"), tr("ft"), kMetersToFeet, 0.0, 0}
                    : ChannelDisplay{tr("Elevation"), tr("m"), 1.0, 0.0, 1};
         }
     if (id == ChannelId::Speed)
@@ -74,7 +74,7 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         }
     if (id == ChannelId::Distance)
         {
-            return imperial ? ChannelDisplay{tr("Distance"), tr("mi"), kMetresToMiles, 0.0, 2}
+            return imperial ? ChannelDisplay{tr("Distance"), tr("mi"), kMetersToMiles, 0.0, 2}
                    : ChannelDisplay{tr("Distance"), tr("km"), 0.001, 0.0, 2};
         }
     if (id == ChannelId::Heading)
@@ -151,13 +151,13 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         }
     if (id == ChannelId::VerticalSpeed)
         {
-            return imperial ? ChannelDisplay{tr("Vertical speed"), tr("ft/min"), kMetresToFeet * 60.0, 0.0, 0}
+            return imperial ? ChannelDisplay{tr("Vertical speed"), tr("ft/min"), kMetersToFeet * 60.0, 0.0, 0}
                    : ChannelDisplay{tr("Vertical speed"), tr("m/s"), 1.0, 0.0, 1};
         }
     if (id == ChannelId::TotalAscent || id == ChannelId::TotalDescent)
         {
             const QString name = id == ChannelId::TotalAscent ? tr("Total ascent") : tr("Total descent");
-            return imperial ? ChannelDisplay{name, tr("ft"), kMetresToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
+            return imperial ? ChannelDisplay{name, tr("ft"), kMetersToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
         }
     if (id == ChannelId::ElapsedTime)
         {
@@ -177,11 +177,11 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
     if (id == ChannelId::ElevationMax || id == ChannelId::ElevationMin)
         {
             const QString name = id == ChannelId::ElevationMax ? tr("Highest point") : tr("Lowest point");
-            return imperial ? ChannelDisplay{name, tr("ft"), kMetresToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
+            return imperial ? ChannelDisplay{name, tr("ft"), kMetersToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
         }
     if (id == ChannelId::DistanceTotal)
         {
-            return imperial ? ChannelDisplay{tr("Whole distance"), tr("mi"), kMetresToMiles, 0.0, 2}
+            return imperial ? ChannelDisplay{tr("Whole distance"), tr("mi"), kMetersToMiles, 0.0, 2}
                    : ChannelDisplay{tr("Whole distance"), tr("km"), 0.001, 0.0, 2};
         }
     if (id == ChannelId::SpeedLapMax || id == ChannelId::SpeedLapAvg)
@@ -214,13 +214,13 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("G-force"), "g", 1.0, 0.0, 2};
         }
-    // pedalling: names and units that do not change with the units chosen
+    // pedaling: names and units that do not change with the units chosen
     static const struct
     {
         const char *id;
         const char *name;
         const char *unit;
-    } pedalling[] =
+    } pedaling[] =
     {
         {ChannelId::PowerBalanceLeft, QT_TR_NOOP("Left/right balance"), "%"},
         {ChannelId::PowerBalanceRight, QT_TR_NOOP("Right/left balance"), "%"},
@@ -242,7 +242,7 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {ChannelId::RightPowerPhasePeakStart, QT_TR_NOOP("Right peak phase start"), "°"},
         {ChannelId::RightPowerPhasePeakLength, QT_TR_NOOP("Right peak phase"), "°"},
     };
-    for (const auto &entry : pedalling)
+    for (const auto &entry : pedaling)
         {
             if (id == QLatin1String(entry.id))
                 {
@@ -263,10 +263,10 @@ ChannelDisplay ChannelFormat::displayIn(const QString &id, const QString &stored
         double offset;
     };
     // from what the channels store (channelids.h)
-    static const Conversion speeds[] = {{"mph", kMetresPerSecondToMph, 0.0}, {"km/h", kMetresPerSecondToKmh, 0.0},
+    static const Conversion speeds[] = {{"mph", kMetersPerSecondToMph, 0.0}, {"km/h", kMetersPerSecondToKmh, 0.0},
         {"m/s", 1.0, 0.0}, {"kn", 3600.0 / 1852.0, 0.0}, {"ft/min", 60.0 / 0.3048, 0.0}
     };
-    static const Conversion lengths[] = {{"ft", kMetresToFeet, 0.0}, {"m", 1.0, 0.0}, {"mi", kMetresToMiles, 0.0},
+    static const Conversion lengths[] = {{"ft", kMetersToFeet, 0.0}, {"m", 1.0, 0.0}, {"mi", kMetersToMiles, 0.0},
         {"km", 0.001, 0.0}
     };
     static const Conversion temperatures[] = {{"°F", 9.0 / 5.0, 32.0}, {"°C", 1.0, 0.0}};

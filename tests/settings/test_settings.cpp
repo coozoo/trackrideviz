@@ -77,7 +77,7 @@ private slots:
         QSettings().setValue("units/speed", "knots");
         QCOMPARE(AppSettings::colorScheme(), AppSettings::SystemColors);
         QCOMPARE(AppSettings::preferredDecoder(), AppSettings::AutoDecoder);
-        QCOMPARE(AppSettings::units().speed, Units::KilometresPerHour);
+        QCOMPARE(AppSettings::units().speed, Units::KilometersPerHour);
     }
 
     void decodingDeviceTypes()
@@ -169,7 +169,7 @@ private slots:
         QCOMPARE(temperature.convert(100.0), 212.0);
     }
 
-    // speed and length are separate choices (UK: mph with metres)
+    // speed and length are separate choices (UK: mph with meters)
     void unitsAreIndependent()
     {
         Units units;

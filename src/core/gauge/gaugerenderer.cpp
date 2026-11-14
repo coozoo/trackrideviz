@@ -27,7 +27,7 @@ const int kMaxFollowPoints = 20000;
 const int kRunLength = 64;
 // tile pixels across what such a map shows: sharp on a gauge a quarter of a 4K frame high
 const double kFollowPixels = 512.0;
-const double kMetresPerDegree = 111320.0;
+const double kMetersPerDegree = 111320.0;
 
 // What a map that follows the rider shows around a point, in its frame's units: the frame,
 // or - turned to the way ahead - the square the frame fits into at any angle. And the tile
@@ -62,9 +62,9 @@ QColor themeColor(const GaugeColor &color, const GaugeTheme &theme)
         }
 }
 
-// A drawing with the theme's colours put in for @foreground, @background,
+// A drawing with the theme's colors put in for @foreground, @background,
 // @accent and @accent2, and their transparency for @foreground-opacity and
-// so on (the SVG renderer reads no transparency in a colour itself).
+// so on (the SVG renderer reads no transparency in a color itself).
 QByteArray themedSvg(QByteArray svg, const GaugeTheme &theme)
 {
     // texts in a drawing follow the theme's font as other texts do
@@ -74,15 +74,15 @@ QByteArray themedSvg(QByteArray svg, const GaugeTheme &theme)
         }
     // bold in our drawings is semibold, as in our texts, unless the theme says
     svg.replace("font-weight='bold'", "font-weight='" + QByteArray::number(theme.fontWeight > 0 ? theme.fontWeight : 600) + "'");
-    const QPair<const char *, QColor> colours[] = {{"foreground", theme.foreground}, {"background", theme.background},
+    const QPair<const char *, QColor> colors[] = {{"foreground", theme.foreground}, {"background", theme.background},
         {"accent2", theme.accent2}, {"accent", theme.accent}
     };
     // the longer names first: "@accent" is the start of "@accent2"
-    for (const auto &colour : colours)
+    for (const auto &color : colors)
         {
-            const QByteArray name = QByteArray("@") + colour.first;
-            svg.replace(name + "-opacity", QByteArray::number(colour.second.alphaF(), 'f', 3));
-            svg.replace(name, colour.second.name(QColor::HexRgb).toLatin1());
+            const QByteArray name = QByteArray("@") + color.first;
+            svg.replace(name + "-opacity", QByteArray::number(color.second.alphaF(), 'f', 3));
+            svg.replace(name, color.second.name(QColor::HexRgb).toLatin1());
         }
     return svg;
 }
@@ -115,7 +115,7 @@ QString withUnit(const QString &number, const QString &unit)
 }
 
 // Gauge artwork is a shape, not a picture: only its transparency is kept
-// and the colour comes from the theme.
+// and the color comes from the theme.
 QImage tinted(const QImage &image, const QColor &color)
 {
     if (image.isNull())
@@ -416,7 +416,7 @@ void drawAnchored(QPainter &painter, const QString &text, const QPointF &anchor,
         {
             x -= metrics.horizontalAdvance(text);
         }
-    double baseline = anchor.y() + (metrics.ascent() - metrics.descent()) / 2.0; // centred
+    double baseline = anchor.y() + (metrics.ascent() - metrics.descent()) / 2.0; // centerd
     if (alignment & Qt::AlignTop)
         {
             baseline = anchor.y() + metrics.ascent();
@@ -831,15 +831,15 @@ void BoundGauge::prepareRoutes(Node &node) const
                     bottom = std::max(bottom, p.y());
                 }
             const QRectF bounds(QPointF(left, top), QPointF(right, bottom));
-            // keep the shape: one scale for both directions, centred
+            // keep the shape: one scale for both directions, centerd
             double scale = std::min(area.width() / std::max(bounds.width(), 1e-9),
                                     area.height() / std::max(bounds.height(), 1e-9));
             if (follows)
                 {
                     // a projected degree is this long on the ground at the route's latitude
-                    const double metres = kMetresPerDegree * std::cos(TileStore::latitudeOf(-bounds.center().y()) * kPi / 180.0);
+                    const double meters = kMetersPerDegree * std::cos(TileStore::latitudeOf(-bounds.center().y()) * kPi / 180.0);
                     scale = std::min(node.component.frame.width(), node.component.frame.height())
-                            / (node.component.span / std::max(metres, 1.0));
+                            / (node.component.span / std::max(meters, 1.0));
                 }
             Route route;
             route.follows = follows;
@@ -1621,7 +1621,7 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
 }
 
 // Drawn as lines and curves at whatever size it ends up, so it is sharp in a
-// 4K export too. With a colour of its own it is one shape in that colour, as
+// 4K export too. With a color of its own it is one shape in that color, as
 // a picture would be: then it is drawn at the size it covers on the device.
 void BoundGauge::drawSvg(QPainter &painter, const Node &node) const
 {
@@ -1685,10 +1685,10 @@ void BoundGauge::drawDial(QPainter &painter, const Node &node) const
 {
     const GaugeComponent &c = node.component;
     const GaugeScale &s = c.scale;
-    const QPointF centre = c.frame.center();
+    const QPointF center = c.frame.center();
     if (s.arcWidth > 0.0 && setPen(painter, node.arcColor, s.arcWidth))
         {
-            const QRectF circle(centre.x() - s.radius, centre.y() - s.radius, 2.0 * s.radius, 2.0 * s.radius);
+            const QRectF circle(center.x() - s.radius, center.y() - s.radius, 2.0 * s.radius, 2.0 * s.radius);
             QPainterPath arc;
             arc.arcMoveTo(circle, qtAngle(s.startAngle));
             arc.arcTo(circle, qtAngle(s.startAngle), -(s.endAngle - s.startAngle));
@@ -1715,12 +1715,12 @@ void BoundGauge::drawDial(QPainter &painter, const Node &node) const
                     const QPointF direction(std::sin(angle), -std::cos(angle));
                     if (drawn)
                         {
-                            painter.drawLine(centre + direction * (edge - ticks->length), centre + direction * edge);
+                            painter.drawLine(center + direction * (edge - ticks->length), center + direction * edge);
                         }
                     if (ticks == &s.major && node.color.alpha() > 0)
                         {
                             painter.setPen(node.color);
-                            drawAnchored(painter, scaleNumber(value), centre + direction * (s.radius - s.labelOffset), c.alignment);
+                            drawAnchored(painter, scaleNumber(value), center + direction * (s.radius - s.labelOffset), c.alignment);
                             setPen(painter, color, ticks->width);
                         }
                 }

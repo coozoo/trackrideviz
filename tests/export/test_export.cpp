@@ -153,7 +153,7 @@ private slots:
             {
                 return;
             }
-        // 2 s, 320x240, 30 fps, flat grey, with a tone
+        // 2 s, 320x240, 30 fps, flat gray, with a tone
         const QString path = m_dir.filePath("source.mp4");
         const FfmpegTools::RunResult made = FfmpegTools::run("ffmpeg",
         {
@@ -643,8 +643,8 @@ private slots:
                  qPrintable(finished.first().at(1).toString()));
         const QImage before = frameAt(m_sourceVideo, 1.0);
         const QImage after = frameAt(output, 1.0);
-        QVERIFY(difference(before, after, 30, 30) > 60);      // centre of the top left dial
-        QVERIFY(difference(before, after, 270, 210) > 60);    // centre of the bottom right one
+        QVERIFY(difference(before, after, 30, 30) > 60);      // center of the top left dial
+        QVERIFY(difference(before, after, 270, 210) > 60);    // center of the bottom right one
         QVERIFY(difference(before, after, 160, 120) < 20);    // between them: untouched
         QVERIFY(difference(before, after, 280, 30) < 20);
     }
@@ -944,7 +944,7 @@ private slots:
         QSignalSpy finished(&job, &ExportJob::finished);
         job.stop();
         QCOMPARE(finished.count(), 1);
-        QCOMPARE(finished.first().at(0).value<ExportJob::Outcome>(), ExportJob::Cancelled);
+        QCOMPARE(finished.first().at(0).value<ExportJob::Outcome>(), ExportJob::Canceled);
         QVERIFY(!QFile::exists(output));
     }
 

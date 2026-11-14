@@ -13,7 +13,7 @@
 
 // One video with its data and what is drawn on it. This is what a project
 // file (.rtvproj, JSON) holds. Preferences of the program itself (units,
-// colours, decoder) are not part of it - see AppSettings.
+// colors, decoder) are not part of it - see AppSettings.
 struct Project
 {
     QString videoPath;        // absolute, or empty
@@ -41,7 +41,7 @@ struct Project
     Terrain::Use elevation{Terrain::WhenMissing};
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
-    GaugeTheme theme;         // colours of all gauges
+    GaugeTheme theme;         // colors of all gauges
 };
 
 class ProjectFile

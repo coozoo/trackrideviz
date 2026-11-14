@@ -70,7 +70,7 @@ private:
         return gauge;
     }
 
-    // A bar from the centre up to 12 o'clock, turned around the centre over the scale 0..40 km/h.
+    // A bar from the center up to 12 o'clock, turned around the center over the scale 0..40 km/h.
     static Gauge needleGauge()
     {
         QImage bar = canvas();
@@ -324,7 +324,7 @@ private slots:
         QVERIFY(!painter.hasClipping());
     }
 
-    void themeColoursTheShape()
+    void themeColorsTheShape()
     {
         // the artwork is magenta; only its shape must survive
         const Gauge gauge = imageGauge(filled(Qt::magenta), QRectF(20, 20, 60, 60), GaugeColor::Accent);
@@ -411,7 +411,7 @@ private slots:
         QCOMPARE(GaugeLibrary::defaultChannel(gauge, {ChannelId::HeartRate}), QString(ChannelId::HeartRate));
     }
 
-    void svgDrawingInThemeColours()
+    void svgDrawingInThemeColors()
     {
         // a plate in the theme's background (half transparent) with an accent dot, as a drawing
         Gauge gauge;
@@ -439,7 +439,7 @@ private slots:
         QVERIFY2(plate.blue() > 240 && std::abs(plate.alpha() - 128) <= 2, qPrintable(plate.name(QColor::HexArgb)));
         QCOMPARE(image.pixelColor(500, 750), QColor(0, 200, 0));
         QCOMPARE(qAlpha(image.pixel(500, 503)), 0);
-        // with a colour of its own it is one shape in that colour, as transparent as drawn
+        // with a color of its own it is one shape in that color, as transparent as drawn
         gauge.components[0].color.role = GaugeColor::Accent;
         const QColor tinted = draw(gauge, 0.0).pixelColor(50, 20);
         QVERIFY2(tinted.red() == 255 && std::abs(tinted.green() - 80) <= 2 && std::abs(tinted.blue() - 40) <= 2,
@@ -456,7 +456,7 @@ private slots:
         QVERIFY(loaded.components.first().image.isNull());
     }
 
-    void themeColourKeepsTransparency()
+    void themeColorKeepsTransparency()
     {
         const Gauge gauge = imageGauge(filled(QColor(255, 255, 255, 128)), QRectF(0, 0, 100, 100), GaugeColor::Background);
         GaugeTheme theme;
@@ -659,9 +659,9 @@ private slots:
         gauge.components[0].alignment = Qt::AlignRight | Qt::AlignVCenter;
         QVERIFY(columns(draw(gauge, 0.0)).second <= 51);
         gauge.components[0].alignment = Qt::AlignHCenter | Qt::AlignVCenter;
-        const auto centred = columns(draw(gauge, 0.0));
-        QVERIFY(centred.first < 50 && centred.second > 50);
-        QVERIFY(qAbs((centred.first + centred.second) / 2 - 50) <= 2);
+        const auto centerd = columns(draw(gauge, 0.0));
+        QVERIFY(centerd.first < 50 && centerd.second > 50);
+        QVERIFY(qAbs((centerd.first + centerd.second) / 2 - 50) <= 2);
     }
 
     void scaleComesFromTheDataAndTheMarkings()
@@ -714,7 +714,7 @@ private slots:
     void slantedBarEdge()
     {
         // a bar filling to the middle; with a 45 degree slant the edge passes
-        // the centre line at x = 50 and leans right at the top
+        // the center line at x = 50 and leans right at the top
         Gauge gauge = imageGauge(filled(Qt::white), QRectF(0, 0, 100, 100));
         GaugeManipulation fill;
         fill.type = GaugeManipulation::WidthClip;
@@ -871,7 +871,7 @@ private slots:
 
     void trackMapKeepsTheShapeAndShowsWhereWeAre()
     {
-        // north 0..10 s, then east: an L, twice as wide as high in metres
+        // north 0..10 s, then east: an L, twice as wide as high in meters
         auto session = std::make_shared<TelemetrySession>();
         Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
         Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
@@ -896,7 +896,7 @@ private slots:
         gauge.size = QSizeF(100, 100);
         gauge.components.append(map);
 
-        // 80 wide, 40 high, centred: from (10, 70) up to (10, 30), then right to (90, 30)
+        // 80 wide, 40 high, centerd: from (10, 70) up to (10, 30), then right to (90, 30)
         const QImage start = draw(gauge, 0.0, ChannelId::Speed, session);
         QVERIFY(painted(start, 10, 50));
         QVERIFY(painted(start, 50, 30));
@@ -1004,7 +1004,7 @@ private slots:
 
     void mapFollowsTheRider()
     {
-        // 111 m north, then as far east; the frame shows 100 m, a metre to a unit
+        // 111 m north, then as far east; the frame shows 100 m, a meter to a unit
         auto session = std::make_shared<TelemetrySession>();
         Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
         Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
@@ -1108,7 +1108,7 @@ private slots:
             }
     }
 
-    void channelIconTakesTheThemeColour()
+    void channelIconTakesTheThemeColor()
     {
         GaugeComponent icon;
         icon.type = GaugeComponent::Image;
@@ -1603,7 +1603,7 @@ private slots:
         QCOMPARE(c[0].type, GaugeComponent::Graph);
         QCOMPARE(c[0].lineWidth, 3.0);
         QCOMPARE(c[0].fillAlpha, 80);
-        QVERIFY(!c[0].fillColor.isValid());           // the line's colour
+        QVERIFY(!c[0].fillColor.isValid());           // the line's color
         QCOMPARE(c[0].xMarker.size(), 1);
         QCOMPARE(c[0].yMarker.size(), 1);
         QCOMPARE(c[0].knob.size(), 1);
@@ -1750,7 +1750,7 @@ private slots:
         GaugeLibrary::refresh();
         const Gauge imported = GaugeLibrary::gauge("library:good one");
         QVERIFY(!imported.isEmpty());
-        // the picture travelled with it: the library folder is self-contained
+        // the picture traveled with it: the library folder is self-contained
         QVERIFY(QFile::exists(GaugeLibrary::userFolder() + "/good one/images/plate.png"));
         QVERIFY(paintedPixels(draw(imported, 1.0)) > 0);
 
@@ -1814,7 +1814,7 @@ private slots:
         QVERIFY(painted(stroke, 50, 50));
         QVERIFY(!painted(stroke, 60, 50));
 
-        // a fill running from the colour to the gradient's end colour
+        // a fill running from the color to the gradient's end color
         Gauge gradient = one(GaugeComponent::Rectangle, QRectF(0, 0, 100, 100), true);
         gradient.components[0].color = GaugeColor{GaugeColor::Custom, QColor(255, 0, 0)};
         gradient.components[0].gradientColor = GaugeColor{GaugeColor::Custom, QColor(0, 0, 255)};

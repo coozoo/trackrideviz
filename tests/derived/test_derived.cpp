@@ -14,9 +14,9 @@ class TestDerived : public QObject
 
 private:
     static constexpr double kPi = 3.14159265358979323846;
-    static constexpr double kMetresPerDegree = 6371008.8 * kPi / 180.0;
+    static constexpr double kMetersPerDegree = 6371008.8 * kPi / 180.0;
 
-    // Positions along `place` (seconds -> north and east metres), sampled every `step` s.
+    // Positions along `place` (seconds -> north and east meters), sampled every `step` s.
     template <typename Place>
     static std::shared_ptr<TelemetrySession> ride(double seconds, double step, Place place, bool elevation = false)
     {
@@ -28,8 +28,8 @@ private:
         for (double t = 0.0; t <= seconds + 1e-9; t += step)
             {
                 const QPointF p = place(t);   // x north, y east
-                lat.append(t, lat0 + p.x() / kMetresPerDegree);
-                lon.append(t, 28.0 + p.y() / (kMetresPerDegree * std::cos(lat0 * kPi / 180.0)));
+                lat.append(t, lat0 + p.x() / kMetersPerDegree);
+                lon.append(t, 28.0 + p.y() / (kMetersPerDegree * std::cos(lat0 * kPi / 180.0)));
                 if (alt)
                     {
                         alt->append(t, 200.0 + p.x() * 0.05);   // 5 % up, northwards
@@ -103,7 +103,7 @@ private slots:
         QVERIFY(std::fabs(at(s, ChannelId::GForceLongitudinal, 150.0)) < 0.01);
         QVERIFY(std::fabs(at(s, ChannelId::GForceLateral, 150.0)) < 0.01);
         QCOMPARE(s->channel(ChannelId::Grade)->unit(), QString("%"));
-        // the small sums: 10 m/s is 100 s to the kilometre; from 200 m up to 350 m, 3 km in all
+        // the small sums: 10 m/s is 100 s to the kilometer; from 200 m up to 350 m, 3 km in all
         QCOMPARE(at(s, ChannelId::ElapsedTime, 150.0), 150.0);
         QVERIFY(std::fabs(at(s, ChannelId::Pace, 150.0) - 100.0) < 0.5);
         QVERIFY(std::fabs(at(s, ChannelId::ElevationMax, 10.0) - 350.0) < 0.5);
@@ -116,7 +116,7 @@ private slots:
 
     void elevationFromTheTerrain()
     {
-        // tiles of a terrain where the height is 300 m and rises a metre with every pixel east
+        // tiles of a terrain where the height is 300 m and rises a meter with every pixel east
         QTemporaryDir dir;
         TileStore *store = TileStore::terrain();
         store->setFolder(dir.path());

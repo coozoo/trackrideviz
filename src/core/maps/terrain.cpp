@@ -15,7 +15,7 @@ const int kZoom = 12;
 const int kTileSize = 256;
 
 // The height in one pixel of the world at kZoom; false without its tile.
-bool pixelHeight(qint64 x, qint64 y, double *metres)
+bool pixelHeight(qint64 x, qint64 y, double *meters)
 {
     const qint64 world = qint64(kTileSize) << kZoom;
     x = ((x % world) + world) % world;      // round the date line
@@ -25,17 +25,17 @@ bool pixelHeight(qint64 x, qint64 y, double *metres)
         {
             return false;
         }
-    // red and green count whole metres from 32768 below the sea, blue the parts of one
+    // red and green count whole meters from 32768 below the sea, blue the parts of one
     const QRgb pixel = tile.pixel(int(x % kTileSize) * tile.width() / kTileSize, int(y % kTileSize) * tile.height() / kTileSize);
-    *metres = qRed(pixel) * 256.0 + qGreen(pixel) + qBlue(pixel) / 256.0 - 32768.0;
+    *meters = qRed(pixel) * 256.0 + qGreen(pixel) + qBlue(pixel) / 256.0 - 32768.0;
     return true;
 }
 }
 
-bool Terrain::elevationAt(double latitude, double longitude, double *metres)
+bool Terrain::elevationAt(double latitude, double longitude, double *meters)
 {
     const double world = double(qint64(kTileSize) << kZoom);
-    // pixel centres are at half numbers
+    // pixel centers are at half numbers
     const double px = (longitude + 180.0) / 360.0 * world - 0.5;
     const double py = (180.0 - TileStore::mercatorLatitude(latitude)) / 360.0 * world - 0.5;
     const qint64 x0 = qint64(std::floor(px));
@@ -53,7 +53,7 @@ bool Terrain::elevationAt(double latitude, double longitude, double *metres)
         {
             return false;
         }
-    *metres = (h[0] * (1.0 - fx) + h[1] * fx) * (1.0 - fy) + (h[2] * (1.0 - fx) + h[3] * fx) * fy;
+    *meters = (h[0] * (1.0 - fx) + h[1] * fx) * (1.0 - fy) + (h[2] * (1.0 - fx) + h[3] * fx) * fy;
     return true;
 }
 

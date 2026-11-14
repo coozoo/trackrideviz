@@ -70,7 +70,7 @@ names → data types (`Speed (MPH)`); per part, its input slots (`Value`, `X`, `
 | GPlot | axes, rings and numbers as shapes, a ball on `Translate2D` |
 
 Angles count clockwise from 3 o'clock (ours from 12: +90°; a picture's own turn stays as it is).
-Font sizes are points at 96 dpi. Every colour has its own `transparency` (opacity), multiplied by
+Font sizes are points at 96 dpi. Every color has its own `transparency` (opacity), multiplied by
 the gauge's. A text at a point is placed beside it on the side its alignment names; a text with a
 rectangle is aligned inside it. A gauge is made for a data type in a fixed unit: the parts keep
 that unit (`GaugeComponent::unit`), so a needle matches the printed numbers.
@@ -93,7 +93,7 @@ data input mappings, chart tabs) is not used.
 The file does not state the frame size. `XmlTemplateImporter` takes it from the template's name
 ("720p", "1080p"), otherwise the smallest of 720 x 480, 1280 x 720 and 1920 x 1080 that holds every
 gauge (all 20 of a full installation come out as their names and video profiles suggest). Each gauge
-is anchored to the edge or middle nearest its centre. A template's copy of a gauge that differs from
+is anchored to the edge or middle nearest its center. A template's copy of a gauge that differs from
 the library's gauge of that name (templates for 720p carry smaller copies) is stored as
 "<gauge> - <template>". A gauge's `transparency` in the template is not used (noted).
 
@@ -102,17 +102,17 @@ the library's gauge of that name (templates for 720p carry smaller copies) is st
 ### `.vet` placement, as found (2026-11-12)
 
 Offsets are pixels of a 1920 x 1080 frame, measured from the edge named by `fromEdge`: `min`
-(left/top), `mid` (centre) or `max` (right/bottom), to the gauge's left/top side; gauges are at
+(left/top), `mid` (center) or `max` (right/bottom), to the gauge's left/top side; gauges are at
 their design size (`scale` is in the format but no shipped template uses it). Checked: 196 of the
 right/bottom-anchored entries are exactly flush with that edge. An entry may be a group
 (`origin` + `widgets`), whose members' plain `{x, y}` origins are offsets from the group's. Logos
-are named like any gauge. Colours: `backgroundColor`, `accentColor`, `accent2Color`; there is no
-text colour - we use white, black on a light, mostly opaque background.
+are named like any gauge. Colors: `backgroundColor`, `accentColor`, `accent2Color`; there is no
+text color - we use white, black on a light, mostly opaque background.
 
 Rendering details inferred from the files and the artwork (the renderer is native code):
 graphs span the whole recording; markers' origins are the current point, the top edge at the
 current x, the left edge at the current y; `bottomFillColor` is often alpha only (the line's
-colour); track knobs and lap start lines have their origin at the point; a positive `clipAngle`
+color); track knobs and lap start lines have their origin at the point; a positive `clipAngle`
 leans a horizontal bar's edge right at the top and tilts a vertical fill's edge up to the left;
 `staticRadialClip` is a fixed mask, not a component; `animationStrip` frames run along the
 strip's longer side.
@@ -144,7 +144,7 @@ separator characters, decimal comma, file line matchers (line, text, contains / 
 calculators (input columns → output columns) and column mappings (column text, exact / contains,
 case → data type). `XmlDataProfileImporter` converts them to our JSON profiles
 (`<app data>/dataprofiles`); `.csv`, `.txt` and `.log` files are read with the first one that
-recognises them.
+recognizes them.
 
 Cells, as found: numbers (decimal comma when set), clock times and dates (seconds from the first in
 the column), mm:ss.fff and 1' 23" 456, hemisphere letters (N/E = 1, S/W = -1, "12.5S" = -12.5).
@@ -157,7 +157,7 @@ hypotenuse, trigonometry, inverse; with a constant or a second column), gap fill
 removal, time-window averages (plain or of angles), deltas, last value. Left out and noted:
 calculators that derive measurements (lap statistics, ascent/descent, heading and distance from
 positions, G from speed, speed from distance; for every source alike in M4), positions projected
-to feet or metres. Refused: AiM and DriftBox layouts (header found by blank lines / sections), and
+to feet or meters. Refused: AiM and DriftBox layouts (header found by blank lines / sections), and
 profiles without line matchers. Of a full installation's 54: 49 import.
 
 ### Files to pass on: `.rtvgauge`, `.rtvtemplate` (`LibraryPackage`)
@@ -178,7 +178,7 @@ the same name is added as "<name> (2)", and a template of an existing name gets 
 | Format | Source | Approach | Phase |
 |--------|--------|----------|-------|
 | GPX (+ Garmin TrackPointExtension: hr, cad, temp, power) | everything | `QXmlStreamReader`; start from Overseer's `GpxTrack` and widen it | 1 |
-| FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK licence terms) or the official C++ SDK — see decisions §5 | 1 |
+| FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK license terms) or the official C++ SDK — see decisions §5 | 1 |
 | GoPro GPMF (embedded in MP4) | GoPro Hero 5+ | Demux the `gpmd` data stream via libavformat/ffprobe, parse KLV ourselves (GPS5/GPS9, ACCL, GYRO) | 2 |
 | CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own profiles to ship later | 2 |
 | TCX | older Garmin, Strava export | XML | 2 |
@@ -189,7 +189,7 @@ the same name is added as "<name> (2)", and a template of an existing name gets 
 
 All importers produce the same thing: a `TelemetrySession` (see 03-architecture §3).
 
-## 2.3 Channel catalogue
+## 2.3 Channel catalog
 
 Internal canonical channels in SI units (m, m/s, s, rad or deg, Pa, K, W); display units are a
 presentation setting. Names follow the `valueType` identifiers of `.veg` files where one exists (`speed`,

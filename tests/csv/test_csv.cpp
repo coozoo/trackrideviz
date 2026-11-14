@@ -181,7 +181,7 @@ private slots:
             c.outputs = {out};
             return c;
         };
-        // listed out of order: the speed needs the metres per second first
+        // listed out of order: the speed needs the meters per second first
         DataProfile::Calculator mph = calculator(DataProfile::Calculator::Convert, {"m/s"}, "Speed");
         mph.scale = 2.2369362920544;
         DataProfile::Calculator ms = calculator(DataProfile::Calculator::Math, {"cm/s"}, "m/s");
@@ -477,7 +477,7 @@ private slots:
         // no time column
         QVERIFY(!XmlDataProfileImporter::parse("<DataProfile><FileLineMatchers><FileLineMatcher dataLineIndex=\"0\" matchText=\"a\"/>"
                                                "</FileLineMatchers><ColumnMappings/></DataProfile>", "x").ok);
-        // nothing to recognise its files by
+        // nothing to recognize its files by
         QVERIFY(!XmlDataProfileImporter::parse("<DataProfile><ColumnMappings><ColumnMapping inputColumnText=\"T\" "
                                                "dataType=\"Data Running Time, Seconds\"/></ColumnMappings></DataProfile>", "x").ok);
     }
@@ -509,7 +509,7 @@ private slots:
         QVERIFY2(s, qPrintable(error));
         QCOMPARE(s->channel(ChannelId::HeartRate)->valueAt(1.0), 120.0);
         QCOMPARE(s->channel(ChannelId::HeartRate)->unit(), QString("bpm"));
-        // one nothing recognises
+        // one nothing recognizes
         QVERIFY(!TelemetryImporter::load(write("other.csv", "Someone else\nt,hr\n0,1\n"), &error));
         QVERIFY(error.contains("other.csv"));
 

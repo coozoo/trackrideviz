@@ -82,6 +82,6 @@ public:
     static FoundGauge findInLibrary(const QString &fileName);
     // The file names of the gauges a template uses.
     static QStringList gaugeFiles(const QByteArray &json);
-    // Theme of a .vet template: its three colours; text white, black on a light background.
+    // Theme of a .vet template: its three colors; text white, black on a light background.
     static GaugeTheme themeOf(const QColor &background, const QColor &accent, const QColor &accent2);
 };

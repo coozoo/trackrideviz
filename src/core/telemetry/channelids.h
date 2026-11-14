@@ -31,7 +31,7 @@ inline constexpr char ElevationMin[] = "elevationMin"; // m, the lowest
 inline constexpr char DistanceTotal[] = "distanceTotal"; // m, the length of the recording (the same all along)
 inline constexpr char Braking[] = "braking";           // g, slowing down as a positive number; 0 otherwise
 inline constexpr char FallingSpeed[] = "fallingSpeed"; // m/s downwards; 0 while climbing
-inline constexpr char GlideRatio[] = "glideRatio";     // metres forwards per metre down; none unless descending
+inline constexpr char GlideRatio[] = "glideRatio";     // meters forwards per meter down; none unless descending
 // The time on the clock is not a channel: gauges bound to these show the recording's own
 // clock (TelemetrySession::startUtc) as text.
 inline constexpr char TimeOfDay[] = "timeOfDay";
@@ -57,7 +57,7 @@ inline constexpr char PowerLapAvg[] = "powerLapAvg";       // W
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
 inline constexpr char GForceVertical[] = "gForceVertical";         // + up
-// Pedalling, from a power meter that measures each leg (FIT pedal dynamics).
+// Pedaling, from a power meter that measures each leg (FIT pedal dynamics).
 inline constexpr char PowerBalanceLeft[] = "powerBalanceLeft";   // % of the power from the left leg
 inline constexpr char PowerBalanceRight[] = "powerBalanceRight"; // % from the right leg, 100 - the left's
 inline constexpr char LeftPower[] = "leftPower";                 // W, the power and the balance together

@@ -2,7 +2,7 @@
 """Writes the drawn (SVG) gauges that ship with the program into data/gauges.
 
 Every gauge is a gauge.json and the drawings it names in images/. Drawings
-use the theme's colours through @foreground, @background, @accent, @accent2
+use the theme's colors through @foreground, @background, @accent, @accent2
 (and @<name>-opacity for their transparency), so they follow the theme the
 user picks. Scale numbers, values and units are texts of the gauge, not part
 of a drawing: they follow the channel and the units.
@@ -44,7 +44,7 @@ def polar(cx, cy, r, angle):
 
 
 def theme(name, attr="fill"):
-    """A theme colour with its transparency."""
+    """A theme color with its transparency."""
     return f"{attr}='@{name}' {attr}-opacity='@{name}-opacity'"
 
 
@@ -59,9 +59,9 @@ def ring_path(cx, cy, r_outer, r_inner, start, end):
             f"L{fmt(x2)},{fmt(y2)} A{fmt(r_inner)},{fmt(r_inner)} 0 {large} 0 {fmt(x3)},{fmt(y3)} Z")
 
 
-def ticks(cx, cy, start, end, count, r_outer, length, width, colour="accent2", every=1, skip_every=0, opacity=None):
+def ticks(cx, cy, start, end, count, r_outer, length, width, color="accent2", every=1, skip_every=0, opacity=None):
     """`count` ticks evenly from start to end; with skip_every, every n-th is left out.
-    `opacity`: their own transparency instead of the theme colour's."""
+    `opacity`: their own transparency instead of the theme color's."""
     lines = []
     for i in range(count):
         if skip_every and i % skip_every == 0:
@@ -72,13 +72,13 @@ def ticks(cx, cy, start, end, count, r_outer, length, width, colour="accent2", e
         x0, y0 = polar(cx, cy, r_outer, angle)
         x1, y1 = polar(cx, cy, r_outer - length, angle)
         lines.append(f"M{fmt(x0)},{fmt(y0)} L{fmt(x1)},{fmt(y1)}")
-    alpha = f"@{colour}-opacity" if opacity is None else fmt(opacity)
-    return (f"<path d='{' '.join(lines)}' fill='none' stroke='@{colour}' stroke-opacity='{alpha}' "
+    alpha = f"@{color}-opacity" if opacity is None else fmt(opacity)
+    return (f"<path d='{' '.join(lines)}' fill='none' stroke='@{color}' stroke-opacity='{alpha}' "
             f"stroke-width='{fmt(width)}' stroke-linecap='butt'/>")
 
 
 def metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
-    """A brushed ring, lit from the top left. Neutral greys: metal is metal in every theme."""
+    """A brushed ring, lit from the top left. Neutral grays: metal is metal in every theme."""
     defs = (f"<linearGradient id='{gid}' x1='0' y1='0' x2='1' y2='1'>"
             "<stop offset='0' stop-color='#f2f2f2'/><stop offset='0.35' stop-color='#9a9a9a'/>"
             "<stop offset='0.6' stop-color='#4a4a4a'/><stop offset='1' stop-color='#c8c8c8'/></linearGradient>"
@@ -104,7 +104,7 @@ def thin_metal_bezel(cx, cy, r_outer, r_inner, gid="metal"):
 
 def plate(cx, cy, r, glow=True, gid="plate", opacity=None):
     """The dial's face in the theme's background, a little lighter in the middle.
-    `opacity`: its own instead of the theme colour's."""
+    `opacity`: its own instead of the theme color's."""
     defs = (f"<radialGradient id='{gid}' cx='0.5' cy='0.42' r='0.6'>"
             "<stop offset='0' stop-color='#ffffff' stop-opacity='0.10'/>"
             "<stop offset='1' stop-color='#ffffff' stop-opacity='0'/></radialGradient>")
@@ -125,11 +125,11 @@ def gloss(cx, cy, r, gid="gloss"):
     return defs, body
 
 
-def needle(cx, cy, length, tail, width, colour="accent", cap=0.0, cap_colour="background"):
+def needle(cx, cy, length, tail, width, color="accent", cap=0.0, cap_color="background"):
     """Pointing to 12 o'clock, turning about (cx, cy)."""
     tip = cy - length
     body = (f"<path d='M{fmt(cx - width / 2)},{fmt(cy + tail)} L{fmt(cx - 1.2)},{fmt(tip)} "
-            f"L{fmt(cx + 1.2)},{fmt(tip)} L{fmt(cx + width / 2)},{fmt(cy + tail)} Z' {theme(colour)}/>")
+            f"L{fmt(cx + 1.2)},{fmt(tip)} L{fmt(cx + width / 2)},{fmt(cy + tail)} Z' {theme(color)}/>")
     if cap:
         body += (f"<circle cx='{cx}' cy='{cy}' r='{fmt(cap)}' fill='#1c1c1c'/>"
                  f"<circle cx='{cx}' cy='{cy}' r='{fmt(cap)}' fill='none' stroke='#8a8a8a' stroke-width='2'/>"
@@ -140,20 +140,20 @@ def needle(cx, cy, length, tail, width, colour="accent", cap=0.0, cap_colour="ba
 
 # --- gauge helpers ----------------------------------------------------------
 
-def image(file, frame, colour="original", manipulations=None):
-    c = {"type": "image", "image": f"images/{file}", "frame": list(frame), "color": colour}
+def image(file, frame, color="original", manipulations=None):
+    c = {"type": "image", "image": f"images/{file}", "frame": list(frame), "color": color}
     if manipulations:
         c["manipulations"] = manipulations
     return c
 
 
-def text(auto, at, size, colour="foreground", align="center", valign="center", bold=False, italic=False, **extra):
+def text(auto, at, size, color="foreground", align="center", valign="center", bold=False, italic=False, **extra):
     font = {"family": FONT, "size": size}
     if bold:
         font["bold"] = True
     if italic:
         font["italic"] = True
-    c = {"type": "text", "autoText": auto, "frame": list(at), "font": font, "color": colour,
+    c = {"type": "text", "autoText": auto, "frame": list(at), "font": font, "color": color,
          "align": align, "valign": valign}
     c.update(extra)
     return c
@@ -169,13 +169,13 @@ def radial_clip(start, end, pivot):
     return {"type": "radialClip", "minAngle": start, "maxAngle": end, "pivot": list(pivot)}
 
 
-def markings(cx, cy, r, start, end, count, size, colour="foreground", italic=False):
+def markings(cx, cy, r, start, end, count, size, color="foreground", italic=False):
     """Scale numbers: the n-th gets the n-th value of the channel's range."""
     out = []
     for i in range(count):
         angle = start + (end - start) * i / (count - 1)
         x, y = polar(cx, cy, r, angle)
-        out.append(text("intervalMarking", (round(x, 1), round(y, 1)), size, colour, italic=italic, precision=0))
+        out.append(text("intervalMarking", (round(x, 1), round(y, 1)), size, color, italic=italic, precision=0))
     return out
 
 
@@ -196,16 +196,16 @@ def write(name, size, components, drawings, types):
 
 # --- the gauges -------------------------------------------------------------
 
-C = 200          # centre of a 400 x 400 round gauge
+C = 200          # center of a 400 x 400 round gauge
 SWEEP = (-135, 135)
 
 
-def outer_needle(colour="accent", tip=164, base=84, inverted=False):
+def outer_needle(color="accent", tip=164, base=84, inverted=False):
     """Only the outer part of a needle, from about the edge of the inner disc to the scale.
     Inverted: thin at the root, widening outwards."""
     x0, x1 = (1.2, 5.0) if inverted else (4.5, 1.2)
     return (f"<path d='M{C - x0},{C - base} L{C - x1},{C - tip} L{C + x1},{C - tip} L{C + x0},{C - base} Z' "
-            f"{theme(colour)}/>")
+            f"{theme(color)}/>")
 
 
 def pointer(tip=168, base=75):
@@ -348,8 +348,8 @@ def round_dial(name, *, bezel="flat", sweep=None, face="plain", gloss_on=False, 
         drawn = needle(C, C, 160, 26, 7, cap=16)
     elif needle_style == "bold":
         drawn = needle(C, C, 150, 34, 14, cap=24)
-    else:   # "light": a bright needle for a coloured face
-        drawn = needle(C, C, 160, 22, 6, colour="accent2", cap=14)
+    else:   # "light": a bright needle for a colored face
+        drawn = needle(C, C, 160, 22, 6, color="accent2", cap=14)
     drawings["needle.svg"] = svg(400, 400, drawn)
     if unit_caps:
         components.append(text("value", (C, C), value_size, bold=True, italic=True, precision=0))
@@ -453,11 +453,11 @@ def compass(name):
     letters = [("N", 0, "accent", 40), ("E", 90, "foreground", 34), ("S", 180, "foreground", 34),
                ("W", 270, "foreground", 34), ("NE", 45, "foreground", 22), ("SE", 135, "foreground", 22),
                ("SW", 225, "foreground", 22), ("NW", 315, "foreground", 22)]
-    for label, angle, colour, size in letters:
+    for label, angle, color, size in letters:
         x, y = polar(C, C, 138, angle)
         rose += (f"<text x='{fmt(x)}' y='{fmt(y + size * 0.36)}' font-family='{FONT}' font-size='{size}' "
                  f"font-weight='bold' text-anchor='middle' transform='rotate({angle} {fmt(x)} {fmt(y)})' "
-                 f"{theme(colour)}>{label}</text>")
+                 f"{theme(color)}>{label}</text>")
     drawings["rose.svg"] = svg(400, 400, rose)
     mark = f"<path d='M{C},34 L{C - 12},8 L{C + 12},8 Z' {theme('accent')}/>"
     drawings["mark.svg"] = svg(400, 400, mark)
@@ -488,10 +488,10 @@ TILE_ICON = (22, 23, 64, 64)       # where the icon sits on a tile
 IX, IY = 54, 55                    # its middle
 
 
-def stroke(colour, width, opacity=None):
-    """`opacity`: its own transparency instead of the theme colour's."""
-    alpha = f"@{colour}-opacity" if opacity is None else fmt(opacity)
-    return f"fill='none' stroke='@{colour}' stroke-opacity='{alpha}' stroke-width='{fmt(width)}'"
+def stroke(color, width, opacity=None):
+    """`opacity`: its own transparency instead of the theme color's."""
+    alpha = f"@{color}-opacity" if opacity is None else fmt(opacity)
+    return f"fill='none' stroke='@{color}' stroke-opacity='{alpha}' stroke-width='{fmt(width)}'"
 
 
 def live_icon(kind):
@@ -589,8 +589,8 @@ class Rider:
     SHOULDER = (48, -70)
     HEAD_TOP, HEAD_BOTTOM = (52, -47), (54, -38)
 
-    def __init__(self, x, y, k=1.0, colour="foreground"):
-        self.x, self.y, self.k, self.colour = x, y, k, colour
+    def __init__(self, x, y, k=1.0, color="foreground"):
+        self.x, self.y, self.k, self.color = x, y, k, color
 
     def p(self, point):
         return f"{fmt(self.x + point[0] * self.k)},{fmt(self.y + point[1] * self.k)}"
@@ -599,7 +599,7 @@ class Rider:
         return self.x + point[0] * self.k, self.y + point[1] * self.k
 
     def paint(self, width, opacity=None):
-        return (stroke(self.colour, width * self.k, opacity)
+        return (stroke(self.color, width * self.k, opacity)
                 + " stroke-linecap='round' stroke-linejoin='round'")
 
     def hub(self, front):
@@ -609,11 +609,11 @@ class Rider:
         """The inside of a wheel: four faint sectors that turn with it."""
         cx, cy = self.hub(front)
         r = (self.WHEEL - 2.5) * self.k
-        out = f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt(r)}' fill='@{self.colour}' fill-opacity='0.1'/>"
+        out = f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt(r)}' fill='@{self.color}' fill-opacity='0.1'/>"
         for i in range(2):
             a = angle + i * 180
-            out += f"<path d='{ring_path(cx, cy, r, 0.01, a, a + 90)}' fill='@{self.colour}' fill-opacity='0.22'/>"
-        return out + f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt(2.5 * self.k)}' {theme(self.colour)}/>"
+            out += f"<path d='{ring_path(cx, cy, r, 0.01, a, a + 90)}' fill='@{self.color}' fill-opacity='0.22'/>"
+        return out + f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt(2.5 * self.k)}' {theme(self.color)}/>"
 
     def leg(self, angle, opacity=None):
         """A leg with its foot on the pedal at `angle` (clockwise from 12 o'clock); the knee forward."""
@@ -649,7 +649,7 @@ class Rider:
                 f"L{self.p((63, -39))}' {self.paint(3)}/>"
                 # the saddle and the chainring
                 f"<path d='M{self.p((9, -50))} L{self.p((22, -50))}' {self.paint(4)}/>"
-                f"<circle cx='{fmt(self.at(self.BB)[0])}' cy='{fmt(self.at(self.BB)[1])}' r='{fmt(6.5 * self.k)}' {theme(self.colour)}/>")
+                f"<circle cx='{fmt(self.at(self.BB)[0])}' cy='{fmt(self.at(self.BB)[1])}' r='{fmt(6.5 * self.k)}' {theme(self.color)}/>")
         return out
 
     def body(self):
@@ -660,11 +660,11 @@ class Rider:
         helmet = (f"M{self.p((42, -81))} Q{self.p((51, -92))} {self.p((62, -87))} Q{self.p((68, -83))} {self.p((65, -77))} "
                   f"L{self.p((52, -76))} Z")
         sx, sy = self.at(self.HIP)
-        return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7 * self.k)}' {theme(self.colour)}/>"
+        return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7 * self.k)}' {theme(self.color)}/>"
                 f"<path d='M{self.p(self.HIP)} Q{self.p((28, -80))} {self.p(self.SHOULDER)}' {self.paint(13)}/>"
                 f"<path d='M{self.p(self.SHOULDER)} L{self.p((54, -57))} L{self.p((63, -50))}' {self.paint(5.5)}/>"
-                f"<circle cx='{fmt(hx)}' cy='{fmt(hy)}' r='{fmt(r)}' {theme(self.colour)}/>"
-                f"<path d='{helmet}' {theme(self.colour)}/>")
+                f"<circle cx='{fmt(hx)}' cy='{fmt(hy)}' r='{fmt(r)}' {theme(self.color)}/>"
+                f"<path d='{helmet}' {theme(self.color)}/>")
 
     def still(self, angle=60):
         """All of it in one picture, the pedals at `angle`."""
@@ -749,7 +749,7 @@ def ride_cluster(name):
     # a chainring by the cadence arc, a mountain by the elevation arc
     icons = chainring_icon(*polar(C, C, 163, 214))
     mx, my = polar(C, C, 163, 146)
-    # white with a dark edge: it sits on the elevation arc, which is the light theme colour
+    # white with a dark edge: it sits on the elevation arc, which is the light theme color
     icons += (f"<path d='M{fmt(mx - 12)},{fmt(my + 8)} L{fmt(mx - 3)},{fmt(my - 8)} L{fmt(mx + 2)},{fmt(my)} "
               f"L{fmt(mx + 6)},{fmt(my - 5)} L{fmt(mx + 13)},{fmt(my + 8)} Z' fill='#ffffff' "
               "stroke='#000000' stroke-opacity='0.55' stroke-width='1.5' stroke-linejoin='round'/>")
@@ -820,7 +820,7 @@ def pedal_body(cx, top, w, h):
 
 def ride_cluster_power(name):
     """The ride cluster for watching how the legs share the work: the heart rate across the top,
-    elevation, both pedals from above with the platform centre offsets, the handlebar between
+    elevation, both pedals from above with the platform center offsets, the handlebar between
     them; cadence and speed; cadence and power as arcs, each leg's power in dashes outside its
     side; each leg's power at the bottom, the whole power and the left leg's share between them."""
     defs = ("<radialGradient id='well' cx='0.5' cy='0.4' r='0.6'>"
@@ -855,7 +855,7 @@ def ride_cluster_power(name):
     icons = (chainring_icon(*polar(C, C, 163, cad[0] + 8))
              + f"<path d='{heart}' transform='translate({fmt(hx)},{fmt(hy)}) scale(1.3)' {theme('foreground')}/>")
     lx, ly = polar(C, C, 163, pwr[1] - 8)
-    # a lightning bolt by the power arc, white with a dark edge as it sits on the light colour
+    # a lightning bolt by the power arc, white with a dark edge as it sits on the light color
     icons += (f"<path d='M{fmt(lx + 3)},{fmt(ly - 11)} L{fmt(lx - 6)},{fmt(ly + 2)} L{fmt(lx)},{fmt(ly + 2)} "
               f"L{fmt(lx - 3)},{fmt(ly + 11)} L{fmt(lx + 6)},{fmt(ly - 2)} L{fmt(lx)},{fmt(ly - 2)} Z' fill='#ffffff' "
               "stroke='#000000' stroke-opacity='0.55' stroke-width='1.2' stroke-linejoin='round'/>")
@@ -909,10 +909,10 @@ def graph_plate(width, height, top):
             f"<rect x='0' y='0' width='{width}' height='3' {theme('accent2')}/>")
 
 
-def graph_knob(colour="foreground", text_at=None, channel=None):
+def graph_knob(color="foreground", text_at=None, channel=None):
     knob = [image("dot.svg", (-8, -8, 16, 16))]
     if text_at:
-        t = text("valueAndUnit", text_at, 20, colour, align="left", italic=True, precision=1)
+        t = text("valueAndUnit", text_at, 20, color, align="left", italic=True, precision=1)
         if channel:
             t["channel"] = channel
         knob.append(t)
@@ -975,7 +975,7 @@ def progress(name):
               f"<path d='M{x1 + 1},{line_y + 3} L{x1 + 1},{line_y - 26}' {stroke('foreground', 2)}/>" + flag)
     drawings = {"plate.svg": svg(w, h, plate_),
                 "done.svg": svg(w, h, f"<path d='M{x0},{line_y} L{x1},{line_y}' {stroke('accent', 5)} stroke-linecap='round'/>")}
-    # the same rider as on the ride cluster, wheels and legs turning; the road line under the tyres
+    # the same rider as on the ride cluster, wheels and legs turning; the road line under the tires
     k = 0.72
     rider_drawings, rider_parts = moving_rider(Rider(x0 - 28 * k, line_y - 3, k), "rider", (w, h))
     drawings.update(rider_drawings)
@@ -1037,7 +1037,7 @@ def column(name):
     drawings = {"box.svg": svg(w, h, box), "left.svg": face(left_face, 50), "right.svg": face(right_face, 150),
                 "level.svg": svg(w, h, level), "edges.svg": svg(w, h, glass)}
     along = {}   # the channel's scale, like a dial's
-    # the level's front edges meet the faces' middles 20 below its centre
+    # the level's front edges meet the faces' middles 20 below its center
     angle = round(math.degrees(math.atan2(40, 100)), 2)
     rise = {"type": "heightClip", "minY": bottom + 20, "maxY": top + 20, **along}
     components = [image("box.svg", (0, 0, w, h)),
@@ -1055,7 +1055,7 @@ CRANK_STEPS = 36    # pictures of the crank over half a turn, 5 degrees apart
 def crank(name):
     """Two pedals going round as fast as the rider pedals, the cadence in the middle."""
     s, c = 300, 150
-    # a grey rim, lighter at the top left
+    # a gray rim, lighter at the top left
     defs = ("<linearGradient id='rim' x1='0' y1='0' x2='1' y2='1'>"
             "<stop offset='0' stop-color='#c4c4c4'/><stop offset='0.5' stop-color='#7a7a7a'/>"
             "<stop offset='1' stop-color='#3c3c3c'/></linearGradient>")
@@ -1091,7 +1091,7 @@ def map_gauge(name, lap, streets=False, span=0):
     """The route (or the lap under way) as a line; where the rider is, an arrow pointing the way
     with the speed and the distance beside it. With `streets`, on a street map (dimmed, so the
     line and the texts stand out) in a plate with rounded corners. With `span`, only that many
-    metres around the rider, who stays in the middle while the map moves: on a round plate, or
+    meters around the rider, who stays in the middle while the map moves: on a round plate, or
     on the street map's."""
     s = 420
     arrow = (f"<path d='M20,6 L33,34 L20,27 L7,34 Z' {theme('accent')} stroke='#000000' stroke-opacity='0.4' "
@@ -1214,7 +1214,7 @@ def g_rings(name):
 G_TOP = 0.5          # g at the ends of a scale with 0 in the middle: as much as a bicycle gets
 
 
-def centred_arc(start, end, pivot, file="fill.svg", frame=(0, 0, 400, 400)):
+def centerd_arc(start, end, pivot, file="fill.svg", frame=(0, 0, 400, 400)):
     """A fill from the middle of an arc towards its end for positive values and towards its start
     for negative ones, and a mark that rides from start to end: (fill components, mark rotation)."""
     mid = (start + end) / 2
@@ -1223,7 +1223,7 @@ def centred_arc(start, end, pivot, file="fill.svg", frame=(0, 0, 400, 400)):
     return fills, rotate(start - mid, end - mid, pivot, minValue=-G_TOP, maxValue=G_TOP)
 
 
-def side_arc(name, side, centred=False):
+def side_arc(name, side, centerd=False):
     """A narrow arc down one side of a tall gauge, part of a large circle: it fills from the
     bottom and a mark rides on it. Its dark band runs on past both ends: the channel's picture
     sits in it at the top, the value at the bottom."""
@@ -1240,7 +1240,7 @@ def side_arc(name, side, centred=False):
               f"<path d='{band}' fill='#ffffff' fill-opacity='0.07'/>")
     scale = (ticks(cx, cy, start, end, 5, r_in - 2, 14, 4.5) + ticks(cx, cy, start, end, 21, r_in - 2, 7, 1.2, skip_every=5, opacity=0.6))
     # with 0 in the middle the mark rests there, else at the start
-    rest = (start + end) / 2 if centred else start
+    rest = (start + end) / 2 if centerd else start
     x0, y0 = polar(cx, cy, r_in - 4, rest)
     x1, y1 = polar(cx, cy, r_out + 4, rest)
     # the fill darker towards the middle of the circle, as on the half dials
@@ -1253,9 +1253,9 @@ def side_arc(name, side, centred=False):
     middle = (r_in - 26 + r_out + 6) / 2
     ix, iy = polar(cx, cy, middle, 48 * sign)
     vx, vy = polar(cx, cy, middle, 136 * sign)
-    number = dict(precision=2, showPlus=True) if centred else dict(precision=0)
-    if centred:
-        fills, turn = centred_arc(start, end, (cx, cy), frame=(0, 0, w, h))
+    number = dict(precision=2, showPlus=True) if centerd else dict(precision=0)
+    if centerd:
+        fills, turn = centerd_arc(start, end, (cx, cy), frame=(0, 0, w, h))
     else:
         fills = [image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(start, end, (cx, cy))])]
         turn = rotate(0, end - start, (cx, cy))
@@ -1266,11 +1266,11 @@ def side_arc(name, side, centred=False):
                   {"type": "image", "channelIcon": True, "color": "foreground", "frame": [round(ix - 13), round(iy - 13), 26, 26]},
                   text("value", (round(vx), round(vy) - 4), 30, bold=True, italic=True, **number),
                   text("unit", (round(vx), round(vy) + 22), 16, "accent2", italic=True)]
-    write(name, (w, h), components, drawings, ["gForceLongitudinal"] if centred else
+    write(name, (w, h), components, drawings, ["gForceLongitudinal"] if centerd else
           ["elevation", "grade", "speed", "cadence", "heartRate", "power"])
 
 
-def crown_arc(name, centred=False):
+def crown_arc(name, centerd=False):
     """A shallow arc along the top that fills from the left, a mark riding on it. Its dark band
     runs on past both ends: the value at the left, where it starts, the unit at the right."""
     w, h = 460, 160
@@ -1281,7 +1281,7 @@ def crown_arc(name, centred=False):
               f"<path d='{band}' fill='#ffffff' fill-opacity='0.07'/>")
     scale = (ticks(cx, cy, start, end, 5, r_in - 2, 14, 4.5) + ticks(cx, cy, start, end, 21, r_in - 2, 7, 1.2, skip_every=5, opacity=0.6))
     # with 0 in the middle the mark rests there, else at the start
-    rest = (start + end) / 2 if centred else start
+    rest = (start + end) / 2 if centerd else start
     x0, y0 = polar(cx, cy, r_in - 4, rest)
     x1, y1 = polar(cx, cy, r_out + 4, rest)
     shade = (f"<radialGradient id='shade' gradientUnits='userSpaceOnUse' cx='{cx}' cy='{cy}' r='{r_out}'>"
@@ -1293,9 +1293,9 @@ def crown_arc(name, centred=False):
     middle = (r_in - 26 + r_out + 6) / 2
     vx, vy = polar(cx, cy, middle, -29)
     ux, uy = polar(cx, cy, middle, 27.5)
-    number = dict(precision=2, showPlus=True) if centred else dict(precision=0)
-    if centred:
-        fills, turn = centred_arc(start, end, (cx, cy), frame=(0, 0, w, h))
+    number = dict(precision=2, showPlus=True) if centerd else dict(precision=0)
+    if centerd:
+        fills, turn = centerd_arc(start, end, (cx, cy), frame=(0, 0, w, h))
     else:
         fills = [image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(start, end, (cx, cy))])]
         turn = rotate(0, end - start, (cx, cy))
@@ -1303,14 +1303,14 @@ def crown_arc(name, centred=False):
                   *fills,
                   image("scale.svg", (0, 0, w, h)),
                   image("mark.svg", (0, 0, w, h), manipulations=[turn]),
-                  text("value", (round(vx), round(vy)), 24 if centred else 32, bold=True, italic=True, **number),
+                  text("value", (round(vx), round(vy)), 24 if centerd else 32, bold=True, italic=True, **number),
                   text("unit", (round(ux), round(uy)), 24, "accent2", italic=True)]
-    write(name, (w, h), components, drawings, ["gForceLateral"] if centred else
+    write(name, (w, h), components, drawings, ["gForceLateral"] if centerd else
           ["grade", "temperature", "speed", "cadence", "heartRate", "power"])
 
 
 def compass_ring(name):
-    """A rose that turns under a mark, in a ring of the accent colour; a faint wedge points the way."""
+    """A rose that turns under a mark, in a ring of the accent color; a faint wedge points the way."""
     s, c = 300, 150
     defs = ("<linearGradient id='ring' x1='0' y1='0' x2='0' y2='1'>"
             "<stop offset='0' stop-color='#ffffff' stop-opacity='0.25'/>"
@@ -1354,9 +1354,9 @@ def heading_tape(name):
     names = {0: "N", 45: "NE", 90: "E", 135: "SE", 180: "S", 225: "SW", 270: "W", 315: "NW"}
     for deg in range(first, last + 1, 45):
         label = names[deg % 360]
-        size, colour = (26, "accent") if label == "N" else (24 if len(label) == 1 else 18, "foreground")
+        size, color = (26, "accent") if label == "N" else (24 if len(label) == 1 else 18, "foreground")
         strip += (f"<text x='{fmt(at(deg))}' y='30' font-family='{FONT}' font-size='{size}' font-weight='bold' "
-                  f"text-anchor='middle' {theme(colour)}>{label}</text>")
+                  f"text-anchor='middle' {theme(color)}>{label}</text>")
     span = (last - first) * k
     defs = ("<linearGradient id='fade' x1='0' y1='0' x2='1' y2='0'>"
             "<stop offset='0' stop-color='#000000' stop-opacity='0'/>"
@@ -1448,7 +1448,7 @@ def accel_bar(name):
 
 
 def thermometer(name):
-    """A glass tube with a grey rim, light at the top and dark at the bottom, that fills up to
+    """A glass tube with a gray rim, light at the top and dark at the bottom, that fills up to
     the value; the value in its bulb."""
     w, h = 170, 400
     cx, top, bottom = 85, 22, 292
@@ -1593,7 +1593,7 @@ def ring_readout(name):
 
 def column_scale(name):
     """A column that fills up along a scale with three numbers; the label above, the unit below.
-    The fill in the second accent colour, a little darker than it is."""
+    The fill in the second accent color, a little darker than it is."""
     w, h = 170, 320
     top, bottom = 50, 270
     x, width = 72, 62
@@ -1647,13 +1647,13 @@ def fill_shade(cx, cy, r_in, r_out, gid="shade"):
             "<stop offset='1' stop-color='#000000' stop-opacity='0'/></radialGradient>")
 
 
-def shaded_band(cx, cy, r_out, r_in, start, end, colour="accent"):
+def shaded_band(cx, cy, r_out, r_in, start, end, color="accent"):
     band = ring_path(cx, cy, r_out, r_in, min(start, end), max(start, end))
-    return f"<path d='{band}' {theme(colour)}/><path d='{band}' fill='url(#shade)'/>", fill_shade(cx, cy, r_in, r_out)
+    return f"<path d='{band}' {theme(color)}/><path d='{band}' fill='url(#shade)'/>", fill_shade(cx, cy, r_in, r_out)
 
 
 def dial_notched(name):
-    """A dial in a grey bezel with notches, an accent fill up to the needle, the value in a box."""
+    """A dial in a gray bezel with notches, an accent fill up to the needle, the value in a box."""
     defs = ("<linearGradient id='bezel' x1='0' y1='0' x2='0' y2='1'>"
             "<stop offset='0' stop-color='#d0d0d0'/><stop offset='1' stop-color='#4a4a4a'/></linearGradient>")
     face = (f"<circle cx='{C}' cy='{C}' r='192' fill='url(#bezel)'/>"
@@ -1815,7 +1815,7 @@ def field_box(name):
 
 
 def label_plate(name):
-    """The label over the value, both centred, on a plate that fades out at its sides."""
+    """The label over the value, both centerd, on a plate that fades out at its sides."""
     w, h = 340, 130
     defs = ("<linearGradient id='fade' x1='0' y1='0' x2='1' y2='0'>"
             "<stop offset='0' stop-color='@background' stop-opacity='0'/>"
@@ -1918,7 +1918,7 @@ def horizon(name):
 
 def pedal_offset(name, side):
     """A pedal seen from above, a line across it where the foot presses: to the outside or the
-    inside of the middle by the platform centre offset."""
+    inside of the middle by the platform center offset."""
     w, h = 240, 330
     cx = w / 2
     body = (f"M{cx - 62},70 Q{cx - 70},40 {cx - 40},30 L{cx + 40},30 Q{cx + 70},40 {cx + 62},70 "
@@ -1928,8 +1928,8 @@ def pedal_offset(name, side):
               f"<path d='{body}' fill='#1e1e1e' fill-opacity='0.9'/>"
               f"<path d='{body}' fill='none' stroke='#9a9a9a' stroke-width='3'/>"
               f"<rect x='{cx - 36}' y='196' width='72' height='26' rx='4' fill='#000000' fill-opacity='0.5'/>")
-    centre = "".join(f"<rect x='{cx - 1.5}' y='{y}' width='3' height='10' fill='#ffffff'/>" for y in range(36, 272, 18))
-    drawings = {"plate.svg": svg(w, h, plate_ + centre),
+    center = "".join(f"<rect x='{cx - 1.5}' y='{y}' width='3' height='10' fill='#ffffff'/>" for y in range(36, 272, 18))
+    drawings = {"plate.svg": svg(w, h, plate_ + center),
                 "line.svg": svg(w, h, f"<rect x='{cx - 3}' y='40' width='6' height='226' {theme('accent')}/>")}
     # outwards is away from the bike: to the left on the left pedal
     out = -1 if side == "left" else 1
@@ -1972,7 +1972,7 @@ def power_phase(name, side):
 
 
 def pedals(name):
-    """Both pedals with their platform centre offsets, each leg's power under its pedal, and the
+    """Both pedals with their platform center offsets, each leg's power under its pedal, and the
     balance between the legs on a bar in the middle."""
     w, h = 560, 360
     drawings, components = {}, []
@@ -2097,8 +2097,8 @@ def main():
     side_arc("Side arc right", "right")
     side_arc("Side arc left", "left")
     crown_arc("Crown arc")
-    crown_arc("Crown arc centered", centred=True)
-    side_arc("Side arc centered", "right", centred=True)
+    crown_arc("Crown arc centered", centerd=True)
+    side_arc("Side arc centered", "right", centerd=True)
     compass_ring("Compass ring")
     heading_tape("Heading tape")
     readout_right("Readout right")

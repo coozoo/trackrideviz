@@ -4,7 +4,7 @@
 #include <QStringList>
 #include <QVector>
 
-// How to read the CSV files of one kind of logger: how to recognise them,
+// How to read the CSV files of one kind of logger: how to recognize them,
 // where the column names and the data are, which column is what, and how
 // columns are worked into others before that (unit conversions, sums,
 // smoothing). Kept as JSON in the data profile library.

@@ -18,10 +18,10 @@ class CsvImporter
     Q_DECLARE_TR_FUNCTIONS(CsvImporter)
 
 public:
-    // The first of `profiles` that recognises a file starting with `lines`; -1 when none.
+    // The first of `profiles` that recognizes a file starting with `lines`; -1 when none.
     static int findProfile(const QStringList &lines, const QVector<DataProfile> &profiles);
 
-    // Reads the file with the first profile that recognises it. nullptr on
+    // Reads the file with the first profile that recognizes it. nullptr on
     // failure, with *error set to a user-facing message.
     static TelemetrySessionPtr load(const QString &path, const QVector<DataProfile> &profiles, QString *error = nullptr);
     static TelemetrySessionPtr parse(const QByteArray &data, const DataProfile &profile, QString *error = nullptr);

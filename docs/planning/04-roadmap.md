@@ -18,7 +18,7 @@ Not yet verified (needs a push to GitHub): AppImage, macOS and Windows jobs.
 - ✅ Tests: importers, sampler, sync, renderer (75 cases); also built and run on Qt 6.2.4
 
 Checked on the real ride (IGS520 FIT + 1080p60 camera chapters): offset found automatically from
-the FIT; the mislabelled GPX export of the same ride lands on the same instant through hour
+the FIT; the mislabeled GPX export of the same ride lands on the same instant through hour
 snapping; the channel table shows the value of every channel at the frame on screen.
 
 Preview cost, 1080p60 on a laptop with Intel UHD 620 (measured, whole process):
@@ -69,11 +69,11 @@ ffmpeg documentation and only offered when the test encode passes, but never ran
 - ✅ Gauge model as a superset of `.veg` gauges: image, text, group; manipulations rotate, radial clip,
   translate, width clip, height clip (with own value range, wrap, reverse, clip rectangle)
 - ✅ A gauge is bound to a channel when placed; scale, unit and label come from that channel,
-  round scale numbers from the data (`MetricRange`), colours from the project's theme
+  round scale numbers from the data (`MetricRange`), colors from the project's theme
 - ✅ Native format: a folder with `gauge.json` + images (`GaugeFile`)
 - ✅ `.veg` import into the user's library (`VegGaugeImporter`, `GaugeLibrary`)
 - ✅ Library dock with pictures; add to video; select, move, resize, delete on the canvas;
-  what a gauge shows and the theme colours in the Properties dock; undo/redo; unsaved-changes prompt
+  what a gauge shows and the theme colors in the Properties dock; undo/redo; unsaved-changes prompt
 - ✅ Built-in gauges with our own artwork: dial, readout
 - Project file version 2 (channel per gauge, theme); version 1 still opens
 
@@ -200,7 +200,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   (the default), in place of the recorded one, or never. Grade, climb and vertical speed are
   worked out from it. A road on a bridge, in a cutting or a tunnel gets the ground's height
 - ✅ A map that shows only the part of the route around the rider, enlarged (2026-11-14): a map
-  part with `"span"` (metres across) keeps the rider in the middle and moves the map under them,
+  part with `"span"` (meters across) keeps the rider in the middle and moves the map under them,
   north up. With a street map the tiles of the whole way are fetched when the gauge is placed.
   Gauges Route map close-up and Route map streets close-up; any gauge with a route is switched
   between the whole route and 300 m to 5 km around the rider from its menu on the video
@@ -230,14 +230,14 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   measurements need a logger's file and come with its profile
 
 ## M6 — Gauge editor
-- ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colours inside the drawing;
+- ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colors inside the drawing;
   Barlow Semi Condensed (OFL) bundled for gauge texts
 - ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
   with its gauges on; Export and Import in the library panel. Built-in gauges and templates marked
   with a padlock. Next: file associations (MIME types) so a double click imports
 - ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
-  theme colours, kept in projects and templates; Barlow Semi Condensed bundled in all weights
-- Per gauge on the video: own font, size, colours, opacity (later)
+  theme colors, kept in projects and templates; Barlow Semi Condensed bundled in all weights
+- Per gauge on the video: own font, size, colors, opacity (later)
 - ✅ Charts (2026-11-14): one smoothing for Data, Timeline and Compare laps (none, 2, 5, 15 s, display
   only); the Data chart draws each pixel's mean with its span as a faint band
 - ✅ Own vector set, batch 1 (2026-11-14, `tools/vectorgauges`, reviewed one by one against what
@@ -260,15 +260,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   of a gauge smooth on OpenGL too
 - ✅ Batch 4 (2026-11-14): Dial notched, Dial pair (speed and cadence), Half round, Segment ring,
   Dial fill, Open arc thin, Graph window, Field box, Label plate, Grid level, Tile bar, Skid ball,
-  Horizon (moves with the slope), Dial g (a fixed -3..5 g scale), Crown arc centred and Side arc
-  centred (0 in the middle, ±0.5 g), Pedal offset left and right, Power phase left and right, Pedals,
+  Horizon (moves with the slope), Dial g (a fixed -3..5 g scale), Crown arc centerd and Side arc
+  centerd (0 in the middle, ±0.5 g), Pedal offset left and right, Power phase left and right, Pedals,
   Ride cluster power (heart rate, both pedals, each leg's power in dashes, L | R balance). Every
   imported gauge now has one of ours doing its job; the others are covered by earlier ones. The demo
   ride has pedal data and vertical g, and gauges imported before a channel name was mapped get it
   when loaded
 - ✅ Templates from the own set (2026-11-14, `tools/vectorgauges/templates.py`, 29 in all): Cycling -
   Ride, Ride cluster, Ride strip, Ride tiles, Steps, Heart and cadence, Speed and cadence, Twin dials,
-  Columns, Power, Pedalling, Mountain pass; Simple - Minimal, Speed, Pills, Slants, Rings, Arcs,
+  Columns, Power, Pedaling, Mountain pass; Simple - Minimal, Speed, Pills, Slants, Rings, Arcs,
   Lines; Motorsport - Track day, Lap timer, Race, G-force, Dashboard; Outdoor - Climb, Hike, Descent,
   Field boxes, Instruments. The script reports gauges that overlap or leave the frame. Laid out for
   the data we read today; engine, boat and aircraft layouts wait for those channels

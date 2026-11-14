@@ -104,7 +104,7 @@ private slots:
         QCOMPARE(result.offsetSeconds, -60.0);
     }
 
-    // An export that wrote local time labelled as UTC: the data claims to
+    // An export that wrote local time labeled as UTC: the data claims to
     // start at 07:47:11Z and states no offset.
     void snapsWhenTimeZoneIsWrong()
     {

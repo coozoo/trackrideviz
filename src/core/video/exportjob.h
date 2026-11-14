@@ -30,7 +30,7 @@ public:
     {
         Succeeded,
         Stopped,     // by the user; the part done so far is a playable file
-        Cancelled,   // by the user; nothing was kept
+        Canceled,   // by the user; nothing was kept
         Failed
     };
     Q_ENUM(Outcome)

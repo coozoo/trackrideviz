@@ -397,7 +397,7 @@ void TestFit::enhancedFieldsWin()
 void TestFit::pedalDynamics()
 {
     FitBuilder b;
-    // power, left/right balance, torque effectiveness and pedal smoothness, platform centre offsets,
+    // power, left/right balance, torque effectiveness and pedal smoothness, platform center offsets,
     // power phase and peak phase of each leg (start and end, 256 steps to the turn)
     b.define(0, Fit::Record, {{253, 4, kUInt32}, {7, 2, kUInt16}, {30, 1, kUInt8}, {43, 1, kUInt8}, {44, 1, kUInt8},
                               {45, 1, kUInt8}, {46, 1, kUInt8}, {47, 1, kUInt8}, {67, 1, kSInt8}, {68, 1, kSInt8},
@@ -440,7 +440,7 @@ void TestFit::pedalDynamics()
     QCOMPARE(session->channel(ChannelId::LeftPowerPhaseLength)->valueAt(0.0), 180.0);
     QCOMPARE(session->channel(ChannelId::LeftPowerPhasePeakStart)->valueAt(0.0), 90.0);
     QCOMPARE(session->channel(ChannelId::LeftPowerPhasePeakLength)->valueAt(0.0), 45.0);
-    // past top dead centre: from 315 degrees on to 90
+    // past top dead center: from 315 degrees on to 90
     QCOMPARE(session->channel(ChannelId::RightPowerPhaseStart)->valueAt(0.0), 315.0);
     QCOMPARE(session->channel(ChannelId::RightPowerPhaseLength)->valueAt(0.0), 135.0);
     QCOMPARE(session->channel(ChannelId::RightPowerPhasePeakStart)->valueAt(0.0), 0.0);

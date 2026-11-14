@@ -24,7 +24,7 @@ struct OverlayItem
     // A street map under the gauge's route: as the gauge was drawn, or the user's choice.
     enum Streets { AsDesigned, Shown, Hidden };
     Streets streets{AsDesigned};
-    // Its route close up, the map moving under the rider: metres across;
+    // Its route close up, the map moving under the rider: meters across;
     // 0 = the whole route, negative = as the gauge was drawn.
     double closeUp{-1.0};
     // The close-up turned so that the way ahead points up: 1, north up: 0, as the gauge was drawn: -1.
@@ -42,7 +42,7 @@ struct OverlayItem
 // Everything drawn on top of the video, ready to render.
 //
 // Built once on the GUI thread (gauges are looked up in the library, bound
-// to their channels, coloured for the theme), then only read: the preview
+// to their channels, colored for the theme), then only read: the preview
 // and an export worker can share one instance. One render() for every
 // consumer - what is seen while editing is what gets exported.
 class Overlay
@@ -63,7 +63,7 @@ public:
     // True when the item's gauge draws a route, with or without a street map under it.
     bool hasRoute(int index) const { return m_placed.at(index).route; }
     bool hasStreets(int index) const { return m_placed.at(index).streets; }
-    // Metres its route shows around the rider; 0 = the whole route.
+    // Meters its route shows around the rider; 0 = the whole route.
     double closeUp(int index) const { return m_placed.at(index).closeUp; }
     bool headingUp(int index) const { return m_placed.at(index).headingUp; }
 

@@ -92,9 +92,9 @@ bool toBase(const QString &unit, Linear *linear)
 {
     static const QHash<QString, Linear> units
     {
-        // metres
+        // meters
         {"Meters", {1.0, 0.0}}, {"Feet", {0.3048, 0.0}}, {"Miles", {1609.344, 0.0}}, {"Kilometers", {1000.0, 0.0}},
-        // metres per second
+        // meters per second
         {"m/s", {1.0, 0.0}}, {"MPH", {0.44704, 0.0}}, {"KPH", {1.0 / 3.6, 0.0}}, {"Knots", {1852.0 / 3600.0, 0.0}},
         {"FPM", {0.3048 / 60.0, 0.0}},
         // degrees Celsius

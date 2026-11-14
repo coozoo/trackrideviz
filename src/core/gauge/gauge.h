@@ -16,14 +16,14 @@
 //
 // A gauge is not tied to one measurement. It is bound to a channel when it
 // is placed (speed, heart rate...), and takes its scale, unit and label from
-// that channel and its colours from the theme. Components may name another
+// that channel and its colors from the theme. Components may name another
 // channel of their own (a compass ring inside a speedometer).
 //
 // The component set is a superset of what .veg gauge files and XML gauges
 // hold, so those import one to one. Angles are degrees clockwise,
 // 0 = 12 o'clock.
 
-// Where a component gets its colour from.
+// Where a component gets its color from.
 struct GaugeColor
 {
     enum Role
@@ -204,7 +204,7 @@ struct GaugeComponent
     QString imagePath;             // relative to the gauge's folder; empty for images made in code
     QImage image;
     // A drawing instead of a picture (an .svg file), drawn sharp at any size.
-    // It may name theme colours as @foreground, @background, @accent and @accent2.
+    // It may name theme colors as @foreground, @background, @accent and @accent2.
     QByteArray svg;
     bool channelIcon{false};       // instead of `image`, a picture of the measurement (heart, mountain...)
 
@@ -231,7 +231,7 @@ struct GaugeComponent
     // Group
     QVector<GaugeComponent> children;
 
-    // Shape. The colour is the pen's or the fill's. A fill may run from
+    // Shape. The color is the pen's or the fill's. A fill may run from
     // `color` at gradientLine's start to gradientColor at its end.
     ShapeKind shape{Rectangle};
     bool filled{true};
@@ -242,19 +242,19 @@ struct GaugeComponent
     GaugeColor gradientColor;      // Original = no gradient
     QLineF gradientLine;
 
-    // Dial, Tape. Numbers in the text font, alignment and colour above.
+    // Dial, Tape. Numbers in the text font, alignment and color above.
     GaugeScale scale;
 
     // Graph, TrackMap, LapMap; Shape drawn with a pen. `frame` is the area drawn into.
     double lineWidth{2.0};
     double padding{0.0};           // kept free inside the frame
     int fillAlpha{-1};             // Graph: area under the line, 0..255; -1 = not filled
-    QColor fillColor;              // its colour; invalid = the line's colour
+    QColor fillColor;              // its color; invalid = the line's color
     // TrackMap, LapMap: a street map under the route (TileStore), inside `frame`
     // with its corners rounded by cornerRadius
     bool tiles{false};
     double tileOpacity{1.0};
-    // TrackMap, LapMap: metres across the frame's shorter side, the map moving under
+    // TrackMap, LapMap: meters across the frame's shorter side, the map moving under
     // the current position kept in the middle; 0 = the whole route, standing still
     double span{0.0};
     // ... turned so that the way ahead points up, not north; parts of `knob` bound to the

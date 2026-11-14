@@ -38,9 +38,9 @@ QString sectorTimeText(double seconds)
 
 enum LapColumn { LapNumber, LapTimeColumn, FirstSectorColumn };
 
-const QColor kSectorColour(40, 120, 220);
+const QColor kSectorColor(40, 120, 220);
 // the fastest of a sector, as timing screens show it
-const QColor kBestSectorColour(150, 60, 200);
+const QColor kBestSectorColor(150, 60, 200);
 }
 
 // The route from above, north up, fitted into the widget.
@@ -145,7 +145,7 @@ protected:
 
         for (const StartFinishLine &sector : m_sectors)
             {
-                drawLine(painter, map, sector, kSectorColour);
+                drawLine(painter, map, sector, kSectorColor);
             }
         if (m_line.isValid())
             {
@@ -201,14 +201,14 @@ protected:
 
 private:
     // drawn long enough to be seen on a long route
-    void drawLine(QPainter &painter, const QTransform &map, const StartFinishLine &line, const QColor &colour) const
+    void drawLine(QPainter &painter, const QTransform &map, const StartFinishLine &line, const QColor &color) const
     {
         const QPointF a = map.map(projected(QPointF(line.lon1, line.lat1)));
         const QPointF b = map.map(projected(QPointF(line.lon2, line.lat2)));
         const QPointF middle = (a + b) / 2.0;
         const double length = std::hypot(b.x() - a.x(), b.y() - a.y());
         const QPointF half = length > 0.0 ? (b - a) / length * std::max(length, 16.0) / 2.0 : QPointF();
-        painter.setPen(QPen(colour, 3, Qt::SolidLine, Qt::RoundCap));
+        painter.setPen(QPen(color, 3, Qt::SolidLine, Qt::RoundCap));
         painter.drawLine(middle - half, middle + half);
     }
 
@@ -447,7 +447,7 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
                             // nothing is fastest with nothing to compare
                             if (bestSector.at(k) == i && lapsWithSectors > 1)
                                 {
-                                    item->setForeground(FirstSectorColumn + k, kBestSectorColour);
+                                    item->setForeground(FirstSectorColumn + k, kBestSectorColor);
                                     item->setToolTip(FirstSectorColumn + k, tr("The fastest of this sector"));
                                 }
                         }

@@ -110,7 +110,7 @@ double preferEnhanced(const FitMessage &message, int enhancedNum, int plainNum)
 }
 
 // Indexes of the longest run of records whose time never goes backwards.
-// Real files contain a few records stamped years away from their neighbours,
+// Real files contain a few records stamped years away from their neighbors,
 // or a clock corrected in mid-recording; whatever is not on the main timeline
 // is left out instead of being allowed to hide everything recorded after it.
 // A NaN entry (no timestamp, or one we decided not to trust) is never kept.

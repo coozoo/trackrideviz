@@ -13,7 +13,7 @@ class TestLaps : public QObject
 
 private:
     static constexpr double kPi = 3.14159265358979323846;
-    static constexpr double kMetresPerDegree = 6371008.8 * kPi / 180.0;
+    static constexpr double kMetersPerDegree = 6371008.8 * kPi / 180.0;
     static constexpr double kLat0 = 49.0;
     static constexpr double kRadius = 100.0;
 
@@ -27,11 +27,11 @@ private:
         Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
         auto put = [&](double t, double angle)
         {
-            // angle clockwise from north, around the centre
+            // angle clockwise from north, around the center
             const double north = kRadius * std::cos(angle);
             const double east = kRadius * std::sin(angle);
-            lat.append(t, kLat0 + north / kMetresPerDegree);
-            lon.append(t, 28.0 + east / (kMetresPerDegree * std::cos(kLat0 * kPi / 180.0)));
+            lat.append(t, kLat0 + north / kMetersPerDegree);
+            lon.append(t, 28.0 + east / (kMetersPerDegree * std::cos(kLat0 * kPi / 180.0)));
         };
         // 5 s of the first lap's pace before the line at 12 o'clock
         const double lead = 5.0;
@@ -60,20 +60,20 @@ private:
     // across the top of the circle
     static StartFinishLine topLine()
     {
-        const double north = (kRadius) / kMetresPerDegree;
-        const double halfWidth = 20.0 / (kMetresPerDegree * std::cos(kLat0 * kPi / 180.0));
+        const double north = (kRadius) / kMetersPerDegree;
+        const double halfWidth = 20.0 / (kMetersPerDegree * std::cos(kLat0 * kPi / 180.0));
         return {kLat0 + north, 28.0 - halfWidth, kLat0 + north, 28.0 + halfWidth};
     }
 
-    // 40 m across the circle's edge where it is `north`, `east` of the centre, pointing at the centre
+    // 40 m across the circle's edge where it is `north`, `east` of the center, pointing at the center
     static StartFinishLine sectorLine(double north, double east)
     {
         const double length = std::hypot(north, east);
         const double cosLat = std::cos(kLat0 * kPi / 180.0);
         auto point = [&](double r, double *lat, double *lon)
         {
-            *lat = kLat0 + north / length * r / kMetresPerDegree;
-            *lon = 28.0 + east / length * r / (kMetresPerDegree * cosLat);
+            *lat = kLat0 + north / length * r / kMetersPerDegree;
+            *lon = 28.0 + east / length * r / (kMetersPerDegree * cosLat);
         };
         StartFinishLine line;
         point(length - 20.0, &line.lat1, &line.lon1);
@@ -115,10 +115,10 @@ private slots:
         const double times[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 40, 70, 72};
         for (int i = 0; i < 13; ++i)
             {
-                lat.append(times[i], kLat0 + norths[i] / kMetresPerDegree);
+                lat.append(times[i], kLat0 + norths[i] / kMetersPerDegree);
                 lon.append(times[i], 28.0);
             }
-        const double halfWidth = 20.0 / (kMetresPerDegree * std::cos(kLat0 * kPi / 180.0));
+        const double halfWidth = 20.0 / (kMetersPerDegree * std::cos(kLat0 * kPi / 180.0));
         const StartFinishLine line{kLat0, 28.0 - halfWidth, kLat0, 28.0 + halfWidth};
         const QVector<TelemetrySession::Lap> laps = LapEngine::detect(*session, line);
         // northwards at 1.5 s; again at 7.5 s is too soon; southwards at 4.5 s and 71 s do not count:
@@ -199,13 +199,13 @@ private slots:
         // at the top of the circle, riding east: the line runs north-south
         const StartFinishLine line = LapEngine::lineAt(*s, 5.0, 40.0);
         QVERIFY(line.isValid());
-        const double east = (line.lon2 - line.lon1) * kMetresPerDegree * std::cos(kLat0 * kPi / 180.0);
-        const double north = (line.lat2 - line.lat1) * kMetresPerDegree;
+        const double east = (line.lon2 - line.lon1) * kMetersPerDegree * std::cos(kLat0 * kPi / 180.0);
+        const double north = (line.lat2 - line.lat1) * kMetersPerDegree;
         QVERIFY2(std::fabs(east) < 2.0, qPrintable(QString::number(east)));
         QVERIFY(std::fabs(std::fabs(north) - 40.0) < 1.0);
         QCOMPARE(LapEngine::detect(*s, line).size(), 1);   // and it is crossed
         double distance = 0.0;
-        const double t = LapEngine::nearestTime(*s, kLat0 - kRadius / kMetresPerDegree, 28.0, &distance);
+        const double t = LapEngine::nearestTime(*s, kLat0 - kRadius / kMetersPerDegree, 28.0, &distance);
         QVERIFY(std::fabs(t - (5.0 + 30.0)) < 0.6);       // the bottom of the circle, half a lap in
         QVERIFY(distance < 1.0);
         QVERIFY(!LapEngine::lineAt(TelemetrySession(), 5.0).isValid());

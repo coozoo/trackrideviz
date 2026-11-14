@@ -6,14 +6,14 @@ Status: ✅ agreed · 🟡 proposed, awaiting confirmation · ❓ open
 
 The reference archives and installers are proprietary software plus the vendors' artwork and
 music. Abandoned is not the same as free. They live in `../reference/` (outside this repo) and are
-used to understand behaviour and file formats only:
+used to understand behavior and file formats only:
 
 - no decompiled code is copied or translated line by line into our sources;
 - none of the vendors' PNGs, templates, themes, fonts or music are committed or shipped;
 - Import of other programs' gauges and templates reads the *user's own* files at run time
   ("import everything from this folder" in one go, or single files the user found elsewhere).
 
-Open follow-up (manual review by Yuriy): read the licence texts in the installers to see whether any
+Open follow-up (manual review by Yuriy): read the license texts in the installers to see whether any
 content may be redistributed after all.
 
 ## §2 ✅ Export engine: external `ffmpeg` first
@@ -21,7 +21,7 @@ content may be redistributed after all.
 External `ffmpeg` process fed overlay frames over a pipe, behind an `ExportBackend` interface.
 In-process libav* can be added later behind the same interface (needed for phones).
 
-## §3 ✅ Licence: GPL-3.0
+## §3 ✅ License: GPL-3.0
 
 Not a from-scratch codebase and many dependencies; GPL keeps every FFmpeg configuration usable
 (including a linked x264/x265 if backend B arrives) and is compatible with Qt's LGPL/GPL.
@@ -30,7 +30,7 @@ Not a from-scratch codebase and many dependencies; GPL keeps every FFmpeg config
 
 `QMediaPlayer` + `QVideoSink` for preview; own decoder only if frame-exact seeking proves
 inadequate for the sync UI. Note: Ubuntu 22.04's Qt 6.2 uses the GStreamer backend, newer Qt the
-FFmpeg one - behaviour must be checked on both.
+FFmpeg one - behavior must be checked on both.
 
 ## §5 ✅ FIT: own decoder, after studying prior art
 

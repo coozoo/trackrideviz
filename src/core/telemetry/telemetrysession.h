@@ -39,7 +39,7 @@ public:
 
     // Local time minus UTC, in seconds, when the source states it. Needed to
     // match recordings against sources that only know local time, such as
-    // camera file names or exports that write local time labelled as UTC.
+    // camera file names or exports that write local time labeled as UTC.
     bool hasUtcOffset() const { return m_hasUtcOffset; }
     int utcOffsetSeconds() const { return m_utcOffsetSeconds; }
     void setUtcOffsetSeconds(int seconds) { m_utcOffsetSeconds = seconds; m_hasUtcOffset = true; }

@@ -15,7 +15,7 @@ class QPainter;
 // A gauge bound to a channel of a recording and ready to be drawn.
 //
 // Binding does everything that does not change from frame to frame: images
-// are coloured for the theme, every channel the gauge uses gets its unit,
+// are colored for the theme, every channel the gauge uses gets its unit,
 // label and scale, interval markings get their numbers, graphs and route maps
 // get their lines, animations their running phase. render() then only
 // samples and paints.
@@ -79,8 +79,8 @@ private:
     };
     struct Node
     {
-        GaugeComponent component;         // without sub-components; image already coloured
-        QColor color;                     // text and line colour
+        GaugeComponent component;         // without sub-components; image already colored
+        QColor color;                     // text and line color
         // Shape: its outline, and the fill's gradient end (invalid = none)
         QPainterPath shape;
         QColor gradient;

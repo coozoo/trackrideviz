@@ -4,7 +4,7 @@
 #include <QString>
 
 // Small pictures of what a channel measures: a heart for heart rate, a
-// mountain for elevation... White on transparent, square; gauges colour them
+// mountain for elevation... White on transparent, square; gauges color them
 // like any other artwork. Drawn in code, so they belong to this program.
 namespace ChannelIcons
 {

@@ -54,13 +54,13 @@ exposed as QObjects with properties/signals or as plain value types. Widgets are
 As built (`src/core/gauge/gaugerenderer.h`):
 
 ```
-BoundGauge(gauge, channel, session, units, theme)   // once: colour the images, find units,
+BoundGauge(gauge, channel, session, units, theme)   // once: color the images, find units,
                                                     //       labels, scales, scale numbers
 BoundGauge::render(QPainter&, target, time)         // per frame: sample and paint
 Overlay::render(QPainter&, frame, time)             // all placed gauges of a project
 ```
 
-A `Gauge` is a description without data or colours. Binding it to a channel of a recording does
+A `Gauge` is a description without data or colors. Binding it to a channel of a recording does
 everything that is the same for every frame; `render()` is then the same call for:
 
 - preview — painted over the video frame in the canvas widget
@@ -135,7 +135,7 @@ own libav decoder behind the same `FrameSource` interface.
 | Encoders / hw accel | Whatever the ffmpeg binary has; one command-line flag | Must wire each one | |
 | "Runs anywhere, no deps" | Ship a static `ffmpeg` binary next to the app (AppImage/Flatpak/installer) — works on desktop | Fully self-contained | |
 | Mobile | No (cannot spawn binaries on iOS; awkward on Android) | **Yes** | B is the mobile path |
-| Licence | App stays independent of FFmpeg's licence, even a GPL build with x264 | Linking x264/x265 makes the whole app GPL | |
+| License | App stays independent of FFmpeg's license, even a GPL build with x264 | Linking x264/x265 makes the whole app GPL | |
 | Progress / cancel | Parse `-progress pipe:`; kill process | Native | |
 | Speed | Pipe of RGBA frames: fine at 1080p, heavy at 4K60 (≈2 GB/s) | Can blend only dirty rects straight into YUV | Mitigate A by sending only the overlay bounding region(s) |
 
@@ -196,11 +196,11 @@ start, so the user can keep editing while it renders.
 
 `QMainWindow` with docks, layouts saved/restored:
 
-- centre: **Canvas** — video + overlays; select, drag, resize, snap to edges/safe area
+- center: **Canvas** — video + overlays; select, drag, resize, snap to edges/safe area
 - bottom: **Timeline** — scrubber, trim handles, lap markers, a telemetry strip (speed trace) so the
   data is visible against the video; sync offset by dragging the strip
 - left: **Sources** (videos, data files, sync state) / **Library** (gauges, templates)
-- right: **Properties** (selected overlay: metric, units, range, colours, visibility range)
+- right: **Properties** (selected overlay: metric, units, range, colors, visibility range)
 - tabs/modes: **Map & Laps** (track, start/finish, sectors, lap table), **Data** (table + charts),
   **Gauge editor**, **Export** dialog with presets and queue
 
@@ -212,7 +212,7 @@ Three places hold choices, and each kind has exactly one home:
 
 | What | Where | Examples |
 |------|-------|----------|
-| How the *program* behaves on this computer | `AppSettings` (`src/core/settings`, QSettings) → **Settings dialog** | style and colours, language, hardware decoding, display units, later the ffmpeg path and default folders |
+| How the *program* behaves on this computer | `AppSettings` (`src/core/settings`, QSettings) → **Settings dialog** | style and colors, language, hardware decoding, display units, later the ffmpeg path and default folders |
 | What belongs to one *video project* | project file (`.rtvproj`, M2) | sources, sync offset, gauges and their positions, the units a particular gauge shows |
 | How one *export* is made | **Export dialog** (M2); last used values remembered, defaults in `AppSettings` | codec, quality, resolution, hardware encoder, output file |
 
@@ -221,7 +221,7 @@ widgets, so the command line and the QML front end read the same file. Values ar
 (`dark`, `vaapi`, `mph`), an unknown word falls back to the default.
 
 The dialog follows Overseer's: page list on the left, Save / Cancel, nothing written before Save.
-What can change at once does (colours, style, units); language and decoder are read at start-up
+What can change at once does (colors, style, units); language and decoder are read at start-up
 and the dialog says so. Pages: **Appearance**, **Preview**, **Units** now; **Export** (ffmpeg
 binary, default codec and folder) arrives with M2, because only then is there something to use it.
 
@@ -246,8 +246,8 @@ out by `tools/vectorgauges/templates.py` - run them, look at the result, commit 
 output shows other people's artwork and stays out of the repository.
 
 SVG drawings in gauges are drawn as vectors at the size they end up. They name the theme's
-colours as `@foreground`, `@background`, `@accent`, `@accent2`, and their transparency as
-`@<name>-opacity` (Qt SVG reads no transparency inside a colour). Texts use the bundled
+colors as `@foreground`, `@background`, `@accent`, `@accent2`, and their transparency as
+`@<name>-opacity` (Qt SVG reads no transparency inside a color). Texts use the bundled
 Barlow Semi Condensed (`GaugeFonts`).
 
 ## 3.7b Map tiles
@@ -274,7 +274,7 @@ server has its own folder in the cache. Whether an item shows a map is `OverlayI
 before binding, giving a gauge drawn without a map a dimmed one with the corners taken off.
 
 `Terrain` reads heights from a second store (`TileStore::terrain()`, tiles with the height in
-the pixel's colour) and can put them in place of a recording's elevation before
+the pixel's color) and can put them in place of a recording's elevation before
 `DerivedChannels` runs: file -> `DataEdits` -> `Terrain` -> `DerivedChannels` -> `LapEngine`.
 With tiles missing the data is left as it is and worked out again when they have come.
 

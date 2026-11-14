@@ -17,7 +17,7 @@
 namespace
 {
 // How much may wait in the pipe before drawing pauses. Enough to keep ffmpeg
-// fed, small enough that cancelling and memory stay under control.
+// fed, small enough that canceling and memory stay under control.
 const int kFramesAhead = 4;
 const int kReportIntervalMs = 200;
 const int kErrorTailBytes = 2000;
@@ -155,7 +155,7 @@ void ExportJob::abandon()
         }
     else
         {
-            finish(Cancelled, QString());
+            finish(Canceled, QString());
         }
 }
 
@@ -226,7 +226,7 @@ void ExportJob::onProcessFinished()
                        && (m_process->exitCode() == 0 || (m_interrupted && m_process->exitCode() == 255));
     if (m_abandoned)
         {
-            finish(Cancelled, QString());
+            finish(Canceled, QString());
         }
     else if (clean && m_stopping && m_nextFrame < m_plan.frameCount)
         {
@@ -246,7 +246,7 @@ void ExportJob::onProcessFinished()
         }
     else if (m_stopping)
         {
-            finish(Cancelled, QString());
+            finish(Canceled, QString());
         }
     else
         {
@@ -330,7 +330,7 @@ void ExportJob::finish(Outcome outcome, const QString &message)
             return;
         }
     m_done = true;
-    if (outcome == Cancelled || outcome == Failed)
+    if (outcome == Canceled || outcome == Failed)
         {
             // what ffmpeg leaves behind when it is killed or gives up cannot be
             // played, yet looks like a finished video in a file manager

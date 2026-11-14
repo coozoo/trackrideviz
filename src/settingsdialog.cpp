@@ -34,7 +34,7 @@ QLabel *note(const QString &text, QWidget *parent)
 {
     QLabel *label = new QLabel(text, parent);
     label->setWordWrap(true);
-    label->setEnabled(false); // greyed: an explanation, not a control
+    label->setEnabled(false); // grayed: an explanation, not a control
     return label;
 }
 }
@@ -156,7 +156,7 @@ QWidget *SettingsDialog::createUnitsPage()
     QWidget *page = new QWidget(this);
 
     m_speedCombo = new QComboBox(page);
-    m_speedCombo->addItem(tr("Kilometers per hour (km/h)"), Units::KilometresPerHour);
+    m_speedCombo->addItem(tr("Kilometers per hour (km/h)"), Units::KilometersPerHour);
     m_speedCombo->addItem(tr("Miles per hour (mph)"), Units::MilesPerHour);
 
     m_lengthCombo = new QComboBox(page);

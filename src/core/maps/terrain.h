@@ -6,7 +6,7 @@
 // elevation or with a poor one.
 //
 // The model comes as tiles like a map's, with the height in each pixel's
-// colour ("terrarium" tiles: about 25 m to a pixel here, from SRTM and
+// color ("terrarium" tiles: about 25 m to a pixel here, from SRTM and
 // national surveys), fetched and kept by TileStore::terrain().
 namespace Terrain
 {
@@ -20,7 +20,7 @@ enum Use
 
 // The height at a position. False when the tile is not on disk; it has then
 // been asked for (TileStore::terrain() says when it has come).
-bool elevationAt(double latitude, double longitude, double *metres);
+bool elevationAt(double latitude, double longitude, double *meters);
 
 // The session with its elevation taken from the terrain along its positions,
 // as `use` says; the session itself when nothing changes. Elevation, grade and

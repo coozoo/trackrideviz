@@ -11,7 +11,7 @@ namespace
 {
 // Both schemes are spelled out in full. Asking the style for its "standard"
 // palette is not enough: current styles derive part of it from the desktop's
-// own colour scheme, which gives light text on a light window when the two
+// own color scheme, which gives light text on a light window when the two
 // disagree.
 QPalette makePalette(const QColor &window, const QColor &base, const QColor &text,
                      const QColor &disabled, const QColor &highlight, bool dark)
@@ -73,7 +73,7 @@ void Appearance::apply()
 
     // A platform theme may have installed an application style sheet (qt5ct /
     // qt6ct do). Widgets it styles keep a private copy of the palette and
-    // would stay in the old colours, so the sheet is taken off while the
+    // would stay in the old colors, so the sheet is taken off while the
     // palette changes and put back afterwards.
     const QString styleSheet = qApp->styleSheet();
     if (!styleSheet.isEmpty())
@@ -89,7 +89,7 @@ void Appearance::apply()
             QApplication::setPalette(lightPalette());
             break;
         case AppSettings::SystemColors:
-            // a default-constructed palette hands the colours back to the platform
+            // a default-constructed palette hands the colors back to the platform
             QApplication::setPalette(QPalette());
             break;
         }

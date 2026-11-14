@@ -157,7 +157,7 @@ private slots:
         QPainter painter(&image);
         overlay.render(painter, QRectF(0, 0, 400, 200), 1.0);
         painter.end();
-        QVERIFY(qAlpha(image.pixel(250, 150)) > 0);  // centre of the gauge
+        QVERIFY(qAlpha(image.pixel(250, 150)) > 0);  // center of the gauge
         QCOMPARE(qAlpha(image.pixel(50, 50)), 0);
         QCOMPARE(qAlpha(image.pixel(350, 50)), 0);
     }
@@ -278,11 +278,11 @@ private slots:
         QCOMPARE(project.syncOffset, 7.0);
     }
 
-    void damagedThemeColoursKeepTheDefaults()
+    void damagedThemeColorsKeepTheDefaults()
     {
         Project project;
         QVERIFY(ProjectFile::fromJson(R"({"format": "rtvproj", "version": 2,
-            "theme": {"accent": "not a colour", "accent2": "#ff102030"}})", "/tmp", &project));
+            "theme": {"accent": "not a color", "accent2": "#ff102030"}})", "/tmp", &project));
         QCOMPARE(project.theme.accent, GaugeTheme().accent);
         QCOMPARE(project.theme.accent2, QColor(0x10, 0x20, 0x30));
     }

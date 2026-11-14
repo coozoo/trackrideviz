@@ -410,14 +410,14 @@ private:
 
     void drawPauses(QPainter &painter, const QRect &area)
     {
-        QColor colour = palette().color(QPalette::Text);
-        colour.setAlpha(60);
+        QColor color = palette().color(QPalette::Text);
+        color.setAlpha(60);
         for (const TelemetrySession::Pause &pause : m_session->pauses())
             {
                 const double x0 = xOf(m_sync.videoTime(pause.startTime));
                 const double x1 = xOf(m_sync.videoTime(pause.endTime));
                 painter.fillRect(QRectF(x0, area.top(), std::max(1.0, x1 - x0), area.height()),
-                                 QBrush(colour, Qt::BDiagPattern));
+                                 QBrush(color, Qt::BDiagPattern));
             }
     }
 

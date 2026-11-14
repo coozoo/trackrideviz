@@ -571,10 +571,10 @@ private:
 
 namespace
 {
-// item data: the colour of the channel's line
-const int kColourRole = Qt::UserRole + 1;
+// item data: the color of the channel's line
+const int kColorRole = Qt::UserRole + 1;
 
-// A row of the channel list with the colour of its line as a square at its end.
+// A row of the channel list with the color of its line as a square at its end.
 class SwatchDelegate : public QStyledItemDelegate
 {
 public:
@@ -593,12 +593,12 @@ public:
         const QRect swatch = swatchRect(option.rect);
         shorter.rect.setRight(swatch.left() - 4);
         QStyledItemDelegate::paint(painter, shorter, index);
-        const QColor colour = index.data(kColourRole).value<QColor>();
-        if (colour.isValid())
+        const QColor color = index.data(kColorRole).value<QColor>();
+        if (color.isValid())
             {
                 painter->save();
                 painter->setPen(option.palette.color(QPalette::Mid));
-                painter->setBrush(colour);
+                painter->setBrush(color);
                 painter->drawRect(swatch.adjusted(0, 0, -1, -1));
                 painter->restore();
             }
@@ -613,7 +613,7 @@ DataPanel::DataPanel(QWidget *parent)
     m_channelList->setToolTip(tr("Tick the channels to chart"));
     m_channelList->setItemDelegate(new SwatchDelegate(m_channelList));
     m_channelList->viewport()->installEventFilter(this);
-    // rows as wide as the list, so that the colour at their end is always in sight
+    // rows as wide as the list, so that the color at their end is always in sight
     m_channelList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_channelList->setTextElideMode(Qt::ElideRight);
     connect(m_channelList, &QListWidget::itemChanged, this, &DataPanel::updateCharts);
@@ -773,7 +773,7 @@ void DataPanel::fillChannels()
             item->setData(Qt::UserRole, id);
             item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
             item->setCheckState(ticked.contains(id) ? Qt::Checked : Qt::Unchecked);
-            item->setToolTip(item->text());   // a long name is cut short by the colour at the end
+            item->setToolTip(item->text());   // a long name is cut short by the color at the end
             if (m_session->derivedChannels().contains(id))
                 {
                     QFont font = item->font();
@@ -781,14 +781,14 @@ void DataPanel::fillChannels()
                     item->setFont(font);
                     item->setToolTip(tr("%1\nWorked out from the other data").arg(item->text()));
                 }
-            // at the end of the row: the colour of its line (drawn by SwatchDelegate), clicked for another
-            item->setData(kColourRole, colourOf(id));
+            // at the end of the row: the color of its line (drawn by SwatchDelegate), clicked for another
+            item->setData(kColorRole, colorOf(id));
         }
 }
 
 bool DataPanel::eventFilter(QObject *watched, QEvent *event)
 {
-    // a click on the colour at the end of a row chooses another; anywhere else the list has it
+    // a click on the color at the end of a row chooses another; anywhere else the list has it
     if (watched == m_channelList->viewport()
             && (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease
                 || event->type() == QEvent::MouseButtonDblClick))
@@ -801,7 +801,7 @@ bool DataPanel::eventFilter(QObject *watched, QEvent *event)
                 {
                     if (event->type() == QEvent::MouseButtonRelease)
                         {
-                            chooseColour(item->data(Qt::UserRole).toString());
+                            chooseColor(item->data(Qt::UserRole).toString());
                         }
                     return true;
                 }
@@ -809,14 +809,14 @@ bool DataPanel::eventFilter(QObject *watched, QEvent *event)
     return QWidget::eventFilter(watched, event);
 }
 
-QColor DataPanel::colourOf(const QString &channelId) const
+QColor DataPanel::colorOf(const QString &channelId) const
 {
     const QColor chosen(QSettings().value("dataColors/" + channelId).toString());
     if (chosen.isValid())
         {
             return chosen;
         }
-    // to start with: the usual colour for the usual measurements, for the others one made
+    // to start with: the usual color for the usual measurements, for the others one made
     // from the name, the same every time
     static const QHash<QString, int> usual
     {
@@ -839,9 +839,9 @@ QColor DataPanel::colourOf(const QString &channelId) const
     return QColor::fromHsv(hue, dark ? 150 : 215, dark ? 240 : 185);
 }
 
-void DataPanel::chooseColour(const QString &channelId)
+void DataPanel::chooseColor(const QString &channelId)
 {
-    const QColor chosen = QColorDialog::getColor(colourOf(channelId), this, tr("Color of the line"));
+    const QColor chosen = QColorDialog::getColor(colorOf(channelId), this, tr("Color of the line"));
     if (!chosen.isValid())
         {
             return;
@@ -854,7 +854,7 @@ void DataPanel::chooseColour(const QString &channelId)
                 {
                     // (the chart is drawn again below; ticking is not what changed)
                     const QSignalBlocker blocker(m_channelList);
-                    item->setData(kColourRole, chosen);
+                    item->setData(kColorRole, chosen);
                 }
         }
     m_channelList->viewport()->update();
@@ -888,7 +888,7 @@ void DataPanel::updateCharts()
                     lane.shown = m_smoothed.back().get();
                 }
             lane.display = ChannelFormat::displayFor(*lane.actual, m_units);
-            lane.color = colourOf(lane.id);
+            lane.color = colorOf(lane.id);
             // the scale of the data, smoothed or not: a taken-out spike should not squash the rest
             const double a = lane.display.convert(lane.actual->minValue());
             const double b = lane.display.convert(lane.actual->maxValue());

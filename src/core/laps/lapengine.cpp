@@ -80,7 +80,7 @@ void addRunningFigures(TelemetrySession &session, const QVector<QPair<double, do
     session.removeEmptyChannels();
 }
 
-// Metres east and north of a reference point; good for a few kilometres.
+// Meters east and north of a reference point; good for a few kilometers.
 struct Plane
 {
     double lat0{0.0};
@@ -360,7 +360,7 @@ QVector<QPointF> LapEngine::byDistance(const TelemetrySession &session, const Te
         {
             return points;
         }
-    // through the lap in small steps of time, a point each time `step` more metres are done
+    // through the lap in small steps of time, a point each time `step` more meters are done
     const double d0 = distance->valueAt(lap.startTime);
     double next = 0.0;
     for (double t = lap.startTime; t <= lap.endTime; t += 0.1)

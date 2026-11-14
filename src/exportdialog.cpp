@@ -132,7 +132,7 @@ void ExportDialog::createWidgets()
     rateRow->addWidget(m_qualitySpin);
     rateRow->addWidget(m_bitrateSpin);
     m_rateNote = new QLabel(m_options);
-    m_rateNote->setEnabled(false); // greyed: information, not a control
+    m_rateNote->setEnabled(false); // grayed: information, not a control
     rateRow->addWidget(m_rateNote, 1);
     connect(m_bitrateSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ExportDialog::updateEstimate);
 
@@ -530,7 +530,7 @@ void ExportDialog::onFinished(ExportJob::Outcome outcome, const QString &message
             m_statusLabel->setText(tr("Stopped. The part exported so far was saved as %1").arg(QDir::toNativeSeparators(output)));
             m_outputEdit->setText(suggestedOutput());
             break;
-        case ExportJob::Cancelled:
+        case ExportJob::Canceled:
             m_statusLabel->setText(tr("Stopped before anything could be saved."));
             break;
         case ExportJob::Failed:

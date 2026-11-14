@@ -98,7 +98,7 @@ private slots:
         t.items = {
             item(TemplateItem::Start, 20, TemplateItem::Start, 10, 270),     // top left
             item(TemplateItem::End, -400, TemplateItem::End, -400, 400),     // flush with the bottom right corner
-            item(TemplateItem::Middle, -200, TemplateItem::Start, 0, 108),   // top centre, 200 px wide half
+            item(TemplateItem::Middle, -200, TemplateItem::Start, 0, 108),   // top center, 200 px wide half
         };
         const QVector<OverlayItem> placed = t.overlayItems(16.0 / 9.0);
         QCOMPARE(placed.size(), 3);

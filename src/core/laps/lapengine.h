@@ -35,7 +35,7 @@ struct StartFinishLine
 namespace LapEngine
 {
 const double DefaultMinimumLap = 20.0;   // seconds
-const double DefaultLineWidth = 40.0;    // metres: a track and GPS error on both sides
+const double DefaultLineWidth = 40.0;    // meters: a track and GPS error on both sides
 
 // The finished laps between crossings of `line`.
 QVector<TelemetrySession::Lap> detect(const TelemetrySession &session, const StartFinishLine &line,
@@ -50,16 +50,16 @@ StartFinishLine lineAt(const TelemetrySession &session, double time, double widt
 QVector<double> splits(const TelemetrySession &session, const QVector<StartFinishLine> &sectors, double start,
                        double end);
 
-// When the route came nearest to a place; -1 without positions. *distance: how near, in metres.
+// When the route came nearest to a place; -1 without positions. *distance: how near, in meters.
 double nearestTime(const TelemetrySession &session, double lat, double lon, double *distance = nullptr);
 
-// One lap against distance into it: (metres, channel value as stored) every
-// `step` metres. Empty without distance or the channel.
+// One lap against distance into it: (meters, channel value as stored) every
+// `step` meters. Empty without distance or the channel.
 QVector<QPointF> byDistance(const TelemetrySession &session, const TelemetrySession::Lap &lap, const QString &channelId,
                             double step = 5.0);
 
 // How far behind `reference` (+, seconds) `lap` is at the same point of the
-// lap, against distance into `reference` in metres. Points are matched by
+// lap, against distance into `reference` in meters. Points are matched by
 // how much of the lap is done, so laps of a slightly different length line up.
 QVector<QPointF> deltaByDistance(const TelemetrySession &session, const TelemetrySession::Lap &reference,
                                  const TelemetrySession::Lap &lap, double step = 5.0);

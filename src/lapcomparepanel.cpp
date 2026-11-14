@@ -52,7 +52,7 @@ public:
     struct Series
     {
         QString label;
-        QColor colour;
+        QColor color;
         QVector<QPointF> values;   // distance (m), shown value
         QVector<QPointF> delta;    // distance (m), s behind the reference
     };
@@ -113,7 +113,7 @@ protected:
         int x = kLeft;
         for (const Series &s : m_series)
             {
-                painter.fillRect(QRect(x, 6, 14, 8), s.colour);
+                painter.fillRect(QRect(x, 6, 14, 8), s.color);
                 x += 18;
                 painter.setPen(palette().color(QPalette::Text));
                 painter.drawText(QPoint(x, 14), s.label);
@@ -125,7 +125,7 @@ protected:
         painter.setRenderHint(QPainter::Antialiasing);
         for (const Series &s : m_series)
             {
-                painter.setPen(QPen(s.colour, 1.5));
+                painter.setPen(QPen(s.color, 1.5));
                 painter.drawPath(path(s.values, values, m_low, m_high));
                 painter.drawPath(path(s.delta, delta, -m_deltaRange, m_deltaRange));
             }
@@ -161,7 +161,7 @@ private:
         return QRect(kLeft, values.bottom() + kGap, values.width(), std::max(16, height() - values.bottom() - kGap - kAxis));
     }
 
-    double xOf(double metres, const QRect &area) const { return area.left() + metres / m_length * area.width(); }
+    double xOf(double meters, const QRect &area) const { return area.left() + meters / m_length * area.width(); }
 
     QPainterPath path(const QVector<QPointF> &points, const QRect &area, double low, double high) const
     {
@@ -228,36 +228,36 @@ private:
                          LapComparePanel::tr("Time behind the fastest, s"));
     }
 
-    static double valueAtDistance(const QVector<QPointF> &points, double metres, bool *ok)
+    static double valueAtDistance(const QVector<QPointF> &points, double meters, bool *ok)
     {
-        const auto next = std::lower_bound(points.cbegin(), points.cend(), metres,
+        const auto next = std::lower_bound(points.cbegin(), points.cend(), meters,
                                            [](const QPointF &p, double m) { return p.x() < m; });
         *ok = next != points.cend();
         if (!*ok)
             {
                 return 0.0;
             }
-        if (next == points.cbegin() || next->x() == metres)
+        if (next == points.cbegin() || next->x() == meters)
             {
                 return next->y();
             }
         const QPointF a = *(next - 1);
         const QPointF b = *next;
-        return a.y() + (b.y() - a.y()) * (metres - a.x()) / (b.x() - a.x());
+        return a.y() + (b.y() - a.y()) * (meters - a.x()) / (b.x() - a.x());
     }
 
     void drawHover(QPainter &painter, const QRect &values, const QRect &delta)
     {
-        const double metres = (m_hoverX - values.left()) / double(values.width()) * m_length;
+        const double meters = (m_hoverX - values.left()) / double(values.width()) * m_length;
         painter.setPen(QPen(palette().color(QPalette::Highlight), 1));
         painter.drawLine(m_hoverX, values.top(), m_hoverX, delta.bottom());
-        QStringList lines{QString("%1 %2").arg(m_distance.convert(metres), 0, 'f', m_distance.decimals).arg(m_distance.unit)};
+        QStringList lines{QString("%1 %2").arg(m_distance.convert(meters), 0, 'f', m_distance.decimals).arg(m_distance.unit)};
         for (const Series &s : m_series)
             {
                 bool ok = false;
                 bool deltaOk = false;
-                const double value = valueAtDistance(s.values, metres, &ok);
-                const double behind = valueAtDistance(s.delta, metres, &deltaOk);
+                const double value = valueAtDistance(s.values, meters, &ok);
+                const double behind = valueAtDistance(s.delta, meters, &deltaOk);
                 lines << QString("%1: %2  %3").arg(s.label.section(' ', 0, 1),
                                                    ok ? QString::number(value, 'f', m_value.decimals) : QStringLiteral("--"),
                                                    deltaOk ? QString("%1%2").arg(behind >= 0.0 ? "+" : "").arg(behind, 0, 'f', 2)
@@ -379,7 +379,7 @@ void LapComparePanel::fillChannels()
 
 void LapComparePanel::rebuild()
 {
-    static const QColor colours[] = {QColor(150, 60, 200), QColor(30, 140, 230), QColor(230, 120, 20),
+    static const QColor colors[] = {QColor(150, 60, 200), QColor(30, 140, 230), QColor(230, 120, 20),
                                      QColor(40, 170, 90), QColor(220, 50, 60), QColor(140, 140, 30)};
     QVector<LapCompareChart::Series> series;
     const QString id = m_channelCombo->currentData().toString();
@@ -430,7 +430,7 @@ void LapComparePanel::rebuild()
                     const TelemetrySession::Lap &lap = laps.at(chosen.at(k));
                     LapCompareChart::Series s;
                     s.label = tr("Lap %1 (%2)").arg(chosen.at(k) + 1).arg(lapTime(lap.endTime - lap.startTime));
-                    s.colour = colours[k % 6];
+                    s.color = colors[k % 6];
                     for (const QPointF &p : LapEngine::byDistance(*source, lap, id))
                         {
                             s.values.append(QPointF(p.x(), value.convert(p.y())));

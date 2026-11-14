@@ -9,11 +9,11 @@ class Channel;
 // decides what the user reads in tables and on gauges.
 struct Units
 {
-    enum Speed { KilometresPerHour, MilesPerHour };
+    enum Speed { KilometersPerHour, MilesPerHour };
     enum Length { Metric, Imperial };          // elevation m / ft, distance km / mi
     enum Temperature { Celsius, Fahrenheit };
 
-    Speed speed{KilometresPerHour};
+    Speed speed{KilometersPerHour};
     Length length{Metric};
     Temperature temperature{Celsius};
 

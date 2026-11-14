@@ -4,7 +4,7 @@
 
 namespace Geo
 {
-// Great-circle distance in metres between two WGS84 points given in degrees.
+// Great-circle distance in meters between two WGS84 points given in degrees.
 inline double distanceMeters(double lat1, double lon1, double lat2, double lon2)
 {
     const double earthRadius = 6371008.8;

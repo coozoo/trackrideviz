@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 
 // The user's data profiles, one JSON file each under userFolder(). CSV files
-// are read with the first one that recognises them, in alphabetical order.
+// are read with the first one that recognizes them, in alphabetical order.
 class DataProfileLibrary
 {
     Q_DECLARE_TR_FUNCTIONS(DataProfileLibrary)

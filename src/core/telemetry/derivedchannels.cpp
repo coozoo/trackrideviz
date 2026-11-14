@@ -78,7 +78,7 @@ QVector<double> sample(const Channel *channel, const Grid &grid)
     return values;
 }
 
-// Centred mean over `half` points either side, of the values there are.
+// Centerd mean over `half` points either side, of the values there are.
 QVector<double> smooth(const QVector<double> &values, int half)
 {
     QVector<double> result(values.size(), kNaN);

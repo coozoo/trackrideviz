@@ -73,13 +73,13 @@ bool readPlacements(const QByteArray &xml, QVector<Placement> *placements, QStri
 // and its distance from there in reference pixels.
 void place(double start, double length, double frameLength, double scale, TemplateItem::Edge *edge, double *offset)
 {
-    const double centre = start + length / 2.0;
-    if (centre < frameLength / 3.0)
+    const double center = start + length / 2.0;
+    if (center < frameLength / 3.0)
         {
             *edge = TemplateItem::Start;
             *offset = start * scale;
         }
-    else if (centre > frameLength * 2.0 / 3.0)
+    else if (center > frameLength * 2.0 / 3.0)
         {
             *edge = TemplateItem::End;
             *offset = (start - frameLength) * scale;

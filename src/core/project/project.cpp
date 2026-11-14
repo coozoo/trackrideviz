@@ -11,7 +11,7 @@
 namespace
 {
 const char kFormat[] = "rtvproj";
-// 2: gauges are bound to a channel, the project has a colour theme
+// 2: gauges are bound to a channel, the project has a color theme
 const int kVersion = 2;
 
 QString toStored(const QString &path, const QDir &projectDir)

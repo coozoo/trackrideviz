@@ -936,15 +936,15 @@ void MainWindow::setGaugeStreets(int index, bool shown)
     changeOverlay(shown ? tr("Show the street map") : tr("Hide the street map"), after);
 }
 
-void MainWindow::setGaugeCloseUp(int index, double metres)
+void MainWindow::setGaugeCloseUp(int index, double meters)
 {
     if (index < 0 || index >= m_project.overlay.size())
         {
             return;
         }
     OverlayState after{m_project.overlay, m_project.theme};
-    after.items[index].closeUp = metres;
-    changeOverlay(metres > 0.0 ? tr("Show the route close up") : tr("Show the whole route"), after);
+    after.items[index].closeUp = meters;
+    changeOverlay(meters > 0.0 ? tr("Show the route close up") : tr("Show the whole route"), after);
 }
 
 QStringList MainWindow::channelChoices(const QString &current) const
@@ -1001,10 +1001,10 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                     QAction *action = closeUp->addAction(choice.first);
                     action->setCheckable(true);
                     action->setChecked(choice.second == current);
-                    const double metres = choice.second;
-                    connect(action, &QAction::triggered, this, [this, index, metres]()
+                    const double meters = choice.second;
+                    connect(action, &QAction::triggered, this, [this, index, meters]()
                     {
-                        setGaugeCloseUp(index, metres);
+                        setGaugeCloseUp(index, meters);
                     });
                 }
             closeUp->addSeparator();
@@ -1068,12 +1068,12 @@ QWidget *MainWindow::createPropertiesPanel()
     channelLabel->setToolTip(m_channelCombo->toolTip());
     form->addRow(channelLabel, m_channelCombo);
     form->addRow(QString(), m_removeGaugeButton);
-    QLabel *coloursTitle = new QLabel(tr("All gauges"), panel);
-    coloursTitle->setToolTip(tr("Colors and font of every gauge on the video"));
-    QFont bold = coloursTitle->font();
+    QLabel *colorsTitle = new QLabel(tr("All gauges"), panel);
+    colorsTitle->setToolTip(tr("Colors and font of every gauge on the video"));
+    QFont bold = colorsTitle->font();
     bold.setBold(true);
-    coloursTitle->setFont(bold);
-    form->addRow(coloursTitle);
+    colorsTitle->setFont(bold);
+    form->addRow(colorsTitle);
     for (int role = 0; role < int(std::size(kThemeRoles)); ++role)
         {
             QPushButton *button = new QPushButton(panel);
@@ -1200,7 +1200,7 @@ void MainWindow::updateProperties()
     for (int role = 0; role < m_themeButtons.size(); ++role)
         {
             const QColor color = m_project.theme.*(kThemeRoles[role].color);
-            // a swatch; the text keeps it usable for those who cannot tell the colours apart
+            // a swatch; the text keeps it usable for those who cannot tell the colors apart
             QPixmap swatch(32, 16);
             swatch.fill(color);
             m_themeButtons.at(role)->setIcon(QIcon(swatch));

@@ -2,7 +2,7 @@
 """Writes the templates that ship with the program into data/templates.
 
 A template is a layout of the gauges in data/gauges: which ones, showing
-what, where on a 1920 x 1080 frame and in which colours. Each gauge hangs on
+what, where on a 1920 x 1080 frame and in which colors. Each gauge hangs on
 an edge of the frame (or its middle), so a template fits videos of another
 shape too.
 
@@ -81,7 +81,7 @@ def column(parts, edge_x, edge_y, margin_x, margin_y, height, gap=0, step_x=0):
 
 
 def theme(background, accent, accent2, foreground="#ffffffff"):
-    """Colours as #aarrggbb."""
+    """Colors as #aarrggbb."""
     return {"background": background, "accent": accent, "accent2": accent2, "foreground": foreground}
 
 
@@ -104,19 +104,19 @@ def check(name, items):
                 print(f"{name}: {items[i]['gauge']} overlaps {items[j]['gauge']}")
 
 
-def write(name, category, colours, *groups):
+def write(name, category, colors, *groups):
     items = []
     for group in groups:
         items += group if isinstance(group, list) else [group]
     check(name, items)
-    document = {"format": "rtvtemplate", "version": 1, "name": name, "category": category, "theme": colours,
+    document = {"format": "rtvtemplate", "version": 1, "name": name, "category": category, "theme": colors,
                 "items": items}
     with open(os.path.join(ROOT, "templates", name + ".json"), "w") as f:
         json.dump(document, f, indent=4, sort_keys=True)
         f.write("\n")
 
 
-# --- colours ---------------------------------------------------------------
+# --- colors ---------------------------------------------------------------
 
 ORANGE = theme("#960a0e14", "#ffff781e", "#ffdce6f0")
 RED = theme("#a0000000", "#ffe61e28", "#ffffffff")

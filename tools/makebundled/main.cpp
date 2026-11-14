@@ -2,7 +2,7 @@
 // the data folder (see makebundled.pro). The templates are laid out by
 // tools/vectorgauges/templates.py.
 //
-// Every picture is a white shape on transparent: the theme colours it. Only
+// Every picture is a white shape on transparent: the theme colors it. Only
 // artwork drawn here, by this program, may go into data/.
 
 #include "gauge/gaugefile.h"
@@ -20,10 +20,10 @@ namespace
 {
 const double kPi = 3.14159265358979323846;
 
-QPointF onCircle(const QPointF &centre, double angle, double radius)
+QPointF onCircle(const QPointF &center, double angle, double radius)
 {
     const double rad = angle * kPi / 180.0;
-    return QPointF(centre.x() + radius * std::sin(rad), centre.y() - radius * std::cos(rad));
+    return QPointF(center.x() + radius * std::sin(rad), center.y() - radius * std::cos(rad));
 }
 
 // A picture of `size` design units, drawn by `paint` in white.
@@ -82,7 +82,7 @@ GaugeComponent plate(const QSizeF &size, double radius)
     return image(img, QRectF(QPointF(0, 0), size), GaugeColor::Background, "plate");
 }
 
-// A dot centred on its origin, for knobs: a light ring around a coloured middle.
+// A dot centerd on its origin, for knobs: a light ring around a colored middle.
 QVector<GaugeComponent> dot(double radius)
 {
     const QSizeF size(2 * radius + 4, 2 * radius + 4);
@@ -103,7 +103,7 @@ QVector<GaugeComponent> dot(double radius)
 Gauge arc()
 {
     const QSizeF size(400, 400);
-    const QPointF centre(200, 200);
+    const QPointF center(200, 200);
     const QRectF whole(QPointF(0, 0), size);
     const double from = -125.0;
     const double to = 125.0;
@@ -115,14 +115,14 @@ Gauge arc()
 
     gauge.components << image(picture(size, [&](QPainter &p)
     {
-        p.drawEllipse(centre, 196, 196);
+        p.drawEllipse(center, 196, 196);
     }), whole, GaugeColor::Background, "plate");
 
     auto band = [&](QPainter &p)
     {
         p.setBrush(Qt::NoBrush);
         p.setPen(QPen(Qt::white, 30, Qt::SolidLine, Qt::FlatCap));
-        const QRectF circle(centre.x() - radius, centre.y() - radius, 2 * radius, 2 * radius);
+        const QRectF circle(center.x() - radius, center.y() - radius, 2 * radius, 2 * radius);
         // QPainter counts angles counter-clockwise from 3 o'clock, in 1/16 degrees
         p.drawArc(circle, int((90.0 - from) * 16), int(-(to - from) * 16));
     };
@@ -138,7 +138,7 @@ Gauge arc()
     GaugeComponent fill = image(picture(size, band), whole, GaugeColor::Accent, "fill");
     GaugeManipulation sweep;
     sweep.type = GaugeManipulation::RadialClip;
-    sweep.pivot = centre;
+    sweep.pivot = center;
     sweep.minAngle = from;
     sweep.maxAngle = to;
     fill.manipulations << sweep;
@@ -151,13 +151,13 @@ Gauge arc()
             {
                 const double angle = from + (to - from) * i / (marks - 1);
                 p.setPen(QPen(Qt::white, 4, Qt::SolidLine, Qt::FlatCap));
-                p.drawLine(onCircle(centre, angle, radius + 18), onCircle(centre, angle, radius + 30));
+                p.drawLine(onCircle(center, angle, radius + 18), onCircle(center, angle, radius + 30));
             }
     }), whole, GaugeColor::Accent2, "ticks");
     for (int i = 0; i < marks; ++i)
         {
             const double angle = from + (to - from) * i / (marks - 1);
-            gauge.components << text(GaugeComponent::IntervalMarking, onCircle(centre, angle, radius - 38), 22,
+            gauge.components << text(GaugeComponent::IntervalMarking, onCircle(center, angle, radius - 38), 22,
                                      Qt::AlignCenter, GaugeColor::Foreground, true);
         }
 
@@ -341,7 +341,7 @@ Gauge iconReadout()
 Gauge gForce()
 {
     const QSizeF size(400, 400);
-    const QPointF centre(200, 200);
+    const QPointF center(200, 200);
     const QRectF whole(QPointF(0, 0), size);
     Gauge gauge;
     gauge.name = "G-force";
@@ -349,7 +349,7 @@ Gauge gForce()
     gauge.supportedTypes = QStringList{ChannelId::GForceLateral, ChannelId::GForceLongitudinal};
     gauge.components << image(picture(size, [&](QPainter &p)
     {
-        p.drawEllipse(centre, 196, 196);
+        p.drawEllipse(center, 196, 196);
     }), whole, GaugeColor::Background, "plate");
     gauge.components << image(picture(size, [&](QPainter &p)
     {
@@ -357,7 +357,7 @@ Gauge gForce()
         p.setPen(QPen(QColor(255, 255, 255, 110), 2));
         for (double r : {58.0, 116.0, 174.0})
             {
-                p.drawEllipse(centre, r, r);
+                p.drawEllipse(center, r, r);
             }
         p.drawLine(QPointF(26, 200), QPointF(374, 200));
         p.drawLine(QPointF(200, 26), QPointF(200, 374));
@@ -367,7 +367,7 @@ Gauge gForce()
     GaugeComponent ball = image(picture(QSizeF(2 * radius + 4, 2 * radius + 4), [&](QPainter &p)
     {
         p.drawEllipse(QPointF(radius + 2, radius + 2), radius, radius);
-    }), QRectF(centre.x() - radius - 2, centre.y() - radius - 2, 2 * radius + 4, 2 * radius + 4), GaugeColor::Accent, "ball");
+    }), QRectF(center.x() - radius - 2, center.y() - radius - 2, 2 * radius + 4, 2 * radius + 4), GaugeColor::Accent, "ball");
     GaugeManipulation move;
     move.type = GaugeManipulation::Translate2D;
     move.maxRadius = 174 - radius;

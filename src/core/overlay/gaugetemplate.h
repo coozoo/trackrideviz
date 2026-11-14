@@ -5,7 +5,7 @@
 
 #include <QCoreApplication>
 
-// A ready-made layout: which gauges, showing what, where, in which colours.
+// A ready-made layout: which gauges, showing what, where, in which colors.
 //
 // Positions are kept the way .vet template files keep them: in pixels of a 1920 x 1080
 // frame, measured from the left, middle or right edge (top, middle, bottom).
@@ -13,7 +13,7 @@
 // edge and its size relative to the picture height.
 struct TemplateItem
 {
-    enum Edge { Start, Middle, End };   // left / top, centre, right / bottom
+    enum Edge { Start, Middle, End };   // left / top, center, right / bottom
 
     QString gaugeId;
     QString channel;

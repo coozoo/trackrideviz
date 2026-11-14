@@ -51,9 +51,9 @@ private:
     void removeSelected();
     void restoreSelected();
     void updateButtons();
-    // The colour a channel's line has: the user's, or one of its own to start with.
-    QColor colourOf(const QString &channelId) const;
-    void chooseColour(const QString &channelId);
+    // The color a channel's line has: the user's, or one of its own to start with.
+    QColor colorOf(const QString &channelId) const;
+    void chooseColor(const QString &channelId);
     // channel and time range picked in the chart or the table; false when none
     bool selection(QString *channel, double *start, double *end) const;
 

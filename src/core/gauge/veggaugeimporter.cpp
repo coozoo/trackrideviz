@@ -346,7 +346,7 @@ bool convert(const QJsonObject &source, Context &context, GaugeComponent *compon
             component->lineWidth = source.contains("lineWidth") ? number(source, "lineWidth") : 2.0;
             if (source.contains("bottomFillColor"))
                 {
-                    // often only the transparency: the fill then takes the line's colour
+                    // often only the transparency: the fill then takes the line's color
                     const QJsonObject fill = source.value("bottomFillColor").toObject();
                     component->fillAlpha = fill.contains("a") ? int(number(fill, "a")) : 255;
                     if (fill.contains("r") || fill.contains("g") || fill.contains("b"))

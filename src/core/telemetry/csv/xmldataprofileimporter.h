@@ -10,7 +10,7 @@
 // kept as calculators. Calculators that derive measurements (lap statistics,
 // ascent, heading and distance from positions, G from speed) are left out
 // and listed: those are worked out for every recording alike, whatever its
-// source. Positions projected to feet or metres are left out too; ours stay
+// source. Positions projected to feet or meters are left out too; ours stay
 // in degrees.
 class XmlDataProfileImporter
 {

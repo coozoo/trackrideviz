@@ -32,7 +32,7 @@ discards the remaining 95 % of the file. The importer keeps the longest consiste
 Pedal dynamics (2026-11-14), unit-tested with built records only, as no sample file has them:
 30 left_right_balance (the low 7 bits are the right leg's share only when bit 0x80 is set,
 otherwise the side is unknown and the value is left out), giving the left share and left / right
-power; 43-47 torque effectiveness and pedal smoothness (/2, %); 67/68 platform centre offset
+power; 43-47 torque effectiveness and pedal smoothness (/2, %); 67/68 platform center offset
 (sint8, mm); 69-72 power phase and peak phase as start and end angle, 256 steps to the turn,
 stored as start and length. Read the same way as GoldenCheetah does. The recovered files in
 `~/igs520` that seem to carry these fields hold them in a single corrupt record each (power

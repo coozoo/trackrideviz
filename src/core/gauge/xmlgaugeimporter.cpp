@@ -87,7 +87,7 @@ bool readElement(QXmlStreamReader &reader, Element *element)
     return !reader.hasError();
 }
 
-// "red" or "arcRed": attribute names carry the part they colour in front.
+// "red" or "arcRed": attribute names carry the part they color in front.
 QString key(const QString &prefix, const char *name)
 {
     if (prefix.isEmpty())
@@ -181,7 +181,7 @@ private:
         return e.number(key(prefix, "PenWidth"), 1.0);
     }
 
-    // Font, colour and alignment of a text. A text with a rectangle is
+    // Font, color and alignment of a text. A text with a rectangle is
     // aligned inside it; one at a point is placed beside the point, on the
     // side its alignment names.
     void applyText(const Element &e, const QString &prefix, bool boxed, GaugeComponent *c)
@@ -322,9 +322,9 @@ private:
         return s;
     }
 
-    static QRectF circle(const QPointF &centre, double rx, double ry)
+    static QRectF circle(const QPointF &center, double rx, double ry)
     {
-        return QRectF(centre.x() - rx, centre.y() - ry, 2.0 * rx, 2.0 * ry);
+        return QRectF(center.x() - rx, center.y() - ry, 2.0 * rx, 2.0 * ry);
     }
 
     GaugeComponent image(const Element &e, const QRectF &frame)
@@ -515,7 +515,7 @@ private:
         m.hasValueRange = true;
         m.minValue = e.number("minValue");
         m.maxValue = e.number("maxValue", 100.0);
-        // the colours run along the whole bar; the value uncovers part of it
+        // the colors run along the whole bar; the value uncovers part of it
         const QString direction = e.string("direction");
         const double left = origin.x();
         const double top = origin.y();

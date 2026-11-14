@@ -4,7 +4,7 @@
 #include <QJsonObject>
 #include <QString>
 
-// The colours and the font gauges are painted in. One theme for the whole
+// The colors and the font gauges are painted in. One theme for the whole
 // project, so gauges from different authors look like one set.
 struct GaugeTheme
 {

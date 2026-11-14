@@ -40,7 +40,7 @@ TelemetrySessionPtr DemoSession::create()
     Channel &rightPeakStart = session->channelForWriting(ChannelId::RightPowerPhasePeakStart, "deg");
     Channel &rightPeakLength = session->channelForWriting(ChannelId::RightPowerPhasePeakLength, "deg");
 
-    double travelled = 0.0;
+    double traveled = 0.0;
     for (int t = 0; t <= seconds; ++t)
         {
             // a lap around an oval with a kink in it, twice
@@ -49,8 +49,8 @@ TelemetrySessionPtr DemoSession::create()
             lon.append(t, 10.0 + 0.008 * std::cos(a));
             const double v = (28.0 + 10.0 * std::sin(2.0 * a) + 3.0 * std::sin(0.11 * t)) / 3.6;
             speed.append(t, v);
-            travelled += v;
-            distance.append(t, travelled);
+            traveled += v;
+            distance.append(t, traveled);
             elevation.append(t, 230.0 + 25.0 * std::sin(a + 0.6));
             // the way the positions above move: north and east per turn of `a`, at this latitude
             const double north = 0.004 * std::cos(a) + 0.0024 * std::cos(3.0 * a);
@@ -68,7 +68,7 @@ TelemetrySessionPtr DemoSession::create()
             rightPower.append(t, watts * (100.0 - left) / 100.0);
             leftOffset.append(t, -2.0 + 3.0 * std::sin(1.3 * a));
             rightOffset.append(t, 3.0 + 2.0 * std::cos(1.7 * a));
-            // harder pedalling starts the push earlier and makes it longer
+            // harder pedaling starts the push earlier and makes it longer
             const double push = (watts - 220.0) / 90.0;
             leftStart.append(t, 15.0 - 8.0 * push);
             leftLength.append(t, 195.0 + 15.0 * push);

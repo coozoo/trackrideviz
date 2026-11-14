@@ -250,7 +250,7 @@ TelemetrySessionPtr GpxImporter::read(QIODevice *device, QString *error)
                 }
         }
 
-    double travelled = 0.0;
+    double traveled = 0.0;
     double prevTime = 0.0;
     const Point *prev = nullptr;
     int outOfOrder = 0;
@@ -275,9 +275,9 @@ TelemetrySessionPtr GpxImporter::read(QIODevice *device, QString *error)
             if (prev)
                 {
                     step = Geo::distanceMeters(prev->lat, prev->lon, p.lat, p.lon);
-                    travelled += step;
+                    traveled += step;
                 }
-            distance.append(t, travelled);
+            distance.append(t, traveled);
             if (fileHasSpeed)
                 {
                     appendIfValid(speed, t, p.speed);
