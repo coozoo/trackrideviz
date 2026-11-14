@@ -928,6 +928,9 @@ void BoundGauge::render(QPainter &painter, const QRectF &target, double time) co
     context.devicePixelRatio = painter.device() ? painter.device()->devicePixelRatioF() : 1.0;
     context.topLevel = true;
     const QVector<QImage> layers = context.cached ? staticLayers(box.size(), context.devicePixelRatio) : QVector<QImage>();
+    // OpenGL paints shapes smooth only on a multisampled surface: the moving parts are drawn
+    // into a picture first, so the preview looks like the export
+    const bool offscreen = context.cached && engine->type() == QPaintEngine::OpenGL2;
 
     painter.save();
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
@@ -937,6 +940,23 @@ void BoundGauge::render(QPainter &painter, const QRectF &target, double time) co
             if (run.still && context.cached)
                 {
                     painter.drawImage(box.topLeft(), layers.at(layer++));
+                    continue;
+                }
+            if (offscreen)
+                {
+                    QImage live(box.size() * context.devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
+                    live.setDevicePixelRatio(context.devicePixelRatio);
+                    live.fill(Qt::transparent);
+                    QPainter drawing(&live);
+                    drawing.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform);
+                    drawing.scale(box.width() / m_size.width(), box.height() / m_size.height());
+                    drawing.setClipRect(QRectF(QPointF(0, 0), m_size));
+                    for (int i = run.first; i < run.end; ++i)
+                        {
+                            draw(drawing, m_nodes.at(i), time, context);
+                        }
+                    drawing.end();
+                    painter.drawImage(box.topLeft(), live);
                     continue;
                 }
             painter.save();
