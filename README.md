@@ -61,10 +61,11 @@ RTV_GPX_SAMPLE=/path/to/track.gpx      ./tests-shadow/gpx/tst_gpx sampleFile
 ## Translations
 
 English and Ukrainian. Sources are in `translations/`, compiled `.qm` files are embedded into the
-binary at build time. To pick up new strings:
+binary at build time. To pick up new strings, with Qt 6's lupdate (`lupdate-qt6` on Fedora; a
+plain `lupdate` may be an older Qt's, which rewrites the files in its own format):
 
 ```bash
-lupdate trackrideviz.pro
+lupdate-qt6 trackrideviz.pro
 ```
 
 ## Project layout
