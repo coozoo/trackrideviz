@@ -127,6 +127,37 @@ private slots:
         QCOMPARE(t.overlayItems(0.0).first().x, 1520.0 / 1920.0);
     }
 
+    // what is on the video becomes a template that puts it back, and keeps corners on another shape
+    void layoutBecomesATemplate()
+    {
+        GaugeTemplate t;
+        t.theme.accent = QColor(1, 2, 3);
+        t.items = {item(TemplateItem::Start, 20, TemplateItem::Start, 10, 270),
+                   item(TemplateItem::End, -400, TemplateItem::End, -400, 400)};
+        t.items[1].closeUp = 600.0;
+        const QVector<OverlayItem> placed = t.overlayItems(16.0 / 9.0);
+        const Overlay overlay(placed, nullptr, Units(), t.theme);
+        const GaugeTemplate made = GaugeTemplate::fromOverlay(overlay, t.theme, 16.0 / 9.0);
+        QCOMPARE(made.theme, t.theme);
+        QCOMPARE(made.items.size(), 2);
+        // the built-in dial is square: bottom right is measured from the right and the bottom
+        QCOMPARE(made.items[0].edgeX, TemplateItem::Start);
+        QCOMPARE(made.items[1].edgeX, TemplateItem::End);
+        QCOMPARE(made.items[1].edgeY, TemplateItem::End);
+        QVERIFY(qAbs(made.items[1].offsetX + 400.0) < 1e-6);
+        QCOMPARE(made.items[1].closeUp, 600.0);
+        const QVector<OverlayItem> again = made.overlayItems(16.0 / 9.0);
+        for (int i = 0; i < placed.size(); ++i)
+            {
+                QVERIFY(qAbs(again[i].x - placed[i].x) < 1e-9);
+                QVERIFY(qAbs(again[i].y - placed[i].y) < 1e-9);
+                QVERIFY(qAbs(again[i].height - placed[i].height) < 1e-9);
+            }
+        // on a narrower frame it still ends at the right edge
+        const OverlayItem narrow = made.overlayItems(4.0 / 3.0)[1];
+        QVERIFY(qAbs(narrow.x + narrow.height * 1080.0 / 1440.0 - 1.0) < 1e-9);
+    }
+
     // --- file -----------------------------------------------------------------
 
     void fileRoundTrip()

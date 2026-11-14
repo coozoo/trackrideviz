@@ -126,7 +126,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
 - Templates are placed for the video open when applied; a later video of another shape keeps
   the fractions, not the edge anchors
-- Saving the current layout as a template; units a single gauge shows
+- ✅ Saving the gauges on the video as a template (2026-11-14, File menu): each measured from
+  the edge it is nearest to, with a name and a category
+- Units a single gauge shows
 
 ## M4 — Track day features
 - ✅ Derived channels (2026-11-13, `DerivedChannels`), for every source, only where the recording

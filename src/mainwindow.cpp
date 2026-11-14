@@ -31,6 +31,8 @@
 #include <QCompleter>
 #include <QFontDatabase>
 #include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
@@ -437,6 +439,8 @@ void MainWindow::createMenus()
     m_exportAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
     m_exportAction->setEnabled(false);
     fileMenu->addSeparator();
+    fileMenu->addAction(tr("Save the &gauges as a template..."), this, &MainWindow::saveAsTemplate);
+    fileMenu->addSeparator();
     QAction *settingsAction = fileMenu->addAction(tr("&Settings..."), this, &MainWindow::showSettings);
     settingsAction->setShortcut(QKeySequence::Preferences);
     // macOS moves it to the application menu, where it is expected there
@@ -816,6 +820,73 @@ void MainWindow::applyTemplate(const QString &templateId)
     const double aspect = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
     m_canvas->setSelectedItem(-1);
     changeOverlay(tr("Apply template"), {t.overlayItems(aspect), t.theme});
+}
+
+void MainWindow::saveAsTemplate()
+{
+    if (m_project.overlay.isEmpty())
+        {
+            QMessageBox::information(this, tr("Save as template"), tr("There are no gauges on the video to save."));
+            return;
+        }
+    // a name, and a category out of those there are or a new one
+    QStringList categories;
+    QStringList taken;
+    for (const TemplateLibrary::Entry &entry : TemplateLibrary::entries())
+        {
+            if (!entry.category.isEmpty() && !categories.contains(entry.category))
+                {
+                    categories << entry.category;
+                }
+            if (!entry.builtin)
+                {
+                    taken << entry.name.toLower();
+                }
+        }
+    categories.sort(Qt::CaseInsensitive);
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Save as template"));
+    QLineEdit *nameEdit = new QLineEdit(&dialog);
+    QComboBox *categoryCombo = new QComboBox(&dialog);
+    categoryCombo->setEditable(true);
+    categoryCombo->addItems(categories);
+    categoryCombo->setCurrentText(QSettings().value("templates/lastCategory").toString());
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, &dialog);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    QPushButton *save = buttons->button(QDialogButtonBox::Save);
+    save->setEnabled(false);
+    connect(nameEdit, &QLineEdit::textChanged, save, [save](const QString &text) { save->setEnabled(!text.trimmed().isEmpty()); });
+    QFormLayout *form = new QFormLayout(&dialog);
+    form->addRow(tr("Name:"), nameEdit);
+    form->addRow(tr("Category:"), categoryCombo);
+    form->addRow(new QLabel(tr("The gauges on the video, where they are and their colours.\n"
+                               "It appears among the templates in the library."), &dialog));
+    form->addRow(buttons);
+    if (dialog.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+    const QString name = nameEdit->text().trimmed();
+    if (taken.contains(name.toLower())
+            && QMessageBox::question(this, tr("Save as template"), tr("There is a template \"%1\" already. Replace it?").arg(name))
+            != QMessageBox::Yes)
+        {
+            return;
+        }
+    const double aspect = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
+    GaugeTemplate made = GaugeTemplate::fromOverlay(m_canvas->overlay(), m_project.theme, aspect);
+    made.name = name;
+    made.category = categoryCombo->currentText().trimmed();
+    QSettings().setValue("templates/lastCategory", made.category);
+    QString error;
+    if (TemplateLibrary::add(made, &error).isEmpty())
+        {
+            QMessageBox::warning(this, tr("Save as template"), error);
+            return;
+        }
+    m_libraryPanel->reload();
+    statusBar()->showMessage(tr("Template \"%1\" saved to the library").arg(name), 5000);
 }
 
 void MainWindow::removeGauge(int index)

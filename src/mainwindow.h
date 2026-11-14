@@ -67,6 +67,7 @@ private slots:
     void setGaugeCloseUp(int index, double metres);
     // Works the data out again from the file's (corrections, terrain heights, what follows from them).
     void recomputeData();
+    void saveAsTemplate();
     void chooseThemeColor(int role);
     void showItemMenu(int index, const QPoint &globalPosition);
     void updateProperties();

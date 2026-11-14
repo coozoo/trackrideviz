@@ -46,6 +46,10 @@ struct GaugeTemplate
 
     // Placement on a frame with this width / height ratio.
     QVector<OverlayItem> overlayItems(double frameAspect) const;
+    // The other way: what is on a frame of that shape, as a template (without a name).
+    // A gauge is measured from the edge its middle is nearest to - left, middle or right
+    // third, top, middle or bottom - so that it keeps its corner on a frame of another shape.
+    static GaugeTemplate fromOverlay(const Overlay &overlay, const GaugeTheme &theme, double frameAspect);
 };
 
 class TemplateFile

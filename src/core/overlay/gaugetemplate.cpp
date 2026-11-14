@@ -52,6 +52,37 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
     return result;
 }
 
+GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeTheme &theme, double frameAspect)
+{
+    const double height = ReferenceHeight;
+    const double width = height * (frameAspect > 0.0 ? frameAspect : ReferenceWidth / ReferenceHeight);
+    const QRectF frame(0.0, 0.0, width, height);
+    auto nearest = [](double middle, double length)
+    {
+        return middle < length / 3.0 ? TemplateItem::Start : middle > length * 2.0 / 3.0 ? TemplateItem::End : TemplateItem::Middle;
+    };
+    GaugeTemplate result;
+    result.theme = theme;
+    for (int i = 0; i < overlay.count(); ++i)
+        {
+            const OverlayItem &placed = overlay.item(i);
+            const QRectF rect = overlay.itemRect(i, frame);
+            TemplateItem item;
+            item.gaugeId = placed.gaugeId;
+            item.channel = placed.channel;
+            item.edgeX = nearest(rect.center().x(), width);
+            item.edgeY = nearest(rect.center().y(), height);
+            item.offsetX = rect.left() - edgePosition(item.edgeX, width);
+            item.offsetY = rect.top() - edgePosition(item.edgeY, height);
+            item.height = rect.height();
+            item.streets = placed.streets;
+            item.closeUp = placed.closeUp;
+            item.headingUp = placed.headingUp;
+            result.items.append(item);
+        }
+    return result;
+}
+
 QByteArray TemplateFile::toJson(const GaugeTemplate &t)
 {
     QJsonArray items;
