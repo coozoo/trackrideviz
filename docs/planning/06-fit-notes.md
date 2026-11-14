@@ -29,9 +29,18 @@ Found by those files and now handled + unit-tested: one Garmin file has 14 recor
 discards the remaining 95 % of the file. The importer keeps the longest consistent timeline instead
 (longest non-decreasing subsequence of timestamps).
 
+Pedal dynamics (2026-11-14), unit-tested with built records only, as no sample file has them:
+30 left_right_balance (the low 7 bits are the right leg's share only when bit 0x80 is set,
+otherwise the side is unknown and the value is left out), giving the left share and left / right
+power; 43-47 torque effectiveness and pedal smoothness (/2, %); 67/68 platform centre offset
+(sint8, mm); 69-72 power phase and peak phase as start and end angle, 256 steps to the turn,
+stored as start and length. Read the same way as GoldenCheetah does. The recovered files in
+`~/igs520` that seem to carry these fields hold them in a single corrupt record each (power
+16624 W): a guard against such lone records is still to do.
+
 Not done yet: high-rate sensor messages of action cameras (need a sample file), names for more native record fields
-(29 accumulated_power, 30 left_right_balance, 39 vertical_oscillation, 53 fractional_cadence,
-67-72 pedal metrics, 87/88 cycle length, 135+ newer Garmin fields), GPS spike rejection.
+(29 accumulated_power, 39 vertical_oscillation, 53 fractional_cadence, 87/88 cycle length,
+135+ newer Garmin fields), GPS spike rejection, dropping lone corrupt records.
 
 ## Where prior art is
 

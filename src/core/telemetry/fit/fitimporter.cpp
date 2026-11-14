@@ -14,7 +14,11 @@ namespace
 enum RecordField
 {
     PositionLat = 0, PositionLong = 1, Altitude = 2, HeartRate = 3, Cadence = 4, Distance = 5,
-    Speed = 6, Power = 7, Grade = 9, Temperature = 13, EnhancedSpeed = 73, EnhancedAltitude = 78
+    Speed = 6, Power = 7, Grade = 9, Temperature = 13, LeftRightBalance = 30,
+    LeftTorqueEffectiveness = 43, RightTorqueEffectiveness = 44, LeftPedalSmoothness = 45,
+    RightPedalSmoothness = 46, CombinedPedalSmoothness = 47, LeftPco = 67, RightPco = 68,
+    LeftPowerPhase = 69, LeftPowerPhasePeak = 70, RightPowerPhase = 71, RightPowerPhasePeak = 72,
+    EnhancedSpeed = 73, EnhancedAltitude = 78
 };
 
 struct KnownField
@@ -34,6 +38,29 @@ const KnownField kKnownFields[] =
     {Power, ChannelId::Power, "W", 1.0, 0.0},
     {Grade, ChannelId::Grade, "%", 100.0, 0.0},
     {Temperature, ChannelId::Temperature, "C", 1.0, 0.0},
+    {LeftTorqueEffectiveness, ChannelId::LeftTorqueEffectiveness, "%", 2.0, 0.0},
+    {RightTorqueEffectiveness, ChannelId::RightTorqueEffectiveness, "%", 2.0, 0.0},
+    {LeftPedalSmoothness, ChannelId::LeftPedalSmoothness, "%", 2.0, 0.0},
+    {RightPedalSmoothness, ChannelId::RightPedalSmoothness, "%", 2.0, 0.0},
+    {CombinedPedalSmoothness, ChannelId::CombinedPedalSmoothness, "%", 2.0, 0.0},
+    {LeftPco, ChannelId::LeftPlatformCenterOffset, "mm", 1.0, 0.0},
+    {RightPco, ChannelId::RightPlatformCenterOffset, "mm", 1.0, 0.0},
+};
+
+// Power phase fields: an array of start and end angle, 256 steps to the turn.
+struct PhaseField
+{
+    int num;
+    const char *start;
+    const char *length;
+};
+
+const PhaseField kPhaseFields[] =
+{
+    {LeftPowerPhase, ChannelId::LeftPowerPhaseStart, ChannelId::LeftPowerPhaseLength},
+    {LeftPowerPhasePeak, ChannelId::LeftPowerPhasePeakStart, ChannelId::LeftPowerPhasePeakLength},
+    {RightPowerPhase, ChannelId::RightPowerPhaseStart, ChannelId::RightPowerPhaseLength},
+    {RightPowerPhasePeak, ChannelId::RightPowerPhasePeakStart, ChannelId::RightPowerPhasePeakLength},
 };
 
 bool isHandledElsewhere(int num)
@@ -46,6 +73,7 @@ bool isHandledElsewhere(int num)
         case EnhancedAltitude:
         case Speed:
         case EnhancedSpeed:
+        case LeftRightBalance:
         case Fit::TimestampField:
             return true;
         default:
@@ -54,6 +82,13 @@ bool isHandledElsewhere(int num)
     for (const KnownField &known : kKnownFields)
         {
             if (known.num == num)
+                {
+                    return true;
+                }
+        }
+    for (const PhaseField &phase : kPhaseFields)
+        {
+            if (phase.num == num)
                 {
                     return true;
                 }
@@ -223,6 +258,29 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
         for (const KnownField &known : kKnownFields)
             {
                 appendIfValid(*session, known.channel, known.unit, t, message.value(known.num) / known.scale - known.offset);
+            }
+
+        // the right leg's share in the low 7 bits when the top bit says so; without it the side is unknown
+        const double balance = message.value(LeftRightBalance);
+        if (!std::isnan(balance) && (int(balance) & 0x80) && (int(balance) & 0x7F) <= 100)
+            {
+                const double right = int(balance) & 0x7F;
+                appendIfValid(*session, ChannelId::PowerBalanceLeft, "%", t, 100.0 - right);
+                const double power = message.value(Power);
+                appendIfValid(*session, ChannelId::LeftPower, "W", t, power * (100.0 - right) / 100.0);
+                appendIfValid(*session, ChannelId::RightPower, "W", t, power * right / 100.0);
+            }
+        for (const PhaseField &phase : kPhaseFields)
+            {
+                const FitField *field = message.field(phase.num);
+                if (!field || field->values.size() < 2 || std::isnan(field->values.at(0)) || std::isnan(field->values.at(1)))
+                    {
+                        continue;
+                    }
+                const double start = field->values.at(0) * 360.0 / 256.0;
+                const double end = field->values.at(1) * 360.0 / 256.0;
+                appendIfValid(*session, phase.start, "deg", t, start);
+                appendIfValid(*session, phase.length, "deg", t, std::fmod(end - start + 360.0, 360.0));
             }
 
         for (const FitField &field : message.fields)

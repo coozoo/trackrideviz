@@ -99,6 +99,8 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="98"/>
+        <location filename="../src/core/units/units.cpp" line="175"/>
+        <location filename="../src/core/units/units.cpp" line="176"/>
         <source>W</source>
         <translation>Вт</translation>
     </message>
@@ -216,6 +218,102 @@
         <location filename="../src/core/units/units.cpp" line="164"/>
         <source>G-force</source>
         <translation>Перевантаження</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="174"/>
+        <source>Left/right balance</source>
+        <translation>Баланс лівої/правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="175"/>
+        <source>Left power</source>
+        <translation>Потужність лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="176"/>
+        <source>Right power</source>
+        <translation>Потужність правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="177"/>
+        <source>Left torque effectiveness</source>
+        <translation>Ефективність крутного моменту лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="178"/>
+        <source>Right torque effectiveness</source>
+        <translation>Ефективність крутного моменту правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="179"/>
+        <source>Left pedal smoothness</source>
+        <translation>Плавність педалювання лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="180"/>
+        <source>Right pedal smoothness</source>
+        <translation>Плавність педалювання правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="181"/>
+        <source>Pedal smoothness</source>
+        <translation>Плавність педалювання</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="182"/>
+        <source>Left platform offset</source>
+        <translation>Зміщення на педалі лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="182"/>
+        <location filename="../src/core/units/units.cpp" line="183"/>
+        <source>mm</source>
+        <translation>мм</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="183"/>
+        <source>Right platform offset</source>
+        <translation>Зміщення на педалі правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="184"/>
+        <source>Left power phase start</source>
+        <translation>Початок фази потужності лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="185"/>
+        <source>Left power phase</source>
+        <translation>Фаза потужності лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="186"/>
+        <source>Left peak phase start</source>
+        <translation>Початок пікової фази лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="187"/>
+        <source>Left peak phase</source>
+        <translation>Пікова фаза лівої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="188"/>
+        <source>Right power phase start</source>
+        <translation>Початок фази потужності правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="189"/>
+        <source>Right power phase</source>
+        <translation>Фаза потужності правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="190"/>
+        <source>Right peak phase start</source>
+        <translation>Початок пікової фази правої</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="191"/>
+        <source>Right peak phase</source>
+        <translation>Пікова фаза правої</translation>
     </message>
 </context>
 <context>
@@ -732,27 +830,27 @@ Shift+перетягування над каналом вибирає зразк
 <context>
     <name>FitImporter</name>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="133"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="168"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="317"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="375"/>
         <source>The FIT file contains no timed records. It may be a settings, course or workout file, not an activity.</source>
         <translation>Файл FIT не містить записів із часом. Можливо, це файл налаштувань, маршруту чи тренування, а не запис активності.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="328"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="386"/>
         <source>%1 records without a timestamp were skipped.</source>
         <translation>Пропущено записів без позначки часу: %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="332"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="390"/>
         <source>%1 records with a timestamp that does not fit the rest of the recording were skipped.</source>
         <translation>Пропущено записів, час яких не узгоджується з рештою запису: %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="341"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="399"/>
         <source>The file has no absolute time; it has to be synchronized with the video manually.</source>
         <translation>У файлі немає абсолютного часу; його потрібно синхронізувати з відео вручну.</translation>
     </message>
@@ -760,42 +858,42 @@ Shift+перетягування над каналом вибирає зразк
 <context>
     <name>GaugeFile</name>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="642"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="647"/>
         <source>This is not a gauge file: %1</source>
         <translation>Це не файл приладу: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="647"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="652"/>
         <source>This is not a Race Track Visualizer gauge file.</source>
         <translation>Це не файл приладу Race Track Visualizer.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="651"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="656"/>
         <source>The gauge was saved by a newer version of the program (file version %1).</source>
         <translation>Прилад збережено новішою версією програми (версія файлу %1).</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="669"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="674"/>
         <source>The gauge has no size.</source>
         <translation>Прилад не має розміру.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="683"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="688"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="730"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="735"/>
         <source>Cannot create the folder %1.</source>
         <translation>Не вдалося створити теку %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="770"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="775"/>
         <source>Cannot write %1.</source>
         <translation>Не вдалося записати %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="775"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="780"/>
         <source>Cannot write %1: %2</source>
         <translation>Не вдалося записати %1: %2</translation>
     </message>
@@ -2413,32 +2511,32 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>VegGaugeImporter</name>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="423"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="435"/>
         <source>This is not a .veg gauge: %1</source>
         <translation>Це не прилад .veg: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="431"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="443"/>
         <source>This is not a .veg gauge: it has no size or no components.</source>
         <translation>Це не прилад .veg: немає розміру або складників.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="444"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="456"/>
         <source>Left out, not supported yet: %1 (%2x)</source>
         <translation>Пропущено, ще не підтримується: %1 (%2x)</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="449"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="461"/>
         <source>Image not found: %1</source>
         <translation>Зображення не знайдено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="453"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="465"/>
         <source>Nothing of this gauge can be shown yet.</source>
         <translation>Нічого з цього приладу поки що неможливо показати.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="466"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="478"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>

@@ -37,4 +37,25 @@ inline constexpr char SectorDelta[] = "sectorDelta";       // s, the last finish
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
 inline constexpr char GForceVertical[] = "gForceVertical";         // + up
+// Pedalling, from a power meter that measures each leg (FIT pedal dynamics).
+inline constexpr char PowerBalanceLeft[] = "powerBalanceLeft";   // % of the power from the left leg
+inline constexpr char LeftPower[] = "leftPower";                 // W, the power and the balance together
+inline constexpr char RightPower[] = "rightPower";               // W
+inline constexpr char LeftTorqueEffectiveness[] = "leftTorqueEffectiveness";   // %
+inline constexpr char RightTorqueEffectiveness[] = "rightTorqueEffectiveness"; // %
+inline constexpr char LeftPedalSmoothness[] = "leftPedalSmoothness";           // %
+inline constexpr char RightPedalSmoothness[] = "rightPedalSmoothness";         // %
+inline constexpr char CombinedPedalSmoothness[] = "combinedPedalSmoothness";   // %
+inline constexpr char LeftPlatformCenterOffset[] = "leftPlatformCenterOffset";   // mm, + outwards
+inline constexpr char RightPlatformCenterOffset[] = "rightPlatformCenterOffset"; // mm
+// Where on the turn of the crank a leg gives power, and its strongest part:
+// a start and a length in degrees, 0 = crank straight up, clockwise seen from the right.
+inline constexpr char LeftPowerPhaseStart[] = "leftPowerPhaseStart";
+inline constexpr char LeftPowerPhaseLength[] = "leftPowerPhaseLength";
+inline constexpr char LeftPowerPhasePeakStart[] = "leftPowerPhasePeakStart";
+inline constexpr char LeftPowerPhasePeakLength[] = "leftPowerPhasePeakLength";
+inline constexpr char RightPowerPhaseStart[] = "rightPowerPhaseStart";
+inline constexpr char RightPowerPhaseLength[] = "rightPowerPhaseLength";
+inline constexpr char RightPowerPhasePeakStart[] = "rightPowerPhasePeakStart";
+inline constexpr char RightPowerPhasePeakLength[] = "rightPowerPhasePeakLength";
 }

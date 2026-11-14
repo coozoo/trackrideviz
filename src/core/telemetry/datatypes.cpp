@@ -132,6 +132,15 @@ QString DataTypes::storedUnitOf(const QString &id)
         {ChannelId::Grade, "%"}, {ChannelId::HeartRate, "bpm"}, {ChannelId::Cadence, "rpm"},
         {ChannelId::Power, "W"}, {ChannelId::Temperature, "C"}, {ChannelId::GForceLateral, "g"},
         {ChannelId::GForceLongitudinal, "g"}, {ChannelId::GForceVertical, "g"},
+        {ChannelId::PowerBalanceLeft, "%"}, {ChannelId::LeftPower, "W"}, {ChannelId::RightPower, "W"},
+        {ChannelId::LeftTorqueEffectiveness, "%"}, {ChannelId::RightTorqueEffectiveness, "%"},
+        {ChannelId::LeftPedalSmoothness, "%"}, {ChannelId::RightPedalSmoothness, "%"},
+        {ChannelId::CombinedPedalSmoothness, "%"},
+        {ChannelId::LeftPlatformCenterOffset, "mm"}, {ChannelId::RightPlatformCenterOffset, "mm"},
+        {ChannelId::LeftPowerPhaseStart, "deg"}, {ChannelId::LeftPowerPhaseLength, "deg"},
+        {ChannelId::LeftPowerPhasePeakStart, "deg"}, {ChannelId::LeftPowerPhasePeakLength, "deg"},
+        {ChannelId::RightPowerPhaseStart, "deg"}, {ChannelId::RightPowerPhaseLength, "deg"},
+        {ChannelId::RightPowerPhasePeakStart, "deg"}, {ChannelId::RightPowerPhasePeakLength, "deg"},
     };
     return units.value(id);
 }

@@ -152,6 +152,7 @@ private slots:
     void undersizedField();
     void unknownMessagesAndFieldsAreKept();
     void enhancedFieldsWin();
+    void pedalDynamics();
     void lapsAndSource();
     void pausesAndUtcOffset();
     void chainedFiles();
@@ -391,6 +392,62 @@ void TestFit::enhancedFieldsWin()
     QCOMPARE(session->channel(ChannelId::Speed)->valueAt(0.0), 90.0);
     QCOMPARE(session->channel(ChannelId::Elevation)->valueAt(0.0), 20000.0);
     QVERIFY(!session->hasChannel("fit.record.73"));
+}
+
+void TestFit::pedalDynamics()
+{
+    FitBuilder b;
+    // power, left/right balance, torque effectiveness and pedal smoothness, platform centre offsets,
+    // power phase and peak phase of each leg (start and end, 256 steps to the turn)
+    b.define(0, Fit::Record, {{253, 4, kUInt32}, {7, 2, kUInt16}, {30, 1, kUInt8}, {43, 1, kUInt8}, {44, 1, kUInt8},
+                              {45, 1, kUInt8}, {46, 1, kUInt8}, {47, 1, kUInt8}, {67, 1, kSInt8}, {68, 1, kSInt8},
+                              {69, 2, kUInt8}, {70, 2, kUInt8}, {71, 2, kUInt8}, {72, 2, kUInt8}});
+    auto record = [&](quint32 time, int balance)
+    {
+        b.data(0);
+        b.number(time, 4);
+        b.number(300, 2);
+        b.number(quint64(balance), 1);
+        for (int raw : {180, 170, 50, 46, 48})
+            {
+                b.number(quint64(raw), 1);
+            }
+        b.number(quint64(quint8(qint8(-3))), 1);
+        b.number(4, 1);
+        for (int raw : {32, 160, 64, 96, 224, 64, 0, 32})
+            {
+                b.number(quint64(raw), 1);
+            }
+    };
+    record(kT0, 0x80 | 52);   // 52 % from the right leg
+    record(kT0 + 1, 52);      // without the "right" bit the side is unknown: left out
+
+    const TelemetrySessionPtr session = FitImporter::read(b.file());
+    QVERIFY(session);
+    QCOMPARE(session->channel(ChannelId::PowerBalanceLeft)->count(), 1);
+    QCOMPARE(session->channel(ChannelId::PowerBalanceLeft)->valueAt(0.0), 48.0);
+    QCOMPARE(session->channel(ChannelId::LeftPower)->valueAt(0.0), 144.0);
+    QCOMPARE(session->channel(ChannelId::RightPower)->valueAt(0.0), 156.0);
+    QCOMPARE(session->channel(ChannelId::LeftTorqueEffectiveness)->valueAt(0.0), 90.0);
+    QCOMPARE(session->channel(ChannelId::RightTorqueEffectiveness)->valueAt(0.0), 85.0);
+    QCOMPARE(session->channel(ChannelId::LeftPedalSmoothness)->valueAt(0.0), 25.0);
+    QCOMPARE(session->channel(ChannelId::RightPedalSmoothness)->valueAt(0.0), 23.0);
+    QCOMPARE(session->channel(ChannelId::CombinedPedalSmoothness)->valueAt(0.0), 24.0);
+    QCOMPARE(session->channel(ChannelId::LeftPlatformCenterOffset)->valueAt(0.0), -3.0);
+    QCOMPARE(session->channel(ChannelId::RightPlatformCenterOffset)->valueAt(0.0), 4.0);
+    QCOMPARE(session->channel(ChannelId::LeftPowerPhaseStart)->valueAt(0.0), 45.0);
+    QCOMPARE(session->channel(ChannelId::LeftPowerPhaseLength)->valueAt(0.0), 180.0);
+    QCOMPARE(session->channel(ChannelId::LeftPowerPhasePeakStart)->valueAt(0.0), 90.0);
+    QCOMPARE(session->channel(ChannelId::LeftPowerPhasePeakLength)->valueAt(0.0), 45.0);
+    // past top dead centre: from 315 degrees on to 90
+    QCOMPARE(session->channel(ChannelId::RightPowerPhaseStart)->valueAt(0.0), 315.0);
+    QCOMPARE(session->channel(ChannelId::RightPowerPhaseLength)->valueAt(0.0), 135.0);
+    QCOMPARE(session->channel(ChannelId::RightPowerPhasePeakStart)->valueAt(0.0), 0.0);
+    QCOMPARE(session->channel(ChannelId::RightPowerPhasePeakLength)->valueAt(0.0), 45.0);
+    for (int raw : {30, 43, 67, 69, 72})
+        {
+            QVERIFY(!session->hasChannel(QString("fit.record.%1").arg(raw)));
+        }
 }
 
 void TestFit::lapsAndSource()

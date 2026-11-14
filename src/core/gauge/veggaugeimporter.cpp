@@ -400,6 +400,18 @@ QString VegGaugeImporter::channelFor(const QString &sourceType)
         {"gForceLat", ChannelId::GForceLateral}, {"gForceLatLon", ChannelId::GForceLateral},
         {"gForceLon", ChannelId::GForceLongitudinal}, {"acceleration", ChannelId::GForceLongitudinal},
         {"airTemperature", ChannelId::Temperature},
+        {"power3secAverage", ChannelId::Power},
+        {"cyclingLeftPower", ChannelId::LeftPower}, {"cyclingRightPower", ChannelId::RightPower},
+        {"cyclingLeftPlatformCenterOffset", ChannelId::LeftPlatformCenterOffset},
+        {"cyclingRightPlatformCenterOffset", ChannelId::RightPlatformCenterOffset},
+        {"cyclingLeftPowerPhaseStart", ChannelId::LeftPowerPhaseStart},
+        {"cyclingLeftPowerPhaseLength", ChannelId::LeftPowerPhaseLength},
+        {"cyclingLeftPowerPhasePeakStart", ChannelId::LeftPowerPhasePeakStart},
+        {"cyclingLeftPowerPhasePeakLength", ChannelId::LeftPowerPhasePeakLength},
+        {"cyclingRightPowerPhaseStart", ChannelId::RightPowerPhaseStart},
+        {"cyclingRightPowerPhaseLength", ChannelId::RightPowerPhaseLength},
+        {"cyclingRightPowerPhasePeakStart", ChannelId::RightPowerPhasePeakStart},
+        {"cyclingRightPowerPhasePeakLength", ChannelId::RightPowerPhasePeakLength},
     };
     return aliases.value(sourceType, sourceType);
 }

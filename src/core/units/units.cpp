@@ -163,6 +163,40 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("G-force"), "g", 1.0, 0.0, 2};
         }
+    // pedalling: names and units that do not change with the units chosen
+    static const struct
+    {
+        const char *id;
+        const char *name;
+        const char *unit;
+    } pedalling[] =
+    {
+        {ChannelId::PowerBalanceLeft, QT_TR_NOOP("Left/right balance"), "%"},
+        {ChannelId::LeftPower, QT_TR_NOOP("Left power"), QT_TR_NOOP("W")},
+        {ChannelId::RightPower, QT_TR_NOOP("Right power"), QT_TR_NOOP("W")},
+        {ChannelId::LeftTorqueEffectiveness, QT_TR_NOOP("Left torque effectiveness"), "%"},
+        {ChannelId::RightTorqueEffectiveness, QT_TR_NOOP("Right torque effectiveness"), "%"},
+        {ChannelId::LeftPedalSmoothness, QT_TR_NOOP("Left pedal smoothness"), "%"},
+        {ChannelId::RightPedalSmoothness, QT_TR_NOOP("Right pedal smoothness"), "%"},
+        {ChannelId::CombinedPedalSmoothness, QT_TR_NOOP("Pedal smoothness"), "%"},
+        {ChannelId::LeftPlatformCenterOffset, QT_TR_NOOP("Left platform offset"), QT_TR_NOOP("mm")},
+        {ChannelId::RightPlatformCenterOffset, QT_TR_NOOP("Right platform offset"), QT_TR_NOOP("mm")},
+        {ChannelId::LeftPowerPhaseStart, QT_TR_NOOP("Left power phase start"), "°"},
+        {ChannelId::LeftPowerPhaseLength, QT_TR_NOOP("Left power phase"), "°"},
+        {ChannelId::LeftPowerPhasePeakStart, QT_TR_NOOP("Left peak phase start"), "°"},
+        {ChannelId::LeftPowerPhasePeakLength, QT_TR_NOOP("Left peak phase"), "°"},
+        {ChannelId::RightPowerPhaseStart, QT_TR_NOOP("Right power phase start"), "°"},
+        {ChannelId::RightPowerPhaseLength, QT_TR_NOOP("Right power phase"), "°"},
+        {ChannelId::RightPowerPhasePeakStart, QT_TR_NOOP("Right peak phase start"), "°"},
+        {ChannelId::RightPowerPhasePeakLength, QT_TR_NOOP("Right peak phase"), "°"},
+    };
+    for (const auto &entry : pedalling)
+        {
+            if (id == QLatin1String(entry.id))
+                {
+                    return {tr(entry.name), tr(entry.unit), 1.0, 0.0, 0};
+                }
+        }
     return {readable(id), storedUnit, 1.0, 0.0, 2};
 }
 

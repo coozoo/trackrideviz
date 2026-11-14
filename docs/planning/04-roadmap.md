@@ -217,7 +217,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   clearly), Circle readout, Ring readout, Column scale, Dome. The preview draws the moving parts
   of a gauge smooth on OpenGL too
 - Batch 4: attitude and roll, the marine gauges, the striped column, the grid equalizer, the thin
-  open arcs; pedal and power-phase gauges once those channels are read from FIT
+  open arcs; pedal and power-phase gauges (the channels are read from FIT now)
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a
