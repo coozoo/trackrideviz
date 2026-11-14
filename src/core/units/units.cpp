@@ -172,6 +172,7 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
     } pedalling[] =
     {
         {ChannelId::PowerBalanceLeft, QT_TR_NOOP("Left/right balance"), "%"},
+        {ChannelId::PowerBalanceRight, QT_TR_NOOP("Right/left balance"), "%"},
         {ChannelId::LeftPower, QT_TR_NOOP("Left power"), QT_TR_NOOP("W")},
         {ChannelId::RightPower, QT_TR_NOOP("Right power"), QT_TR_NOOP("W")},
         {ChannelId::LeftTorqueEffectiveness, QT_TR_NOOP("Left torque effectiveness"), "%"},

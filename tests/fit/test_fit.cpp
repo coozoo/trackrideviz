@@ -426,6 +426,7 @@ void TestFit::pedalDynamics()
     QVERIFY(session);
     QCOMPARE(session->channel(ChannelId::PowerBalanceLeft)->count(), 1);
     QCOMPARE(session->channel(ChannelId::PowerBalanceLeft)->valueAt(0.0), 48.0);
+    QCOMPARE(session->channel(ChannelId::PowerBalanceRight)->valueAt(0.0), 52.0);
     QCOMPARE(session->channel(ChannelId::LeftPower)->valueAt(0.0), 144.0);
     QCOMPARE(session->channel(ChannelId::RightPower)->valueAt(0.0), 156.0);
     QCOMPARE(session->channel(ChannelId::LeftTorqueEffectiveness)->valueAt(0.0), 90.0);

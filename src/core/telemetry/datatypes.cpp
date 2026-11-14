@@ -132,7 +132,7 @@ QString DataTypes::storedUnitOf(const QString &id)
         {ChannelId::Grade, "%"}, {ChannelId::HeartRate, "bpm"}, {ChannelId::Cadence, "rpm"},
         {ChannelId::Power, "W"}, {ChannelId::Temperature, "C"}, {ChannelId::GForceLateral, "g"},
         {ChannelId::GForceLongitudinal, "g"}, {ChannelId::GForceVertical, "g"},
-        {ChannelId::PowerBalanceLeft, "%"}, {ChannelId::LeftPower, "W"}, {ChannelId::RightPower, "W"},
+        {ChannelId::PowerBalanceLeft, "%"}, {ChannelId::PowerBalanceRight, "%"}, {ChannelId::LeftPower, "W"}, {ChannelId::RightPower, "W"},
         {ChannelId::LeftTorqueEffectiveness, "%"}, {ChannelId::RightTorqueEffectiveness, "%"},
         {ChannelId::LeftPedalSmoothness, "%"}, {ChannelId::RightPedalSmoothness, "%"},
         {ChannelId::CombinedPedalSmoothness, "%"},

@@ -31,6 +31,9 @@ public:
 
     // A .veg file's name for a measurement -> our channel id ("speed2d" -> "speed").
     static QString channelFor(const QString &sourceType);
+    // The same for every channel a gauge's components name: gauges imported
+    // before a name was mapped keep the other program's name until loaded again.
+    static void mapChannels(Gauge *gauge);
     // "____SML_VX_speed" -> "SML VX speed"
     static QString nameFromFileName(const QString &baseName);
 };

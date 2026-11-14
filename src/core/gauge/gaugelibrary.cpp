@@ -155,6 +155,7 @@ Gauge GaugeLibrary::gauge(const QString &id)
             if (!folder.isEmpty())
                 {
                     GaugeFile::load(folder, &loaded);
+                    VegGaugeImporter::mapChannels(&loaded);
                 }
         }
     const QMutexLocker lock(&mutex());

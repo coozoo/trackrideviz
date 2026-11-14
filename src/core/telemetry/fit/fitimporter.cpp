@@ -266,6 +266,7 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
             {
                 const double right = int(balance) & 0x7F;
                 appendIfValid(*session, ChannelId::PowerBalanceLeft, "%", t, 100.0 - right);
+                appendIfValid(*session, ChannelId::PowerBalanceRight, "%", t, right);
                 const double power = message.value(Power);
                 appendIfValid(*session, ChannelId::LeftPower, "W", t, power * (100.0 - right) / 100.0);
                 appendIfValid(*session, ChannelId::RightPower, "W", t, power * right / 100.0);

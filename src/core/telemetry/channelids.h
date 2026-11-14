@@ -39,6 +39,7 @@ inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
 inline constexpr char GForceVertical[] = "gForceVertical";         // + up
 // Pedalling, from a power meter that measures each leg (FIT pedal dynamics).
 inline constexpr char PowerBalanceLeft[] = "powerBalanceLeft";   // % of the power from the left leg
+inline constexpr char PowerBalanceRight[] = "powerBalanceRight"; // % from the right leg, 100 - the left's
 inline constexpr char LeftPower[] = "leftPower";                 // W, the power and the balance together
 inline constexpr char RightPower[] = "rightPower";               // W
 inline constexpr char LeftTorqueEffectiveness[] = "leftTorqueEffectiveness";   // %

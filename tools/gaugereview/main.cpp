@@ -8,6 +8,7 @@
 
 #include "gauge/gaugefile.h"
 #include "gauge/gaugerenderer.h"
+#include "gauge/veggaugeimporter.h"
 #include "laps/lapengine.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
@@ -95,6 +96,8 @@ Gauge load(const QString &folder)
         {
             std::fprintf(stderr, "%s: %s\n", qPrintable(folder), qPrintable(error));
         }
+    // as the library does: gauges imported earlier keep the other program's channel names
+    VegGaugeImporter::mapChannels(&gauge);
     return gauge;
 }
 

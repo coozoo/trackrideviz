@@ -12,6 +12,7 @@
 #include <QRegularExpression>
 
 #include <algorithm>
+#include <functional>
 
 namespace
 {
@@ -414,6 +415,36 @@ QString VegGaugeImporter::channelFor(const QString &sourceType)
         {"cyclingRightPowerPhasePeakLength", ChannelId::RightPowerPhasePeakLength},
     };
     return aliases.value(sourceType, sourceType);
+}
+
+void VegGaugeImporter::mapChannels(Gauge *gauge)
+{
+    std::function<void(QVector<GaugeComponent> &)> map = [&](QVector<GaugeComponent> &components)
+    {
+        for (GaugeComponent &c : components)
+            {
+                if (!c.channel.isEmpty())
+                    {
+                        c.channel = channelFor(c.channel);
+                    }
+                for (GaugeManipulation &m : c.manipulations)
+                    {
+                        if (!m.xChannel.isEmpty())
+                            {
+                                m.xChannel = channelFor(m.xChannel);
+                            }
+                        if (!m.yChannel.isEmpty())
+                            {
+                                m.yChannel = channelFor(m.yChannel);
+                            }
+                    }
+                for (QVector<GaugeComponent> *parts : {&c.children, &c.knob, &c.xMarker, &c.yMarker, &c.startLine})
+                    {
+                        map(*parts);
+                    }
+            }
+    };
+    map(gauge->components);
 }
 
 QString VegGaugeImporter::nameFromFileName(const QString &baseName)

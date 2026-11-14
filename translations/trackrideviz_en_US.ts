@@ -99,8 +99,8 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="98"/>
-        <location filename="../src/core/units/units.cpp" line="175"/>
         <location filename="../src/core/units/units.cpp" line="176"/>
+        <location filename="../src/core/units/units.cpp" line="177"/>
         <source>W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -226,92 +226,97 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="175"/>
-        <source>Left power</source>
+        <source>Right/left balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="176"/>
-        <source>Right power</source>
+        <source>Left power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="177"/>
-        <source>Left torque effectiveness</source>
+        <source>Right power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="178"/>
-        <source>Right torque effectiveness</source>
+        <source>Left torque effectiveness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="179"/>
-        <source>Left pedal smoothness</source>
+        <source>Right torque effectiveness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="180"/>
-        <source>Right pedal smoothness</source>
+        <source>Left pedal smoothness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="181"/>
+        <source>Right pedal smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="182"/>
         <source>Pedal smoothness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="182"/>
+        <location filename="../src/core/units/units.cpp" line="183"/>
         <source>Left platform offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="182"/>
         <location filename="../src/core/units/units.cpp" line="183"/>
+        <location filename="../src/core/units/units.cpp" line="184"/>
         <source>mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="183"/>
+        <location filename="../src/core/units/units.cpp" line="184"/>
         <source>Right platform offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="184"/>
+        <location filename="../src/core/units/units.cpp" line="185"/>
         <source>Left power phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="185"/>
+        <location filename="../src/core/units/units.cpp" line="186"/>
         <source>Left power phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="186"/>
+        <location filename="../src/core/units/units.cpp" line="187"/>
         <source>Left peak phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="187"/>
+        <location filename="../src/core/units/units.cpp" line="188"/>
         <source>Left peak phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="188"/>
+        <location filename="../src/core/units/units.cpp" line="189"/>
         <source>Right power phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="189"/>
+        <location filename="../src/core/units/units.cpp" line="190"/>
         <source>Right power phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="190"/>
+        <location filename="../src/core/units/units.cpp" line="191"/>
         <source>Right peak phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="191"/>
+        <location filename="../src/core/units/units.cpp" line="192"/>
         <source>Right peak phase</source>
         <translation type="unfinished"></translation>
     </message>
@@ -829,22 +834,22 @@ Shift+drag over a channel picks samples to take out.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="375"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="376"/>
         <source>The FIT file contains no timed records. It may be a settings, course or workout file, not an activity.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="386"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="387"/>
         <source>%1 records without a timestamp were skipped.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="390"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="391"/>
         <source>%1 records with a timestamp that does not fit the rest of the recording were skipped.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="399"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="400"/>
         <source>The file has no absolute time; it has to be synchronized with the video manually.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -895,7 +900,7 @@ Shift+drag over a channel picks samples to take out.</source>
 <context>
     <name>GaugeLibrary</name>
     <message>
-        <location filename="../src/core/gauge/gaugelibrary.cpp" line="200"/>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="201"/>
         <source>The gauge has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2489,32 +2494,32 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VegGaugeImporter</name>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="435"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="466"/>
         <source>This is not a .veg gauge: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="443"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="474"/>
         <source>This is not a .veg gauge: it has no size or no components.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="456"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="487"/>
         <source>Left out, not supported yet: %1 (%2x)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="461"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="492"/>
         <source>Image not found: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="465"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="496"/>
         <source>Nothing of this gauge can be shown yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="478"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="509"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
