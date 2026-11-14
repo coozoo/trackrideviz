@@ -65,6 +65,8 @@ private slots:
     void setGaugeChannel(int index, const QString &channel);
     void setGaugeStreets(int index, bool shown);
     void setGaugeCloseUp(int index, double metres);
+    // Works the data out again from the file's (corrections, terrain heights, what follows from them).
+    void recomputeData();
     void chooseThemeColor(int role);
     void showItemMenu(int index, const QPoint &globalPosition);
     void updateProperties();
@@ -137,6 +139,9 @@ private:
     QToolButton *m_autoSyncButton{nullptr};
     QLabel *m_syncLabel{nullptr};
     QLabel *m_sourcesLabel{nullptr};
+    QComboBox *m_elevationCombo{nullptr};
+    // heights of the terrain were missing when the data was last worked out
+    bool m_terrainWaiting{false};
     QTreeWidget *m_channelTree{nullptr};
     QAction *m_exportAction{nullptr};
     GaugeLibraryPanel *m_libraryPanel{nullptr};

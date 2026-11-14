@@ -36,10 +36,51 @@ TileStore *TileStore::instance()
     return store;
 }
 
+TileStore *TileStore::terrain()
+{
+    static TileStore *store = []()
+    {
+        TileStore *made = new TileStore;
+        made->m_urlTemplate = QStringLiteral("https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png");
+        made->m_attribution.clear();
+        made->m_maxZoom = 15;
+        made->m_folder = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/terrain";
+        return made;
+    }();
+    return store;
+}
+
+QImage TileStore::tile(int zoom, int x, int y)
+{
+    const QMutexLocker lock(&m_mutex);
+    const quint64 key = (quint64(zoom) << 56) | (quint64(quint32(x)) << 28) | quint64(quint32(y));
+    if (const QImage *known = m_tiles.object(key))
+        {
+            return *known;
+        }
+    const Tile tile{zoom, x, y};
+    const QImage read(pathOf(tile));
+    if (!read.isNull())
+        {
+            m_tiles.insert(key, new QImage(read));
+            return read;
+        }
+    if (!m_wanted.contains(tile) && !m_failed.contains(tile) && !m_running.contains(tile))
+        {
+            m_wanted.insert(tile);
+            if (m_downloads)
+                {
+                    QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
+                }
+        }
+    return QImage();
+}
+
 TileStore::TileStore()
     : m_urlTemplate(defaultUrlTemplate())
     , m_attribution(defaultAttribution())
     , m_folder(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/tiles")
+    , m_tiles(64)
     , m_pictures(24)
 {
     if (QCoreApplication::instance())
@@ -144,6 +185,7 @@ void TileStore::setFolder(const QString &folder)
     const QMutexLocker lock(&m_mutex);
     m_folder = folder;
     m_pictures.clear();
+    m_tiles.clear();
 }
 
 double TileStore::latitudeOf(double mercatorLatitude)

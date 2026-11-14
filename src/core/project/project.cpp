@@ -96,6 +96,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 }
             root["videoShifts"] = shifts;
         }
+    if (project.elevation != Terrain::WhenMissing)
+        {
+            root["elevation"] = project.elevation == Terrain::Always ? "terrain" : "recorded";
+        }
     if (!project.dataEdits.isEmpty())
         {
             QJsonArray edits;
@@ -171,6 +175,8 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             const QJsonArray step = value.toArray();
             loaded.videoShifts.append({step.at(0).toDouble(), step.at(1).toDouble()});
         }
+    const QString elevation = root.value("elevation").toString();
+    loaded.elevation = elevation == "terrain" ? Terrain::Always : elevation == "recorded" ? Terrain::Never : Terrain::WhenMissing;
     for (const QJsonValue &value : root.value("dataEdits").toArray())
         {
             const QJsonObject edit = value.toObject();

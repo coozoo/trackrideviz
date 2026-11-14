@@ -1,5 +1,7 @@
 #include "telemetry/channelids.h"
 #include "telemetry/dataedits.h"
+#include "maps/terrain.h"
+#include "maps/tilestore.h"
 #include "telemetry/derivedchannels.h"
 
 #include <QtTest>
@@ -110,6 +112,79 @@ private slots:
         QCOMPARE(at(s, ChannelId::FallingSpeed, 150.0), 0.0);
         QVERIFY(!s->channel(ChannelId::GlideRatio));          // never going down
         QVERIFY(std::fabs(at(s, ChannelId::Braking, 150.0)) < 0.01);
+    }
+
+    void elevationFromTheTerrain()
+    {
+        // tiles of a terrain where the height is 300 m and rises a metre with every pixel east
+        QTemporaryDir dir;
+        TileStore *store = TileStore::terrain();
+        store->setFolder(dir.path());
+        const double world = 256.0 * 4096.0;
+        const int tileX = int((28.0 + 180.0) / 360.0 * 4096.0);
+        const int tileY = int((180.0 - TileStore::mercatorLatitude(49.0)) / 360.0 * 4096.0);
+        auto write = [&](int x, int y)
+        {
+            QImage tile(256, 256, QImage::Format_RGB32);
+            for (int px = 0; px < 256; ++px)
+                {
+                    const int coded = 300 + (x - tileX) * 256 + px + 32768;
+                    for (int py = 0; py < 256; ++py)
+                        {
+                            tile.setPixel(px, py, qRgb(coded / 256, coded % 256, 0));
+                        }
+                }
+            const QString path = store->tilePath(12, x, y);
+            QVERIFY(QDir().mkpath(QFileInfo(path).path()));
+            QVERIFY(tile.save(path));
+        };
+        // a ride north from the middle of a tile's width: 3 km is about 170 pixels, into the tile above
+        const double lon0 = (tileX + 0.5) * 256.0 / world * 360.0 - 180.0;
+        auto make = [&](bool elevation)
+        {
+            auto session = ride(300.0, 1.0, [](double t) { return QPointF(10.0 * t, 0.0); }, elevation);
+            auto moved = std::make_shared<TelemetrySession>();
+            Channel &lat = moved->channelForWriting(ChannelId::PositionLat, "deg");
+            Channel &lon = moved->channelForWriting(ChannelId::PositionLon, "deg");
+            const Channel *from = session->channel(ChannelId::PositionLat);
+            for (int i = 0; i < from->count(); ++i)
+                {
+                    lat.append(from->timeAt(i), from->valueAtIndex(i));
+                    lon.append(from->timeAt(i), lon0);
+                }
+            if (elevation)
+                {
+                    Channel &alt = moved->channelForWriting(ChannelId::Elevation, "m");
+                    alt.append(0.0, 1000.0);
+                    alt.append(300.0, 1000.0);
+                }
+            return moved;
+        };
+        const TelemetrySessionPtr bare = make(false);
+
+        // nothing on disk yet: left alone, and said to be waiting
+        bool waiting = false;
+        QCOMPARE(Terrain::apply(bare, Terrain::WhenMissing, &waiting), bare);
+        QVERIFY(waiting);
+        for (int y = tileY - 1; y <= tileY + 1; ++y)
+            {
+                write(tileX, y);
+            }
+        // half way between pixels 127 and 128 of the tile: 427.5 m, all the way north
+        double height = 0.0;
+        QVERIFY(Terrain::elevationAt(49.0, lon0, &height));
+        QVERIFY2(std::fabs(height - 427.5) < 0.01, qPrintable(QString::number(height)));
+        const TelemetrySessionPtr filled = Terrain::apply(bare, Terrain::WhenMissing, &waiting);
+        QVERIFY(!waiting);
+        QVERIFY(filled != bare);
+        QVERIFY(std::fabs(at(filled, ChannelId::Elevation, 150.0) - 427.5) < 0.01);
+        QVERIFY(filled->derivedChannels().contains(ChannelId::Elevation));
+        QCOMPARE(Terrain::apply(bare, Terrain::Never), bare);
+        // a recorded elevation stays unless the terrain is asked for
+        const TelemetrySessionPtr recorded = make(true);
+        QCOMPARE(Terrain::apply(recorded, Terrain::WhenMissing), recorded);
+        QVERIFY(std::fabs(at(Terrain::apply(recorded, Terrain::Always), ChannelId::Elevation, 150.0) - 427.5) < 0.01);
+        store->setFolder(dir.filePath("none"));
     }
 
     void powerAveragedOverTheLastSeconds()

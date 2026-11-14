@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../maps/terrain.h"
 #include "../laps/lapengine.h"
 #include "../overlay/overlay.h"
 #include "../telemetry/dataedits.h"
@@ -36,6 +37,8 @@ struct Project
     QVector<TimeRange> cuts;
     // corrections of the data, applied before anything is worked out from it
     QVector<DataEdit> dataEdits;
+    // the heights of a terrain model as the elevation: when the recording has none, always, never
+    Terrain::Use elevation{Terrain::WhenMissing};
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
     GaugeTheme theme;         // colours of all gauges

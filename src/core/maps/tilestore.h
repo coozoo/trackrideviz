@@ -36,6 +36,9 @@ public:
     };
 
     static TileStore *instance();
+    // A second store, for the tiles of the terrain model (terrain.h): its own
+    // server and folder, the same switch for downloads.
+    static TileStore *terrain();
 
     // Mercator latitude in degrees (see above); latitudes past the poles of web maps are held there.
     static double mercatorLatitude(double latitude);
@@ -64,6 +67,10 @@ public:
     static QVector<Provider> providers();
     // By id; the first one when the id is not known.
     static Provider provider(const QString &id);
+
+    // One tile as it is on disk; a null image when it is not there (it is then asked for).
+    // May be called from any thread.
+    QImage tile(int zoom, int x, int y);
 
     // The server: an address with {z}, {x} and {y} ({s} for servers named a, b, c),
     // the credit line drawn on the map (empty: none is drawn), and the closest zoom it has.
@@ -116,6 +123,7 @@ private:
     QString m_folder;
     int m_maxZoom{19};
     bool m_downloads{false};
+    QCache<quint64, QImage> m_tiles;       // single tiles read by tile()
     QCache<QString, Picture> m_pictures;   // whole blocks, by source and tile numbers
     QSet<Tile> m_wanted;                   // missing, not asked for yet
     QSet<Tile> m_failed;                   // not asked for again in this run

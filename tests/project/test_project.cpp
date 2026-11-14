@@ -176,6 +176,7 @@ private slots:
         project.overlay[0].streets = OverlayItem::Shown;
         project.overlay[1].streets = OverlayItem::Hidden;
         project.overlay[1].closeUp = 600.0;
+        project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);
 
@@ -189,6 +190,7 @@ private slots:
         QVERIFY(loaded.syncIsManual);
         QCOMPARE(loaded.overlay, project.overlay);
         QCOMPARE(loaded.theme, project.theme);
+        QCOMPARE(loaded.elevation, Terrain::Always);
     }
 
     void pathsAreStoredRelative()

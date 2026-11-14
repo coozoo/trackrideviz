@@ -192,9 +192,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
   of map under it - the same choice as in the settings, so the gauges follow it
 - A map in the Data viewer to read the route against roads
-- Elevation from a terrain model (height tiles through `TileStore`; the pictures of a cycling or
-  topographic map carry no heights that could be read back) for recordings without it or
-  with poor barometric data, as a derived channel the recording's own elevation always wins over
+- ✅ Elevation from a terrain model (2026-11-14, `Terrain`): the height of the ground under the
+  route from "terrarium" height tiles (about 25 m to a pixel), fetched and kept like map tiles by
+  a second `TileStore`. Per project, in the Sources panel: for recordings without an elevation
+  (the default), in place of the recorded one, or never. Grade, climb and vertical speed are
+  worked out from it. A road on a bridge, in a cutting or a tunnel gets the ground's height
 - ✅ A map that shows only the part of the route around the rider, enlarged (2026-11-14): a map
   part with `"span"` (metres across) keeps the rider in the middle and moves the map under them,
   north up. With a street map the tiles of the whole way are fetched when the gauge is placed.

@@ -11,6 +11,7 @@
 #include "gauge/gaugefonts.h"
 #include "gauge/gaugelibrary.h"
 #include "gaugelibrarypanel.h"
+#include "maps/terrain.h"
 #include "maps/tilestore.h"
 #include "overlay/templatelibrary.h"
 #include "settings/appsettings.h"
@@ -84,8 +85,17 @@ struct ImportResult
 {
     TelemetrySessionPtr raw;       // as the file gave it
     TelemetrySessionPtr session;   // corrected, and completed with what could be worked out
+    bool waiting{false};           // for heights of the terrain still being fetched
     QString error;
 };
+
+// What gauges read: the file's data corrected, with the terrain's heights where the project
+// asks for them, and everything that can be worked out from that.
+TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
+                              bool *waiting)
+{
+    return DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation, waiting));
+}
 
 // One change of the overlay. Whole states are kept rather than differences:
 // they are a handful of numbers, and "set it to exactly this" cannot go wrong.
@@ -144,6 +154,14 @@ MainWindow::MainWindow(QWidget *parent)
     rebuildOverlay();
     // map tiles come one by one: gauges with a street map are drawn again with them
     connect(TileStore::instance(), &TileStore::arrived, this, &MainWindow::rebuildOverlay);
+    // heights of the terrain that were missing when the data was worked out
+    connect(TileStore::terrain(), &TileStore::arrived, this, [this]()
+    {
+        if (m_terrainWaiting)
+            {
+                recomputeData();
+            }
+    });
 
     connect(m_canvas, &VideoCanvas::itemGeometryEdited, this, &MainWindow::onItemGeometryEdited);
     connect(m_canvas, &VideoCanvas::itemDeleteRequested, this, &MainWindow::removeGauge);
@@ -359,9 +377,32 @@ void MainWindow::createDocks()
     m_channelTree->header()->setStretchLastSection(false);
     m_channelTree->setToolTip(tr("\"Now\" is the value at the video frame on screen"));
 
+    m_elevationCombo = new QComboBox(sources);
+    m_elevationCombo->addItem(tr("Recorded; the terrain's when there is none"), int(Terrain::WhenMissing));
+    m_elevationCombo->addItem(tr("From the terrain model"), int(Terrain::Always));
+    m_elevationCombo->addItem(tr("Recorded only"), int(Terrain::Never));
+    m_elevationCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_elevationCombo->setToolTip(tr("Where the elevation comes from. The terrain model gives the height of the ground under "
+                                    "the route (%1); grade, climb and vertical speed follow it. Its pieces are fetched once, "
+                                    "like a map's.").arg(Terrain::attribution()));
+    connect(m_elevationCombo, &QComboBox::activated, this, [this]()
+    {
+        const Terrain::Use chosen = Terrain::Use(m_elevationCombo->currentData().toInt());
+        if (chosen != m_project.elevation)
+            {
+                m_project.elevation = chosen;
+                setModified(true);
+                recomputeData();
+            }
+    });
+    QHBoxLayout *elevationRow = new QHBoxLayout;
+    elevationRow->addWidget(new QLabel(tr("Elevation:"), sources));
+    elevationRow->addWidget(m_elevationCombo, 1);
+
     QVBoxLayout *sourcesLayout = new QVBoxLayout(sources);
     sourcesLayout->setContentsMargins(6, 6, 6, 6);
     sourcesLayout->addWidget(m_sourcesLabel);
+    sourcesLayout->addLayout(elevationRow);
     sourcesLayout->addWidget(m_channelTree, 1);
     m_sourcesDock->setWidget(sources);
 }
@@ -508,14 +549,16 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     {
         const ImportResult result = watcher->result();
         watcher->deleteLater();
+        m_terrainWaiting = result.waiting;
         telemetryImported(path, result.raw, result.session, result.error);
     });
     const QVector<DataEdit> edits = m_project.dataEdits;
-    watcher->setFuture(QtConcurrent::run([path, edits]()
+    const Terrain::Use elevation = m_project.elevation;
+    watcher->setFuture(QtConcurrent::run([path, edits, elevation]()
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = DerivedChannels::complete(DataEdits::apply(result.raw, edits));
+        result.session = workedOut(result.raw, edits, elevation, &result.waiting);
         return result;
     }));
 }
@@ -567,6 +610,7 @@ void MainWindow::openProject(const QString &path)
     m_timelinePanel->setSession(nullptr, m_units);
     m_comparePanel->setSession(nullptr, m_units);
     m_timelinePanel->setCuts(m_project.cuts);
+    m_elevationCombo->setCurrentIndex(m_elevationCombo->findData(int(m_project.elevation)));
     m_dataPanel->setEdits(m_project.dataEdits);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
@@ -1236,6 +1280,10 @@ void MainWindow::updateSourcesInfo()
                 }
             lines << tr("Duration: %1").arg(formatTime(qint64(m_session->duration() * 1000)));
             lines << tr("Laps: %1, pauses: %2").arg(m_session->laps().size()).arg(m_session->pauses().size());
+            if (m_terrainWaiting)
+                {
+                    lines << tr("Fetching the heights of the terrain...");
+                }
             if (!m_session->warnings().isEmpty())
                 {
                     lines << QString();
@@ -1380,14 +1428,20 @@ void MainWindow::setDataEdits(const QVector<DataEdit> &edits, const QString &des
     {
         m_project.dataEdits = forward ? edits : before;
         setModified(true);
-        if (m_rawSession)
-            {
-                m_recordedSession = DerivedChannels::complete(DataEdits::apply(m_rawSession, m_project.dataEdits));
-                m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
-                updateLaps();
-            }
+        recomputeData();
         m_dataPanel->setEdits(m_project.dataEdits);
     }));
+}
+
+void MainWindow::recomputeData()
+{
+    if (!m_rawSession)
+        {
+            return;
+        }
+    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, &m_terrainWaiting);
+    m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
+    updateLaps();
 }
 
 void MainWindow::seekTelemetryTime(double time)
@@ -1465,6 +1519,7 @@ void MainWindow::applyMapSettings()
         }
     maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
     maps->setDownloads(AppSettings::mapDownloads());
+    TileStore::terrain()->setDownloads(AppSettings::mapDownloads());
     m_lapsPanel->refreshMapChoice();
     if (maps->urlTemplate() + maps->attribution() != before)
         {

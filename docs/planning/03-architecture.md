@@ -273,6 +273,11 @@ server has its own folder in the cache. Whether an item shows a map is `OverlayI
 (as the gauge was drawn, shown, hidden); `Overlay` puts the choice into the gauge's map parts
 before binding, giving a gauge drawn without a map a dimmed one with the corners taken off.
 
+`Terrain` reads heights from a second store (`TileStore::terrain()`, tiles with the height in
+the pixel's colour) and can put them in place of a recording's elevation before
+`DerivedChannels` runs: file -> `DataEdits` -> `Terrain` -> `DerivedChannels` -> `LapEngine`.
+With tiles missing the data is left as it is and worked out again when they have come.
+
 ## 3.8 Touch UI (QML, later)
 
 Not a port of the desktop app: a 4-step flow — pick video → confirm sync → pick template → export.
