@@ -159,6 +159,17 @@ private slots:
         QVERIFY(std::fabs(at(s, ChannelId::LapDelta, 115.0 + 27.5) - 2.5) < 0.3);
         at(s, ChannelId::LapDelta, 30.0, &ok);
         QVERIFY(!ok);                                   // nothing to compare the first lap with
+        // which lap that best one was
+        QCOMPARE(at(s, ChannelId::BestLapNumber, 70.0), 1.0);
+        QCOMPARE(at(s, ChannelId::BestLapNumber, 120.0), 2.0);
+        QCOMPARE(at(s, ChannelId::BestLapNumber, 172.0), 2.0);
+        // top and average speed start again with every lap: lap 2 is the fast one
+        const double fast = 2.0 * kPi * kRadius / 50.0;
+        const double last = 2.0 * kPi * kRadius / 55.0;
+        QVERIFY(std::fabs(at(s, ChannelId::SpeedLapAvg, 110.0) - fast) < 0.3);
+        QVERIFY(std::fabs(at(s, ChannelId::SpeedLapMax, 110.0) - fast) < 0.3);
+        QVERIFY(std::fabs(at(s, ChannelId::SpeedLapAvg, 160.0) - last) < 0.3);
+        QVERIFY(at(s, ChannelId::SpeedLapMax, 160.0) < fast + 0.3);
     }
 
     void recordedLapsWithoutALine()
@@ -176,8 +187,10 @@ private slots:
         QCOMPARE(at(LapEngine::apply(base, StartFinishLine()), ChannelId::Lap, 70.0), 7.0);
         QCOMPARE(at(LapEngine::apply(base, topLine()), ChannelId::Lap, 70.0), 2.0);
         // nothing at all
-        const TelemetrySessionPtr bare = circuit({60.0});
-        QCOMPARE(LapEngine::apply(bare, StartFinishLine()), bare);
+        // no laps at all: the whole recording is the one stretch the running figures cover
+        const TelemetrySessionPtr bare = LapEngine::apply(circuit({60.0}), StartFinishLine());
+        QVERIFY(!bare->channel(ChannelId::Lap));
+        QVERIFY(std::fabs(at(bare, ChannelId::SpeedLapAvg, 60.0) - 2.0 * kPi * kRadius / 60.0) < 0.3);
     }
 
     void lineAcrossTheWay()

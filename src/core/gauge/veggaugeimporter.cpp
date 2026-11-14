@@ -1,6 +1,7 @@
 #include "veggaugeimporter.h"
 
 #include "../telemetry/channelids.h"
+#include "../telemetry/datatypes.h"
 
 #include <QDir>
 #include <QFile>
@@ -401,7 +402,6 @@ QString VegGaugeImporter::channelFor(const QString &sourceType)
         {"gForceLat", ChannelId::GForceLateral}, {"gForceLatLon", ChannelId::GForceLateral},
         {"gForceLon", ChannelId::GForceLongitudinal}, {"acceleration", ChannelId::GForceLongitudinal},
         {"airTemperature", ChannelId::Temperature},
-        {"power3secAverage", ChannelId::Power},
         {"cyclingLeftPower", ChannelId::LeftPower}, {"cyclingRightPower", ChannelId::RightPower},
         {"cyclingLeftPlatformCenterOffset", ChannelId::LeftPlatformCenterOffset},
         {"cyclingRightPlatformCenterOffset", ChannelId::RightPlatformCenterOffset},
@@ -414,7 +414,8 @@ QString VegGaugeImporter::channelFor(const QString &sourceType)
         {"cyclingRightPowerPhasePeakStart", ChannelId::RightPowerPhasePeakStart},
         {"cyclingRightPowerPhasePeakLength", ChannelId::RightPowerPhasePeakLength},
     };
-    return aliases.value(sourceType, sourceType);
+    const auto alias = aliases.constFind(sourceType);
+    return alias != aliases.constEnd() ? alias.value() : DataTypes::canonical(sourceType);
 }
 
 void VegGaugeImporter::mapChannels(Gauge *gauge)

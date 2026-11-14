@@ -40,8 +40,29 @@ const TypeMapping kTypes[] =
     {"Fastest Lap So Far, Time", "bestLapTime"},
     {"Fastest Lap So Far, Same Pos, Time Diff", "lapDelta"},
     {"Total Lap Count", "lapCount"},
-    {"Data Running Time, Seconds", "elapsedTime"},
+    {"Data Running Time, Seconds", ChannelId::ElapsedTime},
+    {"Fastest Lap So Far, #", ChannelId::BestLapNumber},
+    {"Fastest Lap, #", ChannelId::BestLapNumber},
+    {"Fastest Lap, Time", ChannelId::BestLapTime},
 };
+}
+
+QString DataTypes::canonical(const QString &id)
+{
+    static const QHash<QString, QString> names
+    {
+        {"fastestLapSoFar", ChannelId::BestLapNumber}, {"fastestLap", ChannelId::BestLapNumber},
+        {"fastestLapTime", ChannelId::BestLapTime}, {"fastestLapSoFarTime", ChannelId::BestLapTime},
+        {"fastestLapSamePosTimeDiff", ChannelId::LapDelta},
+        {"currentLapNumber", ChannelId::Lap},
+        {"altitudeMax", ChannelId::ElevationMax}, {"groundBasedAltitudeMax", ChannelId::ElevationMax},
+        {"altitudeMin", ChannelId::ElevationMin}, {"groundBasedAltitudeMin", ChannelId::ElevationMin},
+        {"distanceFromBeginningMax", ChannelId::DistanceTotal}, {"distanceMax", ChannelId::DistanceTotal},
+        {"power30SecAvg", ChannelId::Power30s}, {"power3SecAvg", ChannelId::Power3s},
+        {"gForceVert", ChannelId::GForceVertical},
+        {"trueHeading", ChannelId::Heading},
+    };
+    return names.value(id, id);
 }
 
 QString DataTypes::channelFor(const QString &dataType, QString *unit)
@@ -84,7 +105,7 @@ QString DataTypes::channelFor(const QString &dataType, QString *unit)
         {
             id += id.isEmpty() ? word.toLower() : word.left(1).toUpper() + word.mid(1).toLower();
         }
-    return id;
+    return canonical(id);
 }
 
 bool DataTypes::toStored(const QString &unit, double *scale, double *offset, QString *storedUnit)
@@ -130,7 +151,10 @@ QString DataTypes::storedUnitOf(const QString &id)
         {ChannelId::PositionLat, "deg"}, {ChannelId::PositionLon, "deg"}, {ChannelId::Heading, "deg"},
         {ChannelId::Elevation, "m"}, {ChannelId::Distance, "m"}, {ChannelId::Speed, "m/s"},
         {ChannelId::Grade, "%"}, {ChannelId::HeartRate, "bpm"}, {ChannelId::Cadence, "rpm"},
-        {ChannelId::Power, "W"}, {ChannelId::Temperature, "C"}, {ChannelId::GForceLateral, "g"},
+        {ChannelId::Power, "W"}, {ChannelId::Temperature, "C"}, {ChannelId::ElapsedTime, "s"}, {ChannelId::Pace, "s/km"},
+        {ChannelId::Power3s, "W"}, {ChannelId::Power30s, "W"}, {ChannelId::ElevationMax, "m"}, {ChannelId::ElevationMin, "m"},
+        {ChannelId::DistanceTotal, "m"}, {ChannelId::Braking, "g"}, {ChannelId::FallingSpeed, "m/s"},
+        {ChannelId::SpeedLapMax, "m/s"}, {ChannelId::SpeedLapAvg, "m/s"}, {ChannelId::PowerLapAvg, "W"}, {ChannelId::GForceLateral, "g"},
         {ChannelId::GForceLongitudinal, "g"}, {ChannelId::GForceVertical, "g"},
         {ChannelId::PowerBalanceLeft, "%"}, {ChannelId::PowerBalanceRight, "%"}, {ChannelId::LeftPower, "W"}, {ChannelId::RightPower, "W"},
         {ChannelId::LeftTorqueEffectiveness, "%"}, {ChannelId::RightTorqueEffectiveness, "%"},

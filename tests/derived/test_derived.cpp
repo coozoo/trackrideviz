@@ -101,6 +101,33 @@ private slots:
         QVERIFY(std::fabs(at(s, ChannelId::GForceLongitudinal, 150.0)) < 0.01);
         QVERIFY(std::fabs(at(s, ChannelId::GForceLateral, 150.0)) < 0.01);
         QCOMPARE(s->channel(ChannelId::Grade)->unit(), QString("%"));
+        // the small sums: 10 m/s is 100 s to the kilometre; from 200 m up to 350 m, 3 km in all
+        QCOMPARE(at(s, ChannelId::ElapsedTime, 150.0), 150.0);
+        QVERIFY(std::fabs(at(s, ChannelId::Pace, 150.0) - 100.0) < 0.5);
+        QVERIFY(std::fabs(at(s, ChannelId::ElevationMax, 10.0) - 350.0) < 0.5);
+        QVERIFY(std::fabs(at(s, ChannelId::ElevationMin, 290.0) - 200.0) < 0.5);
+        QVERIFY(std::fabs(at(s, ChannelId::DistanceTotal, 10.0) - 3000.0) < 3.0);
+        QCOMPARE(at(s, ChannelId::FallingSpeed, 150.0), 0.0);
+        QVERIFY(!s->channel(ChannelId::GlideRatio));          // never going down
+        QVERIFY(std::fabs(at(s, ChannelId::Braking, 150.0)) < 0.01);
+    }
+
+    void powerAveragedOverTheLastSeconds()
+    {
+        // 100 W for a minute, then 400 W
+        const auto original = ride(120.0, 1.0, [](double t) { return QPointF(10.0 * t, 0.0); });
+        Channel &power = original->channelForWriting(ChannelId::Power, "W");
+        for (int t = 0; t <= 120; ++t)
+            {
+                power.append(t, t < 60 ? 100.0 : 400.0);
+            }
+        const TelemetrySessionPtr s = DerivedChannels::complete(original);
+        QCOMPARE(at(s, ChannelId::Power3s, 50.0), 100.0);
+        QCOMPARE(at(s, ChannelId::Power30s, 50.0), 100.0);
+        // three seconds on the short one has caught up, the long one is a tenth of the way
+        QCOMPARE(at(s, ChannelId::Power3s, 63.0), 400.0);
+        QVERIFY(std::fabs(at(s, ChannelId::Power30s, 63.0) - (100.0 + 300.0 * 4.0 / 30.0)) < 11.0);
+        QCOMPARE(at(s, ChannelId::Power30s, 100.0), 400.0);
     }
 
     void circleGivesSidewaysG()

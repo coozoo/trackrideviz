@@ -12,6 +12,10 @@ namespace DataTypes
 // made from their name ("Engine Oil Temperature" -> "engineOilTemperature").
 QString channelFor(const QString &dataType, QString *unit = nullptr);
 
+// Our id for a measurement that goes by another name in ids made from data types and in
+// gauges imported before we had it ("altitudeMax" -> "elevationMax"); the id itself otherwise.
+QString canonical(const QString &channelId);
+
 // How a value in `unit` becomes what channels store (channelids.h): SI for
 // speeds and lengths, degrees Celsius. stored = value * scale + offset.
 // False, and the value kept as it is, for units that are not converted.

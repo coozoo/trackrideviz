@@ -159,6 +159,57 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
             const QString name = id == ChannelId::TotalAscent ? tr("Total ascent") : tr("Total descent");
             return imperial ? ChannelDisplay{name, tr("ft"), kMetresToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
         }
+    if (id == ChannelId::ElapsedTime)
+        {
+            return {tr("Running time"), tr("s"), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::Pace)
+        {
+            return imperial ? ChannelDisplay{tr("Pace"), tr("min/mi"), 1.609344 / 60.0, 0.0, 1}
+                   : ChannelDisplay{tr("Pace"), tr("min/km"), 1.0 / 60.0, 0.0, 1};
+        }
+    if (id == ChannelId::Power3s || id == ChannelId::Power30s || id == ChannelId::PowerLapAvg)
+        {
+            const QString name = id == ChannelId::Power3s ? tr("Power, 3 s") : id == ChannelId::Power30s ? tr("Power, 30 s")
+                                 : tr("Lap average power");
+            return {name, tr("W"), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::ElevationMax || id == ChannelId::ElevationMin)
+        {
+            const QString name = id == ChannelId::ElevationMax ? tr("Highest point") : tr("Lowest point");
+            return imperial ? ChannelDisplay{name, tr("ft"), kMetresToFeet, 0.0, 0} : ChannelDisplay{name, tr("m"), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::DistanceTotal)
+        {
+            return imperial ? ChannelDisplay{tr("Whole distance"), tr("mi"), kMetresToMiles, 0.0, 2}
+                   : ChannelDisplay{tr("Whole distance"), tr("km"), 0.001, 0.0, 2};
+        }
+    if (id == ChannelId::SpeedLapMax || id == ChannelId::SpeedLapAvg)
+        {
+            return {id == ChannelId::SpeedLapMax ? tr("Lap top speed") : tr("Lap average speed"), units.speedLabel(),
+                    units.speedScale(), 0.0, 1};
+        }
+    if (id == ChannelId::FallingSpeed)
+        {
+            return {tr("Falling speed"), units.speedLabel(), units.speedScale(), 0.0, 1};
+        }
+    if (id == ChannelId::Braking)
+        {
+            return {tr("Braking"), "g", 1.0, 0.0, 2};
+        }
+    if (id == ChannelId::GlideRatio)
+        {
+            return {tr("Glide ratio"), QString(), 1.0, 0.0, 1};
+        }
+    if (id == ChannelId::BestLapNumber)
+        {
+            return {tr("Best lap number"), QString(), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::TimeOfDay || id == ChannelId::Date || id == ChannelId::DateAndTime)
+        {
+            return {id == ChannelId::TimeOfDay ? tr("Time of day") : id == ChannelId::Date ? tr("Date") : tr("Date and time"),
+                    QString(), 1.0, 0.0, 0};
+        }
     if (id == QLatin1String("gForceLatLon") || id == QLatin1String("gForceLatVert"))
         {
             return {tr("G-force"), "g", 1.0, 0.0, 2};
@@ -233,11 +284,13 @@ ChannelDisplay ChannelFormat::displayIn(const QString &id, const QString &stored
             }
     };
     // what is measured: known from the channel, or from the unit it stores
-    if (id == ChannelId::Speed || storedUnit == QLatin1String("m/s"))
+    if (id == ChannelId::Speed || id == ChannelId::SpeedLapMax || id == ChannelId::SpeedLapAvg
+            || id == ChannelId::FallingSpeed || storedUnit == QLatin1String("m/s"))
         {
             apply(speeds, int(std::size(speeds)));
         }
-    else if (id == ChannelId::Elevation || id == ChannelId::Distance || storedUnit == QLatin1String("m"))
+    else if (id == ChannelId::Elevation || id == ChannelId::Distance || id == ChannelId::ElevationMax
+             || id == ChannelId::ElevationMin || id == ChannelId::DistanceTotal || storedUnit == QLatin1String("m"))
         {
             apply(lengths, int(std::size(lengths)));
         }

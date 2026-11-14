@@ -181,7 +181,7 @@ private slots:
     void unknownNamesAreMadeReadable()
     {
         QCOMPARE(ChannelFormat::displayFor("relativeElevation", QString(), Units()).name, QString("Relative elevation"));
-        QCOMPARE(ChannelFormat::displayFor("power3secAverage", QString(), Units()).name, QString("Power3sec average"));
+        QCOMPARE(ChannelFormat::displayFor("power10secAverage", QString(), Units()).name, QString("Power10sec average"));
         QCOMPARE(ChannelFormat::displayFor("engineRpm", QString(), Units()).name, QString("Engine rpm"));
         QCOMPARE(ChannelFormat::displayFor("gForceLatLon", QString(), Units()).name, QString("G-force"));
         QCOMPARE(ChannelFormat::displayFor("dev.Form Power", "W", Units()).name, QString("dev.Form Power"));

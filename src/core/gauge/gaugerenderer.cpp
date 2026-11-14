@@ -595,6 +595,8 @@ int BoundGauge::metricFor(const QString &channel, const Units &units, const QStr
         }
     Metric metric;
     metric.channel = m_session ? m_session->channel(id) : nullptr;
+    metric.clock = id == ChannelId::TimeOfDay ? QStringLiteral("HH:mm:ss") : id == ChannelId::Date ? QStringLiteral("yyyy-MM-dd")
+                   : id == ChannelId::DateAndTime ? QStringLiteral("yyyy-MM-dd HH:mm") : QString();
     const QString storedUnit = metric.channel ? metric.channel->unit() : QString();
     metric.display = unit.isEmpty() ? ChannelFormat::displayFor(id, storedUnit, units)
                      : ChannelFormat::displayIn(id, storedUnit, unit, units);
@@ -1495,6 +1497,14 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
     if (component.valueFormat == GaugeComponent::Clock)
         {
             number = clockText(component, time);
+        }
+    else if (!metric.clock.isEmpty())
+        {
+            // bound to the time of day or the date: the recording's clock, where the recording was made
+            GaugeComponent clock = component;
+            clock.clockFormat = metric.clock;
+            clock.localTime = true;
+            number = clockText(clock, time);
         }
     else if (known)
         {

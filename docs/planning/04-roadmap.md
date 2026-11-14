@@ -211,11 +211,13 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; TCX, NMEA, VBO
 - Multiple data sources per project
-- Measurements imported gauges ask for that could be worked out from a ride but are not yet:
-  running time, time of day and date as channels, pace, power averaged over 3 and 30 seconds,
-  the lap's top and average speed and average power, the highest and lowest elevation and the
-  distance in all, the number of the fastest lap, braking apart from acceleration, glide ratio.
-  (Engine, boat, dive and flight measurements need a logger's file and come with its profile.)
+- ✅ Measurements imported gauges ask for, worked out from the ride (2026-11-14): running time,
+  pace, power averaged over 3 and 30 seconds, the highest and lowest point, the whole distance,
+  braking, falling speed, glide ratio (`DerivedChannels`); the lap's top and average speed and
+  average power so far, the number of the best lap (`LapEngine`; the whole recording when it has
+  no laps). Gauges bound to the time of day or the date show the recording's clock. Other names
+  for these in imported gauges are mapped (`DataTypes::canonical`). Engine, boat, dive and flight
+  measurements need a logger's file and come with its profile
 
 ## M6 — Gauge editor
 - ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colours inside the drawing;

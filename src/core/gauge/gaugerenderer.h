@@ -54,6 +54,7 @@ private:
     struct Metric
     {
         const Channel *channel{nullptr};  // null: not in the recording
+        QString clock;                    // not a measurement but the time on the clock: its format
         ChannelDisplay display;
         MetricRange range;
         int markingCount{0};

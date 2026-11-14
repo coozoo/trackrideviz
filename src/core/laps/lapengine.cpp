@@ -17,8 +17,68 @@ const char *const kLapChannels[] =
 {
     ChannelId::Lap, ChannelId::LapTime, ChannelId::PreviousLapTime, ChannelId::BestLapTime,
     ChannelId::LapDelta, ChannelId::LapCount, ChannelId::Sector, ChannelId::SectorTime, ChannelId::PreviousSectorTime,
-    ChannelId::SectorDelta,
+    ChannelId::SectorDelta, ChannelId::BestLapNumber, ChannelId::SpeedLapMax, ChannelId::SpeedLapAvg, ChannelId::PowerLapAvg,
 };
+
+// The top and the average speed and the average power of each stretch so far, starting
+// again with every stretch: the laps, or the whole recording as one.
+void addRunningFigures(TelemetrySession &session, const QVector<QPair<double, double>> &stretches)
+{
+    const Channel *speed = session.channel(ChannelId::Speed);
+    const Channel *power = session.channel(ChannelId::Power);
+    auto fresh = [&session](const char *id, const QString &unit, const Channel *source) -> Channel *
+    {
+        const Channel *present = session.channel(id);
+        if (!source || source->isEmpty() || (present && !present->isEmpty()))
+            {
+                return nullptr;
+            }
+        session.addDerivedChannel(id);
+        return &session.channelForWriting(id, unit);
+    };
+    Channel *top = fresh(ChannelId::SpeedLapMax, "m/s", speed);
+    Channel *average = fresh(ChannelId::SpeedLapAvg, "m/s", speed);
+    Channel *averagePower = fresh(ChannelId::PowerLapAvg, "W", power);
+    for (const auto &stretch : stretches)
+        {
+            double highest = 0.0;
+            double speedSum = 0.0;
+            double powerSum = 0.0;
+            int speedCount = 0;
+            int powerCount = 0;
+            // a second apart is as fine as these figures are read
+            for (double t = stretch.first; t < stretch.second; t += 1.0)
+                {
+                    bool ok = false;
+                    const double v = speed ? speed->valueAt(t, &ok) : 0.0;
+                    if (ok)
+                        {
+                            highest = std::max(highest, v);
+                            speedSum += v;
+                            ++speedCount;
+                            if (top)
+                                {
+                                    top->append(t, highest);
+                                }
+                            if (average)
+                                {
+                                    average->append(t, speedSum / speedCount);
+                                }
+                        }
+                    const double w = power ? power->valueAt(t, &ok) : 0.0;
+                    if (power && ok)
+                        {
+                            powerSum += w;
+                            ++powerCount;
+                            if (averagePower)
+                                {
+                                    averagePower->append(t, powerSum / powerCount);
+                                }
+                        }
+                }
+        }
+    session.removeEmptyChannels();
+}
 
 // Metres east and north of a reference point; good for a few kilometres.
 struct Plane
@@ -376,7 +436,8 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
         }
     if (laps.isEmpty())
         {
-            return line.isValid() ? TelemetrySessionPtr(session) : base;
+            addRunningFigures(*session, {{0.0, end}});
+            return session;
         }
     std::sort(laps.begin(), laps.end(), [](const TelemetrySession::Lap &a, const TelemetrySession::Lap &b)
     {
@@ -449,10 +510,16 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
         }
     Channel *previous = add(ChannelId::PreviousLapTime, "s", Channel::Step);
     Channel *best = add(ChannelId::BestLapTime, "s", Channel::Step);
+    Channel *bestNumber = add(ChannelId::BestLapNumber, QString(), Channel::Step);
     double fastest = std::numeric_limits<double>::max();
-    for (const TelemetrySession::Lap &lap : all)
+    for (int i = 0; i < finished; ++i)
         {
+            const TelemetrySession::Lap &lap = all.at(i);
             const double duration = lap.endTime - lap.startTime;
+            if (duration < fastest && bestNumber)
+                {
+                    bestNumber->append(lap.endTime, i + 1);
+                }
             fastest = std::min(fastest, duration);
             if (previous)
                 {
@@ -511,6 +578,21 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
                         }
                 }
         }
+    QVector<QPair<double, double>> stretches;
+    if (!all.isEmpty() && all.first().startTime > 1.0)
+        {
+            stretches.append({0.0, all.first().startTime});   // the way to the line
+        }
+    for (const TelemetrySession::Lap &lap : std::as_const(all))
+        {
+            stretches.append({lap.startTime, lap.endTime});
+        }
+    if (underWay || all.isEmpty())
+        {
+            stretches.append({lastStart, end});
+        }
+    addRunningFigures(*session, stretches);
+    session->removeEmptyChannels();
     if (!sectors.isEmpty())
         {
             addSectorChannels(*session, all, underWay ? splits(*session, sectors, lastStart, end) : QVector<double>(),

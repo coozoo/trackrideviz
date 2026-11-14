@@ -120,6 +120,33 @@ double slope(const QVector<double> &values, const Grid &grid, int i, int k)
     return (values.at(b) - values.at(a)) / (grid.t.at(b) - grid.t.at(a));
 }
 
+// The mean of the values in the `points` up to and including each one.
+QVector<double> trailingMean(const QVector<double> &values, int points)
+{
+    QVector<double> result(values.size(), kNaN);
+    double sum = 0.0;
+    int count = 0;
+    for (int i = 0; i < values.size(); ++i)
+        {
+            if (std::isfinite(values.at(i)))
+                {
+                    sum += values.at(i);
+                    ++count;
+                }
+            const int out = i - points;
+            if (out >= 0 && std::isfinite(values.at(out)))
+                {
+                    sum -= values.at(out);
+                    --count;
+                }
+            if (std::isfinite(values.at(i)) && count > 0)
+                {
+                    result[i] = sum / count;
+                }
+        }
+    return result;
+}
+
 void store(TelemetrySession &session, const QString &id, const QString &unit, const Grid &grid,
            const QVector<double> &values)
 {
@@ -378,6 +405,99 @@ TelemetrySessionPtr DerivedChannels::complete(const TelemetrySessionPtr &origina
                 }
             store(*session, ChannelId::GForceLongitudinal, "g", grid, forwards);
             store(*session, ChannelId::GForceLateral, "g", grid, sideways);
+        }
+
+    // the small sums
+    auto same = [&](const char *id, const QString &unit, double value)
+    {
+        // one value from the first moment to the last
+        Channel &channel = session->channelForWriting(id, unit, Channel::Step);
+        channel.append(grid.t.first(), value);
+        channel.append(std::max(grid.t.last(), grid.t.first() + 1.0), value);
+        session->addDerivedChannel(id);
+    };
+    if (!has(*session, ChannelId::ElapsedTime))
+        {
+            Channel &elapsed = session->channelForWriting(ChannelId::ElapsedTime, "s");
+            elapsed.append(grid.t.first(), grid.t.first());
+            elapsed.append(std::max(grid.t.last(), grid.t.first() + 1.0), std::max(grid.t.last(), grid.t.first() + 1.0));
+            session->addDerivedChannel(ChannelId::ElapsedTime);
+        }
+    if (!has(*session, ChannelId::Pace) && has(*session, ChannelId::Speed))
+        {
+            // of the speed over a few seconds: a pace jumps about more than the speed it comes from
+            const QVector<double> steady = smooth(speed, grid.span(2.5));
+            QVector<double> pace(n, kNaN);
+            for (int i = 0; i < n; ++i)
+                {
+                    if (std::isfinite(steady.at(i)) && steady.at(i) >= 0.5)
+                        {
+                            pace[i] = 1000.0 / steady.at(i);
+                        }
+                }
+            store(*session, ChannelId::Pace, "s/km", grid, pace);
+        }
+    if (has(*session, ChannelId::Power))
+        {
+            const QVector<double> power = sample(session->channel(ChannelId::Power), grid);
+            if (!has(*session, ChannelId::Power3s))
+                {
+                    store(*session, ChannelId::Power3s, "W", grid, trailingMean(power, grid.span(3.0)));
+                }
+            if (!has(*session, ChannelId::Power30s))
+                {
+                    store(*session, ChannelId::Power30s, "W", grid, trailingMean(power, grid.span(30.0)));
+                }
+        }
+    if (has(*session, ChannelId::Elevation))
+        {
+            if (!has(*session, ChannelId::ElevationMax))
+                {
+                    same(ChannelId::ElevationMax, "m", session->channel(ChannelId::Elevation)->maxValue());
+                }
+            if (!has(*session, ChannelId::ElevationMin))
+                {
+                    same(ChannelId::ElevationMin, "m", session->channel(ChannelId::Elevation)->minValue());
+                }
+        }
+    if (has(*session, ChannelId::Distance) && !has(*session, ChannelId::DistanceTotal))
+        {
+            same(ChannelId::DistanceTotal, "m", session->channel(ChannelId::Distance)->maxValue());
+        }
+    if (has(*session, ChannelId::GForceLongitudinal) && !has(*session, ChannelId::Braking))
+        {
+            QVector<double> braking = sample(session->channel(ChannelId::GForceLongitudinal), grid);
+            for (double &g : braking)
+                {
+                    g = std::isfinite(g) ? std::max(0.0, -g) : g;
+                }
+            store(*session, ChannelId::Braking, "g", grid, braking);
+        }
+    if (has(*session, ChannelId::VerticalSpeed))
+        {
+            const QVector<double> vertical = sample(session->channel(ChannelId::VerticalSpeed), grid);
+            if (!has(*session, ChannelId::FallingSpeed))
+                {
+                    QVector<double> falling(vertical);
+                    for (double &v : falling)
+                        {
+                            v = std::isfinite(v) ? std::max(0.0, -v) : v;
+                        }
+                    store(*session, ChannelId::FallingSpeed, "m/s", grid, falling);
+                }
+            if (!has(*session, ChannelId::GlideRatio) && has(*session, ChannelId::Speed))
+                {
+                    QVector<double> glide(n, kNaN);
+                    for (int i = 0; i < n; ++i)
+                        {
+                            // only while really going down: level flight has no ratio
+                            if (std::isfinite(vertical.at(i)) && std::isfinite(speed.at(i)) && vertical.at(i) <= -0.5)
+                                {
+                                    glide[i] = std::min(speed.at(i) / -vertical.at(i), 99.0);
+                                }
+                        }
+                    store(*session, ChannelId::GlideRatio, QString(), grid, glide);
+                }
         }
     return session->derivedChannels().isEmpty() ? original : session;
 }

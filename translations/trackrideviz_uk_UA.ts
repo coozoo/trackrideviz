@@ -32,12 +32,14 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="68"/>
         <location filename="../src/core/units/units.cpp" line="160"/>
+        <location filename="../src/core/units/units.cpp" line="180"/>
         <source>ft</source>
         <translation>фут</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="69"/>
         <location filename="../src/core/units/units.cpp" line="160"/>
+        <location filename="../src/core/units/units.cpp" line="180"/>
         <source>m</source>
         <translation>м</translation>
     </message>
@@ -54,11 +56,13 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="77"/>
+        <location filename="../src/core/units/units.cpp" line="184"/>
         <source>mi</source>
         <translation>миль</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="78"/>
+        <location filename="../src/core/units/units.cpp" line="185"/>
         <source>km</source>
         <translation>км</translation>
     </message>
@@ -99,8 +103,9 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="98"/>
-        <location filename="../src/core/units/units.cpp" line="176"/>
-        <location filename="../src/core/units/units.cpp" line="177"/>
+        <location filename="../src/core/units/units.cpp" line="175"/>
+        <location filename="../src/core/units/units.cpp" line="227"/>
+        <location filename="../src/core/units/units.cpp" line="228"/>
         <source>W</source>
         <translation>Вт</translation>
     </message>
@@ -155,6 +160,7 @@
         <location filename="../src/core/units/units.cpp" line="134"/>
         <location filename="../src/core/units/units.cpp" line="142"/>
         <location filename="../src/core/units/units.cpp" line="146"/>
+        <location filename="../src/core/units/units.cpp" line="164"/>
         <source>s</source>
         <translation>с</translation>
     </message>
@@ -216,107 +222,204 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="164"/>
+        <source>Running time</source>
+        <translation>Час запису</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="168"/>
+        <location filename="../src/core/units/units.cpp" line="169"/>
+        <source>Pace</source>
+        <translation>Темп</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="168"/>
+        <source>min/mi</source>
+        <translation>хв/милю</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="169"/>
+        <source>min/km</source>
+        <translation>хв/км</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="173"/>
+        <source>Power, 3 s</source>
+        <translation>Потужність, 3 с</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="173"/>
+        <source>Power, 30 s</source>
+        <translation>Потужність, 30 с</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="174"/>
+        <source>Lap average power</source>
+        <translation>Середня потужність кола</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="179"/>
+        <source>Highest point</source>
+        <translation>Найвища точка</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="179"/>
+        <source>Lowest point</source>
+        <translation>Найнижча точка</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="184"/>
+        <location filename="../src/core/units/units.cpp" line="185"/>
+        <source>Whole distance</source>
+        <translation>Уся відстань</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="189"/>
+        <source>Lap top speed</source>
+        <translation>Найбільша швидкість кола</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="189"/>
+        <source>Lap average speed</source>
+        <translation>Середня швидкість кола</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="194"/>
+        <source>Falling speed</source>
+        <translation>Швидкість падіння</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="198"/>
+        <source>Braking</source>
+        <translation>Гальмування</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="202"/>
+        <source>Glide ratio</source>
+        <translation>Аеродинамічна якість</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="206"/>
+        <source>Best lap number</source>
+        <translation>Номер найкращого кола</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="210"/>
+        <source>Time of day</source>
+        <translation>Час доби</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="210"/>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="210"/>
+        <source>Date and time</source>
+        <translation>Дата й час</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="215"/>
         <source>G-force</source>
         <translation>Перевантаження</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="174"/>
+        <location filename="../src/core/units/units.cpp" line="225"/>
         <source>Left/right balance</source>
         <translation>Баланс лівої/правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="175"/>
+        <location filename="../src/core/units/units.cpp" line="226"/>
         <source>Right/left balance</source>
         <translation>Баланс правої/лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="176"/>
+        <location filename="../src/core/units/units.cpp" line="227"/>
         <source>Left power</source>
         <translation>Потужність лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="177"/>
+        <location filename="../src/core/units/units.cpp" line="228"/>
         <source>Right power</source>
         <translation>Потужність правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="178"/>
+        <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Left torque effectiveness</source>
         <translation>Ефективність крутного моменту лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="179"/>
+        <location filename="../src/core/units/units.cpp" line="230"/>
         <source>Right torque effectiveness</source>
         <translation>Ефективність крутного моменту правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="180"/>
+        <location filename="../src/core/units/units.cpp" line="231"/>
         <source>Left pedal smoothness</source>
         <translation>Плавність педалювання лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="181"/>
+        <location filename="../src/core/units/units.cpp" line="232"/>
         <source>Right pedal smoothness</source>
         <translation>Плавність педалювання правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="182"/>
+        <location filename="../src/core/units/units.cpp" line="233"/>
         <source>Pedal smoothness</source>
         <translation>Плавність педалювання</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="183"/>
+        <location filename="../src/core/units/units.cpp" line="234"/>
         <source>Left platform offset</source>
         <translation>Зміщення на педалі лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="183"/>
-        <location filename="../src/core/units/units.cpp" line="184"/>
+        <location filename="../src/core/units/units.cpp" line="234"/>
+        <location filename="../src/core/units/units.cpp" line="235"/>
         <source>mm</source>
         <translation>мм</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="184"/>
+        <location filename="../src/core/units/units.cpp" line="235"/>
         <source>Right platform offset</source>
         <translation>Зміщення на педалі правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="185"/>
+        <location filename="../src/core/units/units.cpp" line="236"/>
         <source>Left power phase start</source>
         <translation>Початок фази потужності лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="186"/>
+        <location filename="../src/core/units/units.cpp" line="237"/>
         <source>Left power phase</source>
         <translation>Фаза потужності лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="187"/>
+        <location filename="../src/core/units/units.cpp" line="238"/>
         <source>Left peak phase start</source>
         <translation>Початок пікової фази лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="188"/>
+        <location filename="../src/core/units/units.cpp" line="239"/>
         <source>Left peak phase</source>
         <translation>Пікова фаза лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="189"/>
+        <location filename="../src/core/units/units.cpp" line="240"/>
         <source>Right power phase start</source>
         <translation>Початок фази потужності правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="190"/>
+        <location filename="../src/core/units/units.cpp" line="241"/>
         <source>Right power phase</source>
         <translation>Фаза потужності правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="191"/>
+        <location filename="../src/core/units/units.cpp" line="242"/>
         <source>Right peak phase start</source>
         <translation>Початок пікової фази правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="192"/>
+        <location filename="../src/core/units/units.cpp" line="243"/>
         <source>Right peak phase</source>
         <translation>Пікова фаза правої</translation>
     </message>
@@ -2731,32 +2834,32 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>VegGaugeImporter</name>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="466"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="467"/>
         <source>This is not a .veg gauge: %1</source>
         <translation>Це не прилад .veg: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="474"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="475"/>
         <source>This is not a .veg gauge: it has no size or no components.</source>
         <translation>Це не прилад .veg: немає розміру або складників.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="487"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="488"/>
         <source>Left out, not supported yet: %1 (%2x)</source>
         <translation>Пропущено, ще не підтримується: %1 (%2x)</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="492"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="493"/>
         <source>Image not found: %1</source>
         <translation>Зображення не знайдено: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="496"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="497"/>
         <source>Nothing of this gauge can be shown yet.</source>
         <translation>Нічого з цього приладу поки що неможливо показати.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="509"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="510"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>

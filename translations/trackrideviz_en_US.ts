@@ -32,12 +32,14 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="68"/>
         <location filename="../src/core/units/units.cpp" line="160"/>
+        <location filename="../src/core/units/units.cpp" line="180"/>
         <source>ft</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="69"/>
         <location filename="../src/core/units/units.cpp" line="160"/>
+        <location filename="../src/core/units/units.cpp" line="180"/>
         <source>m</source>
         <translation type="unfinished"></translation>
     </message>
@@ -54,11 +56,13 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="77"/>
+        <location filename="../src/core/units/units.cpp" line="184"/>
         <source>mi</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="78"/>
+        <location filename="../src/core/units/units.cpp" line="185"/>
         <source>km</source>
         <translation type="unfinished"></translation>
     </message>
@@ -99,8 +103,9 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="98"/>
-        <location filename="../src/core/units/units.cpp" line="176"/>
-        <location filename="../src/core/units/units.cpp" line="177"/>
+        <location filename="../src/core/units/units.cpp" line="175"/>
+        <location filename="../src/core/units/units.cpp" line="227"/>
+        <location filename="../src/core/units/units.cpp" line="228"/>
         <source>W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -155,6 +160,7 @@
         <location filename="../src/core/units/units.cpp" line="134"/>
         <location filename="../src/core/units/units.cpp" line="142"/>
         <location filename="../src/core/units/units.cpp" line="146"/>
+        <location filename="../src/core/units/units.cpp" line="164"/>
         <source>s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -216,107 +222,204 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="164"/>
-        <source>G-force</source>
+        <source>Running time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="168"/>
+        <location filename="../src/core/units/units.cpp" line="169"/>
+        <source>Pace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="168"/>
+        <source>min/mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="169"/>
+        <source>min/km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="173"/>
+        <source>Power, 3 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="173"/>
+        <source>Power, 30 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="174"/>
-        <source>Left/right balance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="175"/>
-        <source>Right/left balance</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="176"/>
-        <source>Left power</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="177"/>
-        <source>Right power</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="178"/>
-        <source>Left torque effectiveness</source>
+        <source>Lap average power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="179"/>
-        <source>Right torque effectiveness</source>
+        <source>Highest point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="180"/>
-        <source>Left pedal smoothness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="181"/>
-        <source>Right pedal smoothness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="182"/>
-        <source>Pedal smoothness</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="183"/>
-        <source>Left platform offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="183"/>
-        <location filename="../src/core/units/units.cpp" line="184"/>
-        <source>mm</source>
+        <location filename="../src/core/units/units.cpp" line="179"/>
+        <source>Lowest point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="184"/>
-        <source>Right platform offset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/core/units/units.cpp" line="185"/>
-        <source>Left power phase start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="186"/>
-        <source>Left power phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="187"/>
-        <source>Left peak phase start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="188"/>
-        <source>Left peak phase</source>
+        <source>Whole distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="189"/>
+        <source>Lap top speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="189"/>
+        <source>Lap average speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="194"/>
+        <source>Falling speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="198"/>
+        <source>Braking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="202"/>
+        <source>Glide ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="206"/>
+        <source>Best lap number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="210"/>
+        <source>Time of day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="210"/>
+        <source>Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="210"/>
+        <source>Date and time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="215"/>
+        <source>G-force</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="225"/>
+        <source>Left/right balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="226"/>
+        <source>Right/left balance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="227"/>
+        <source>Left power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="228"/>
+        <source>Right power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="229"/>
+        <source>Left torque effectiveness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="230"/>
+        <source>Right torque effectiveness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="231"/>
+        <source>Left pedal smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="232"/>
+        <source>Right pedal smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="233"/>
+        <source>Pedal smoothness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="234"/>
+        <source>Left platform offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="234"/>
+        <location filename="../src/core/units/units.cpp" line="235"/>
+        <source>mm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="235"/>
+        <source>Right platform offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="236"/>
+        <source>Left power phase start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="237"/>
+        <source>Left power phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="238"/>
+        <source>Left peak phase start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="239"/>
+        <source>Left peak phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="240"/>
         <source>Right power phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="190"/>
+        <location filename="../src/core/units/units.cpp" line="241"/>
         <source>Right power phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="191"/>
+        <location filename="../src/core/units/units.cpp" line="242"/>
         <source>Right peak phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="192"/>
+        <location filename="../src/core/units/units.cpp" line="243"/>
         <source>Right peak phase</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2709,32 +2812,32 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VegGaugeImporter</name>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="466"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="467"/>
         <source>This is not a .veg gauge: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="474"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="475"/>
         <source>This is not a .veg gauge: it has no size or no components.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="487"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="488"/>
         <source>Left out, not supported yet: %1 (%2x)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="492"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="493"/>
         <source>Image not found: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="496"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="497"/>
         <source>Nothing of this gauge can be shown yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="509"/>
+        <location filename="../src/core/gauge/veggaugeimporter.cpp" line="510"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>

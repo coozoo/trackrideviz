@@ -22,6 +22,21 @@ inline constexpr char GradeAngle[] = "gradeAngle";     // degrees, + uphill
 inline constexpr char VerticalSpeed[] = "verticalSpeed"; // m/s, + up
 inline constexpr char TotalAscent[] = "totalAscent";   // m since the start
 inline constexpr char TotalDescent[] = "totalDescent"; // m since the start
+inline constexpr char ElapsedTime[] = "elapsedTime";   // s since the recording began
+inline constexpr char Pace[] = "pace";                 // s/km; none while standing
+inline constexpr char Power3s[] = "power3secAverage";  // W, the mean of the last 3 s
+inline constexpr char Power30s[] = "power30secAverage"; // W, of the last 30 s
+inline constexpr char ElevationMax[] = "elevationMax"; // m, the highest point of the recording (the same all along)
+inline constexpr char ElevationMin[] = "elevationMin"; // m, the lowest
+inline constexpr char DistanceTotal[] = "distanceTotal"; // m, the length of the recording (the same all along)
+inline constexpr char Braking[] = "braking";           // g, slowing down as a positive number; 0 otherwise
+inline constexpr char FallingSpeed[] = "fallingSpeed"; // m/s downwards; 0 while climbing
+inline constexpr char GlideRatio[] = "glideRatio";     // metres forwards per metre down; none unless descending
+// The time on the clock is not a channel: gauges bound to these show the recording's own
+// clock (TelemetrySession::startUtc) as text.
+inline constexpr char TimeOfDay[] = "timeOfDay";
+inline constexpr char Date[] = "date";
+inline constexpr char DateAndTime[] = "dateAndTime";
 // Laps (lapengine.h): from a start/finish line or the laps the device recorded
 inline constexpr char Lap[] = "lap";                       // number, 1 = the first full lap
 inline constexpr char LapTime[] = "lapTime";               // s since the lap began
@@ -33,6 +48,11 @@ inline constexpr char Sector[] = "sector";                 // number within the 
 inline constexpr char SectorTime[] = "sectorTime";         // s since the sector began
 inline constexpr char PreviousSectorTime[] = "previousSectorTime"; // s, the last finished sector
 inline constexpr char SectorDelta[] = "sectorDelta";       // s, the last finished sector against the best of it so far
+inline constexpr char BestLapNumber[] = "bestLapNumber";   // which lap the fastest finished so far was
+// Within the lap under way, so far (the whole recording when it has no laps)
+inline constexpr char SpeedLapMax[] = "speedLapMax";       // m/s
+inline constexpr char SpeedLapAvg[] = "speedLapAvg";       // m/s
+inline constexpr char PowerLapAvg[] = "powerLapAvg";       // W
 // Acceleration in g, recorded or worked out from speed and heading.
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
