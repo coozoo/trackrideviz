@@ -6,6 +6,7 @@
 #include "gauge/metricrange.h"
 #include "gauge/veggaugeimporter.h"
 #include "gauge/xmlgaugeimporter.h"
+#include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 
@@ -149,6 +150,8 @@ private slots:
     {
         QVERIFY(m_dir.isValid());
         GaugeLibrary::setUserFolder(m_dir.filePath("library"));
+        // not the gauges that ship in the source tree's data/: only what a test puts there
+        BundledData::setFolder(m_dir.filePath("bundled"));
     }
 
     // --- scale ranges -------------------------------------------------------
