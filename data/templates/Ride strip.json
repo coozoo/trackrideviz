@@ -1,0 +1,86 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "heading",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Heading tape",
+            "height": 64,
+            "offsetX": -948.4,
+            "offsetY": -64
+        },
+        {
+            "channel": "grade",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile grade",
+            "height": 64,
+            "offsetX": -308.4,
+            "offsetY": -64
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile elevation",
+            "height": 64,
+            "offsetX": -98.9,
+            "offsetY": -64
+        },
+        {
+            "channel": "distance",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 64,
+            "offsetX": 110.5,
+            "offsetY": -64
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 64,
+            "offsetX": 320.0,
+            "offsetY": -64
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile cadence",
+            "height": 64,
+            "offsetX": 529.5,
+            "offsetY": -64
+        },
+        {
+            "channel": "speed",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile speed",
+            "height": 64,
+            "offsetX": 738.9,
+            "offsetY": -64
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 280,
+            "offsetX": -320.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Ride strip",
+    "theme": {
+        "accent": "#ffff781e",
+        "accent2": "#ffdce6f0",
+        "background": "#960a0e14",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

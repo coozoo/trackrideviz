@@ -1,10 +1,11 @@
 # Aggregator for the test binaries.
-# Each sub-pro builds independently.
+# The core is built once (rtvcore), each test links it.
 
 TEMPLATE = subdirs
 CONFIG  += ordered
 
 SUBDIRS = \
+    rtvcore \
     channel \
     gpx \
     fit \

@@ -1,0 +1,77 @@
+{
+    "category": "Outdoor",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "heading",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Compass ring",
+            "height": 260,
+            "offsetX": 40,
+            "offsetY": -300
+        },
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Half round",
+            "height": 200,
+            "offsetX": 320,
+            "offsetY": -240
+        },
+        {
+            "channel": "heading",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Field box",
+            "height": 92,
+            "offsetX": -285.3,
+            "offsetY": -432
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Field box",
+            "height": 92,
+            "offsetX": -285.3,
+            "offsetY": -332
+        },
+        {
+            "channel": "distance",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Field box",
+            "height": 92,
+            "offsetX": -285.3,
+            "offsetY": -232
+        },
+        {
+            "channel": "temperature",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Field box",
+            "height": 92,
+            "offsetX": -285.3,
+            "offsetY": -132
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 300,
+            "offsetX": -340.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Field boxes",
+    "theme": {
+        "accent": "#ff3cc8b4",
+        "accent2": "#ffdcf0f0",
+        "background": "#a0061a26",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

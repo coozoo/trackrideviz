@@ -1,9 +1,9 @@
 # rtvcore - everything that is not a widget.
 # Included by trackrideviz.pro and by every test .pro.
-# Rule: QtCore + QtGui (and QtSvg, which needs no more) only here, so widgets
+# Rule: QtCore + QtGui (and QtSvg and QtNetwork, which need no more) only here, so widgets
 # and QML front ends can both use it.
 
-QT += svg
+QT += svg network
 INCLUDEPATH += $$PWD
 
 # A debug build run from its build folder finds the gauges and templates of
@@ -23,6 +23,7 @@ SOURCES += \
     $$PWD/gauge/veggaugeimporter.cpp \
     $$PWD/gauge/xmlgaugeimporter.cpp \
     $$PWD/laps/lapengine.cpp \
+    $$PWD/maps/tilestore.cpp \
     $$PWD/overlay/gaugetemplate.cpp \
     $$PWD/overlay/librarypackage.cpp \
     $$PWD/overlay/overlay.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     $$PWD/gauge/veggaugeimporter.h \
     $$PWD/gauge/xmlgaugeimporter.h \
     $$PWD/laps/lapengine.h \
+    $$PWD/maps/tilestore.h \
     $$PWD/overlay/gaugetemplate.h \
     $$PWD/overlay/librarypackage.h \
     $$PWD/overlay/overlay.h \
@@ -113,3 +115,6 @@ RESOURCES += $$PWD/gauge/fonts/fonts.qrc
 
 # gzip for the library's own files (Gzip); zlib is there wherever Qt is
 LIBS += -lz
+
+# Qt's own headers trip this warning of GCC 16; nothing of ours to fix
+*-g++*: QMAKE_CXXFLAGS_WARN_ON += -Wno-sfinae-incomplete

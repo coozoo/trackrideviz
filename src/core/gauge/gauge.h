@@ -250,6 +250,10 @@ struct GaugeComponent
     double padding{0.0};           // kept free inside the frame
     int fillAlpha{-1};             // Graph: area under the line, 0..255; -1 = not filled
     QColor fillColor;              // its colour; invalid = the line's colour
+    // TrackMap, LapMap: a street map under the route (TileStore), inside `frame`
+    // with its corners rounded by cornerRadius
+    bool tiles{false};
+    double tileOpacity{1.0};
     // Graph: only this many seconds before and after the current point; 0 = the whole recording
     double windowBefore{0.0};
     double windowAfter{0.0};

@@ -1,0 +1,59 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Half dial left",
+            "height": 340,
+            "offsetX": 40,
+            "offsetY": -380
+        },
+        {
+            "channel": "power",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Half dial right",
+            "height": 340,
+            "offsetX": -363.0,
+            "offsetY": -380
+        },
+        {
+            "channel": "distance",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Odometer",
+            "height": 56,
+            "offsetX": -98.3,
+            "offsetY": -206
+        },
+        {
+            "channel": "distance",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Progress",
+            "height": 90,
+            "offsetX": -207.7,
+            "offsetY": -130
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 260,
+            "offsetX": -300.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Twin dials",
+    "theme": {
+        "accent": "#ffe61e28",
+        "accent2": "#ffffffff",
+        "background": "#a0000000",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

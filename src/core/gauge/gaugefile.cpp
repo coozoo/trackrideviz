@@ -467,6 +467,12 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["padding"] = c.padding;
                 }
+            if (c.tiles)
+                {
+                    object["tiles"] = true;
+                    object["tileOpacity"] = c.tileOpacity;
+                    object["cornerRadius"] = c.cornerRadius;
+                }
             if (c.fillAlpha >= 0)
                 {
                     object["fillAlpha"] = c.fillAlpha;
@@ -564,6 +570,8 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.windowAfter = window.at(1).toDouble();
     c.lineWidth = object.value("lineWidth").toDouble(c.lineWidth);
     c.padding = object.value("padding").toDouble();
+    c.tiles = object.value("tiles").toBool();
+    c.tileOpacity = object.value("tileOpacity").toDouble(1.0);
     c.fillAlpha = object.value("fillAlpha").toInt(-1);
     if (object.contains("fillColor"))
         {

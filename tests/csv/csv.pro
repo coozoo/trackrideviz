@@ -8,7 +8,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_csv
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_csv.cpp

@@ -60,6 +60,32 @@ public:
     static ExportSettings exportDefaults();
     // False until the first export: the dialog then picks an encoder itself.
     static bool hasExportDefaults();
+
+    // --- Maps -----------------------------------------------------------
+    // Street maps under route gauges that ask for them may be fetched from the
+    // tile server; without it only tiles already on disk are drawn.
+    static bool mapDownloads();
+    static void setMapDownloads(bool allowed);
+    // Which map: an id of TileStore::providers(), or OwnMapServer for the address below.
+    static constexpr const char *OwnMapServer = "own";
+    static QString mapProvider();
+    static void setMapProvider(const QString &id);
+    // For the maps whose server wants a key.
+    static QString mapApiKey();
+    static void setMapApiKey(const QString &key);
+    // The user's own server: its address with {z}, {x}, {y}, and the credit line it asks for.
+    static QString mapTileUrl();
+    static void setMapTileUrl(const QString &url);
+    static QString mapAttribution();
+    static void setMapAttribution(const QString &text);
+    // The credit line of the map chosen above.
+    static QString mapCredit();
+    // A street map under the route in the Laps panel.
+    static bool lapsMapShown();
+    static void setLapsMapShown(bool shown);
+    // The credit drawn on the map itself; off when the video credits the map elsewhere.
+    static bool mapCreditShown();
+    static void setMapCreditShown(bool shown);
     static void setExportDefaults(const ExportSettings &settings);
 
     // --- Units ------------------------------------------------------------

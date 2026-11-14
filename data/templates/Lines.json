@@ -1,0 +1,41 @@
+{
+    "category": "Simple",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Graph window",
+            "height": 160,
+            "offsetX": 40,
+            "offsetY": -200
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Graph window",
+            "height": 160,
+            "offsetX": -893.3,
+            "offsetY": -200
+        },
+        {
+            "channel": "distance",
+            "edgeX": "middle",
+            "edgeY": "start",
+            "gauge": "bundled:Pill readout",
+            "height": 56,
+            "offsetX": -182.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Lines",
+    "theme": {
+        "accent": "#ff2a9df4",
+        "accent2": "#ffdce6f0",
+        "background": "#a0081420",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

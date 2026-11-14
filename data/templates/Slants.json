@@ -1,0 +1,41 @@
+{
+    "category": "Simple",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Slant readout",
+            "height": 92,
+            "offsetX": 40,
+            "offsetY": -336
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Slant readout",
+            "height": 92,
+            "offsetX": 40,
+            "offsetY": -234
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Slant readout",
+            "height": 92,
+            "offsetX": 40,
+            "offsetY": -132
+        }
+    ],
+    "name": "Slants",
+    "theme": {
+        "accent": "#ffff781e",
+        "accent2": "#ffdce6f0",
+        "background": "#960a0e14",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

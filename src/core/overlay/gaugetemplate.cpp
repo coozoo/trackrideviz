@@ -44,6 +44,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.x = (edgePosition(item.edgeX, width) + item.offsetX) / width;
             placed.y = (edgePosition(item.edgeY, height) + item.offsetY) / height;
             placed.height = item.height / height;
+            placed.streets = item.streets;
             result.append(placed);
         }
     return result;
@@ -54,7 +55,7 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
     QJsonArray items;
     for (const TemplateItem &item : t.items)
         {
-            items.append(QJsonObject
+            QJsonObject object
             {
                 {"gauge", item.gaugeId},
                 {"channel", item.channel},
@@ -63,7 +64,12 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
                 {"offsetX", item.offsetX},
                 {"offsetY", item.offsetY},
                 {"height", item.height},
-            });
+            };
+            if (item.streets != OverlayItem::AsDesigned)
+                {
+                    object.insert("streets", item.streets == OverlayItem::Shown);
+                }
+            items.append(object);
         }
     const QJsonObject root
     {
@@ -118,6 +124,10 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
             item.offsetX = object.value("offsetX").toDouble();
             item.offsetY = object.value("offsetY").toDouble();
             item.height = object.value("height").toDouble();
+            if (object.contains("streets"))
+                {
+                    item.streets = object.value("streets").toBool() ? OverlayItem::Shown : OverlayItem::Hidden;
+                }
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.items.append(item);

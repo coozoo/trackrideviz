@@ -8,7 +8,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_laps
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_laps.cpp

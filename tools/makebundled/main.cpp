@@ -1,15 +1,12 @@
-// Draws the gauges that ship with the program and writes them, with the
-// templates built from them, into the data folder (see makebundled.pro).
+// Draws the picture gauges that ship with the program and writes them into
+// the data folder (see makebundled.pro). The templates are laid out by
+// tools/vectorgauges/templates.py.
 //
 // Every picture is a white shape on transparent: the theme colours it. Only
 // artwork drawn here, by this program, may go into data/.
 
 #include "gauge/gaugefile.h"
-#include "gauge/gaugelibrary.h"
-#include "overlay/gaugetemplate.h"
-#include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
-#include "telemetry/demosession.h"
 
 #include <QDir>
 #include <QGuiApplication>
@@ -400,173 +397,35 @@ bool save(const QString &folder, const QString &name, const Gauge &gauge, QHash<
     saved->insert(name, {"bundled:" + name, gauge.size});
     return true;
 }
-
-// Places gauges by the corner they keep their distance to.
-class Layout
-{
-public:
-    explicit Layout(const QHash<QString, Saved> &gauges) : m_gauges(gauges) {}
-
-    // `marginX` / `marginY`: reference pixels between the gauge and its edge
-    // (from the middle for Middle: + right / down).
-    TemplateItem place(const QString &gauge, const QString &channel, TemplateItem::Edge edgeX, TemplateItem::Edge edgeY,
-                       double marginX, double marginY, double height) const
-    {
-        const Saved saved = m_gauges.value(gauge);
-        const double width = height * saved.size.width() / saved.size.height();
-        TemplateItem item;
-        item.gaugeId = saved.id;
-        item.channel = channel;
-        item.edgeX = edgeX;
-        item.edgeY = edgeY;
-        item.offsetX = offset(edgeX, marginX, width);
-        item.offsetY = offset(edgeY, marginY, height);
-        item.height = height;
-        return item;
-    }
-
-private:
-    static double offset(TemplateItem::Edge edge, double margin, double extent)
-    {
-        switch (edge)
-            {
-            case TemplateItem::Start:
-                return margin;
-            case TemplateItem::Middle:
-                return margin - extent / 2;
-            case TemplateItem::End:
-                break;
-            }
-        return -margin - extent;
-    }
-    QHash<QString, Saved> m_gauges;
-};
-
-bool save(const QString &folder, const QString &file, const GaugeTemplate &t)
-{
-    QString error;
-    if (!TemplateFile::save(folder + "/templates/" + file + ".json", t, &error))
-        {
-            std::fprintf(stderr, "%s: %s\n", qPrintable(file), qPrintable(error));
-            return false;
-        }
-    return true;
-}
-
-// Each template over a grey frame, with the made-up ride, as <name>.png.
-void preview(const QString &folder, const QVector<GaugeTemplate> &templates, const QString &target)
-{
-    BundledData::setFolder(folder);
-    GaugeLibrary::refresh();
-    QDir().mkpath(target);
-    const TelemetrySessionPtr session = DemoSession::create();
-    for (const GaugeTemplate &t : templates)
-        {
-            QImage frame(1920, 1080, QImage::Format_ARGB32_Premultiplied);
-            frame.fill(QColor(110, 120, 115));
-            QPainter painter(&frame);
-            painter.setRenderHint(QPainter::Antialiasing);
-            const Overlay overlay(t.overlayItems(16.0 / 9.0), session, Units(), t.theme);
-            overlay.render(painter, QRectF(frame.rect()), DemoSession::ShowcaseTime);
-            painter.end();
-            frame.save(target + "/" + t.name + ".png");
-        }
-}
-
-GaugeTheme theme(const QColor &background, const QColor &accent, const QColor &accent2,
-                 const QColor &foreground = QColor(255, 255, 255))
-{
-    GaugeTheme t;
-    t.background = background;
-    t.accent = accent;
-    t.accent2 = accent2;
-    t.foreground = foreground;
-    return t;
-}
 }
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    // makebundled [data folder] [--preview picture folder]
-    QStringList args = app.arguments().mid(1);
-    QString previewFolder;
-    const int previewAt = int(args.indexOf("--preview"));
-    if (previewAt >= 0 && previewAt + 1 < args.size())
-        {
-            previewFolder = args.at(previewAt + 1);
-            args.remove(previewAt, 2);
-        }
+    // makebundled [data folder]
+    const QStringList args = app.arguments().mid(1);
     const QString folder = !args.isEmpty() ? args.first() : QStringLiteral(RTV_DATA_FOLDER);
-    // only what is drawn here: the drawn (SVG) gauges in data/gauges are made by hand
-    QDir(folder + "/templates").removeRecursively();
-    if (!QDir().mkpath(folder + "/templates"))
+    // only what is drawn here: the drawn (SVG) gauges in data/gauges and the
+    // templates in data/templates are written by tools/vectorgauges
+    if (!QDir().mkpath(folder + "/gauges"))
         {
             std::fprintf(stderr, "cannot create %s\n", qPrintable(folder));
             return 1;
         }
 
     QHash<QString, Saved> gauges;
-    bool ok = save(folder, "Arc", arc(), &gauges)
-              && save(folder, "Bar", bar(), &gauges)
-              && save(folder, "Column", column(), &gauges)
-              && save(folder, "Profile", profile(), &gauges)
-              && save(folder, "Route map", map(false), &gauges)
-              && save(folder, "Lap map", map(true), &gauges)
-              && save(folder, "Icon readout", iconReadout(), &gauges)
-              && save(folder, "G-force", gForce(), &gauges);
+    const bool ok = save(folder, "Arc", arc(), &gauges)
+                    && save(folder, "Bar", bar(), &gauges)
+                    && save(folder, "Column", column(), &gauges)
+                    && save(folder, "Profile", profile(), &gauges)
+                    && save(folder, "Route map", map(false), &gauges)
+                    && save(folder, "Lap map", map(true), &gauges)
+                    && save(folder, "Icon readout", iconReadout(), &gauges)
+                    && save(folder, "G-force", gForce(), &gauges);
     if (!ok)
         {
             return 1;
         }
-
-    using E = TemplateItem;
-    const Layout at(gauges);
-
-    GaugeTemplate ride;
-    ride.name = "Ride";
-    ride.category = "Cycling";
-    ride.theme = theme(QColor(10, 14, 20, 150), QColor(255, 120, 30), QColor(220, 230, 240));
-    ride.items << at.place("Arc", ChannelId::Speed, E::Start, E::End, 40, 40, 300)
-               << at.place("Icon readout", ChannelId::HeartRate, E::Start, E::End, 360, 240, 100)
-               << at.place("Bar", ChannelId::Cadence, E::Start, E::End, 360, 40, 100)
-               << at.place("Profile", ChannelId::Elevation, E::End, E::End, 40, 40, 170)
-               << at.place("Route map", ChannelId::Speed, E::End, E::Start, 40, 40, 300);
-    ok = save(folder, "Ride", ride);
-
-    GaugeTemplate track;
-    track.name = "Track day";
-    track.category = "Motorsport";
-    track.theme = theme(QColor(0, 0, 0, 160), QColor(230, 30, 40), QColor(255, 255, 255));
-    track.items << at.place("Arc", ChannelId::Speed, E::Start, E::End, 40, 40, 340)
-                << at.place("Lap map", ChannelId::Speed, E::End, E::Start, 40, 40, 340)
-                << at.place("G-force", ChannelId::GForceLateral, E::End, E::End, 40, 40, 260)
-                << at.place("Bar", ChannelId::Speed, E::Middle, E::Start, 0, 40, 90);
-    ok = ok && save(folder, "Track day", track);
-
-    GaugeTemplate hike;
-    hike.name = "Climb";
-    hike.category = "Outdoor";
-    hike.theme = theme(QColor(20, 40, 30, 150), QColor(120, 220, 90), QColor(230, 240, 220));
-    hike.items << at.place("Profile", ChannelId::Elevation, E::Middle, E::End, 0, 40, 200)
-               << at.place("Column", ChannelId::Grade, E::Start, E::End, 40, 40, 330)
-               << at.place("Icon readout", ChannelId::Speed, E::Start, E::Start, 40, 40, 100)
-               << at.place("Icon readout", ChannelId::HeartRate, E::Start, E::Start, 40, 160, 100)
-               << at.place("Route map", ChannelId::Speed, E::End, E::Start, 40, 40, 280);
-    ok = ok && save(folder, "Climb", hike);
-
-    GaugeTemplate minimal;
-    minimal.name = "Minimal";
-    minimal.category = "Simple";
-    minimal.theme = theme(QColor(0, 0, 0, 110), QColor(255, 255, 255), QColor(200, 200, 200));
-    minimal.items << at.place("Icon readout", ChannelId::Speed, E::Start, E::End, 40, 40, 90)
-                  << at.place("Icon readout", ChannelId::HeartRate, E::Start, E::End, 40, 140, 90);
-    ok = ok && save(folder, "Minimal", minimal);
-
-    if (!previewFolder.isEmpty())
-        {
-            preview(folder, {ride, track, hike, minimal}, previewFolder);
-        }
-    std::printf("%d gauges and 4 templates written to %s\n", int(gauges.size()), qPrintable(folder));
-    return ok ? 0 : 1;
+    std::printf("%d gauges written to %s\n", int(gauges.size()), qPrintable(folder));
+    return 0;
 }

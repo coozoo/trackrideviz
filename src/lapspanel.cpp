@@ -1,7 +1,11 @@
 #include "lapspanel.h"
 
+#include "maps/tilestore.h"
+#include "settings/appsettings.h"
 #include "telemetry/channelids.h"
 
+#include <QCheckBox>
+#include <QComboBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -19,7 +23,6 @@
 
 namespace
 {
-const double kPi = 3.14159265358979323846;
 
 QString lapTime(double seconds)
 {
@@ -70,13 +73,15 @@ public:
                     {
                         m_points.append(QPointF(lon->valueAt(lat->timeAt(i)), lat->valueAtIndex(i)));
                     }
-                double middle = 0.0;
-                for (const QPointF &p : m_points)
-                    {
-                        middle += p.y();
-                    }
-                m_lonScale = std::cos(middle / m_points.size() * kPi / 180.0);
             }
+        update();
+    }
+
+    // a street map under the route, with this credit in its corner
+    void setStreets(bool shown, const QString &credit)
+    {
+        m_streets = shown;
+        m_credit = credit;
         update();
     }
 
@@ -107,13 +112,35 @@ protected:
                 return;
             }
         const QTransform map = toWidget();
+        bool streets = false;
+        if (m_streets)
+            {
+                // what the widget shows, back on the map
+                const TileStore::Picture picture = TileStore::instance()->picture(map.inverted().mapRect(QRectF(rect())));
+                if (!picture.image.isNull())
+                    {
+                        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+                        painter.drawImage(map.mapRect(picture.bounds), picture.image);
+                        streets = true;
+                    }
+            }
         QPainterPath route;
         route.moveTo(map.map(projected(m_points.first())));
         for (int i = 1; i < m_points.size(); ++i)
             {
                 route.lineTo(map.map(projected(m_points.at(i))));
             }
-        painter.setPen(QPen(palette().color(QPalette::Text), 1.5));
+        if (streets)
+            {
+                // seen on any map: a dark line with a light edge
+                painter.setPen(QPen(QColor(255, 255, 255, 220), 5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter.drawPath(route);
+                painter.setPen(QPen(QColor(20, 60, 200), 2.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            }
+        else
+            {
+                painter.setPen(QPen(palette().color(QPalette::Text), 1.5));
+            }
         painter.drawPath(route);
 
         for (const StartFinishLine &sector : m_sectors)
@@ -130,15 +157,35 @@ protected:
         const double la = lat->valueAt(m_time, &ok);
         if (ok)
             {
-                painter.setPen(Qt::NoPen);
+                painter.setPen(streets ? QPen(Qt::white, 2) : QPen(Qt::NoPen));
                 painter.setBrush(palette().color(QPalette::Highlight));
                 painter.drawEllipse(map.map(projected(QPointF(lon->valueAt(m_time), la))), 5, 5);
             }
+        if (streets && !m_credit.isEmpty())
+            {
+                QFont small = font();
+                small.setPointSizeF(small.pointSizeF() * 0.75);
+                painter.setFont(small);
+                const QFontMetricsF metrics(small);
+                QRectF box(0, 0, std::min(metrics.horizontalAdvance(m_credit) + 8.0, width() - 4.0), metrics.height() + 2.0);
+                box.moveBottomRight(QPointF(width() - 2.0, height() - 2.0));
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(QColor(255, 255, 255, 190));
+                painter.drawRoundedRect(box, 3, 3);
+                painter.setPen(QColor(30, 30, 30));
+                painter.drawText(box, Qt::AlignCenter, metrics.elidedText(m_credit, Qt::ElideLeft, box.width() - 6.0));
+                painter.setFont(font());
+            }
         if (!m_placing.isEmpty())
             {
-                painter.setPen(palette().color(QPalette::Highlight));
-                painter.drawText(rect().adjusted(6, 6, -6, -6), Qt::AlignTop | Qt::AlignHCenter | Qt::TextWordWrap,
-                                 m_placing);
+                const QRect place = rect().adjusted(6, 6, -6, -6);
+                const int flags = Qt::AlignTop | Qt::AlignHCenter | Qt::TextWordWrap;
+                if (streets)
+                    {
+                        painter.fillRect(painter.boundingRect(place, flags, m_placing).adjusted(-4, -2, 4, 2), QColor(255, 255, 255, 210));
+                    }
+                painter.setPen(streets ? QColor(20, 60, 200) : palette().color(QPalette::Highlight));
+                painter.drawText(place, flags, m_placing);
             }
     }
 
@@ -149,7 +196,7 @@ protected:
                 return;
             }
         const QPointF p = toWidget().inverted().map(event->position());
-        clicked(-p.y(), p.x() / m_lonScale);
+        clicked(TileStore::latitudeOf(-p.y()), p.x());
     }
 
 private:
@@ -165,10 +212,10 @@ private:
         painter.drawLine(middle - half, middle + half);
     }
 
-    // degrees -> a plane with north up: x = lon * cos(lat), y = -lat
+    // degrees -> the plane of web maps, north up (see TileStore)
     QPointF projected(const QPointF &lonLat) const
     {
-        return QPointF(lonLat.x() * m_lonScale, -lonLat.y());
+        return QPointF(lonLat.x(), -TileStore::mercatorLatitude(lonLat.y()));
     }
 
     QTransform toWidget() const
@@ -193,8 +240,9 @@ private:
     StartFinishLine m_line;
     QVector<StartFinishLine> m_sectors;
     QVector<QPointF> m_points;   // lon, lat
-    double m_lonScale{1.0};
     double m_time{0.0};
+    bool m_streets{false};
+    QString m_credit;
     QString m_placing;
 };
 
@@ -231,6 +279,29 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_clearSectorsButton = new QPushButton(tr("Clear sectors"), this);
     connect(m_clearSectorsButton, &QPushButton::clicked, this, &LapsPanel::removeSectorsRequested);
 
+    m_streetsCheck = new QCheckBox(tr("Street map"), this);
+    m_streetsCheck->setChecked(AppSettings::lapsMapShown());
+    m_mapCombo = new QComboBox(this);
+    m_mapCombo->setToolTip(tr("The map here and under the gauges that show one"));
+    for (const TileStore::Provider &provider : TileStore::providers())
+        {
+            m_mapCombo->addItem(provider.name, provider.id);
+        }
+    m_mapCombo->addItem(tr("Own server"), QString(AppSettings::OwnMapServer));
+    connect(m_streetsCheck, &QCheckBox::toggled, this, [this](bool shown)
+    {
+        AppSettings::setLapsMapShown(shown);
+        refreshMapChoice();
+    });
+    connect(m_mapCombo, &QComboBox::activated, this, [this]()
+    {
+        AppSettings::setMapProvider(m_mapCombo->currentData().toString());
+        emit mapChoiceChanged();
+    });
+    // tiles come one by one
+    connect(TileStore::instance(), &TileStore::arrived, m_track, qOverload<>(&QWidget::update));
+    refreshMapChoice();
+
     m_info = new QLabel(this);
     m_info->setWordWrap(true);
     // a long line wraps rather than making the dock taller than it needs
@@ -265,12 +336,24 @@ LapsPanel::LapsPanel(QWidget *parent)
     sectorButtons->addStretch(1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
+    QHBoxLayout *mapChoice = new QHBoxLayout;
+    mapChoice->addWidget(m_streetsCheck);
+    mapChoice->addWidget(m_mapCombo, 1);
     layout->addWidget(m_track, 2);
+    layout->addLayout(mapChoice);
     layout->addLayout(buttons);
     layout->addLayout(sectorButtons);
     layout->addWidget(m_info);
     layout->addWidget(m_lapTable, 1);
     setSession(nullptr, StartFinishLine(), {});
+}
+
+void LapsPanel::refreshMapChoice()
+{
+    const int index = m_mapCombo->findData(AppSettings::mapProvider());
+    m_mapCombo->setCurrentIndex(index >= 0 ? index : 0);
+    m_mapCombo->setEnabled(m_streetsCheck->isChecked());
+    m_track->setStreets(m_streetsCheck->isChecked(), AppSettings::mapCredit());
 }
 
 void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinishLine &line,

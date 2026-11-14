@@ -1,5 +1,6 @@
 #include "gaugerenderer.h"
 
+#include "../maps/tilestore.h"
 #include "../telemetry/channelids.h"
 #include "channelicons.h"
 #include "gaugefonts.h"
@@ -437,13 +438,7 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
         {
             m_lat = m_session->channel(ChannelId::PositionLat);
             m_lon = m_session->channel(ChannelId::PositionLon);
-            if (m_lat && m_lon && !m_lat->isEmpty())
-                {
-                    // equirectangular around the middle of the route: good enough for a ride
-                    const double middle = (m_lat->minValue() + m_lat->maxValue()) / 2.0;
-                    m_lonScale = std::cos(middle * kPi / 180.0);
-                }
-            else
+            if (!m_lat || !m_lon || m_lat->isEmpty())
                 {
                     m_lat = m_lon = nullptr;
                 }
@@ -742,8 +737,9 @@ bool BoundGauge::positionAt(double time, QPointF *projected) const
     bool lonOk = false;
     const double lat = m_lat->valueAt(time, &latOk);
     const double lon = m_lon->valueAt(time, &lonOk);
-    // north up: y grows downwards on screen
-    *projected = QPointF(lon * m_lonScale, -lat);
+    // north up: y grows downwards on screen. Mercator, as street maps are:
+    // the true shape at any latitude, and map tiles fit under it
+    *projected = QPointF(lon, -TileStore::mercatorLatitude(lat));
     return latOk && lonOk;
 }
 
@@ -813,6 +809,13 @@ void BoundGauge::prepareRoutes(Node &node) const
                     placed.append(route.toFrame.map(p));
                 }
             route.path = polyline(simplified(placed, kLineTolerance));
+            if (node.component.tiles)
+                {
+                    // what the frame shows, back on the map
+                    const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(node.component.frame));
+                    route.map = map.image;
+                    route.mapRect = route.toFrame.mapRect(map.bounds);
+                }
             route.startTime = span.first;
             route.endTime = span.second;
             route.startPoint = route.toFrame.map(points.first());
@@ -1228,10 +1231,61 @@ void BoundGauge::drawLine(QPainter &painter, const Node &node, int route) const
         {
             painter.fillPath(node.area, node.fill);
         }
+    if (node.component.type != GaugeComponent::Graph && node.component.tiles)
+        {
+            drawTiles(painter, node, route);
+        }
     painter.setBrush(Qt::NoBrush);
     // bevel joins: the same on a line this thin, and round ones cost an arc at every corner
     painter.setPen(QPen(node.color, node.component.lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::BevelJoin));
     painter.drawPath(node.component.type == GaugeComponent::Graph ? node.line : node.routes.at(route).path);
+}
+
+void BoundGauge::drawTiles(QPainter &painter, const Node &node, int route) const
+{
+    const QImage &map = node.routes.at(route).map;
+    if (map.isNull())
+        {
+            return;
+        }
+    const QRectF frame = node.component.frame;
+    painter.save();
+    QPainterPath shape;
+    shape.addRoundedRect(frame, node.component.cornerRadius, node.component.cornerRadius);
+    painter.setClipPath(shape, Qt::IntersectClip);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    painter.setOpacity(painter.opacity() * node.component.tileOpacity);
+    painter.drawImage(node.routes.at(route).mapRect, map);
+    painter.restore();
+
+    // the credit the map's makers ask for, small in the corner
+    const QString credit = TileStore::instance()->attribution();
+    if (credit.isEmpty())
+        {
+            return;
+        }
+    painter.save();
+    QFont font(GaugeFonts::Family);
+    font.setPixelSize(std::max(7, int(std::lround(frame.height() * 0.034))));
+    const double inset = std::max(node.component.cornerRadius * 0.6, font.pixelSize() * 0.4);
+    // a long credit is set smaller, not cut
+    const double room = frame.width() - 2 * inset - font.pixelSize() * 0.8;
+    const double wanted = QFontMetricsF(font).horizontalAdvance(credit);
+    if (wanted > room && room > 0.0)
+        {
+            font.setPixelSize(std::max(5, int(std::floor(font.pixelSize() * room / wanted))));
+        }
+    painter.setFont(font);
+    const QFontMetricsF metrics(font);
+    const double margin = font.pixelSize() * 0.4;
+    QRectF box(0, 0, metrics.horizontalAdvance(credit) + 2 * margin, metrics.height());
+    box.moveBottomRight(QPointF(frame.right() - inset, frame.bottom() - margin));
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(255, 255, 255, 170));
+    painter.drawRoundedRect(box, margin, margin);
+    painter.setPen(QColor(30, 30, 30));
+    painter.drawText(box, Qt::AlignCenter, credit);
+    painter.restore();
 }
 
 QImage BoundGauge::linePicture(const Node &node, int route, const Context &context) const

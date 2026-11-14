@@ -10,7 +10,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_template
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 # the gauges and templates that ship with the program
 DEFINES += RTV_TEST_DATA=\\\"$$clean_path($$PWD/../../data)\\\"

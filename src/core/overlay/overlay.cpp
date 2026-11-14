@@ -6,13 +6,51 @@
 #include <algorithm>
 #include <cmath>
 
+namespace
+{
+// The item's choice of a street map, put into the gauge's routes; says what it found.
+void chooseStreets(QVector<GaugeComponent> &components, OverlayItem::Streets choice, bool *route, bool *streets)
+{
+    for (GaugeComponent &component : components)
+        {
+            if (component.type == GaugeComponent::TrackMap || component.type == GaugeComponent::LapMap)
+                {
+                    if (choice == OverlayItem::Shown && !component.tiles)
+                        {
+                            // a gauge drawn without a map in mind: dimmed, corners taken off
+                            component.tiles = true;
+                            component.tileOpacity = 0.75;
+                            if (component.cornerRadius <= 0.0)
+                                {
+                                    component.cornerRadius = std::min(component.frame.width(), component.frame.height()) * 0.07;
+                                }
+                        }
+                    else if (choice == OverlayItem::Hidden)
+                        {
+                            component.tiles = false;
+                        }
+                    *route = true;
+                    *streets = *streets || component.tiles;
+                }
+            chooseStreets(component.children, choice, route, streets);
+        }
+}
+}
+
 Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &session,
                  const Units &units, const GaugeTheme &theme)
 {
     for (const OverlayItem &item : items)
         {
-            const Gauge gauge = GaugeLibrary::gauge(item.gaugeId);
-            m_placed.append({item, gauge.isEmpty() ? BoundGauge() : BoundGauge(gauge, item.channel, session, units, theme)});
+            Gauge gauge = GaugeLibrary::gauge(item.gaugeId);
+            Placed placed;
+            placed.item = item;
+            chooseStreets(gauge.components, item.streets, &placed.route, &placed.streets);
+            if (!gauge.isEmpty())
+                {
+                    placed.gauge = BoundGauge(gauge, item.channel, session, units, theme);
+                }
+            m_placed.append(placed);
         }
 }
 

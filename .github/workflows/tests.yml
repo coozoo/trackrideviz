@@ -51,4 +51,4 @@ jobs:
         working-directory: build/Desktopqt6-Debug
         env:
           QT_QPA_PLATFORM: offscreen
-        run: make check
+        run: make -j$(nproc) check

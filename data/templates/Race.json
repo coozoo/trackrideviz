@@ -1,0 +1,86 @@
+{
+    "category": "Motorsport",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "gForceLateral",
+            "edgeX": "middle",
+            "edgeY": "start",
+            "gauge": "bundled:Crown arc centred",
+            "height": 150,
+            "offsetX": -215.6,
+            "offsetY": 40
+        },
+        {
+            "channel": "gForceLongitudinal",
+            "edgeX": "start",
+            "edgeY": "middle",
+            "gauge": "bundled:Side arc centred",
+            "height": 440,
+            "offsetX": 40,
+            "offsetY": -220.0
+        },
+        {
+            "channel": "speed",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Dome",
+            "height": 230,
+            "offsetX": -184.0,
+            "offsetY": -270
+        },
+        {
+            "channel": "lap",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Readout right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -338
+        },
+        {
+            "channel": "lapTime",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Lap time right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -262
+        },
+        {
+            "channel": "previousLapTime",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Lap time right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -186
+        },
+        {
+            "channel": "bestLapTime",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Lap time right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -110
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap map arrow",
+            "height": 300,
+            "offsetX": -340.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Race",
+    "theme": {
+        "accent": "#ffffc81e",
+        "accent2": "#fff0f0e6",
+        "background": "#a0101010",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

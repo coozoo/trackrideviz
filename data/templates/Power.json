@@ -1,0 +1,41 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Ride cluster power",
+            "height": 400,
+            "offsetX": 40,
+            "offsetY": -440
+        },
+        {
+            "channel": "power",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Graph pair",
+            "height": 190,
+            "offsetX": -469.6,
+            "offsetY": -230
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 280,
+            "offsetX": -320.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Power",
+    "theme": {
+        "accent": "#ffff4678",
+        "accent2": "#fff0e6f0",
+        "background": "#a0140a14",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

@@ -1,26 +1,35 @@
 // Pictures for comparing gauges side by side (see gaugereview.pro).
 //
 // --sheet: every gauge in a folder on contact sheets, 24 to a picture.
+// (With RTV_REVIEW_TILES set, street maps are fetched for gauges that show one.)
 // --pairs: for each entry of a mapping file
 //     [{"theirs": "<folder>", "ours": "<folder>", "channel": "speed", "note": "..."}]
 // the two gauges at three moments of the sample ride, and index.html showing
 // them row by row.
+// --templates: for each entry of [{"theirs": "<template>", "ours": "<template>"}]
+// the two templates drawn on a 1920 x 1080 frame at one moment of the sample
+// ride (ours alone when "theirs" is empty). "library:" gauges are looked up in their gauge folder, "bundled:"
+// ones in ours.
 
 #include "gauge/gaugefile.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/veggaugeimporter.h"
 #include "laps/lapengine.h"
+#include "maps/tilestore.h"
+#include "overlay/gaugetemplate.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 #include "telemetry/derivedchannels.h"
 
 #include <QDir>
+#include <QEventLoop>
 #include <QFile>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPainter>
+#include <QTimer>
 
 #include <cstdio>
 
@@ -194,12 +203,98 @@ int pairs(const QString &mappingFile, const QString &theirs, const QString &ours
     std::printf("%d pairs: %s/index.html\n", row, qPrintable(out));
     return 0;
 }
+// A template drawn on a plain frame; its gauges come from `theirs` or `ours`
+// by the prefix of their id.
+QImage renderTemplate(const QString &file, const QString &theirs, const QString &ours, const TelemetrySessionPtr &ride)
+{
+    QImage frame(1920, 1080, QImage::Format_ARGB32_Premultiplied);
+    QPainter painter(&frame);
+    QLinearGradient ground(0, 0, 0, frame.height());
+    ground.setColorAt(0.0, QColor(96, 118, 140));
+    ground.setColorAt(0.55, QColor(120, 128, 120));
+    ground.setColorAt(1.0, QColor(70, 72, 70));
+    painter.fillRect(frame.rect(), ground);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    GaugeTemplate gaugeTemplate;
+    QString error;
+    if (!TemplateFile::load(file, &gaugeTemplate, &error))
+        {
+            painter.setPen(Qt::white);
+            painter.drawText(frame.rect(), Qt::AlignCenter, file.isEmpty() ? QString("(not made yet)") : error);
+            return frame;
+        }
+    for (const OverlayItem &item : gaugeTemplate.overlayItems(double(frame.width()) / frame.height()))
+        {
+            const QString name = item.gaugeId.section(':', 1);
+            const Gauge gauge = load((item.gaugeId.startsWith("bundled:") ? ours : theirs) + "/" + name);
+            if (gauge.isEmpty())
+                {
+                    continue;
+                }
+            const double height = item.height * frame.height();
+            const QRectF target(item.x * frame.width(), item.y * frame.height(),
+                                height * gauge.size.width() / gauge.size.height(), height);
+            const BoundGauge bound(gauge, VegGaugeImporter::channelFor(item.channel), ride, Units(), gaugeTemplate.theme);
+            bound.render(painter, target, DemoSession::ShowcaseTime);
+        }
+    return frame;
 }
 
-int main(int argc, char *argv[])
+int templates(const QStringList &args)
 {
-    QGuiApplication app(argc, argv);
-    const QStringList args = app.arguments().mid(1);
+    QFile file(args.at(0));
+    if (!file.open(QIODevice::ReadOnly))
+        {
+            std::fprintf(stderr, "cannot read %s\n", qPrintable(args.at(0)));
+            return 1;
+        }
+    const QJsonArray mapping = QJsonDocument::fromJson(file.readAll()).array();
+    const TelemetrySessionPtr ride = sampleRide();
+    const QString out = args.at(5);
+    QDir().mkpath(out + "/img");
+    QString html = "<!doctype html><html><head><meta charset='utf-8'><title>Template review</title><style>"
+                   "body{background:#1e1e1e;color:#ddd;font:14px sans-serif;margin:16px}"
+                   "img{width:49%;display:inline-block;margin-right:4px}h3{margin:14px 0 4px}"
+                   "</style></head><body><h1>Template review</h1>"
+                   "<p>Left: the template it replaces. Right: ours. Same sample data, same moment.</p>";
+    int row = 0;
+    for (const QJsonValue &value : mapping)
+        {
+            const QJsonObject entry = value.toObject();
+            const QString theirName = entry.value("theirs").toString();
+            const QString ourName = entry.value("ours").toString();
+            ++row;
+            html += QString("<h3>%1. %2 <span style='color:#999;font-weight:normal'>- %3</span></h3>")
+                    .arg(row).arg(escaped(ourName), theirName.isEmpty() ? QString("a layout of our own, nothing to compare with")
+                                  : "theirs: " + escaped(theirName));
+            for (const bool mine : {false, true})
+                {
+                    if (!mine && theirName.isEmpty())
+                        {
+                            continue;
+                        }
+                    const QString name = QString("img/%1-%2.jpg").arg(row, 3, 10, QChar('0')).arg(mine ? "ours" : "theirs");
+                    const QString source = mine ? (ourName.isEmpty() ? QString() : args.at(4) + "/" + ourName + ".json")
+                                           : args.at(2) + "/" + theirName + ".json";
+                    renderTemplate(source, args.at(1), args.at(3), ride).save(out + "/" + name, "JPG", 90);
+                    html += QString("<a href='%1'><img src='%1'></a>").arg(name);
+                }
+        }
+    html += "</body></html>";
+    QFile index(out + "/index.html");
+    if (!index.open(QIODevice::WriteOnly))
+        {
+            return 1;
+        }
+    index.write(html.toUtf8());
+    std::printf("%d pairs: %s/index.html\n", row, qPrintable(out));
+    return 0;
+}
+}
+
+int run(const QStringList &args)
+{
     if (args.size() == 3 && args.first() == "--sheet")
         {
             return sheets(args.at(1), args.at(2));
@@ -208,7 +303,35 @@ int main(int argc, char *argv[])
         {
             return pairs(args.at(1), args.at(2), args.at(3), args.at(4));
         }
+    if (args.size() == 7 && args.first() == "--templates")
+        {
+            return templates(args.mid(1));
+        }
     std::fprintf(stderr, "usage: gaugereview --sheet <gauge folders> <out>\n"
-                 "       gaugereview --pairs <mapping.json> <their gauges> <our gauges> <out>\n");
+                 "       gaugereview --pairs <mapping.json> <their gauges> <our gauges> <out>\n"
+                 "       gaugereview --templates <mapping.json> <their gauges> <their templates> <our gauges> <our templates> <out>\n");
     return 2;
+}
+
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
+    const QStringList args = app.arguments().mid(1);
+    if (qEnvironmentVariableIsSet("RTV_REVIEW_TILES"))
+        {
+            // street maps too: a first pass asks for the tiles, they are waited for, then the real pass
+            // the variable's value names the map (an id of TileStore::providers())
+            const TileStore::Provider provider = TileStore::provider(qEnvironmentVariable("RTV_REVIEW_TILES"));
+            TileStore::instance()->setSource(provider.urlTemplate, provider.attribution, provider.maxZoom);
+            TileStore::instance()->setDownloads(true);
+            run(args);
+            QEventLoop loop;
+            QTimer quiet;
+            quiet.setSingleShot(true);
+            QObject::connect(&quiet, &QTimer::timeout, &loop, &QEventLoop::quit);
+            QObject::connect(TileStore::instance(), &TileStore::arrived, &quiet, [&quiet]() { quiet.start(3000); });
+            quiet.start(8000);
+            loop.exec();
+        }
+    return run(args);
 }

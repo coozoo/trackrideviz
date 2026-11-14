@@ -92,7 +92,10 @@ tests {
         QT_QPA_PLATFORM=offscreen ./settings/tst_settings && \
         QT_QPA_PLATFORM=offscreen ./project/tst_project && \
         QT_QPA_PLATFORM=offscreen ./export/tst_export && \
-        QT_QPA_PLATFORM=offscreen ./template/tst_template
+        QT_QPA_PLATFORM=offscreen ./template/tst_template && \
+        QT_QPA_PLATFORM=offscreen ./csv/tst_csv && \
+        QT_QPA_PLATFORM=offscreen ./derived/tst_derived && \
+        QT_QPA_PLATFORM=offscreen ./laps/tst_laps
 
     QMAKE_EXTRA_TARGETS += check
 }

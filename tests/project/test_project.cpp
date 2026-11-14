@@ -172,6 +172,9 @@ private slots:
         project.overlay = {item(0.1, 0.2, 0.3), item(0.6, 0.7, 0.15)};
         project.overlay[1].gaugeId = "library:My dial";
         project.overlay[1].channel = "heartRate";
+        // a street map switched on for one gauge, off for the other
+        project.overlay[0].streets = OverlayItem::Shown;
+        project.overlay[1].streets = OverlayItem::Hidden;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);
 

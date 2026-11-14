@@ -163,7 +163,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Cuts (2026-11-13, `CutList`): parts of the video left out of the export, marked A–B on the
   timeline (`[` `]`, Shift+drag, Delete cuts) or found in the data ("Cut stops": speed under
   0.5 m/s or a device pause for 10 s or more, 2 s kept at each end). Kept in the project, undoable,
-  skipped while playing. The export drops them with ffmpeg's select/aselect (sound is then AAC);
+  skipped while playing. The export drops them with ffmpeg's select, the sound with atrim + concat (it is then AAC);
   gauges keep the real values of the moments that are kept (lap times stay true)
 - ✅ Join (2026-11-13, `VideoJoin`, `SyncMap`): File > Join videos copies the streams of several
   videos of one kind into one file (ffmpeg concat, no re-encoding), camera chapters put in order
@@ -173,13 +173,29 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Checked on four camera files: three chapters followed on, a 36:37 break before the fourth
 - Joining videos of different kinds (re-encoding), keeping camera data streams (GPMF) in the join
 
-## Maps (planned)
-- Optional map tiles under the route and lap gauges (OpenStreetMap and other tile servers with their
-  attribution and usage rules; a key where a provider needs one), a choice of style per gauge, tiles
-  cached on disk so export works offline once a ride has been previewed
-- A map in the Laps panel and the Data viewer to place lines and read the route against roads
-- Elevation from a terrain model (e.g. SRTM / Copernicus DEM tiles) for recordings without it or
+## Maps
+- ✅ Street maps under route and lap gauges (2026-11-14, `TileStore`): a map part of a gauge may ask
+  for one (`"tiles": true`, its strength and rounded corners). Tiles come from a tile server
+  (OpenStreetMap's by default; another address and its credit line in Settings > Maps, where
+  downloading can also be switched off), are kept on disk, and the credit is drawn in the map's
+  corner. The tiles depend only on the area, not on the size drawn: a ride previewed once exports
+  without a connection. Routes are drawn in the Mercator projection now, as the maps are. Gauges
+  Route map streets and Lap map streets
+- ✅ A choice of maps (2026-11-14): OpenStreetMap, CyclOSM, OpenTopoMap, satellite pictures,
+  OpenCycleMap (with the user's key) or the user's own server, one for the whole program, in
+  Settings > Maps. Any gauge with a route gets a street map, or loses the one it was drawn with,
+  from its menu on the video ("Street map"); the choice is kept in the project and in templates
+  (`"streets"`). The credit on the map can be switched off for videos that name the map's makers
+  elsewhere. Packages: the Windows one now carries libssl / libcrypto and the AppImage Qt's `tls`
+  plugins - to be confirmed on the first packages built with them
+- A map of its own per gauge; clearing the tile cache
+- ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
+  of map under it - the same choice as in the settings, so the gauges follow it
+- A map in the Data viewer to read the route against roads
+- Elevation from a terrain model (height tiles through `TileStore`; the pictures of a cycling or
+  topographic map carry no heights that could be read back) for recordings without it or
   with poor barometric data, as a derived channel the recording's own elevation always wins over
+- A map that shows only the part of the route around the rider, enlarged
 
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
@@ -224,7 +240,12 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   imported gauge now has one of ours doing its job; the others are covered by earlier ones. The demo
   ride has pedal data and vertical g, and gauges imported before a channel name was mapped get it
   when loaded
-- Later: a map that shows only the part of the route around the rider, enlarged
+- ✅ Templates from the own set (2026-11-14, `tools/vectorgauges/templates.py`, 29 in all): Cycling -
+  Ride, Ride cluster, Ride strip, Ride tiles, Steps, Heart and cadence, Speed and cadence, Twin dials,
+  Columns, Power, Pedalling, Mountain pass; Simple - Minimal, Speed, Pills, Slants, Rings, Arcs,
+  Lines; Motorsport - Track day, Lap timer, Race, G-force, Dashboard; Outdoor - Climb, Hike, Descent,
+  Field boxes, Instruments. The script reports gauges that overlap or leave the frame. Laid out for
+  the data we read today; engine, boat and aircraft layouts wait for those channels
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a
@@ -236,6 +257,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Export backend B (in-process libav) if/when needed; overlay-only alpha export; export queue
 - AppImage + Flatpak, Windows installer, macOS bundle
 - Translations (uk, en), user manual
+- Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;
+  decide which tests run on every push and which only before a release
 
 ## M8 — Touch UI
 - QML app on `rtvcore` for tablets/phones (needs backend B)

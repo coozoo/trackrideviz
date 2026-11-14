@@ -157,7 +157,32 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     const bool cutAudio = cut && plan.hasAudio;
     if (cutAudio)
         {
-            graph += QString(";[0:a]aselect=%1,asetpts=N/SR/TB[a]").arg(keptExpression);
+            // each kept part trimmed out and the parts put end to end: exact to the
+            // sample, and aselect lets everything through in some ffmpeg releases (8.0)
+            const int count = int(plan.kept.size());
+            auto trimmed = [&](int i)
+            {
+                const TimeRange &part = plan.kept.at(i);
+                return QString("atrim=start=%1:end=%2,asetpts=PTS-STARTPTS")
+                       .arg(part.start - plan.startTime, 0, 'f', 3).arg(part.end - plan.startTime, 0, 'f', 3);
+            };
+            if (count == 1)
+                {
+                    graph += QString(";[0:a]%1[a]").arg(trimmed(0));
+                }
+            else
+                {
+                    QString split = QString(";[0:a]asplit=%1").arg(count);
+                    QString parts;
+                    QString joined;
+                    for (int i = 0; i < count; ++i)
+                        {
+                            split += QString("[ai%1]").arg(i);
+                            parts += QString(";[ai%1]%2[ak%1]").arg(i).arg(trimmed(i));
+                            joined += QString("[ak%1]").arg(i);
+                        }
+                    graph += split + parts + QString(";%1concat=n=%2:v=0:a=1[a]").arg(joined).arg(count);
+                }
         }
     args << "-filter_complex" << graph << "-map" << "[v]";
 

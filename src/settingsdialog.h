@@ -28,8 +28,10 @@ private:
     QWidget *createPreviewPage();
     QWidget *createUnitsPage();
     QWidget *createExportPage();
+    QWidget *createMapsPage();
     // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
     void checkFfmpeg();
+    void updateMapFields();
     void load();
 
     QListWidget *m_pageList{nullptr};
@@ -50,4 +52,10 @@ private:
     QLineEdit *m_ffmpegEdit{nullptr};
     QLabel *m_ffmpegStatus{nullptr};
     QLineEdit *m_exportFolderEdit{nullptr};
+    QCheckBox *m_mapDownloadsCheck{nullptr};
+    QComboBox *m_mapProviderCombo{nullptr};
+    QLineEdit *m_mapApiKeyEdit{nullptr};
+    QCheckBox *m_mapCreditCheck{nullptr};
+    QLineEdit *m_mapUrlEdit{nullptr};
+    QLineEdit *m_mapAttributionEdit{nullptr};
 };

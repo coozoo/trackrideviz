@@ -6,6 +6,7 @@
 #include "gauge/metricrange.h"
 #include "gauge/veggaugeimporter.h"
 #include "gauge/xmlgaugeimporter.h"
+#include "maps/tilestore.h"
 #include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
@@ -905,6 +906,100 @@ private slots:
         const QImage corner = draw(gauge, 10.0, ChannelId::Speed, session);
         QCOMPARE(corner.pixelColor(10, 30), QColor(Qt::red));
         QVERIFY(corner.pixelColor(10, 70) != QColor(Qt::red));
+    }
+
+    void tileNumbersAndProjection()
+    {
+        // the equator stays put, 60 degrees north is stretched to twice a degree's length
+        QCOMPARE(TileStore::mercatorLatitude(0.0), 0.0);
+        const double step = TileStore::mercatorLatitude(60.005) - TileStore::mercatorLatitude(59.995);
+        QVERIFY2(std::fabs(step / 0.01 - 2.0) < 0.001, qPrintable(QString::number(step)));
+        // an area is drawn from about a thousand pixels of map: the whole world from the
+        // four by four tiles of zoom 2, a quarter of a degree around Greenwich and the equator
+        // from zoom 12 (a tile there is 0.088 degrees), on four tiles each way
+        const TileStore::Block world = TileStore::blockFor(QRectF(-180, -180, 360, 360));
+        QCOMPARE(world.zoom, 2);
+        QCOMPARE(world.left, 0);
+        QCOMPARE(world.bottom, 3);
+        const TileStore::Block block = TileStore::blockFor(QRectF(-0.125, -0.125, 0.25, 0.25));
+        QCOMPARE(block.zoom, 12);
+        QCOMPARE(block.left, 2046);
+        QCOMPARE(block.right, 2049);
+        QCOMPARE(block.top, 2046);
+        QCOMPARE(block.bottom, 2049);
+        // a map that ends at zoom 10 gives its closest tiles, fewer of them
+        const TileStore::Block coarse = TileStore::blockFor(QRectF(-0.125, -0.125, 0.25, 0.25), 10);
+        QCOMPARE(coarse.zoom, 10);
+        QCOMPARE(coarse.left, 511);
+        QCOMPARE(coarse.right, 512);
+        // the maps to choose from: each with an address and a credit, the first the one started with
+        const QVector<TileStore::Provider> providers = TileStore::providers();
+        QCOMPARE(providers.first().urlTemplate, TileStore::defaultUrlTemplate());
+        for (const TileStore::Provider &provider : providers)
+            {
+                QVERIFY(provider.urlTemplate.contains("{z}") && provider.urlTemplate.contains("{x}")
+                        && provider.urlTemplate.contains("{y}"));
+                QVERIFY(!provider.attribution.isEmpty());
+                QCOMPARE(TileStore::provider(provider.id).name, provider.name);
+            }
+        QCOMPARE(TileStore::provider("no such map").id, providers.first().id);
+    }
+
+    void trackMapOverStreetTiles()
+    {
+        // the L of the test above, on a map of plain green tiles
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+        const double north = 0.001;
+        const double east = 2.0 * north / std::cos(60.0 * 3.14159265358979323846 / 180.0);
+        for (int t = 0; t <= 20; ++t)
+            {
+                lat.append(t, 60.0 + north * std::min(t, 10) / 10.0);
+                lon.append(t, 10.0 + east * std::max(0, t - 10) / 10.0);
+            }
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 100, 100);
+        map.padding = 10;
+        map.lineWidth = 2;
+        map.tiles = true;
+        map.cornerRadius = 20;
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(map);
+
+        TileStore *store = TileStore::instance();
+        store->setFolder(m_dir.filePath("tiles"));
+        // no tiles on disk, and nothing is fetched in a test: only the route
+        const QImage bare = draw(gauge, 0.0, ChannelId::Speed, session);
+        QVERIFY(painted(bare, 10, 50));
+        QVERIFY(!painted(bare, 50, 60));
+
+        // the frame is 100 / 80 of the route's width, around its middle
+        const double side = east * 100.0 / 80.0;
+        const double middleY = -(TileStore::mercatorLatitude(60.0) + TileStore::mercatorLatitude(60.0 + north)) / 2.0;
+        const TileStore::Block block = TileStore::blockFor(QRectF(10.0 + east / 2.0 - side / 2.0, middleY - side / 2.0, side, side));
+        for (int y = block.top; y <= block.bottom; ++y)
+            {
+                for (int x = block.left; x <= block.right; ++x)
+                    {
+                        const QString path = store->tilePath(block.zoom, x, y);
+                        QVERIFY(QDir().mkpath(QFileInfo(path).path()));
+                        QVERIFY(filled(Qt::green, 256).save(path));
+                    }
+            }
+        const QImage streets = draw(gauge, 0.0, ChannelId::Speed, session);
+        QCOMPARE(streets.pixelColor(50, 60), QColor(Qt::green));
+        QCOMPARE(streets.pixelColor(50, 8), QColor(Qt::green));
+        QVERIFY(streets.pixelColor(10, 50) != QColor(Qt::green));   // the route on top
+        QVERIFY(!painted(streets, 2, 2));                            // corners rounded off
+        // the map's credit in the lower right corner
+        QVERIFY(streets.pixelColor(70, 94) != QColor(Qt::green));
+        // half as strong when the gauge asks so
+        gauge.components[0].tileOpacity = 0.5;
+        QVERIFY(std::abs(draw(gauge, 0.0, ChannelId::Speed, session).pixelColor(50, 60).alpha() - 128) <= 2);
+        store->setFolder(m_dir.filePath("no-tiles"));
     }
 
     void lapMapShowsTheCurrentLapWithItsStartLine()

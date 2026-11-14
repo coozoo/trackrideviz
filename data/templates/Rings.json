@@ -1,0 +1,50 @@
+{
+    "category": "Simple",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Ring readout",
+            "height": 210,
+            "offsetX": 40,
+            "offsetY": -250
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Segment ring",
+            "height": 210,
+            "offsetX": 266.0,
+            "offsetY": -250
+        },
+        {
+            "channel": "grade",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Circle readout",
+            "height": 210,
+            "offsetX": 492.0,
+            "offsetY": -250
+        },
+        {
+            "channel": "heading",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Compass ring",
+            "height": 210,
+            "offsetX": -250.0,
+            "offsetY": -250
+        }
+    ],
+    "name": "Rings",
+    "theme": {
+        "accent": "#ff1ed2e6",
+        "accent2": "#ffe6f0f0",
+        "background": "#a00a1418",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

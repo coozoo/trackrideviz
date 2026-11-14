@@ -8,7 +8,7 @@
             "edgeY": "end",
             "gauge": "bundled:Profile",
             "height": 200,
-            "offsetX": -318.1818181818182,
+            "offsetX": -318.2,
             "offsetY": -240
         },
         {
@@ -44,7 +44,7 @@
             "edgeY": "start",
             "gauge": "bundled:Route map",
             "height": 280,
-            "offsetX": -320,
+            "offsetX": -320.0,
             "offsetY": 40
         }
     ],

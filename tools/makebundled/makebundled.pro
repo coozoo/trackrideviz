@@ -1,5 +1,5 @@
-# Draws the gauges and writes the templates that ship with the program into
-# data/ of the source tree. Not part of the build: run it after changing the
+# Draws the picture gauges that ship with the program into data/ of the
+# source tree (the templates: tools/vectorgauges/templates.py). Not part of the build: run it after changing the
 # artwork here, look at the result in the program, commit data/.
 #
 #   qmake6 tools/makebundled && make && QT_QPA_PLATFORM=offscreen ./makebundled [data folder]

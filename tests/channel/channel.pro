@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_channel
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_channel.cpp

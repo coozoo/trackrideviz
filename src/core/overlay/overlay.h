@@ -21,11 +21,14 @@ struct OverlayItem
     double x{0.0};        // left edge, fraction of the frame width
     double y{0.0};        // top edge, fraction of the frame height
     double height{0.25};  // fraction of the frame height; the width follows the gauge's shape
+    // A street map under the gauge's route: as the gauge was drawn, or the user's choice.
+    enum Streets { AsDesigned, Shown, Hidden };
+    Streets streets{AsDesigned};
 
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
-               && x == other.x && y == other.y && height == other.height;
+               && x == other.x && y == other.y && height == other.height && streets == other.streets;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
 };
@@ -50,6 +53,10 @@ public:
     int count() const { return m_placed.size(); }
     // False for an item whose gauge could not be found.
     bool hasGauge(int index) const { return !m_placed.at(index).gauge.isEmpty(); }
+
+    // True when the item's gauge draws a route, with or without a street map under it.
+    bool hasRoute(int index) const { return m_placed.at(index).route; }
+    bool hasStreets(int index) const { return m_placed.at(index).streets; }
 
     // What a new project starts with: the dial in the lower left corner, showing speed.
     static QVector<OverlayItem> defaultItems();
@@ -86,6 +93,8 @@ private:
     {
         OverlayItem item;
         BoundGauge gauge;
+        bool route{false};
+        bool streets{false};
     };
     QVector<Placed> m_placed;
 };

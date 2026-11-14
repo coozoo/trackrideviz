@@ -196,7 +196,7 @@ jobs:
           cp -r data/gauges data/templates appdir/usr/share/${{ steps.build.outputs.APP_NAME }}/
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
-          ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage -qmake=$(command -v qmake6)
+          ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -appimage -qmake=$(command -v qmake6) -extra-plugins=tls
           ls -l
           cp ./Race_Track_Visualizer*.AppImage ./Race_Track_Visualizer-x86_64.AppImage
           ls -l
@@ -332,7 +332,8 @@ jobs:
           cp -r data/gauges data/templates release/data/
           windeployqt6.exe release/${{ steps.buildwin.outputs.APP_NAME }}.exe
           # MinGW runtime and Qt's own dependencies that windeployqt does not pick up
-          for pattern in 'libgcc*' 'libwinpthread*' 'libstdc*' 'libdouble*' 'libicuin*' 'libicuuc*' 'libicudt*' 'libpcre*' 'libzstd*' 'libharfbuzz*' 'libgraphite*' 'libfreetype*' 'libbrotlidec*' 'libbrotlicommon*' 'libbz*' 'libpng*' 'libglib*' 'libintl*' 'libiconv*' 'libb2*' 'libmd4c*' 'zlib*'; do
+          # (libcrypto and libssl: map tiles come over https)
+          for pattern in 'libgcc*' 'libwinpthread*' 'libstdc*' 'libdouble*' 'libicuin*' 'libicuuc*' 'libicudt*' 'libpcre*' 'libzstd*' 'libharfbuzz*' 'libgraphite*' 'libfreetype*' 'libbrotlidec*' 'libbrotlicommon*' 'libbz*' 'libpng*' 'libglib*' 'libintl*' 'libiconv*' 'libb2*' 'libmd4c*' 'zlib*' 'libcrypto*' 'libssl*'; do
             cp $ROOTMSYS/bin/$pattern.dll release/ 2>/dev/null || echo "no dll matches $pattern"
           done
           mv release ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64; 7z -tzip a ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64/

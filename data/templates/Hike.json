@@ -1,0 +1,77 @@
+{
+    "category": "Outdoor",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "heading",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Compass rose",
+            "height": 230,
+            "offsetX": 40,
+            "offsetY": 40
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Climb wedge",
+            "height": 200,
+            "offsetX": 40,
+            "offsetY": -240
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile elevation",
+            "height": 74,
+            "offsetX": -282.2,
+            "offsetY": -354
+        },
+        {
+            "channel": "distance",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 74,
+            "offsetX": -282.2,
+            "offsetY": -274
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile speed",
+            "height": 74,
+            "offsetX": -282.2,
+            "offsetY": -194
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 74,
+            "offsetX": -282.2,
+            "offsetY": -114
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 300,
+            "offsetX": -340.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Hike",
+    "theme": {
+        "accent": "#ff78dc5a",
+        "accent2": "#ffe6f0dc",
+        "background": "#9614281e",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

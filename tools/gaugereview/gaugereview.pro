@@ -6,6 +6,7 @@
 #   qmake6 tools/gaugereview && make
 #   QT_QPA_PLATFORM=offscreen ./gaugereview --sheet <gauge folders> <out folder>
 #   QT_QPA_PLATFORM=offscreen ./gaugereview --pairs <mapping.json> <their gauges> <our gauges> <out folder>
+#   QT_QPA_PLATFORM=offscreen ./gaugereview --templates <mapping.json> <their gauges> <their templates> <our gauges> <our templates> <out folder>
 
 QT += core gui
 CONFIG += c++17 console

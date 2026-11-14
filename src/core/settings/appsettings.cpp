@@ -1,5 +1,7 @@
 #include "appsettings.h"
 
+#include "../maps/tilestore.h"
+
 #include <QList>
 #include <QSettings>
 
@@ -13,6 +15,13 @@ const char kHardwareDecoding[] = "preview/hardwareDecoding";
 const char kPreferredDecoder[] = "preview/preferredDecoder";
 const char kFfmpegPath[] = "export/ffmpegPath";
 const char kExportFolder[] = "export/folder";
+const char kMapDownloads[] = "maps/downloads";
+const char kMapTileUrl[] = "maps/tileUrl";
+const char kMapAttribution[] = "maps/attribution";
+const char kMapProvider[] = "maps/provider";
+const char kMapApiKey[] = "maps/apiKey";
+const char kMapCreditShown[] = "maps/creditShown";
+const char kLapsMapShown[] = "maps/lapsPanel";
 const char kExportEncoder[] = "export/encoder";
 const char kExportRateControl[] = "export/rateControl";
 const char kExportQuality[] = "export/quality";
@@ -164,6 +173,83 @@ QString AppSettings::exportFolder()
 void AppSettings::setExportFolder(const QString &folder)
 {
     QSettings().setValue(kExportFolder, folder);
+}
+
+bool AppSettings::mapDownloads()
+{
+    return QSettings().value(kMapDownloads, true).toBool();
+}
+
+void AppSettings::setMapDownloads(bool allowed)
+{
+    QSettings().setValue(kMapDownloads, allowed);
+}
+
+QString AppSettings::mapProvider()
+{
+    // settings from before there was a choice: an address typed in was the user's own server
+    const QString fallback = QSettings().value(kMapTileUrl).toString().trimmed().isEmpty() ? QString("osm") : QString(OwnMapServer);
+    return QSettings().value(kMapProvider, fallback).toString();
+}
+
+void AppSettings::setMapProvider(const QString &id)
+{
+    QSettings().setValue(kMapProvider, id);
+}
+
+QString AppSettings::mapApiKey()
+{
+    return QSettings().value(kMapApiKey).toString().trimmed();
+}
+
+void AppSettings::setMapApiKey(const QString &key)
+{
+    QSettings().setValue(kMapApiKey, key.trimmed());
+}
+
+QString AppSettings::mapCredit()
+{
+    return mapProvider() == QLatin1String(OwnMapServer) ? mapAttribution() : TileStore::provider(mapProvider()).attribution;
+}
+
+bool AppSettings::lapsMapShown()
+{
+    return QSettings().value(kLapsMapShown, true).toBool();
+}
+
+void AppSettings::setLapsMapShown(bool shown)
+{
+    QSettings().setValue(kLapsMapShown, shown);
+}
+
+bool AppSettings::mapCreditShown()
+{
+    return QSettings().value(kMapCreditShown, true).toBool();
+}
+
+void AppSettings::setMapCreditShown(bool shown)
+{
+    QSettings().setValue(kMapCreditShown, shown);
+}
+
+QString AppSettings::mapTileUrl()
+{
+    return QSettings().value(kMapTileUrl).toString();
+}
+
+void AppSettings::setMapTileUrl(const QString &url)
+{
+    QSettings().setValue(kMapTileUrl, url);
+}
+
+QString AppSettings::mapAttribution()
+{
+    return QSettings().value(kMapAttribution).toString();
+}
+
+void AppSettings::setMapAttribution(const QString &text)
+{
+    QSettings().setValue(kMapAttribution, text);
 }
 
 bool AppSettings::hasExportDefaults()

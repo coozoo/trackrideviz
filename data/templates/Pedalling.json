@@ -1,0 +1,95 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "leftPowerPhaseStart",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Power phase left",
+            "height": 200,
+            "offsetX": 40,
+            "offsetY": 40
+        },
+        {
+            "channel": "rightPowerPhaseStart",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Power phase right",
+            "height": 200,
+            "offsetX": 250.0,
+            "offsetY": 40
+        },
+        {
+            "channel": "leftPlatformCenterOffset",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Pedal offset left",
+            "height": 190,
+            "offsetX": 75,
+            "offsetY": 255
+        },
+        {
+            "channel": "rightPlatformCenterOffset",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Pedal offset right",
+            "height": 190,
+            "offsetX": 285.2,
+            "offsetY": 255
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Label plate",
+            "height": 76,
+            "offsetX": 40,
+            "offsetY": 460
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Label plate",
+            "height": 76,
+            "offsetX": 250.8,
+            "offsetY": 460
+        },
+        {
+            "channel": "power",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Dial fill",
+            "height": 320,
+            "offsetX": -360.0,
+            "offsetY": -360
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile speed",
+            "height": 80,
+            "offsetX": -641.8,
+            "offsetY": -120
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 280,
+            "offsetX": -320.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Pedalling",
+    "theme": {
+        "accent": "#ffff4678",
+        "accent2": "#fff0e6f0",
+        "background": "#a0140a14",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

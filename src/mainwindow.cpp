@@ -11,6 +11,7 @@
 #include "gauge/gaugefonts.h"
 #include "gauge/gaugelibrary.h"
 #include "gaugelibrarypanel.h"
+#include "maps/tilestore.h"
 #include "overlay/templatelibrary.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
@@ -139,7 +140,10 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar();
 
     m_units = AppSettings::units();
+    applyMapSettings();
     rebuildOverlay();
+    // map tiles come one by one: gauges with a street map are drawn again with them
+    connect(TileStore::instance(), &TileStore::arrived, this, &MainWindow::rebuildOverlay);
 
     connect(m_canvas, &VideoCanvas::itemGeometryEdited, this, &MainWindow::onItemGeometryEdited);
     connect(m_canvas, &VideoCanvas::itemDeleteRequested, this, &MainWindow::removeGauge);
@@ -308,6 +312,7 @@ void MainWindow::createDocks()
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
+    connect(m_lapsPanel, &LapsPanel::mapChoiceChanged, this, &MainWindow::applyMapSettings);
     connect(m_lapsPanel, &LapsPanel::removeLineRequested, this, [this]()
     {
         setLapLines(StartFinishLine(), m_project.sectors, tr("Remove start/finish line"));
@@ -792,6 +797,17 @@ void MainWindow::setGaugeChannel(int index, const QString &channel)
     changeOverlay(tr("Change what a gauge shows"), after);
 }
 
+void MainWindow::setGaugeStreets(int index, bool shown)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items[index].streets = shown ? OverlayItem::Shown : OverlayItem::Hidden;
+    changeOverlay(shown ? tr("Show the street map") : tr("Hide the street map"), after);
+}
+
 QStringList MainWindow::channelChoices(const QString &current) const
 {
     QStringList channels = m_session ? m_session->channelIds() : QStringList();
@@ -821,6 +837,17 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             connect(action, &QAction::triggered, this, [this, index, channel]()
             {
                 setGaugeChannel(index, channel);
+            });
+        }
+    const Overlay &overlay = m_canvas->overlay();
+    if (index < overlay.count() && overlay.hasRoute(index))
+        {
+            QAction *streets = menu.addAction(tr("Street map"));
+            streets->setCheckable(true);
+            streets->setChecked(overlay.hasStreets(index));
+            connect(streets, &QAction::triggered, this, [this, index](bool shown)
+            {
+                setGaugeStreets(index, shown);
             });
         }
     menu.addSeparator();
@@ -1378,6 +1405,7 @@ void MainWindow::showSettings()
 void MainWindow::applySettings()
 {
     Appearance::apply();
+    applyMapSettings();
     const Units units = AppSettings::units();
     if (units != m_units)
         {
@@ -1387,6 +1415,30 @@ void MainWindow::applySettings()
             m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
             rebuildOverlay();
             updateSourcesInfo();
+        }
+}
+
+void MainWindow::applyMapSettings()
+{
+    TileStore *maps = TileStore::instance();
+    const QString before = maps->urlTemplate() + maps->attribution();
+    QString address = AppSettings::mapTileUrl();
+    QString credit = AppSettings::mapAttribution();
+    int maxZoom = 19;
+    if (AppSettings::mapProvider() != QLatin1String(AppSettings::OwnMapServer))
+        {
+            const TileStore::Provider provider = TileStore::provider(AppSettings::mapProvider());
+            address = provider.urlTemplate;
+            address.replace("{apikey}", AppSettings::mapApiKey());
+            credit = provider.attribution;
+            maxZoom = provider.maxZoom;
+        }
+    maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
+    maps->setDownloads(AppSettings::mapDownloads());
+    m_lapsPanel->refreshMapChoice();
+    if (maps->urlTemplate() + maps->attribution() != before)
+        {
+            rebuildOverlay();
         }
 }
 

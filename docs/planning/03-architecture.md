@@ -240,15 +240,34 @@ Where the shipped `gauges/` and `templates/` are, first found wins: `$TRACKRIDEV
 `<exe>/data` (Windows zip); `<exe>/../share/trackrideviz` (deb/rpm `/usr/share/trackrideviz`,
 AppImage, any `make install` prefix); `<exe>/../Resources` (macOS bundle, `QMAKE_BUNDLE_DATA`);
 the system data folders; in debug builds the source tree's `data/`. Shipped artwork is drawn by
-`tools/makebundled` (pictures) and `tools/vectorgauges/make.py` (SVG gauges) - run them, look at
-the result, commit `data/` - until the gauge editor exists; only our own artwork goes there.
-`tools/gaugereview` renders a gauge from elsewhere and ours side by side on a local page; its
+`tools/makebundled` (pictures) and `tools/vectorgauges/make.py` (SVG gauges), the templates are laid
+out by `tools/vectorgauges/templates.py` - run them, look at the result, commit `data/` - until the gauge editor exists; only our own artwork goes there.
+`tools/gaugereview` renders a gauge or a template from elsewhere and ours side by side on a local page; its
 output shows other people's artwork and stays out of the repository.
 
 SVG drawings in gauges are drawn as vectors at the size they end up. They name the theme's
 colours as `@foreground`, `@background`, `@accent`, `@accent2`, and their transparency as
 `@<name>-opacity` (Qt SVG reads no transparency inside a colour). Texts use the bundled
 Barlow Semi Condensed (`GaugeFonts`).
+
+## 3.7b Map tiles
+
+`TileStore` (core, the only user of QtNetwork) gives route gauges the street map under them. A map
+part with `"tiles": true` asks it, when the gauge is bound, for a picture of what its frame shows;
+the store reads the tiles from `<cache>/tiles/<server>/<z>/<x>/<y>.png` and returns what is there.
+Missing tiles are fetched on the store's own thread, two at a time, named by a User-Agent as tile
+servers ask; `arrived()` then makes the main window bind the overlay again. Drawing never waits
+and never touches the network, so the export worker and the thumbnails need no care. The zoom
+level follows the area alone (about a thousand tile pixels across), not the size drawn: preview
+and export use the same tiles. Nothing is fetched until the application allows it
+(`setDownloads`), so tests and tools stay off the network; a tile that failed is not asked for
+again in the same run. Routes and tiles share one projection (Mercator, in degrees).
+
+The maps to choose from are `TileStore::providers()` (address, credit, closest zoom); the main
+window turns the settings (map, key, own address, credit shown or not) into `setSource`. Each
+server has its own folder in the cache. Whether an item shows a map is `OverlayItem::streets`
+(as the gauge was drawn, shown, hidden); `Overlay` puts the choice into the gauge's map parts
+before binding, giving a gauge drawn without a map a dimmed one with the corners taken off.
 
 ## 3.8 Touch UI (QML, later)
 

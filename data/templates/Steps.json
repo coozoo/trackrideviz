@@ -1,0 +1,77 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Tile speed",
+            "height": 70,
+            "offsetX": 40,
+            "offsetY": -480
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 70,
+            "offsetX": 70,
+            "offsetY": -406
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Tile cadence",
+            "height": 70,
+            "offsetX": 100,
+            "offsetY": -332
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Tile elevation",
+            "height": 70,
+            "offsetX": 130,
+            "offsetY": -258
+        },
+        {
+            "channel": "grade",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Tile grade",
+            "height": 70,
+            "offsetX": 160,
+            "offsetY": -184
+        },
+        {
+            "channel": "distance",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 70,
+            "offsetX": 190,
+            "offsetY": -110
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 280,
+            "offsetX": -320.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Steps",
+    "theme": {
+        "accent": "#ff1ed2e6",
+        "accent2": "#ffe6f0f0",
+        "background": "#a00a1418",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

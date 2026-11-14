@@ -1,0 +1,59 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Heart",
+            "height": 160,
+            "offsetX": 40,
+            "offsetY": -540
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Dial small",
+            "height": 160,
+            "offsetX": 40,
+            "offsetY": -370
+        },
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Dial small",
+            "height": 160,
+            "offsetX": 40,
+            "offsetY": -200
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Climb wedge",
+            "height": 180,
+            "offsetX": -432.7,
+            "offsetY": -220
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 280,
+            "offsetX": -320.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Heart and cadence",
+    "theme": {
+        "accent": "#ff2a9df4",
+        "accent2": "#ffdce6f0",
+        "background": "#a0081420",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

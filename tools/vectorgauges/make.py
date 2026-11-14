@@ -1087,9 +1087,10 @@ def crank(name):
     write(name, (s, s), components, drawings, ["cadence"])
 
 
-def map_gauge(name, lap):
+def map_gauge(name, lap, streets=False):
     """The route (or the lap under way) as a line; where the rider is, an arrow pointing the way
-    with the speed and the distance beside it."""
+    with the speed and the distance beside it. With `streets`, on a street map (dimmed, so the
+    line and the texts stand out) in a plate with rounded corners."""
     s = 420
     arrow = (f"<path d='M20,6 L33,34 L20,27 L7,34 Z' {theme('accent')} stroke='#000000' stroke-opacity='0.4' "
              "stroke-width='1.5' stroke-linejoin='round'/>")
@@ -1102,12 +1103,21 @@ def map_gauge(name, lap):
             dict(text("valueAndUnit", (16, 44), 15, align="left", italic=True, upperCase=True, precision=1), channel="distance")]
     route = {"type": "lapMap" if lap else "trackMap", "frame": [24, 24, s - 48, s - 48], "color": "foreground",
              "lineWidth": 5, "padding": 20, "knob": knob}
+    if streets:
+        route.update({"frame": [0, 0, s, s], "padding": 50, "color": "accent", "lineWidth": 6,
+                      "tiles": True, "tileOpacity": 0.72, "cornerRadius": 30})
     if lap:
         squares = "".join(f"<rect x='{4 * (i % 8)}' y='{4 * (i // 8)}' width='4' height='4' "
                           f"fill='{'#ffffff' if (i % 8 + i // 8) % 2 else '#111111'}'/>" for i in range(24))
         drawings["start.svg"] = svg(32, 12, squares)
         route["startLine"] = [image("start.svg", (-16, -6, 32, 12))]
-    write(name, (s, s), [route], drawings, ["speed"])
+    components = [route]
+    if streets:
+        drawings["plate.svg"] = svg(s, s, f"<rect width='{s}' height='{s}' rx='30' fill='#10141a'/>")
+        drawings["rim.svg"] = svg(s, s, f"<rect x='1.5' y='1.5' width='{s - 3}' height='{s - 3}' rx='28.5' fill='none' "
+                                        "stroke='@foreground' stroke-opacity='0.55' stroke-width='3'/>")
+        components = [image("plate.svg", (0, 0, s, s)), route, image("rim.svg", (0, 0, s, s))]
+    write(name, (s, s), components, drawings, ["speed"])
 
 
 def half_dial(name, side):
@@ -2066,6 +2076,8 @@ def main():
     crank("Crank")
     map_gauge("Route map arrow", lap=False)
     map_gauge("Lap map arrow", lap=True)
+    map_gauge("Route map streets", lap=False, streets=True)
+    map_gauge("Lap map streets", lap=True, streets=True)
     half_dial("Half dial left", "left")
     half_dial("Half dial right", "right")
     tape("Tape elevation")

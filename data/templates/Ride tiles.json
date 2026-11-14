@@ -1,0 +1,77 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Route map arrow",
+            "height": 236,
+            "offsetX": -236.0,
+            "offsetY": -818
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile speed",
+            "height": 72,
+            "offsetX": -235.6,
+            "offsetY": -582
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 72,
+            "offsetX": -235.6,
+            "offsetY": -510
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile cadence",
+            "height": 72,
+            "offsetX": -235.6,
+            "offsetY": -438
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile elevation",
+            "height": 72,
+            "offsetX": -235.6,
+            "offsetY": -366
+        },
+        {
+            "channel": "grade",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile grade",
+            "height": 72,
+            "offsetX": -235.6,
+            "offsetY": -294
+        },
+        {
+            "channel": "distance",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 72,
+            "offsetX": -235.6,
+            "offsetY": -222
+        }
+    ],
+    "name": "Ride tiles",
+    "theme": {
+        "accent": "#ff2a9df4",
+        "accent2": "#ffdce6f0",
+        "background": "#a0081420",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

@@ -2,7 +2,6 @@
 
 #include "../sync/videosync.h"
 
-#include <QCollator>
 #include <QFileInfo>
 #include <QRegularExpression>
 
@@ -39,15 +38,66 @@ QDateTime recordedAt(const VideoJoin::Part &part)
     const QDateTime fromName = VideoSync::wallClockFromFileName(QFileInfo(part.path).fileName());
     return fromName.isValid() ? fromName : part.info.created;
 }
+
+// clip9 before clip10, whatever the case of the letters. Done by hand:
+// QCollator's numeric mode does nothing in the "C" locale.
+bool naturalLess(const QString &a, const QString &b)
+{
+    int i = 0;
+    int j = 0;
+    while (i < a.size() && j < b.size())
+        {
+            if (a.at(i).isDigit() && b.at(j).isDigit())
+                {
+                    int endA = i;
+                    int endB = j;
+                    while (endA < a.size() && a.at(endA).isDigit())
+                        {
+                            ++endA;
+                        }
+                    while (endB < b.size() && b.at(endB).isDigit())
+                        {
+                            ++endB;
+                        }
+                    // without leading zeros the longer number is the larger one
+                    while (i < endA - 1 && a.at(i) == QLatin1Char('0'))
+                        {
+                            ++i;
+                        }
+                    while (j < endB - 1 && b.at(j) == QLatin1Char('0'))
+                        {
+                            ++j;
+                        }
+                    if (endA - i != endB - j)
+                        {
+                            return endA - i < endB - j;
+                        }
+                    const int order = QStringView(a).mid(i, endA - i).compare(QStringView(b).mid(j, endB - j));
+                    if (order != 0)
+                        {
+                            return order < 0;
+                        }
+                    i = endA;
+                    j = endB;
+                    continue;
+                }
+            const QChar ca = a.at(i).toLower();
+            const QChar cb = b.at(j).toLower();
+            if (ca != cb)
+                {
+                    return ca < cb;
+                }
+            ++i;
+            ++j;
+        }
+    return a.size() - i < b.size() - j;
+}
 }
 
 QStringList VideoJoin::ordered(const QStringList &paths)
 {
-    QCollator collator;
-    collator.setNumericMode(true);
-    collator.setCaseSensitivity(Qt::CaseInsensitive);
     QStringList sorted = paths;
-    std::sort(sorted.begin(), sorted.end(), [&collator](const QString &a, const QString &b)
+    std::sort(sorted.begin(), sorted.end(), [](const QString &a, const QString &b)
     {
         const QString nameA = QFileInfo(a).fileName();
         const QString nameB = QFileInfo(b).fileName();
@@ -59,7 +109,7 @@ QStringList VideoJoin::ordered(const QStringList &paths)
             {
                 return recordingA != recordingB ? recordingA < recordingB : chapterA < chapterB;
             }
-        return collator.compare(nameA, nameB) < 0;
+        return naturalLess(nameA, nameB);
     });
     return sorted;
 }

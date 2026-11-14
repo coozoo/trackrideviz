@@ -1,0 +1,41 @@
+{
+    "category": "Simple",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Open arc",
+            "height": 340,
+            "offsetX": 40,
+            "offsetY": -380
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Open arc thin",
+            "height": 280,
+            "offsetX": 390,
+            "offsetY": -320
+        },
+        {
+            "channel": "grade",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Crown arc",
+            "height": 150,
+            "offsetX": -471.2,
+            "offsetY": -190
+        }
+    ],
+    "name": "Arcs",
+    "theme": {
+        "accent": "#ffffc81e",
+        "accent2": "#fff0f0e6",
+        "background": "#a0101010",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

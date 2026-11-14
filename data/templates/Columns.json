@@ -1,0 +1,59 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Dial ring",
+            "height": 340,
+            "offsetX": 40,
+            "offsetY": -380
+        },
+        {
+            "channel": "power",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Column glass",
+            "height": 300,
+            "offsetX": -706.9,
+            "offsetY": -340
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Column glass",
+            "height": 300,
+            "offsetX": -480.6,
+            "offsetY": -340
+        },
+        {
+            "channel": "cadence",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Column glass",
+            "height": 300,
+            "offsetX": -254.3,
+            "offsetY": -340
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 260,
+            "offsetX": -300.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Columns",
+    "theme": {
+        "accent": "#ff78dc5a",
+        "accent2": "#ffe6f0dc",
+        "background": "#9614281e",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

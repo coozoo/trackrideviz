@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_settings
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_settings.cpp

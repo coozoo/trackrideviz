@@ -1,0 +1,41 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Ride cluster",
+            "height": 380,
+            "offsetX": 40,
+            "offsetY": -420
+        },
+        {
+            "channel": "distance",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Progress",
+            "height": 90,
+            "offsetX": -207.7,
+            "offsetY": -130
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Route map arrow",
+            "height": 280,
+            "offsetX": -320.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Ride cluster",
+    "theme": {
+        "accent": "#ff1ed2e6",
+        "accent2": "#ffe6f0f0",
+        "background": "#a00a1418",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

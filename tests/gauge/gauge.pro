@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_gauge
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_gauge.cpp

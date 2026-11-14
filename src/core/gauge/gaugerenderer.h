@@ -68,6 +68,8 @@ private:
         double endTime{0.0};
         QPointF startPoint;
         double startAngle{0.0};           // direction of travel there, clockwise from up
+        QImage map;                       // street map under it (null: none), drawn into mapRect
+        QRectF mapRect;                   // design units
     };
     struct Node
     {
@@ -119,6 +121,7 @@ private:
     QVector<Node> bindAll(const QVector<GaugeComponent> &components, const Units &units, const GaugeTheme &theme);
     void prepareGraph(Node &node) const;
     void prepareRoutes(Node &node) const;
+    void drawTiles(QPainter &painter, const Node &node, int route) const;
     void preparePhases(Node &node, const GaugeManipulation &strip) const;
     double phaseAt(const Node &node, const GaugeManipulation &strip, double time) const;
     bool positionAt(double time, QPointF *projected) const;
@@ -170,7 +173,6 @@ private:
     // projection of positions onto a plane, the same for every map of the gauge
     const Channel *m_lat{nullptr};
     const Channel *m_lon{nullptr};
-    double m_lonScale{1.0};
     TelemetrySessionPtr m_session;        // keeps the channels alive
     GaugeTheme m_theme;                   // its font, for texts
     QVector<Metric> m_metrics;

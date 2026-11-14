@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_gpx
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_gpx.cpp

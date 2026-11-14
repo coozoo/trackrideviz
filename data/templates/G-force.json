@@ -1,0 +1,59 @@
+{
+    "category": "Motorsport",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Dial glass",
+            "height": 340,
+            "offsetX": 40,
+            "offsetY": -380
+        },
+        {
+            "channel": "gForceLongitudinal",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Accel bar",
+            "height": 76,
+            "offsetX": -194.4,
+            "offsetY": -116
+        },
+        {
+            "channel": "gForceLateral",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Skid ball",
+            "height": 100,
+            "offsetX": -161.5,
+            "offsetY": -230
+        },
+        {
+            "channel": "gForceLateral",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:G-force rings",
+            "height": 300,
+            "offsetX": -340.0,
+            "offsetY": -340
+        },
+        {
+            "channel": "gForceVertical",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Dial g",
+            "height": 180,
+            "offsetX": -540.0,
+            "offsetY": -220
+        }
+    ],
+    "name": "G-force",
+    "theme": {
+        "accent": "#ff1ed2e6",
+        "accent2": "#ffe6f0f0",
+        "background": "#a00a1418",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

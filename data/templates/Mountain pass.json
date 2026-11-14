@@ -1,0 +1,59 @@
+{
+    "category": "Cycling",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "grade",
+            "edgeX": "start",
+            "edgeY": "middle",
+            "gauge": "bundled:Side arc left",
+            "height": 440,
+            "offsetX": 40,
+            "offsetY": -220.0
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "middle",
+            "gauge": "bundled:Tape elevation",
+            "height": 600,
+            "offsetX": -199.4,
+            "offsetY": -300.0
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Climb wedge",
+            "height": 190,
+            "offsetX": -207.3,
+            "offsetY": -230
+        },
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Tile speed",
+            "height": 76,
+            "offsetX": 40,
+            "offsetY": 40
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Tile",
+            "height": 76,
+            "offsetX": 296.7,
+            "offsetY": 40
+        }
+    ],
+    "name": "Mountain pass",
+    "theme": {
+        "accent": "#ff78dc5a",
+        "accent2": "#ffe6f0dc",
+        "background": "#9614281e",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

@@ -4,6 +4,8 @@
 
 #include <QWidget>
 
+class QCheckBox;
+class QComboBox;
 class QLabel;
 class QPushButton;
 class QTreeWidget;
@@ -24,7 +26,12 @@ public:
     // Telemetry time on screen, for the position on the map and the lap under way.
     void setTime(double time);
 
+    // The map chosen in the settings may have changed.
+    void refreshMapChoice();
+
 signals:
+    // Another map was chosen here: the settings hold it already.
+    void mapChoiceChanged();
     // The user clicked here on the map to place the line.
     void lineRequested(double lat, double lon);
     void removeLineRequested();
@@ -41,6 +48,8 @@ private:
     void updateInfo();
 
     TrackView *m_track{nullptr};
+    QCheckBox *m_streetsCheck{nullptr};
+    QComboBox *m_mapCombo{nullptr};
     QPushButton *m_placeButton{nullptr};
     QPushButton *m_removeButton{nullptr};
     QPushButton *m_sectorButton{nullptr};

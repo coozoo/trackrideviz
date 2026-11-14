@@ -1,0 +1,86 @@
+{
+    "category": "Motorsport",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Dial notched",
+            "height": 340,
+            "offsetX": -170.0,
+            "offsetY": -380
+        },
+        {
+            "channel": "heartRate",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Dial small metal",
+            "height": 200,
+            "offsetX": -390.0,
+            "offsetY": -240
+        },
+        {
+            "channel": "gForceLongitudinal",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Dial g",
+            "height": 200,
+            "offsetX": 190.0,
+            "offsetY": -240
+        },
+        {
+            "channel": "lap",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Readout right",
+            "height": 64,
+            "offsetX": -244.8,
+            "offsetY": 380
+        },
+        {
+            "channel": "lapTime",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap time right",
+            "height": 64,
+            "offsetX": -244.8,
+            "offsetY": 450
+        },
+        {
+            "channel": "previousLapTime",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap time right",
+            "height": 64,
+            "offsetX": -244.8,
+            "offsetY": 520
+        },
+        {
+            "channel": "bestLapTime",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap time right",
+            "height": 64,
+            "offsetX": -244.8,
+            "offsetY": 590
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap map arrow",
+            "height": 320,
+            "offsetX": -360.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Dashboard",
+    "theme": {
+        "accent": "#ffff781e",
+        "accent2": "#ffdce6f0",
+        "background": "#960a0e14",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

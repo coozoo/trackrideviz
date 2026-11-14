@@ -27,6 +27,7 @@ public:
     ~VideoCanvas() override;
 
     void setOverlay(const Overlay &overlay);
+    const Overlay &overlay() const { return m_overlay; }
     // Index of the selected gauge, -1 for none.
     int selectedItem() const { return m_selected; }
     void setSelectedItem(int index);

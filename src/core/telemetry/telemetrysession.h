@@ -23,7 +23,7 @@ public:
         double startTime{0.0}; // seconds from session start
         double endTime{0.0};
         // where the lap crossed its sector lines, in order; empty without sectors
-        QVector<double> splits;
+        QVector<double> splits{};
     };
 
     struct Pause

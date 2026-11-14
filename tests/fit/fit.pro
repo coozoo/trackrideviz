@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 
 TARGET = tst_fit
 
-include(../../src/core/core.pri)
+include(../rtvcore.pri)
 
 SOURCES += \
     test_fit.cpp

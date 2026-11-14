@@ -1,0 +1,77 @@
+{
+    "category": "Motorsport",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Dial metal arc",
+            "height": 360,
+            "offsetX": 40,
+            "offsetY": -400
+        },
+        {
+            "channel": "gForceLateral",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:G-force rings",
+            "height": 230,
+            "offsetX": 420,
+            "offsetY": -270
+        },
+        {
+            "channel": "lap",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Readout right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -338
+        },
+        {
+            "channel": "lapTime",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Lap time right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -262
+        },
+        {
+            "channel": "previousLapTime",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Lap time right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -186
+        },
+        {
+            "channel": "bestLapTime",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Lap time right",
+            "height": 70,
+            "offsetX": -264.0,
+            "offsetY": -110
+        },
+        {
+            "channel": "speed",
+            "edgeX": "end",
+            "edgeY": "start",
+            "gauge": "bundled:Lap map arrow",
+            "height": 320,
+            "offsetX": -360.0,
+            "offsetY": 40
+        }
+    ],
+    "name": "Lap timer",
+    "theme": {
+        "accent": "#ffe61e28",
+        "accent2": "#ffffffff",
+        "background": "#a0000000",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

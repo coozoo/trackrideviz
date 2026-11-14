@@ -1,0 +1,104 @@
+{
+    "category": "Outdoor",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "heading",
+            "edgeX": "middle",
+            "edgeY": "start",
+            "gauge": "bundled:Heading tape",
+            "height": 80,
+            "offsetX": -400.0,
+            "offsetY": 20
+        },
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "middle",
+            "gauge": "bundled:Column scale",
+            "height": 440,
+            "offsetX": 40,
+            "offsetY": -220.0
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "middle",
+            "gauge": "bundled:Tape elevation",
+            "height": 580,
+            "offsetX": -194.1,
+            "offsetY": -290.0
+        },
+        {
+            "channel": "gradeAngle",
+            "edgeX": "middle",
+            "edgeY": "middle",
+            "gauge": "bundled:Horizon",
+            "height": 300,
+            "offsetX": -150.0,
+            "offsetY": -150.0
+        },
+        {
+            "channel": "gForceLateral",
+            "edgeX": "middle",
+            "edgeY": "middle",
+            "gauge": "bundled:Skid ball",
+            "height": 80,
+            "offsetX": -129.2,
+            "offsetY": 180.0
+        },
+        {
+            "channel": "speed",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile speed",
+            "height": 62,
+            "offsetX": -519.3,
+            "offsetY": -62
+        },
+        {
+            "channel": "verticalSpeed",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 62,
+            "offsetX": -310.4,
+            "offsetY": -62
+        },
+        {
+            "channel": "gForceVertical",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile",
+            "height": 62,
+            "offsetX": -101.5,
+            "offsetY": -62
+        },
+        {
+            "channel": "heading",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile heading",
+            "height": 62,
+            "offsetX": 107.5,
+            "offsetY": -62
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Tile elevation",
+            "height": 62,
+            "offsetX": 316.4,
+            "offsetY": -62
+        }
+    ],
+    "name": "Instruments",
+    "theme": {
+        "accent": "#ff1ed2e6",
+        "accent2": "#ffe6f0f0",
+        "background": "#a00a1418",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}

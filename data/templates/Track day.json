@@ -17,7 +17,7 @@
             "edgeY": "start",
             "gauge": "bundled:Lap map",
             "height": 340,
-            "offsetX": -380,
+            "offsetX": -380.0,
             "offsetY": 40
         },
         {
@@ -26,7 +26,7 @@
             "edgeY": "end",
             "gauge": "bundled:G-force",
             "height": 260,
-            "offsetX": -300,
+            "offsetX": -300.0,
             "offsetY": -300
         },
         {
@@ -35,7 +35,7 @@
             "edgeY": "start",
             "gauge": "bundled:Bar",
             "height": 90,
-            "offsetX": -207.69230769230768,
+            "offsetX": -207.7,
             "offsetY": 40
         }
     ],

@@ -63,6 +63,7 @@ private slots:
     void removeGauge(int index);
     void onItemGeometryEdited(int index, double x, double y, double height);
     void setGaugeChannel(int index, const QString &channel);
+    void setGaugeStreets(int index, bool shown);
     void chooseThemeColor(int role);
     void showItemMenu(int index, const QPoint &globalPosition);
     void updateProperties();
@@ -76,6 +77,7 @@ private slots:
     void showSettings();
     // Picks up what the settings dialog changed and can change without a restart.
     void applySettings();
+    void applyMapSettings();
     void showAbout();
 
 private:

@@ -1,5 +1,6 @@
 #include "settingsdialog.h"
 
+#include "maps/tilestore.h"
 #include "settings/appsettings.h"
 #include "video/ffmpegtools.h"
 
@@ -16,6 +17,7 @@
 #include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QStyleFactory>
 #include <QVBoxLayout>
@@ -51,6 +53,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     addPage(tr("Preview"), createPreviewPage());
     addPage(tr("Units"), createUnitsPage());
     addPage(tr("Export"), createExportPage());
+    addPage(tr("Maps"), createMapsPage());
     m_pageList->setCurrentRow(0);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this);
@@ -71,7 +74,13 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 void SettingsDialog::addPage(const QString &title, QWidget *page)
 {
     m_pageList->addItem(title);
-    m_pages->addWidget(page);
+    // a page taller than the dialog scrolls rather than squeezing its rows
+    QScrollArea *scroll = new QScrollArea(this);
+    scroll->setWidgetResizable(true);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setWidget(page);
+    m_pages->addWidget(scroll);
 }
 
 QWidget *SettingsDialog::createAppearancePage()
@@ -216,6 +225,54 @@ QWidget *SettingsDialog::createExportPage()
     return page;
 }
 
+QWidget *SettingsDialog::createMapsPage()
+{
+    QWidget *page = new QWidget(this);
+    m_mapDownloadsCheck = new QCheckBox(tr("Download street maps for gauges that show one"), page);
+    m_mapProviderCombo = new QComboBox(page);
+    for (const TileStore::Provider &provider : TileStore::providers())
+        {
+            m_mapProviderCombo->addItem(provider.urlTemplate.contains("{apikey}") ? tr("%1 (needs a key)").arg(provider.name)
+                                        : provider.name, provider.id);
+        }
+    m_mapProviderCombo->addItem(tr("Own server"), QString(AppSettings::OwnMapServer));
+    m_mapApiKeyEdit = new QLineEdit(page);
+    m_mapApiKeyEdit->setClearButtonEnabled(true);
+    m_mapUrlEdit = new QLineEdit(page);
+    m_mapUrlEdit->setPlaceholderText(TileStore::defaultUrlTemplate());
+    m_mapUrlEdit->setClearButtonEnabled(true);
+    m_mapAttributionEdit = new QLineEdit(page);
+    m_mapAttributionEdit->setPlaceholderText(TileStore::defaultAttribution());
+    m_mapAttributionEdit->setClearButtonEnabled(true);
+    m_mapCreditCheck = new QCheckBox(tr("Show the map's credit on the gauge"), page);
+    connect(m_mapProviderCombo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updateMapFields);
+
+    QFormLayout *form = new QFormLayout(page);
+    form->addRow(m_mapDownloadsCheck);
+    form->addRow(note(tr("The map pieces around a route are fetched once and kept on this computer; "
+                         "after that the gauge and the export work without a connection. "
+                         "The server learns which area the route is in."), page));
+    form->addRow(tr("Map:"), m_mapProviderCombo);
+    form->addRow(tr("Key:"), m_mapApiKeyEdit);
+    form->addRow(tr("Tile server:"), m_mapUrlEdit);
+    form->addRow(note(tr("An address with {z}, {x} and {y} in it."), page));
+    form->addRow(tr("Its credit:"), m_mapAttributionEdit);
+    form->addRow(m_mapCreditCheck);
+    form->addRow(note(tr("The makers of these maps ask to be named wherever the map is shown. "
+                         "Switch the credit off only when the video names them elsewhere, "
+                         "in its end credits or its description."), page));
+    return page;
+}
+
+void SettingsDialog::updateMapFields()
+{
+    const QString id = m_mapProviderCombo->currentData().toString();
+    const bool own = id == QLatin1String(AppSettings::OwnMapServer);
+    m_mapUrlEdit->setEnabled(own);
+    m_mapAttributionEdit->setEnabled(own);
+    m_mapApiKeyEdit->setEnabled(!own && TileStore::provider(id).urlTemplate.contains("{apikey}"));
+}
+
 void SettingsDialog::checkFfmpeg()
 {
     const QString entered = QDir::fromNativeSeparators(m_ffmpegEdit->text().trimmed());
@@ -243,6 +300,14 @@ void SettingsDialog::load()
     m_ffmpegEdit->setText(QDir::toNativeSeparators(AppSettings::ffmpegPath()));
     m_exportFolderEdit->setText(QDir::toNativeSeparators(AppSettings::exportFolder()));
     checkFfmpeg();
+
+    m_mapDownloadsCheck->setChecked(AppSettings::mapDownloads());
+    select(m_mapProviderCombo, AppSettings::mapProvider());
+    m_mapApiKeyEdit->setText(AppSettings::mapApiKey());
+    m_mapUrlEdit->setText(AppSettings::mapTileUrl());
+    m_mapAttributionEdit->setText(AppSettings::mapAttribution());
+    m_mapCreditCheck->setChecked(AppSettings::mapCreditShown());
+    updateMapFields();
 
     const Units units = AppSettings::units();
     select(m_speedCombo, units.speed);
@@ -274,6 +339,13 @@ void SettingsDialog::accept()
 
     AppSettings::setFfmpegPath(QDir::fromNativeSeparators(m_ffmpegEdit->text().trimmed()));
     AppSettings::setExportFolder(QDir::fromNativeSeparators(m_exportFolderEdit->text().trimmed()));
+
+    AppSettings::setMapDownloads(m_mapDownloadsCheck->isChecked());
+    AppSettings::setMapProvider(m_mapProviderCombo->currentData().toString());
+    AppSettings::setMapApiKey(m_mapApiKeyEdit->text());
+    AppSettings::setMapCreditShown(m_mapCreditCheck->isChecked());
+    AppSettings::setMapTileUrl(m_mapUrlEdit->text().trimmed());
+    AppSettings::setMapAttribution(m_mapAttributionEdit->text().trimmed());
 
     if (needsRestart)
         {

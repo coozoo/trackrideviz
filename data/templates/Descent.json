@@ -1,0 +1,59 @@
+{
+    "category": "Outdoor",
+    "format": "rtvtemplate",
+    "items": [
+        {
+            "channel": "speed",
+            "edgeX": "start",
+            "edgeY": "end",
+            "gauge": "bundled:Dome",
+            "height": 240,
+            "offsetX": 40,
+            "offsetY": -280
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "end",
+            "edgeY": "middle",
+            "gauge": "bundled:Side arc right",
+            "height": 440,
+            "offsetX": -216.0,
+            "offsetY": -220.0
+        },
+        {
+            "channel": "temperature",
+            "edgeX": "end",
+            "edgeY": "end",
+            "gauge": "bundled:Thermometer",
+            "height": 260,
+            "offsetX": -350.5,
+            "offsetY": -300
+        },
+        {
+            "channel": "elevation",
+            "edgeX": "middle",
+            "edgeY": "end",
+            "gauge": "bundled:Graph",
+            "height": 170,
+            "offsetX": -221.0,
+            "offsetY": -210
+        },
+        {
+            "channel": "heading",
+            "edgeX": "start",
+            "edgeY": "start",
+            "gauge": "bundled:Compass ring",
+            "height": 200,
+            "offsetX": 40,
+            "offsetY": 40
+        }
+    ],
+    "name": "Descent",
+    "theme": {
+        "accent": "#ff2a9df4",
+        "accent2": "#ffdce6f0",
+        "background": "#a0081420",
+        "foreground": "#ffffffff"
+    },
+    "version": 1
+}
