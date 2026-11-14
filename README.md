@@ -1,10 +1,20 @@
 # Race Track Visualizer
 
+[![Release_Version](https://github.com/coozoo/trackrideviz/actions/workflows/build_all.yml/badge.svg)](https://github.com/coozoo/trackrideviz/actions/workflows/build_all.yml)
+
 Telemetry overlays for action camera video: speed, lap times, G-force, track map, heart rate,
 power, OBD data and more, drawn as gauges on top of your footage and exported as a new video.
 
 A cross-platform (Linux, Windows, macOS) Qt application meant to replace older telemetry overlay
 editors that are no longer maintained and hardly run on current systems.
+
+## Why
+
+Once upon a time I wanted to put the data of a ride on its video, and found there was no good
+program to do that easily on Linux - nor, really, on Windows. Most of what exists is outdated and
+no longer supported: old .NET applications that crash often or are painfully slow, and on Linux
+they simply do not work. So I decided to make such a program myself, with what AI makes possible
+today.
 
 > **Status: early development.** A video can be opened with a FIT or GPX file, synchronized
 > automatically, dressed with gauges that are placed and sized with the mouse, and exported as a
@@ -13,7 +23,9 @@ editors that are no longer maintained and hardly run on current systems.
 > recording lacks (grade, G-force, heading...) are worked out from GPS; laps and sectors are timed from lines placed
 > on the route, and a timeline shows the laps over the whole recording. Videos can be joined, parts cut out
 > (stops found from the data), the data viewed and corrected. Our own gauges are drawn in SVG and can be
-> passed on as `.rtvgauge` / `.rtvtemplate` files. See the [roadmap](docs/planning/04-roadmap.md).
+> passed on as `.rtvgauge` / `.rtvtemplate` files. Routes can be drawn on a street map (OpenStreetMap and
+> others), whole or close up around the rider, and a missing or poor elevation taken from a terrain
+> model. See the [roadmap](docs/planning/04-roadmap.md).
 
 ## Planned features
 
