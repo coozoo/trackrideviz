@@ -276,7 +276,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a
   local page showing the imported gauge and ours side by side with the same sample data
-- Built-in editor (components tree, properties, live preview with sample data)
+- ✅ Built-in gauge editor, first version (2026-11-15, `GaugeEditor`, from the library panel: "New
+  gauge..." and "Edit..."): the parts as a list, a live picture with the sample ride where they are
+  picked, moved and sized with the mouse, and the picked part's properties. Parts: texts, pictures
+  (SVG and bitmaps), rectangle, ellipse, arc, pie, line, needle, filling bar and arc, round and
+  sliding scales, graph, route and lap route (with what is drawn at the current point), groups.
+  One movement per part (turn, fill, slide). Gauges that come with the program open as a copy
+- Editor, still to do: undo inside the editor; a part's second and later movements, the g-ball and
+  the picture strip; markers of a graph's axes and a lap's start line; fonts by name; gradients;
+  the points of a line with more than two; snapping and aligning; turning a text's frame into a box
 - Path shapes; G-plot with a tail, lap table, sector bar
 
 ## M7 — Polish and distribution

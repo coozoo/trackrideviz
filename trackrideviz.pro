@@ -27,6 +27,7 @@ include(src/core/core.pri)
 SOURCES += main.cpp \
     src/appearance.cpp \
     src/exportdialog.cpp \
+    src/gaugeeditor.cpp \
     src/gaugelibrarypanel.cpp \
     src/datapanel.cpp \
     src/joindialog.cpp \
@@ -40,6 +41,7 @@ SOURCES += main.cpp \
 HEADERS += \
     src/appearance.h \
     src/exportdialog.h \
+    src/gaugeeditor.h \
     src/gaugelibrarypanel.h \
     src/chartsmoothing.h \
     src/datapanel.h \

@@ -37,6 +37,8 @@ private slots:
     void importPackages();
     void exportSelected();
     void removeSelected();
+    // The gauge editor, with a new gauge or the selected one (a copy of one that comes with the program).
+    void editGauge(bool fresh);
     void updateButtons();
 
 private:
@@ -56,6 +58,8 @@ private:
     QPushButton *m_importButton{nullptr};
     QPushButton *m_exportButton{nullptr};
     QPushButton *m_removeButton{nullptr};
+    QPushButton *m_newButton{nullptr};
+    QPushButton *m_editButton{nullptr};
     // Only the newest reload may fill in pictures.
     int m_generation{0};
 };

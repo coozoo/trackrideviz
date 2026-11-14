@@ -1,5 +1,7 @@
 #include "gaugelibrarypanel.h"
 
+#include "gaugeeditor.h"
+
 #include "gauge/gaugelibrary.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/xmlgaugeimporter.h"
@@ -394,12 +396,20 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_removeButton = new QPushButton(tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
 
-    // two rows: one would make the dock, and so the window, too wide for small screens
+    m_newButton = new QPushButton(tr("New gauge..."), this);
+    m_newButton->setToolTip(tr("Opens the gauge editor with an empty gauge"));
+    connect(m_newButton, &QPushButton::clicked, this, [this]() { editGauge(true); });
+    m_editButton = new QPushButton(tr("Edit..."), this);
+    connect(m_editButton, &QPushButton::clicked, this, [this]() { editGauge(false); });
+
+    // rows of two: one row would make the dock, and so the window, too wide for small screens
     QGridLayout *buttons = new QGridLayout;
     buttons->addWidget(m_useButton, 0, 0);
     buttons->addWidget(m_removeButton, 0, 1);
     buttons->addWidget(m_importButton, 1, 0);
     buttons->addWidget(m_exportButton, 1, 1);
+    buttons->addWidget(m_newButton, 2, 0);
+    buttons->addWidget(m_editButton, 2, 1);
     buttons->setColumnStretch(2, 1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
@@ -435,6 +445,11 @@ void GaugeLibraryPanel::updateButtons()
                                : tr("Saves the selected gauge as one file to pass on"));
     // what came with the program is part of it
     const bool builtin = selected && item->data(kBuiltinRole).toBool();
+    m_newButton->setVisible(!showingTemplates());
+    m_editButton->setVisible(!showingTemplates());
+    m_editButton->setEnabled(selected);
+    m_editButton->setToolTip(builtin ? tr("Opens a copy of this gauge in the gauge editor: what comes with the program stays as it is")
+                             : tr("Opens the selected gauge in the gauge editor"));
     m_removeButton->setEnabled(selected && !builtin);
     const bool templates = showingTemplates();
     m_removeButton->setToolTip(builtin ? (templates ? tr("This template comes with the program and cannot be deleted")
@@ -603,6 +618,55 @@ void GaugeLibraryPanel::useSelected()
         {
             emit addRequested(id);
         }
+}
+
+void GaugeLibraryPanel::editGauge(bool fresh)
+{
+    Gauge gauge;
+    QStringList taken;
+    const QString id = selectedId();
+    for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
+        {
+            if (!entry.builtin)
+                {
+                    taken << entry.name;
+                }
+            if (!fresh && entry.id == id)
+                {
+                    gauge = GaugeLibrary::gauge(id);
+                    gauge.name = entry.builtin ? tr("%1 copy").arg(entry.name) : entry.name;
+                }
+        }
+    if (!fresh && gauge.isEmpty())
+        {
+            return;
+        }
+    GaugeEditor editor(gauge, taken, this);
+    if (editor.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+    const Gauge made = editor.gauge();
+    QString error;
+    const QString stored = GaugeLibrary::add(made, made.name, &error);
+    if (stored.isEmpty())
+        {
+            QMessageBox::warning(this, tr("Gauge editor"), error);
+            return;
+        }
+    GaugeLibrary::refresh();
+    reload();
+    // show it, whatever filter was on
+    for (int row = 0; row < m_list->count(); ++row)
+        {
+            if (m_list->item(row)->data(kIdRole).toString() == stored)
+                {
+                    m_list->item(row)->setHidden(false);
+                    m_list->setCurrentRow(row);
+                    m_list->scrollToItem(m_list->item(row));
+                }
+        }
+    emit libraryChanged();
 }
 
 void GaugeLibraryPanel::removeSelected()
