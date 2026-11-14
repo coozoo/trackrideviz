@@ -860,7 +860,7 @@ void MainWindow::saveAsTemplate()
     QFormLayout *form = new QFormLayout(&dialog);
     form->addRow(tr("Name:"), nameEdit);
     form->addRow(tr("Category:"), categoryCombo);
-    form->addRow(new QLabel(tr("The gauges on the video, where they are and their colours.\n"
+    form->addRow(new QLabel(tr("The gauges on the video, where they are and their colors.\n"
                                "It appears among the templates in the library."), &dialog));
     form->addRow(buttons);
     if (dialog.exec() != QDialog::Accepted)
@@ -1069,7 +1069,7 @@ QWidget *MainWindow::createPropertiesPanel()
     form->addRow(channelLabel, m_channelCombo);
     form->addRow(QString(), m_removeGaugeButton);
     QLabel *coloursTitle = new QLabel(tr("All gauges"), panel);
-    coloursTitle->setToolTip(tr("Colours and font of every gauge on the video"));
+    coloursTitle->setToolTip(tr("Colors and font of every gauge on the video"));
     QFont bold = coloursTitle->font();
     bold.setBold(true);
     coloursTitle->setFont(bold);
@@ -1177,7 +1177,7 @@ void MainWindow::chooseThemeColor(int role)
         }
     OverlayState after{m_project.overlay, m_project.theme};
     after.theme.*(kThemeRoles[role].color) = chosen;
-    changeOverlay(tr("Change gauge colours"), after);
+    changeOverlay(tr("Change gauge colors"), after);
 }
 
 void MainWindow::updateProperties()

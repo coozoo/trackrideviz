@@ -746,7 +746,7 @@ void DataPanel::fillChannels()
             QToolButton *swatch = new QToolButton(row);
             swatch->setObjectName("swatch");
             swatch->setAutoRaise(true);
-            swatch->setToolTip(tr("The colour of this line in the chart. Click to choose another."));
+            swatch->setToolTip(tr("The color of this line in the chart. Click to choose another."));
             const int side = std::max(10, m_channelList->fontMetrics().height() - 4);
             swatch->setIconSize(QSize(side, side));
             swatch->setFixedSize(side + 6, side + 6);
@@ -764,7 +764,7 @@ void DataPanel::fillChannels()
 
 QColor DataPanel::colourOf(const QString &channelId) const
 {
-    const QColor chosen(QSettings().value("dataColours/" + channelId).toString());
+    const QColor chosen(QSettings().value("dataColors/" + channelId).toString());
     if (chosen.isValid())
         {
             return chosen;
@@ -794,12 +794,12 @@ QColor DataPanel::colourOf(const QString &channelId) const
 
 void DataPanel::chooseColour(const QString &channelId)
 {
-    const QColor chosen = QColorDialog::getColor(colourOf(channelId), this, tr("Colour of the line"));
+    const QColor chosen = QColorDialog::getColor(colourOf(channelId), this, tr("Color of the line"));
     if (!chosen.isValid())
         {
             return;
         }
-    QSettings().setValue("dataColours/" + channelId, chosen.name());
+    QSettings().setValue("dataColors/" + channelId, chosen.name());
     for (int i = 0; i < m_channelList->count(); ++i)
         {
             QListWidgetItem *item = m_channelList->item(i);

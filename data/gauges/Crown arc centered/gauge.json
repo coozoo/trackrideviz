@@ -1,13 +1,13 @@
 {
     "format": "rtvgauge",
     "version": 1,
-    "name": "Side arc centred",
+    "name": "Crown arc centered",
     "size": [
-        200,
-        500
+        460,
+        160
     ],
     "supportedTypes": [
-        "gForceLongitudinal"
+        "gForceLateral"
     ],
     "components": [
         {
@@ -16,8 +16,8 @@
             "frame": [
                 0,
                 0,
-                200,
-                500
+                460,
+                160
             ],
             "color": "original"
         },
@@ -27,18 +27,18 @@
             "frame": [
                 0,
                 0,
-                200,
-                500
+                460,
+                160
             ],
             "color": "original",
             "manipulations": [
                 {
                     "type": "radialClip",
-                    "minAngle": 90.0,
-                    "maxAngle": 55,
+                    "minAngle": 0.0,
+                    "maxAngle": 24,
                     "pivot": [
-                        -100,
-                        240
+                        230,
+                        430
                     ],
                     "minValue": 0,
                     "maxValue": 0.5
@@ -51,18 +51,18 @@
             "frame": [
                 0,
                 0,
-                200,
-                500
+                460,
+                160
             ],
             "color": "original",
             "manipulations": [
                 {
                     "type": "radialClip",
-                    "minAngle": 90.0,
-                    "maxAngle": 125,
+                    "minAngle": 0.0,
+                    "maxAngle": -24,
                     "pivot": [
-                        -100,
-                        240
+                        230,
+                        430
                     ],
                     "minValue": 0,
                     "maxValue": -0.5
@@ -75,8 +75,8 @@
             "frame": [
                 0,
                 0,
-                200,
-                500
+                460,
+                160
             ],
             "color": "original"
         },
@@ -86,18 +86,18 @@
             "frame": [
                 0,
                 0,
-                200,
-                500
+                460,
+                160
             ],
             "color": "original",
             "manipulations": [
                 {
                     "type": "rotate",
-                    "minAngle": 35.0,
-                    "maxAngle": -35.0,
+                    "minAngle": -24.0,
+                    "maxAngle": 24.0,
                     "pivot": [
-                        -100,
-                        240
+                        230,
+                        430
                     ],
                     "minValue": -0.5,
                     "maxValue": 0.5
@@ -105,26 +105,15 @@
             ]
         },
         {
-            "type": "image",
-            "channelIcon": true,
-            "color": "foreground",
-            "frame": [
-                81,
-                52,
-                26,
-                26
-            ]
-        },
-        {
             "type": "text",
             "autoText": "value",
             "frame": [
-                81,
-                424
+                53,
+                110
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 30,
+                "size": 24,
                 "bold": true,
                 "italic": true
             },
@@ -138,12 +127,12 @@
             "type": "text",
             "autoText": "unit",
             "frame": [
-                81,
-                450
+                399,
+                105
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
-                "size": 16,
+                "size": 24,
                 "italic": true
             },
             "color": "accent2",

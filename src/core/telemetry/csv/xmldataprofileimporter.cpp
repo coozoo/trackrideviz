@@ -378,7 +378,7 @@ XmlDataProfileImporter::Result XmlDataProfileImporter::parse(const QByteArray &x
         }
     if (p.matchers.isEmpty())
         {
-            result.error = tr("The data profile does not say how to recognise its files.");
+            result.error = tr("The data profile does not say how to recognize its files.");
             return result;
         }
     if (!derived.isEmpty())

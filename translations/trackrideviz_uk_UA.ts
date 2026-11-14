@@ -466,7 +466,7 @@
     </message>
     <message numerus="yes">
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="494"/>
-        <source>%1: none of the %n data profile(s) recognises this file.</source>
+        <source>%1: none of the %n data profile(s) recognizes this file.</source>
         <translation>
             <numerusform>%1: жоден із %n профілю даних не розпізнає цей файл.</numerusform>
             <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл.</numerusform>
@@ -587,17 +587,13 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/datapanel.cpp" line="749"/>
-        <source>The colour of this line in the chart. Click to choose another.</source>
+        <source>The color of this line in the chart. Click to choose another.</source>
         <translation>Колір цієї лінії на графіку. Клацніть, щоб вибрати інший.</translation>
     </message>
     <message>
         <location filename="../src/datapanel.cpp" line="797"/>
-        <source>Colour of the line</source>
+        <source>Color of the line</source>
         <translation>Колір лінії</translation>
-    </message>
-    <message>
-        <source>Worked out from the other data</source>
-        <translation type="vanished">Обчислено з інших даних</translation>
     </message>
     <message>
         <location filename="../src/datapanel.cpp" line="923"/>
@@ -1115,7 +1111,7 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="113"/>
-        <source>Power and pedalling</source>
+        <source>Power and pedaling</source>
         <translation>Потужність і педалювання</translation>
     </message>
     <message>
@@ -2078,7 +2074,7 @@ An export started now would be drawn without them. Export anyway?</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="863"/>
-        <source>The gauges on the video, where they are and their colours.
+        <source>The gauges on the video, where they are and their colors.
 It appears among the templates in the library.</source>
         <translation>Прилади на відео, їхнє розташування та кольори.
 Шаблон з&apos;явиться серед шаблонів у бібліотеці.</translation>
@@ -2242,7 +2238,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1180"/>
-        <source>Change gauge colours</source>
+        <source>Change gauge colors</source>
         <translation>Змінити кольори приладів</translation>
     </message>
     <message>
@@ -2400,7 +2396,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1072"/>
-        <source>Colours and font of every gauge on the video</source>
+        <source>Colors and font of every gauge on the video</source>
         <translation>Кольори і шрифт кожного приладу на відео</translation>
     </message>
     <message>
@@ -2563,12 +2559,12 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="112"/>
-        <source>Colours:</source>
+        <source>Colors:</source>
         <translation>Кольори:</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="113"/>
-        <source>Light and dark colours look right with the Fusion style; other styles may follow them only in part.</source>
+        <source>Light and dark colors look right with the Fusion style; other styles may follow them only in part.</source>
         <translation>Світлі й темні кольори коректно виглядають зі стилем Fusion; інші стилі можуть дотримуватися їх лише частково.</translation>
     </message>
     <message>
@@ -2618,7 +2614,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="159"/>
-        <source>Kilometres per hour (km/h)</source>
+        <source>Kilometers per hour (km/h)</source>
         <translation>Кілометри за годину (км/год)</translation>
     </message>
     <message>
@@ -3211,7 +3207,7 @@ Shift+перетягування позначає частину; клацанн
     </message>
     <message>
         <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="381"/>
-        <source>The data profile does not say how to recognise its files.</source>
+        <source>The data profile does not say how to recognize its files.</source>
         <translation>Профіль даних не вказує, як розпізнати його файли.</translation>
     </message>
     <message>

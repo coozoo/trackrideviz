@@ -6,7 +6,7 @@
             "channel": "gForceLateral",
             "edgeX": "middle",
             "edgeY": "start",
-            "gauge": "bundled:Crown arc centred",
+            "gauge": "bundled:Crown arc centered",
             "height": 150,
             "offsetX": -215.6,
             "offsetY": 40
@@ -15,7 +15,7 @@
             "channel": "gForceLongitudinal",
             "edgeX": "start",
             "edgeY": "middle",
-            "gauge": "bundled:Side arc centred",
+            "gauge": "bundled:Side arc centered",
             "height": 440,
             "offsetX": 40,
             "offsetY": -220.0

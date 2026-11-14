@@ -109,8 +109,8 @@ QWidget *SettingsDialog::createAppearancePage()
 
     QFormLayout *form = new QFormLayout(page);
     form->addRow(tr("Style:"), m_styleCombo);
-    form->addRow(tr("Colours:"), m_colorSchemeCombo);
-    form->addRow(QString(), note(tr("Light and dark colours look right with the Fusion style; "
+    form->addRow(tr("Colors:"), m_colorSchemeCombo);
+    form->addRow(QString(), note(tr("Light and dark colors look right with the Fusion style; "
                                     "other styles may follow them only in part."), page));
     form->addRow(tr("Language:"), m_languageCombo);
     form->addRow(QString(), note(tr("The language changes after a restart."), page));
@@ -156,7 +156,7 @@ QWidget *SettingsDialog::createUnitsPage()
     QWidget *page = new QWidget(this);
 
     m_speedCombo = new QComboBox(page);
-    m_speedCombo->addItem(tr("Kilometres per hour (km/h)"), Units::KilometresPerHour);
+    m_speedCombo->addItem(tr("Kilometers per hour (km/h)"), Units::KilometresPerHour);
     m_speedCombo->addItem(tr("Miles per hour (mph)"), Units::MilesPerHour);
 
     m_lengthCombo = new QComboBox(page);

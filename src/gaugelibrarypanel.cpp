@@ -110,7 +110,7 @@ const GaugeGroup kGaugeGroups[] =
     {"distance", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Distance and time")},
     {"heart", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Heart rate")},
     {"cadence", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Cadence")},
-    {"power", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Power and pedalling")},
+    {"power", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Power and pedaling")},
     {"laps", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Laps and sectors")},
     {"g", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "G-force")},
     {"heading", QT_TRANSLATE_NOOP("GaugeLibraryPanel", "Heading")},

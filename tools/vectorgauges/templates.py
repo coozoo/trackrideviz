@@ -192,7 +192,7 @@ def main():
           place("Ride cluster power", "speed", "start", "end", M, M, 400),
           place("Graph pair", "power", "end", "end", M, M, 190),
           place("Route map arrow", "speed", "end", "start", M, M, 280))
-    write("Pedalling", "Cycling", PINK,
+    write("Pedaling", "Cycling", PINK,
           row([("Power phase left", "leftPowerPhaseStart"), ("Power phase right", "rightPowerPhaseStart")],
               "start", "start", M, M, 200, gap=10),
           row([("Pedal offset left", "leftPlatformCenterOffset"), ("Pedal offset right", "rightPlatformCenterOffset")],
@@ -248,8 +248,8 @@ def main():
           column(laps, "end", "end", M, M, 70, gap=6),
           place("Lap map arrow", "speed", "end", "start", M, M, 320))
     write("Race", "Motorsport", YELLOW,
-          place("Crown arc centred", "gForceLateral", "middle", "start", 0, M, 150),
-          place("Side arc centred", "gForceLongitudinal", "start", "middle", M, 0, 440),
+          place("Crown arc centered", "gForceLateral", "middle", "start", 0, M, 150),
+          place("Side arc centered", "gForceLongitudinal", "start", "middle", M, 0, 440),
           place("Dome", "speed", "middle", "end", 0, M, 230),
           column(laps, "end", "end", M, M, 70, gap=6),
           place("Lap map arrow", "speed", "end", "start", M, M, 300))

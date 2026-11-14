@@ -466,7 +466,7 @@
     </message>
     <message numerus="yes">
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="494"/>
-        <source>%1: none of the %n data profile(s) recognises this file.</source>
+        <source>%1: none of the %n data profile(s) recognizes this file.</source>
         <translation>
             <numerusform>%1: none of the %n data profile recognises this file.</numerusform>
             <numerusform>%1: none of the %n data profiles recognises this file.</numerusform>
@@ -584,12 +584,12 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/datapanel.cpp" line="749"/>
-        <source>The colour of this line in the chart. Click to choose another.</source>
+        <source>The color of this line in the chart. Click to choose another.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/datapanel.cpp" line="797"/>
-        <source>Colour of the line</source>
+        <source>Color of the line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1104,7 +1104,7 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="113"/>
-        <source>Power and pedalling</source>
+        <source>Power and pedaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2052,7 +2052,7 @@ An export started now would be drawn without them. Export anyway?</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="863"/>
-        <source>The gauges on the video, where they are and their colours.
+        <source>The gauges on the video, where they are and their colors.
 It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2215,7 +2215,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1180"/>
-        <source>Change gauge colours</source>
+        <source>Change gauge colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2372,7 +2372,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1072"/>
-        <source>Colours and font of every gauge on the video</source>
+        <source>Colors and font of every gauge on the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2535,12 +2535,12 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="112"/>
-        <source>Colours:</source>
+        <source>Colors:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="113"/>
-        <source>Light and dark colours look right with the Fusion style; other styles may follow them only in part.</source>
+        <source>Light and dark colors look right with the Fusion style; other styles may follow them only in part.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2590,7 +2590,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="159"/>
-        <source>Kilometres per hour (km/h)</source>
+        <source>Kilometers per hour (km/h)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3180,7 +3180,7 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
     <message>
         <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="381"/>
-        <source>The data profile does not say how to recognise its files.</source>
+        <source>The data profile does not say how to recognize its files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

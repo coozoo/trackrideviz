@@ -491,7 +491,7 @@ TelemetrySessionPtr CsvImporter::load(const QString &path, const QVector<DataPro
                     *error = profiles.isEmpty()
                              ? tr("%1: there are no data profiles to read CSV files with. Import some first (Library, Import).")
                              .arg(QFileInfo(path).fileName())
-                             : tr("%1: none of the %n data profile(s) recognises this file.", nullptr, int(profiles.size()))
+                             : tr("%1: none of the %n data profile(s) recognizes this file.", nullptr, int(profiles.size()))
                              .arg(QFileInfo(path).fileName());
                 }
             return nullptr;
