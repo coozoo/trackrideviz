@@ -1,0 +1,61 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Skid ball",
+    "size": [
+        420,
+        130
+    ],
+    "supportedTypes": [
+        "gForceLateral"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                420,
+                130
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/ball.svg",
+            "frame": [
+                0,
+                0,
+                420,
+                130
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 13,
+                    "maxAngle": -13,
+                    "pivot": [
+                        210,
+                        -470
+                    ],
+                    "minValue": -0.5,
+                    "maxValue": 0.5
+                }
+            ],
+            "channel": "gForceLateral"
+        },
+        {
+            "type": "image",
+            "image": "images/marks.svg",
+            "frame": [
+                0,
+                0,
+                420,
+                130
+            ],
+            "color": "original"
+        }
+    ]
+}

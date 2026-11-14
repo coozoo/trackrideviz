@@ -1,0 +1,69 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Open arc thin",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/track.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/line.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 180,
+                    "maxAngle": 450,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                320,
+                148
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 30,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0
+        }
+    ]
+}

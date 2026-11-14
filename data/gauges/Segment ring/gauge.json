@@ -1,0 +1,87 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Segment ring",
+    "size": [
+        300,
+        300
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/lit.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": -150,
+                    "maxAngle": 150,
+                    "pivot": [
+                        150,
+                        150
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                150,
+                144
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 64,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                150,
+                196
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        }
+    ]
+}

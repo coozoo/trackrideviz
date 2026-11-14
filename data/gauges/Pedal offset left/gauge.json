@@ -1,0 +1,82 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Pedal offset left",
+    "size": [
+        240,
+        330
+    ],
+    "supportedTypes": [
+        "leftPlatformCenterOffset"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                240,
+                330
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/line.svg",
+            "frame": [
+                0,
+                0,
+                240,
+                330
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 48,
+                    "maxX": -48,
+                    "minY": 0,
+                    "maxY": 0,
+                    "minValue": -12,
+                    "maxValue": 12
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                120.0,
+                306
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "showPlus": true
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                24,
+                306
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "bold": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "L"
+        }
+    ]
+}

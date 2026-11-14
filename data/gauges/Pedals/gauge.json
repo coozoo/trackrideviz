@@ -1,0 +1,232 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Pedals",
+    "size": [
+        560,
+        360
+    ],
+    "supportedTypes": [
+        "leftPower",
+        "power"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/left.svg",
+            "frame": [
+                0,
+                0,
+                560,
+                360
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/left-line.svg",
+            "frame": [
+                0,
+                0,
+                560,
+                360
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 40,
+                    "maxX": -40,
+                    "minY": 0,
+                    "maxY": 0,
+                    "minValue": -12,
+                    "maxValue": 12
+                }
+            ],
+            "channel": "leftPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                140,
+                280
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "showPlus": true,
+            "channel": "leftPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                140,
+                312
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "leftPower"
+        },
+        {
+            "type": "image",
+            "image": "images/right.svg",
+            "frame": [
+                0,
+                0,
+                560,
+                360
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/right-line.svg",
+            "frame": [
+                0,
+                0,
+                560,
+                360
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": -40,
+                    "maxX": 40,
+                    "minY": 0,
+                    "maxY": 0,
+                    "minValue": -12,
+                    "maxValue": 12
+                }
+            ],
+            "channel": "rightPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                420,
+                280
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "showPlus": true,
+            "channel": "rightPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                420,
+                312
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "rightPower"
+        },
+        {
+            "type": "image",
+            "image": "images/bar.svg",
+            "frame": [
+                0,
+                0,
+                560,
+                360
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/split.svg",
+            "frame": [
+                0,
+                0,
+                560,
+                360
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": -80,
+                    "maxX": 80,
+                    "minY": 0,
+                    "maxY": 0,
+                    "minValue": 0,
+                    "maxValue": 100,
+                    "clip": [
+                        196,
+                        320,
+                        168,
+                        40
+                    ]
+                }
+            ],
+            "channel": "powerBalanceLeft"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                186,
+                340
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0,
+            "channel": "powerBalanceLeft"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                374,
+                340
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "bold": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "text": "L | R"
+        }
+    ]
+}

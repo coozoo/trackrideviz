@@ -1,0 +1,164 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Power phase left",
+    "size": [
+        300,
+        300
+    ],
+    "supportedTypes": [
+        "leftPowerPhaseStart"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "group",
+            "components": [
+                {
+                    "type": "image",
+                    "image": "images/phase.svg",
+                    "frame": [
+                        0,
+                        0,
+                        300,
+                        300
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "radialClip",
+                            "minAngle": 0,
+                            "maxAngle": -360,
+                            "pivot": [
+                                150,
+                                150
+                            ],
+                            "minValue": 0,
+                            "maxValue": 360
+                        }
+                    ],
+                    "channel": "leftPowerPhaseLength"
+                }
+            ],
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": -360,
+                    "pivot": [
+                        150,
+                        150
+                    ],
+                    "minValue": 0,
+                    "maxValue": 360
+                }
+            ],
+            "channel": "leftPowerPhaseStart"
+        },
+        {
+            "type": "group",
+            "components": [
+                {
+                    "type": "image",
+                    "image": "images/peak.svg",
+                    "frame": [
+                        0,
+                        0,
+                        300,
+                        300
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "radialClip",
+                            "minAngle": 0,
+                            "maxAngle": -360,
+                            "pivot": [
+                                150,
+                                150
+                            ],
+                            "minValue": 0,
+                            "maxValue": 360
+                        }
+                    ],
+                    "channel": "leftPowerPhasePeakLength"
+                }
+            ],
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": -360,
+                    "pivot": [
+                        150,
+                        150
+                    ],
+                    "minValue": 0,
+                    "maxValue": 360
+                }
+            ],
+            "channel": "leftPowerPhasePeakStart"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                150,
+                144
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 52,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "leftPower"
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                150,
+                184
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "channel": "leftPower"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                30,
+                274
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 30,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "L"
+        }
+    ]
+}

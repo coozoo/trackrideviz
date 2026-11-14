@@ -1,0 +1,88 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Graph window",
+    "size": [
+        800,
+        150
+    ],
+    "supportedTypes": [
+        "elevation",
+        "speed",
+        "heartRate",
+        "power",
+        "cadence"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                800,
+                150
+            ],
+            "color": "original"
+        },
+        {
+            "type": "graph",
+            "frame": [
+                0,
+                34,
+                800,
+                106
+            ],
+            "color": "accent",
+            "lineWidth": 3,
+            "fillAlpha": 70,
+            "window": [
+                120,
+                120
+            ],
+            "xMarker": [
+                {
+                    "type": "image",
+                    "image": "images/mark.svg",
+                    "frame": [
+                        -1,
+                        0,
+                        2,
+                        106
+                    ],
+                    "color": "original"
+                }
+            ],
+            "knob": [
+                {
+                    "type": "image",
+                    "image": "images/dot.svg",
+                    "frame": [
+                        -8,
+                        -8,
+                        16,
+                        16
+                    ],
+                    "color": "original"
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "labelValueUnit",
+            "frame": [
+                400.0,
+                18
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 1
+        }
+    ]
+}

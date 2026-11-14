@@ -1,0 +1,63 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Grid level",
+    "size": [
+        286,
+        330
+    ],
+    "supportedTypes": [
+        "cadence",
+        "heartRate",
+        "power",
+        "speed"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/dim.svg",
+            "frame": [
+                0,
+                0,
+                286,
+                330
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/lit.svg",
+            "frame": [
+                0,
+                0,
+                286,
+                330
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "heightClip",
+                    "minY": 246,
+                    "maxY": 0
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                143.0,
+                291
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 40,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        }
+    ]
+}

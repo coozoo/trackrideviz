@@ -1,0 +1,73 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Horizon",
+    "size": [
+        360,
+        360
+    ],
+    "supportedTypes": [
+        "gradeAngle",
+        "grade"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/world.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                360
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 0,
+                    "maxX": 0,
+                    "minY": -120.0,
+                    "maxY": 120.0,
+                    "minValue": -20,
+                    "maxValue": 20,
+                    "clip": [
+                        6,
+                        6,
+                        348,
+                        348
+                    ]
+                }
+            ],
+            "channel": "gradeAngle"
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                360
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                180.0,
+                326
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "grade"
+        }
+    ]
+}

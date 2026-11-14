@@ -1,0 +1,154 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Side arc centred",
+    "size": [
+        200,
+        500
+    ],
+    "supportedTypes": [
+        "gForceLongitudinal"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 90.0,
+                    "maxAngle": 55,
+                    "pivot": [
+                        -100,
+                        240
+                    ],
+                    "minValue": 0,
+                    "maxValue": 0.5
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 90.0,
+                    "maxAngle": 125,
+                    "pivot": [
+                        -100,
+                        240
+                    ],
+                    "minValue": 0,
+                    "maxValue": -0.5
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 35.0,
+                    "maxAngle": -35.0,
+                    "pivot": [
+                        -100,
+                        240
+                    ],
+                    "minValue": -0.5,
+                    "maxValue": 0.5
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "channelIcon": true,
+            "color": "foreground",
+            "frame": [
+                81,
+                52,
+                26,
+                26
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                81,
+                424
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 30,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 2,
+            "showPlus": true
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                81,
+                450
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 16,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

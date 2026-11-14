@@ -1,0 +1,202 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Half round",
+    "size": [
+        400,
+        230
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                230
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                230
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": -90,
+                    "maxAngle": 90,
+                    "pivot": [
+                        200,
+                        210
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                230
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                50.0,
+                210.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                93.9,
+                103.9
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                200.0,
+                60.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                306.1,
+                103.9
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                350.0,
+                210.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                200,
+                176
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 48,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                200,
+                202
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        },
+        {
+            "type": "image",
+            "image": "images/needle.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                230
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": -90,
+                    "maxAngle": 90,
+                    "pivot": [
+                        200,
+                        210
+                    ]
+                }
+            ]
+        }
+    ]
+}

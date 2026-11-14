@@ -1,0 +1,423 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Ride cluster power",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "speed"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/cadence.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 217,
+                    "maxAngle": 305,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "cadence"
+        },
+        {
+            "type": "image",
+            "image": "images/power.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 143,
+                    "maxAngle": 55,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "power"
+        },
+        {
+            "type": "image",
+            "image": "images/icons.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/left-dashes.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 217,
+                    "maxAngle": 305,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "leftPower"
+        },
+        {
+            "type": "image",
+            "image": "images/right-dashes.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 143,
+                    "maxAngle": 55,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "rightPower"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                210,
+                40
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "heartRate"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                84
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "bold": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "elevation"
+        },
+        {
+            "type": "image",
+            "image": "images/left-line.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 16,
+                    "maxX": -16,
+                    "minY": 0,
+                    "maxY": 0,
+                    "minValue": -12,
+                    "maxValue": 12
+                }
+            ],
+            "channel": "leftPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                146,
+                230
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "showPlus": true,
+            "channel": "leftPlatformCenterOffset"
+        },
+        {
+            "type": "image",
+            "image": "images/right-line.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": -16,
+                    "maxX": 16,
+                    "minY": 0,
+                    "maxY": 0,
+                    "minValue": -12,
+                    "maxValue": 12
+                }
+            ],
+            "channel": "rightPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                254,
+                230
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "showPlus": true,
+            "channel": "rightPlatformCenterOffset"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                256
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "cadence"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                284
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 32,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                312
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "power"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                128,
+                348
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 17,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "leftPower"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                272,
+                348
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 17,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "rightPower"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                168,
+                365
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "bold": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "L"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                186,
+                365
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 16
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "powerBalanceLeft"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                200,
+                365
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 16
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "|"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                214,
+                365
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 16
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "powerBalanceRight"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                232,
+                365
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "bold": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "R"
+        }
+    ]
+}

@@ -216,8 +216,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   real heart beat), Odometer (the higher wheels turn on only at the carry, so the digits read
   clearly), Circle readout, Ring readout, Column scale, Dome. The preview draws the moving parts
   of a gauge smooth on OpenGL too
-- Batch 4: attitude and roll, the marine gauges, the striped column, the grid equalizer, the thin
-  open arcs; pedal and power-phase gauges (the channels are read from FIT now)
+- ✅ Batch 4 (2026-11-14): Dial notched, Dial pair (speed and cadence), Half round, Segment ring,
+  Dial fill, Open arc thin, Graph window, Field box, Label plate, Grid level, Tile bar, Skid ball,
+  Horizon (moves with the slope), Dial g (a fixed -3..5 g scale), Crown arc centred and Side arc
+  centred (0 in the middle, ±0.5 g), Pedal offset left and right, Power phase left and right, Pedals,
+  Ride cluster power (heart rate, both pedals, each leg's power in dashes, L | R balance). Every
+  imported gauge now has one of ours doing its job; the others are covered by earlier ones. The demo
+  ride has pedal data and vertical g, and gauges imported before a channel name was mapped get it
+  when loaded
+- Later: a map that shows only the part of the route around the rider, enlarged
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a

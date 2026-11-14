@@ -1,0 +1,82 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Tile bar",
+    "size": [
+        360,
+        110
+    ],
+    "supportedTypes": [
+        "speed",
+        "heartRate",
+        "power",
+        "cadence",
+        "elevation",
+        "temperature"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/bar.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 16,
+                    "maxX": 344
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                20,
+                28
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                20,
+                62
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 36,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        }
+    ]
+}

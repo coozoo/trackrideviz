@@ -1,0 +1,236 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Dial notched",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": -135,
+                    "maxAngle": 135,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                101.0,
+                299.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                60.0,
+                200.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                101.0,
+                101.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                200.0,
+                60.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                299.0,
+                101.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                340.0,
+                200.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                299.0,
+                299.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                200,
+                196
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 52,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                200,
+                234
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        },
+        {
+            "type": "image",
+            "image": "images/needle.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": -135,
+                    "maxAngle": 135,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ]
+        }
+    ]
+}

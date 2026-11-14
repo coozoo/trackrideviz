@@ -1,0 +1,65 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Field box",
+    "size": [
+        320,
+        120
+    ],
+    "supportedTypes": [
+        "heading",
+        "speed",
+        "elevation",
+        "distance",
+        "heartRate",
+        "power",
+        "cadence",
+        "temperature"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                320,
+                120
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                16,
+                22
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                16,
+                80
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 40,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0
+        }
+    ]
+}

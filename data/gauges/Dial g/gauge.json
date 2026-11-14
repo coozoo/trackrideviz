@@ -1,0 +1,243 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Dial g",
+    "size": [
+        200,
+        200
+    ],
+    "supportedTypes": [
+        "gForceVertical",
+        "gForceLongitudinal",
+        "gForceLateral"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                143.8,
+                143.8
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "-2"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                100.0,
+                162.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "-1"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                56.2,
+                143.8
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "0"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                38.0,
+                100.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "1"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                56.2,
+                56.2
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "2"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                100.0,
+                38.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "3"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                143.8,
+                56.2
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "4"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                162.0,
+                100.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 15,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "text": "5"
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                100,
+                64
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 14,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                100,
+                134
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 1
+        },
+        {
+            "type": "image",
+            "image": "images/needle.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": -270,
+                    "maxAngle": 90,
+                    "pivot": [
+                        100,
+                        100
+                    ],
+                    "minValue": -3,
+                    "maxValue": 5
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/knob.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                200
+            ],
+            "color": "original"
+        }
+    ]
+}

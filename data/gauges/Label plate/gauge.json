@@ -1,0 +1,66 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Label plate",
+    "size": [
+        340,
+        130
+    ],
+    "supportedTypes": [
+        "elevation",
+        "speed",
+        "distance",
+        "heartRate",
+        "power",
+        "cadence",
+        "temperature",
+        "grade"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                340,
+                130
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                170.0,
+                34
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                170.0,
+                82
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 48,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        }
+    ]
+}
