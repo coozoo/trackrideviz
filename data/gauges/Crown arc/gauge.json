@@ -1,0 +1,119 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Crown arc",
+    "size": [
+        460,
+        160
+    ],
+    "supportedTypes": [
+        "grade",
+        "temperature",
+        "speed",
+        "cadence",
+        "heartRate",
+        "power"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                460,
+                160
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                460,
+                160
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": -24,
+                    "maxAngle": 24,
+                    "pivot": [
+                        230,
+                        430
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                460,
+                160
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                460,
+                160
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": 48,
+                    "pivot": [
+                        230,
+                        430
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                53,
+                110
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 32,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                399,
+                105
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

@@ -1,0 +1,143 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Column scale",
+    "size": [
+        170,
+        320
+    ],
+    "supportedTypes": [
+        "elevation",
+        "speed",
+        "temperature",
+        "heartRate",
+        "power"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                320
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                320
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "heightClip",
+                    "minY": 270,
+                    "maxY": 50
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/marks.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                320
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                85.0,
+                26
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                62,
+                270
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                62,
+                160.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                62,
+                50
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                85.0,
+                296
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        }
+    ]
+}

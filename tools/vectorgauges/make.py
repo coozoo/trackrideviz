@@ -1090,6 +1090,405 @@ def g_rings(name):
     write(name, (400, 400), components, drawings, ["gForceLateral", "gForceLongitudinal"])
 
 
+# --- batch 3: arcs, readouts, bars ----------------------------------------
+
+def side_arc(name, side):
+    """A narrow arc down one side of a tall gauge, part of a large circle: it fills from the
+    bottom and a mark rides on it. Its dark band runs on past both ends: the channel's picture
+    sits in it at the top, the value at the bottom."""
+    w, h = 200, 500
+    sign = 1 if side == "right" else -1
+    cx = -100 if side == "right" else w + 100
+    cy, r_out, r_in = 240, 286, 256
+    start, end = 125 * sign, 55 * sign
+    lo, hi = min(start, end), max(start, end)
+    band = ring_path(cx, cy, r_out, r_in, lo, hi)
+    # wide enough for the ticks inside the scale, long enough for the icon and the value
+    plate_lo, plate_hi = (43, 144) if side == "right" else (-144, -43)
+    plate_ = (f"<path d='{ring_path(cx, cy, r_out + 6, r_in - 26, plate_lo, plate_hi)}' fill='@background' fill-opacity='0.6'/>"
+              f"<path d='{band}' fill='#ffffff' fill-opacity='0.07'/>")
+    scale = (ticks(cx, cy, start, end, 5, r_in - 2, 14, 4.5) + ticks(cx, cy, start, end, 21, r_in - 2, 7, 1.2, skip_every=5, opacity=0.6))
+    x0, y0 = polar(cx, cy, r_in - 4, start)
+    x1, y1 = polar(cx, cy, r_out + 4, start)
+    # the fill darker towards the middle of the circle, as on the half dials
+    shade = (f"<radialGradient id='shade' gradientUnits='userSpaceOnUse' cx='{cx}' cy='{cy}' r='{r_out}'>"
+             f"<stop offset='{fmt(r_in / r_out)}' stop-color='#000000' stop-opacity='0.5'/>"
+             "<stop offset='1' stop-color='#000000' stop-opacity='0'/></radialGradient>")
+    drawings = {"plate.svg": svg(w, h, plate_), "scale.svg": svg(w, h, scale),
+                "fill.svg": svg(w, h, f"<path d='{band}' {theme('accent')}/><path d='{band}' fill='url(#shade)'/>", shade),
+                "mark.svg": svg(w, h, f"<path d='M{fmt(x0)},{fmt(y0)} L{fmt(x1)},{fmt(y1)}' {stroke('foreground', 5)}/>")}
+    middle = (r_in - 26 + r_out + 6) / 2
+    ix, iy = polar(cx, cy, middle, 48 * sign)
+    vx, vy = polar(cx, cy, middle, 136 * sign)
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(start, end, (cx, cy))]),
+                  image("scale.svg", (0, 0, w, h)),
+                  image("mark.svg", (0, 0, w, h), manipulations=[rotate(0, end - start, (cx, cy))]),
+                  {"type": "image", "channelIcon": True, "color": "foreground", "frame": [round(ix - 13), round(iy - 13), 26, 26]},
+                  text("value", (round(vx), round(vy) - 4), 30, bold=True, italic=True, precision=0),
+                  text("unit", (round(vx), round(vy) + 22), 16, "accent2", italic=True)]
+    write(name, (w, h), components, drawings, ["elevation", "grade", "speed", "cadence", "heartRate", "power"])
+
+
+def crown_arc(name):
+    """A shallow arc along the top that fills from the left, a mark riding on it. Its dark band
+    runs on past both ends: the value at the left, where it starts, the unit at the right."""
+    w, h = 460, 160
+    cx, cy, r_out, r_in = 230, 430, 392, 360
+    start, end = -24, 24
+    band = ring_path(cx, cy, r_out, r_in, start, end)
+    plate_ = (f"<path d='{ring_path(cx, cy, r_out + 6, r_in - 26, -33, 30)}' fill='@background' fill-opacity='0.6'/>"
+              f"<path d='{band}' fill='#ffffff' fill-opacity='0.07'/>")
+    scale = (ticks(cx, cy, start, end, 5, r_in - 2, 14, 4.5) + ticks(cx, cy, start, end, 21, r_in - 2, 7, 1.2, skip_every=5, opacity=0.6))
+    x0, y0 = polar(cx, cy, r_in - 4, start)
+    x1, y1 = polar(cx, cy, r_out + 4, start)
+    shade = (f"<radialGradient id='shade' gradientUnits='userSpaceOnUse' cx='{cx}' cy='{cy}' r='{r_out}'>"
+             f"<stop offset='{fmt(r_in / r_out)}' stop-color='#000000' stop-opacity='0.5'/>"
+             "<stop offset='1' stop-color='#000000' stop-opacity='0'/></radialGradient>")
+    drawings = {"plate.svg": svg(w, h, plate_), "scale.svg": svg(w, h, scale),
+                "fill.svg": svg(w, h, f"<path d='{band}' {theme('accent')}/><path d='{band}' fill='url(#shade)'/>", shade),
+                "mark.svg": svg(w, h, f"<path d='M{fmt(x0)},{fmt(y0)} L{fmt(x1)},{fmt(y1)}' {stroke('foreground', 5)}/>")}
+    middle = (r_in - 26 + r_out + 6) / 2
+    vx, vy = polar(cx, cy, middle, -29)
+    ux, uy = polar(cx, cy, middle, 27.5)
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(start, end, (cx, cy))]),
+                  image("scale.svg", (0, 0, w, h)),
+                  image("mark.svg", (0, 0, w, h), manipulations=[rotate(0, end - start, (cx, cy))]),
+                  text("value", (round(vx), round(vy)), 32, bold=True, italic=True, precision=0),
+                  text("unit", (round(ux), round(uy)), 24, "accent2", italic=True)]
+    write(name, (w, h), components, drawings, ["grade", "temperature", "speed", "cadence", "heartRate", "power"])
+
+
+def compass_ring(name):
+    """A rose that turns under a mark, in a ring of the accent colour; a faint wedge points the way."""
+    s, c = 300, 150
+    defs = ("<linearGradient id='ring' x1='0' y1='0' x2='0' y2='1'>"
+            "<stop offset='0' stop-color='#ffffff' stop-opacity='0.25'/>"
+            "<stop offset='1' stop-color='#000000' stop-opacity='0.35'/></linearGradient>")
+    face = (f"<circle cx='{c}' cy='{c}' r='144' {theme('accent')}/>"
+            f"<circle cx='{c}' cy='{c}' r='144' fill='url(#ring)'/>"
+            f"<path d='{ring_path(c, c, 144, 124, -22, 22)}' fill='#ffffff' fill-opacity='0.18'/>"
+            f"<circle cx='{c}' cy='{c}' r='124' fill='#141414' fill-opacity='0.85'/>"
+            f"<circle cx='{c}' cy='{c}' r='124' fill='none' stroke='#000000' stroke-opacity='0.6' stroke-width='3'/>")
+    rose = ticks(c, c, 0, 360, 73, 121, 8, 1.4, "foreground", opacity=0.5) + ticks(c, c, 0, 360, 9, 121, 14, 3, "foreground")
+    for label, angle, size in (("N", 0, 34), ("E", 90, 34), ("S", 180, 34), ("W", 270, 34),
+                               ("NE", 45, 22), ("SE", 135, 22), ("SW", 225, 22), ("NW", 315, 22)):
+        x, y = polar(c, c, 88, angle)
+        rose += (f"<text x='{fmt(x)}' y='{fmt(y + size * 0.36)}' font-family='{FONT}' font-size='{size}' "
+                 f"font-weight='bold' text-anchor='middle' transform='rotate({angle} {fmt(x)} {fmt(y)})' "
+                 f"{theme('accent' if label == 'N' else 'foreground')}>{label}</text>")
+    wedge = (f"<path d='M{c},{c} L{c - 26},{c - 118} L{c + 26},{c - 118} Z' fill='#ffffff' fill-opacity='0.07'/>"
+             f"<path d='M{c},{c - 120} L{c - 11},{c - 140} L{c + 11},{c - 140} Z' fill='#ffffff'/>")
+    drawings = {"face.svg": svg(s, s, face, defs), "rose.svg": svg(s, s, rose), "mark.svg": svg(s, s, wedge)}
+    components = [image("face.svg", (0, 0, s, s)),
+                  image("rose.svg", (0, 0, s, s), manipulations=[rotate(0, -360, (c, c), minValue=0, maxValue=360, wrap=True)]),
+                  image("mark.svg", (0, 0, s, s)),
+                  text("valueAndUnit", (c, c + 4), 30, bold=True, precision=0)]
+    write(name, (s, s), components, drawings, ["heading"])
+
+
+def heading_tape(name):
+    """Compass points and ticks sliding past a mark in the middle; the heading under it."""
+    w, h = 1000, 100
+    k = 2.4                  # pixels a degree: the whole compass shows, with a little over
+    mid = w / 2
+    first, last = -225, 585  # drawn more than twice round, so any heading has points on both sides
+    x0 = mid + first * k
+    def at(deg):
+        return deg * k - first * k
+    marks = []
+    for deg in range(first, last + 1, 15):
+        tall = 18 if deg % 45 == 0 else 9
+        marks.append(f"M{fmt(at(deg))},{62} L{fmt(at(deg))},{62 - tall}")
+    strip = f"<path d='{' '.join(marks)}' {stroke('foreground', 2, 0.7)}/>"
+    names = {0: "N", 45: "NE", 90: "E", 135: "SE", 180: "S", 225: "SW", 270: "W", 315: "NW"}
+    for deg in range(first, last + 1, 45):
+        label = names[deg % 360]
+        size, colour = (26, "accent") if label == "N" else (24 if len(label) == 1 else 18, "foreground")
+        strip += (f"<text x='{fmt(at(deg))}' y='30' font-family='{FONT}' font-size='{size}' font-weight='bold' "
+                  f"text-anchor='middle' {theme(colour)}>{label}</text>")
+    span = (last - first) * k
+    defs = ("<linearGradient id='fade' x1='0' y1='0' x2='1' y2='0'>"
+            "<stop offset='0' stop-color='#000000' stop-opacity='0'/>"
+            "<stop offset='0.15' stop-color='#000000' stop-opacity='0.55'/>"
+            "<stop offset='0.85' stop-color='#000000' stop-opacity='0.55'/>"
+            "<stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient>")
+    plate_ = (f"<rect x='0' y='4' width='{w}' height='62' fill='url(#fade)'/>"
+              f"<rect x='{fmt(w * 0.1)}' y='64' width='{fmt(w * 0.8)}' height='2' fill='@accent2' fill-opacity='0.5'/>")
+    needle_ = f"<path d='M{mid},50 L{mid - 10},68 L{mid + 10},68 Z' {theme('accent')}/>"
+    drawings = {"plate.svg": svg(w, h, plate_, defs), "strip.svg": svg(span, h, strip), "mark.svg": svg(w, h, needle_)}
+    # nothing past the ends of the plate
+    move = translate(0, -360 * k, minValue=0, maxValue=360, wrap=True, clip=[40, 0, w - 80, h])
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("strip.svg", (x0, 0, span, h), manipulations=[move]),
+                  image("mark.svg", (0, 0, w, h)),
+                  text("valueAndUnit", (mid, 84), 20, "accent2", bold=True, precision=0)]
+    write(name, (w, h), components, drawings, ["heading"])
+
+
+def readout_right(name, duration=False):
+    """A label and a value, aligned right, on nothing: for a corner of the picture."""
+    w, h = 320, 100
+    value = text("value" if duration else "valueAndUnit", (w - 8, 66), 44, align="right", bold=True,
+                 precision=1 if duration else 0)
+    if duration:
+        value["format"] = "duration"
+    components = [text("label", (w - 8, 24), 22, "accent2", align="right", italic=True, upperCase=True), value]
+    types = (["lapTime", "bestLapTime", "previousLapTime", "sectorTime"] if duration
+             else ["lap", "speed", "distance", "heartRate", "power", "cadence"])
+    write(name, (w, h), components, {}, types)
+
+
+def slant_readout(name):
+    """A slanted plate, the value large on the right, under it a row of slanted stripes that
+    fills from the left, an accent line along the bottom."""
+    w, h = 340, 112
+    lean = 14
+    plate_ = (f"<path d='M{lean},0 L{w},0 L{w - lean},{h - 8} L0,{h - 8} Z' fill='@background' fill-opacity='0.55'/>"
+              f"<rect x='0' y='{h - 5}' width='{w - lean}' height='4' {theme('accent')}/>")
+    # stripes leaning well forward, like a speed mark
+    top, bottom, x0, x1 = 68, 92, 26, 300
+    slope = 11
+    stripes = " ".join(f"M{fmt(x + slope)},{top} L{fmt(x + slope + 8)},{top} L{x + 8},{bottom} L{x},{bottom} Z"
+                       for x in range(x0, x1 - 8, 13))
+    drawings = {"plate.svg": svg(w, h, plate_),
+                "track.svg": svg(w, h, f"<path d='{stripes}' fill='#ffffff' fill-opacity='0.12'/>"),
+                "stripes.svg": svg(w, h, f"<path d='{stripes}' {theme('accent')}/>")}
+    angle = round(math.degrees(math.atan2(slope, bottom - top)), 2)
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("track.svg", (0, 0, w, h)),
+                  image("stripes.svg", (0, 0, w, h), manipulations=[
+                      {"type": "widthClip", "minX": x0, "maxX": x1 + slope, "clipAngle": angle}]),
+                  text("value", (w - 96, 36), 46, align="right", bold=True, italic=True, precision=0),
+                  text("unit", (w - 88, 44), 24, "accent2", align="left", italic=True)]
+    write(name, (w, h), components, drawings, ROUND_TYPES + ["distance", "elevation"])
+
+
+def pill_readout(name):
+    """The label and the value on one line, on a pill."""
+    w, h = 364, 56
+    # fading out towards both ends
+    defs = ("<linearGradient id='fade' x1='0' y1='0' x2='1' y2='0'>"
+            "<stop offset='0' stop-color='@background' stop-opacity='0'/>"
+            "<stop offset='0.2' stop-color='@background' stop-opacity='0.6'/>"
+            "<stop offset='0.8' stop-color='@background' stop-opacity='0.6'/>"
+            "<stop offset='1' stop-color='@background' stop-opacity='0'/></linearGradient>")
+    plate_ = f"<rect x='0' y='0' width='{w}' height='{h}' rx='28' fill='url(#fade)'/>"
+    components = [image("plate.svg", (0, 0, w, h)),
+                  text("label", (74, 29), 20, "accent2", align="left", bold=True, upperCase=True),
+                  text("valueAndUnit", (w - 72, 29), 28, "accent", align="right", bold=True, upperCase=True, precision=0)]
+    write(name, (w, h), components, {"plate.svg": svg(w, h, plate_, defs)}, ROUND_TYPES + ["distance", "elevation"])
+
+
+def accel_bar(name):
+    """A straight bar that fills from its middle: to the left when braking, to the right when
+    speeding up; the force under it."""
+    w, h, mid = 440, 86, 220
+    bar = f"M24,12 L{w - 24},12 L{w - 24},40 L24,40 Z"
+    plate_ = (f"<rect x='0' y='0' width='{w}' height='{h}' rx='6' fill='@background' fill-opacity='0.45'/>"
+              f"<path d='{bar}' fill='#ffffff' fill-opacity='0.1'/>"
+              f"<rect x='{mid - 1.5}' y='6' width='3' height='40' {theme('foreground')}/>")
+    drawings = {"plate.svg": svg(w, h, plate_), "fill.svg": svg(w, h, f"<path d='{bar}' {theme('accent')}/>")}
+    clip = {"type": "widthClip"}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[dict(clip, minX=mid, maxX=24, minValue=0, maxValue=-0.5)]),
+                  image("fill.svg", (0, 0, w, h), manipulations=[dict(clip, minX=mid, maxX=w - 24, minValue=0, maxValue=0.5)]),
+                  text("valueAndUnit", (mid, 64), 22, italic=True, precision=2, showPlus=True)]
+    write(name, (w, h), components, drawings, ["gForceLongitudinal", "gForceLateral"])
+
+
+def thermometer(name):
+    """A glass tube with a grey rim, light at the top and dark at the bottom, that fills up to
+    the value; the value in its bulb."""
+    w, h = 170, 400
+    cx, top, bottom = 85, 22, 292
+    half = 26                      # of the tube
+    bulb_y, bulb_r = bottom + 46, 54
+    defs = ("<linearGradient id='rim' x1='0' y1='0' x2='0' y2='1'>"
+            "<stop offset='0' stop-color='#e6e6e6'/><stop offset='0.5' stop-color='#8a8a8a'/>"
+            "<stop offset='1' stop-color='#3a3a3a'/></linearGradient>")
+    tube = f"<rect x='{cx - half}' y='{top}' width='{2 * half}' height='{bottom - top + 30}' rx='{half}'"
+    plate_ = (f"{tube} fill='@background' fill-opacity='0.55'/>"
+              f"{tube} fill='none' stroke='url(#rim)' stroke-width='4'/>")
+    marks = []
+    for i in range(13):
+        y = bottom - 6 - (bottom - top - 30) * i / 12
+        long = i % 4 == 0
+        marks.append(f"<rect x='{cx - (17 if long else 11)}' y='{fmt(y - (2.5 if long else 1.5))}' "
+                     f"width='{34 if long else 22}' height='{5 if long else 3}' "
+                     f"fill='#ffffff' fill-opacity='{0.95 if long else 0.45}'/>")
+    column = f"<rect x='{cx - 15}' y='{top + 10}' width='30' height='{bottom - top + 10}' {theme('accent')}/>"
+    drawings = {"plate.svg": svg(w, h, plate_, defs), "marks.svg": svg(w, h, "".join(marks)),
+                "fill.svg": svg(w, h, column),
+                "bulb.svg": svg(w, h, f"<circle cx='{cx}' cy='{bulb_y}' r='{bulb_r}' {theme('accent')}/>")}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[{"type": "heightClip", "minY": bottom + 12, "maxY": top + 24}]),
+                  image("bulb.svg", (0, 0, w, h)),
+                  image("marks.svg", (0, 0, w, h)),
+                  text("value", (cx, bulb_y - 10), 44, bold=True, precision=0),
+                  text("unit", (cx, bulb_y + 26), 22)]
+    write(name, (w, h), components, drawings, ["temperature", "heartRate", "power"])
+
+
+PULSE_STEPS = 16     # pictures of one heartbeat
+TOP_HEART = 240
+
+
+def heart_pulse(name):
+    """Rings that ripple out once for every heart beat, at the real rate; the heart rate in the
+    middle."""
+    s, c = 300, 150
+    face = (f"<circle cx='{c}' cy='{c}' r='146' fill='@background' fill-opacity='0.35'/>"
+            + "".join(f"<circle cx='{c}' cy='{c}' r='{r}' fill='none' stroke='#000000' stroke-opacity='0.45' stroke-width='3'/>"
+                      for r in (124, 134, 144)))
+    core = (f"<circle cx='{c}' cy='{c}' r='70' fill='#141414' fill-opacity='0.85'/>")
+    def beat(i):
+        t = i / PULSE_STEPS
+        out = ""
+        # the inner ring swells on the beat, two ripples run out one after the other
+        swell = max(0.0, 1.0 - t * 3)
+        out += (f"<circle cx='{c}' cy='{c}' r='{fmt(78 + 6 * swell)}' {stroke('accent', 6 + 6 * swell)}/>")
+        for phase in (t, (t + 0.5) % 1.0):
+            r = 88 + 56 * phase
+            out += (f"<circle cx='{c}' cy='{c}' r='{fmt(r)}' "
+                    f"{stroke('accent', 5, round(0.9 * (1 - phase), 2))}/>")
+        return out
+    drawn, frame, rect = strip_of((0, 0, s, s), PULSE_STEPS, beat)
+    drawings = {"face.svg": svg(s, s, face), "core.svg": svg(s, s, core), "beat.svg": drawn}
+    strip = {"type": "animationStrip", "frames": PULSE_STEPS, "minFps": 0, "maxFps": TOP_HEART / 60 * PULSE_STEPS,
+             "frameRect": rect, "minValue": 0, "maxValue": TOP_HEART}
+    components = [image("face.svg", (0, 0, s, s)),
+                  image("beat.svg", frame, manipulations=[strip]),
+                  image("core.svg", (0, 0, s, s)),
+                  text("value", (c, c - 6), 52, bold=True, italic=True, precision=0),
+                  text("unit", (c, c + 34), 20, "accent2")]
+    write(name, (s, s), components, drawings, ["heartRate", "cadence"])
+
+
+def odometer(name):
+    """Rolling number wheels: the last one, a tenth, turns all the time; the others turn on only
+    as the one after them goes from 9 to 0, as on a real odometer."""
+    digit_w, digit_h, gap = 40, 54, 4
+    count = 5                         # 1000s, 100s, 10s, 1s, tenths
+    left, top = 16, 16
+    w = left * 2 + count * (digit_w + gap) + 50
+    h = top * 2 + digit_h
+    plate_ = f"<rect x='0' y='0' width='{w}' height='{h}' rx='8' fill='@background' fill-opacity='0.6'/>"
+    for i in range(count):
+        x = left + i * (digit_w + gap)
+        fill = f"{theme('accent')}" if i == count - 1 else "fill='#000000' fill-opacity='0.55'"
+        plate_ += f"<rect x='{x}' y='{top}' width='{digit_w}' height='{digit_h}' rx='4' {fill}/>"
+    shade = ("<defs><linearGradient id='roll' x1='0' y1='0' x2='0' y2='1'>"
+             "<stop offset='0' stop-color='#000000' stop-opacity='0.55'/>"
+             "<stop offset='0.3' stop-color='#000000' stop-opacity='0'/>"
+             "<stop offset='0.7' stop-color='#000000' stop-opacity='0'/>"
+             "<stop offset='1' stop-color='#000000' stop-opacity='0.55'/></linearGradient></defs>"
+             + "".join(f"<rect x='{left + i * (digit_w + gap)}' y='{top}' width='{digit_w}' height='{digit_h}' "
+                       "rx='4' fill='url(#roll)'/>" for i in range(count)))
+    column = "".join(f"<text x='{digit_w / 2}' y='{fmt(d * digit_h + digit_h * 0.72)}' font-family='{FONT}' "
+                     f"font-size='{fmt(digit_h * 0.78)}' font-weight='bold' text-anchor='middle' "
+                     f"{theme('foreground')}>{d % 10}</text>" for d in range(11))
+    drawings = {"plate.svg": svg(w, h, plate_), "shade.svg": svg(w, h, shade),
+                "digits.svg": svg(digit_w, digit_h * 11, column)}
+    components = [image("plate.svg", (0, 0, w, h))]
+    for i in range(count):
+        step = 10 ** (count - 2 - i)             # what one turn of the wheel before it is worth: 0.1 for the last
+        span = step * 10
+        x = left + i * (digit_w + gap)
+        m = translate(0, 0, 0, -10 * digit_h, minValue=0, maxValue=span, wrap=True,
+                      clip=[x, top, digit_w, digit_h])
+        if i < count - 1:
+            # stands still on each digit until the wheel after it rolls from 9 to 0
+            curve = [[0, 0]]
+            for d in range(10):
+                curve += [[round(d * step + step * 0.9, 4), d / 10], [round((d + 1) * step, 4), (d + 1) / 10]]
+            m["curve"] = curve
+        components.append(image("digits.svg", (x, top, digit_w, digit_h * 11), manipulations=[m]))
+    components += [image("shade.svg", (0, 0, w, h)),
+                   text("unit", (w - 34, top + digit_h / 2), 22, "accent2", italic=True)]
+    write(name, (w, h), components, drawings, ["distance"])
+
+
+def circle_readout(name):
+    """A dark disc with a white rim; a short arc on its right side fills up; the value in the
+    middle, the label under the disc."""
+    s, c = 300, 140
+    plate_ = (f"<circle cx='{c + 10}' cy='{c}' r='112' fill='@background' fill-opacity='0.6'/>"
+              f"<circle cx='{c + 10}' cy='{c}' r='112' {stroke('foreground', 6)}/>")
+    drawings = {"plate.svg": svg(s, s, plate_),
+                "track.svg": svg(s, s, f"<path d='{ring_path(c + 10, c, 136, 118, 40, 140)}' fill='#ffffff' fill-opacity='0.1'/>"),
+                "fill.svg": svg(s, s, f"<path d='{ring_path(c + 10, c, 136, 118, 40, 140)}' {theme('accent')}/>")}
+    components = [image("plate.svg", (0, 0, s, s)), image("track.svg", (0, 0, s, s)),
+                  image("fill.svg", (0, 0, s, s), manipulations=[radial_clip(140, 40, (c + 10, c))]),
+                  text("value", (c + 10, c - 8), 60, bold=True, italic=True, precision=0),
+                  text("unit", (c + 10, c + 46), 22, "accent2"),
+                  text("label", (c + 10, 280), 26, italic=True)]
+    write(name, (s, s), components, drawings, ["grade", "temperature", "speed", "cadence", "heartRate", "power"])
+
+
+def ring_readout(name):
+    """A dark disc whose rim fills round from the bottom; the value, unit and label inside."""
+    s, c = 300, 150
+    plate_ = f"<circle cx='{c}' cy='{c}' r='140' fill='@background' fill-opacity='0.6'/>"
+    band = ring_path(c, c, 140, 104, 0, 359.99)
+    drawings = {"plate.svg": svg(s, s, plate_),
+                "fill.svg": svg(s, s, f"<path d='{band}' {theme('accent2')}/>")}
+    components = [image("plate.svg", (0, 0, s, s)),
+                  image("fill.svg", (0, 0, s, s), manipulations=[radial_clip(180, 540, (c, c))]),
+                  text("value", (c, c - 14), 60, bold=True, precision=0),
+                  text("unit", (c, c + 34), 24, "accent", upperCase=True),
+                  text("label", (c, c + 72), 18, italic=True, upperCase=True)]
+    write(name, (s, s), components, drawings, ROUND_TYPES)
+
+
+def column_scale(name):
+    """A column that fills up along a scale with three numbers; the label above, the unit below.
+    The fill in the second accent colour, a little darker than it is."""
+    w, h = 170, 320
+    top, bottom = 50, 270
+    x, width = 72, 62
+    plate_ = (f"<rect x='0' y='0' width='{w}' height='{h}' rx='4' fill='@background' fill-opacity='0.6'/>"
+              f"<rect x='{x}' y='{top}' width='{width}' height='{bottom - top}' fill='#ffffff' fill-opacity='0.1'/>")
+    marks = []
+    for i in range(11):
+        y = bottom - (bottom - top) * i / 10
+        long = i % 5 == 0
+        size = (42, 5) if long else (26, 3)
+        marks.append(f"<rect x='{fmt(x + (width - size[0]) / 2)}' y='{fmt(y - size[1] / 2)}' width='{size[0]}' "
+                     f"height='{size[1]}' fill='#ffffff' fill-opacity='{0.95 if long else 0.5}'/>")
+    drawings = {"plate.svg": svg(w, h, plate_), "marks.svg": svg(w, h, "".join(marks)),
+                "fill.svg": svg(w, h, f"<rect x='{x}' y='{top}' width='{width}' height='{bottom - top}' fill='@accent2'/>"
+                                      f"<rect x='{x}' y='{top}' width='{width}' height='{bottom - top}' fill='#000000' fill-opacity='0.25'/>")}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[{"type": "heightClip", "minY": bottom, "maxY": top}]),
+                  image("marks.svg", (0, 0, w, h)),
+                  text("label", (w / 2, 26), 20, italic=True, upperCase=True)]
+    components += [text("intervalMarking", (x - 10, y), 18, align="right", italic=True, precision=0)
+                   for y in (bottom, (top + bottom) / 2, top)]
+    components.append(text("unit", (w / 2, 296), 20, "accent2", italic=True, upperCase=True))
+    write(name, (w, h), components, drawings, ["elevation", "speed", "temperature", "heartRate", "power"])
+
+
+def dome(name):
+    """Half a dial over a glowing dome: a scale arc that fills from the left, the value in the dome."""
+    w, h, cx, cy = 400, 250, 200, 214
+    defs = ("<radialGradient id='glow' gradientUnits='userSpaceOnUse' cx='200' cy='214' r='120'>"
+            "<stop offset='0' stop-color='@accent' stop-opacity='0.75'/>"
+            "<stop offset='1' stop-color='@accent' stop-opacity='0.12'/></radialGradient>")
+    plate_ = (f"<path d='M{cx - 112},{cy} A112,112 0 0 1 {cx + 112},{cy} Z' fill='@background' fill-opacity='0.55'/>"
+              f"<path d='M{cx - 112},{cy} A112,112 0 0 1 {cx + 112},{cy} Z' fill='url(#glow)'/>"
+              f"<path d='{ring_path(cx, cy, 186, 182, -90, 90)}' fill='@accent' fill-opacity='0.5'/>")
+    scale = ticks(cx, cy, -90, 90, 7, 178, 16, 3, "accent") + ticks(cx, cy, -90, 90, 31, 178, 8, 1.4, "accent", skip_every=5, opacity=0.7)
+    drawings = {"plate.svg": svg(w, h, plate_, defs), "scale.svg": svg(w, h, scale),
+                "fill.svg": svg(w, h, f"<path d='{ring_path(cx, cy, 150, 140, -90, 90)}' {theme('foreground')}/>")}
+    components = [image("plate.svg", (0, 0, w, h)), image("scale.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(-90, 90, (cx, cy))]),
+                  text("value", (cx, cy - 52), 56, bold=True, precision=0),
+                  text("unit", (cx, cy - 16), 20, upperCase=True)]
+    write(name, (w, h), components, drawings, ROUND_TYPES)
+
+
 def main():
     os.makedirs(GAUGES, exist_ok=True)
     # numbers every major tick, the needle only outside the inner disc
@@ -1137,6 +1536,23 @@ def main():
     half_dial("Half dial right", "right")
     tape("Tape elevation")
     g_rings("G-force rings")
+    side_arc("Side arc right", "right")
+    side_arc("Side arc left", "left")
+    crown_arc("Crown arc")
+    compass_ring("Compass ring")
+    heading_tape("Heading tape")
+    readout_right("Readout right")
+    readout_right("Lap time right", duration=True)
+    slant_readout("Slant readout")
+    pill_readout("Pill readout")
+    accel_bar("Accel bar")
+    thermometer("Thermometer")
+    heart_pulse("Heart pulse")
+    odometer("Odometer")
+    circle_readout("Circle readout")
+    ring_readout("Ring readout")
+    column_scale("Column scale")
+    dome("Dome")
 
 
 if __name__ == "__main__":

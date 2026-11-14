@@ -1,0 +1,84 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Accel bar",
+    "size": [
+        440,
+        86
+    ],
+    "supportedTypes": [
+        "gForceLongitudinal",
+        "gForceLateral"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                440,
+                86
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                440,
+                86
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 220,
+                    "maxX": 24,
+                    "minValue": 0,
+                    "maxValue": -0.5
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                440,
+                86
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 220,
+                    "maxX": 416,
+                    "minValue": 0,
+                    "maxValue": 0.5
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                220,
+                64
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 2,
+            "showPlus": true
+        }
+    ]
+}

@@ -1,0 +1,97 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Heart pulse",
+    "size": [
+        300,
+        300
+    ],
+    "supportedTypes": [
+        "heartRate",
+        "cadence"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/beat.svg",
+            "frame": [
+                0,
+                0,
+                4800,
+                300
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "animationStrip",
+                    "frames": 16,
+                    "minFps": 0,
+                    "maxFps": 64.0,
+                    "frameRect": [
+                        0,
+                        0,
+                        300,
+                        300
+                    ],
+                    "minValue": 0,
+                    "maxValue": 240
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/core.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                150,
+                144
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 52,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                150,
+                184
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

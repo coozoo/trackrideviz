@@ -1,0 +1,53 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Readout right",
+    "size": [
+        320,
+        100
+    ],
+    "supportedTypes": [
+        "lap",
+        "speed",
+        "distance",
+        "heartRate",
+        "power",
+        "cadence"
+    ],
+    "components": [
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                312,
+                24
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "right",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                312,
+                66
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 44,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        }
+    ]
+}

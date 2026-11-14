@@ -1,0 +1,102 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Ring readout",
+    "size": [
+        300,
+        300
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 180,
+                    "maxAngle": 540,
+                    "pivot": [
+                        150,
+                        150
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                150,
+                136
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 60,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                150,
+                184
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                150,
+                222
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        }
+    ]
+}

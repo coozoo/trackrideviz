@@ -1,0 +1,96 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Slant readout",
+    "size": [
+        340,
+        112
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000",
+        "distance",
+        "elevation"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                340,
+                112
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/track.svg",
+            "frame": [
+                0,
+                0,
+                340,
+                112
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/stripes.svg",
+            "frame": [
+                0,
+                0,
+                340,
+                112
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 26,
+                    "maxX": 311,
+                    "clipAngle": 24.62
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                244,
+                36
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 46,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                252,
+                44
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center"
+        }
+    ]
+}

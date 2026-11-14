@@ -210,8 +210,14 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   arrow and Lap map arrow (pointing the way), Half dial left and right, Tape elevation, G-force
   rings (±0.5 g, one scale for both axes). A moving part can run over the recording's own lowest
   to highest value (`"range": "recording"`); an animation strip follows its own value range
-- Batch 3: side arcs, the other compasses, lap and time readouts, bars and thermometer, attitude;
-  pedal and power-phase gauges once those channels are read from FIT
+- ✅ Batch 3 (2026-11-14): Side arc right and left, Crown arc, Compass ring, Heading tape, Readout
+  right, Lap time right (minutes:seconds), Slant readout (with a striped fill), Pill readout, Accel
+  bar (braking to the left, speeding up to the right), Thermometer, Heart pulse (a ripple for every
+  real heart beat), Odometer (the higher wheels turn on only at the carry, so the digits read
+  clearly), Circle readout, Ring readout, Column scale, Dome. The preview draws the moving parts
+  of a gauge smooth on OpenGL too
+- Batch 4: attitude and roll, the marine gauges, the striped column, the grid equalizer, the thin
+  open arcs; pedal and power-phase gauges once those channels are read from FIT
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a

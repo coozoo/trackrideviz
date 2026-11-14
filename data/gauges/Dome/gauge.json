@@ -1,0 +1,96 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Dome",
+    "size": [
+        400,
+        250
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                250
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                250
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                250
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": -90,
+                    "maxAngle": 90,
+                    "pivot": [
+                        200,
+                        214
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                200,
+                162
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 56,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                200,
+                198
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true
+        }
+    ]
+}

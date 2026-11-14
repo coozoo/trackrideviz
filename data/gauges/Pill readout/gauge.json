@@ -1,0 +1,67 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Pill readout",
+    "size": [
+        364,
+        56
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000",
+        "distance",
+        "elevation"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                364,
+                56
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                74,
+                29
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "bold": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                292,
+                29
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "right",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        }
+    ]
+}

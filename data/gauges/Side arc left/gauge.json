@@ -1,0 +1,130 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Side arc left",
+    "size": [
+        200,
+        500
+    ],
+    "supportedTypes": [
+        "elevation",
+        "grade",
+        "speed",
+        "cadence",
+        "heartRate",
+        "power"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": -125,
+                    "maxAngle": -55,
+                    "pivot": [
+                        300,
+                        240
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                200,
+                500
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": 70,
+                    "pivot": [
+                        300,
+                        240
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "channelIcon": true,
+            "color": "foreground",
+            "frame": [
+                93,
+                52,
+                26,
+                26
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                119,
+                424
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 30,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                119,
+                450
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 16,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

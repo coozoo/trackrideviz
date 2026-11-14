@@ -1,0 +1,99 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Thermometer",
+    "size": [
+        170,
+        400
+    ],
+    "supportedTypes": [
+        "temperature",
+        "heartRate",
+        "power"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "heightClip",
+                    "minY": 304,
+                    "maxY": 46
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/bulb.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/marks.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                85,
+                328
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 44,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                85,
+                364
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

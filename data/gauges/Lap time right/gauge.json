@@ -1,0 +1,52 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Lap time right",
+    "size": [
+        320,
+        100
+    ],
+    "supportedTypes": [
+        "lapTime",
+        "bestLapTime",
+        "previousLapTime",
+        "sectorTime"
+    ],
+    "components": [
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                312,
+                24
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "right",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                312,
+                66
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 44,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 1,
+            "format": "duration"
+        }
+    ]
+}
