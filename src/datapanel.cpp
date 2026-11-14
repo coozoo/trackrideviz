@@ -16,6 +16,7 @@
 #include <QPainterPath>
 #include <QSettings>
 #include <QSplitter>
+#include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTableView>
 #include <QToolButton>
@@ -804,6 +805,14 @@ bool DataPanel::eventFilter(QObject *watched, QEvent *event)
                             chooseColor(item->data(Qt::UserRole).toString());
                         }
                     return true;
+                }
+            // a click on the name ticks or unticks, as one on the box does (the list does that one itself)
+            const int box = m_channelList->style()->pixelMetric(QStyle::PM_IndicatorWidth, nullptr, m_channelList) + 6;
+            if (item && mouse->button() == Qt::LeftButton && event->type() == QEvent::MouseButtonRelease
+                    && mouse->position().x() > m_channelList->visualItemRect(item).left() + box)
+                {
+                    QListWidgetItem *clicked = m_channelList->itemAt(mouse->position().toPoint());
+                    clicked->setCheckState(clicked->checkState() == Qt::Checked ? Qt::Unchecked : Qt::Checked);
                 }
         }
     return QWidget::eventFilter(watched, event);
