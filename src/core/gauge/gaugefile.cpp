@@ -252,6 +252,10 @@ QJsonObject manipulationToJson(const GaugeManipulation &m)
             object["minValue"] = m.minValue;
             object["maxValue"] = m.maxValue;
         }
+    if (m.recordingRange)
+        {
+            object["range"] = "recording";
+        }
     if (m.wrapValue)
         {
             object["wrap"] = true;
@@ -286,6 +290,7 @@ GaugeManipulation manipulationFromJson(const QJsonObject &object)
     m.hasValueRange = object.contains("minValue") && object.contains("maxValue");
     m.minValue = object.value("minValue").toDouble();
     m.maxValue = object.value("maxValue").toDouble();
+    m.recordingRange = object.value("range").toString() == "recording";
     m.wrapValue = object.value("wrap").toBool();
     m.reversed = object.value("reversed").toBool();
     m.curve = pointsFromJson(object.value("curve"));

@@ -1,0 +1,115 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Column glass",
+    "size": [
+        300,
+        420
+    ],
+    "supportedTypes": [
+        "elevation",
+        "power",
+        "speed",
+        "heartRate",
+        "cadence"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/box.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                420
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/left.svg",
+            "frame": [
+                50,
+                0,
+                100,
+                420
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "heightClip",
+                    "minY": 310,
+                    "maxY": 90,
+                    "clipAngle": 21.8
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/right.svg",
+            "frame": [
+                150,
+                0,
+                100,
+                420
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "heightClip",
+                    "minY": 310,
+                    "maxY": 90,
+                    "clipAngle": -21.8
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/level.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                420
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 0,
+                    "maxX": 0,
+                    "minY": 0,
+                    "maxY": -220
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/edges.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                420
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                150,
+                378
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        }
+    ]
+}

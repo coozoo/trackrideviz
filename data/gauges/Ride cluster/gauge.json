@@ -1,0 +1,399 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Ride cluster",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "speed"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/strip.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "staticRadialClip",
+                    "minAngle": -52,
+                    "maxAngle": 52,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                },
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": -360,
+                    "pivot": [
+                        200,
+                        200
+                    ],
+                    "minValue": 0,
+                    "maxValue": 360,
+                    "wrap": true
+                }
+            ],
+            "channel": "heading"
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                15
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "heading"
+        },
+        {
+            "type": "image",
+            "image": "images/cadence.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 205,
+                    "maxAngle": 305,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "cadence"
+        },
+        {
+            "type": "image",
+            "image": "images/climb.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 155,
+                    "maxAngle": 55,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "elevation"
+        },
+        {
+            "type": "image",
+            "image": "images/icons.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                92
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 30,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "elevation"
+        },
+        {
+            "type": "text",
+            "autoText": "labelValueUnit",
+            "frame": [
+                200,
+                120
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "grade"
+        },
+        {
+            "type": "group",
+            "components": [
+                {
+                    "type": "image",
+                    "image": "images/road.svg",
+                    "frame": [
+                        0,
+                        0,
+                        400,
+                        400
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-wheelR.svg",
+                    "frame": [
+                        149,
+                        190,
+                        504,
+                        42
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 12,
+                            "minFps": 0,
+                            "maxFps": 72.0,
+                            "frameRect": [
+                                149,
+                                190,
+                                42,
+                                42
+                            ]
+                        }
+                    ],
+                    "channel": "speed"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-wheelF.svg",
+                    "frame": [
+                        212,
+                        190,
+                        504,
+                        42
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 12,
+                            "minFps": 0,
+                            "maxFps": 72.0,
+                            "frameRect": [
+                                212,
+                                190,
+                                42,
+                                42
+                            ]
+                        }
+                    ],
+                    "channel": "speed"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-far.svg",
+                    "frame": [
+                        165,
+                        159,
+                        1512,
+                        72
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 24,
+                            "minFps": 0,
+                            "maxFps": 80.0,
+                            "frameRect": [
+                                165,
+                                159,
+                                63,
+                                72
+                            ],
+                            "minValue": 0,
+                            "maxValue": 200
+                        }
+                    ],
+                    "channel": "cadence"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-bike.svg",
+                    "frame": [
+                        0,
+                        0,
+                        400,
+                        400
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-near.svg",
+                    "frame": [
+                        165,
+                        159,
+                        1512,
+                        72
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 24,
+                            "minFps": 0,
+                            "maxFps": 80.0,
+                            "frameRect": [
+                                165,
+                                159,
+                                63,
+                                72
+                            ],
+                            "minValue": 0,
+                            "maxValue": 200
+                        }
+                    ],
+                    "channel": "cadence"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-body.svg",
+                    "frame": [
+                        0,
+                        0,
+                        400,
+                        400
+                    ],
+                    "color": "original"
+                }
+            ],
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 12,
+                    "maxAngle": -12,
+                    "pivot": [
+                        200,
+                        232
+                    ],
+                    "minValue": -15,
+                    "maxValue": 15
+                }
+            ],
+            "channel": "grade"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                268
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 42,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                306
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "power",
+            "hideWhenUnknown": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                362
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 1,
+            "channel": "distance"
+        }
+    ]
+}

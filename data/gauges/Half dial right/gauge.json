@@ -1,0 +1,216 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Half dial right",
+    "size": [
+        380,
+        400
+    ],
+    "supportedTypes": [
+        "speed",
+        "cadence",
+        "power",
+        "heartRate",
+        "engineRpm",
+        "engineRpmX1000"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                380,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                380,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 150,
+                    "maxAngle": -30,
+                    "pivot": [
+                        190,
+                        200
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/scale.svg",
+            "frame": [
+                0,
+                0,
+                380,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                263.5,
+                327.3
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                317.3,
+                273.5
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                337.0,
+                200.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                317.3,
+                126.5
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                263.5,
+                72.7
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                190.0,
+                53.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "intervalMarking",
+            "frame": [
+                116.5,
+                72.7
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                184,
+                332
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 48,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                184,
+                367
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

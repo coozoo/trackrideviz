@@ -1,0 +1,107 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Tape elevation",
+    "size": [
+        170,
+        640
+    ],
+    "supportedTypes": [
+        "elevation"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                640
+            ],
+            "color": "original"
+        },
+        {
+            "type": "tape",
+            "frame": [
+                20,
+                62,
+                96,
+                536
+            ],
+            "color": "foreground",
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "align": "left",
+            "valign": "center",
+            "scale": {
+                "minValue": -500,
+                "maxValue": 9000,
+                "orientation": "numbersRight",
+                "length": 536,
+                "spacing": 70,
+                "labelOffset": 8,
+                "major": {
+                    "unit": 10,
+                    "length": 18,
+                    "width": 2.5,
+                    "color": "accent2"
+                },
+                "minor": {
+                    "unit": 2,
+                    "length": 9,
+                    "width": 1.2,
+                    "color": "accent2"
+                }
+            }
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                170,
+                640
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                160,
+                342.0
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                20,
+                20
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        }
+    ]
+}

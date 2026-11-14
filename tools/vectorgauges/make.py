@@ -488,8 +488,10 @@ TILE_ICON = (22, 23, 64, 64)       # where the icon sits on a tile
 IX, IY = 54, 55                    # its middle
 
 
-def stroke(colour, width):
-    return f"fill='none' stroke='@{colour}' stroke-opacity='@{colour}-opacity' stroke-width='{fmt(width)}'"
+def stroke(colour, width, opacity=None):
+    """`opacity`: its own transparency instead of the theme colour's."""
+    alpha = f"@{colour}-opacity" if opacity is None else fmt(opacity)
+    return f"fill='none' stroke='@{colour}' stroke-opacity='{alpha}' stroke-width='{fmt(width)}'"
 
 
 def live_icon(kind):
@@ -557,6 +559,537 @@ def tile(name, kind=None, types=None):
           ["speed", "heartRate", "elevation", "cadence", "power", "temperature", "distance", "heading", "grade"])
 
 
+# --- batch 2: rides, graphs, maps ------------------------------------------
+
+def group(components, manipulations=None):
+    g = {"type": "group", "components": components}
+    if manipulations:
+        g["manipulations"] = manipulations
+    return g
+
+
+def translate(min_x=0, max_x=0, min_y=0, max_y=0, **extra):
+    m = {"type": "translate", "minX": min_x, "maxX": max_x, "minY": min_y, "maxY": max_y}
+    m.update(extra)
+    return m
+
+
+class Rider:
+    """A road cyclist seen from the side, riding to the right, in parts that can move: the wheels
+    turn and the legs pedal. (x, y) is where the back wheel touches the ground, k the size
+    (1 = wheels 36 across). Drawn back to front: wheels, far leg, bike, near leg, body."""
+
+    WHEEL = 18
+    REAR, FRONT = (0, -18), (56, -18)
+    BB = (24, -14)           # bottom bracket
+    CRANK = 8
+    SEAT = (16, -48)         # top of the seat tube
+    HIP = (15, -55)
+    THIGH, SHIN = 28, 27
+    SHOULDER = (48, -70)
+    HEAD_TOP, HEAD_BOTTOM = (52, -47), (54, -38)
+
+    def __init__(self, x, y, k=1.0, colour="foreground"):
+        self.x, self.y, self.k, self.colour = x, y, k, colour
+
+    def p(self, point):
+        return f"{fmt(self.x + point[0] * self.k)},{fmt(self.y + point[1] * self.k)}"
+
+    def at(self, point):
+        return self.x + point[0] * self.k, self.y + point[1] * self.k
+
+    def paint(self, width, opacity=None):
+        return (stroke(self.colour, width * self.k, opacity)
+                + " stroke-linecap='round' stroke-linejoin='round'")
+
+    def hub(self, front):
+        return self.at(self.FRONT if front else self.REAR)
+
+    def sectors(self, front, angle=0.0):
+        """The inside of a wheel: four faint sectors that turn with it."""
+        cx, cy = self.hub(front)
+        r = (self.WHEEL - 2.5) * self.k
+        out = f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt(r)}' fill='@{self.colour}' fill-opacity='0.1'/>"
+        for i in range(2):
+            a = angle + i * 180
+            out += f"<path d='{ring_path(cx, cy, r, 0.01, a, a + 90)}' fill='@{self.colour}' fill-opacity='0.22'/>"
+        return out + f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt(2.5 * self.k)}' {theme(self.colour)}/>"
+
+    def leg(self, angle, opacity=None):
+        """A leg with its foot on the pedal at `angle` (clockwise from 12 o'clock); the knee forward."""
+        bx, by = self.BB
+        a = math.radians(angle)
+        foot = (bx + self.CRANK * math.sin(a), by - self.CRANK * math.cos(a))
+        hx, hy = self.HIP
+        dx, dy = foot[0] - hx, foot[1] - hy
+        d = min(math.hypot(dx, dy), self.THIGH + self.SHIN - 0.01)
+        bend = math.acos((self.THIGH ** 2 + d ** 2 - self.SHIN ** 2) / (2 * self.THIGH * d))
+        base = math.atan2(dy, dx)
+        knees = [(hx + self.THIGH * math.cos(base + s * bend), hy + self.THIGH * math.sin(base + s * bend)) for s in (1, -1)]
+        knee = max(knees, key=lambda q: q[0])
+        toe = (foot[0] + 7, foot[1] + 1)
+        crank = f"<path d='M{self.p(self.BB)} L{self.p(foot)}' {self.paint(2.5, opacity)}/>"
+        # a strong thigh, a slimmer shin and the shoe
+        return (crank + f"<path d='M{self.p(self.HIP)} L{self.p(knee)}' {self.paint(11, opacity)}/>"
+                + f"<path d='M{self.p(knee)} L{self.p(foot)} L{self.p(toe)}' {self.paint(7, opacity)}/>")
+
+    def bike(self):
+        out = ""
+        for front in (False, True):
+            cx, cy = self.hub(front)
+            out += f"<circle cx='{fmt(cx)}' cy='{fmt(cy)}' r='{fmt((self.WHEEL - 1.5) * self.k)}' {self.paint(4.5)}/>"
+        # thin stays, a thick down tube and seat tube
+        top = (17, -44)
+        out += (f"<path d='M{self.p(self.REAR)} L{self.p(self.BB)} M{self.p(self.REAR)} L{self.p(top)}' {self.paint(2.2)}/>"
+                f"<path d='M{self.p(self.BB)} L{self.p(self.SEAT)} M{self.p(self.BB)} L{self.p(self.HEAD_BOTTOM)}' {self.paint(4.5)}/>"
+                f"<path d='M{self.p(top)} L{self.p(self.HEAD_TOP)} M{self.p(self.HEAD_TOP)} L{self.p(self.HEAD_BOTTOM)}' {self.paint(3.5)}/>"
+                f"<path d='M{self.p(self.HEAD_BOTTOM)} L{self.p(self.FRONT)}' {self.paint(3)}/>"
+                # a long stem and drop bars
+                f"<path d='M{self.p(self.HEAD_TOP)} L{self.p((63, -50))} Q{self.p((71, -49))} {self.p((68, -40))} "
+                f"L{self.p((63, -39))}' {self.paint(3)}/>"
+                # the saddle and the chainring
+                f"<path d='M{self.p((9, -50))} L{self.p((22, -50))}' {self.paint(4)}/>"
+                f"<circle cx='{fmt(self.at(self.BB)[0])}' cy='{fmt(self.at(self.BB)[1])}' r='{fmt(6.5 * self.k)}' {theme(self.colour)}/>")
+        return out
+
+    def body(self):
+        """Back bent low and rounded over the bars, arms to the hoods, a head in a helmet."""
+        hx, hy = self.at((57, -75))
+        r = 7 * self.k
+        # an aero helmet, its tail pointing back
+        helmet = (f"M{self.p((42, -81))} Q{self.p((51, -92))} {self.p((62, -87))} Q{self.p((68, -83))} {self.p((65, -77))} "
+                  f"L{self.p((52, -76))} Z")
+        sx, sy = self.at(self.HIP)
+        return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7 * self.k)}' {theme(self.colour)}/>"
+                f"<path d='M{self.p(self.HIP)} Q{self.p((28, -80))} {self.p(self.SHOULDER)}' {self.paint(13)}/>"
+                f"<path d='M{self.p(self.SHOULDER)} L{self.p((54, -57))} L{self.p((63, -50))}' {self.paint(5.5)}/>"
+                f"<circle cx='{fmt(hx)}' cy='{fmt(hy)}' r='{fmt(r)}' {theme(self.colour)}/>"
+                f"<path d='{helmet}' {theme(self.colour)}/>")
+
+    def still(self, angle=60):
+        """All of it in one picture, the pedals at `angle`."""
+        return (self.sectors(False) + self.sectors(True) + self.leg(angle + 180, 0.85) + self.bike()
+                + self.leg(angle) + self.body())
+
+
+def strip_of(box, steps, draw):
+    """`steps` pictures of what `draw(i)` draws inside `box` (x, y, w, h), side by side: an
+    animation strip, (svg, image frame, frame rect)."""
+    x, y, w, h = box
+    pictures = "".join(f"<g transform='translate({fmt(i * w - x)},{fmt(-y)})'>{draw(i)}</g>" for i in range(steps))
+    return svg(w * steps, h, pictures), (x, y, w * steps, h), [x, y, w, h]
+
+
+def strip_component(file, frame, frame_rect, steps, max_fps, top=None, channel=None):
+    m = {"type": "animationStrip", "frames": steps, "minFps": 0, "maxFps": max_fps, "frameRect": frame_rect}
+    if top is not None:
+        m.update(minValue=0, maxValue=top)
+    c = image(file, frame, manipulations=[m])
+    if channel:
+        c["channel"] = channel
+    return c
+
+
+WHEEL_STEPS = 12     # pictures of a wheel over a quarter turn, where its sectors repeat
+LEG_STEPS = 24       # pictures of the legs over a whole turn of the cranks
+TOP_CADENCE = 200
+
+
+def moving_rider(rider, name, size=(400, 400)):
+    """Drawings and components of a rider whose wheels turn with the speed and whose legs turn
+    with the cadence (at the real rate), on a gauge of `size`."""
+    drawings = {}
+    components = []
+    k = rider.k
+    for front in (False, True):
+        cx, cy = rider.hub(front)
+        r = rider.WHEEL * k
+        box = (math.floor(cx - r), math.floor(cy - r), math.ceil(2 * r) + 1, math.ceil(2 * r) + 1)
+        file = f"{name}-wheel{'F' if front else 'R'}.svg"
+        drawn, frame, rect = strip_of(box, WHEEL_STEPS, lambda i, f=front: rider.sectors(f, 90.0 * i / WHEEL_STEPS))
+        drawings[file] = drawn
+        # at the ride's top speed a turn and a half a second: clearly turning, never a blur
+        components.append(strip_component(file, frame, rect, WHEEL_STEPS, 1.5 * 4 * WHEEL_STEPS, channel="speed"))
+    # the legs: from above the hip down to the lowest pedal, toes included
+    x0, y0 = rider.at((-4, -64))
+    x1, y1 = rider.at((52, 0))
+    box = (math.floor(x0), math.floor(y0), math.ceil(x1 - x0), math.ceil(y1 - y0))
+    fps = TOP_CADENCE / 60 * LEG_STEPS
+    for part, draw in (("far", lambda i: rider.leg(360.0 * i / LEG_STEPS + 180, 0.85)),
+                       ("near", lambda i: rider.leg(360.0 * i / LEG_STEPS))):
+        file = f"{name}-{part}.svg"
+        drawn, frame, rect = strip_of(box, LEG_STEPS, draw)
+        drawings[file] = drawn
+        components.append(strip_component(file, frame, rect, LEG_STEPS, fps, TOP_CADENCE, "cadence"))
+    w, h = size
+    drawings[f"{name}-bike.svg"] = svg(w, h, rider.bike())
+    drawings[f"{name}-body.svg"] = svg(w, h, rider.body())
+    wheels, far, near = components[:2], components[2], components[3]
+    return drawings, wheels + [far, image(f"{name}-bike.svg", (0, 0, w, h)), near,
+                               image(f"{name}-body.svg", (0, 0, w, h))]
+
+
+def ride_cluster(name):
+    """A round cluster for a ride: the heading on a strip of compass at the top, elevation and grade,
+    a rider who leans with the slope, the speed, cadence and elevation as arcs on the sides, power
+    and distance at the bottom."""
+    defs = ("<radialGradient id='well' cx='0.5' cy='0.4' r='0.6'>"
+            "<stop offset='0' stop-color='#000000' stop-opacity='0.45'/>"
+            "<stop offset='1' stop-color='#000000' stop-opacity='0.7'/></radialGradient>")
+    body = (f"<circle cx='{C}' cy='{C}' r='196' fill='@background' fill-opacity='0.55'/>"
+            f"<circle cx='{C}' cy='{C}' r='196' fill='none' stroke='#000000' stroke-opacity='0.4' stroke-width='3'/>"
+            # tracks of the strip and the two arcs
+            f"<path d='{ring_path(C, C, 176, 146, -50, 50)}' fill='#000000' fill-opacity='0.35'/>"
+            f"<path d='{ring_path(C, C, 176, 150, 205, 305)}' fill='#ffffff' fill-opacity='0.07'/>"
+            f"<path d='{ring_path(C, C, 176, 150, 55, 155)}' fill='#ffffff' fill-opacity='0.07'/>"
+            # the bottom, under power and distance
+            f"<path d='{ring_path(C, C, 192, 136, 160, 200)}' fill='#ffffff' fill-opacity='0.05'/>"
+            f"<circle cx='{C}' cy='{C}' r='136' fill='url(#well)'/>"
+            f"<circle cx='{C}' cy='{C}' r='136' fill='none' stroke='#ffffff' stroke-opacity='0.1' stroke-width='2'/>")
+    # a chainring by the cadence arc, a mountain by the elevation arc
+    gx, gy = polar(C, C, 163, 214)
+    teeth = ticks(gx, gy, 0, 337.5, 16, 9.5, 3, 2.6, "foreground")
+    ax, ay = polar(gx, gy, 12, 135)
+    bx, by = polar(gx, gy, 12, 315)
+    pedals = "".join(f"<rect x='{fmt(px - 5)}' y='{fmt(py - 1.8)}' width='10' height='3.6' "
+                     f"transform='rotate(-45 {fmt(px)} {fmt(py)})' {theme('foreground')}/>"
+                     for px, py in ((ax, ay), (bx, by)))
+    icons = (f"<circle cx='{fmt(gx)}' cy='{fmt(gy)}' r='6.5' {stroke('foreground', 2.6)}/>" + teeth
+             + f"<path d='M{fmt(ax)},{fmt(ay)} L{fmt(bx)},{fmt(by)}' {stroke('foreground', 2.6)}/>" + pedals)
+    mx, my = polar(C, C, 163, 146)
+    # white with a dark edge: it sits on the elevation arc, which is the light theme colour
+    icons += (f"<path d='M{fmt(mx - 12)},{fmt(my + 8)} L{fmt(mx - 3)},{fmt(my - 8)} L{fmt(mx + 2)},{fmt(my)} "
+              f"L{fmt(mx + 6)},{fmt(my - 5)} L{fmt(mx + 13)},{fmt(my + 8)} Z' fill='#ffffff' "
+              "stroke='#000000' stroke-opacity='0.55' stroke-width='1.5' stroke-linejoin='round'/>")
+    drawings = {"face.svg": svg(400, 400, body, defs), "icons.svg": svg(400, 400, icons)}
+
+    # the compass strip turns under a mark; only its top shows
+    strip = ticks(C, C, 0, 360, 73, 174, 7, 1.4, "foreground", opacity=0.5)
+    for label, angle in (("N", 0), ("NE", 45), ("E", 90), ("SE", 135), ("S", 180), ("SW", 225), ("W", 270), ("NW", 315)):
+        x, y = polar(C, C, 157, angle)
+        strip += (f"<text x='{fmt(x)}' y='{fmt(y + 6)}' font-family='{FONT}' font-size='18' font-weight='bold' "
+                  f"text-anchor='middle' transform='rotate({angle} {fmt(x)} {fmt(y)})' "
+                  f"{theme('accent' if label == 'N' else 'foreground')}>{label}</text>")
+    drawings["strip.svg"] = svg(400, 400, strip)
+    drawings["mark.svg"] = svg(400, 400, f"<path d='M{C},{C - 142} L{C - 8},{C - 132} L{C + 8},{C - 132} Z' {theme('accent')}/>")
+
+    arc = ring_path(C, C, 176, 150, 205, 305)
+    drawings["cadence.svg"] = svg(400, 400, f"<path d='{arc}' {theme('accent')}/>")
+    drawings["climb.svg"] = svg(400, 400, f"<path d='{ring_path(C, C, 176, 150, 55, 155)}' {theme('accent2')}/>")
+
+    # the rider and the road under him lean with the grade; wheels and legs turn
+    drawings["road.svg"] = svg(400, 400, f"<path d='M{C - 78},{C + 32} L{C + 78},{C + 32}' {stroke('foreground', 3, 0.6)}/>")
+    rider_drawings, rider_parts = moving_rider(Rider(C - 30, C + 31, 1.12), "rider")
+    drawings.update(rider_drawings)
+
+    components = [image("face.svg", (0, 0, 400, 400)),
+                  dict(image("strip.svg", (0, 0, 400, 400), manipulations=[
+                      {"type": "staticRadialClip", "minAngle": -52, "maxAngle": 52, "pivot": [C, C]},
+                      rotate(0, -360, (C, C), minValue=0, maxValue=360, wrap=True)]), channel="heading"),
+                  image("mark.svg", (0, 0, 400, 400)),
+                  text("valueAndUnit", (C, 15), 20, bold=True, precision=0, channel="heading"),
+                  dict(image("cadence.svg", (0, 0, 400, 400), manipulations=[radial_clip(205, 305, (C, C))]),
+                       channel="cadence"),
+                  dict(image("climb.svg", (0, 0, 400, 400), manipulations=[radial_clip(155, 55, (C, C))]),
+                       channel="elevation"),
+                  image("icons.svg", (0, 0, 400, 400)),
+                  text("valueAndUnit", (C, 92), 30, bold=True, upperCase=True, precision=0, channel="elevation"),
+                  text("labelValueUnit", (C, 120), 18, "accent2", upperCase=True, precision=0, channel="grade"),
+                  dict(group([image("road.svg", (0, 0, 400, 400))] + rider_parts, [
+                      rotate(12, -12, (C, C + 32), minValue=-15, maxValue=15)]), channel="grade"),
+                  text("valueAndUnit", (C, 268), 42, "accent", bold=True, upperCase=True, precision=0),
+                  text("valueAndUnit", (C, 306), 20, upperCase=True, precision=0, channel="power",
+                       hideWhenUnknown=True),
+                  text("valueAndUnit", (C, 362), 28, bold=True, upperCase=True, precision=1, channel="distance")]
+    write(name, (400, 400), components, drawings, ["speed"])
+
+
+def graph_plate(width, height, top):
+    return (f"<rect x='0' y='0' width='{width}' height='{height}' fill='@background' fill-opacity='0.5'/>"
+            f"<rect x='0' y='0' width='{width}' height='{top}' fill='#000000' fill-opacity='0.2'/>"
+            f"<rect x='0' y='0' width='{width}' height='3' {theme('accent2')}/>")
+
+
+def graph_knob(colour="foreground", text_at=None, channel=None):
+    knob = [image("dot.svg", (-8, -8, 16, 16))]
+    if text_at:
+        t = text("valueAndUnit", text_at, 20, colour, align="left", italic=True, precision=1)
+        if channel:
+            t["channel"] = channel
+        knob.append(t)
+    return knob
+
+
+def graph(name):
+    """The channel over the whole ride as a filled line, a mark where the video is."""
+    w, h, top = 520, 200, 44
+    drawings = {"plate.svg": svg(w, h, graph_plate(w, h, top)),
+                "line.svg": svg(2, 400, "<rect x='0' y='0' width='2' height='400' fill='@accent2' fill-opacity='0.5'/>"),
+                "dot.svg": svg(16, 16, f"<circle cx='8' cy='8' r='6' {theme('foreground')}/>"
+                                       f"<circle cx='8' cy='8' r='6' fill='none' stroke='#000000' stroke-opacity='0.5' stroke-width='1.5'/>")}
+    g = {"type": "graph", "frame": [0, top + 10, w, h - top - 14], "color": "accent", "lineWidth": 3,
+         "fillAlpha": 70, "padding": 0,
+         "xMarker": [image("line.svg", (-1, 0, 2, h - top - 14))],
+         "knob": graph_knob(text_at=(12, -16))}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  text("label", (14, 23), 22, "accent2", align="left", italic=True, upperCase=True),
+                  text("valueAndUnit", (w - 14, 23), 24, align="right", bold=True, precision=1),
+                  g]
+    write(name, (w, h), components, drawings,
+          ["elevation", "speed", "heartRate", "power", "cadence", "grade", "temperature"])
+
+
+def graph_pair(name):
+    """Two channels over the ride, the one placed and heart rate, each with its value on top."""
+    w, h, top = 520, 230, 46
+    half = w / 2
+    plate_ = (f"<rect x='0' y='0' width='{w}' height='{h}' fill='@background' fill-opacity='0.5'/>"
+              f"<rect x='0' y='0' width='{fmt(half)}' height='{top}' fill='@accent' fill-opacity='0.55'/>"
+              f"<rect x='{fmt(half)}' y='0' width='{fmt(half)}' height='{top}' fill='@accent2' fill-opacity='0.35'/>")
+    drawings = {"plate.svg": svg(w, h, plate_),
+                "line.svg": svg(2, 400, "<rect x='0' y='0' width='2' height='400' fill='@foreground' fill-opacity='0.5'/>"),
+                "dot.svg": svg(16, 16, f"<circle cx='8' cy='8' r='6' {theme('foreground')}/>")}
+    area = [0, top + 12, w, h - top - 16]
+    first = {"type": "graph", "frame": area, "color": "accent", "lineWidth": 3, "fillAlpha": 60,
+             "xMarker": [image("line.svg", (-1, 0, 2, area[3]))], "knob": graph_knob()}
+    second = {"type": "graph", "frame": area, "color": "accent2", "lineWidth": 3, "channel": "heartRate",
+              "knob": graph_knob()}
+    hr_icon = {"type": "image", "channelIcon": True, "channel": "heartRate", "color": "foreground",
+               "frame": [half + 12, 9, 28, 28]}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  {"type": "image", "channelIcon": True, "color": "foreground", "frame": [12, 9, 28, 28]},
+                  text("valueAndUnit", (52, 23), 24, align="left", italic=True, precision=1),
+                  hr_icon,
+                  dict(text("valueAndUnit", (half + 52, 23), 24, align="left", italic=True, precision=0), channel="heartRate"),
+                  first, second]
+    write(name, (w, h), components, drawings, ["elevation", "speed", "power", "cadence"])
+
+
+def progress(name):
+    """The ride from start to finish as a line, a rider moving along it with the distance."""
+    w, h = 600, 130
+    x0, x1, line_y = 34, 566, 74
+    flag = "".join(f"<rect x='{x1 + 2 + 5 * (i % 3)}' y='{line_y - 26 + 5 * (i // 3)}' width='5' height='5' "
+                   f"fill='{'#ffffff' if (i % 3 + i // 3) % 2 else '#111111'}'/>" for i in range(12))
+    plate_ = (f"<rect x='0' y='0' width='{w}' height='{h}' rx='6' fill='@background' fill-opacity='0.45'/>"
+              f"<path d='M{x0},{line_y} L{x1},{line_y}' {stroke('foreground', 5, 0.25)} stroke-linecap='round'/>"
+              f"<path d='M{x1 + 1},{line_y + 3} L{x1 + 1},{line_y - 26}' {stroke('foreground', 2)}/>" + flag)
+    drawings = {"plate.svg": svg(w, h, plate_),
+                "done.svg": svg(w, h, f"<path d='M{x0},{line_y} L{x1},{line_y}' {stroke('accent', 5)} stroke-linecap='round'/>")}
+    # the same rider as on the ride cluster, wheels and legs turning; the road line under the tyres
+    k = 0.72
+    rider_drawings, rider_parts = moving_rider(Rider(x0 - 28 * k, line_y - 3, k), "rider", (w, h))
+    drawings.update(rider_drawings)
+    along = dict(range="recording")
+    rider = group(rider_parts + [
+                   text("valueAndUnit", (x0, line_y + 20), 20, italic=True, precision=1),
+                   dict(text("valueAndUnit", (x0, line_y + 41), 17, "accent2", italic=True, precision=0), channel="speed")],
+                  [translate(0, x1 - x0, **along)])
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("done.svg", (0, 0, w, h), manipulations=[{"type": "widthClip", "minX": x0 - 3, "maxX": x1, **along}]),
+                  rider]
+    write(name, (w, h), components, drawings, ["distance"])
+
+
+def climb_wedge(name):
+    """A slanted plate with a wedge that fills along the channel's scale, and the value large."""
+    w, h = 480, 220
+    slant = 26
+    plate_ = (f"<path d='M{slant},0 L{w},0 L{w - slant},{h} L0,{h} Z' fill='@background' fill-opacity='0.5'/>"
+              f"<rect x='{slant + 6}' y='0' width='{w - slant - 6}' height='5' {theme('accent2')}/>")
+    wedge = f"M60,190 L420,190 L420,138 Z"
+    drawings = {"plate.svg": svg(w, h, plate_),
+                "wedge.svg": svg(w, h, f"<path d='{wedge}' fill='#ffffff' fill-opacity='0.3'/>"),
+                "fill.svg": svg(w, h, f"<path d='{wedge}' {theme('accent')}/>"),
+                "mark.svg": svg(w, h, f"<rect x='57' y='132' width='6' height='62' {theme('foreground')}/>")}
+    along = {}   # the channel's scale, like a dial's
+    components = [image("plate.svg", (0, 0, w, h)), image("wedge.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[{"type": "widthClip", "minX": 60, "maxX": 420, **along}]),
+                  image("mark.svg", (0, 0, w, h), manipulations=[translate(0, 360, **along)]),
+                  text("value", (360, 80), 84, align="right", bold=True, italic=True, precision=0),
+                  text("unit", (370, 92), 38, "accent2", align="left", italic=True)]
+    write(name, (w, h), components, drawings, ["elevation", "totalAscent", "distance"])
+
+
+def rhombus(cy, half_w=100, half_h=40, cx=150):
+    return f"M{cx - half_w},{cy} L{cx},{cy - half_h} L{cx + half_w},{cy} L{cx},{cy + half_h} Z"
+
+
+def column(name):
+    """A glass box seen from above at an angle; a level rises in it along the channel's scale,
+    the part below it filled."""
+    w, h = 300, 420
+    top, bottom = 70, 290
+    left_face = f"M50,{top} L150,{top + 40} L150,{bottom + 40} L50,{bottom} Z"
+    right_face = f"M150,{top + 40} L250,{top} L250,{bottom} L150,{bottom + 40} Z"
+    edges = stroke('accent2', 2.5) + " stroke-linejoin='round'"
+    box = (f"<path d='{left_face}' fill='@background' fill-opacity='0.55'/>"
+           f"<path d='{right_face}' fill='@background' fill-opacity='0.4'/>"
+           f"<path d='{rhombus(top)}' fill='@background' fill-opacity='0.3'/>"
+           f"<rect x='90' y='356' width='120' height='44' rx='4' fill='@background' fill-opacity='0.6'/>")
+    def face(path, x):
+        # drawn into a frame of its own, so the slanted clip turns about the face's middle
+        return svg(100, h, f"<g transform='translate({-x},0)'><path d='{path}' fill='@accent' fill-opacity='0.35'/></g>")
+    # a little inside the box, so the glass edges drawn over it hide its outer half
+    level = (f"<path d='{rhombus(bottom, 90, 36)}' fill='#ffffff' fill-opacity='0.25'/>"
+             f"<path d='{rhombus(bottom, 97.5, 39)}' {stroke('accent', 4)} stroke-linejoin='round'/>")
+    glass = (f"<path d='{rhombus(top)}' {edges}/>"
+             f"<path d='M50,{top} L50,{bottom} L150,{bottom + 40} L250,{bottom} L250,{top} M150,{top + 40} L150,{bottom + 40}' {edges}/>")
+    drawings = {"box.svg": svg(w, h, box), "left.svg": face(left_face, 50), "right.svg": face(right_face, 150),
+                "level.svg": svg(w, h, level), "edges.svg": svg(w, h, glass)}
+    along = {}   # the channel's scale, like a dial's
+    # the level's front edges meet the faces' middles 20 below its centre
+    angle = round(math.degrees(math.atan2(40, 100)), 2)
+    rise = {"type": "heightClip", "minY": bottom + 20, "maxY": top + 20, **along}
+    components = [image("box.svg", (0, 0, w, h)),
+                  image("left.svg", (50, 0, 100, h), manipulations=[dict(rise, clipAngle=angle)]),
+                  image("right.svg", (150, 0, 100, h), manipulations=[dict(rise, clipAngle=-angle)]),
+                  image("level.svg", (0, 0, w, h), manipulations=[translate(0, 0, 0, top - bottom, **along)]),
+                  image("edges.svg", (0, 0, w, h)),
+                  text("valueAndUnit", (150, 378), 28, italic=True, precision=0)]
+    write(name, (w, h), components, drawings, ["elevation", "power", "speed", "heartRate", "cadence"])
+
+
+CRANK_STEPS = 36    # pictures of the crank over half a turn, 5 degrees apart
+
+
+def crank(name):
+    """Two pedals going round as fast as the rider pedals, the cadence in the middle."""
+    s, c = 300, 150
+    # a grey rim, lighter at the top left
+    defs = ("<linearGradient id='rim' x1='0' y1='0' x2='1' y2='1'>"
+            "<stop offset='0' stop-color='#c4c4c4'/><stop offset='0.5' stop-color='#7a7a7a'/>"
+            "<stop offset='1' stop-color='#3c3c3c'/></linearGradient>")
+    face = (f"<circle cx='{c}' cy='{c}' r='142' fill='@background' fill-opacity='0.55'/>"
+            f"<circle cx='{c}' cy='{c}' r='142' fill='none' stroke='url(#rim)' stroke-width='3'/>"
+            f"<circle cx='{c}' cy='{c}' r='112' fill='none' stroke='#ffffff' stroke-opacity='0.08' stroke-width='34'/>")
+    hub = (f"<circle cx='{c}' cy='{c}' r='82' fill='#000000' fill-opacity='0.3'/>"
+           f"<circle cx='{c}' cy='{c}' r='82' fill='none' stroke='#ffffff' stroke-opacity='0.1' stroke-width='2'/>")
+    # the pedals repeat every half turn: one strip of pictures covers it
+    pictures = []
+    for i in range(CRANK_STEPS):
+        angle = 180.0 * i / CRANK_STEPS
+        x0, y0 = polar(c, c, 112, angle)
+        x1, y1 = polar(c, c, 112, angle + 180)
+        pictures.append(f"<g transform='translate({i * s},0)'>"
+                        f"<circle cx='{fmt(x0)}' cy='{fmt(y0)}' r='19' {theme('accent')}/>"
+                        f"<circle cx='{fmt(x1)}' cy='{fmt(y1)}' r='19' {theme('accent')}/></g>")
+    drawings = {"face.svg": svg(s, s, face, defs), "hub.svg": svg(s, s, hub),
+                "pedals.svg": svg(s * CRANK_STEPS, s, "".join(pictures))}
+    # 1 rpm = 2 half turns a minute = CRANK_STEPS / 30 pictures a second
+    top = 200
+    strip = {"type": "animationStrip", "frames": CRANK_STEPS, "minFps": 0, "maxFps": top * CRANK_STEPS / 30,
+             "frameRect": [0, 0, s, s], "minValue": 0, "maxValue": top}
+    components = [image("face.svg", (0, 0, s, s)),
+                  image("pedals.svg", (0, 0, s * CRANK_STEPS, s), manipulations=[strip]),
+                  image("hub.svg", (0, 0, s, s)),
+                  text("value", (c, 140), 72, bold=True, precision=0),
+                  text("unit", (c, 192), 26, "accent2")]
+    write(name, (s, s), components, drawings, ["cadence"])
+
+
+def map_gauge(name, lap):
+    """The route (or the lap under way) as a line; where the rider is, an arrow pointing the way
+    with the speed and the distance beside it."""
+    s = 420
+    arrow = (f"<path d='M20,6 L33,34 L20,27 L7,34 Z' {theme('accent')} stroke='#000000' stroke-opacity='0.4' "
+             "stroke-width='1.5' stroke-linejoin='round'/>")
+    ring = (f"<path d='{ring_path(20, 20, 20, 16.5, -150, 60)}' fill='@foreground' fill-opacity='0.55'/>")
+    drawings = {"arrow.svg": svg(40, 40, arrow), "ring.svg": svg(40, 40, ring)}
+    knob = [image("ring.svg", (-20, -20, 40, 40)),
+            dict(image("arrow.svg", (-20, -20, 40, 40), manipulations=[
+                rotate(0, 360, (0, 0), minValue=0, maxValue=360, wrap=True)]), channel="heading"),
+            dict(text("valueAndUnit", (16, 26), 15, align="left", italic=True, upperCase=True, precision=0), channel="speed"),
+            dict(text("valueAndUnit", (16, 44), 15, align="left", italic=True, upperCase=True, precision=1), channel="distance")]
+    route = {"type": "lapMap" if lap else "trackMap", "frame": [24, 24, s - 48, s - 48], "color": "foreground",
+             "lineWidth": 5, "padding": 20, "knob": knob}
+    if lap:
+        squares = "".join(f"<rect x='{4 * (i % 8)}' y='{4 * (i // 8)}' width='4' height='4' "
+                          f"fill='{'#ffffff' if (i % 8 + i // 8) % 2 else '#111111'}'/>" for i in range(24))
+        drawings["start.svg"] = svg(32, 12, squares)
+        route["startLine"] = [image("start.svg", (-16, -6, 32, 12))]
+    write(name, (s, s), [route], drawings, ["speed"])
+
+
+def half_dial(name, side):
+    """Half a dial on one side, filled up to the value; its dark band runs on a little past the
+    start of the scale and carries the value there."""
+    w, h, cx, cy = 380, 400, 190, 200
+    start, end = (-150, 30) if side == "left" else (150, -30)
+    lo, hi = min(start, end), max(start, end)
+    # the scale's band and a short tail past its start, under the value
+    band = (145, 390) if side == "left" else (-30, 215)
+    face = (f"<path d='{ring_path(cx, cy, 188, 104, *band)}' fill='@background' fill-opacity='0.6'/>"
+            f"<path d='{ring_path(cx, cy, 188, 184, lo, hi)}' fill='#ffffff' fill-opacity='0.25'/>"
+            f"<path d='{ring_path(cx, cy, 168, 110, lo, hi)}' fill='#ffffff' fill-opacity='0.06'/>")
+    scale = ticks(cx, cy, start, end, 7, 182, 14, 4) + ticks(cx, cy, start, end, 31, 182, 11, 1.4, skip_every=5, opacity=0.6)
+    # the fill reaches up to the ticks, the numbers sit on it; darker towards the middle
+    shade = (f"<radialGradient id='shade' gradientUnits='userSpaceOnUse' cx='{cx}' cy='{cy}' r='168'>"
+             "<stop offset='0.65' stop-color='#000000' stop-opacity='0.5'/>"
+             "<stop offset='1' stop-color='#000000' stop-opacity='0'/></radialGradient>")
+    drawings = {"face.svg": svg(w, h, face), "scale.svg": svg(w, h, scale),
+                "fill.svg": svg(w, h, f"<path d='{ring_path(cx, cy, 168, 110, lo, hi)}' {theme('accent')}/>"
+                                      f"<path d='{ring_path(cx, cy, 168, 110, lo, hi)}' fill='url(#shade)'/>", shade)}
+    # in the middle of the tail
+    vx = 196 if side == "left" else w - 196
+    components = [image("face.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(start, end, (cx, cy))]),
+                  image("scale.svg", (0, 0, w, h))]
+    components += markings(cx, cy, 147, start, end, 7, 20, italic=True)
+    components += [text("value", (vx, 332), 48, bold=True, italic=True, precision=0),
+                   text("unit", (vx, 367), 20, "accent2", italic=True)]
+    write(name, (w, h), components, drawings, ROUND_TYPES)
+
+
+def tape(name):
+    """A tall scale that slides past a fixed mark, the value in a box on the mark."""
+    w, h = 170, 640
+    defs = ("<linearGradient id='fade' x1='0' y1='0' x2='0' y2='1'>"
+            "<stop offset='0' stop-color='#000000' stop-opacity='0'/>"
+            "<stop offset='0.12' stop-color='#000000' stop-opacity='1'/>"
+            "<stop offset='0.88' stop-color='#000000' stop-opacity='1'/>"
+            "<stop offset='1' stop-color='#000000' stop-opacity='0'/></linearGradient>")
+    plate_ = (f"<rect x='20' y='44' width='96' height='{h - 44}' fill='url(#fade)' fill-opacity='0.45'/>"
+              f"<rect x='18' y='54' width='2' height='{h - 74}' {theme('accent')}/>")
+    middle = 44 + (h - 44) / 2
+    mark = (f"<path d='M8,{fmt(middle - 10)} L22,{fmt(middle)} L8,{fmt(middle + 10)} Z' {theme('accent')}/>"
+            f"<rect x='24' y='{fmt(middle - 21)}' width='{w - 26}' height='42' rx='3' fill='@background' fill-opacity='0.95'/>"
+            f"<rect x='24' y='{fmt(middle - 21)}' width='{w - 26}' height='42' rx='3' fill='none' {theme('accent', 'stroke')} stroke-width='2'/>")
+    drawings = {"plate.svg": svg(w, h, plate_, defs), "mark.svg": svg(w, h, mark)}
+    length = h - 104
+    scale = {"type": "tape", "frame": [20, 74 - 12, 96, length], "color": "foreground",
+             "font": {"family": FONT, "size": 18, "italic": True}, "align": "left", "valign": "center",
+             "scale": {"minValue": -500, "maxValue": 9000, "orientation": "numbersRight", "length": length,
+                       "spacing": 70, "labelOffset": 8,
+                       "major": {"unit": 10, "length": 18, "width": 2.5, "color": "accent2"},
+                       "minor": {"unit": 2, "length": 9, "width": 1.2, "color": "accent2"}}}
+    components = [image("plate.svg", (0, 0, w, h)), scale, image("mark.svg", (0, 0, w, h)),
+                  text("valueAndUnit", (w - 10, middle), 26, align="right", bold=True, precision=0),
+                  text("label", (20, 20), 20, "accent2", align="left", italic=True, upperCase=True)]
+    write(name, (w, h), components, drawings, ["elevation"])
+
+
+def g_rings(name):
+    """Rings at a quarter and half a g (as much as a bicycle gets), lines every 45 degrees, and a
+    ball pushed the way the rider is: back when speeding up, outwards in a bend."""
+    face = (f"<circle cx='{C}' cy='{C}' r='186' fill='@background' fill-opacity='0.2'/>"
+            f"<circle cx='{C}' cy='{C}' r='79' fill='#ffffff' fill-opacity='0.08'/>"
+            f"<circle cx='{C}' cy='{C}' r='79' {stroke('accent2', 6, 0.6)}/>")
+    for i in range(8):
+        a = i * 45 + 2
+        face += f"<path d='{ring_path(C, C, 186, 172, a, a + 41)}' fill='@accent2' fill-opacity='0.6'/>"
+    face += ticks(C, C, 0, 315, 8, 172, 172, 1.5, "foreground", opacity=0.25)
+    ball = f"<circle cx='22' cy='22' r='20' {theme('accent')}/><circle cx='22' cy='22' r='20' fill='none' stroke='#000000' stroke-opacity='0.35' stroke-width='2'/>"
+    drawings = {"face.svg": svg(400, 400, face), "ball.svg": svg(44, 44, ball)}
+    components = [image("face.svg", (0, 0, 400, 400)),
+                  text("fixed", (C + 79, C - 16), 20, "accent2", italic=True, text="0.25"),
+                  text("fixed", (C + 168, C - 16), 20, "accent2", align="right", italic=True, text="0.5 g"),
+                  image("ball.svg", (C - 22, C - 22, 44, 44), manipulations=[
+                      {"type": "translate2d", "maxRadius": 158, "xChannel": "gForceLateral",
+                       "yChannel": "gForceLongitudinal", "minValue": -0.5, "maxValue": 0.5, "invertY": True}])]
+    write(name, (400, 400), components, drawings, ["gForceLateral", "gForceLongitudinal"])
+
+
 def main():
     os.makedirs(GAUGES, exist_ok=True)
     # numbers every major tick, the needle only outside the inner disc
@@ -591,6 +1124,19 @@ def main():
     tile("Tile heading", "heading", ["heading"])
     tile("Tile grade", "grade", ["grade"])
     tile("Tile cadence", "arc", ["cadence", "power", "engineRpm", "heartRate"])
+    ride_cluster("Ride cluster")
+    graph("Graph")
+    graph_pair("Graph pair")
+    progress("Progress")
+    climb_wedge("Climb wedge")
+    column("Column glass")
+    crank("Crank")
+    map_gauge("Route map arrow", lap=False)
+    map_gauge("Lap map arrow", lap=True)
+    half_dial("Half dial left", "left")
+    half_dial("Half dial right", "right")
+    tape("Tape elevation")
+    g_rings("G-force rings")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,149 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Graph pair",
+    "size": [
+        520,
+        230
+    ],
+    "supportedTypes": [
+        "elevation",
+        "speed",
+        "power",
+        "cadence"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                520,
+                230
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "channelIcon": true,
+            "color": "foreground",
+            "frame": [
+                12,
+                9,
+                28,
+                28
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                52,
+                23
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 1
+        },
+        {
+            "type": "image",
+            "channelIcon": true,
+            "channel": "heartRate",
+            "color": "foreground",
+            "frame": [
+                272.0,
+                9,
+                28,
+                28
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                312.0,
+                23
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0,
+            "channel": "heartRate"
+        },
+        {
+            "type": "graph",
+            "frame": [
+                0,
+                58,
+                520,
+                168
+            ],
+            "color": "accent",
+            "lineWidth": 3,
+            "fillAlpha": 60,
+            "xMarker": [
+                {
+                    "type": "image",
+                    "image": "images/line.svg",
+                    "frame": [
+                        -1,
+                        0,
+                        2,
+                        168
+                    ],
+                    "color": "original"
+                }
+            ],
+            "knob": [
+                {
+                    "type": "image",
+                    "image": "images/dot.svg",
+                    "frame": [
+                        -8,
+                        -8,
+                        16,
+                        16
+                    ],
+                    "color": "original"
+                }
+            ]
+        },
+        {
+            "type": "graph",
+            "frame": [
+                0,
+                58,
+                520,
+                168
+            ],
+            "color": "accent2",
+            "lineWidth": 3,
+            "channel": "heartRate",
+            "knob": [
+                {
+                    "type": "image",
+                    "image": "images/dot.svg",
+                    "frame": [
+                        -8,
+                        -8,
+                        16,
+                        16
+                    ],
+                    "color": "original"
+                }
+            ]
+        }
+    ]
+}

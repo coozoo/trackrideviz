@@ -1,0 +1,110 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Climb wedge",
+    "size": [
+        480,
+        220
+    ],
+    "supportedTypes": [
+        "elevation",
+        "totalAscent",
+        "distance"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                480,
+                220
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/wedge.svg",
+            "frame": [
+                0,
+                0,
+                480,
+                220
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                480,
+                220
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 60,
+                    "maxX": 420
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                480,
+                220
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 0,
+                    "maxX": 360,
+                    "minY": 0,
+                    "maxY": 0
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                360,
+                80
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 84,
+                "bold": true,
+                "italic": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                370,
+                92
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 38,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center"
+        }
+    ]
+}

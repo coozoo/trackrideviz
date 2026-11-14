@@ -1,0 +1,224 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Progress",
+    "size": [
+        600,
+        130
+    ],
+    "supportedTypes": [
+        "distance"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                600,
+                130
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/done.svg",
+            "frame": [
+                0,
+                0,
+                600,
+                130
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 31,
+                    "maxX": 566,
+                    "range": "recording"
+                }
+            ]
+        },
+        {
+            "type": "group",
+            "components": [
+                {
+                    "type": "image",
+                    "image": "images/rider-wheelR.svg",
+                    "frame": [
+                        0,
+                        45,
+                        324,
+                        27
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 12,
+                            "minFps": 0,
+                            "maxFps": 72.0,
+                            "frameRect": [
+                                0,
+                                45,
+                                27,
+                                27
+                            ]
+                        }
+                    ],
+                    "channel": "speed"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-wheelF.svg",
+                    "frame": [
+                        41,
+                        45,
+                        324,
+                        27
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 12,
+                            "minFps": 0,
+                            "maxFps": 72.0,
+                            "frameRect": [
+                                41,
+                                45,
+                                27,
+                                27
+                            ]
+                        }
+                    ],
+                    "channel": "speed"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-far.svg",
+                    "frame": [
+                        10,
+                        24,
+                        984,
+                        47
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 24,
+                            "minFps": 0,
+                            "maxFps": 80.0,
+                            "frameRect": [
+                                10,
+                                24,
+                                41,
+                                47
+                            ],
+                            "minValue": 0,
+                            "maxValue": 200
+                        }
+                    ],
+                    "channel": "cadence"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-bike.svg",
+                    "frame": [
+                        0,
+                        0,
+                        600,
+                        130
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-near.svg",
+                    "frame": [
+                        10,
+                        24,
+                        984,
+                        47
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 24,
+                            "minFps": 0,
+                            "maxFps": 80.0,
+                            "frameRect": [
+                                10,
+                                24,
+                                41,
+                                47
+                            ],
+                            "minValue": 0,
+                            "maxValue": 200
+                        }
+                    ],
+                    "channel": "cadence"
+                },
+                {
+                    "type": "image",
+                    "image": "images/rider-body.svg",
+                    "frame": [
+                        0,
+                        0,
+                        600,
+                        130
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "text",
+                    "autoText": "valueAndUnit",
+                    "frame": [
+                        34,
+                        94
+                    ],
+                    "font": {
+                        "family": "Barlow Semi Condensed",
+                        "size": 20,
+                        "italic": true
+                    },
+                    "color": "foreground",
+                    "align": "center",
+                    "valign": "center",
+                    "precision": 1
+                },
+                {
+                    "type": "text",
+                    "autoText": "valueAndUnit",
+                    "frame": [
+                        34,
+                        115
+                    ],
+                    "font": {
+                        "family": "Barlow Semi Condensed",
+                        "size": 17,
+                        "italic": true
+                    },
+                    "color": "accent2",
+                    "align": "center",
+                    "valign": "center",
+                    "precision": 0,
+                    "channel": "speed"
+                }
+            ],
+            "manipulations": [
+                {
+                    "type": "translate",
+                    "minX": 0,
+                    "maxX": 532,
+                    "minY": 0,
+                    "maxY": 0,
+                    "range": "recording"
+                }
+            ]
+        }
+    ]
+}

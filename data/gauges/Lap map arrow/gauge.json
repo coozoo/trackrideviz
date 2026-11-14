@@ -1,0 +1,116 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Lap map arrow",
+    "size": [
+        420,
+        420
+    ],
+    "supportedTypes": [
+        "speed"
+    ],
+    "components": [
+        {
+            "type": "lapMap",
+            "frame": [
+                24,
+                24,
+                372,
+                372
+            ],
+            "color": "foreground",
+            "lineWidth": 5,
+            "padding": 20,
+            "knob": [
+                {
+                    "type": "image",
+                    "image": "images/ring.svg",
+                    "frame": [
+                        -20,
+                        -20,
+                        40,
+                        40
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "image",
+                    "image": "images/arrow.svg",
+                    "frame": [
+                        -20,
+                        -20,
+                        40,
+                        40
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "rotate",
+                            "minAngle": 0,
+                            "maxAngle": 360,
+                            "pivot": [
+                                0,
+                                0
+                            ],
+                            "minValue": 0,
+                            "maxValue": 360,
+                            "wrap": true
+                        }
+                    ],
+                    "channel": "heading"
+                },
+                {
+                    "type": "text",
+                    "autoText": "valueAndUnit",
+                    "frame": [
+                        16,
+                        26
+                    ],
+                    "font": {
+                        "family": "Barlow Semi Condensed",
+                        "size": 15,
+                        "italic": true
+                    },
+                    "color": "foreground",
+                    "align": "left",
+                    "valign": "center",
+                    "upperCase": true,
+                    "precision": 0,
+                    "channel": "speed"
+                },
+                {
+                    "type": "text",
+                    "autoText": "valueAndUnit",
+                    "frame": [
+                        16,
+                        44
+                    ],
+                    "font": {
+                        "family": "Barlow Semi Condensed",
+                        "size": 15,
+                        "italic": true
+                    },
+                    "color": "foreground",
+                    "align": "left",
+                    "valign": "center",
+                    "upperCase": true,
+                    "precision": 1,
+                    "channel": "distance"
+                }
+            ],
+            "startLine": [
+                {
+                    "type": "image",
+                    "image": "images/start.svg",
+                    "frame": [
+                        -16,
+                        -6,
+                        32,
+                        12
+                    ],
+                    "color": "original"
+                }
+            ]
+        }
+    ]
+}

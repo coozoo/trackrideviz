@@ -1,0 +1,95 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Crank",
+    "size": [
+        300,
+        300
+    ],
+    "supportedTypes": [
+        "cadence"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/pedals.svg",
+            "frame": [
+                0,
+                0,
+                10800,
+                300
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "animationStrip",
+                    "frames": 36,
+                    "minFps": 0,
+                    "maxFps": 240.0,
+                    "frameRect": [
+                        0,
+                        0,
+                        300,
+                        300
+                    ],
+                    "minValue": 0,
+                    "maxValue": 200
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/hub.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                300
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                150,
+                140
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 72,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                150,
+                192
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

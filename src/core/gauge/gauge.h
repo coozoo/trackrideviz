@@ -69,6 +69,9 @@ struct GaugeManipulation
     bool hasValueRange{false};
     double minValue{0.0};
     double maxValue{0.0};
+    // The scale runs exactly from the lowest to the highest value of the
+    // recording (a rider moving from start to finish), not over rounded ends.
+    bool recordingRange{false};
     bool wrapValue{false};   // past the end start over (compass) instead of stopping
     bool reversed{false};    // the scale runs from max to min
     // A scale that is not even: (value, place on the scale 0..1) in rising

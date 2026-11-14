@@ -465,8 +465,15 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     {
         for (Node &node : nodes)
             {
-                for (const GaugeManipulation &m : node.component.manipulations)
+                for (GaugeManipulation &m : node.component.manipulations)
                     {
+                        const Metric &metric = m_metrics.at(node.metric);
+                        if (m.recordingRange && metric.channel && !metric.channel->isEmpty())
+                            {
+                                m.hasValueRange = true;
+                                m.minValue = metric.display.convert(metric.channel->minValue());
+                                m.maxValue = metric.display.convert(metric.channel->maxValue());
+                            }
                         if (m.type == GaugeManipulation::AnimationStrip)
                             {
                                 preparePhases(node, m);
@@ -840,7 +847,7 @@ void BoundGauge::preparePhases(Node &node, const GaugeManipulation &strip) const
         {
             const double t = lerp(start, end, double(i) / (steps - 1));
             const double value = metric.display.convert(metric.channel->valueAt(t));
-            const double fps = lerp(strip.minFps, strip.maxFps, fraction(GaugeManipulation(), metric.range, value));
+            const double fps = lerp(strip.minFps, strip.maxFps, fraction(strip, metric.range, value));
             phase += fps * (t - previous);
             node.phaseTimes.append(t);
             node.phases.append(phase);

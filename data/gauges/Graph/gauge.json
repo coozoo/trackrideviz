@@ -1,0 +1,121 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Graph",
+    "size": [
+        520,
+        200
+    ],
+    "supportedTypes": [
+        "elevation",
+        "speed",
+        "heartRate",
+        "power",
+        "cadence",
+        "grade",
+        "temperature"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                520,
+                200
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                14,
+                23
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                506,
+                23
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 1
+        },
+        {
+            "type": "graph",
+            "frame": [
+                0,
+                54,
+                520,
+                142
+            ],
+            "color": "accent",
+            "lineWidth": 3,
+            "fillAlpha": 70,
+            "padding": 0,
+            "xMarker": [
+                {
+                    "type": "image",
+                    "image": "images/line.svg",
+                    "frame": [
+                        -1,
+                        0,
+                        2,
+                        142
+                    ],
+                    "color": "original"
+                }
+            ],
+            "knob": [
+                {
+                    "type": "image",
+                    "image": "images/dot.svg",
+                    "frame": [
+                        -8,
+                        -8,
+                        16,
+                        16
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "text",
+                    "autoText": "valueAndUnit",
+                    "frame": [
+                        12,
+                        -16
+                    ],
+                    "font": {
+                        "family": "Barlow Semi Condensed",
+                        "size": 20,
+                        "italic": true
+                    },
+                    "color": "foreground",
+                    "align": "left",
+                    "valign": "center",
+                    "precision": 1
+                }
+            ]
+        }
+    ]
+}

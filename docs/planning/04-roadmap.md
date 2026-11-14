@@ -203,8 +203,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Dial glass, Dial small, Dial small metal, Open arc, Compass rose, Heart, Tile (a picture of any
   channel) and tiles whose icon moves with the value (speed, elevation, heading, grade, cadence).
   A gauge starts on the channel it was made for; imported type names are mapped to ours
-- Batch 2: half dials and side arcs, the other compasses, G-force plots, tapes, track and lap
-  maps, lap and time readouts
+- ✅ Batch 2, rides first (2026-11-14): Ride cluster (compass strip, elevation, grade, a rider who
+  leans with the grade, pedals at the real cadence and whose wheels turn with the speed; cadence and
+  elevation arcs, power, distance), Graph, Graph pair (with heart rate), Progress (the same rider
+  from start to finish), Climb wedge, Column glass, Crank (pedals at the real cadence), Route map
+  arrow and Lap map arrow (pointing the way), Half dial left and right, Tape elevation, G-force
+  rings (±0.5 g, one scale for both axes). A moving part can run over the recording's own lowest
+  to highest value (`"range": "recording"`); an animation strip follows its own value range
+- Batch 3: side arcs, the other compasses, lap and time readouts, bars and thermometer, attitude;
+  pedal and power-phase gauges once those channels are read from FIT
 - Own gauge set, vector: every imported raster gauge gets an SVG gauge of our own covering the same
   job (speed dial, tape, G-plot, lap timer...), with open fonts and clear names, and templates are
   rebuilt from them. Nothing of an imported file goes into the repo. Reviewed one by one on a
