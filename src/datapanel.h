@@ -41,6 +41,9 @@ signals:
     void editsChanged(const QVector<DataEdit> &edits, const QString &description);
     void smoothingChanged(double seconds);
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     void fillChannels();
     void updateCharts();

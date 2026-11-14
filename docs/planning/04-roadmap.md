@@ -216,6 +216,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; TCX, NMEA, VBO
 - Multiple data sources per project
+- Power estimated for rides without a power meter (there is none now): from speed, grade and
+  acceleration with the rider's and the bike's weight, rolling resistance, air drag (frontal area
+  and drag coefficient, air density from elevation and temperature) and drivetrain loss, filled
+  in once in the settings and switched on there; shown as an estimate, never in place of a
+  recorded power. Wind is not known, so a headwind reads low and a tailwind high
 - ✅ Measurements imported gauges ask for, worked out from the ride (2026-11-14): running time,
   pace, power averaged over 3 and 30 seconds, the highest and lowest point, the whole distance,
   braking, falling speed, glide ratio (`DerivedChannels`); the lap's top and average speed and

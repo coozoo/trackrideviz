@@ -16,6 +16,7 @@
 #include <QPainterPath>
 #include <QSettings>
 #include <QSplitter>
+#include <QStyledItemDelegate>
 #include <QTableView>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -568,11 +569,50 @@ private:
     double m_selectTo{0.0};
 };
 
+namespace
+{
+// item data: the colour of the channel's line
+const int kColourRole = Qt::UserRole + 1;
+
+// A row of the channel list with the colour of its line as a square at its end.
+class SwatchDelegate : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    static QRect swatchRect(const QRect &row)
+    {
+        const int side = std::max(8, row.height() - 8);
+        return QRect(row.right() - side - 4, row.center().y() - side / 2, side, side);
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        // the name stops short of the square
+        QStyleOptionViewItem shorter = option;
+        const QRect swatch = swatchRect(option.rect);
+        shorter.rect.setRight(swatch.left() - 4);
+        QStyledItemDelegate::paint(painter, shorter, index);
+        const QColor colour = index.data(kColourRole).value<QColor>();
+        if (colour.isValid())
+            {
+                painter->save();
+                painter->setPen(option.palette.color(QPalette::Mid));
+                painter->setBrush(colour);
+                painter->drawRect(swatch.adjusted(0, 0, -1, -1));
+                painter->restore();
+            }
+    }
+};
+}
+
 DataPanel::DataPanel(QWidget *parent)
     : QWidget(parent)
 {
     m_channelList = new QListWidget(this);
     m_channelList->setToolTip(tr("Tick the channels to chart"));
+    m_channelList->setItemDelegate(new SwatchDelegate(m_channelList));
+    m_channelList->viewport()->installEventFilter(this);
     // rows as wide as the list, so that the colour at their end is always in sight
     m_channelList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_channelList->setTextElideMode(Qt::ElideRight);
@@ -741,25 +781,32 @@ void DataPanel::fillChannels()
                     item->setFont(font);
                     item->setToolTip(tr("%1\nWorked out from the other data").arg(item->text()));
                 }
-            // at the end of the row: the colour of its line, and the way to another
-            QWidget *row = new QWidget(m_channelList);
-            QToolButton *swatch = new QToolButton(row);
-            swatch->setObjectName("swatch");
-            swatch->setAutoRaise(true);
-            swatch->setToolTip(tr("The color of this line in the chart. Click to choose another."));
-            const int side = std::max(10, m_channelList->fontMetrics().height() - 4);
-            swatch->setIconSize(QSize(side, side));
-            swatch->setFixedSize(side + 6, side + 6);
-            QPixmap colour(side, side);
-            colour.fill(colourOf(id));
-            swatch->setIcon(QIcon(colour));
-            connect(swatch, &QToolButton::clicked, this, [this, id]() { chooseColour(id); });
-            QHBoxLayout *rowLayout = new QHBoxLayout(row);
-            rowLayout->setContentsMargins(0, 0, 4, 0);
-            rowLayout->addStretch(1);
-            rowLayout->addWidget(swatch);
-            m_channelList->setItemWidget(item, row);
+            // at the end of the row: the colour of its line (drawn by SwatchDelegate), clicked for another
+            item->setData(kColourRole, colourOf(id));
         }
+}
+
+bool DataPanel::eventFilter(QObject *watched, QEvent *event)
+{
+    // a click on the colour at the end of a row chooses another; anywhere else the list has it
+    if (watched == m_channelList->viewport()
+            && (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease
+                || event->type() == QEvent::MouseButtonDblClick))
+        {
+            const QMouseEvent *mouse = static_cast<QMouseEvent *>(event);
+            const QListWidgetItem *item = m_channelList->itemAt(mouse->position().toPoint());
+            if (item && mouse->button() == Qt::LeftButton
+                    && SwatchDelegate::swatchRect(m_channelList->visualItemRect(item)).adjusted(-3, -3, 3, 3)
+                    .contains(mouse->position().toPoint()))
+                {
+                    if (event->type() == QEvent::MouseButtonRelease)
+                        {
+                            chooseColour(item->data(Qt::UserRole).toString());
+                        }
+                    return true;
+                }
+        }
+    return QWidget::eventFilter(watched, event);
 }
 
 QColor DataPanel::colourOf(const QString &channelId) const
@@ -805,14 +852,12 @@ void DataPanel::chooseColour(const QString &channelId)
             QListWidgetItem *item = m_channelList->item(i);
             if (item->data(Qt::UserRole).toString() == channelId)
                 {
-                    if (QToolButton *swatch = m_channelList->itemWidget(item)->findChild<QToolButton *>("swatch"))
-                        {
-                            QPixmap colour(swatch->iconSize());
-                            colour.fill(chosen);
-                            swatch->setIcon(QIcon(colour));
-                        }
+                    // (the chart is drawn again below; ticking is not what changed)
+                    const QSignalBlocker blocker(m_channelList);
+                    item->setData(kColourRole, chosen);
                 }
         }
+    m_channelList->viewport()->update();
     updateCharts();
 }
 
