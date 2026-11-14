@@ -674,6 +674,14 @@ void GaugeEditor::accept()
             QMessageBox::information(this, windowTitle(), tr("The gauge has no parts yet: add one with \"Add\"."));
             return;
         }
+    if (m_reservedNames.contains(name, Qt::CaseInsensitive))
+        {
+            QMessageBox::information(this, windowTitle(),
+                                     tr("A gauge that comes with the program is called \"%1\". Give yours another name.").arg(name));
+            m_nameEdit->setFocus();
+            m_nameEdit->selectAll();
+            return;
+        }
     if (name.compare(m_cameAs, Qt::CaseInsensitive) != 0 && m_takenNames.contains(name, Qt::CaseInsensitive)
             && QMessageBox::question(this, windowTitle(), tr("There is a gauge \"%1\" already. Replace it?").arg(name))
             != QMessageBox::Yes)

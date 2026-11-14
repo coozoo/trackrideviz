@@ -32,6 +32,8 @@ public:
     GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWidget *parent = nullptr);
 
     Gauge gauge() const { return m_gauge; }
+    // Names the gauge cannot be saved under: those of the gauges that come with the program.
+    void setReservedNames(const QStringList &names) { m_reservedNames = names; }
 
     void accept() override;
 
@@ -76,6 +78,7 @@ private:
     Gauge m_gauge;
     QString m_cameAs;
     QStringList m_takenNames;
+    QStringList m_reservedNames;
     TelemetrySessionPtr m_session;
 
     QLineEdit *m_nameEdit{nullptr};

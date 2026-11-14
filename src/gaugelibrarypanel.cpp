@@ -624,13 +624,11 @@ void GaugeLibraryPanel::editGauge(bool fresh)
 {
     Gauge gauge;
     QStringList taken;
+    QStringList reserved;
     const QString id = selectedId();
     for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
         {
-            if (!entry.builtin)
-                {
-                    taken << entry.name;
-                }
+            (entry.builtin ? reserved : taken) << entry.name;
             if (!fresh && entry.id == id)
                 {
                     gauge = GaugeLibrary::gauge(id);
@@ -642,6 +640,7 @@ void GaugeLibraryPanel::editGauge(bool fresh)
             return;
         }
     GaugeEditor editor(gauge, taken, this);
+    editor.setReservedNames(reserved);
     if (editor.exec() != QDialog::Accepted)
         {
             return;
