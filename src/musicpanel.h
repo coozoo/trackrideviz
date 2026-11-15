@@ -45,6 +45,7 @@ private:
     void onSelectionChanged();
     void onTrimEdited();
     void onVolumeMoved();
+    void showVolumes();
     void onVolumeReleased();
     void edit(const Soundtrack &soundtrack, const QString &description);
     void refreshList();

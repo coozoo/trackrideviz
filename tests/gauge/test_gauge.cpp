@@ -1761,6 +1761,24 @@ private slots:
         QVERIFY(!loaded.isEmpty());
         QCOMPARE(draw(loaded, 5.0), draw(gauge, 5.0));
 
+        // saved again under its name: replaced, nothing left on the way
+        gauge.size = QSizeF(120, 100);
+        QCOMPARE(GaugeLibrary::add(gauge, "My needle", &error), id);
+        QCOMPARE(GaugeLibrary::gauge(id).size, QSizeF(120, 100));
+        QCOMPARE(int(GaugeLibrary::entries().size()), before + 1);
+        QCOMPARE(QDir(GaugeLibrary::userFolder()).entryList(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot).size(),
+                 QDir(GaugeLibrary::userFolder()).entryList(QDir::Dirs | QDir::NoDotAndDotDot).size());
+        // a save that fails (here: its folder cannot be made) leaves the gauge as it was
+        QFile blocker(GaugeLibrary::userFolder() + "/.My needle.saving");
+        QVERIFY(blocker.open(QIODevice::WriteOnly));
+        blocker.close();
+        gauge.size = QSizeF(140, 100);
+        QVERIFY(GaugeLibrary::add(gauge, "My needle", &error).isEmpty());
+        QVERIFY(!error.isEmpty());
+        GaugeLibrary::refresh();
+        QCOMPARE(GaugeLibrary::gauge(id).size, QSizeF(120, 100));
+        QVERIFY(QFile::remove(blocker.fileName()));
+
         QVERIFY(GaugeLibrary::remove(id));
         QVERIFY(GaugeLibrary::gauge(id).isEmpty());
         QCOMPARE(int(GaugeLibrary::entries().size()), before);
@@ -2541,6 +2559,10 @@ private slots:
         QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="3" width="0" height="10"/>)", "x", QString()).ok);
         QVERIFY(!XmlGaugeImporter::parse(R"(<Gauge version="3" width="10" height="10"><Components/></Gauge>)", "x", QString()).ok);
         QVERIFY(!XmlGaugeImporter::importFolder(m_dir.filePath("nowhere")).ok);
+        // nested far deeper than any gauge: refused, not read until the stack runs out
+        const QByteArray deep = R"(<Gauge version="3" width="10" height="10">)" + QByteArray("<a>").repeated(200000)
+                                + QByteArray("</a>").repeated(200000) + "</Gauge>";
+        QVERIFY(!XmlGaugeImporter::parse(deep, "x", QString()).ok);
     }
 
     void libraryImportsXmlGauges()

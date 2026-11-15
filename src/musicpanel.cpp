@@ -35,7 +35,7 @@ QString formatLength(double seconds)
 
 QTime toTime(double seconds)
 {
-    return QTime(0, 0).addMSecs(int(std::clamp(seconds, 0.0, 86399.0) * 1000.0));
+    return QTime(0, 0).addMSecs(int(std::lround(std::clamp(seconds, 0.0, 86399.0) * 1000.0)));
 }
 
 double toSeconds(const QTime &time)
@@ -191,8 +191,15 @@ void MusicPanel::setSoundtrack(const Soundtrack &soundtrack)
     m_musicMute->setChecked(soundtrack.musicMuted);
     m_updating = false;
     refreshList();
-    onVolumeMoved();
+    // only the numbers beside the sliders: showing a soundtrack edits nothing
+    showVolumes();
     refreshSummary();
+}
+
+void MusicPanel::showVolumes()
+{
+    m_videoLabel->setText(QString("%1 %").arg(m_videoSlider->value()));
+    m_musicLabel->setText(QString("%1 %").arg(m_musicSlider->value()));
 }
 
 void MusicPanel::setPosition(double videoTime)
@@ -462,8 +469,7 @@ void MusicPanel::onTrimEdited()
 
 void MusicPanel::onVolumeMoved()
 {
-    m_videoLabel->setText(QString("%1 %").arg(m_videoSlider->value()));
-    m_musicLabel->setText(QString("%1 %").arg(m_musicSlider->value()));
+    showVolumes();
     if (m_updating)
         {
             return;

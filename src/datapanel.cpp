@@ -71,9 +71,13 @@ class DataTableModel : public QAbstractTableModel
 public:
     using QAbstractTableModel::QAbstractTableModel;
 
-    void setChannel(const Channel *channel, const ChannelDisplay &display, const QVector<DataEdit> &edits)
+    // `owner` holds `channel`: kept here so the samples stay while the table shows them,
+    // whatever happens to the sessions the panel is given meanwhile.
+    void setChannel(const TelemetrySessionPtr &owner, const Channel *channel, const ChannelDisplay &display,
+                    const QVector<DataEdit> &edits)
     {
         beginResetModel();
+        m_owner = channel ? owner : TelemetrySessionPtr();
         m_channel = channel;
         m_display = display;
         m_edits = edits;
@@ -128,6 +132,7 @@ public:
     }
 
 private:
+    TelemetrySessionPtr m_owner;
     const Channel *m_channel{nullptr};
     ChannelDisplay m_display;
     QVector<DataEdit> m_edits;
@@ -924,9 +929,9 @@ void DataPanel::showTableOf(const QString &channelId)
 {
     m_tableChannel = channelId;
     // the samples as recorded, so those taken out can be seen and put back
-    const Channel *channel = m_raw && m_raw->channel(channelId) ? m_raw->channel(channelId)
-                             : m_session ? m_session->channel(channelId) : nullptr;
-    m_model->setChannel(channel, channel ? ChannelFormat::displayFor(*channel, m_units) : ChannelDisplay(), m_edits);
+    const TelemetrySessionPtr owner = m_raw && m_raw->channel(channelId) ? m_raw : m_session;
+    const Channel *channel = owner ? owner->channel(channelId) : nullptr;
+    m_model->setChannel(owner, channel, channel ? ChannelFormat::displayFor(*channel, m_units) : ChannelDisplay(), m_edits);
     updateButtons();
 }
 

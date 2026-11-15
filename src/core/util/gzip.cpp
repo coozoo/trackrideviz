@@ -38,7 +38,7 @@ QByteArray Gzip::compress(const QByteArray &data)
     return result == Z_STREAM_END ? out : QByteArray();
 }
 
-QByteArray Gzip::decompress(const QByteArray &data, bool *ok)
+QByteArray Gzip::decompress(const QByteArray &data, bool *ok, qint64 maxSize)
 {
     if (ok)
         {
@@ -65,6 +65,11 @@ QByteArray Gzip::decompress(const QByteArray &data, bool *ok)
                     return QByteArray();
                 }
             out.append(buffer, kChunk - int(stream.avail_out));
+            if (out.size() > maxSize)
+                {
+                    inflateEnd(&stream);
+                    return QByteArray();
+                }
         }
     while (result != Z_STREAM_END);
     inflateEnd(&stream);

@@ -198,10 +198,18 @@ double scaled(qint32 raw, const QVector<double> &scale, int column)
     return by != 0.0 ? raw / by : raw;
 }
 
+// Levels of records within each other: a device, its streams, their records. A file nesting
+// deeper is no camera's, and calling down without end would run out of stack.
+constexpr int kMaxDepth = 8;
+
 // One level of records between `at` and `end`; nested levels are read by calling itself.
 void readRecords(const QByteArray &data, qint64 at, qint64 end, const GpmfImporter::Payload &payload, Stream stream,
-                 Reading *reading)
+                 Reading *reading, int depth = 0)
 {
+    if (depth > kMaxDepth)
+        {
+            return;
+        }
     while (at + 8 <= end)
         {
             const quint32 key = u32(data, at);
@@ -217,7 +225,8 @@ void readRecords(const QByteArray &data, qint64 at, qint64 end, const GpmfImport
             if (type == 0)
                 {
                     // a device or one of its streams: what a stream says holds inside it only
-                    readRecords(data, body, body + length, payload, key == fourcc("STRM") ? Stream() : stream, reading);
+                    readRecords(data, body, body + length, payload, key == fourcc("STRM") ? Stream() : stream, reading,
+                                depth + 1);
                 }
             else if (key == fourcc("SCAL"))
                 {

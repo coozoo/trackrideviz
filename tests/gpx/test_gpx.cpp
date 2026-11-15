@@ -27,6 +27,7 @@ private slots:
     void tcxErrors();
     void cameraPositions();
     void cameraVideoFile();
+    void cameraNestingIsLimited();
 
 private:
     static TelemetrySessionPtr parse(const QByteArray &gpx, QString *error = nullptr);
@@ -371,6 +372,22 @@ void TestGpx::cameraVideoFile()
     QBuffer none(&junk);
     none.open(QIODevice::ReadOnly);
     QVERIFY(!GpmfImporter::read(&none, &error));
+}
+
+void TestGpx::cameraNestingIsLimited()
+{
+    // records inside records 30000 deep (240 KB): no camera writes that; read until the stack ran out
+    const int depth = 30000;
+    QByteArray data(8 * depth, '\0');
+    for (int i = 0; i < depth; ++i)
+        {
+            char *at = data.data() + 8 * i;
+            memcpy(at, "DEVC", 4);
+            at[4] = '\0';   // nested
+            at[5] = 4;      // 4 bytes ...
+            qToBigEndian<quint16>(quint16(2 * (depth - 1 - i)), at + 6); // ... times the rest
+        }
+    QVERIFY(!GpmfImporter::fromPayloads({{0.0, 1.0, data}}));
 }
 
 QTEST_APPLESS_MAIN(TestGpx)

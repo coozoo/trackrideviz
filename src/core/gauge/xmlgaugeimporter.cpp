@@ -55,8 +55,16 @@ struct Element
     }
 };
 
-bool readElement(QXmlStreamReader &reader, Element *element)
+// Elements within each other: real files go a handful deep. A file nesting far deeper is
+// refused before reading it calls itself into running out of stack.
+constexpr int kMaxDepth = 64;
+
+bool readElement(QXmlStreamReader &reader, Element *element, int depth = 0)
 {
+    if (depth > kMaxDepth)
+        {
+            return false;
+        }
     element->name = reader.name().toString();
     for (const QXmlStreamAttribute &attribute : reader.attributes())
         {
@@ -68,7 +76,7 @@ bool readElement(QXmlStreamReader &reader, Element *element)
             if (reader.isStartElement())
                 {
                     Element child;
-                    if (!readElement(reader, &child))
+                    if (!readElement(reader, &child, depth + 1))
                         {
                             return false;
                         }

@@ -576,6 +576,14 @@ private slots:
         QVERIFY(Gzip::isGzip(packed));
         bool ok = false;
         const QByteArray json = Gzip::decompress(packed, &ok);
+        // a package unpacking to more than it may is refused, not unpacked into all memory
+        const QByteArray zeros = Gzip::compress(QByteArray(4 * 1024 * 1024, '\0'));
+        QVERIFY(zeros.size() < 64 * 1024);
+        bool unpacked = true;
+        QVERIFY(Gzip::decompress(zeros, &unpacked, 1024 * 1024).isEmpty());
+        QVERIFY(!unpacked);
+        QCOMPARE(Gzip::decompress(zeros, &unpacked).size(), 4 * 1024 * 1024);
+        QVERIFY(unpacked);
         QVERIFY(ok);
         QVERIFY(json.contains("<svg"));          // drawings stay readable inside
         Gauge back;

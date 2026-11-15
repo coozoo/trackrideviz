@@ -450,6 +450,10 @@ private slots:
         QCOMPARE(at(geared, ChannelId::RearGear, 170.0), 15.0);
         // nothing without the bike's gears, and recorded gears are kept
         QCOMPARE(Gears::apply(session, Drivetrain()), TelemetrySessionPtr(session));
+        // rings and sprockets typed into one field: no bike's, nothing worked out
+        Drivetrain jumbled = bike;
+        jumbled.cassette = Gears::parseTeeth("11 12 13 14 15 16 17 18 19 21 23 25 28 30 32 34 36");
+        QCOMPARE(Gears::apply(session, jumbled), TelemetrySessionPtr(session));
     }
 
     void wheelsAndTeeth()

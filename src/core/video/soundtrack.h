@@ -7,6 +7,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include <algorithm>
+
 // A piece of music under the video: one file, or a part of it.
 struct MusicTrack
 {
@@ -41,7 +43,12 @@ struct Soundtrack
     bool videoMuted{false};
     bool musicMuted{false};
 
-    bool hasMusic() const { return !tracks.isEmpty() && !musicMuted && musicVolume > 0; }
+    // Something of the music is heard: a track with something left to play, not turned down.
+    bool hasMusic() const
+    {
+        return !musicMuted && musicVolume > 0
+               && std::any_of(tracks.cbegin(), tracks.cend(), [](const MusicTrack &track) { return track.plays(); });
+    }
     double videoGain() const { return videoMuted ? 0.0 : videoVolume / 100.0; }
     double musicGain() const { return hasMusic() ? musicVolume / 100.0 : 0.0; }
     // Whether the sound of an export differs from the video's own (and cannot be copied).

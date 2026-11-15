@@ -44,6 +44,10 @@ class Gears
     Q_DECLARE_TR_FUNCTIONS(Gears)
 
 public:
+    // The most a bike has; with more, no gear is worked out.
+    static constexpr int kMaxChainrings = 4;
+    static constexpr int kMaxSprockets = 14;
+
     // Teeth from "50, 34" or "11 13 15 17": smallest first; numbers that are no teeth are left out.
     static QVector<int> parseTeeth(const QString &text);
     static QString teethText(const QVector<int> &teeth);

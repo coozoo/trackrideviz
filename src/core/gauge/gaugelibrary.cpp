@@ -205,12 +205,33 @@ QString GaugeLibrary::add(const Gauge &gauge, const QString &folderName, QString
             return QString();
         }
     const QString path = userFolder() + "/" + folder;
-    // replace as a whole: pictures of the previous version must not linger
-    QDir(path).removeRecursively();
-    if (!GaugeFile::save(path, gauge, error))
+    // Replaced as a whole, so pictures of the previous version do not linger; but only once the
+    // new one is written: a save that fails (a full disk) leaves the previous version as it was.
+    // The folders on the way start with a dot, which the library does not list.
+    const QString saving = userFolder() + "/." + folder + ".saving";
+    const QString previous = userFolder() + "/." + folder + ".previous";
+    QDir(saving).removeRecursively();
+    QDir(previous).removeRecursively();
+    if (!GaugeFile::save(saving, gauge, error))
         {
+            QDir(saving).removeRecursively();
             return QString();
         }
+    const bool hadOne = QFileInfo::exists(path);
+    if ((hadOne && !QDir().rename(path, previous)) || !QDir().rename(saving, path))
+        {
+            if (hadOne && !QFileInfo::exists(path))
+                {
+                    QDir().rename(previous, path);
+                }
+            QDir(saving).removeRecursively();
+            if (error)
+                {
+                    *error = tr("Cannot replace %1.").arg(QDir::toNativeSeparators(path));
+                }
+            return QString();
+        }
+    QDir(previous).removeRecursively();
     const QString id = kLibraryPrefix + folder;
     const QMutexLocker lock(&mutex());
     cache().remove(id);

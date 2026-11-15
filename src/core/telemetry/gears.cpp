@@ -230,6 +230,11 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
             return original;
         }
 
+    // no bike has more: lists longer than that are something else typed in (both in one field)
+    if (drivetrain.chainrings.size() > kMaxChainrings || drivetrain.cassette.size() > kMaxSprockets)
+        {
+            return original;
+        }
     const double meters = drivetrain.circumferenceMm() / 1000.0;
     const QVector<int> &rings = drivetrain.chainrings;
     const QVector<int> &sprockets = drivetrain.cassette;
@@ -305,7 +310,7 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
             return original;
         }
     QVector<double> cost(gearCount, 0.0);
-    QVector<QVector<qint8>> from(ratios.size(), QVector<qint8>(gearCount, -1));
+    QVector<QVector<qint16>> from(ratios.size(), QVector<qint16>(gearCount, -1));
     for (int k = first; k < ratios.size(); ++k)
         {
             QVector<double> next(gearCount);
@@ -336,7 +341,7 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
                             fit = std::min(off * off, kWorst) + crossed.at(g);
                         }
                     next[g] = best + fit;
-                    from[k][g] = qint8(bestFrom);
+                    from[k][g] = qint16(bestFrom);
                 }
             // only differences matter: kept small
             const double least = *std::min_element(next.cbegin(), next.cend());

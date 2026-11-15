@@ -581,84 +581,84 @@
 <context>
     <name>DataPanel</name>
     <message>
-        <location filename="../src/datapanel.cpp" line="116"/>
+        <location filename="../src/datapanel.cpp" line="120"/>
         <source>Taken out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="127"/>
+        <location filename="../src/datapanel.cpp" line="131"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="226"/>
+        <location filename="../src/datapanel.cpp" line="231"/>
         <source>Open data and tick channels to see them</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="615"/>
+        <location filename="../src/datapanel.cpp" line="620"/>
         <source>Tick the channels to chart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="631"/>
+        <location filename="../src/datapanel.cpp" line="636"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Shift+drag over a channel picks samples to take out.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="644"/>
+        <location filename="../src/datapanel.cpp" line="649"/>
         <source>Double-click a sample to go there; select samples to take them out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="670"/>
+        <location filename="../src/datapanel.cpp" line="675"/>
         <source>Take out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="670"/>
+        <location filename="../src/datapanel.cpp" line="675"/>
         <source>Leave the picked samples out; the channel is read across the gap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="672"/>
+        <location filename="../src/datapanel.cpp" line="677"/>
         <source>Put back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="672"/>
+        <location filename="../src/datapanel.cpp" line="677"/>
         <source>Put back samples taken out in the picked stretch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="682"/>
+        <location filename="../src/datapanel.cpp" line="687"/>
         <source>Table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="682"/>
+        <location filename="../src/datapanel.cpp" line="687"/>
         <source>Show the samples of the channel last clicked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="785"/>
+        <location filename="../src/datapanel.cpp" line="790"/>
         <source>%1
 Worked out from the other data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="855"/>
+        <location filename="../src/datapanel.cpp" line="860"/>
         <source>Color of the line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="980"/>
+        <location filename="../src/datapanel.cpp" line="985"/>
         <source>Take out samples</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="994"/>
+        <location filename="../src/datapanel.cpp" line="999"/>
         <source>Put back samples</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2252,6 +2252,11 @@ Worked out from the other data</source>
         <source>The gauge has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="230"/>
+        <source>Cannot replace %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GaugeLibraryPanel</name>
@@ -2681,22 +2686,22 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>GpmfImporter</name>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="350"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="359"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="402"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="411"/>
         <source>Not a video file this program can read data from.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="407"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="416"/>
         <source>The video holds no data of its own. Only GoPro cameras write positions into their videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="422"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="431"/>
         <source>The camera had no satellite fix while this video was recorded: there are no positions in it.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4139,8 +4144,8 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/musicpanel.cpp" line="150"/>
-        <location filename="../src/musicpanel.cpp" line="477"/>
-        <location filename="../src/musicpanel.cpp" line="482"/>
+        <location filename="../src/musicpanel.cpp" line="483"/>
+        <location filename="../src/musicpanel.cpp" line="488"/>
         <source>Change the volume</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4175,23 +4180,23 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="255"/>
+        <location filename="../src/musicpanel.cpp" line="262"/>
         <source>(missing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="284"/>
-        <location filename="../src/musicpanel.cpp" line="299"/>
+        <location filename="../src/musicpanel.cpp" line="291"/>
+        <location filename="../src/musicpanel.cpp" line="306"/>
         <source>Reading the music...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="285"/>
+        <location filename="../src/musicpanel.cpp" line="292"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="288"/>
+        <location filename="../src/musicpanel.cpp" line="295"/>
         <source>%n track(s), %1 of music.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -4199,29 +4204,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="295"/>
+        <location filename="../src/musicpanel.cpp" line="302"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="307"/>
-        <location filename="../src/musicpanel.cpp" line="329"/>
+        <location filename="../src/musicpanel.cpp" line="314"/>
+        <location filename="../src/musicpanel.cpp" line="336"/>
         <source>Add music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="364"/>
+        <location filename="../src/musicpanel.cpp" line="371"/>
         <source>Remove music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="377"/>
-        <location filename="../src/musicpanel.cpp" line="405"/>
+        <location filename="../src/musicpanel.cpp" line="384"/>
+        <location filename="../src/musicpanel.cpp" line="412"/>
         <source>Reorder music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="460"/>
+        <location filename="../src/musicpanel.cpp" line="467"/>
         <source>Trim music</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5439,33 +5444,33 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>XmlDataProfileImporter</name>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="145"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="153"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="162"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="170"/>
         <source>This is not an XML data profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="167"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="175"/>
         <source>Files of this logger are laid out in a way that is not supported yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="227"/>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="265"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="235"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="273"/>
         <source>unknown units %1, %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="251"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="259"/>
         <source>unknown operation %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="300"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="308"/>
         <source>RPM is worked out for %n cylinder(s)</source>
         <translation>
             <numerusform>RPM is worked out for %n cylinder</numerusform>
@@ -5473,22 +5478,22 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="316"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="324"/>
         <source>%1 is not supported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="376"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="384"/>
         <source>The data profile has no time column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="381"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="389"/>
         <source>The data profile does not say how to recognize its files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="386"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="394"/>
         <source>worked out later: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5496,78 +5501,78 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>XmlGaugeImporter</name>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="218"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="226"/>
         <source>vertical text is drawn horizontally</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="245"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="253"/>
         <source>values from the fastest lap are not there yet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="300"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="308"/>
         <source>an uneven scale running backwards is drawn even</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="349"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="357"/>
         <source>image %1 not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="502"/>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="789"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="510"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="797"/>
         <source>%1 is not supported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="734"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="742"/>
         <source>the G-plot&apos;s stick and tail are not drawn</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="832"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="840"/>
         <source>a chart over distance is drawn over time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="841"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="849"/>
         <source>a chart&apos;s fixed value scale is set from the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="845"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="853"/>
         <source>chart axis labels are not drawn</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="903"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="911"/>
         <source>This is not an XML gauge: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="908"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="916"/>
         <source>This is not an XML gauge.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="914"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="922"/>
         <source>Gauge file version %1 is not supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="922"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="930"/>
         <source>The gauge has no size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="947"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="955"/>
         <source>The gauge has nothing in it that can be shown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="962"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="970"/>
         <source>There is no %1 in %2.</source>
         <translation type="unfinished"></translation>
     </message>

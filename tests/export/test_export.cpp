@@ -480,6 +480,16 @@ private slots:
         QVERIFY(!plan.hasAudio);
         QVERIFY(plan.arguments.contains("-an"));
 
+        // music of which nothing is left to play (a project edited by hand) is no music
+        Soundtrack nothingLeft;
+        nothingLeft.tracks = {{"/m/a.mp3", 10.0, 12.0, 0.0}};
+        nothingLeft.videoMuted = true;
+        QVERIFY(!nothingLeft.hasMusic());
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, nothingLeft);
+        QVERIFY(!plan.hasAudio);
+        QVERIFY(plan.arguments.contains("-an"));
+        QVERIFY(!plan.arguments.contains("/m/a.mp3"));
+
         // asked for no sound: no music either
         settings.audio = ExportSettings::NoAudio;
         soundtrack.videoMuted = false;

@@ -7,8 +7,9 @@
 namespace Gzip
 {
 QByteArray compress(const QByteArray &data);
-// *ok false when `data` is no gzip stream or a broken one.
-QByteArray decompress(const QByteArray &data, bool *ok = nullptr);
+// *ok false when `data` is no gzip stream or a broken one, or would unpack to more than
+// `maxSize` bytes (a small file can unpack to gigabytes: it is refused before that).
+QByteArray decompress(const QByteArray &data, bool *ok = nullptr, qint64 maxSize = 512 * 1024 * 1024);
 // Starts the way every gzip stream does.
 bool isGzip(const QByteArray &data);
 }
