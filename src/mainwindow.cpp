@@ -65,6 +65,41 @@
 
 namespace
 {
+// A line of text that never makes the window wider: what does not fit ends in "...", and the
+// whole of it is the tooltip.
+class ElidedLabel : public QLabel
+{
+public:
+    explicit ElidedLabel(QWidget *parent)
+        : QLabel(parent)
+    {
+        setTextFormat(Qt::PlainText);
+        setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    }
+
+    void setFullText(const QString &text)
+    {
+        m_full = text;
+        setToolTip(text);
+        elide();
+    }
+
+protected:
+    void resizeEvent(QResizeEvent *event) override
+    {
+        QLabel::resizeEvent(event);
+        elide();
+    }
+
+private:
+    void elide()
+    {
+        setText(fontMetrics().elidedText(m_full, Qt::ElideRight, std::max(0, width())));
+    }
+
+    QString m_full;
+};
+
 // Selects all of a line edit's text when it is clicked or tabbed into.
 class SelectAllOnFocus : public QObject
 {
@@ -297,8 +332,8 @@ QWidget *MainWindow::createCentralWidget()
         autoSync();
     });
 
-    m_syncLabel = new QLabel(central);
-    m_syncLabel->setTextFormat(Qt::PlainText);
+    // what the offset is based on can be a long sentence: it must not hold the window wide
+    m_syncLabel = new ElidedLabel(central);
 
     QHBoxLayout *transport = new QHBoxLayout;
     transport->addWidget(m_playButton);
@@ -1469,7 +1504,7 @@ void MainWindow::onOffsetEdited(double seconds)
     setModified(true);
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
-    m_syncLabel->setText(tr("Set by hand."));
+    static_cast<ElidedLabel *>(m_syncLabel)->setFullText(tr("Set by hand."));
 }
 
 void MainWindow::autoSync()
@@ -1507,7 +1542,7 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
     m_project.syncOffset = seconds;
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
-    m_syncLabel->setText(explanation);
+    static_cast<ElidedLabel *>(m_syncLabel)->setFullText(explanation);
 }
 
 void MainWindow::updateTimeLabel()
