@@ -216,11 +216,23 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; TCX, NMEA, VBO
 - Multiple data sources per project
-- Power estimated for rides without a power meter (there is none now): from speed, grade and
-  acceleration with the rider's and the bike's weight, rolling resistance, air drag (frontal area
-  and drag coefficient, air density from elevation and temperature) and drivetrain loss, filled
-  in once in the settings and switched on there; shown as an estimate, never in place of a
-  recorded power. Wind is not known, so a headwind reads low and a tailwind high
+- Power estimated for rides without a power meter (there is none now), shown as an estimate,
+  never in place of a recorded power. In three steps:
+  1. The estimate itself: air drag, rolling resistance, gravity and acceleration from speed and
+     the smoothed elevation, with a drivetrain loss; no power while braking or with the cranks
+     still. A settings page with the rider's weight and height, the bike's weight, the tires
+     (road, gravel, mountain bike, each fast, typical or slow, or a rolling resistance of the
+     user's own; a tire size such as 700x25 or 26x1.95 only picks the kind), the riding position
+     (tops, hoods, drops, aero bars, mountain bike upright, or a drag area of the user's own) and
+     the switch
+  2. Wind and air: the wind's speed and direction, the temperature and the pressure of the day
+     of the ride from a weather history service, asked for at points along the route and hour by
+     hour, so a ride between towns gets each place's weather; off until switched on, the wind
+     brought down from the 10 m it is measured at to the rider's height; a wind entered by hand
+     when there is no network
+  3. Surfaces: stretches of the ride marked as smooth, typical or rough asphalt, gravel, dirt,
+     chosen as the lap sections are and kept in the project; typical asphalt where nothing is
+     marked. The rolling resistance is the tire's times the surface's
 - ✅ Measurements imported gauges ask for, worked out from the ride (2026-11-14): running time,
   pace, power averaged over 3 and 30 seconds, the highest and lowest point, the whole distance,
   braking, falling speed, glide ratio (`DerivedChannels`); the lap's top and average speed and
