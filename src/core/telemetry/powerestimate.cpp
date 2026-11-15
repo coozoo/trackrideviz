@@ -29,6 +29,10 @@ const int kSmoothJumpy = 5;
 // Jolts above this, on average over the ride, are not a rider's doing: a measured speed
 // stays near 0.04 m/s, one in steps is ten times that.
 const double kJumpy = 0.15;
+// Turning the cranks costs a little even when the wheel needs nothing (downhill, a wind from
+// behind): the chain, the bearings and the freewheel's drag, about 4-5 W at 90 rpm. Counted
+// only where a cadence was recorded: without it, pedaling cannot be told from coasting.
+const double kIdleWattsPerRpm = 0.05;
 
 struct Kind
 {
@@ -271,11 +275,11 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
     watts = smooth(watts, half);
     for (int i = 0; i < count; ++i)
         {
-            // rolling downhill and braking take nothing from the legs; neither do still cranks
-            const bool coasting = cadence && !cadence->isEmpty() && cadence->valueAt(start + i) < 1.0;
+            // rolling downhill and braking take nothing from the legs; still cranks take nothing at all
+            const double rpm = cadence && !cadence->isEmpty() ? cadence->valueAt(start + i) : -1.0;
             if (std::isfinite(watts.at(i)))
                 {
-                    watts[i] = coasting ? 0.0 : std::max(0.0, watts.at(i));
+                    watts[i] = rpm >= 0.0 && rpm < 1.0 ? 0.0 : std::max(0.0, watts.at(i)) + std::max(0.0, rpm) * kIdleWattsPerRpm;
                 }
         }
 

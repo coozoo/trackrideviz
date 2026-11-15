@@ -362,7 +362,9 @@ QWidget *SettingsDialog::createPowerPage()
     });
 
     m_lossSpin = spin(0.0, 20.0, 1, 0.5, tr(" %"));
-    m_lossSpin->setToolTip(tr("What the chain and the bearings take: 2-3 % when clean, more when worn or dirty"));
+    m_lossSpin->setToolTip(tr("What the chain and the bearings take of the power that drives the wheel: 2-3 % when clean, "
+                              "more when worn or dirty. Turning the cranks costs a few watts more even when the wheel "
+                              "needs nothing, as on a descent."));
 
     QFormLayout *form = new QFormLayout(page);
     form->addRow(m_powerCheck);

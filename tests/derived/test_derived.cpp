@@ -321,9 +321,15 @@ private slots:
                                 - at(PowerEstimate::apply(level, rider), ChannelId::Power, 150.0);
         QVERIFY2(std::fabs(climbing - 208.0) < 15.0, qPrintable(QString::number(climbing)));
         // rolling down the same hill takes nothing
-        const TelemetrySessionPtr down = DerivedChannels::complete(
-                                             ride(300.0, 1.0, [](double t) { return QPointF(-5.0 * t, 0.0); }, true));
+        auto downhill = ride(300.0, 1.0, [](double t) { return QPointF(-5.0 * t, 0.0); }, true);
+        const TelemetrySessionPtr down = DerivedChannels::complete(downhill);
         QCOMPARE(at(PowerEstimate::apply(down, rider), ChannelId::Power, 150.0), 0.0);
+        // ... but turning the cranks there costs what the drivetrain takes by itself: a few watts
+        Channel &cadence = downhill->channelForWriting(ChannelId::Cadence, "rpm");
+        cadence.append(0.0, 90.0);
+        cadence.append(300.0, 90.0);
+        const double spinning = at(PowerEstimate::apply(DerivedChannels::complete(downhill), rider), ChannelId::Power, 150.0);
+        QVERIFY2(spinning > 3.0 && spinning < 6.0, qPrintable(QString::number(spinning)));
     }
 
     void surfacesRollHarder()
