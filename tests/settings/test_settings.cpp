@@ -129,7 +129,10 @@ private slots:
         QCOMPARE(loaded.height, 720);
         QCOMPARE(loaded.audio, ExportSettings::OpusAudio);
         QCOMPARE(loaded.audioKbps, 128);
-        // the file's type is kept, not its name
+        // the file's type is kept, not its name; one not offered is not
+        QCOMPARE(AppSettings::exportFileType(), QString("mp4"));
+        settings.outputPath = "/somewhere/out.v2";
+        AppSettings::setExportDefaults(settings);
         QCOMPARE(AppSettings::exportFileType(), QString("mp4"));
         QVERIFY(loaded.outputPath.isEmpty());
         QCOMPARE(loaded.start, 0.0);

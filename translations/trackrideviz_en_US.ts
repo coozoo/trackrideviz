@@ -653,12 +653,12 @@ Worked out from the other data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="990"/>
+        <location filename="../src/datapanel.cpp" line="1002"/>
         <source>Take out samples</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="1004"/>
+        <location filename="../src/datapanel.cpp" line="1016"/>
         <source>Put back samples</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2248,12 +2248,12 @@ Worked out from the other data</source>
 <context>
     <name>GaugeLibrary</name>
     <message>
-        <location filename="../src/core/gauge/gaugelibrary.cpp" line="197"/>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="211"/>
         <source>The gauge has no usable name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugelibrary.cpp" line="224"/>
+        <location filename="../src/core/gauge/gaugelibrary.cpp" line="238"/>
         <source>Cannot replace %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2797,58 +2797,58 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="162"/>
+        <location filename="../src/joindialog.cpp" line="168"/>
         <source>Add videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="164"/>
-        <location filename="../src/joindialog.cpp" line="215"/>
+        <location filename="../src/joindialog.cpp" line="170"/>
+        <location filename="../src/joindialog.cpp" line="221"/>
         <source>Videos (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="214"/>
+        <location filename="../src/joindialog.cpp" line="220"/>
         <source>Save joined video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="243"/>
+        <location filename="../src/joindialog.cpp" line="249"/>
         <source>Choose two or more videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="253"/>
+        <location filename="../src/joindialog.cpp" line="259"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="257"/>
+        <location filename="../src/joindialog.cpp" line="263"/>
         <source>%1 exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="263"/>
+        <location filename="../src/joindialog.cpp" line="269"/>
         <source>Reading the videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="284"/>
+        <location filename="../src/joindialog.cpp" line="290"/>
         <source>A temporary file could not be written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="289"/>
+        <location filename="../src/joindialog.cpp" line="295"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="296"/>
+        <location filename="../src/joindialog.cpp" line="302"/>
         <source>ffmpeg could not be started; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="329"/>
+        <location filename="../src/joindialog.cpp" line="338"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2929,7 +2929,7 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="354"/>
+        <location filename="../src/lapspanel.cpp" line="365"/>
         <source>Click on the route where laps begin</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3030,54 +3030,54 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="300"/>
+        <location filename="../src/lapspanel.cpp" line="303"/>
         <source>best</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="315"/>
+        <location filename="../src/lapspanel.cpp" line="318"/>
         <source>The fastest of this sector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="355"/>
+        <location filename="../src/lapspanel.cpp" line="366"/>
         <source>Click on the route where a sector ends</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="356"/>
+        <location filename="../src/lapspanel.cpp" line="367"/>
         <source>Click on the route where the surface begins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="367"/>
+        <location filename="../src/lapspanel.cpp" line="378"/>
         <source>Click on the route where this surface ends</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="373"/>
-        <location filename="../src/lapspanel.cpp" line="433"/>
-        <location filename="../src/lapspanel.cpp" line="438"/>
+        <location filename="../src/lapspanel.cpp" line="384"/>
+        <location filename="../src/lapspanel.cpp" line="451"/>
+        <location filename="../src/lapspanel.cpp" line="456"/>
         <source>%1 (×%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="414"/>
+        <location filename="../src/lapspanel.cpp" line="432"/>
         <source> km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="414"/>
+        <location filename="../src/lapspanel.cpp" line="432"/>
         <source> mi</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="506"/>
+        <location filename="../src/lapspanel.cpp" line="524"/>
         <source>Open data to see its laps.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="512"/>
+        <location filename="../src/lapspanel.cpp" line="530"/>
         <source>%n lap(s) between crossings of the start/finish line.</source>
         <translation>
             <numerusform>%n lap between crossings of the start/finish line.</numerusform>
@@ -3085,12 +3085,12 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="513"/>
+        <location filename="../src/lapspanel.cpp" line="531"/>
         <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="518"/>
+        <location filename="../src/lapspanel.cpp" line="536"/>
         <source>%n lap(s) as the device recorded them. Place a start/finish line to time laps on a track.</source>
         <translation>
             <numerusform>%n lap as the device recorded them. Place a start/finish line to time laps on a track.</numerusform>
@@ -3098,7 +3098,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="520"/>
+        <location filename="../src/lapspanel.cpp" line="538"/>
         <source>No laps. Place a start/finish line to time laps on a track.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3930,12 +3930,12 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1883"/>
+        <location filename="../src/mainwindow.cpp" line="1885"/>
         <source>Click on the route to place the start/finish line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1876"/>
+        <location filename="../src/mainwindow.cpp" line="1878"/>
         <source>The direction of travel is not known there.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3991,37 +3991,37 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1886"/>
+        <location filename="../src/mainwindow.cpp" line="1888"/>
         <source>Place start/finish line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1892"/>
+        <location filename="../src/mainwindow.cpp" line="1894"/>
         <source>Click on the route to place the sector line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1895"/>
+        <location filename="../src/mainwindow.cpp" line="1897"/>
         <source>Add sector line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1941"/>
+        <location filename="../src/mainwindow.cpp" line="1943"/>
         <source>Click on the route to mark a surface.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1955"/>
+        <location filename="../src/mainwindow.cpp" line="1957"/>
         <source>Mark surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2209"/>
+        <location filename="../src/mainwindow.cpp" line="2211"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2210"/>
+        <location filename="../src/mainwindow.cpp" line="2212"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4062,146 +4062,146 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="57"/>
+        <location filename="../src/musicpanel.cpp" line="69"/>
         <source>Add...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="58"/>
+        <location filename="../src/musicpanel.cpp" line="70"/>
         <source>Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="60"/>
+        <location filename="../src/musicpanel.cpp" line="72"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="63"/>
+        <location filename="../src/musicpanel.cpp" line="75"/>
         <source>Play earlier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="69"/>
+        <location filename="../src/musicpanel.cpp" line="81"/>
         <source>Play later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="90"/>
+        <location filename="../src/musicpanel.cpp" line="102"/>
         <source>Where in the selected file the music begins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="91"/>
+        <location filename="../src/musicpanel.cpp" line="103"/>
         <source>Where in the selected file the music ends</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="101"/>
+        <location filename="../src/musicpanel.cpp" line="113"/>
         <source>The moment of the video the first track begins at</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="104"/>
-        <location filename="../src/musicpanel.cpp" line="112"/>
+        <location filename="../src/musicpanel.cpp" line="116"/>
+        <location filename="../src/musicpanel.cpp" line="124"/>
         <source>Move the music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="106"/>
+        <location filename="../src/musicpanel.cpp" line="118"/>
         <source>Here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="107"/>
+        <location filename="../src/musicpanel.cpp" line="119"/>
         <source>Begin the music where the video stands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="114"/>
+        <location filename="../src/musicpanel.cpp" line="126"/>
         <source>Go</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="115"/>
+        <location filename="../src/musicpanel.cpp" line="127"/>
         <source>Show the moment the music begins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="130"/>
+        <location filename="../src/musicpanel.cpp" line="142"/>
         <source> s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="132"/>
+        <location filename="../src/musicpanel.cpp" line="144"/>
         <source>Each track fades in at its beginning and out at its end</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="135"/>
+        <location filename="../src/musicpanel.cpp" line="147"/>
         <source>Change the fades</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="145"/>
+        <location filename="../src/musicpanel.cpp" line="157"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="150"/>
-        <location filename="../src/musicpanel.cpp" line="483"/>
-        <location filename="../src/musicpanel.cpp" line="488"/>
+        <location filename="../src/musicpanel.cpp" line="162"/>
+        <location filename="../src/musicpanel.cpp" line="553"/>
+        <location filename="../src/musicpanel.cpp" line="558"/>
         <source>Change the volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="160"/>
+        <location filename="../src/musicpanel.cpp" line="172"/>
         <source>The sound the camera recorded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="167"/>
+        <location filename="../src/musicpanel.cpp" line="179"/>
         <source>Play:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="168"/>
+        <location filename="../src/musicpanel.cpp" line="180"/>
         <source>Begins at:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="169"/>
+        <location filename="../src/musicpanel.cpp" line="181"/>
         <source>Fade:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="170"/>
+        <location filename="../src/musicpanel.cpp" line="182"/>
         <source>Video sound:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="171"/>
+        <location filename="../src/musicpanel.cpp" line="183"/>
         <source>Music:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="262"/>
+        <location filename="../src/musicpanel.cpp" line="288"/>
         <source>(missing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="291"/>
-        <location filename="../src/musicpanel.cpp" line="306"/>
+        <location filename="../src/musicpanel.cpp" line="317"/>
+        <location filename="../src/musicpanel.cpp" line="332"/>
         <source>Reading the music...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="292"/>
+        <location filename="../src/musicpanel.cpp" line="318"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="295"/>
+        <location filename="../src/musicpanel.cpp" line="321"/>
         <source>%n track(s), %1 of music.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -4209,29 +4209,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="302"/>
+        <location filename="../src/musicpanel.cpp" line="328"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="314"/>
-        <location filename="../src/musicpanel.cpp" line="336"/>
+        <location filename="../src/musicpanel.cpp" line="340"/>
+        <location filename="../src/musicpanel.cpp" line="368"/>
         <source>Add music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="371"/>
+        <location filename="../src/musicpanel.cpp" line="403"/>
         <source>Remove music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="384"/>
-        <location filename="../src/musicpanel.cpp" line="412"/>
+        <location filename="../src/musicpanel.cpp" line="428"/>
+        <location filename="../src/musicpanel.cpp" line="476"/>
         <source>Reorder music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="467"/>
+        <location filename="../src/musicpanel.cpp" line="537"/>
         <source>Trim music</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5108,106 +5108,106 @@ It appears among the templates in the library.</source>
 <context>
     <name>TimelinePanel</name>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="161"/>
+        <location filename="../src/timelinepanel.cpp" line="163"/>
         <source>Open a video or data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="214"/>
+        <location filename="../src/timelinepanel.cpp" line="216"/>
         <source>Keep this part again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="520"/>
+        <location filename="../src/timelinepanel.cpp" line="535"/>
         <source>Lap %1  %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="563"/>
+        <location filename="../src/timelinepanel.cpp" line="597"/>
         <source>The measurement drawn along the timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="579"/>
+        <location filename="../src/timelinepanel.cpp" line="613"/>
         <source>Click to go there, wheel to zoom, Ctrl+drag to slide the data against the video.
 Shift+drag marks a part; right-click a cut part to keep it again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="584"/>
-        <location filename="../src/timelinepanel.cpp" line="623"/>
+        <location filename="../src/timelinepanel.cpp" line="618"/>
+        <location filename="../src/timelinepanel.cpp" line="657"/>
         <source>Keep part again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="595"/>
+        <location filename="../src/timelinepanel.cpp" line="629"/>
         <source>A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="595"/>
+        <location filename="../src/timelinepanel.cpp" line="629"/>
         <source>Mark the start of a part here ([)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="596"/>
+        <location filename="../src/timelinepanel.cpp" line="630"/>
         <source>B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="596"/>
+        <location filename="../src/timelinepanel.cpp" line="630"/>
         <source>Mark the end of a part here (])</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="604"/>
+        <location filename="../src/timelinepanel.cpp" line="638"/>
         <source>Cut A–B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="604"/>
+        <location filename="../src/timelinepanel.cpp" line="638"/>
         <source>Leave the part between A and B out of the export (Delete)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="610"/>
+        <location filename="../src/timelinepanel.cpp" line="644"/>
         <source>Cut part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="617"/>
+        <location filename="../src/timelinepanel.cpp" line="651"/>
         <source>Keep A–B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="617"/>
+        <location filename="../src/timelinepanel.cpp" line="651"/>
         <source>Put the part between A and B back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="626"/>
-        <location filename="../src/timelinepanel.cpp" line="752"/>
+        <location filename="../src/timelinepanel.cpp" line="660"/>
+        <location filename="../src/timelinepanel.cpp" line="786"/>
         <source>Cut stops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="626"/>
+        <location filename="../src/timelinepanel.cpp" line="660"/>
         <source>Leave out every stop of 10 s or more, keeping 2 s at each end</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="628"/>
+        <location filename="../src/timelinepanel.cpp" line="662"/>
         <source>Keep all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="628"/>
-        <location filename="../src/timelinepanel.cpp" line="629"/>
+        <location filename="../src/timelinepanel.cpp" line="662"/>
+        <location filename="../src/timelinepanel.cpp" line="663"/>
         <source>Remove all cuts</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/timelinepanel.cpp" line="731"/>
+        <location filename="../src/timelinepanel.cpp" line="765"/>
         <source>%n part(s) cut, %1 of %2 kept</source>
         <translation>
             <numerusform>%n part cut, %1 of %2 kept</numerusform>
@@ -5215,12 +5215,12 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="744"/>
+        <location filename="../src/timelinepanel.cpp" line="778"/>
         <source>No stops of 10 s or more in the video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="636"/>
+        <location filename="../src/timelinepanel.cpp" line="670"/>
         <source>Show:</source>
         <translation type="unfinished"></translation>
     </message>

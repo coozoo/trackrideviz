@@ -861,7 +861,7 @@ void MainWindow::openProject(const QString &path)
     m_comparePanel->setSession(nullptr, m_units);
     m_timelinePanel->setCuts(m_project.cuts);
     m_musicPanel->setCuts(m_project.cuts);
-    m_musicPanel->setSoundtrack(m_project.soundtrack);
+    m_musicPanel->startOver(m_project.soundtrack);
     m_heardSoundtrack = m_project.soundtrack;
     m_elevationCombo->setCurrentIndex(m_elevationCombo->findData(int(m_project.elevation)));
     showWind();
@@ -1852,6 +1852,8 @@ void MainWindow::updateLaps()
     m_lapsPanel->setSurfaces(m_project.surfaces);
     m_timelinePanel->setSession(m_session, m_units);
     m_comparePanel->setSession(m_session, m_units);
+    // laps the table kept selected (the same laps, worked out again) are compared again
+    m_comparePanel->setLaps(m_lapsPanel->selectedLaps());
     rebuildOverlay();
     updateSourcesInfo();
 }

@@ -52,7 +52,19 @@ MusicPanel::MusicPanel(QWidget *parent)
     m_list->setDragDropMode(QAbstractItemView::InternalMove);
     m_list->setToolTip(tr("Played one after another. Drag to change the order."));
     connect(m_list, &QListWidget::itemSelectionChanged, this, &MusicPanel::onSelectionChanged);
-    connect(m_list->model(), &QAbstractItemModel::rowsMoved, this, &MusicPanel::onRowsMoved, Qt::QueuedConnection);
+    // a drag of several tracks moves them one by one: the new order is taken once, after the last
+    connect(m_list->model(), &QAbstractItemModel::rowsMoved, this, [this]()
+    {
+        if (!m_reorderPending)
+            {
+                m_reorderPending = true;
+                QMetaObject::invokeMethod(this, [this]()
+                {
+                    m_reorderPending = false;
+                    onRowsMoved();
+                }, Qt::QueuedConnection);
+            }
+    });
 
     m_addButton = new QPushButton(tr("Add..."), this);
     m_addButton->setToolTip(tr("Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A"));
@@ -179,8 +191,22 @@ MusicPanel::MusicPanel(QWidget *parent)
     setSoundtrack(Soundtrack());
 }
 
+void MusicPanel::startOver(const Soundtrack &soundtrack)
+{
+    // files still being read belong to what was open before
+    ++m_generation;
+    m_shown = false;
+    setSoundtrack(soundtrack);
+}
+
 void MusicPanel::setSoundtrack(const Soundtrack &soundtrack)
 {
+    // shown already (an edit made here, coming back from the main window): nothing to redo
+    if (m_shown && soundtrack == m_soundtrack)
+        {
+            return;
+        }
+    m_shown = true;
     m_soundtrack = soundtrack;
     m_updating = true;
     m_startEdit->setTime(toTime(soundtrack.start));
@@ -325,12 +351,18 @@ void MusicPanel::addFiles()
     refreshSummary();
     const QString ffprobe = FfmpegTools::ffprobeProgram();
     auto *watcher = new QFutureWatcher<QVector<MusicTrack>>(this);
-    connect(watcher, &QFutureWatcher<QVector<MusicTrack>>::finished, this, [this, watcher]()
+    const quint64 generation = m_generation;
+    connect(watcher, &QFutureWatcher<QVector<MusicTrack>>::finished, this, [this, watcher, generation]()
     {
         const QVector<MusicTrack> added = watcher->result();
         watcher->deleteLater();
         --m_reading;
         m_addButton->setEnabled(true);
+        if (generation != m_generation)
+            {
+                refreshSummary();
+                return;
+            }
         Soundtrack soundtrack = m_soundtrack;
         soundtrack.tracks += added;
         edit(soundtrack, tr("Add music"));
@@ -373,17 +405,43 @@ void MusicPanel::removeSelected()
 
 void MusicPanel::moveSelected(int step)
 {
-    const int row = m_list->currentRow();
-    const int target = row + step;
-    if (row < 0 || target < 0 || target >= m_soundtrack.tracks.size())
+    // all those selected, one place each, keeping their order among themselves
+    QVector<int> rows;
+    for (QListWidgetItem *item : m_list->selectedItems())
+        {
+            rows.append(m_list->row(item));
+        }
+    std::sort(rows.begin(), rows.end());
+    if (rows.isEmpty() || rows.first() + step < 0 || rows.last() + step >= m_soundtrack.tracks.size())
         {
             return;
         }
+    if (step > 0)
+        {
+            std::reverse(rows.begin(), rows.end());
+        }
     Soundtrack soundtrack = shown();
-    soundtrack.tracks.move(row, target);
+    for (int row : std::as_const(rows))
+        {
+            soundtrack.tracks.move(row, row + step);
+        }
     edit(soundtrack, tr("Reorder music"));
+    select(rows, step);
+}
+
+void MusicPanel::select(const QVector<int> &rows, int step)
+{
+    const QSignalBlocker blocker(m_list);
     m_list->clearSelection();
-    m_list->setCurrentRow(target);
+    for (int row : rows)
+        {
+            if (QListWidgetItem *item = m_list->item(row + step))
+                {
+                    item->setSelected(true);
+                    m_list->setCurrentItem(item, QItemSelectionModel::Select);
+                }
+        }
+    onSelectionChanged();
 }
 
 void MusicPanel::onRowsMoved()
@@ -392,9 +450,10 @@ void MusicPanel::onRowsMoved()
         {
             return;
         }
-    // the items carry the place each track had
+    // the items carry the place each track had; those selected stay selected where they went
     Soundtrack soundtrack = shown();
     soundtrack.tracks.clear();
+    QVector<int> selected;
     for (int row = 0; row < m_list->count(); ++row)
         {
             const int index = m_list->item(row)->data(Qt::UserRole).toInt();
@@ -402,17 +461,20 @@ void MusicPanel::onRowsMoved()
                 {
                     soundtrack.tracks.append(m_soundtrack.tracks.at(index));
                 }
+            if (m_list->item(row)->isSelected())
+                {
+                    selected.append(row);
+                }
         }
     if (soundtrack.tracks.size() != m_soundtrack.tracks.size())
         {
-            refreshList();
+            m_shown = false;
+            setSoundtrack(m_soundtrack);
             return;
         }
-    const int current = m_list->currentRow();
-    edit(soundtrack, tr("Reorder music"));
     // the numbers follow the new order
-    refreshList();
-    m_list->setCurrentRow(current);
+    edit(soundtrack, tr("Reorder music"));
+    select(selected, 0);
 }
 
 void MusicPanel::onSelectionChanged()
@@ -420,8 +482,16 @@ void MusicPanel::onSelectionChanged()
     const QList<QListWidgetItem *> selected = m_list->selectedItems();
     const int row = selected.size() == 1 ? m_list->row(selected.first()) : -1;
     m_removeButton->setEnabled(!selected.isEmpty());
-    m_upButton->setEnabled(row > 0);
-    m_downButton->setEnabled(row >= 0 && row + 1 < m_soundtrack.tracks.size());
+    // those selected move together, as far as the first and the last of them can
+    int top = int(m_soundtrack.tracks.size());
+    int bottom = -1;
+    for (QListWidgetItem *item : selected)
+        {
+            top = std::min(top, m_list->row(item));
+            bottom = std::max(bottom, m_list->row(item));
+        }
+    m_upButton->setEnabled(!selected.isEmpty() && top > 0);
+    m_downButton->setEnabled(!selected.isEmpty() && bottom + 1 < m_soundtrack.tracks.size());
     // a track whose length is not known has no end to pick
     const bool trimmable = row >= 0 && m_soundtrack.tracks.at(row).duration > 0.0;
     m_fromEdit->setEnabled(trimmable);

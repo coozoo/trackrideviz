@@ -77,6 +77,7 @@ private:
     QPushButton *m_removeSurfaceButton{nullptr};
     QTableWidget *m_surfaceTable{nullptr};
     QVector<SurfaceStretch> m_surfaces;
+    bool m_surfacesShown{false};   // the table shows m_surfaces in the units of now
     Units m_units;
     // where the stretch being marked begins, once clicked
     bool m_surfaceBegun{false};

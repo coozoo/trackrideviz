@@ -311,8 +311,10 @@ void AppSettings::setExportDefaults(const ExportSettings &settings)
     stored.setValue(kExportHeight, settings.height);
     stored.setValue(kExportAudio, ExportSettings::AudioWords[settings.audio]);
     stored.setValue(kExportAudioKbps, settings.audioKbps);
+    // only the types offered: one typed by hand may be one ffmpeg does not know, and would
+    // then be what every later export starts with
     const QString fileType = QFileInfo(settings.outputPath).suffix().toLower();
-    if (!fileType.isEmpty())
+    if (fileType == QLatin1String("mp4") || fileType == QLatin1String("mkv") || fileType == QLatin1String("mov"))
         {
             stored.setValue(kExportFileType, fileType);
         }

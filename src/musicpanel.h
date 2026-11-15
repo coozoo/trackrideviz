@@ -26,6 +26,8 @@ public:
 
     // Shows `soundtrack` without sending anything.
     void setSoundtrack(const Soundtrack &soundtrack);
+    // The same for another project: music files still being read are not added to it.
+    void startOver(const Soundtrack &soundtrack);
     // Where the video stands, for "Here", and how long it is (0: none).
     void setPosition(double videoTime);
     void setVideoDuration(double seconds);
@@ -41,6 +43,8 @@ private:
     void addFiles();
     void removeSelected();
     void moveSelected(int step);
+    // Selects these rows moved by `step`.
+    void select(const QVector<int> &rows, int step);
     void onRowsMoved();
     void onSelectionChanged();
     void onTrimEdited();
@@ -58,6 +62,9 @@ private:
     double m_videoDuration{0.0};
     QVector<TimeRange> m_cuts;
     bool m_updating{false};
+    bool m_shown{false};            // the controls show m_soundtrack
+    bool m_reorderPending{false};   // a drag's new order is still to be taken
+    quint64 m_generation{0};        // bumped by startOver()
     int m_reading{0};   // files whose length is being found out
 
     QListWidget *m_list{nullptr};

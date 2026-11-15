@@ -40,6 +40,14 @@ QHash<QString, Gauge> &cache()
     return gauges;
 }
 
+// Goes up whenever the cache loses something. A gauge loaded while it went up may be the version
+// just replaced: it is handed out, but not kept.
+quint64 &cacheChanges()
+{
+    static quint64 changes = 0;
+    return changes;
+}
+
 // Folder names come from file names and ids from projects: keep both to
 // one harmless path component.
 QString safeFolderName(const QString &name)
@@ -109,6 +117,7 @@ void GaugeLibrary::refresh()
 {
     const QMutexLocker lock(&mutex());
     cache().clear();
+    ++cacheChanges();
 }
 
 QVector<GaugeLibrary::Entry> GaugeLibrary::entries()
@@ -134,6 +143,7 @@ QVector<GaugeLibrary::Entry> GaugeLibrary::entries()
 
 Gauge GaugeLibrary::gauge(const QString &id)
 {
+    quint64 changes = 0;
     {
         const QMutexLocker lock(&mutex());
         const auto cached = cache().constFind(id);
@@ -141,6 +151,7 @@ Gauge GaugeLibrary::gauge(const QString &id)
             {
                 return cached.value();
             }
+        changes = cacheChanges();
     }
     Gauge loaded;
     if (id.startsWith(kBuiltinPrefix))
@@ -161,7 +172,10 @@ Gauge GaugeLibrary::gauge(const QString &id)
                 }
         }
     const QMutexLocker lock(&mutex());
-    cache().insert(id, loaded);
+    if (changes == cacheChanges())
+        {
+            cache().insert(id, loaded);
+        }
     return loaded;
 }
 
@@ -229,6 +243,7 @@ QString GaugeLibrary::add(const Gauge &gauge, const QString &folderName, QString
     const QString id = kLibraryPrefix + folder;
     const QMutexLocker lock(&mutex());
     cache().remove(id);
+    ++cacheChanges();
     return id;
 }
 
@@ -243,6 +258,7 @@ bool GaugeLibrary::remove(const QString &id)
     const bool removed = QDir(folder).removeRecursively();
     const QMutexLocker lock(&mutex());
     cache().remove(id);
+    ++cacheChanges();
     return removed;
 }
 

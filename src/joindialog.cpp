@@ -107,6 +107,8 @@ JoinDialog::~JoinDialog()
 {
     if (m_process && m_process->state() != QProcess::NotRunning)
         {
+            // its end is not news for a dialog going away
+            m_process->disconnect(this);
             m_process->kill();
             m_process->waitForFinished(3000);
             QFile::remove(m_outputPath);
@@ -118,8 +120,12 @@ void JoinDialog::reject()
 {
     if (m_process && m_process->state() != QProcess::NotRunning)
         {
+            // its end is not news for a dialog going away
+            m_process->disconnect(this);
             m_process->kill();
             m_process->waitForFinished(3000);
+            m_process->deleteLater();
+            m_process = nullptr;
             QFile::remove(m_outputPath);
         }
     QDialog::reject();
@@ -295,6 +301,9 @@ void JoinDialog::join()
                 {
                     m_status->setText(tr("ffmpeg could not be started; its location can be set in the settings."));
                     setBusy(false);
+                    // no finished() follows a process that never ran: let it go now
+                    m_process->deleteLater();
+                    m_process = nullptr;
                 }
         });
         m_process->start(FfmpegTools::ffmpegProgram(), VideoJoin::arguments(list, m_outputPath));

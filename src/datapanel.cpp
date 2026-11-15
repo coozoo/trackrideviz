@@ -886,7 +886,7 @@ void DataPanel::updateCharts()
 {
     QVector<DataChart::Lane> lanes;
     // the smoothed lines of the last time stay alive until the chart has the new ones
-    std::vector<std::unique_ptr<Channel>> previous;
+    std::vector<Smoothed> previous;
     previous.swap(m_smoothed);
     for (int i = 0; m_session && i < m_channelList->count(); ++i)
         {
@@ -905,8 +905,20 @@ void DataPanel::updateCharts()
             lane.shown = lane.actual;
             if (m_smoothing > 0.0)
                 {
-                    m_smoothed.push_back(std::make_unique<Channel>(Smoothing::movingAverage(*lane.actual, m_smoothing)));
-                    lane.shown = m_smoothed.back().get();
+                    const auto same = std::find_if(previous.begin(), previous.end(), [&](const Smoothed &kept)
+                    {
+                        return kept.line && kept.owner == m_session && kept.source == lane.actual && kept.seconds == m_smoothing;
+                    });
+                    if (same != previous.end())
+                        {
+                            m_smoothed.push_back(std::move(*same));
+                        }
+                    else
+                        {
+                            m_smoothed.push_back({m_session, lane.actual, m_smoothing,
+                                                  std::make_unique<Channel>(Smoothing::movingAverage(*lane.actual, m_smoothing))});
+                        }
+                    lane.shown = m_smoothed.back().line.get();
                 }
             lane.display = ChannelFormat::displayFor(*lane.actual, m_units);
             lane.color = colorOf(lane.id);

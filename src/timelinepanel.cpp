@@ -86,11 +86,13 @@ public:
     void setSession(const TelemetrySessionPtr &session)
     {
         m_session = session;
+        ++m_traceVersion;
         fitRange();
     }
 
     void setTrace(const QString &channelId, const ChannelDisplay &display)
     {
+        ++m_traceVersion;
         m_traceId = channelId;
         m_display = display;
         m_traceMin = std::numeric_limits<double>::max();
@@ -443,6 +445,26 @@ private:
         // a flat line in the middle when nothing changes
         const double low = m_traceMax > m_traceMin ? m_traceMin : m_traceMin - 1.0;
         const double high = m_traceMax > m_traceMin ? m_traceMax : m_traceMax + 1.0;
+        // the line stays while only the playhead moves: worked out again when what it shows,
+        // its place or the sync change
+        const TraceKey key{m_traceVersion, area, width(), m_start, m_end, m_sync.offset, m_sync.shifts};
+        if (!(key == m_traceKey))
+            {
+                m_traceKey = key;
+                m_traceLine = traceLine(channel, area, low, high);
+            }
+        painter.setPen(QPen(palette().color(QPalette::Text), 1.2));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawPath(m_traceLine);
+        painter.setPen(palette().color(QPalette::PlaceholderText));
+        painter.drawText(area.adjusted(4, 0, -4, 0), Qt::AlignTop | Qt::AlignLeft,
+                         QString::number(high, 'f', m_display.decimals));
+        painter.drawText(area.adjusted(4, 0, -4, 0), Qt::AlignBottom | Qt::AlignLeft,
+                         QString::number(low, 'f', m_display.decimals));
+    }
+
+    QPainterPath traceLine(const Channel *channel, const QRect &area, double low, double high) const
+    {
         const double first = channel->timeAt(0);
         const double last = channel->timeAt(channel->count() - 1);
         QPainterPath line;
@@ -468,14 +490,7 @@ private:
                         drawing = true;
                     }
             }
-        painter.setPen(QPen(palette().color(QPalette::Text), 1.2));
-        painter.setBrush(Qt::NoBrush);
-        painter.drawPath(line);
-        painter.setPen(palette().color(QPalette::PlaceholderText));
-        painter.drawText(area.adjusted(4, 0, -4, 0), Qt::AlignTop | Qt::AlignLeft,
-                         QString::number(high, 'f', m_display.decimals));
-        painter.drawText(area.adjusted(4, 0, -4, 0), Qt::AlignBottom | Qt::AlignLeft,
-                         QString::number(low, 'f', m_display.decimals));
+        return line;
     }
 
     void drawLaps(QPainter &painter, const QRect &row)
@@ -531,6 +546,25 @@ private:
     QString m_traceId;
     double m_smoothing{0.0};
     Channel m_smoothedTrace;
+    // the trace's line as last drawn, and what it was drawn for
+    struct TraceKey
+    {
+        quint64 version{0};
+        QRect area;
+        int width{0};
+        double start{0.0};
+        double end{0.0};
+        double offset{0.0};
+        QVector<TimeShift> shifts;
+        bool operator==(const TraceKey &other) const
+        {
+            return version == other.version && area == other.area && width == other.width && start == other.start
+                   && end == other.end && offset == other.offset && shifts == other.shifts;
+        }
+    };
+    quint64 m_traceVersion{1};
+    TraceKey m_traceKey;
+    QPainterPath m_traceLine;
     ChannelDisplay m_display;
     double m_traceMin{0.0};
     double m_traceMax{0.0};

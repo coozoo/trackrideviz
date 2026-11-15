@@ -68,7 +68,17 @@ private:
     QToolButton *m_tableButton{nullptr};
     QComboBox *m_smoothingCombo{nullptr};
     double m_smoothing{0.0};
-    std::vector<std::unique_ptr<Channel>> m_smoothed;   // what the chart draws when smoothing
+    // What the chart draws when smoothing, with what it was made of: a line of the same channel
+    // smoothed the same is used again (a color changed), not worked out anew. The session is
+    // held so that its channel's address cannot come back as another's.
+    struct Smoothed
+    {
+        TelemetrySessionPtr owner;
+        const Channel *source{nullptr};
+        double seconds{0.0};
+        std::unique_ptr<Channel> line;
+    };
+    std::vector<Smoothed> m_smoothed;
     TelemetrySessionPtr m_raw;
     TelemetrySessionPtr m_session;
     Units m_units;

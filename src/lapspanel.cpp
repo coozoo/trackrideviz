@@ -256,6 +256,9 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
         }
     headers << tr("To best");
     const int gapColumn = int(headers.size()) - 1;
+    // the same laps worked out again (the terrain or the weather came): the same selected
+    const QVector<int> selected = selectedLaps();
+    const int lapsBefore = m_lapTable->topLevelItemCount();
     m_lapTable->clear();
     m_lapTable->setColumnCount(int(headers.size()));
     m_lapTable->setHeaderLabels(headers);
@@ -324,6 +327,14 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
                         {
                             item->setFont(column, font);
                         }
+                }
+        }
+    if (laps.size() == lapsBefore)
+        {
+            const QSignalBlocker blocker(m_lapTable);
+            for (int lap : selected)
+                {
+                    m_lapTable->topLevelItem(lap)->setSelected(true);
                 }
         }
     updateInfo();
@@ -403,11 +414,18 @@ QVector<int> LapsPanel::selectedLaps() const
 void LapsPanel::setUnits(const Units &units)
 {
     m_units = units;
+    m_surfacesShown = false;
     setSurfaces(m_surfaces);
 }
 
 void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
 {
+    // the same as shown (the data worked out again): the table stays, with a value being typed in it
+    if (m_surfacesShown && surfaces == m_surfaces)
+        {
+            return;
+        }
+    m_surfacesShown = true;
     // meters in one kilometer or mile, whichever the settings ask for
     const bool miles = m_units.length == Units::Imperial;
     const double unit = miles ? 1609.344 : 1000.0;
