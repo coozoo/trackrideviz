@@ -1671,6 +1671,25 @@ struct Shift
     double since{-1e9};
 };
 
+// The place of the ring or sprocket nearest to `teeth` (recorded gears may not match the teeth
+// entered for the bike); -1 for none.
+int nearest(const QVector<int> &all, int teeth)
+{
+    if (teeth <= 0 || all.isEmpty())
+        {
+            return -1;
+        }
+    int best = 0;
+    for (int i = 1; i < all.size(); ++i)
+        {
+            if (std::abs(all.at(i) - teeth) < std::abs(all.at(best) - teeth))
+                {
+                    best = i;
+                }
+        }
+    return best;
+}
+
 Shift shiftAt(const Channel *channel, double time)
 {
     Shift shift;
@@ -1726,8 +1745,8 @@ void BoundGauge::drawGears(QPainter &painter, const Node &node, double time) con
     };
     const Shift front = shiftAt(m_session->channel(ChannelId::FrontGear), time);
     const Shift rear = shiftAt(m_session->channel(ChannelId::RearGear), time);
-    const int ringNow = rings.size() == 1 ? 0 : int(rings.indexOf(front.now));
-    const int sprocketNow = int(sprockets.indexOf(rear.now));
+    const int ringNow = rings.size() == 1 ? 0 : nearest(rings, front.now);
+    const int sprocketNow = nearest(sprockets, rear.now);
 
     // the others faint, those in use in the active color
     QColor idle = node.color;
@@ -1756,7 +1775,7 @@ void BoundGauge::drawGears(QPainter &painter, const Node &node, double time) con
     const auto eased = [](double p) { return p * p * (3.0 - 2.0 * p); };
     const auto along = [&](const Shift &shift, int now, const auto &xOf, const QVector<int> &teeth, double *x, double *h)
     {
-        const int before = int(teeth.indexOf(shift.before));
+        const int before = nearest(teeth, shift.before);
         const double p = before < 0 ? 1.0 : eased(std::clamp((time - shift.since) / 0.35, 0.0, 1.0));
         const int from = before < 0 ? now : before;
         *x = xOf(from) + (xOf(now) - xOf(from)) * p;
