@@ -2008,6 +2008,11 @@ void MainWindow::setSoundtrack(const Soundtrack &soundtrack, const QString &desc
 
 void MainWindow::syncMusic()
 {
+    // the player tells of its state while it changes files: nothing is to be done then
+    if (m_musicSwitching)
+        {
+            return;
+        }
     const Soundtrack &soundtrack = m_heardSoundtrack;
     m_audioOutput->setVolume(float(soundtrack.videoGain()));
     const double videoTime = m_player->position() / 1000.0;
@@ -2026,8 +2031,14 @@ void MainWindow::syncMusic()
     const QString path = soundtrack.tracks.at(moment.track).path;
     if (path != m_musicSource)
         {
+            // The next track. Stopped first, and not asked to play while it changes files: a play()
+            // given from the signals it sends meanwhile left it saying it played the new file
+            // while it stood still at its start (the second track never began by itself).
             m_musicSource = path;
+            m_musicSwitching = true;
+            m_musicPlayer->stop();
             m_musicPlayer->setSource(QUrl::fromLocalFile(path));
+            m_musicSwitching = false;
         }
     m_musicOutput->setVolume(float(moment.gain * soundtrack.musicGain()));
     if (m_player->playbackState() != QMediaPlayer::PlayingState)

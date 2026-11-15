@@ -149,6 +149,7 @@ private:
     QMediaPlayer *m_musicPlayer{nullptr};
     QAudioOutput *m_musicOutput{nullptr};
     QString m_musicSource;
+    bool m_musicSwitching{false};   // the music player is being given another file
     // where the music was wanted at the last look, and how long ago that was
     int m_musicTrack{-1};
     qint64 m_musicWanted{0};
