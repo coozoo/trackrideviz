@@ -392,8 +392,18 @@ void LapsPanel::surfaceClicked(double lat, double lon)
         }
 }
 
+void LapsPanel::setUnits(const Units &units)
+{
+    m_units = units;
+    setSurfaces(m_surfaces);
+}
+
 void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
 {
+    // meters in one kilometer or mile, whichever the settings ask for
+    const bool miles = m_units.length == Units::Imperial;
+    const double unit = miles ? 1609.344 : 1000.0;
+    const QString suffix = miles ? tr(" mi") : tr(" km");
     m_surfaces = surfaces;
     m_track->setSurfaces(surfaces);
     m_clearSurfacesButton->setEnabled(!surfaces.isEmpty());
@@ -402,7 +412,7 @@ void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
     const QSignalBlocker blocker(m_surfaceTable);
     m_surfaceTable->setRowCount(0);
     const Channel *distance = m_session ? m_session->channel(ChannelId::Distance) : nullptr;
-    const double whole = distance && !distance->isEmpty() ? distance->maxValue() / 1000.0 : 100000.0;
+    const double whole = distance && !distance->isEmpty() ? distance->maxValue() / unit : 100000.0;
     const QVector<SurfaceType> types = AppSettings::surfaceTypes();
     for (int row = 0; row < surfaces.size(); ++row)
         {
@@ -439,12 +449,18 @@ void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
                 box->setRange(0.0, whole);
                 box->setDecimals(2);
                 box->setSingleStep(0.1);
-                box->setSuffix(tr(" km"));
-                box->setValue(meters / 1000.0);
-                connect(box, &QDoubleSpinBox::editingFinished, this, [this, row, column, box]()
+                box->setSuffix(suffix);
+                box->setValue(meters / unit);
+                connect(box, &QDoubleSpinBox::editingFinished, this, [this, row, column, box, unit]()
                 {
                     QVector<SurfaceStretch> edited = m_surfaces;
-                    (column == 1 ? edited[row].from : edited[row].to) = box->value() * 1000.0;
+                    // typed to a hundredth: what was not touched stays to the meter
+                    const double before = column == 1 ? edited.at(row).from : edited.at(row).to;
+                    if (std::fabs(box->value() - before / unit) < 0.005)
+                        {
+                            return;
+                        }
+                    (column == 1 ? edited[row].from : edited[row].to) = box->value() * unit;
                     if (edited.at(row) == m_surfaces.at(row))
                         {
                             return;
@@ -460,7 +476,7 @@ void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
             };
             place(1, stretch.from);
             place(2, stretch.to);
-            QTableWidgetItem *length = new QTableWidgetItem(tr("%1 km").arg((stretch.to - stretch.from) / 1000.0, 0, 'f', 2));
+            QTableWidgetItem *length = new QTableWidgetItem(QLocale().toString((stretch.to - stretch.from) / unit, 'f', 2) + suffix);
             length->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             m_surfaceTable->setItem(row, 3, length);
         }

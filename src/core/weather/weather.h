@@ -54,6 +54,20 @@ struct WeatherChoice
     bool operator!=(const WeatherChoice &other) const { return !(*this == other); }
 };
 
+// A wind the user knows of: for a ride the weather history has nothing for, or no connection.
+struct HandWind
+{
+    bool used{false};
+    double speed{0.0};   // m/s, 10 m above the ground as forecasts give it
+    double from{0.0};    // degrees, where it blows from: 0 = north, clockwise
+
+    bool operator==(const HandWind &other) const
+    {
+        return used == other.used && speed == other.speed && from == other.from;
+    }
+    bool operator!=(const HandWind &other) const { return !(*this == other); }
+};
+
 // The weather as measurements of the ride (channelids.h): the wind's speed and direction, how
 // much of it blows against the rider and from where the rider feels it, and the air's density.
 namespace WeatherChannels
@@ -61,6 +75,8 @@ namespace WeatherChannels
 // A copy of `session` with them; the session itself without weather or positions.
 // Wants the distance and the heading in place (DerivedChannels::complete).
 TelemetrySessionPtr add(const TelemetrySessionPtr &session, const Weather &weather, double windSharePercent);
+// The same wind all along the ride: the wind's channels without the air's density.
+TelemetrySessionPtr addWind(const TelemetrySessionPtr &session, const HandWind &wind, double windSharePercent);
 }
 
 // Fetches the weather of rides and keeps it on disk: a ride asked about once
@@ -85,6 +101,9 @@ public:
     void setFolder(const QString &folder);
     // Places asked for and not there yet, while downloading is allowed.
     int pending() const;
+    // Bytes on disk; and all of them thrown away (arrived() follows: what is shown asks again).
+    qint64 storedBytes() const;
+    void clearStored();
 
     // Whose data it is, to be said where it is used.
     static QString attribution();

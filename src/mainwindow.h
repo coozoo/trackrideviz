@@ -185,4 +185,9 @@ private:
     WeatherChoice m_weather;
     // the weather of the ride was asked for when the data was worked out, and has not come yet
     bool m_weatherWaiting{false};
+    QComboBox *m_windCombo{nullptr};
+    QDoubleSpinBox *m_windSpeedSpin{nullptr};
+    QDoubleSpinBox *m_windFromSpin{nullptr};
+    // Shows the project's wind in the Sources dock, in the units of the settings.
+    void showWind();
 };

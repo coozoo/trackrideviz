@@ -35,6 +35,9 @@ void select(QComboBox *combo, const QVariant &data)
     combo->setCurrentIndex(index >= 0 ? index : 0);
 }
 
+const double kPoundsPerKg = 2.2046226;
+const double kCmPerInch = 2.54;
+
 QLabel *note(const QString &text, QWidget *parent)
 {
     QLabel *label = new QLabel(text, parent);
@@ -468,6 +471,15 @@ QWidget *SettingsDialog::createWeatherPage()
     form->addRow(note(tr("The wind's speed and direction, the wind against the rider and the air's density are then "
                          "measurements of the ride like any other: for gauges, for the data viewer, and counted in "
                          "by the power estimate. Kept on disk: a ride asked about once needs no connection again."), page));
+    m_weatherClearButton = new QPushButton(page);
+    m_weatherClearButton->setToolTip(tr("Deletes the weather of rides kept on this computer. It is fetched again when a ride asks for it."));
+    connect(m_weatherClearButton, &QPushButton::clicked, this, [this]()
+    {
+        WeatherStore::instance()->clearStored();
+        updateStoredWeather();
+    });
+    updateStoredWeather();
+    form->addRow(m_weatherClearButton);
     form->addRow(note(WeatherStore::attribution(), page));
     return page;
 }
@@ -484,8 +496,17 @@ void SettingsDialog::updatePowerFields()
     const bool ownCda = position == PowerEstimate::OwnValue;
     m_cdaSpin->setEnabled(false);
     m_cdaSpin->setValue(ownCda ? m_ownCda
-                        : PowerEstimate::cdaOf(position, m_riderWeightSpin->value(), m_riderHeightSpin->value()));
+                        : PowerEstimate::cdaOf(position,
+                                               m_imperialBody ? m_riderWeightSpin->value() / kPoundsPerKg : m_riderWeightSpin->value(),
+                                               m_imperialBody ? m_riderHeightSpin->value() * kCmPerInch : m_riderHeightSpin->value()));
     m_cdaSpin->setEnabled(ownCda);
+}
+
+void SettingsDialog::updateStoredWeather()
+{
+    const qint64 bytes = WeatherStore::instance()->storedBytes();
+    m_weatherClearButton->setText(tr("Delete the stored weather (%1)").arg(QLocale().formattedDataSize(bytes)));
+    m_weatherClearButton->setEnabled(bytes > 0);
 }
 
 void SettingsDialog::updateStoredMaps()
@@ -544,9 +565,29 @@ void SettingsDialog::load()
     m_ownCrr = rider.crr;
     m_ownCda = rider.cda;
     m_powerCheck->setChecked(rider.enabled);
-    m_riderWeightSpin->setValue(rider.riderKg);
-    m_riderHeightSpin->setValue(rider.heightCm);
-    m_bikeWeightSpin->setValue(rider.bikeKg);
+    // kept in kilograms and centimeters whatever is shown
+    m_imperialBody = AppSettings::units().length == Units::Imperial;
+    if (m_imperialBody)
+        {
+            m_riderWeightSpin->setRange(66.0, 440.0);
+            m_riderWeightSpin->setSuffix(tr(" lb"));
+            m_riderWeightSpin->setSingleStep(1.0);
+            m_bikeWeightSpin->setRange(6.0, 132.0);
+            m_bikeWeightSpin->setSuffix(tr(" lb"));
+            m_bikeWeightSpin->setSingleStep(1.0);
+            m_riderHeightSpin->setRange(39.0, 91.0);
+            m_riderHeightSpin->setDecimals(1);
+            m_riderHeightSpin->setSingleStep(0.5);
+            m_riderHeightSpin->setSuffix(tr(" in"));
+        }
+    {
+        // not while they are filled: the drag area is worked out from them once all are in
+        const QSignalBlocker weight(m_riderWeightSpin);
+        const QSignalBlocker height(m_riderHeightSpin);
+        m_riderWeightSpin->setValue(m_imperialBody ? rider.riderKg * kPoundsPerKg : rider.riderKg);
+        m_riderHeightSpin->setValue(m_imperialBody ? rider.heightCm / kCmPerInch : rider.heightCm);
+    }
+    m_bikeWeightSpin->setValue(m_imperialBody ? rider.bikeKg * kPoundsPerKg : rider.bikeKg);
     select(m_tiresCombo, rider.tires);
     select(m_positionCombo, rider.position);
     m_lossSpin->setValue(rider.drivetrainLoss);
@@ -601,9 +642,9 @@ void SettingsDialog::accept()
 
     PowerEstimate::Rider rider;
     rider.enabled = m_powerCheck->isChecked();
-    rider.riderKg = m_riderWeightSpin->value();
-    rider.heightCm = m_riderHeightSpin->value();
-    rider.bikeKg = m_bikeWeightSpin->value();
+    rider.riderKg = m_imperialBody ? m_riderWeightSpin->value() / kPoundsPerKg : m_riderWeightSpin->value();
+    rider.heightCm = m_imperialBody ? m_riderHeightSpin->value() * kCmPerInch : m_riderHeightSpin->value();
+    rider.bikeKg = m_imperialBody ? m_bikeWeightSpin->value() / kPoundsPerKg : m_bikeWeightSpin->value();
     rider.tires = m_tiresCombo->currentData().toString();
     rider.crr = m_ownCrr;
     rider.position = m_positionCombo->currentData().toString();

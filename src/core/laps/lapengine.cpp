@@ -324,6 +324,45 @@ StartFinishLine LapEngine::lineAt(const TelemetrySession &session, double time, 
     return line;
 }
 
+QVector<double> LapEngine::passes(const TelemetrySession &session, double la, double lo, double within)
+{
+    QVector<double> times;
+    const Channel *lat = session.channel(ChannelId::PositionLat);
+    const Channel *lon = session.channel(ChannelId::PositionLon);
+    if (!lat || !lon)
+        {
+            return times;
+        }
+    // while the route stays near, the nearest moment; one pass ends when it has gone away again
+    bool near = false;
+    double best = 0.0;
+    double bestTime = 0.0;
+    for (int i = 0; i < lat->count(); ++i)
+        {
+            const double t = lat->timeAt(i);
+            const double d = Geo::distanceMeters(la, lo, lat->valueAtIndex(i), lon->valueAt(t));
+            if (d <= within)
+                {
+                    if (!near || d < best)
+                        {
+                            best = d;
+                            bestTime = t;
+                        }
+                    near = true;
+                }
+            else if (near && d > within * 2.0)
+                {
+                    times.append(bestTime);
+                    near = false;
+                }
+        }
+    if (near)
+        {
+            times.append(bestTime);
+        }
+    return times;
+}
+
 double LapEngine::nearestTime(const TelemetrySession &session, double la, double lo, double *distance)
 {
     const Channel *lat = session.channel(ChannelId::PositionLat);

@@ -52,6 +52,10 @@ StartFinishLine lineAt(const TelemetrySession &session, double time, double widt
 QVector<double> splits(const TelemetrySession &session, const QVector<StartFinishLine> &sectors, double start,
                        double end);
 
+// Every time the route passed a place: the moment of each pass that came within `within`
+// meters of it, in order of time. A route ridden out and back, or lap after lap, has several.
+QVector<double> passes(const TelemetrySession &session, double lat, double lon, double within);
+
 // When the route came nearest to a place; -1 without positions. *distance: how near, in meters.
 double nearestTime(const TelemetrySession &session, double lat, double lon, double *distance = nullptr);
 

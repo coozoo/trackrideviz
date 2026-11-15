@@ -135,6 +135,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 }
             root["sectors"] = sectors;
         }
+    if (project.wind.used)
+        {
+            root["wind"] = QJsonObject{{"speed", project.wind.speed}, {"from", project.wind.from}};
+        }
     if (!project.surfaces.isEmpty())
         {
             QJsonArray surfaces;
@@ -216,6 +220,11 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                 {
                     loaded.sectors.append(l);
                 }
+        }
+    if (root.contains("wind"))
+        {
+            const QJsonObject wind = root.value("wind").toObject();
+            loaded.wind = {true, wind.value("speed").toDouble(), wind.value("from").toDouble()};
         }
     for (const QJsonValue &value : root.value("surfaces").toArray())
         {

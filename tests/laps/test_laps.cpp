@@ -211,6 +211,16 @@ private slots:
         QVERIFY(!LapEngine::lineAt(TelemetrySession(), 5.0).isValid());
     }
 
+    void everyPassOfAPlace()
+    {
+        // three times round: the top is passed at 5, 65, 125 and 185 s
+        const TelemetrySessionPtr s = circuit({60.0, 60.0, 60.0});
+        const QVector<double> passes = LapEngine::passes(*s, kLat0 + kRadius / kMetersPerDegree, 28.0, 20.0);
+        QCOMPARE(passes.size(), 4);
+        QVERIFY(std::fabs(passes.at(1) - 65.0) < 1.0);
+        QVERIFY(LapEngine::passes(*s, kLat0 + 10.0, 28.0, 20.0).isEmpty());
+    }
+
     void fromOnePlaceToAnother()
     {
         // a line at 6 o'clock is come to once, at 35 s; 9 o'clock follows at 50 s and 3 o'clock at 80 s
@@ -295,6 +305,7 @@ private slots:
         project.sectors = {sectorLine(0.0, kRadius)};
         project.cuts = {{12.5, 30.0}, {40.0, 41.0}};
         project.surfaces = {{1200.0, 3400.5, "Hard gravel", 1.8}};
+        project.wind = {true, 4.5, 270.0};
         project.dataEdits = {{ChannelId::Speed, 3.0, 4.5}};
         Project loaded;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(project, "/tmp"), "/tmp", &loaded));
@@ -303,6 +314,7 @@ private slots:
         QVERIFY(loaded.sectors.first() == project.sectors.first());
         QVERIFY(loaded.cuts == project.cuts);
         QVERIFY(loaded.surfaces == project.surfaces);
+        QVERIFY(loaded.wind == project.wind);
         QVERIFY(loaded.dataEdits == project.dataEdits);
         Project none;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(Project(), "/tmp"), "/tmp", &none));

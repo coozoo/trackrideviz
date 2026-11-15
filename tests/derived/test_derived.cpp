@@ -413,6 +413,18 @@ private slots:
         QVERIFY2(std::fabs(across - calm) < calm * 0.05, qPrintable(QString("%1 %2").arg(calm).arg(across)));
     }
 
+    void windByHand()
+    {
+        auto recorded = ride(300.0, 1.0, [](double t) { return QPointF(8.0 * t, 0.0); });
+        const TelemetrySessionPtr north = DerivedChannels::complete(recorded);
+        // 5 m/s from the north, to one riding north: all of what reaches the rider is against
+        const TelemetrySessionPtr windy = WeatherChannels::addWind(north, {true, 5.0, 0.0}, 60.0);
+        QVERIFY(std::fabs(at(windy, ChannelId::Headwind, 150.0) - 3.0) < 0.05);
+        QCOMPARE(at(windy, ChannelId::WindSpeed, 150.0), 5.0);
+        QVERIFY(!windy->channel(ChannelId::AirDensity));
+        QCOMPARE(WeatherChannels::addWind(north, HandWind(), 60.0), north);
+    }
+
     void weatherBetweenPlacesAndHours()
     {
         const QByteArray answer = R"({"hourly":{"time":["2025-07-15T00:00","2025-07-15T01:00"],

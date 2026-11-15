@@ -2,6 +2,7 @@
 
 #include "laps/lapengine.h"
 #include "telemetry/surfaces.h"
+#include "units/units.h"
 
 #include <QWidget>
 
@@ -32,6 +33,8 @@ public:
     void refreshMapChoice();
     // Stretches of the ride marked as a surface, drawn along the route.
     void setSurfaces(const QVector<SurfaceStretch> &surfaces);
+    // Kilometers or miles in the table of surfaces.
+    void setUnits(const Units &units);
 
 signals:
     // Another map was chosen here: the settings hold it already.
@@ -70,6 +73,7 @@ private:
     QPushButton *m_removeSurfaceButton{nullptr};
     QTableWidget *m_surfaceTable{nullptr};
     QVector<SurfaceStretch> m_surfaces;
+    Units m_units;
     // where the stretch being marked begins, once clicked
     bool m_surfaceBegun{false};
     double m_surfaceLat{0.0};

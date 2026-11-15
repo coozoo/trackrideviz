@@ -43,6 +43,7 @@ private:
     void updateStoredMaps();
     // Shows what the chosen tires and position stand for; the numbers can be typed only for "my own".
     void updatePowerFields();
+    void updateStoredWeather();
     void load();
 
     QListWidget *m_pageList{nullptr};
@@ -83,6 +84,9 @@ private:
     QDoubleSpinBox *m_lossSpin{nullptr};
     QTableWidget *m_surfaceTable{nullptr};
     QCheckBox *m_weatherCheck{nullptr};
+    QPushButton *m_weatherClearButton{nullptr};
+    // weights in pounds and the height in inches, as the units of the settings were when the dialog opened
+    bool m_imperialBody{false};
     QDoubleSpinBox *m_weatherSpacingSpin{nullptr};
     QDoubleSpinBox *m_windShareSpin{nullptr};
     // the user's own numbers, kept while a ready kind is shown in their place

@@ -97,16 +97,19 @@ struct ImportResult
 // asks for them, and everything that can be worked out from that.
 TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
                               const PowerEstimate::Rider &rider, const QVector<SurfaceStretch> &surfaces,
-                              const WeatherChoice &weatherChoice, bool *waiting, bool *weatherWaiting)
+                              const WeatherChoice &weatherChoice, const HandWind &handWind, bool *waiting,
+                              bool *weatherWaiting)
 {
     const TelemetrySessionPtr complete = DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation,
                                          waiting));
     *weatherWaiting = false;
-    const Weather weather = complete && weatherChoice.enabled
+    // a wind entered by hand stands in for the weather history's
+    const Weather weather = complete && weatherChoice.enabled && !handWind.used
                             ? WeatherStore::instance()->along(*complete, weatherChoice.spacingKm, weatherWaiting) : Weather();
+    const TelemetrySessionPtr windy = handWind.used ? WeatherChannels::addWind(complete, handWind, weatherChoice.windShare)
+                                      : WeatherChannels::add(complete, weather, weatherChoice.windShare);
     // the estimate wants the speed, the grade and the wind; what is worked out from a power wants the estimate
-    const TelemetrySessionPtr powered = PowerEstimate::apply(WeatherChannels::add(complete, weather, weatherChoice.windShare),
-                                        rider, surfaces);
+    const TelemetrySessionPtr powered = PowerEstimate::apply(windy, rider, surfaces);
     return powered == complete ? complete : DerivedChannels::complete(powered);
 }
 
@@ -352,6 +355,7 @@ void MainWindow::createDocks()
     connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
+    m_lapsPanel->setUnits(m_units);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
     connect(m_lapsPanel, &LapsPanel::mapChoiceChanged, this, &MainWindow::applyMapSettings);
     connect(m_lapsPanel, &LapsPanel::removeLineRequested, this, [this]()
@@ -431,12 +435,74 @@ void MainWindow::createDocks()
     elevationRow->addWidget(new QLabel(tr("Elevation:"), sources));
     elevationRow->addWidget(m_elevationCombo, 1);
 
+    // the wind of this ride: the weather history's (when the settings ask for it), or the user's own
+    m_windCombo = new QComboBox(sources);
+    m_windCombo->addItem(tr("From weather history"), false);
+    m_windCombo->addItem(tr("By hand:"), true);
+    m_windCombo->setToolTip(tr("Where the wind of this ride comes from. Weather history is switched on in the settings "
+                               "(Weather); a wind entered here by hand is the same all along the ride and kept in the project."));
+    m_windSpeedSpin = new QDoubleSpinBox(sources);
+    m_windSpeedSpin->setRange(0.0, 200.0);
+    m_windSpeedSpin->setDecimals(0);
+    m_windSpeedSpin->setToolTip(tr("The wind's speed as forecasts give it, 10 m above the ground"));
+    m_windFromSpin = new QDoubleSpinBox(sources);
+    m_windFromSpin->setRange(0.0, 359.0);
+    m_windFromSpin->setDecimals(0);
+    m_windFromSpin->setSingleStep(5.0);
+    m_windFromSpin->setWrapping(true);
+    m_windFromSpin->setPrefix(tr("from "));
+    m_windFromSpin->setSuffix(QStringLiteral("°"));
+    m_windFromSpin->setToolTip(tr("Where the wind blows from: 0 north, 90 east, 180 south, 270 west"));
+    const auto windChanged = [this]()
+    {
+        HandWind wind;
+        wind.used = m_windCombo->currentData().toBool();
+        wind.speed = m_windSpeedSpin->value() / m_units.speedScale();
+        wind.from = m_windFromSpin->value();
+        m_windSpeedSpin->setEnabled(wind.used);
+        m_windFromSpin->setEnabled(wind.used);
+        // numbers typed while the weather history is in use are kept, but change nothing yet
+        const bool matters = wind.used || m_project.wind.used;
+        if (wind != m_project.wind)
+            {
+                m_project.wind = wind;
+                if (matters)
+                    {
+                        setModified(true);
+                        recomputeData();
+                    }
+            }
+    };
+    connect(m_windCombo, &QComboBox::activated, this, windChanged);
+    connect(m_windSpeedSpin, &QDoubleSpinBox::editingFinished, this, windChanged);
+    connect(m_windFromSpin, &QDoubleSpinBox::editingFinished, this, windChanged);
+    QHBoxLayout *windRow = new QHBoxLayout;
+    windRow->addWidget(new QLabel(tr("Wind:"), sources));
+    windRow->addWidget(m_windCombo, 1);
+    windRow->addWidget(m_windSpeedSpin);
+    windRow->addWidget(m_windFromSpin);
+    showWind();
+
     QVBoxLayout *sourcesLayout = new QVBoxLayout(sources);
     sourcesLayout->setContentsMargins(6, 6, 6, 6);
     sourcesLayout->addWidget(m_sourcesLabel);
     sourcesLayout->addLayout(elevationRow);
+    sourcesLayout->addLayout(windRow);
     sourcesLayout->addWidget(m_channelTree, 1);
     m_sourcesDock->setWidget(sources);
+}
+
+void MainWindow::showWind()
+{
+    const QSignalBlocker combo(m_windCombo);
+    const QSignalBlocker speed(m_windSpeedSpin);
+    const QSignalBlocker from(m_windFromSpin);
+    m_windCombo->setCurrentIndex(m_project.wind.used ? 1 : 0);
+    m_windSpeedSpin->setSuffix(" " + m_units.speedLabel());
+    m_windSpeedSpin->setValue(m_project.wind.speed * m_units.speedScale());
+    m_windFromSpin->setValue(m_project.wind.from);
+    m_windSpeedSpin->setEnabled(m_project.wind.used);
+    m_windFromSpin->setEnabled(m_project.wind.used);
 }
 
 QDockWidget *MainWindow::addPlaceholderDock(const QString &objectName, const QString &title, Qt::DockWidgetArea area)
@@ -592,11 +658,12 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     const PowerEstimate::Rider rider = m_rider;
     const WeatherChoice weather = m_weather;
     const QVector<SurfaceStretch> surfaces = m_project.surfaces;
-    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather]()
+    const HandWind wind = m_project.wind;
+    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather, wind]()
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, &result.waiting,
+        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, &result.waiting,
                                    &result.weatherWaiting);
         return result;
     }));
@@ -651,6 +718,7 @@ void MainWindow::openProject(const QString &path)
     m_comparePanel->setSession(nullptr, m_units);
     m_timelinePanel->setCuts(m_project.cuts);
     m_elevationCombo->setCurrentIndex(m_elevationCombo->findData(int(m_project.elevation)));
+    showWind();
     m_dataPanel->setEdits(m_project.dataEdits);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
@@ -1585,7 +1653,16 @@ void MainWindow::markSurface(double fromLat, double fromLon, double toLat, doubl
     double fromOff = 0.0;
     double toOff = 0.0;
     const double fromTime = LapEngine::nearestTime(*m_recordedSession, fromLat, fromLon, &fromOff);
-    const double toTime = LapEngine::nearestTime(*m_recordedSession, toLat, toLon, &toOff);
+    double toTime = LapEngine::nearestTime(*m_recordedSession, toLat, toLon, &toOff);
+    // on a route that comes by the same place again, the end is the first time after the beginning
+    for (const double pass : LapEngine::passes(*m_recordedSession, toLat, toLon, 40.0))
+        {
+            if (pass > fromTime)
+                {
+                    toTime = pass;
+                    break;
+                }
+        }
     // a click well off the route is not meant for it
     if (fromTime < 0.0 || toTime < 0.0 || fromOff > 60.0 || toOff > 60.0)
         {
@@ -1660,6 +1737,7 @@ void MainWindow::recomputeData()
             return;
         }
     m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
+                                  m_project.wind,
                                   &m_terrainWaiting, &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
     updateLaps();
@@ -1723,6 +1801,8 @@ void MainWindow::applySettings()
     if (units != m_units)
         {
             m_units = units;
+            showWind();
+            m_lapsPanel->setUnits(m_units);
             m_timelinePanel->setSession(m_session, m_units);
             m_comparePanel->setSession(m_session, m_units);
             m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);

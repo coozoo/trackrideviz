@@ -135,6 +135,66 @@ TelemetrySessionPtr WeatherChannels::add(const TelemetrySessionPtr &original, co
     return session;
 }
 
+TelemetrySessionPtr WeatherChannels::addWind(const TelemetrySessionPtr &original, const HandWind &wind,
+        double windSharePercent)
+{
+    const Channel *heading = original ? original->channel(ChannelId::Heading) : nullptr;
+    if (!wind.used || !heading || heading->count() < 2)
+        {
+            return original;
+        }
+    auto session = std::make_shared<TelemetrySession>(*original);
+    const auto fresh = [&](const char *id, const char *unit) -> Channel &
+    {
+        session->removeChannel(id);
+        session->addDerivedChannel(id);
+        return session->channelForWriting(id, unit);
+    };
+    Channel &speed = fresh(ChannelId::WindSpeed, "m/s");
+    Channel &from = fresh(ChannelId::WindDirection, "deg");
+    Channel &against = fresh(ChannelId::Headwind, "m/s");
+    Channel &felt = fresh(ChannelId::WindRelative, "deg");
+    const double reaching = std::clamp(windSharePercent, 0.0, 100.0) / 100.0;
+    for (double t = heading->startTime(); t <= heading->endTime(); t += 1.0)
+        {
+            const double turned = std::fmod(wind.from - heading->valueAt(t) + 720.0, 360.0);
+            speed.append(t, wind.speed);
+            from.append(t, wind.from);
+            against.append(t, reaching * wind.speed * std::cos(turned * kPi / 180.0));
+            felt.append(t, turned);
+        }
+    return session;
+}
+
+qint64 WeatherStore::storedBytes() const
+{
+    QString folder;
+    {
+        const QMutexLocker lock(&m_mutex);
+        folder = m_folder;
+    }
+    qint64 bytes = 0;
+    for (const QFileInfo &file : QDir(folder).entryInfoList({"*.json"}, QDir::Files))
+        {
+            bytes += file.size();
+        }
+    return bytes;
+}
+
+void WeatherStore::clearStored()
+{
+    {
+        const QMutexLocker lock(&m_mutex);
+        // only what is ours: the answers this store wrote
+        for (const QFileInfo &file : QDir(m_folder).entryInfoList({"*.json"}, QDir::Files))
+            {
+                QFile::remove(file.absoluteFilePath());
+            }
+        m_failed.clear();
+    }
+    emit arrived();
+}
+
 WeatherStore *WeatherStore::instance()
 {
     static WeatherStore *store = new WeatherStore;
