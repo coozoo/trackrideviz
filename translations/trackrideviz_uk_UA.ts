@@ -695,326 +695,331 @@ Worked out from the other data</source>
 <context>
     <name>ExportDialog</name>
     <message>
-        <location filename="../src/exportdialog.cpp" line="87"/>
-        <location filename="../src/exportdialog.cpp" line="633"/>
+        <location filename="../src/exportdialog.cpp" line="89"/>
+        <location filename="../src/exportdialog.cpp" line="638"/>
         <source>Export video</source>
         <translation>Експорт відео</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="107"/>
+        <location filename="../src/exportdialog.cpp" line="109"/>
         <source>Reading the video...</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="113"/>
+        <location filename="../src/exportdialog.cpp" line="115"/>
         <source>Fills in the choices below; the bitrate of the built-in ones follows the video. Changing a choice afterwards makes it your own.</source>
         <translation>Заповнює налаштування нижче; бітрейт вбудованих профілів залежить від відео. Зміна будь-якого налаштування після цього робить його вашим власним.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="116"/>
+        <location filename="../src/exportdialog.cpp" line="118"/>
         <source>Save as...</source>
         <translation>Зберегти як...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="117"/>
+        <location filename="../src/exportdialog.cpp" line="119"/>
         <source>Keep the choices below under a name</source>
         <translation>Зберегти налаштування нижче під назвою</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="119"/>
+        <location filename="../src/exportdialog.cpp" line="121"/>
         <source>Delete</source>
         <translation>Видалити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="127"/>
+        <location filename="../src/exportdialog.cpp" line="129"/>
         <source>Browse...</source>
         <translation>Огляд...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="134"/>
+        <location filename="../src/exportdialog.cpp" line="136"/>
         <source>Looking for encoders...</source>
         <translation>Пошук кодувальників...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="139"/>
+        <location filename="../src/exportdialog.cpp" line="141"/>
         <source>Constant quality</source>
         <translation>Стала якість</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="140"/>
+        <location filename="../src/exportdialog.cpp" line="142"/>
         <source>Bitrate</source>
         <translation>Бітрейт</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="147"/>
+        <location filename="../src/exportdialog.cpp" line="149"/>
         <source>Lower is better and bigger. 18-23 is hard to tell from the original; each step of 6 roughly halves or doubles the file.</source>
         <translation>Менше значення — краща якість і більший файл. 18–23 важко відрізнити від оригіналу; кожен крок на 6 приблизно вдвічі зменшує або збільшує файл.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="153"/>
+        <location filename="../src/exportdialog.cpp" line="155"/>
         <source> Mbit/s</source>
         <translation> Мбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="166"/>
+        <location filename="../src/exportdialog.cpp" line="168"/>
         <source>Fast, bigger file</source>
         <translation>Швидко, більший файл</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="167"/>
+        <location filename="../src/exportdialog.cpp" line="169"/>
         <source>Balanced</source>
         <translation>Збалансовано</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="168"/>
+        <location filename="../src/exportdialog.cpp" line="170"/>
         <source>Slow, smaller file</source>
         <translation>Повільно, менший файл</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="172"/>
+        <location filename="../src/exportdialog.cpp" line="174"/>
         <source>Same as the video</source>
         <translation>Як у відео</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="181"/>
+        <location filename="../src/exportdialog.cpp" line="184"/>
         <source>Keep the original sound</source>
         <translation>Залишити оригінальний звук</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="182"/>
+        <location filename="../src/exportdialog.cpp" line="184"/>
+        <source>Mix with the music, as AAC</source>
+        <translation>Змішати з музикою, як AAC</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="186"/>
         <source>Convert to AAC</source>
         <translation>Перетворити на AAC</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="183"/>
+        <location filename="../src/exportdialog.cpp" line="187"/>
         <source>Convert to Opus (MKV)</source>
         <translation>Перетворити на Opus (MKV)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="184"/>
+        <location filename="../src/exportdialog.cpp" line="188"/>
         <source>Convert to Vorbis (MKV)</source>
         <translation>Перетворити на Vorbis (MKV)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="185"/>
+        <location filename="../src/exportdialog.cpp" line="189"/>
         <source>No sound</source>
         <translation>Без звуку</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="202"/>
+        <location filename="../src/exportdialog.cpp" line="206"/>
         <source>Only a part:</source>
         <translation>Лише частину:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="224"/>
+        <location filename="../src/exportdialog.cpp" line="228"/>
         <source>Profile:</source>
         <translation>Профіль:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="225"/>
+        <location filename="../src/exportdialog.cpp" line="229"/>
         <source>Save as:</source>
         <translation>Зберегти як:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="226"/>
+        <location filename="../src/exportdialog.cpp" line="230"/>
         <source>Encoder:</source>
         <translation>Кодувальник:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="227"/>
+        <location filename="../src/exportdialog.cpp" line="231"/>
         <source>Quality:</source>
         <translation>Якість:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="228"/>
+        <location filename="../src/exportdialog.cpp" line="232"/>
         <source>Speed:</source>
         <translation>Швидкість:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="229"/>
+        <location filename="../src/exportdialog.cpp" line="233"/>
         <source>Size:</source>
         <translation>Розмір:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="230"/>
+        <location filename="../src/exportdialog.cpp" line="234"/>
         <source>Sound:</source>
         <translation>Звук:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="231"/>
+        <location filename="../src/exportdialog.cpp" line="235"/>
         <source>Range:</source>
         <translation>Діапазон:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="238"/>
+        <location filename="../src/exportdialog.cpp" line="242"/>
         <source>Export</source>
         <translation>Експорт</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="241"/>
-        <location filename="../src/exportdialog.cpp" line="722"/>
+        <location filename="../src/exportdialog.cpp" line="245"/>
+        <location filename="../src/exportdialog.cpp" line="727"/>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="273"/>
+        <location filename="../src/exportdialog.cpp" line="277"/>
         <source>Custom</source>
         <translation>Власні</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="375"/>
+        <location filename="../src/exportdialog.cpp" line="379"/>
         <source>Save profile</source>
         <translation>Збереження профілю</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="375"/>
+        <location filename="../src/exportdialog.cpp" line="379"/>
         <source>Name:</source>
         <translation>Назва:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="389"/>
+        <location filename="../src/exportdialog.cpp" line="393"/>
         <source>A profile called %1 is there already. Replace it?</source>
         <translation>Профіль із назвою %1 уже є. Замінити його?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="410"/>
+        <location filename="../src/exportdialog.cpp" line="414"/>
         <source>Delete the profile %1?</source>
         <translation>Видалити профіль %1?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="514"/>
+        <location filename="../src/exportdialog.cpp" line="519"/>
         <source>%1: %2 x %3, %4 fps, %5</source>
         <translation>%1: %2 x %3, %4 кадр/с, %5</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="554"/>
+        <location filename="../src/exportdialog.cpp" line="559"/>
         <source>None found</source>
         <translation>Нічого не знайдено</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="555"/>
+        <location filename="../src/exportdialog.cpp" line="560"/>
         <source>ffmpeg could not be run (%1). Install it, or set its location in the settings.</source>
         <translation>Не вдалося запустити ffmpeg (%1). Встановіть його або вкажіть розташування в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="619"/>
+        <location filename="../src/exportdialog.cpp" line="624"/>
         <source>about %1 GB</source>
         <translation>близько %1 ГБ</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="620"/>
+        <location filename="../src/exportdialog.cpp" line="625"/>
         <source>about %1 MB</source>
         <translation>близько %1 МБ</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="622"/>
+        <location filename="../src/exportdialog.cpp" line="627"/>
         <source>%1; the video itself is %2 Mbit/s</source>
         <translation>%1; саме відео — %2 Мбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="634"/>
+        <location filename="../src/exportdialog.cpp" line="639"/>
         <source>MP4 video (*.mp4);;Matroska video (*.mkv);;QuickTime video (*.mov)</source>
         <translation>Відео MP4 (*.mp4);;Відео Matroska (*.mkv);;Відео QuickTime (*.mov)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="673"/>
+        <location filename="../src/exportdialog.cpp" line="678"/>
         <source>The folder to save into does not exist.</source>
         <translation>Тека для збереження не існує.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="678"/>
+        <location filename="../src/exportdialog.cpp" line="683"/>
         <source>The export cannot replace the video it is made from. Choose another name.</source>
         <translation>Експорт не може замінити відео, з якого його створюють. Виберіть іншу назву.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="683"/>
+        <location filename="../src/exportdialog.cpp" line="688"/>
         <source>A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, or convert the sound to AAC.</source>
         <translation>Файл .%1 не може містити звук Opus чи Vorbis. Збережіть його як .mkv або перетворіть звук на AAC.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="689"/>
+        <location filename="../src/exportdialog.cpp" line="694"/>
         <source>The end of the range has to be after its start.</source>
         <translation>Кінець діапазону має бути після його початку.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="693"/>
+        <location filename="../src/exportdialog.cpp" line="698"/>
         <source>%1 already exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="713"/>
+        <location filename="../src/exportdialog.cpp" line="718"/>
         <source>Starting...</source>
         <translation>Запуск...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="722"/>
+        <location filename="../src/exportdialog.cpp" line="727"/>
         <source>Stop</source>
         <translation>Зупинити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="773"/>
+        <location filename="../src/exportdialog.cpp" line="778"/>
         <source>Stopped. The part exported so far was saved as %1</source>
         <translation>Зупинено. Експортовану частину збережено як %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="777"/>
+        <location filename="../src/exportdialog.cpp" line="782"/>
         <source>Stopped before anything could be saved.</source>
         <translation>Зупинено до того, як вдалося щось зберегти.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="793"/>
+        <location filename="../src/exportdialog.cpp" line="798"/>
         <source>Stop the export? The part done so far is kept as a playable video.</source>
         <translation>Зупинити експорт? Уже зроблена частина залишиться як відео, яке можна відтворити.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="796"/>
+        <location filename="../src/exportdialog.cpp" line="801"/>
         <source>Stopping: finishing the file...</source>
         <translation>Зупинка: завершення файлу...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="734"/>
+        <location filename="../src/exportdialog.cpp" line="739"/>
         <source>Frame %1 of %2, %3 frames per second</source>
         <translation>Кадр %1 з %2, %3 кадрів за секунду</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="187"/>
+        <location filename="../src/exportdialog.cpp" line="191"/>
         <source>Keeping the sound is exact and instant. Convert it if the export fails because the chosen file type cannot hold the camera&apos;s sound format. Opus sounds best for its size; the sound is only a small part of a video file, though.</source>
         <translation>Збереження звуку точне й миттєве. Перетворіть його, якщо експорт не вдається, бо обраний тип файлу не може містити звуковий формат камери. Opus звучить найкраще для свого розміру, хоча звук — лише невелика частина відеофайлу.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="193"/>
+        <location filename="../src/exportdialog.cpp" line="197"/>
         <source>%1 kbit/s</source>
         <translation>%1 кбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="738"/>
+        <location filename="../src/exportdialog.cpp" line="743"/>
         <source>, about %1 left</source>
         <translation>, залишилося близько %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="758"/>
+        <location filename="../src/exportdialog.cpp" line="763"/>
         <source>Saved %1</source>
         <translation>Збережено %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="760"/>
+        <location filename="../src/exportdialog.cpp" line="765"/>
         <source>The video was exported to
 %1</source>
         <translation>Відео експортовано до
 %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="762"/>
+        <location filename="../src/exportdialog.cpp" line="767"/>
         <source>Open folder</source>
         <translation>Відкрити теку</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="780"/>
+        <location filename="../src/exportdialog.cpp" line="785"/>
         <source>The export failed.</source>
         <translation>Експорт не вдався.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="781"/>
+        <location filename="../src/exportdialog.cpp" line="786"/>
         <source>The export failed.
 
 %1</source>
@@ -3130,295 +3135,300 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="303"/>
+        <location filename="../src/mainwindow.cpp" line="316"/>
         <source>Play / pause (Space)</source>
         <translation>Відтворення / пауза (Пробіл)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="323"/>
+        <location filename="../src/mainwindow.cpp" line="336"/>
         <source> s</source>
         <translation> с</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="325"/>
+        <location filename="../src/mainwindow.cpp" line="338"/>
         <source>Time in the data at the first frame of the video.
 Increase it if the gauges are late compared to the picture.</source>
         <translation>Час у даних, що відповідає першому кадру відео.
 Збільште, якщо прилади запізнюються відносно зображення.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="330"/>
+        <location filename="../src/mainwindow.cpp" line="343"/>
         <source>Auto</source>
         <translation>Авто</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="331"/>
+        <location filename="../src/mainwindow.cpp" line="344"/>
         <source>Set the offset from the recording time of the video and the data</source>
         <translation>Визначити зсув за часом запису відео та даних</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="347"/>
+        <location filename="../src/mainwindow.cpp" line="360"/>
         <source>Data offset:</source>
         <translation>Зсув даних:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="361"/>
+        <location filename="../src/mainwindow.cpp" line="374"/>
         <source>Sources</source>
         <translation>Джерела</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="362"/>
+        <location filename="../src/mainwindow.cpp" line="375"/>
         <source>Gauge library</source>
         <translation>Бібліотека приладів</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="363"/>
+        <location filename="../src/mainwindow.cpp" line="376"/>
         <source>Properties</source>
         <translation>Властивості</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="364"/>
+        <location filename="../src/mainwindow.cpp" line="377"/>
         <source>Timeline</source>
         <translation>Шкала часу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="365"/>
+        <location filename="../src/mainwindow.cpp" line="378"/>
         <source>Laps</source>
         <translation>Кола</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="377"/>
+        <location filename="../src/mainwindow.cpp" line="390"/>
         <source>Compare laps</source>
         <translation>Порівняння кіл</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="382"/>
+        <location filename="../src/mainwindow.cpp" line="395"/>
         <source>Data</source>
         <translation>Дані</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="408"/>
+        <location filename="../src/mainwindow.cpp" line="414"/>
+        <source>Music</source>
+        <translation>Музика</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="436"/>
         <source>Remove start/finish line</source>
         <translation>Вилучити лінію старту/фінішу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="413"/>
+        <location filename="../src/mainwindow.cpp" line="441"/>
         <source>Remove sector lines</source>
         <translation>Прибрати лінії секторів</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="418"/>
+        <location filename="../src/mainwindow.cpp" line="446"/>
         <source>Change surfaces</source>
         <translation>Змінити покриття</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="422"/>
+        <location filename="../src/mainwindow.cpp" line="450"/>
         <source>Clear surfaces</source>
         <translation>Прибрати покриття</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="453"/>
+        <location filename="../src/mainwindow.cpp" line="481"/>
         <source>Channel</source>
         <translation>Канал</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="453"/>
+        <location filename="../src/mainwindow.cpp" line="481"/>
         <source>Now</source>
         <translation>Зараз</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="453"/>
+        <location filename="../src/mainwindow.cpp" line="481"/>
         <source>Unit</source>
         <translation>Одиниця</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="453"/>
+        <location filename="../src/mainwindow.cpp" line="481"/>
         <source>Min</source>
         <translation>Мін</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="453"/>
+        <location filename="../src/mainwindow.cpp" line="481"/>
         <source>Max</source>
         <translation>Макс</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="459"/>
+        <location filename="../src/mainwindow.cpp" line="487"/>
         <source>&quot;Now&quot; is the value at the video frame on screen</source>
         <translation>«Зараз» — значення для кадру відео на екрані</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="462"/>
+        <location filename="../src/mainwindow.cpp" line="490"/>
         <source>Recorded; the terrain&apos;s when there is none</source>
         <translation>Записана; з моделі рельєфу, якщо її немає</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="463"/>
+        <location filename="../src/mainwindow.cpp" line="491"/>
         <source>From the terrain model</source>
         <translation>З моделі рельєфу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="464"/>
+        <location filename="../src/mainwindow.cpp" line="492"/>
         <source>Recorded only</source>
         <translation>Лише записана</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="466"/>
+        <location filename="../src/mainwindow.cpp" line="494"/>
         <source>Where the elevation comes from. The terrain model gives the height of the ground under the route (%1); grade, climb and vertical speed follow it. Its pieces are fetched once, like a map&apos;s.</source>
         <translation>Звідки береться висота. Модель рельєфу дає висоту землі під маршрутом (%1); ухил, набір висоти та вертикальна швидкість обчислюються з неї. Її фрагменти завантажуються один раз, як і фрагменти карти.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="480"/>
+        <location filename="../src/mainwindow.cpp" line="508"/>
         <source>Elevation:</source>
         <translation>Висота:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="485"/>
+        <location filename="../src/mainwindow.cpp" line="513"/>
         <source>From weather history</source>
         <translation>З архіву погоди</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="486"/>
+        <location filename="../src/mainwindow.cpp" line="514"/>
         <source>By hand:</source>
         <translation>Вручну:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="487"/>
+        <location filename="../src/mainwindow.cpp" line="515"/>
         <source>Where the wind of this ride comes from. Weather history is switched on in the settings (Weather); a wind entered here by hand is the same all along the ride and kept in the project.</source>
         <translation>Звідки береться вітер цієї поїздки. Архів погоди вмикається в налаштуваннях («Погода»); вітер, введений тут вручну, однаковий уздовж усієї поїздки і зберігається в проєкті.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="492"/>
+        <location filename="../src/mainwindow.cpp" line="520"/>
         <source>The wind&apos;s speed as forecasts give it, 10 m above the ground</source>
         <translation>Швидкість вітру, як її дають прогнози, на висоті 10 м</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="498"/>
+        <location filename="../src/mainwindow.cpp" line="526"/>
         <source>from </source>
         <translation>з </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="500"/>
+        <location filename="../src/mainwindow.cpp" line="528"/>
         <source>Where the wind blows from: 0 north, 90 east, 180 south, 270 west</source>
         <translation>Звідки дме вітер: 0 північ, 90 схід, 180 південь, 270 захід</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="525"/>
+        <location filename="../src/mainwindow.cpp" line="553"/>
         <source>Wind:</source>
         <translation>Вітер:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="565"/>
+        <location filename="../src/mainwindow.cpp" line="593"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="566"/>
+        <location filename="../src/mainwindow.cpp" line="594"/>
         <source>Open &amp;video...</source>
         <translation>Відкрити &amp;відео...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="568"/>
+        <location filename="../src/mainwindow.cpp" line="596"/>
         <source>Open &amp;data...</source>
         <translation>Відкрити &amp;дані...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="570"/>
+        <location filename="../src/mainwindow.cpp" line="598"/>
         <source>&amp;Join videos...</source>
         <translation>&amp;Об’єднати відео...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="572"/>
+        <location filename="../src/mainwindow.cpp" line="600"/>
         <source>Open &amp;project...</source>
         <translation>Відкрити &amp;проєкт...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="574"/>
+        <location filename="../src/mainwindow.cpp" line="602"/>
         <source>&amp;Save project</source>
         <translation>&amp;Зберегти проєкт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="576"/>
+        <location filename="../src/mainwindow.cpp" line="604"/>
         <source>Save project &amp;as...</source>
         <translation>Зберегти проєкт &amp;як...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="579"/>
+        <location filename="../src/mainwindow.cpp" line="607"/>
         <source>&amp;Export video...</source>
         <translation>&amp;Експорт відео...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="583"/>
+        <location filename="../src/mainwindow.cpp" line="611"/>
         <source>Save the &amp;gauges as a template...</source>
         <translation>Зберегти &amp;прилади як шаблон...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="585"/>
+        <location filename="../src/mainwindow.cpp" line="613"/>
         <source>&amp;Settings...</source>
         <translation>&amp;Налаштування...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="590"/>
+        <location filename="../src/mainwindow.cpp" line="618"/>
         <source>&amp;Quit</source>
         <translation>&amp;Вийти</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="593"/>
+        <location filename="../src/mainwindow.cpp" line="621"/>
         <source>&amp;Edit</source>
         <translation>&amp;Зміни</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="594"/>
+        <location filename="../src/mainwindow.cpp" line="622"/>
         <source>&amp;Undo</source>
         <translation>&amp;Скасувати</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="597"/>
+        <location filename="../src/mainwindow.cpp" line="625"/>
         <source>&amp;Redo</source>
         <translation>&amp;Повторити</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="601"/>
+        <location filename="../src/mainwindow.cpp" line="629"/>
         <source>&amp;View</source>
         <translation>&amp;Вигляд</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="610"/>
+        <location filename="../src/mainwindow.cpp" line="639"/>
         <source>&amp;Reset layout</source>
         <translation>&amp;Скинути розташування</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="621"/>
+        <location filename="../src/mainwindow.cpp" line="650"/>
         <source>&amp;Help</source>
         <translation>&amp;Довідка</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="622"/>
+        <location filename="../src/mainwindow.cpp" line="651"/>
         <source>&amp;About</source>
         <translation>&amp;Про програму</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="623"/>
+        <location filename="../src/mainwindow.cpp" line="652"/>
         <source>About &amp;Qt</source>
         <translation>Про &amp;Qt</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="629"/>
+        <location filename="../src/mainwindow.cpp" line="658"/>
         <source>Open video</source>
         <translation>Відкрити відео</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="630"/>
+        <location filename="../src/mainwindow.cpp" line="659"/>
         <source>Video files (%1);;All files (*)</source>
         <translation>Відеофайли (%1);;Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="643"/>
-        <location filename="../src/mainwindow.cpp" line="1424"/>
+        <location filename="../src/mainwindow.cpp" line="672"/>
+        <location filename="../src/mainwindow.cpp" line="1470"/>
         <source>Open data</source>
         <translation>Відкрити дані</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="672"/>
+        <location filename="../src/mainwindow.cpp" line="702"/>
         <source>Joined; the data follows the %n break(s) between the recordings.</source>
         <translation>
             <numerusform>Об’єднано; дані враховують %n перерву між записами.</numerusform>
@@ -3427,24 +3437,24 @@ Increase it if the gauges are late compared to the picture.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="702"/>
+        <location filename="../src/mainwindow.cpp" line="732"/>
         <source>Loading %1...</source>
         <translation>Завантаження %1...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="733"/>
-        <location filename="../src/mainwindow.cpp" line="752"/>
-        <location filename="../src/mainwindow.cpp" line="800"/>
+        <location filename="../src/mainwindow.cpp" line="763"/>
+        <location filename="../src/mainwindow.cpp" line="782"/>
+        <location filename="../src/mainwindow.cpp" line="841"/>
         <source>Open project</source>
         <translation>Відкрити проєкт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="734"/>
+        <location filename="../src/mainwindow.cpp" line="764"/>
         <source>Projects (*.%1);;All files (*)</source>
         <translation>Проєкти (*.%1);;Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="801"/>
+        <location filename="../src/mainwindow.cpp" line="842"/>
         <source>These files of the project were not found:
 %1
 
@@ -3455,34 +3465,34 @@ Open them again from where they are now and save the project.</source>
 Відкрийте їх знову з теперішнього місця та збережіть проєкт.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="815"/>
-        <location filename="../src/mainwindow.cpp" line="837"/>
+        <location filename="../src/mainwindow.cpp" line="856"/>
+        <location filename="../src/mainwindow.cpp" line="878"/>
         <source>Save project</source>
         <translation>Зберегти проєкт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="819"/>
+        <location filename="../src/mainwindow.cpp" line="860"/>
         <source>Project saved.</source>
         <translation>Проєкт збережено.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="838"/>
+        <location filename="../src/mainwindow.cpp" line="879"/>
         <source>Projects (*.%1)</source>
         <translation>Проєкти (*.%1)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="867"/>
-        <location filename="../src/mainwindow.cpp" line="878"/>
+        <location filename="../src/mainwindow.cpp" line="908"/>
+        <location filename="../src/mainwindow.cpp" line="919"/>
         <source>Export video</source>
         <translation>Експорт відео</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="868"/>
+        <location filename="../src/mainwindow.cpp" line="909"/>
         <source>Open the data for this video first: without it there is nothing to draw.</source>
         <translation>Спершу відкрийте дані для цього відео: без них нічого малювати.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="875"/>
+        <location filename="../src/mainwindow.cpp" line="916"/>
         <source>%n piece(s) of the map under the gauges are still being fetched.</source>
         <translation>
             <numerusform>%n фрагмент карти під приладами ще завантажується.</numerusform>
@@ -3491,385 +3501,390 @@ Open them again from where they are now and save the project.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="876"/>
+        <location filename="../src/mainwindow.cpp" line="917"/>
         <source>The heights of the terrain are still being fetched.</source>
         <translation>Висоти рельєфу ще завантажуються.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="877"/>
+        <location filename="../src/mainwindow.cpp" line="918"/>
         <source>The weather of the ride is still being fetched.</source>
         <translation>Погода поїздки ще завантажується.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="879"/>
+        <location filename="../src/mainwindow.cpp" line="920"/>
         <source>%1
 An export started now would be drawn without them. Export anyway?</source>
         <translation>%1
 Експорт, розпочатий зараз, буде намальовано без них. Усе одно експортувати?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="919"/>
+        <location filename="../src/mainwindow.cpp" line="965"/>
         <source>Unsaved changes</source>
         <translation>Незбережені зміни</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="920"/>
+        <location filename="../src/mainwindow.cpp" line="966"/>
         <source>The gauges or the synchronization were changed. Save the project?</source>
         <translation>Прилади або синхронізацію було змінено. Зберегти проєкт?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="971"/>
+        <location filename="../src/mainwindow.cpp" line="1017"/>
         <source>Add gauge</source>
         <translation>Додати прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="985"/>
+        <location filename="../src/mainwindow.cpp" line="1031"/>
         <source>Apply template</source>
         <translation>Застосувати шаблон</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="992"/>
-        <location filename="../src/mainwindow.cpp" line="1011"/>
-        <location filename="../src/mainwindow.cpp" line="1035"/>
-        <location filename="../src/mainwindow.cpp" line="1048"/>
+        <location filename="../src/mainwindow.cpp" line="1038"/>
+        <location filename="../src/mainwindow.cpp" line="1057"/>
+        <location filename="../src/mainwindow.cpp" line="1081"/>
+        <location filename="../src/mainwindow.cpp" line="1094"/>
         <source>Save as template</source>
         <translation>Зберегти як шаблон</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="992"/>
+        <location filename="../src/mainwindow.cpp" line="1038"/>
         <source>There are no gauges on the video to save.</source>
         <translation>На відео немає приладів для збереження.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1024"/>
+        <location filename="../src/mainwindow.cpp" line="1070"/>
         <source>Name:</source>
         <translation>Назва:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1025"/>
+        <location filename="../src/mainwindow.cpp" line="1071"/>
         <source>Category:</source>
         <translation>Категорія:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1026"/>
+        <location filename="../src/mainwindow.cpp" line="1072"/>
         <source>The gauges on the video, where they are and their colors.
 It appears among the templates in the library.</source>
         <translation>Прилади на відео, їхнє розташування та кольори.
 Шаблон з&apos;явиться серед шаблонів у бібліотеці.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1035"/>
+        <location filename="../src/mainwindow.cpp" line="1081"/>
         <source>There is a template &quot;%1&quot; already. Replace it?</source>
         <translation>Шаблон «%1» уже існує. Замінити його?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1052"/>
+        <location filename="../src/mainwindow.cpp" line="1098"/>
         <source>Template &quot;%1&quot; saved to the library</source>
         <translation>Шаблон «%1» збережено до бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1064"/>
-        <location filename="../src/mainwindow.cpp" line="1246"/>
+        <location filename="../src/mainwindow.cpp" line="1110"/>
+        <location filename="../src/mainwindow.cpp" line="1292"/>
         <source>Remove gauge</source>
         <translation>Вилучити прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1077"/>
+        <location filename="../src/mainwindow.cpp" line="1123"/>
         <source>Move gauge</source>
         <translation>Перемістити прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1088"/>
+        <location filename="../src/mainwindow.cpp" line="1134"/>
         <source>Change what a gauge shows</source>
         <translation>Змінити показник приладу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1099"/>
+        <location filename="../src/mainwindow.cpp" line="1145"/>
         <source>Show the street map</source>
         <translation>Показати карту вулиць</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1099"/>
+        <location filename="../src/mainwindow.cpp" line="1145"/>
         <source>Hide the street map</source>
         <translation>Сховати карту вулиць</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1110"/>
+        <location filename="../src/mainwindow.cpp" line="1156"/>
         <source>Show the route close up</source>
         <translation>Показати маршрут крупним планом</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1110"/>
+        <location filename="../src/mainwindow.cpp" line="1156"/>
         <source>Show the whole route</source>
         <translation>Показати весь маршрут</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1132"/>
+        <location filename="../src/mainwindow.cpp" line="1178"/>
         <source>Show</source>
         <translation>Показувати</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1147"/>
+        <location filename="../src/mainwindow.cpp" line="1193"/>
         <source>Street map</source>
         <translation>Карта вулиць</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1155"/>
+        <location filename="../src/mainwindow.cpp" line="1201"/>
         <source>Close-up</source>
         <translation>Крупний план</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1159"/>
+        <location filename="../src/mainwindow.cpp" line="1205"/>
         <source>Off: the whole route</source>
         <translation>Вимкнено: весь маршрут</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1159"/>
+        <location filename="../src/mainwindow.cpp" line="1205"/>
         <source>300 m</source>
         <translation>300 м</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1159"/>
+        <location filename="../src/mainwindow.cpp" line="1205"/>
         <source>600 m</source>
         <translation>600 м</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1160"/>
+        <location filename="../src/mainwindow.cpp" line="1206"/>
         <source>1 km</source>
         <translation>1 км</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1160"/>
+        <location filename="../src/mainwindow.cpp" line="1206"/>
         <source>2 km</source>
         <translation>2 км</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1160"/>
+        <location filename="../src/mainwindow.cpp" line="1206"/>
         <source>5 km</source>
         <translation>5 км</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1174"/>
+        <location filename="../src/mainwindow.cpp" line="1220"/>
         <source>The way ahead up</source>
         <translation>Напрямок руху вгору</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1175"/>
+        <location filename="../src/mainwindow.cpp" line="1221"/>
         <source>Turns the close-up so that the direction of travel points up; north is up otherwise</source>
         <translation>Повертає крупний план так, щоб напрямок руху був угорі; інакше вгорі північ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1185"/>
+        <location filename="../src/mainwindow.cpp" line="1231"/>
         <source>Turn the map to the way ahead</source>
         <translation>Повернути карту за напрямком руху</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1185"/>
+        <location filename="../src/mainwindow.cpp" line="1231"/>
         <source>Turn the map north up</source>
         <translation>Повернути карту північчю вгору</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1190"/>
+        <location filename="../src/mainwindow.cpp" line="1236"/>
         <source>Units</source>
         <translation>Одиниці</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1193"/>
+        <location filename="../src/mainwindow.cpp" line="1239"/>
         <source>As in the settings</source>
         <translation>Як у налаштуваннях</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1193"/>
+        <location filename="../src/mainwindow.cpp" line="1239"/>
         <source>Metric (km/h, m, °C)</source>
         <translation>Метричні (км/год, м, °C)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1194"/>
+        <location filename="../src/mainwindow.cpp" line="1240"/>
         <source>Imperial (mph, ft, °F)</source>
         <translation>Імперські (миль/год, фути, °F)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1208"/>
+        <location filename="../src/mainwindow.cpp" line="1254"/>
         <source>Change a gauge&apos;s units</source>
         <translation>Змінити одиниці приладу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1213"/>
+        <location filename="../src/mainwindow.cpp" line="1259"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1224"/>
+        <location filename="../src/mainwindow.cpp" line="1270"/>
         <source>Text and numbers</source>
         <translation>Текст і цифри</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1224"/>
+        <location filename="../src/mainwindow.cpp" line="1270"/>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1225"/>
+        <location filename="../src/mainwindow.cpp" line="1271"/>
         <source>Background</source>
         <translation>Тло</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1225"/>
+        <location filename="../src/mainwindow.cpp" line="1271"/>
         <source>Plates behind the gauges</source>
         <translation>Підкладки під приладами</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1227"/>
+        <location filename="../src/mainwindow.cpp" line="1273"/>
         <source>Accent</source>
         <translation>Акцент</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1239"/>
+        <location filename="../src/mainwindow.cpp" line="1285"/>
         <source>The measurement the selected gauge shows</source>
         <translation>Показник, який відображає вибраний прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1303"/>
+        <location filename="../src/mainwindow.cpp" line="1349"/>
         <source>Default</source>
         <comment>font weight</comment>
         <translation>Типова</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1330"/>
+        <location filename="../src/mainwindow.cpp" line="1376"/>
         <source>Type to find a font</source>
         <translation>Введіть, щоб знайти шрифт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1366"/>
+        <location filename="../src/mainwindow.cpp" line="1412"/>
         <source>Change gauge colors</source>
         <translation>Змінити кольори приладів</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1500"/>
-        <location filename="../src/mainwindow.cpp" line="1560"/>
+        <location filename="../src/mainwindow.cpp" line="1550"/>
+        <location filename="../src/mainwindow.cpp" line="1610"/>
         <source>Video: %1</source>
         <translation>Відео: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="787"/>
-        <location filename="../src/mainwindow.cpp" line="1511"/>
+        <location filename="../src/mainwindow.cpp" line="828"/>
+        <location filename="../src/mainwindow.cpp" line="1561"/>
         <source>Set by hand.</source>
         <translation>Задано вручну.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1282"/>
+        <location filename="../src/mainwindow.cpp" line="255"/>
+        <source>Music: %1</source>
+        <translation>Музика: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1328"/>
         <source>%1 (comes with the program)</source>
         <translation>%1 (постачається з програмою)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1304"/>
+        <location filename="../src/mainwindow.cpp" line="1350"/>
         <source>Light</source>
         <translation>Легка</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1305"/>
+        <location filename="../src/mainwindow.cpp" line="1351"/>
         <source>Regular</source>
         <translation>Звичайна</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1306"/>
+        <location filename="../src/mainwindow.cpp" line="1352"/>
         <source>Medium</source>
         <translation>Середня</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1307"/>
+        <location filename="../src/mainwindow.cpp" line="1353"/>
         <source>Semibold</source>
         <translation>Напівжирна</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1308"/>
+        <location filename="../src/mainwindow.cpp" line="1354"/>
         <source>Bold</source>
         <translation>Жирна</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1311"/>
+        <location filename="../src/mainwindow.cpp" line="1357"/>
         <source>Imported gauges often name a font (Arial...); with this they use the one chosen here too</source>
         <translation>Імпортовані прилади часто задають свій шрифт (Arial...); з цим вони теж використовують вибраний тут</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1320"/>
+        <location filename="../src/mainwindow.cpp" line="1366"/>
         <source>Change gauge font</source>
         <translation>Змінити шрифт приладів</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1349"/>
+        <location filename="../src/mainwindow.cpp" line="1395"/>
         <source>Font:</source>
         <translation>Шрифт:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1350"/>
+        <location filename="../src/mainwindow.cpp" line="1396"/>
         <source>Weight:</source>
         <translation>Насиченість:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1523"/>
+        <location filename="../src/mainwindow.cpp" line="1573"/>
         <source>The data comes from this video: nothing to synchronize.</source>
         <translation>Дані взято з цього відео: синхронізувати нічого.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1536"/>
+        <location filename="../src/mainwindow.cpp" line="1586"/>
         <source>Not synchronized: %1 Set the offset by hand.</source>
         <translation>Не синхронізовано: %1 Задайте зсув вручну.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1560"/>
-        <location filename="../src/mainwindow.cpp" line="1564"/>
+        <location filename="../src/mainwindow.cpp" line="1610"/>
+        <location filename="../src/mainwindow.cpp" line="1614"/>
         <source>none</source>
         <translation>немає</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1564"/>
-        <location filename="../src/mainwindow.cpp" line="1568"/>
+        <location filename="../src/mainwindow.cpp" line="1614"/>
+        <location filename="../src/mainwindow.cpp" line="1618"/>
         <source>Data: %1</source>
         <translation>Дані: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1572"/>
+        <location filename="../src/mainwindow.cpp" line="1622"/>
         <source>Start: %1 UTC</source>
         <translation>Початок: %1 UTC</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1574"/>
+        <location filename="../src/mainwindow.cpp" line="1624"/>
         <source>Duration: %1</source>
         <translation>Тривалість: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1575"/>
+        <location filename="../src/mainwindow.cpp" line="1625"/>
         <source>Laps: %1, pauses: %2</source>
         <translation>Кіл: %1, пауз: %2</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1578"/>
+        <location filename="../src/mainwindow.cpp" line="1628"/>
         <source>Fetching the heights of the terrain...</source>
         <translation>Завантаження висот рельєфу...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1582"/>
+        <location filename="../src/mainwindow.cpp" line="1632"/>
         <source>Fetching the weather of the ride...</source>
         <translation>Завантаження погоди поїздки...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1586"/>
+        <location filename="../src/mainwindow.cpp" line="1636"/>
         <source>Weather: %1</source>
         <translation>Погода: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1591"/>
+        <location filename="../src/mainwindow.cpp" line="1641"/>
         <source>Warnings:</source>
         <translation>Попередження:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1616"/>
+        <location filename="../src/mainwindow.cpp" line="1666"/>
         <source>Not recorded: worked out from the other measurements</source>
         <translation>Не записано: обчислено з інших вимірів</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="1625"/>
+        <location filename="../src/mainwindow.cpp" line="1675"/>
         <source>%1: %n samples</source>
         <translation>
             <numerusform>%1: %n відлік</numerusform>
@@ -3878,98 +3893,98 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1674"/>
+        <location filename="../src/mainwindow.cpp" line="1724"/>
         <source>Click on the route to place the start/finish line.</source>
         <translation>Клацніть на маршруті, щоб поставити лінію старту/фінішу.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1667"/>
+        <location filename="../src/mainwindow.cpp" line="1717"/>
         <source>The direction of travel is not known there.</source>
         <translation>Напрямок руху там невідомий.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1227"/>
+        <location filename="../src/mainwindow.cpp" line="1273"/>
         <source>Needles, bars and highlights</source>
         <translation>Стрілки, смуги і виділення</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1229"/>
+        <location filename="../src/mainwindow.cpp" line="1275"/>
         <source>2nd accent</source>
         <translation>2-й акцент</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1229"/>
+        <location filename="../src/mainwindow.cpp" line="1275"/>
         <source>Scales, units and labels</source>
         <translation>Шкали, одиниці і підписи</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1253"/>
+        <location filename="../src/mainwindow.cpp" line="1299"/>
         <source>Gauge data:</source>
         <translation>Дані приладу:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1257"/>
+        <location filename="../src/mainwindow.cpp" line="1303"/>
         <source>All gauges</source>
         <translation>Усі прилади</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1258"/>
+        <location filename="../src/mainwindow.cpp" line="1304"/>
         <source>Colors and font of every gauge on the video</source>
         <translation>Кольори і шрифт кожного приладу на відео</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1280"/>
-        <location filename="../src/mainwindow.cpp" line="1299"/>
+        <location filename="../src/mainwindow.cpp" line="1326"/>
+        <location filename="../src/mainwindow.cpp" line="1345"/>
         <source>The font of the gauges&apos; texts; Default: as each gauge is designed</source>
         <translation>Шрифт текстів приладів; «Типовий»: як задумано в кожному приладі</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1281"/>
+        <location filename="../src/mainwindow.cpp" line="1327"/>
         <source>Default</source>
         <translation>Типовий</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1309"/>
+        <location filename="../src/mainwindow.cpp" line="1355"/>
         <source>One weight for every text; Default keeps each gauge&apos;s bold values and lighter labels</source>
         <translation>Одна насиченість для всіх текстів; «Типова» лишає жирні значення і легші підписи кожного приладу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1310"/>
+        <location filename="../src/mainwindow.cpp" line="1356"/>
         <source>Override own fonts</source>
         <translation>Замінити власні шрифти</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1677"/>
+        <location filename="../src/mainwindow.cpp" line="1727"/>
         <source>Place start/finish line</source>
         <translation>Поставити лінію старту/фінішу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1683"/>
+        <location filename="../src/mainwindow.cpp" line="1733"/>
         <source>Click on the route to place the sector line.</source>
         <translation>Клацніть на маршруті, щоб поставити лінію сектора.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1686"/>
+        <location filename="../src/mainwindow.cpp" line="1736"/>
         <source>Add sector line</source>
         <translation>Додати лінію сектора</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1732"/>
+        <location filename="../src/mainwindow.cpp" line="1782"/>
         <source>Click on the route to mark a surface.</source>
         <translation>Клацніть на маршруті, щоб позначити покриття.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1746"/>
+        <location filename="../src/mainwindow.cpp" line="1796"/>
         <source>Mark surface</source>
         <translation>Позначити покриття</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1929"/>
+        <location filename="../src/mainwindow.cpp" line="2047"/>
         <source>About</source>
         <translation>Про програму</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1930"/>
+        <location filename="../src/mainwindow.cpp" line="2048"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;Ліцензія GNU GPL v3.</translation>
     </message>
@@ -3998,29 +4013,212 @@ It appears among the templates in the library.</source>
     </message>
 </context>
 <context>
+    <name>MusicPanel</name>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="53"/>
+        <source>Played one after another. Drag to change the order.</source>
+        <translation>Грають одна за одною. Перетягніть, щоб змінити порядок.</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="57"/>
+        <source>Add...</source>
+        <translation>Додати...</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="58"/>
+        <source>Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A</source>
+        <translation>Додати музичні файли: MP3, Ogg, Opus, FLAC, WAV, M4A</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="60"/>
+        <source>Remove</source>
+        <translation>Вилучити</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="63"/>
+        <source>Play earlier</source>
+        <translation>Грати раніше</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="69"/>
+        <source>Play later</source>
+        <translation>Грати пізніше</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="90"/>
+        <source>Where in the selected file the music begins</source>
+        <translation>Звідки у вибраному файлі починається музика</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="91"/>
+        <source>Where in the selected file the music ends</source>
+        <translation>Де у вибраному файлі музика закінчується</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="101"/>
+        <source>The moment of the video the first track begins at</source>
+        <translation>Момент відео, з якого починається перший трек</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="104"/>
+        <location filename="../src/musicpanel.cpp" line="112"/>
+        <source>Move the music</source>
+        <translation>Пересунути музику</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="106"/>
+        <source>Here</source>
+        <translation>Тут</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="107"/>
+        <source>Begin the music where the video stands</source>
+        <translation>Почати музику там, де зараз відео</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="114"/>
+        <source>Go</source>
+        <translation>Перейти</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="115"/>
+        <source>Show the moment the music begins</source>
+        <translation>Показати момент, коли починається музика</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="130"/>
+        <source> s</source>
+        <translation> с</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="132"/>
+        <source>Each track fades in at its beginning and out at its end</source>
+        <translation>Кожен трек плавно наростає на початку й затихає в кінці</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="135"/>
+        <source>Change the fades</source>
+        <translation>Змінити наростання й затихання</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="145"/>
+        <source>Off</source>
+        <translation>Вимк.</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="150"/>
+        <location filename="../src/musicpanel.cpp" line="477"/>
+        <location filename="../src/musicpanel.cpp" line="482"/>
+        <source>Change the volume</source>
+        <translation>Змінити гучність</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="160"/>
+        <source>The sound the camera recorded</source>
+        <translation>Звук, записаний камерою</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="167"/>
+        <source>Play:</source>
+        <translation>Грати:</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="168"/>
+        <source>Begins at:</source>
+        <translation>Починається о:</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="169"/>
+        <source>Fade:</source>
+        <translation>Наростання/затихання:</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="170"/>
+        <source>Video sound:</source>
+        <translation>Звук відео:</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="171"/>
+        <source>Music:</source>
+        <translation>Музика:</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="255"/>
+        <source>(missing)</source>
+        <translation>(немає)</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="284"/>
+        <location filename="../src/musicpanel.cpp" line="299"/>
+        <source>Reading the music...</source>
+        <translation>Читання музики...</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="285"/>
+        <source>No music. Add files to play them under the video, one after another.</source>
+        <translation>Музики немає. Додайте файли, щоб вони грали під відео один за одним.</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/musicpanel.cpp" line="288"/>
+        <source>%n track(s), %1 of music.</source>
+        <translation>
+            <numerusform>%n трек, %1 музики.</numerusform>
+            <numerusform>%n треки, %1 музики.</numerusform>
+            <numerusform>%n треків, %1 музики.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="295"/>
+        <source>The video has %1 from the music&apos;s beginning on.</source>
+        <translation>Від початку музики у відео ще %1.</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="307"/>
+        <location filename="../src/musicpanel.cpp" line="329"/>
+        <source>Add music</source>
+        <translation>Додати музику</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="364"/>
+        <source>Remove music</source>
+        <translation>Вилучити музику</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="377"/>
+        <location filename="../src/musicpanel.cpp" line="405"/>
+        <source>Reorder music</source>
+        <translation>Змінити порядок музики</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="460"/>
+        <source>Trim music</source>
+        <translation>Обрізати музику</translation>
+    </message>
+</context>
+<context>
     <name>ProjectFile</name>
     <message>
-        <location filename="../src/core/project/project.cpp" line="170"/>
+        <location filename="../src/core/project/project.cpp" line="200"/>
         <source>This is not a project file: %1</source>
         <translation>Це не файл проєкту: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="175"/>
+        <location filename="../src/core/project/project.cpp" line="205"/>
         <source>This is not a Race Track Visualizer project file.</source>
         <translation>Це не файл проєкту Race Track Visualizer.</translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="179"/>
+        <location filename="../src/core/project/project.cpp" line="209"/>
         <source>The project was saved by a newer version of the program (file version %1).</source>
         <translation>Проєкт збережено новішою версією програми (версія файлу %1).</translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="286"/>
+        <location filename="../src/core/project/project.cpp" line="340"/>
         <source>Cannot write %1: %2</source>
         <translation>Не вдалося записати %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="300"/>
+        <location filename="../src/core/project/project.cpp" line="354"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
@@ -4703,6 +4901,19 @@ It appears among the templates in the library.</source>
         <location filename="../src/settingsdialog.cpp" line="844"/>
         <source>Language and decoding changes take effect the next time the program starts.</source>
         <translation>Зміни мови та декодування набудуть чинності після наступного запуску програми.</translation>
+    </message>
+</context>
+<context>
+    <name>SoundtrackMix</name>
+    <message>
+        <location filename="../src/core/video/soundtrack.cpp" line="155"/>
+        <source>Music (*.mp3 *.ogg *.oga *.opus *.flac *.wav *.m4a *.aac *.wma)</source>
+        <translation>Музика (*.mp3 *.ogg *.oga *.opus *.flac *.wav *.m4a *.aac *.wma)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/soundtrack.cpp" line="156"/>
+        <source>All files (*)</source>
+        <translation>Усі файли (*)</translation>
     </message>
 </context>
 <context>

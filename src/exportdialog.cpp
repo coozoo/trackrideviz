@@ -75,12 +75,14 @@ QString formatDuration(double seconds)
 }
 
 ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay, const SyncMap &sync,
-                           const QVector<TimeRange> &cuts, double currentPosition, QWidget *parent)
+                           const QVector<TimeRange> &cuts, const Soundtrack &soundtrack, double currentPosition,
+                           QWidget *parent)
     : QDialog(parent)
     , m_videoPath(videoPath)
     , m_overlay(overlay)
     , m_sync(sync)
     , m_cuts(cuts)
+    , m_soundtrack(soundtrack)
     , m_currentPosition(currentPosition)
     , m_ffmpeg(FfmpegTools::ffmpegProgram())
 {
@@ -178,7 +180,9 @@ void ExportDialog::createWidgets()
     m_sizeCombo->setCurrentIndex(sizeIndex >= 0 ? sizeIndex : 0);
 
     m_audioCombo = new QComboBox(m_options);
-    m_audioCombo->addItem(tr("Keep the original sound"), ExportSettings::CopyAudio);
+    // music, or a volume of the video's sound, cannot be copied: it is made anew
+    m_audioCombo->addItem(m_soundtrack.changesSound() ? tr("Mix with the music, as AAC") : tr("Keep the original sound"),
+                          ExportSettings::CopyAudio);
     m_audioCombo->addItem(tr("Convert to AAC"), ExportSettings::AacAudio);
     m_audioCombo->addItem(tr("Convert to Opus (MKV)"), ExportSettings::OpusAudio);
     m_audioCombo->addItem(tr("Convert to Vorbis (MKV)"), ExportSettings::VorbisAudio);
@@ -424,7 +428,8 @@ void ExportDialog::deleteProfile()
 void ExportDialog::updateAudioControls()
 {
     const auto audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
-    m_audioBitrateCombo->setEnabled(audio != ExportSettings::CopyAudio && audio != ExportSettings::NoAudio);
+    m_audioBitrateCombo->setEnabled(audio != ExportSettings::NoAudio
+                                    && (audio != ExportSettings::CopyAudio || m_soundtrack.changesSound()));
 }
 
 void ExportDialog::onAudioChanged()
@@ -698,7 +703,7 @@ void ExportDialog::startExport()
     AppSettings::setExportDefaults(settings);
     AppSettings::setExportProfile(m_profileCombo->currentData().toString());
 
-    const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts);
+    const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts, m_soundtrack);
     ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync);
     m_thread = new QThread(this);
     job->moveToThread(m_thread);

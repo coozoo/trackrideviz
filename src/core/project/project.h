@@ -8,6 +8,7 @@
 #include "../telemetry/dataedits.h"
 #include "../sync/syncmap.h"
 #include "../video/cutlist.h"
+#include "../video/soundtrack.h"
 
 #include <QCoreApplication>
 #include <QString>
@@ -37,6 +38,8 @@ struct Project
 
     // parts of the video left out of the export, video time
     QVector<TimeRange> cuts;
+    // music under the video, and the volumes
+    Soundtrack soundtrack;
     // corrections of the data, applied before anything is worked out from it
     QVector<DataEdit> dataEdits;
     // a wind entered by hand, in place of the weather history's

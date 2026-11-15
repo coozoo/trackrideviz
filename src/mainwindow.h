@@ -26,6 +26,7 @@ class QTreeWidget;
 class DataPanel;
 class LapComparePanel;
 class LapsPanel;
+class MusicPanel;
 class TimelinePanel;
 class QVideoSink;
 class VideoCanvas;
@@ -128,6 +129,9 @@ private:
     void markSurface(double fromLat, double fromLon, double toLat, double toLon, const QString &surface, double factor);
     void setSurfaces(const QVector<SurfaceStretch> &surfaces, const QString &description);
     void setCuts(const QVector<TimeRange> &cuts, const QString &description);
+    void setSoundtrack(const Soundtrack &soundtrack, const QString &description);
+    // The music player at the place, track and volume that belong to the video's moment.
+    void syncMusic();
     void setLapLines(const StartFinishLine &line, const QVector<StartFinishLine> &sectors, const QString &description);
     void seekTelemetryTime(double time);
     void updateChannelValues();
@@ -136,6 +140,12 @@ private:
     QMediaPlayer *m_player{nullptr};
     QAudioOutput *m_audioOutput{nullptr};
     QVideoSink *m_videoSink{nullptr};
+    // the music under the video, in step with it
+    QMediaPlayer *m_musicPlayer{nullptr};
+    QAudioOutput *m_musicOutput{nullptr};
+    QString m_musicSource;
+    // what is heard: the project's, or volumes still being dragged
+    Soundtrack m_heardSoundtrack;
 
     VideoCanvas *m_canvas{nullptr};
     QToolButton *m_playButton{nullptr};
@@ -158,6 +168,8 @@ private:
     QDockWidget *m_dataDock{nullptr};
     DataPanel *m_dataPanel{nullptr};
     QDockWidget *m_lapsDock{nullptr};
+    QDockWidget *m_musicDock{nullptr};
+    MusicPanel *m_musicPanel{nullptr};
     QComboBox *m_channelCombo{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
     QVector<QPushButton *> m_themeButtons;

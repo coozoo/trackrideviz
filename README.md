@@ -36,7 +36,9 @@ today.
 - Lap timing: start/finish line on the map, sectors, best / previous lap, delta to best
 - Themed gauges that are not tied to one metric; templates; built-in gauge editor
 - Import of your own gauges, templates and data profiles made with other programs
-- Export through ffmpeg with software and hardware encoders; overlay-only export with alpha
+- Export through ffmpeg with software and hardware encoders, profiles (YouTube, small file, your own);
+  overlay-only export with alpha
+- Music under the video: a playlist of files, with fades and the volumes of the video and the music
 
 ## Build
 

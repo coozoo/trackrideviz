@@ -7,6 +7,7 @@
 #include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
 #include "video/mediainfo.h"
+#include "video/soundtrack.h"
 #include "video/videoencoders.h"
 #include "video/videojoin.h"
 
@@ -376,6 +377,116 @@ private slots:
         plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
         QVERIFY(plan.arguments.contains("-an"));
         QVERIFY(!plan.arguments.contains("0:a?"));
+    }
+
+    // --- music -------------------------------------------------------------
+
+    void soundtrackTimes()
+    {
+        Soundtrack soundtrack;
+        soundtrack.tracks = {{"a.mp3", 10.0, 0.0, 0.0}, {"b.ogg", 20.0, 2.0, 7.0}, {"c.wav", 0.0, 0.0, 0.0}};
+        soundtrack.start = 4.0;
+        soundtrack.fade = 1.0;
+        QCOMPARE(soundtrack.tracks.at(1).length(), 5.0);
+        QCOMPARE(soundtrack.length(), 15.0);
+
+        QCOMPARE(soundtrack.musicTime(3.0, {}), -1.0);
+        QCOMPARE(soundtrack.musicTime(9.0, {}), 5.0);
+        // the music runs on through what is cut: those seconds do not count
+        QCOMPARE(soundtrack.musicTime(9.0, {{5.0, 7.0}}), 3.0);
+        QCOMPARE(soundtrack.musicTime(9.0, {{1.0, 2.0}}), 5.0);
+
+        QCOMPARE(soundtrack.at(-0.5).track, -1);
+        Soundtrack::Moment moment = soundtrack.at(5.0);
+        QCOMPARE(moment.track, 0);
+        QCOMPARE(moment.position, 5.0);
+        QCOMPARE(moment.gain, 1.0);
+        QCOMPARE(soundtrack.at(0.25).gain, 0.25);
+        QCOMPARE(soundtrack.at(9.5).gain, 0.5);
+        moment = soundtrack.at(11.0);
+        QCOMPARE(moment.track, 1);
+        QCOMPARE(moment.position, 3.0); // one second into the part that plays, from 2 s
+        QCOMPARE(moment.gain, 1.0);
+        // a file of unknown length plays to its own end
+        moment = soundtrack.at(100.0);
+        QCOMPARE(moment.track, 2);
+        QCOMPARE(moment.position, 85.0);
+
+        soundtrack.tracks.removeLast();
+        QCOMPARE(soundtrack.at(15.5).track, -1);
+        QVERIFY(soundtrack.changesSound());
+        soundtrack.musicMuted = true;
+        QVERIFY(!soundtrack.changesSound());
+        soundtrack.videoVolume = 50;
+        QVERIFY(soundtrack.changesSound());
+    }
+
+    void planMixesMusic()
+    {
+        Soundtrack soundtrack;
+        soundtrack.tracks = {{"/m/a.mp3", 10.0, 0.0, 0.0}, {"/m/b.ogg", 20.0, 2.0, 7.0}};
+        soundtrack.start = 5.0;
+        soundtrack.fade = 1.0;
+        soundtrack.videoVolume = 50;
+        soundtrack.musicVolume = 80;
+        // the sound would be copied: with music it is made anew
+        ExportSettings settings = settingsFor("out.mp4");
+        ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, soundtrack);
+        QVERIFY(plan.hasAudio);
+        // after the video and the gauges
+        QCOMPARE(plan.arguments.mid(plan.arguments.indexOf("/m/a.mp3") - 3, 4),
+                 QStringList({"-i", "pipe:0", "-i", "/m/a.mp3"}));
+        QVERIFY(hasPair(plan.arguments, "-i", "/m/b.ogg"));
+        QVERIFY(hasPair(plan.arguments, "-c:a", "aac"));
+        QVERIFY(hasPair(plan.arguments, "-map", "[a]"));
+        QString graph = valueOf(plan.arguments, "-filter_complex");
+        QVERIFY2(graph.contains("[2:a]atrim=start=0.000:end=10.000,asetpts=PTS-STARTPTS,"
+                                "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
+                                "afade=t=in:d=1.000,afade=t=out:st=9.000:d=1.000[m0]"), qPrintable(graph));
+        QVERIFY2(graph.contains("[3:a]atrim=start=2.000:end=7.000"), qPrintable(graph));
+        QVERIFY2(graph.contains("[m0][m1]concat=n=2:v=0:a=1,adelay=delays=5000:all=1,volume=0.800,atrim=end=100.000[mus]"),
+                 qPrintable(graph));
+        QVERIFY2(graph.contains("[0:a]volume=0.500,"), qPrintable(graph));
+        QVERIFY2(graph.contains("[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]"), qPrintable(graph));
+
+        // an export from 8 s: three seconds of the music are gone already
+        settings.start = 8.0;
+        settings.duration = 10.0;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, soundtrack);
+        graph = valueOf(plan.arguments, "-filter_complex");
+        QVERIFY2(graph.contains("atrim=start=3.000,asetpts=PTS-STARTPTS,volume=0.800,atrim=end=10.000[mus]"), qPrintable(graph));
+
+        // the video's own sound off: only the music
+        settings = settingsFor("out.mp4");
+        soundtrack.videoMuted = true;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, Overlay(), {}, soundtrack);
+        graph = valueOf(plan.arguments, "-filter_complex");
+        QVERIFY2(graph.contains("[1:a]atrim"), qPrintable(graph)); // no gauges: music from input 1
+        QVERIFY(graph.endsWith("atrim=end=100.000[a]"));
+        QVERIFY(!graph.contains("amix"));
+
+        // no music, the video's sound quieter
+        soundtrack.videoMuted = false;
+        soundtrack.musicMuted = true;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {{10.0, 20.0}}, soundtrack);
+        graph = valueOf(plan.arguments, "-filter_complex");
+        QVERIFY(!plan.arguments.contains("/m/a.mp3"));
+        QVERIFY2(graph.contains("[ac];[ac]volume=0.500,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo[a]"),
+                 qPrintable(graph));
+
+        // the video's sound off and no music: none
+        soundtrack.videoMuted = true;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, soundtrack);
+        QVERIFY(!plan.hasAudio);
+        QVERIFY(plan.arguments.contains("-an"));
+
+        // asked for no sound: no music either
+        settings.audio = ExportSettings::NoAudio;
+        soundtrack.videoMuted = false;
+        soundtrack.musicMuted = false;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, soundtrack);
+        QVERIFY(!plan.hasAudio);
+        QVERIFY(!plan.arguments.contains("/m/a.mp3"));
     }
 
     void planContainerSpecifics()
@@ -852,6 +963,59 @@ private slots:
         const QHash<QString, double> durations = streamDurations(output);
         QVERIFY2(std::fabs(durations.value("video") - 1.3) < 0.1, qPrintable(QString::number(durations.value("video"))));
         QVERIFY2(std::fabs(durations.value("audio") - 1.3) < 0.1, qPrintable(QString::number(durations.value("audio"))));
+    }
+
+    void exportMixesMusic()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        // 1.5 s of a higher tone, and a second file of 3 s
+        const QString first = m_dir.filePath("first.wav");
+        const QString second = m_dir.filePath("second.flac");
+        for (const auto &[path, length] : {std::pair{first, "1.5"}, std::pair{second, "3"}})
+            {
+                const FfmpegTools::RunResult made = FfmpegTools::run("ffmpeg",
+                {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i", QString("sine=frequency=880:duration=%1").arg(length), path});
+                QVERIFY(made.started && made.exitCode == 0);
+            }
+        QCOMPARE(std::round(SoundtrackMix::probeDuration("ffprobe", second)), 3.0);
+        QCOMPARE(SoundtrackMix::probeDuration("ffprobe", m_dir.filePath("missing.wav")), 0.0);
+
+        Soundtrack soundtrack;
+        soundtrack.tracks = {{first, 1.5, 0.0, 0.0}, {second, 3.0, 0.5, 0.0}};
+        soundtrack.start = 0.3;
+        soundtrack.fade = 0.2;
+        soundtrack.videoVolume = 60;
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        const Overlay overlay = oneGauge();
+        for (const QString &name : {QString("music.mp4"), QString("music.mkv")})
+            {
+                const QString output = m_dir.filePath(name);
+                ExportSettings settings = settingsFor(output);
+                if (name.endsWith("mkv"))
+                    {
+                        settings.audio = ExportSettings::OpusAudio;
+                    }
+                const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay, {{0.5, 0.8}}, soundtrack);
+                ExportJob job("ffmpeg", plan, overlay, 0.0);
+                QSignalSpy finished(&job, &ExportJob::finished);
+                job.start();
+                QVERIFY(finished.wait(60000));
+                QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                         qPrintable(finished.first().at(1).toString()));
+                const FfmpegTools::RunResult probe = FfmpegTools::run("ffprobe",
+                {"-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_name", "-of", "csv=p=0", output});
+                QCOMPARE(QString::fromLatin1(probe.output).trimmed(), name.endsWith("mkv") ? QString("opus") : QString("aac"));
+                if (name.endsWith("mp4"))
+                    {
+                        // as long as the picture: 2 s less the cut
+                        const QHash<QString, double> durations = streamDurations(output);
+                        QVERIFY2(std::fabs(durations.value("audio") - 1.7) < 0.1, qPrintable(QString::number(durations.value("audio"))));
+                    }
+            }
     }
 
     void joinOrderAndShifts()

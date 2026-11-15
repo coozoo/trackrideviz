@@ -33,6 +33,7 @@ SOURCES += main.cpp \
     src/joindialog.cpp \
     src/lapcomparepanel.cpp \
     src/lapspanel.cpp \
+    src/musicpanel.cpp \
     src/timelinepanel.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     src/joindialog.h \
     src/lapcomparepanel.h \
     src/lapspanel.h \
+    src/musicpanel.h \
     src/trackview.h \
     src/timelinepanel.h \
     src/mainwindow.h \

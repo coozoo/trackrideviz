@@ -3,6 +3,7 @@
 #include "cutlist.h"
 #include "exportsettings.h"
 #include "mediainfo.h"
+#include "soundtrack.h"
 
 #include <QRect>
 #include <QStringList>
@@ -51,10 +52,10 @@ struct ExportPlan
     // Length of `frames` pictures in seconds.
     double lengthOf(qint64 frames) const { return double(frames) * fpsDen / fpsNum; }
 
-    // `cuts`: parts of the video left out (video time).
+    // `cuts`: parts of the video left out (video time). `soundtrack`: music and volumes.
     static ExportPlan make(const QString &videoPath, const MediaInfo &info,
                            const ExportSettings &settings, const Overlay &overlay,
-                           const QVector<TimeRange> &cuts = {});
+                           const QVector<TimeRange> &cuts = {}, const Soundtrack &soundtrack = {});
     // Output size for a wanted height (0 = keep): never upscaled, always even.
     static QSize outputSizeFor(const QSize &source, int wantedHeight);
 };

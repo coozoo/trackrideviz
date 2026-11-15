@@ -319,6 +319,15 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   than two; aligning several parts; turning a text's frame into a box
 - Path shapes; G-plot with a tail, lap table, sector bar
 
+## Sound and export choices ✅ (2026-11-15)
+- ✅ Music dock: files played one after another from a moment of the video, each trimmed, with
+  fades; volumes of the video's sound and of the music; heard in the preview and mixed into the
+  export; kept in the project (paths only)
+- ✅ Opus and Vorbis sound (in MKV), and its bitrate
+- ✅ Export profiles: YouTube upload, small file (HEVC + Opus in MKV), like the video, and one's own
+
+Not done: lowering the music while the camera is loud (ducking); AV1 encoders; volumes above 100 %.
+
 ## M7 — Polish and distribution
 - Export backend B (in-process libav) if/when needed; overlay-only alpha export; export queue
 - AppImage + Flatpak, Windows installer, macOS bundle

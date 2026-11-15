@@ -240,6 +240,26 @@ private slots:
         QCOMPARE(loaded.telemetryPath, QString("/no/longer/here/ride.fit"));
     }
 
+    void musicIsKept()
+    {
+        Project project;
+        project.soundtrack.tracks = {{"/rides/2025/music/one.mp3", 200.5, 10.0, 0.0}, {"/music/two.ogg", 90.0, 0.0, 60.0}};
+        project.soundtrack.start = 12.5;
+        project.soundtrack.fade = 3.0;
+        project.soundtrack.videoVolume = 40;
+        project.soundtrack.musicMuted = true;
+        const QByteArray json = ProjectFile::toJson(project, "/rides/2025");
+        const QJsonObject music = QJsonDocument::fromJson(json).object().value("music").toObject();
+        // inside the project's folder: relative; elsewhere: as it is
+        QCOMPARE(music.value("tracks").toArray().at(0).toObject().value("file").toString(), QString("music/one.mp3"));
+        QCOMPARE(music.value("tracks").toArray().at(1).toObject().value("file").toString(), QString("/music/two.ogg"));
+        Project loaded;
+        QVERIFY(ProjectFile::fromJson(json, "/rides/2025", &loaded));
+        QVERIFY(loaded.soundtrack == project.soundtrack);
+        // nothing written for no music
+        QVERIFY(!QJsonDocument::fromJson(ProjectFile::toJson(Project(), "/tmp")).object().contains("music"));
+    }
+
     void emptyProject()
     {
         Project loaded;

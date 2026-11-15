@@ -64,6 +64,7 @@ SOURCES += \
     $$PWD/video/exportprofile.cpp \
     $$PWD/video/ffmpegtools.cpp \
     $$PWD/video/mediainfo.cpp \
+    $$PWD/video/soundtrack.cpp \
     $$PWD/video/videoencoders.cpp \
     $$PWD/video/videojoin.cpp
 
@@ -124,6 +125,7 @@ HEADERS += \
     $$PWD/video/exportsettings.h \
     $$PWD/video/ffmpegtools.h \
     $$PWD/video/mediainfo.h \
+    $$PWD/video/soundtrack.h \
     $$PWD/video/videoencoders.h \
     $$PWD/video/videojoin.h
 

@@ -8,6 +8,8 @@
 #include <QJsonObject>
 #include <QSaveFile>
 
+#include <algorithm>
+
 namespace
 {
 const char kFormat[] = "rtvproj";
@@ -126,6 +128,34 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 }
             root["cuts"] = cuts;
         }
+    const Soundtrack &soundtrack = project.soundtrack;
+    if (soundtrack != Soundtrack())
+        {
+            QJsonArray tracks;
+            for (const MusicTrack &track : soundtrack.tracks)
+                {
+                    QJsonObject object{{"file", toStored(track.path, dir)}, {"duration", track.duration}};
+                    if (track.from > 0.0)
+                        {
+                            object["from"] = track.from;
+                        }
+                    if (track.to > 0.0)
+                        {
+                            object["to"] = track.to;
+                        }
+                    tracks.append(object);
+                }
+            root["music"] = QJsonObject
+            {
+                {"tracks", tracks},
+                {"start", soundtrack.start},
+                {"fade", soundtrack.fade},
+                {"videoVolume", soundtrack.videoVolume},
+                {"musicVolume", soundtrack.musicVolume},
+                {"videoMuted", soundtrack.videoMuted},
+                {"musicMuted", soundtrack.musicMuted},
+            };
+        }
     if (!project.sectors.isEmpty())
         {
             QJsonArray sectors;
@@ -220,6 +250,30 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                 {
                     loaded.sectors.append(l);
                 }
+        }
+    if (root.contains("music"))
+        {
+            const QJsonObject music = root.value("music").toObject();
+            Soundtrack &soundtrack = loaded.soundtrack;
+            for (const QJsonValue &value : music.value("tracks").toArray())
+                {
+                    const QJsonObject object = value.toObject();
+                    MusicTrack track;
+                    track.path = fromStored(object.value("file").toString(), dir);
+                    track.duration = std::max(0.0, object.value("duration").toDouble());
+                    track.from = std::max(0.0, object.value("from").toDouble());
+                    track.to = std::max(0.0, object.value("to").toDouble());
+                    if (!track.path.isEmpty())
+                        {
+                            soundtrack.tracks.append(track);
+                        }
+                }
+            soundtrack.start = std::max(0.0, music.value("start").toDouble());
+            soundtrack.fade = std::clamp(music.value("fade").toDouble(soundtrack.fade), 0.0, 30.0);
+            soundtrack.videoVolume = std::clamp(music.value("videoVolume").toInt(100), 0, 100);
+            soundtrack.musicVolume = std::clamp(music.value("musicVolume").toInt(100), 0, 100);
+            soundtrack.videoMuted = music.value("videoMuted").toBool();
+            soundtrack.musicMuted = music.value("musicMuted").toBool();
         }
     if (root.contains("wind"))
         {

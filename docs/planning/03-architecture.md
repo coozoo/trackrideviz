@@ -176,6 +176,16 @@ ExportJob (own thread)─► QProcess ffmpeg; per frame n: Overlay::render() int
   that behind `ExportSettings`. VA-API needs `format=nv12,hwupload` at the end of the filter chain.
 - There is no `ExportBackend` interface yet: with one backend it would be an interface with one
   implementation. It is introduced when backend B is written.
+- Music (`Soundtrack`, saved in the project): the tracks are further ffmpeg inputs after the
+  pipe, each `atrim`med, faded and brought to 48 kHz stereo, `concat`enated, delayed (or trimmed)
+  to the export's start, and `amix`ed with the video's sound at the set volumes
+  (`normalize=0`: no halving). The music follows the time of the export, so it runs on through
+  cuts. Mixed sound cannot be copied; it is encoded as chosen (AAC when copying was chosen).
+  The preview plays the music with a second `QMediaPlayer`, put back in step when it is more
+  than 0.3 s off; the preview's volumes stop at 100 %, so the export's do too.
+- `ExportProfiles`: built-in ones work out the bitrate from the video (YouTube's recommended
+  rates by size and frame rate, or a share of the source's) and pick an encoder of their codec
+  among those found; the user's own keep what was chosen.
 
 ## 3.6 Threading (signals/slots, worker-object pattern)
 

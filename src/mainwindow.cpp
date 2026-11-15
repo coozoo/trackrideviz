@@ -4,6 +4,7 @@
 #include "joindialog.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
+#include "musicpanel.h"
 #include "timelinepanel.h"
 
 #include "appearance.h"
@@ -195,6 +196,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_videoSink = new QVideoSink(this);
     m_player->setAudioOutput(m_audioOutput);
     m_player->setVideoSink(m_videoSink);
+    m_musicPlayer = new QMediaPlayer(this);
+    m_musicOutput = new QAudioOutput(this);
+    m_musicPlayer->setAudioOutput(m_musicOutput);
 
     m_undoStack = new QUndoStack(this);
     setCentralWidget(createCentralWidget());
@@ -242,6 +246,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &QMediaPlayer::durationChanged, this, &MainWindow::onDurationChanged);
     connect(m_player, &QMediaPlayer::playbackStateChanged, this, &MainWindow::onPlaybackStateChanged);
     connect(m_player, &QMediaPlayer::errorOccurred, this, &MainWindow::onPlayerError);
+    // a track just opened is put at its place once it can be
+    connect(m_musicPlayer, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::syncMusic);
+    connect(m_musicPlayer, &QMediaPlayer::errorOccurred, this, [this](QMediaPlayer::Error error, const QString &message)
+    {
+        if (error != QMediaPlayer::NoError)
+            {
+                statusBar()->showMessage(tr("Music: %1").arg(message), 5000);
+            }
+    });
 
     QShortcut *playShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
     connect(playShortcut, &QShortcut::activated, this, &MainWindow::togglePlayback);
@@ -398,6 +411,21 @@ void MainWindow::createDocks()
     connect(m_timelinePanel, &TimelinePanel::smoothingChanged, m_comparePanel, &LapComparePanel::setSmoothing);
     connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_dataPanel, &DataPanel::setSmoothing);
     connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
+    m_musicDock = addPlaceholderDock("musicDock", tr("Music"), Qt::BottomDockWidgetArea);
+    tabifyDockWidget(m_dataDock, m_musicDock);
+    m_timelineDock->raise();
+    m_musicPanel = new MusicPanel(m_musicDock);
+    m_musicDock->setWidget(m_musicPanel);
+    connect(m_musicPanel, &MusicPanel::soundtrackEdited, this, &MainWindow::setSoundtrack);
+    connect(m_musicPanel, &MusicPanel::volumesPreviewed, this, [this](const Soundtrack &soundtrack)
+    {
+        m_heardSoundtrack = soundtrack;
+        syncMusic();
+    });
+    connect(m_musicPanel, &MusicPanel::seekRequested, this, [this](double seconds)
+    {
+        m_player->setPosition(qint64(std::llround(seconds * 1000.0)));
+    });
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     m_lapsPanel->setUnits(m_units);
@@ -606,6 +634,7 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_compareDock->toggleViewAction());
     viewMenu->addAction(m_dataDock->toggleViewAction());
     viewMenu->addAction(m_lapsDock->toggleViewAction());
+    viewMenu->addAction(m_musicDock->toggleViewAction());
     viewMenu->addSeparator();
     viewMenu->addAction(tr("&Reset layout"), this, [this]()
     {
@@ -655,6 +684,7 @@ void MainWindow::openVideo(const QString &path, const QVector<TimeShift> &shifts
     m_project.videoShifts = shifts;
     m_project.cuts.clear();
     m_timelinePanel->setCuts(m_project.cuts);
+    m_musicPanel->setCuts(m_project.cuts);
     loadVideo(path);
 }
 
@@ -761,6 +791,14 @@ void MainWindow::openProject(const QString &path)
                     file->clear();
                 }
         }
+    // music that is not there stays in the list, shown as missing, and is left out of the export
+    for (const MusicTrack &track : project.soundtrack.tracks)
+        {
+            if (!QFileInfo::exists(track.path))
+                {
+                    missing << QDir::toNativeSeparators(track.path);
+                }
+        }
 
     m_project = project;
     m_projectPath = path;
@@ -775,6 +813,9 @@ void MainWindow::openProject(const QString &path)
     m_timelinePanel->setSession(nullptr, m_units);
     m_comparePanel->setSession(nullptr, m_units);
     m_timelinePanel->setCuts(m_project.cuts);
+    m_musicPanel->setCuts(m_project.cuts);
+    m_musicPanel->setSoundtrack(m_project.soundtrack);
+    m_heardSoundtrack = m_project.soundtrack;
     m_elevationCombo->setCurrentIndex(m_elevationCombo->findData(int(m_project.elevation)));
     showWind();
     m_dataPanel->setEdits(m_project.dataEdits);
@@ -884,8 +925,13 @@ void MainWindow::exportVideo()
         }
     // two decoders on one file only fight for the disk and the graphics card
     m_player->pause();
+    Soundtrack soundtrack = m_project.soundtrack;
+    soundtrack.tracks.erase(std::remove_if(soundtrack.tracks.begin(), soundtrack.tracks.end(), [](const MusicTrack &track)
+    {
+        return !QFileInfo::exists(track.path);
+    }), soundtrack.tracks.end());
     ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_session, m_units, m_project.theme),
-                        m_project.sync(), m_project.cuts, m_player->position() / 1000.0, this);
+                        m_project.sync(), m_project.cuts, soundtrack, m_player->position() / 1000.0, this);
     dialog.exec();
 }
 
@@ -1463,6 +1509,7 @@ void MainWindow::onPlaybackStateChanged(QMediaPlayer::PlaybackState state)
 {
     m_playButton->setIcon(style()->standardIcon(state == QMediaPlayer::PlayingState
                           ? QStyle::SP_MediaPause : QStyle::SP_MediaPlay));
+    syncMusic();
 }
 
 void MainWindow::onDurationChanged(qint64 durationMs)
@@ -1470,6 +1517,7 @@ void MainWindow::onDurationChanged(qint64 durationMs)
     m_seekSlider->setRange(0, int(durationMs));
     m_seekSlider->setEnabled(durationMs > 0);
     m_timelinePanel->setVideoDuration(durationMs / 1000.0);
+    m_musicPanel->setVideoDuration(durationMs / 1000.0);
     updateTimeLabel();
     // the overlap check of the clock match needs the duration
     autoSync();
@@ -1482,6 +1530,8 @@ void MainWindow::onPositionChanged(qint64 positionMs)
             m_seekSlider->setValue(int(positionMs));
         }
     m_timelinePanel->setPosition(positionMs / 1000.0);
+    m_musicPanel->setPosition(positionMs / 1000.0);
+    syncMusic();
     // playing goes over what is cut, as the export will
     if (m_player->playbackState() == QMediaPlayer::PlayingState)
         {
@@ -1774,7 +1824,75 @@ void MainWindow::setCuts(const QVector<TimeRange> &cuts, const QString &descript
         m_project.cuts = forward ? cuts : before;
         setModified(true);
         m_timelinePanel->setCuts(m_project.cuts);
+        m_musicPanel->setCuts(m_project.cuts);
     }));
+}
+
+void MainWindow::setSoundtrack(const Soundtrack &soundtrack, const QString &description)
+{
+    const Soundtrack before = m_project.soundtrack;
+    if (before == soundtrack)
+        {
+            return;
+        }
+    m_undoStack->push(new OverlayCommand(description, [this, before, soundtrack](bool forward)
+    {
+        m_project.soundtrack = forward ? soundtrack : before;
+        m_heardSoundtrack = m_project.soundtrack;
+        setModified(true);
+        m_musicPanel->setSoundtrack(m_project.soundtrack);
+        syncMusic();
+    }));
+}
+
+void MainWindow::syncMusic()
+{
+    const Soundtrack &soundtrack = m_heardSoundtrack;
+    m_audioOutput->setVolume(float(soundtrack.videoGain()));
+    const double videoTime = m_player->position() / 1000.0;
+    const bool video = !m_player->source().isEmpty();
+    const Soundtrack::Moment moment = video && soundtrack.hasMusic()
+                                      ? soundtrack.at(soundtrack.musicTime(videoTime, m_project.cuts)) : Soundtrack::Moment();
+    if (moment.track < 0)
+        {
+            if (m_musicPlayer->playbackState() != QMediaPlayer::StoppedState)
+                {
+                    m_musicPlayer->stop();
+                }
+            return;
+        }
+    const QString path = soundtrack.tracks.at(moment.track).path;
+    if (path != m_musicSource)
+        {
+            m_musicSource = path;
+            m_musicPlayer->setSource(QUrl::fromLocalFile(path));
+        }
+    m_musicOutput->setVolume(float(moment.gain * soundtrack.musicGain()));
+    if (m_player->playbackState() != QMediaPlayer::PlayingState)
+        {
+            if (m_musicPlayer->playbackState() == QMediaPlayer::PlayingState)
+                {
+                    m_musicPlayer->pause();
+                }
+            return;
+        }
+    const QMediaPlayer::MediaStatus status = m_musicPlayer->mediaStatus();
+    if (status == QMediaPlayer::EndOfMedia || status == QMediaPlayer::InvalidMedia || status == QMediaPlayer::LoadingMedia)
+        {
+            // a file shorter than it said, or one that cannot be played: silence, not again and again
+            return;
+        }
+    const qint64 wanted = qint64(std::llround(moment.position * 1000.0));
+    if (m_musicPlayer->playbackState() != QMediaPlayer::PlayingState)
+        {
+            m_musicPlayer->setPosition(wanted);
+            m_musicPlayer->play();
+        }
+    else if (std::abs(m_musicPlayer->position() - wanted) > 300)
+        {
+            // after a jump of the video, or drifted apart
+            m_musicPlayer->setPosition(wanted);
+        }
 }
 
 void MainWindow::setDataEdits(const QVector<DataEdit> &edits, const QString &description)

@@ -31,9 +31,10 @@ class ExportDialog : public QDialog
 
 public:
     // currentPosition: where the preview stands, offered as the start of a partial export.
-    // cuts: parts of the video left out.
+    // cuts: parts of the video left out. soundtrack: music and volumes.
     ExportDialog(const QString &videoPath, const Overlay &overlay, const SyncMap &sync,
-                 const QVector<TimeRange> &cuts, double currentPosition, QWidget *parent = nullptr);
+                 const QVector<TimeRange> &cuts, const Soundtrack &soundtrack, double currentPosition,
+                 QWidget *parent = nullptr);
     ~ExportDialog() override;
 
 public slots:
@@ -78,6 +79,7 @@ private:
     Overlay m_overlay;
     SyncMap m_sync;
     QVector<TimeRange> m_cuts;
+    Soundtrack m_soundtrack;
     double m_currentPosition{0.0};
     QString m_ffmpeg;
 

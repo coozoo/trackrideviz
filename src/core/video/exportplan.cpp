@@ -1,6 +1,7 @@
 #include "exportplan.h"
 
 #include "../overlay/overlay.h"
+#include "soundtrack.h"
 #include "videoencoders.h"
 
 #include <QFileInfo>
@@ -42,7 +43,7 @@ QSize ExportPlan::outputSizeFor(const QSize &source, int wantedHeight)
 
 ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                             const ExportSettings &settings, const Overlay &overlay,
-                            const QVector<TimeRange> &cuts)
+                            const QVector<TimeRange> &cuts, const Soundtrack &soundtrack)
 {
     ExportPlan plan;
     plan.outputSize = outputSizeFor(info.size, settings.height);
@@ -75,7 +76,12 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     const qint64 estimated = std::max<qint64>(1, qint64(std::floor(outputLength * info.fps() + 1e-6)));
     plan.frameCount = !piped ? 0 : wholeVideo && info.frameCount > 0 ? info.frameCount : estimated;
     plan.outputPath = settings.outputPath;
-    plan.hasAudio = info.hasAudio && settings.audio != ExportSettings::NoAudio;
+    // the video's own sound, unless turned all the way down, and the music
+    const bool videoSound = info.hasAudio && soundtrack.videoGain() > 0.0;
+    const bool music = soundtrack.hasMusic() && settings.audio != ExportSettings::NoAudio;
+    plan.hasAudio = settings.audio != ExportSettings::NoAudio && (videoSound || music);
+    // made anew from the sound and the music, at their volumes
+    const bool mixed = plan.hasAudio && soundtrack.changesSound();
 
     const VideoEncoder encoder = VideoEncoders::byId(settings.encoder);
     QStringList &args = plan.arguments;
@@ -103,6 +109,18 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                  << "-video_size" << QString("%1x%2").arg(plan.stackSize.width()).arg(plan.stackSize.height())
                  << "-framerate" << QString("%1/%2").arg(plan.fpsNum).arg(plan.fpsDen)
                  << "-i" << "pipe:0";
+        }
+    // inputs 2, 3, ... (1, 2, ... without gauges): the music
+    const int firstMusicInput = piped ? 2 : 1;
+    if (music)
+        {
+            for (const MusicTrack &track : soundtrack.tracks)
+                {
+                    if (track.plays())
+                        {
+                            args << "-i" << track.path;
+                        }
+                }
         }
 
     // the kept parts, by time from the first frame read (the input starts at startTime)
@@ -172,7 +190,10 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             graph = QString("[0:v]%1[v]").arg(chain.join(','));
         }
     // sound cut the same way can not be copied
-    const bool cutAudio = cut && plan.hasAudio;
+    const bool cutAudio = cut && plan.hasAudio && videoSound;
+    // the video's sound so far: the input, or what is left of it after the cuts
+    QString videoAudio = "[0:a]";
+    const QString cutOut = mixed ? "[ac]" : "[a]";
     if (cutAudio)
         {
             // each kept part trimmed out and the parts put end to end: exact to the
@@ -186,7 +207,7 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             };
             if (count == 1)
                 {
-                    graph += QString(";[0:a]%1[a]").arg(trimmed(0));
+                    graph += QString(";[0:a]%1%2").arg(trimmed(0), cutOut);
                 }
             else
                 {
@@ -199,14 +220,40 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                             parts += QString(";[ai%1]%2[ak%1]").arg(i).arg(trimmed(i));
                             joined += QString("[ak%1]").arg(i);
                         }
-                    graph += split + parts + QString(";%1concat=n=%2:v=0:a=1[a]").arg(joined).arg(count);
+                    graph += split + parts + QString(";%1concat=n=%2:v=0:a=1%3").arg(joined).arg(count).arg(cutOut);
+                }
+            videoAudio = cutOut;
+        }
+    if (mixed)
+        {
+            // what the music needs at the start of the export: when it is still to come, how
+            // long to wait; when it has begun before, how much of it is gone
+            const QString musicGraph = music ? SoundtrackMix::music(soundtrack, firstMusicInput,
+                                       -soundtrack.musicTime(plan.startTime, cuts), outputLength, "[mus]") : QString();
+            if (videoSound)
+                {
+                    graph += QString(";%1volume=%2,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo%3")
+                             .arg(videoAudio).arg(soundtrack.videoGain(), 0, 'f', 3).arg(musicGraph.isEmpty() ? "[a]" : "[vs]");
+                    if (!musicGraph.isEmpty())
+                        {
+                            // as long as the video's sound; both at the volume set, not halved
+                            graph += ";" + musicGraph + ";[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]";
+                        }
+                }
+            else
+                {
+                    graph += ";" + QString(musicGraph).replace("[mus]", "[a]");
                 }
         }
     args << "-filter_complex" << graph << "-map" << "[v]";
 
-    if (cutAudio)
+    if (mixed || cutAudio)
         {
             args << "-map" << "[a]" << audioEncoding(settings);
+        }
+    else if (!plan.hasAudio)
+        {
+            args << "-an";
         }
     else switch (settings.audio)
         {
