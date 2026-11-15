@@ -2503,87 +2503,87 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>Gears</name>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="148"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="149"/>
         <source>One ring, 32</source>
         <translation>Одна зірка, 32</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="148"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="149"/>
         <source>One ring, 34</source>
         <translation>Одна зірка, 34</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="148"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="149"/>
         <source>One ring, 40 (gravel)</source>
         <translation>Одна зірка, 40 (гравел)</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="149"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="150"/>
         <source>Compact, 50/34</source>
         <translation>Компакт, 50/34</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="149"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="150"/>
         <source>Semi-compact, 52/36</source>
         <translation>Напівкомпакт, 52/36</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="149"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="150"/>
         <source>Standard, 53/39</source>
         <translation>Стандарт, 53/39</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="150"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="151"/>
         <source>Gravel, 46/30</source>
         <translation>Гравел, 46/30</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="150"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="151"/>
         <source>Mountain bike triple, 44/32/22</source>
         <translation>Гірська трійка, 44/32/22</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="151"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="152"/>
         <source>Road triple, 50/39/30</source>
         <translation>Шосейна трійка, 50/39/30</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="159"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="160"/>
         <source>8 speed, 11-34</source>
         <translation>8 швидкостей, 11-34</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="160"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="161"/>
         <source>10 speed, 11-36</source>
         <translation>10 швидкостей, 11-36</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="161"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="162"/>
         <source>11 speed, 11-28</source>
         <translation>11 швидкостей, 11-28</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="162"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="163"/>
         <source>11 speed, 11-32</source>
         <translation>11 швидкостей, 11-32</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="163"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="164"/>
         <source>11 speed, 11-34</source>
         <translation>11 швидкостей, 11-34</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="164"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="165"/>
         <source>12 speed, 10-50 (SRAM Eagle)</source>
         <translation>12 швидкостей, 10-50 (SRAM Eagle)</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="165"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="166"/>
         <source>12 speed, 10-52 (SRAM Eagle)</source>
         <translation>12 швидкостей, 10-52 (SRAM Eagle)</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gears.cpp" line="166"/>
+        <location filename="../src/core/telemetry/gears.cpp" line="167"/>
         <source>12 speed, 10-51 (Shimano)</source>
         <translation>12 швидкостей, 10-51 (Shimano)</translation>
     </message>
@@ -3977,7 +3977,7 @@ It appears among the templates in the library.</source>
     <name>SettingsDialog</name>
     <message>
         <location filename="../src/settingsdialog.cpp" line="59"/>
-        <location filename="../src/settingsdialog.cpp" line="846"/>
+        <location filename="../src/settingsdialog.cpp" line="843"/>
         <source>Settings</source>
         <translation>Налаштування</translation>
     </message>
@@ -4236,7 +4236,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="274"/>
-        <location filename="../src/settingsdialog.cpp" line="601"/>
+        <location filename="../src/settingsdialog.cpp" line="598"/>
         <source>Key:</source>
         <translation>Ключ:</translation>
     </message>
@@ -4327,7 +4327,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="355"/>
-        <location filename="../src/settingsdialog.cpp" line="477"/>
+        <location filename="../src/settingsdialog.cpp" line="474"/>
         <source>Tire size:</source>
         <translation>Розмір шини:</translation>
     </message>
@@ -4347,24 +4347,23 @@ It appears among the templates in the library.</source>
         <translation>Касета:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="360"/>
         <source>With the chainrings and the sprockets filled in, the gear of every moment is worked out from the speed and the cadence (a recording without cadence has no gears). While coasting, or pedaling slower than the wheel turns, the last gear is kept. Gears that electronic shifting recorded are always used instead. Gears count from the largest sprocket: 1 is the easiest.</source>
-        <translation>Коли заповнено передні зірки й касету, передача кожної миті визначається зі швидкості та каденсу (запис без каденсу передач не має). Під час накату або коли педалі обертаються повільніше за колесо зберігається остання передача. Передачі, записані електронним перемиканням, завжди мають перевагу. Передачі рахуються від найбільшої зірочки: 1 — найлегша.</translation>
+        <translation type="vanished">Коли заповнено передні зірки й касету, передача кожної миті визначається зі швидкості та каденсу (запис без каденсу передач не має). Під час накату або коли педалі обертаються повільніше за колесо зберігається остання передача. Передачі, записані електронним перемиканням, завжди мають перевагу. Передачі рахуються від найбільшої зірочки: 1 — найлегша.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="371"/>
+        <location filename="../src/settingsdialog.cpp" line="368"/>
         <source>Estimate the power of rides recorded without a power meter</source>
         <translation>Оцінювати потужність у поїздках, записаних без вимірювача потужності</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="303"/>
-        <location filename="../src/settingsdialog.cpp" line="382"/>
-        <location filename="../src/settingsdialog.cpp" line="384"/>
+        <location filename="../src/settingsdialog.cpp" line="379"/>
+        <location filename="../src/settingsdialog.cpp" line="381"/>
         <source> kg</source>
         <translation> кг</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="383"/>
+        <location filename="../src/settingsdialog.cpp" line="380"/>
         <source> cm</source>
         <translation> см</translation>
     </message>
@@ -4373,58 +4372,58 @@ It appears among the templates in the library.</source>
         <translation type="vanished">З усім, що на ньому: фляги, сумки, інструменти</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="413"/>
+        <location filename="../src/settingsdialog.cpp" line="410"/>
         <source>Road, fast</source>
         <translation>Шосейні, швидкі</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="414"/>
+        <location filename="../src/settingsdialog.cpp" line="411"/>
         <source>Road, typical</source>
         <translation>Шосейні, звичайні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="415"/>
+        <location filename="../src/settingsdialog.cpp" line="412"/>
         <source>Road, slow</source>
         <translation>Шосейні, повільні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="416"/>
+        <location filename="../src/settingsdialog.cpp" line="413"/>
         <source>Gravel, fast</source>
         <translation>Гравійні, швидкі</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="417"/>
+        <location filename="../src/settingsdialog.cpp" line="414"/>
         <source>Gravel, typical</source>
         <translation>Гравійні, звичайні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="418"/>
+        <location filename="../src/settingsdialog.cpp" line="415"/>
         <source>Gravel, slow</source>
         <translation>Гравійні, повільні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="419"/>
+        <location filename="../src/settingsdialog.cpp" line="416"/>
         <source>Mountain bike, fast</source>
         <translation>Гірські, швидкі</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="420"/>
+        <location filename="../src/settingsdialog.cpp" line="417"/>
         <source>Mountain bike, typical</source>
         <translation>Гірські, звичайні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="421"/>
+        <location filename="../src/settingsdialog.cpp" line="418"/>
         <source>Mountain bike, slow</source>
         <translation>Гірські, повільні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="422"/>
-        <location filename="../src/settingsdialog.cpp" line="454"/>
+        <location filename="../src/settingsdialog.cpp" line="419"/>
+        <location filename="../src/settingsdialog.cpp" line="451"/>
         <source>My own value</source>
         <translation>Власне значення</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="423"/>
+        <location filename="../src/settingsdialog.cpp" line="420"/>
         <source>Fast: racing tires, pumped hard. Slow: thick, puncture-proof or knobby ones.</source>
         <translation>Швидкі: гоночні шини, туго накачані. Повільні: товсті, з захистом від проколів або з шипами.</translation>
     </message>
@@ -4437,38 +4436,38 @@ It appears among the templates in the library.</source>
         <translation type="vanished">За розміром, надрукованим на шині, обирається шосейна, гравійна чи гірська — за шириною</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="449"/>
+        <location filename="../src/settingsdialog.cpp" line="446"/>
         <source>Road bike, hands on the tops</source>
         <translation>Шосейний, руки зверху на кермі</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="450"/>
+        <location filename="../src/settingsdialog.cpp" line="447"/>
         <source>Road bike, hands on the hoods</source>
         <translation>Шосейний, руки на гальмівних ручках</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="451"/>
+        <location filename="../src/settingsdialog.cpp" line="448"/>
         <source>Road bike, in the drops</source>
         <translation>Шосейний, нижній хват</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="452"/>
+        <location filename="../src/settingsdialog.cpp" line="449"/>
         <source>On aero bars</source>
         <translation>На лежаку</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="453"/>
+        <location filename="../src/settingsdialog.cpp" line="450"/>
         <source>Upright: mountain or city bike</source>
         <translation>Прямо: гірський або міський велосипед</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="455"/>
+        <location filename="../src/settingsdialog.cpp" line="452"/>
         <source> m²</source>
         <translation> м²</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="467"/>
-        <location filename="../src/settingsdialog.cpp" line="567"/>
+        <location filename="../src/settingsdialog.cpp" line="464"/>
+        <location filename="../src/settingsdialog.cpp" line="564"/>
         <source> %</source>
         <translation> %</translation>
     </message>
@@ -4477,72 +4476,72 @@ It appears among the templates in the library.</source>
         <translation type="vanished">Що забирають ланцюг і підшипники: 2-3 % у чистих, більше у зношених чи брудних</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="483"/>
+        <location filename="../src/settingsdialog.cpp" line="480"/>
         <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power (est.)&quot;, to compare the two. Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a tailwind high.</source>
         <translation>Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як «Потужність (оц.)», щоб їх порівняти. Без погоди дня (див. сторінку «Погода») вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="494"/>
+        <location filename="../src/settingsdialog.cpp" line="491"/>
         <source>Surface</source>
         <translation>Покриття</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="502"/>
+        <location filename="../src/settingsdialog.cpp" line="499"/>
         <source>Add</source>
         <translation>Додати</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="507"/>
+        <location filename="../src/settingsdialog.cpp" line="504"/>
         <source>New surface</source>
         <translation>Нове покриття</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="512"/>
+        <location filename="../src/settingsdialog.cpp" line="509"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="520"/>
+        <location filename="../src/settingsdialog.cpp" line="517"/>
         <source>Restore the usual ones</source>
         <translation>Відновити звичайні</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="531"/>
+        <location filename="../src/settingsdialog.cpp" line="528"/>
         <source>What a stretch of a ride can be marked as in the Laps panel (&quot;Mark surface&quot;). The number is how much harder the tires roll there than on typical asphalt: the power estimate multiplies their rolling resistance by it. Stretches marked already keep the number they were marked with.</source>
         <translation>Чим можна позначити відрізок поїздки на панелі «Кола» («Позначити покриття»). Число показує, наскільки важче там котяться шини, ніж на звичайному асфальті: оцінка потужності множить на нього їхній опір коченню. Уже позначені відрізки зберігають число, з яким їх позначено.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="576"/>
+        <location filename="../src/settingsdialog.cpp" line="573"/>
         <source>%1 (with a key of your own)</source>
         <translation>%1 (з власним ключем)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="577"/>
+        <location filename="../src/settingsdialog.cpp" line="574"/>
         <source>%1 (no key needed)</source>
         <translation>%1 (ключ не потрібен)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="580"/>
+        <location filename="../src/settingsdialog.cpp" line="577"/>
         <source>from the service&apos;s website, after signing up</source>
         <translation>з сайту сервісу, після реєстрації</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="600"/>
+        <location filename="../src/settingsdialog.cpp" line="597"/>
         <source>Service:</source>
         <translation>Сервіс:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="604"/>
+        <location filename="../src/settingsdialog.cpp" line="601"/>
         <source>The wind&apos;s speed and direction, the wind against the rider and the air&apos;s density are then measurements of the ride like any other: for gauges, for the data viewer, and counted in by the power estimate. Kept on disk: a ride asked about once needs no connection again.</source>
         <translation>Швидкість і напрямок вітру, зустрічний вітер та густина повітря стають тоді такими ж вимірюваннями поїздки, як і решта: для приладів, для перегляду даних, і враховуються в оцінці потужності. Зберігається на диску: для поїздки, про яку вже питали, з’єднання більше не потрібне.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="608"/>
+        <location filename="../src/settingsdialog.cpp" line="605"/>
         <source>Deletes the weather of rides kept on this computer. It is fetched again when a ride asks for it.</source>
         <translation>Видаляє погоду поїздок, збережену на цьому комп’ютері. Її буде завантажено знову, коли поїздка її потребуватиме.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="641"/>
+        <location filename="../src/settingsdialog.cpp" line="638"/>
         <source>Delete the stored weather (%1)</source>
         <translation>Видалити збережену погоду (%1)</translation>
     </message>
@@ -4551,58 +4550,63 @@ It appears among the templates in the library.</source>
         <translation type="vanished">Враховувати вітер і повітря дня поїздки з архіву погоди</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="563"/>
+        <location filename="../src/settingsdialog.cpp" line="560"/>
         <source>Asks a weather service for the wind, the temperature and the pressure at places along the ride, hour by hour. Sent to it: those places and the date.</source>
         <translation>Запитує в сервісу погоди вітер, температуру й тиск у точках уздовж маршруту, година за годиною. Йому надсилаються ці точки й дата.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="565"/>
+        <location filename="../src/settingsdialog.cpp" line="562"/>
         <source> km</source>
         <translation> км</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="566"/>
+        <location filename="../src/settingsdialog.cpp" line="563"/>
         <source>The weather services know places 10-25 km apart: closer than that brings little</source>
         <translation>Сервіси погоди знають точки за 10-25 км одна від одної: частіше майже нічого не дає</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="568"/>
+        <location filename="../src/settingsdialog.cpp" line="565"/>
         <source>The wind is measured 10 m above the ground. Near it about 60 % is left in the open, less between houses and trees.</source>
         <translation>Вітер вимірюють на висоті 10 м. Біля землі на відкритому місці лишається близько 60 %, між будинками й деревами менше.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="474"/>
+        <location filename="../src/settingsdialog.cpp" line="471"/>
         <source>Rider&apos;s weight:</source>
         <translation>Вага райдера:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="385"/>
+        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <source>Fill in your chainrings and sprockets, and the gear is estimated from speed and cadence. Gears recorded by electronic shifting are used as they are.</source>
+        <translation>Заповніть передні зірки й касету, і передача визначатиметься зі швидкості та каденсу. Передачі, записані електронним перемиканням, використовуються як є.</translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="382"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Bike page.</source>
         <translation>З усім, що на ньому: фляги, сумки, інструменти. Те саме, що на сторінці «Велосипед».</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="389"/>
+        <location filename="../src/settingsdialog.cpp" line="386"/>
         <source>The size printed on the tire picks road, gravel or mountain bike tires by its width. The same as on the Bike page.</source>
         <translation>Розмір, надрукований на шині, за шириною обирає шосейні, гравійні чи гірські шини. Те саме, що на сторінці «Велосипед».</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="468"/>
+        <location filename="../src/settingsdialog.cpp" line="465"/>
         <source>What the chain and the bearings take of the power that drives the wheel: 2-3 % when clean, more when worn or dirty. Turning the cranks costs a few watts more even when the wheel needs nothing, as on a descent.</source>
         <translation>Що забирають ланцюг і підшипники від потужності, яка рухає колесо: 2-3 % у чистих, більше у зношених чи брудних. Обертання шатунів коштує ще кілька ватів, навіть коли колесу нічого не треба, як на спуску.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="475"/>
+        <location filename="../src/settingsdialog.cpp" line="472"/>
         <source>Rider&apos;s height:</source>
         <translation>Зріст райдера:</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="354"/>
-        <location filename="../src/settingsdialog.cpp" line="476"/>
+        <location filename="../src/settingsdialog.cpp" line="473"/>
         <source>Bike&apos;s weight:</source>
         <translation>Вага велосипеда:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="478"/>
+        <location filename="../src/settingsdialog.cpp" line="475"/>
         <source>Tires:</source>
         <translation>Шини:</translation>
     </message>
@@ -4611,22 +4615,22 @@ It appears among the templates in the library.</source>
         <translation type="vanished">Або розмір шини:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="479"/>
+        <location filename="../src/settingsdialog.cpp" line="476"/>
         <source>Rolling resistance:</source>
         <translation>Опір коченню:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="480"/>
+        <location filename="../src/settingsdialog.cpp" line="477"/>
         <source>Riding position:</source>
         <translation>Посадка:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="481"/>
+        <location filename="../src/settingsdialog.cpp" line="478"/>
         <source>Drag area (CdA):</source>
         <translation>Площа опору (CdA):</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="482"/>
+        <location filename="../src/settingsdialog.cpp" line="479"/>
         <source>Drivetrain loss:</source>
         <translation>Втрати в трансмісії:</translation>
     </message>
@@ -4635,22 +4639,22 @@ It appears among the templates in the library.</source>
         <translation type="vanished">Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як «Потужність, оцінка», щоб їх порівняти. Без погоди дня (див. сторінку «Погода») вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="494"/>
+        <location filename="../src/settingsdialog.cpp" line="491"/>
         <source>Rolling resistance ×</source>
         <translation>Опір коченню ×</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="562"/>
+        <location filename="../src/settingsdialog.cpp" line="559"/>
         <source>Fetch the wind and the air of the day of each ride from weather history</source>
         <translation>Завантажувати вітер і повітря дня кожної поїздки з архіву погоди</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="602"/>
+        <location filename="../src/settingsdialog.cpp" line="599"/>
         <source>A place every:</source>
         <translation>Точка кожні:</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="603"/>
+        <location filename="../src/settingsdialog.cpp" line="600"/>
         <source>Wind reaching the rider:</source>
         <translation>Вітер, що доходить до райдера:</translation>
     </message>
@@ -4667,28 +4671,28 @@ It appears among the templates in the library.</source>
         <translation type="vanished">Обчислюється зі швидкості, ухилу та висоти; записану потужність ніколи не замінює. Вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="648"/>
+        <location filename="../src/settingsdialog.cpp" line="645"/>
         <source>Delete the stored maps (%1)</source>
         <translation>Видалити збережені карти (%1)</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="670"/>
+        <location filename="../src/settingsdialog.cpp" line="667"/>
         <source>Not found, or it cannot be run. Videos cannot be exported without it.</source>
         <translation>Не знайдено або не вдається запустити. Без нього експорт відео неможливий.</translation>
     </message>
     <message>
+        <location filename="../src/settingsdialog.cpp" line="709"/>
         <location filename="../src/settingsdialog.cpp" line="712"/>
-        <location filename="../src/settingsdialog.cpp" line="715"/>
         <source> lb</source>
         <translation> фунтів</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="720"/>
+        <location filename="../src/settingsdialog.cpp" line="717"/>
         <source> in</source>
         <translation> дюймів</translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="847"/>
+        <location filename="../src/settingsdialog.cpp" line="844"/>
         <source>Language and decoding changes take effect the next time the program starts.</source>
         <translation>Зміни мови та декодування набудуть чинності після наступного запуску програми.</translation>
     </message>

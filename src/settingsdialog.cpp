@@ -357,11 +357,8 @@ QWidget *SettingsDialog::createBikePage()
     form->addRow(QString(), m_wheelNote);
     form->addRow(tr("Chainrings:"), chainrings);
     form->addRow(tr("Sprockets:"), cassette);
-    form->addRow(note(tr("With the chainrings and the sprockets filled in, the gear of every moment is worked out from "
-                         "the speed and the cadence (a recording without cadence has no gears). While coasting, or "
-                         "pedaling slower than the wheel turns, the last gear is kept. Gears that electronic shifting "
-                         "recorded are always used instead. Gears count from the largest sprocket: 1 is the easiest."),
-                      page));
+    form->addRow(note(tr("Fill in your chainrings and sprockets, and the gear is estimated from speed and cadence. "
+                         "Gears recorded by electronic shifting are used as they are."), page));
     return page;
 }
 
