@@ -214,7 +214,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   in Settings > Maps that deletes the stored tiles and says how much they take (2026-11-14)
 
 ## M5 — More data
-- GoPro GPMF embedded telemetry, chapter auto-join
+- ✅ GoPro embedded telemetry (2026-11-15, `GpmfImporter`): "Open data" on the camera's own .mp4
+  reads its positions, elevation and speed (GPS5 and GPS9), on the video's clock, so nothing is
+  to be synchronized. Checked with made-up files only: no camera file was at hand
+- GoPro: chapters joined by themselves; accelerometer and gyroscope
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; NMEA, VBO
 - ✅ TCX (2026-11-15, `TcxImporter`): track points of every lap with heart rate, cadence, speed and

@@ -1390,6 +1390,12 @@ void MainWindow::autoSync()
         {
             return;
         }
+    // data read out of the video itself is on the video's clock already
+    if (QFileInfo(m_project.videoPath) == QFileInfo(m_project.telemetryPath))
+        {
+            setSyncOffset(0.0, tr("The data comes from this video: nothing to synchronize."));
+            return;
+        }
     const QDateTime wallClock = VideoSync::wallClockFromFileName(QFileInfo(m_project.videoPath).fileName());
     // what this computer's time zone was at that date and time
     const int systemUtcOffset = wallClock.isValid() ? QDateTime(wallClock.date(), wallClock.time()).offsetFromUtc() : 0;

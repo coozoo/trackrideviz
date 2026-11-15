@@ -4,6 +4,7 @@
 #include "csv/dataprofilelibrary.h"
 #include "derivedchannels.h"
 #include "fit/fitimporter.h"
+#include "gpmfimporter.h"
 #include "gpximporter.h"
 #include "tcximporter.h"
 
@@ -12,7 +13,8 @@
 QStringList TelemetryImporter::suffixes()
 {
     // CSV through the data profiles; loggers also write .txt and .log
-    return {"fit", "gpx", "tcx", "csv", "txt", "log"};
+    // mp4: the positions GoPro cameras write into their videos
+    return {"fit", "gpx", "tcx", "csv", "txt", "log", "mp4"};
 }
 
 bool TelemetryImporter::canLoad(const QString &path)
@@ -45,6 +47,10 @@ TelemetrySessionPtr TelemetryImporter::loadRecorded(const QString &path, QString
     if (suffix == "gpx")
         {
             return GpxImporter::load(path, error);
+        }
+    if (suffix == "mp4")
+        {
+            return GpmfImporter::load(path, error);
         }
     if (suffix == "tcx")
         {

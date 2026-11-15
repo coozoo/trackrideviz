@@ -16,7 +16,7 @@ no longer supported: old .NET applications that crash often or are painfully slo
 they simply do not work. So I decided to make such a program myself, with what AI makes possible
 today.
 
-> **Status: early development.** A video can be opened with a FIT, GPX or TCX file, synchronized
+> **Status: early development.** A video can be opened with a FIT, GPX or TCX file (or the data a GoPro wrote into the video itself), synchronized
 > automatically, dressed with gauges that are placed and sized with the mouse, and exported as a
 > new video. Gauges and templates made elsewhere (`.veg`, `.vet`, XML gauges and templates) can be imported,
 > including graphs, track maps, dials and tapes; a first set of own gauges and templates ships with it. Channels a

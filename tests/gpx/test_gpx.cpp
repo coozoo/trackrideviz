@@ -1,8 +1,10 @@
 #include <QtTest>
 
 #include <QBuffer>
+#include <QtEndian>
 
 #include "telemetry/channelids.h"
+#include "telemetry/gpmfimporter.h"
 #include "telemetry/gpximporter.h"
 #include "telemetry/tcximporter.h"
 
@@ -23,6 +25,8 @@ private slots:
     void sampleFile();
     void tcxTrackWithLaps();
     void tcxErrors();
+    void cameraPositions();
+    void cameraVideoFile();
 
 private:
     static TelemetrySessionPtr parse(const QByteArray &gpx, QString *error = nullptr);
@@ -260,6 +264,113 @@ void TestGpx::tcxErrors()
     QBuffer none(&empty);
     none.open(QIODevice::ReadOnly);
     QVERIFY(!TcxImporter::read(&none, &error));
+}
+
+namespace
+{
+QByteArray be32(quint32 v)
+{
+    QByteArray b(4, 0);
+    qToBigEndian(v, b.data());
+    return b;
+}
+
+// One record of the camera's data: key, type, size of a value, how many, the values, padding.
+QByteArray record(const char *key, char type, int size, int repeat, const QByteArray &body)
+{
+    QByteArray r(key, 4);
+    r.append(type).append(char(size)).append(char(repeat >> 8)).append(char(repeat & 0xff)).append(body);
+    while (r.size() % 4)
+        {
+            r.append('\0');
+        }
+    return r;
+}
+
+QByteArray nested(const char *key, const QByteArray &body)
+{
+    return record(key, '\0', 1, int(body.size()), body);
+}
+
+// Positions north of 49 N, 28 E: 0.0001 degrees and 1.5 m/s more with every sample.
+QByteArray positions(int first, int count, int fix, const char *utc)
+{
+    QByteArray rows;
+    for (int i = first; i < first + count; ++i)
+        {
+            rows += be32(490000000 + 1000 * i) + be32(280000000) + be32(200000 + 500 * i) + be32(5000 + 1500 * i) + be32(0);
+        }
+    const QByteArray scale = be32(10000000) + be32(10000000) + be32(1000) + be32(1000) + be32(100);
+    return nested("DEVC", nested("STRM", record("GPSF", 'L', 4, 1, be32(fix)) + record("GPSU", 'U', 16, 1, QByteArray(utc, 16))
+                                 + record("SCAL", 'l', 4, 5, scale) + record("GPS5", 'l', 20, count, rows)));
+}
+
+QByteArray box(const char *type, const QByteArray &body)
+{
+    return be32(quint32(body.size() + 8)) + QByteArray(type, 4) + body;
+}
+}
+
+void TestGpx::cameraPositions()
+{
+    // a second without a fix, then two with two positions each
+    const QVector<GpmfImporter::Payload> payloads
+    {
+        {0.0, 1.0, positions(0, 2, 0, "260625095959.000")},
+        {1.0, 1.0, positions(2, 2, 3, "260625100001.000")},
+        {2.0, 1.0, positions(4, 2, 3, "260625100002.000")},
+    };
+    const TelemetrySessionPtr session = GpmfImporter::fromPayloads(payloads);
+    QVERIFY(session);
+    const Channel *lat = session->channel(ChannelId::PositionLat);
+    QCOMPARE(lat->count(), 4);
+    QCOMPARE(lat->timeAt(0), 1.0);
+    QCOMPARE(lat->timeAt(1), 1.5);
+    QVERIFY(std::fabs(lat->valueAtIndex(0) - 49.0002) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::PositionLon)->valueAtIndex(0) - 28.0) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::Elevation)->valueAtIndex(3) - 202.5) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::Speed)->valueAtIndex(3) - 12.5) < 1e-9);
+    // the clock when the video began: a second before the first fix
+    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0, 0), QTimeZone::UTC));
+    QVERIFY(!GpmfImporter::fromPayloads({{0.0, 1.0, positions(0, 2, 0, "260625095959.000")}}));
+}
+
+void TestGpx::cameraVideoFile()
+{
+    // a video file with nothing but the data track: two samples of half a second, in one chunk
+    const QByteArray first = positions(0, 1, 3, "260625100000.000");
+    const QByteArray second = positions(1, 1, 3, "260625100000.500");
+    const QByteArray ftyp = box("ftyp", QByteArray("mp41", 4) + be32(0));
+    const QByteArray mdat = box("mdat", first + second);
+    const quint32 dataAt = quint32(ftyp.size() + 8);
+    const QByteArray stbl = box("stbl",
+                                box("stsd", be32(0) + be32(1) + be32(16) + QByteArray("gpmd", 4) + be32(0) + be32(1))
+                                + box("stts", be32(0) + be32(1) + be32(2) + be32(500))
+                                + box("stsc", be32(0) + be32(1) + be32(1) + be32(2) + be32(1))
+                                + box("stsz", be32(0) + be32(0) + be32(2) + be32(quint32(first.size())) + be32(quint32(second.size())))
+                                + box("stco", be32(0) + be32(1) + be32(dataAt)));
+    const QByteArray mdhd = box("mdhd", be32(0) + be32(0) + be32(0) + be32(1000) + be32(1000) + be32(0));
+    QByteArray file = ftyp + mdat + box("moov", box("trak", box("mdia", mdhd + box("minf", stbl))));
+    QBuffer buffer(&file);
+    buffer.open(QIODevice::ReadOnly);
+    QString error;
+    const TelemetrySessionPtr session = GpmfImporter::read(&buffer, &error);
+    QVERIFY2(session, qPrintable(error));
+    const Channel *lat = session->channel(ChannelId::PositionLat);
+    QCOMPARE(lat->count(), 2);
+    QCOMPARE(lat->timeAt(1), 0.5);
+    QVERIFY(std::fabs(lat->valueAtIndex(1) - 49.0001) < 1e-9);
+
+    // a video without such a track, and something that is no video at all
+    QByteArray plain = ftyp + box("moov", box("trak", box("mdia", mdhd)));
+    QBuffer other(&plain);
+    other.open(QIODevice::ReadOnly);
+    QVERIFY(!GpmfImporter::read(&other, &error));
+    QVERIFY(!error.isEmpty());
+    QByteArray junk("not a video at all, not even close to one");
+    QBuffer none(&junk);
+    none.open(QIODevice::ReadOnly);
+    QVERIFY(!GpmfImporter::read(&none, &error));
 }
 
 QTEST_APPLESS_MAIN(TestGpx)
