@@ -149,6 +149,10 @@ private:
     QMediaPlayer *m_musicPlayer{nullptr};
     QAudioOutput *m_musicOutput{nullptr};
     QString m_musicSource;
+    // where the music was wanted at the last look, and how long ago that was
+    int m_musicTrack{-1};
+    qint64 m_musicWanted{0};
+    QElapsedTimer m_musicClock;
     // what is heard: the project's, or volumes still being dragged
     Soundtrack m_heardSoundtrack;
 

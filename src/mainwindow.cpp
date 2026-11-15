@@ -2020,6 +2020,7 @@ void MainWindow::syncMusic()
                 {
                     m_musicPlayer->stop();
                 }
+            m_musicTrack = -1;
             return;
         }
     const QString path = soundtrack.tracks.at(moment.track).path;
@@ -2044,14 +2045,23 @@ void MainWindow::syncMusic()
             return;
         }
     const qint64 wanted = qint64(std::llround(moment.position * 1000.0));
+    // Where the music should be by now if it ran on undisturbed since the last look: a seek of
+    // the video moves it elsewhere, going over a cut does not (the music runs through cuts).
+    const bool sameTrack = m_musicTrack == moment.track;
+    const qint64 expected = m_musicWanted + (m_musicClock.isValid() ? m_musicClock.elapsed() : 0);
+    const bool jumped = !sameTrack || std::abs(wanted - expected) > 500;
+    m_musicTrack = moment.track;
+    m_musicWanted = wanted;
+    m_musicClock.start();
     if (m_musicPlayer->playbackState() != QMediaPlayer::PlayingState)
         {
             m_musicPlayer->setPosition(wanted);
             m_musicPlayer->play();
         }
-    else if (std::abs(m_musicPlayer->position() - wanted) > 300)
+    else if (jumped || std::abs(m_musicPlayer->position() - wanted) > 1000)
         {
-            // after a jump of the video, or drifted apart
+            // Put in step after a jump, or when the two have drifted clearly apart. Not for less:
+            // both players tell where they are only roughly, and each seek is heard.
             m_musicPlayer->setPosition(wanted);
         }
 }

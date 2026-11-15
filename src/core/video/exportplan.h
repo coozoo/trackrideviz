@@ -46,11 +46,12 @@ struct ExportPlan
     // Video time of picture `index`.
     double frameTime(qint64 index) const
     {
-        const double into = double(index) * fpsDen / fpsNum;
+        // a video whose rate could not be read is never exported (MediaInfo::isValid); 0 all the same
+        const double into = fpsNum > 0 ? double(index) * fpsDen / fpsNum : 0.0;
         return kept.isEmpty() ? startTime + into : CutList::sourceTime(kept, into);
     }
     // Length of `frames` pictures in seconds.
-    double lengthOf(qint64 frames) const { return double(frames) * fpsDen / fpsNum; }
+    double lengthOf(qint64 frames) const { return fpsNum > 0 ? double(frames) * fpsDen / fpsNum : 0.0; }
 
     // `cuts`: parts of the video left out (video time). `soundtrack`: music and volumes.
     static ExportPlan make(const QString &videoPath, const MediaInfo &info,

@@ -339,6 +339,14 @@ private slots:
         QCOMPARE(plan.overlayRect, QRect(0, 0, 1710, 1080));
     }
 
+    void planWithoutAFrameRateCountsNoTime()
+    {
+        ExportPlan plan;
+        plan.startTime = 3.0;
+        QCOMPARE(plan.frameTime(10), 3.0);
+        QCOMPARE(plan.lengthOf(10), 0.0);
+    }
+
     void planWithoutGaugesHasNoPipe()
     {
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor("out.mp4"), Overlay());

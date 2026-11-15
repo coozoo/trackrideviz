@@ -1,6 +1,7 @@
 #include "channel.h"
 
 #include <algorithm>
+#include <cmath>
 
 Channel::Channel(const QString &id, const QString &unit, Interpolation interpolation)
     : m_id(id), m_unit(unit), m_interpolation(interpolation)
@@ -57,7 +58,8 @@ double Channel::valueAt(double timeSec, bool *ok) const
         {
             *ok = !m_times.isEmpty() && timeSec >= m_times.first() && timeSec <= m_times.last();
         }
-    if (m_times.isEmpty())
+    // no time (NaN) passes the checks below and would be looked for past the end
+    if (m_times.isEmpty() || std::isnan(timeSec))
         {
             return 0.0;
         }

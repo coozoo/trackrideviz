@@ -295,8 +295,10 @@ bool FitDecoder::decodeBody(const uchar *begin, const uchar *end, const Handler 
                 }
 
             // Keep the running timestamp that compressed headers are relative to.
+            // a field declared as something else than a 32-bit count may hold any number: one that
+            // fits no timestamp is none (turning it into one would be undefined)
             const double timestamp = message.value(Fit::TimestampField);
-            if (!std::isnan(timestamp))
+            if (!std::isnan(timestamp) && timestamp >= 0.0 && timestamp <= 4294967295.0)
                 {
                     m_lastTimestamp = quint32(timestamp);
                     m_haveTimestamp = true;

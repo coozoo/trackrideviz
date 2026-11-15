@@ -98,6 +98,10 @@ void TestChannel::outOfRangeClampsAndReportsNotOk()
     ok = true;
     QCOMPARE(c.valueAt(99.0, &ok), 130.0);
     QVERIFY(!ok);
+    // no time at all: no value, and nothing read past the end
+    ok = true;
+    QCOMPARE(c.valueAt(std::nan(""), &ok), 0.0);
+    QVERIFY(!ok);
     QCOMPARE(c.startTime(), 5.0);
     QCOMPARE(c.endTime(), 6.0);
 }

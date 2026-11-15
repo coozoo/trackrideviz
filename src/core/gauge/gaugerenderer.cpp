@@ -1131,9 +1131,9 @@ void BoundGauge::preparePhases(Node &node, const GaugeManipulation &strip) const
 
 double BoundGauge::phaseAt(const Node &node, const GaugeManipulation &strip, double time) const
 {
-    if (node.phaseTimes.isEmpty())
+    if (node.phaseTimes.isEmpty() || std::isnan(time))
         {
-            return time * strip.minFps;
+            return std::isnan(time) ? 0.0 : time * strip.minFps;
         }
     if (time <= node.phaseTimes.first())
         {
