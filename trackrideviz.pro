@@ -48,7 +48,6 @@ HEADERS += \
     src/joindialog.h \
     src/lapcomparepanel.h \
     src/lapspanel.h \
-
     src/trackview.h \
     src/timelinepanel.h \
     src/mainwindow.h \
