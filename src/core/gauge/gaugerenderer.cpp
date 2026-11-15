@@ -470,7 +470,40 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     metricFor(QString(), units); // index 0: the bound channel
     m_nodes = bindAll(gauge.components, units, theme);
     // scales can be set only now that every marking has been counted
+    // Where the scale of the bound channel ends: where the user chose, or, for a dial that draws
+    // numbers fixed when it was made (an imported 0-160 speedometer), a round number above the
+    // highest value of the ride. Numbers printed in a picture cannot move: a gauge with no dial
+    // of its own keeps its range.
+    m_scaleEnd = m_choices.scaleMax;
+    if (m_scaleEnd <= 0.0 && !m_metrics.isEmpty() && m_metrics.first().channel && !m_metrics.first().channel->isEmpty())
+        {
+            const Metric &bound = m_metrics.first();
+            const double highest = bound.display.convert(bound.channel->maxValue());
+            std::function<const GaugeScale *(const QVector<Node> &)> dialOf = [&](const QVector<Node> &nodes)
+            {
+                for (const Node &node : nodes)
+                    {
+                        const GaugeScale &scale = node.component.scale;
+                        if (node.metric == 0 && node.component.type == GaugeComponent::Dial && !scale.loop
+                                && scale.major.unit > 0.0 && scale.maxValue > scale.minValue)
+                            {
+                                return &scale;
+                            }
+                        if (const GaugeScale *inside = dialOf(node.children))
+                            {
+                                return inside;
+                            }
+                    }
+                return static_cast<const GaugeScale *>(nullptr);
+            };
+            if (const GaugeScale *dial = dialOf(m_nodes); dial && highest > dial->minValue)
+                {
+                    const int majors = std::max(1, int(std::lround((dial->maxValue - dial->minValue) / dial->major.unit)));
+                    m_scaleEnd = MetricRange::covering(dial->minValue, highest, majors + 1).max;
+                }
+        }
     const bool ownEnd = m_choices.scaleMax > 0.0;
+    const bool movedEnd = m_scaleEnd > 0.0;
     for (int i = 0; i < m_metrics.size(); ++i)
         {
             Metric &metric = m_metrics[i];
@@ -493,17 +526,17 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
         for (Node &node : nodes)
             {
                 // a tape slides by its numbers' spacing and has no end to move
-                if (ownEnd && node.metric == 0 && node.component.type == GaugeComponent::Dial)
+                if (movedEnd && node.metric == 0 && node.component.type == GaugeComponent::Dial)
                     {
                         rescale(node.component.scale);
                     }
                 for (GaugeManipulation &m : node.component.manipulations)
                     {
-                        // a needle drawn for a scale of its own goes to the chosen end too
-                        if (ownEnd && node.metric == 0 && m.hasValueRange && m.curve.isEmpty() && !m.wrapValue
-                                && m_choices.scaleMax > m.minValue)
+                        // a needle drawn for a scale of its own goes to the new end too
+                        if (movedEnd && node.metric == 0 && m.hasValueRange && m.curve.isEmpty() && !m.wrapValue
+                                && m_scaleEnd > m.minValue)
                             {
-                                m.maxValue = m_choices.scaleMax;
+                                m.maxValue = m_scaleEnd;
                             }
                         const Metric &metric = m_metrics.at(node.metric);
                         if (m.recordingRange && metric.channel && !metric.channel->isEmpty())
@@ -679,13 +712,13 @@ QString BoundGauge::shownChannel(const QString &channel) const
 
 void BoundGauge::rescale(GaugeScale &scale) const
 {
-    if (scale.loop || m_choices.scaleMax <= scale.minValue || scale.major.unit <= 0.0 || scale.maxValue <= scale.minValue)
+    if (scale.loop || m_scaleEnd <= scale.minValue || scale.major.unit <= 0.0 || scale.maxValue <= scale.minValue)
         {
             return;
         }
     // about as many numbers as before, at round values
     const int majors = std::max(1, int(std::lround((scale.maxValue - scale.minValue) / scale.major.unit)));
-    const MetricRange range = MetricRange::upTo(scale.minValue, m_choices.scaleMax, majors);
+    const MetricRange range = MetricRange::upTo(scale.minValue, m_scaleEnd, majors);
     if (scale.minor.unit > 0.0)
         {
             const int perMajor = std::max(1, int(std::lround(scale.major.unit / scale.minor.unit)));

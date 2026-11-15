@@ -144,7 +144,7 @@ private:
     // The channel a part shows: its own, or the bound one ("" = the bound one), as chosen.
     QString shownChannel(const QString &channel) const;
     int metricFor(const QString &channel, const Units &units, const QString &unit = QString());
-    // A dial's own numbers ending at the chosen end.
+    // A dial's own numbers ending at m_scaleEnd.
     void rescale(GaugeScale &scale) const;
     Node bind(const GaugeComponent &component, const Units &units, const GaugeTheme &theme);
     QVector<Node> bindAll(const QVector<GaugeComponent> &components, const Units &units, const GaugeTheme &theme);
@@ -203,6 +203,7 @@ private:
     QSizeF m_size;
     QString m_channel;
     Choices m_choices;
+    double m_scaleEnd{0.0};   // where the bound channel's dial ends: chosen, or from the data; 0 = as made
     // projection of positions onto a plane, the same for every map of the gauge
     const Channel *m_lat{nullptr};
     const Channel *m_lon{nullptr};

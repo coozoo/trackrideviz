@@ -1935,6 +1935,48 @@ private slots:
         QCOMPARE(BoundGauge::fraction(m, range, 5.0), 0.75);
     }
 
+    void fixedDialFollowsTheData()
+    {
+        // a dial made with its own numbers, as imported speedometers are, and a needle for them
+        auto speedometer = [](double max, double major)
+        {
+            GaugeComponent dial;
+            dial.type = GaugeComponent::Dial;
+            dial.frame = QRectF(10, 10, 80, 80);
+            dial.color.role = GaugeColor::Foreground;
+            dial.fontSize = 8;
+            dial.alignment = Qt::AlignCenter;
+            dial.scale.radius = 40;
+            dial.scale.startAngle = -90;
+            dial.scale.endAngle = 90;
+            dial.scale.maxValue = max;
+            dial.scale.major = GaugeTicks{major, 8, 2, GaugeColor{GaugeColor::Custom, Qt::red}};
+            dial.scale.minor = GaugeTicks{major / 2.0, 4, 1, GaugeColor{GaugeColor::Custom, Qt::green}};
+            dial.scale.labelOffset = 18;
+            GaugeComponent needle;
+            needle.type = GaugeComponent::Image;
+            QImage bar(4, 40, QImage::Format_ARGB32_Premultiplied);
+            bar.fill(Qt::blue);
+            needle.image = bar;
+            needle.frame = QRectF(48, 10, 4, 40);
+            GaugeManipulation turn;
+            turn.type = GaugeManipulation::Rotate;
+            turn.pivot = QPointF(50, 50);
+            turn.minAngle = -90;
+            turn.maxAngle = 90;
+            turn.hasValueRange = true;
+            turn.maxValue = max;
+            needle.manipulations.append(turn);
+            Gauge gauge;
+            gauge.size = QSizeF(100, 100);
+            gauge.components << dial << needle;
+            return gauge;
+        };
+        // a ride up to 36 km/h: the 0-160 dial ends at 40 as one made for 0-40 does
+        QCOMPARE(draw(speedometer(160.0, 20.0), 10.0), draw(speedometer(40.0, 5.0), 10.0));
+        QVERIFY(draw(speedometer(160.0, 20.0), 10.0) != draw(speedometer(160.0, 20.0), 10.0, ChannelId::Speed, nullptr));
+    }
+
     void dialDrawsArcTicksAndNumbers()
     {
         GaugeComponent dial;
