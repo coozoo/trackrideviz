@@ -12,6 +12,7 @@ class QComboBox;
 class QDoubleSpinBox;
 class QFormLayout;
 class QLineEdit;
+class QPushButton;
 class QSlider;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -58,6 +59,10 @@ private:
     void duplicatePart();
     void movePart(int by);
 
+    // Every state the gauge went through here, to go back and forth between.
+    void remember();
+    void stepHistory(int by);
+
     // rows of the properties, each writing into the part picked when it is used
     using Part = GaugeComponent;
     void addNumber(QFormLayout *form, const QString &label, double value, double low, double high, int decimals,
@@ -70,6 +75,7 @@ private:
                  const std::function<void(Part &, const QString &)> &set);
     void addColor(QFormLayout *form, const QString &label, const GaugeColor &value,
                   const std::function<void(Part &, const GaugeColor &)> &set);
+    void addFont(QFormLayout *form, const Part &part);
     void addChannel(QFormLayout *form, const QString &label, const QString &value,
                     const std::function<void(Part &, const QString &)> &set);
     void addMovement(QFormLayout *form, const Part &part);
@@ -91,4 +97,9 @@ private:
     QWidget *m_properties{nullptr};
     QVBoxLayout *m_propertiesLayout{nullptr};
     bool m_filling{false};
+    QVector<Gauge> m_history;
+    QVector<QByteArray> m_historyJson;   // the same as text, to tell a change from none
+    int m_historyAt{-1};
+    QPushButton *m_undoButton{nullptr};
+    QPushButton *m_redoButton{nullptr};
 };

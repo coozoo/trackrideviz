@@ -301,9 +301,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   (SVG and bitmaps), rectangle, ellipse, arc, pie, line, needle, filling bar and arc, round and
   sliding scales, graph, route and lap route (with what is drawn at the current point), groups.
   One movement per part (turn, fill, slide). Gauges that come with the program open as a copy
-- Editor, still to do: undo inside the editor; a part's second and later movements, the g-ball and
-  the picture strip; markers of a graph's axes and a lap's start line; fonts by name; gradients;
-  the points of a line with more than two; snapping and aligning; turning a text's frame into a box
+- ✅ Editor (2026-11-15): undo and redo; a part being moved is drawn to the edges and middles of
+  the others and of the gauge; fonts by name; a second click picks inside a group
+- Editor, still to do: a part's second and later movements, the g-ball and the picture strip;
+  markers of a graph's axes and a lap's start line; gradients; the points of a line with more
+  than two; aligning several parts; turning a text's frame into a box
 - Path shapes; G-plot with a tail, lap table, sector bar
 
 ## M7 — Polish and distribution

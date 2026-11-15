@@ -1,5 +1,7 @@
 #include "gaugeeditor.h"
 
+#include "gauge/gaugefile.h"
+#include "gauge/gaugefonts.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/gaugetheme.h"
 #include "laps/lapengine.h"
@@ -16,6 +18,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
@@ -28,6 +31,8 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSettings>
+#include <QShortcut>
+#include <QSignalBlocker>
 #include <QSlider>
 #include <QSplitter>
 #include <QSvgRenderer>
@@ -254,6 +259,8 @@ public:
     std::function<bool(const QPointF &)> pick;
     std::function<void()> edited;     // while dragging
     std::function<void()> finished;   // the drag is over, or a key moved the part
+    // the edges and middles a part being moved is drawn to: those of the other parts and of the gauge
+    std::function<QVector<QRectF>()> others;
 
     void refresh()
     {
@@ -294,6 +301,18 @@ protected:
                         painter.drawRect(handleOf(bounds));
                     }
             }
+        // what the part being moved is held by
+        painter.setPen(QPen(QColor(255, 90, 200), 1, Qt::DashLine));
+        for (const double x : std::as_const(m_guidesX))
+            {
+                const double at = toWidget(QRectF(x, 0, 0, 0)).left();
+                painter.drawLine(QPointF(at, 0), QPointF(at, height()));
+            }
+        for (const double y : std::as_const(m_guidesY))
+            {
+                const double at = toWidget(QRectF(0, y, 0, 0)).top();
+                painter.drawLine(QPointF(0, at), QPointF(width(), at));
+            }
     }
 
     void mousePressEvent(QMouseEvent *event) override
@@ -318,6 +337,11 @@ protected:
                 m_drag = None;
             }
         m_last = at;
+        m_pressed = at;
+        if (GaugeComponent *now = framed ? framed() : nullptr)
+            {
+                m_origin = boundsOf(*now);
+            }
         update();
     }
 
@@ -330,7 +354,22 @@ protected:
             }
         // whole units: gauges are drawn on a grid of them
         const QPointF at = toGauge(event->position());
-        const QPointF delta(std::round(at.x() - m_last.x()), std::round(at.y() - m_last.y()));
+        QPointF delta(std::round(at.x() - m_last.x()), std::round(at.y() - m_last.y()));
+        if (m_drag == Move)
+            {
+                // where the mouse puts it, then drawn to an edge or a middle near by (not with Alt held)
+                QRectF wanted = m_origin.translated(std::round(at.x() - m_pressed.x()), std::round(at.y() - m_pressed.y()));
+                m_guidesX.clear();
+                m_guidesY.clear();
+                if (others && !(event->modifiers() & Qt::AltModifier))
+                    {
+                        const QPointF held = snap(wanted, others());
+                        wanted.translate(held);
+                    }
+                delta = wanted.topLeft() - boundsOf(*part).topLeft();
+                delta = QPointF(std::round(delta.x()), std::round(delta.y()));
+                update();
+            }
         if (delta.isNull())
             {
                 return;
@@ -353,11 +392,14 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *) override
     {
+        m_guidesX.clear();
+        m_guidesY.clear();
         if (m_drag != None && finished)
             {
                 finished();
             }
         m_drag = None;
+        update();
     }
 
     void keyPressEvent(QKeyEvent *event) override
@@ -403,6 +445,54 @@ private:
                && !(part.type == GaugeComponent::Shape && part.shape == GaugeComponent::Line);
     }
 
+    // How far `box` is to be shifted for one of its edges or its middle to meet one of
+    // `targets`' within a few units, each way on its own; the lines met are kept to be drawn.
+    QPointF snap(const QRectF &box, const QVector<QRectF> &targets)
+    {
+        const double reach = 5.0;
+        double bestX = reach + 1.0;
+        double bestY = reach + 1.0;
+        double lineX = 0.0;
+        double lineY = 0.0;
+        for (const QRectF &target : targets)
+            {
+                for (const double to : {target.left(), target.center().x(), target.right()})
+                    {
+                        for (const double from : {box.left(), box.center().x(), box.right()})
+                            {
+                                if (std::fabs(to - from) < std::fabs(bestX))
+                                    {
+                                        bestX = to - from;
+                                        lineX = to;
+                                    }
+                            }
+                    }
+                for (const double to : {target.top(), target.center().y(), target.bottom()})
+                    {
+                        for (const double from : {box.top(), box.center().y(), box.bottom()})
+                            {
+                                if (std::fabs(to - from) < std::fabs(bestY))
+                                    {
+                                        bestY = to - from;
+                                        lineY = to;
+                                    }
+                            }
+                    }
+            }
+        QPointF shift;
+        if (std::fabs(bestX) <= reach)
+            {
+                shift.setX(bestX);
+                m_guidesX.append(lineX);
+            }
+        if (std::fabs(bestY) <= reach)
+            {
+                shift.setY(bestY);
+                m_guidesY.append(lineY);
+            }
+        return shift;
+    }
+
     static QRectF handleOf(const QRectF &bounds)
     {
         return QRectF(bounds.right() - 5, bounds.bottom() - 5, 10, 10);
@@ -433,6 +523,10 @@ private:
     BoundGauge m_bound;
     Drag m_drag{None};
     QPointF m_last;
+    QPointF m_pressed;           // where the drag began, in the gauge's units
+    QRectF m_origin;             // where the part was then
+    QVector<double> m_guidesX;
+    QVector<double> m_guidesY;
 };
 
 GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWidget *parent)
@@ -501,6 +595,16 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     top->addWidget(m_heightSpin);
     top->addWidget(new QLabel(tr("Made for:"), this));
     top->addWidget(m_channelCombo);
+    m_undoButton = new QPushButton(tr("Undo"), this);
+    m_undoButton->setToolTip(QKeySequence(QKeySequence::Undo).toString(QKeySequence::NativeText));
+    connect(m_undoButton, &QPushButton::clicked, this, [this]() { stepHistory(-1); });
+    m_redoButton = new QPushButton(tr("Redo"), this);
+    m_redoButton->setToolTip(QKeySequence(QKeySequence::Redo).toString(QKeySequence::NativeText));
+    connect(m_redoButton, &QPushButton::clicked, this, [this]() { stepHistory(1); });
+    connect(new QShortcut(QKeySequence::Undo, this), &QShortcut::activated, this, [this]() { stepHistory(-1); });
+    connect(new QShortcut(QKeySequence::Redo, this), &QShortcut::activated, this, [this]() { stepHistory(1); });
+    top->addWidget(m_undoButton);
+    top->addWidget(m_redoButton);
 
     // the parts
     m_tree = new QTreeWidget(this);
@@ -589,19 +693,47 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
         // the one in front first
         for (int i = int(m_gauge.components.size()) - 1; i >= 0; --i)
             {
-                if (boundsOf(m_gauge.components.at(i)).adjusted(-2, -2, 2, 2).contains(at))
+                const GaugeComponent &part = m_gauge.components.at(i);
+                if (boundsOf(part).adjusted(-2, -2, 2, 2).contains(at))
                     {
+                        // a second click on a group picked already goes into it
+                        const Path now = selectedPath();
+                        if (part.type == GaugeComponent::Group && !now.isEmpty() && now.first() == i)
+                            {
+                                for (int c = int(part.children.size()) - 1; c >= 0; --c)
+                                    {
+                                        if (boundsOf(part.children.at(c)).adjusted(-2, -2, 2, 2).contains(at))
+                                            {
+                                                select({i, c});
+                                                return true;
+                                            }
+                                    }
+                            }
                         select({i});
                         return true;
                     }
             }
         return false;
     };
+    m_canvas->others = [this]()
+    {
+        QVector<QRectF> targets{QRectF(QPointF(0, 0), m_gauge.size)};
+        const Path now = selectedPath();
+        for (int i = 0; i < m_gauge.components.size(); ++i)
+            {
+                if (now.isEmpty() || now.first() != i)
+                    {
+                        targets.append(boundsOf(m_gauge.components.at(i)));
+                    }
+            }
+        return targets;
+    };
     m_canvas->edited = [this]() { m_canvas->refresh(); };
     m_canvas->finished = [this]()
     {
         m_canvas->refresh();
         fillProperties();
+        remember();
     };
     m_timeSlider = new QSlider(Qt::Horizontal, this);
     m_timeSlider->setRange(0, int(m_session->duration()));
@@ -617,8 +749,11 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     middleLayout->setContentsMargins(0, 0, 0, 0);
     middleLayout->addWidget(m_canvas, 1);
     middleLayout->addWidget(m_timeSlider);
-    middleLayout->addWidget(new QLabel(tr("Click a part to pick it, drag it to move it, drag its corner to size it. "
-                                          "Arrow keys move it by one unit, with Shift by ten."), middle));
+    QLabel *hint = new QLabel(tr("Click a part to pick it (again to pick inside a group), drag it to move it, drag its "
+                                 "corner to size it. A part being moved is drawn to the edges and middles of the others; "
+                                 "hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten."), middle);
+    hint->setWordWrap(true);
+    middleLayout->addWidget(hint);
 
     // what the picked part is made of
     m_properties = new QWidget(this);
@@ -658,6 +793,60 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
         }
     fillProperties();
     m_canvas->refresh();
+    remember();
+}
+
+void GaugeEditor::remember()
+{
+    // called while the dialog is still being put together
+    if (!m_undoButton || !m_canvas)
+        {
+            return;
+        }
+    const QByteArray json = GaugeFile::toJson(m_gauge);
+    if (m_historyAt < 0 || json != m_historyJson.at(m_historyAt))
+        {
+            // what was undone is gone once something new is done
+            m_history.resize(m_historyAt + 1);
+            m_historyJson.resize(m_historyAt + 1);
+            m_history.append(m_gauge);
+            m_historyJson.append(json);
+            if (m_history.size() > 200)
+                {
+                    m_history.removeFirst();
+                    m_historyJson.removeFirst();
+                }
+            m_historyAt = int(m_history.size()) - 1;
+        }
+    m_undoButton->setEnabled(m_historyAt > 0);
+    m_redoButton->setEnabled(m_historyAt + 1 < m_history.size());
+}
+
+void GaugeEditor::stepHistory(int by)
+{
+    const int to = m_historyAt + by;
+    if (to < 0 || to >= m_history.size())
+        {
+            return;
+        }
+    m_historyAt = to;
+    const Path picked = selectedPath();
+    // the name is not part of it: it is typed, and typing has an undo of its own
+    const QString name = m_gauge.name;
+    m_gauge = m_history.at(to);
+    m_gauge.name = name;
+    {
+        const QSignalBlocker width(m_widthSpin);
+        const QSignalBlocker height(m_heightSpin);
+        m_widthSpin->setValue(m_gauge.size.width());
+        m_heightSpin->setValue(m_gauge.size.height());
+    }
+    fillTree();
+    select(picked);
+    fillProperties();
+    m_canvas->refresh();
+    m_undoButton->setEnabled(m_historyAt > 0);
+    m_redoButton->setEnabled(m_historyAt + 1 < m_history.size());
 }
 
 void GaugeEditor::accept()
@@ -790,6 +979,7 @@ void GaugeEditor::changed(bool listChanged)
         }
     m_canvas->channel = m_channelCombo->currentData().toString();
     m_canvas->refresh();
+    remember();
 }
 
 void GaugeEditor::addPart(int kind)
@@ -1229,6 +1419,38 @@ void GaugeEditor::addColor(QFormLayout *form, const QString &label, const GaugeC
     form->addRow(label, row);
 }
 
+void GaugeEditor::addFont(QFormLayout *form, const Part &part)
+{
+    QComboBox *combo = new QComboBox(m_properties);
+    combo->addItem(tr("The gauges' own (%1)").arg(QLatin1String(GaugeFonts::Family)), QString());
+    for (const QString &family : QFontDatabase::families())
+        {
+            if (family != QLatin1String(GaugeFonts::Family))
+                {
+                    combo->addItem(family, family);
+                }
+        }
+    // one this computer does not have stays what the gauge asks for
+    if (!part.fontFamily.isEmpty() && combo->findData(part.fontFamily) < 0)
+        {
+            combo->addItem(tr("%1 (not on this computer)").arg(part.fontFamily), part.fontFamily);
+        }
+    combo->setCurrentIndex(std::max(0, combo->findData(part.fontFamily)));
+    combo->setToolTip(tr("The gauges' own font comes with the program and looks the same everywhere. Another one is "
+                         "only named in the gauge: a computer without it draws the text in a font of its own."));
+    combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    combo->setMinimumContentsLength(14);
+    connect(combo, &QComboBox::activated, this, [this, combo]()
+    {
+        if (Part *picked = selected())
+            {
+                picked->fontFamily = combo->currentData().toString();
+                changed();
+            }
+    });
+    form->addRow(tr("Font:"), combo);
+}
+
 void GaugeEditor::addChannel(QFormLayout *form, const QString &label, const QString &value,
                              const std::function<void(Part &, const QString &)> &set)
 {
@@ -1506,6 +1728,7 @@ void GaugeEditor::fillProperties()
                 {
                     addText(form, tr("Words:"), part.text, [](Part &p, const QString &words) { p.text = words; });
                 }
+            addFont(form, part);
             addNumber(form, tr("Size:"), part.fontSize, 1, 2000, 0, [](Part &p, double v) { p.fontSize = v; },
                       tr("Height of the letters, in the gauge's units"));
             addChoice(form, tr("Set:"), {{tr("to the right of the point"), int(Qt::AlignLeft)}, {tr("around the point"), int(Qt::AlignHCenter)},
