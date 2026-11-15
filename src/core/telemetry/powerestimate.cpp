@@ -18,10 +18,13 @@ const double kStandardKelvin = 288.15;
 // the build the drag areas below were measured for
 const double kReferenceKg = 75.0;
 const double kReferenceCm = 178.0;
-// speed is smoothed over this much on either side, its change taken over as much, and the
-// power smoothed again: positions jitter and many loggers give the speed in steps, so what a
-// gain of speed seems to ask for swings both ways from second to second
-const double kSmoothSeconds = 5.0;
+// Speed is smoothed over this much on either side, its change taken over as much, and the
+// power smoothed again. A speed worked out from positions needs the longer: positions jitter
+// and are often stored only every few seconds, the speed between them then comes in steps,
+// and what a gain of speed seems to ask for swings both ways from second to second. A speed
+// the logger measured follows the legs closely enough for the shorter.
+const int kSmoothRecorded = 1;   // s: three seconds in all
+const int kSmoothWorkedOut = 5;
 
 struct Kind
 {
@@ -187,7 +190,7 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
                     v[i] = speed->valueAt(t);
                 }
         }
-    const int half = int(kSmoothSeconds);
+    const int half = original->derivedChannels().contains(ChannelId::Speed) ? kSmoothWorkedOut : kSmoothRecorded;
     v = smooth(v, half);
 
     const double mass = rider.riderKg + rider.bikeKg;
