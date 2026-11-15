@@ -16,6 +16,7 @@ class QListWidget;
 class QListWidgetItem;
 class QTableView;
 class QToolButton;
+class TrackView;
 
 // The data itself: chosen channels as charts on one time axis (the data's
 // own), and the samples of one as a table. Samples of a stretch can be taken
@@ -35,6 +36,8 @@ public:
     void setTime(double time);
     // seconds charts are smoothed over; 0 = not
     void setSmoothing(double seconds);
+    // The map chosen in the settings may have changed.
+    void refreshMapChoice();
 
 signals:
     void seekRequested(double time);
@@ -64,6 +67,8 @@ private:
     QToolButton *m_removeButton{nullptr};
     QToolButton *m_restoreButton{nullptr};
     QToolButton *m_tableButton{nullptr};
+    QToolButton *m_mapButton{nullptr};
+    TrackView *m_map{nullptr};
     QComboBox *m_smoothingCombo{nullptr};
     double m_smoothing{0.0};
     std::vector<std::unique_ptr<Channel>> m_smoothed;   // what the chart draws when smoothing

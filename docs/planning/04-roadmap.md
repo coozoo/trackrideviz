@@ -194,7 +194,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - A map of its own per gauge
 - ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
   of map under it - the same choice as in the settings, so the gauges follow it
-- A map in the Data viewer to read the route against roads
+- ✅ A map in the Data viewer to read the route against roads (2026-11-15, "Map"): where the ride is
+  now, a click goes there, the stretch picked in the chart in red
 - ✅ Elevation from a terrain model (2026-11-14, `Terrain`): the height of the ground under the
   route from "terrarium" height tiles (about 25 m to a pixel), fetched and kept like map tiles by
   a second `TileStore`. Per project, in the Sources panel: for recordings without an elevation

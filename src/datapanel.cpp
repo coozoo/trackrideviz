@@ -1,4 +1,6 @@
 #include "datapanel.h"
+#include "settings/appsettings.h"
+#include "trackview.h"
 
 #include "chartsmoothing.h"
 #include "telemetry/channelids.h"
@@ -682,17 +684,44 @@ DataPanel::DataPanel(QWidget *parent)
     m_tableButton->setCheckable(true);
     connect(m_tableButton, &QToolButton::toggled, m_table, &QTableView::setVisible);
 
+    // the route, to read the data against roads: where the ride is now, and the stretch picked
+    m_map = new TrackView(this);
+    m_map->setToolTip(tr("Click on the route to go there. A stretch picked in the chart is drawn in red."));
+    m_map->clicksAlways = true;
+    m_map->clicked = [this](double lat, double lon)
+    {
+        double off = 0.0;
+        const double time = m_session ? LapEngine::nearestTime(*m_session, lat, lon, &off) : -1.0;
+        if (time >= 0.0)
+            {
+                emit seekRequested(time);
+            }
+    };
+    connect(TileStore::instance(), &TileStore::arrived, m_map, qOverload<>(&QWidget::update));
+    m_mapButton = button(tr("Map"), tr("Show the route on a map beside the charts"));
+    m_mapButton->setCheckable(true);
+    m_mapButton->setChecked(QSettings().value("data/map", false).toBool());
+    m_map->setVisible(m_mapButton->isChecked());
+    connect(m_mapButton, &QToolButton::toggled, this, [this](bool shown)
+    {
+        QSettings().setValue("data/map", shown);
+        m_map->setVisible(shown);
+    });
+    refreshMapChoice();
+
     QHBoxLayout *tools = new QHBoxLayout;
     tools->addWidget(m_removeButton);
     tools->addWidget(m_restoreButton);
     tools->addStretch(1);
     tools->addWidget(m_smoothingCombo);
     tools->addWidget(m_tableButton);
+    tools->addWidget(m_mapButton);
 
     QWidget *right = new QWidget(this);
     QHBoxLayout *chartAndTable = new QHBoxLayout;
     chartAndTable->addWidget(m_chart, 3);
     chartAndTable->addWidget(m_table, 1);
+    chartAndTable->addWidget(m_map, 2);
     QVBoxLayout *rightLayout = new QVBoxLayout(right);
     rightLayout->setContentsMargins(0, 0, 0, 0);
     rightLayout->addLayout(tools);
@@ -722,6 +751,12 @@ void DataPanel::setSessions(const TelemetrySessionPtr &raw, const TelemetrySessi
         }
     updateCharts();
     showTableOf(m_tableChannel);
+    m_map->setSession(session, StartFinishLine(), {});
+}
+
+void DataPanel::refreshMapChoice()
+{
+    m_map->setStreets(AppSettings::lapsMapShown(), AppSettings::mapCredit());
 }
 
 void DataPanel::setEdits(const QVector<DataEdit> &edits)
@@ -741,6 +776,7 @@ void DataPanel::setSmoothing(double seconds)
 void DataPanel::setTime(double time)
 {
     m_chart->setTime(time);
+    m_map->setTime(time);
 }
 
 void DataPanel::fillChannels()
@@ -958,6 +994,7 @@ void DataPanel::updateButtons()
     double end = 0.0;
     const bool picked = selection(&channel, &start, &end);
     m_removeButton->setEnabled(picked);
+    m_map->setHighlight(picked ? start : 0.0, picked ? end : 0.0);
     m_restoreButton->setEnabled(picked && DataEdits::restored(m_edits, channel, start, end).size() != m_edits.size());
 }
 

@@ -1746,6 +1746,7 @@ void MainWindow::applyMapSettings()
     // asked for only when the Weather page of the settings says so
     WeatherStore::instance()->setDownloads(true);
     m_lapsPanel->refreshMapChoice();
+    m_dataPanel->refreshMapChoice();
     if (maps->urlTemplate() + maps->attribution() != before)
         {
             rebuildOverlay();

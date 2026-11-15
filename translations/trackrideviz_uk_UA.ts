@@ -552,86 +552,101 @@
 <context>
     <name>DataPanel</name>
     <message>
-        <location filename="../src/datapanel.cpp" line="115"/>
+        <location filename="../src/datapanel.cpp" line="117"/>
         <source>Taken out</source>
         <translation>Вилучено</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="126"/>
+        <location filename="../src/datapanel.cpp" line="128"/>
         <source>Time</source>
         <translation>Час</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="225"/>
+        <location filename="../src/datapanel.cpp" line="227"/>
         <source>Open data and tick channels to see them</source>
         <translation>Відкрийте дані й позначте канали, щоб їх побачити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="614"/>
+        <location filename="../src/datapanel.cpp" line="616"/>
         <source>Tick the channels to chart</source>
         <translation>Позначте канали для графіків</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="630"/>
+        <location filename="../src/datapanel.cpp" line="632"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Shift+drag over a channel picks samples to take out.</source>
         <translation>Клацання — перейти туди, коліщатко — масштаб (Shift+коліщатко — зсув).
 Shift+перетягування над каналом вибирає зразки, щоб їх вилучити.</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="643"/>
+        <location filename="../src/datapanel.cpp" line="645"/>
         <source>Double-click a sample to go there; select samples to take them out</source>
         <translation>Двічі клацніть зразок, щоб перейти до нього; виберіть зразки, щоб їх вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="669"/>
+        <location filename="../src/datapanel.cpp" line="671"/>
         <source>Take out</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="669"/>
+        <location filename="../src/datapanel.cpp" line="671"/>
         <source>Leave the picked samples out; the channel is read across the gap</source>
         <translation>Не враховувати вибрані зразки; канал читається через проміжок</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="671"/>
+        <location filename="../src/datapanel.cpp" line="673"/>
         <source>Put back</source>
         <translation>Повернути</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="671"/>
+        <location filename="../src/datapanel.cpp" line="673"/>
         <source>Put back samples taken out in the picked stretch</source>
         <translation>Повернути вилучені зразки у вибраному відрізку</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="681"/>
+        <location filename="../src/datapanel.cpp" line="683"/>
         <source>Table</source>
         <translation>Таблиця</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="681"/>
+        <location filename="../src/datapanel.cpp" line="683"/>
         <source>Show the samples of the channel last clicked</source>
         <translation>Показати зразки каналу, клацнутого останнім</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="783"/>
+        <location filename="../src/datapanel.cpp" line="689"/>
+        <source>Click on the route to go there. A stretch picked in the chart is drawn in red.</source>
+        <translation>Клацніть на маршруті, щоб перейти туди. Відрізок, вибраний на графіку, намальовано червоним.</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="701"/>
+        <source>Map</source>
+        <translation>Мапа</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="701"/>
+        <source>Show the route on a map beside the charts</source>
+        <translation>Показати маршрут на мапі поруч із графіками</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="819"/>
         <source>%1
 Worked out from the other data</source>
         <translation>%1
 Обчислено з інших даних</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="853"/>
+        <location filename="../src/datapanel.cpp" line="889"/>
         <source>Color of the line</source>
         <translation>Колір лінії</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="977"/>
+        <location filename="../src/datapanel.cpp" line="1014"/>
         <source>Take out samples</source>
         <translation>Вилучити зразки</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="991"/>
+        <location filename="../src/datapanel.cpp" line="1028"/>
         <source>Put back samples</source>
         <translation>Повернути зразки</translation>
     </message>
@@ -2621,93 +2636,92 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>LapsPanel</name>
     <message>
-        <location filename="../src/lapspanel.cpp" line="140"/>
         <source>No positions in the data</source>
-        <translation>У даних немає координат</translation>
+        <translation type="vanished">У даних немає координат</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="365"/>
+        <location filename="../src/lapspanel.cpp" line="95"/>
         <source>Clear all</source>
         <translation>Прибрати всі</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="368"/>
+        <location filename="../src/lapspanel.cpp" line="98"/>
         <source>Takes the surface picked in the table off the route</source>
         <translation>Знімає з маршруту покриття, вибране в таблиці</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="380"/>
+        <location filename="../src/lapspanel.cpp" line="110"/>
         <source>Surface</source>
         <translation>Покриття</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="380"/>
+        <location filename="../src/lapspanel.cpp" line="110"/>
         <source>From</source>
         <translation>Від</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="380"/>
+        <location filename="../src/lapspanel.cpp" line="110"/>
         <source>To</source>
         <translation>До</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="380"/>
+        <location filename="../src/lapspanel.cpp" line="110"/>
         <source>Length</source>
         <translation>Довжина</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="387"/>
+        <location filename="../src/lapspanel.cpp" line="117"/>
         <source>What each stretch is ridden on and where it begins and ends along the ride; where two overlap, the lower one in the list counts</source>
         <translation>По чому їдуть на кожному відрізку та де він починається й закінчується вздовж поїздки; де два накладаються, діє нижчий у списку</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="630"/>
+        <location filename="../src/lapspanel.cpp" line="362"/>
         <source>Click on the route where laps begin</source>
         <translation>Клацніть на маршруті там, де починаються кола</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="346"/>
+        <location filename="../src/lapspanel.cpp" line="76"/>
         <source>Place start/finish</source>
         <translation>Поставити старт/фініш</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="348"/>
+        <location filename="../src/lapspanel.cpp" line="78"/>
         <source>Then click on the map where laps begin: the line is put across the route there</source>
         <translation>Потім клацніть на мапі там, де починаються кола: лінію буде поставлено поперек маршруту</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="350"/>
-        <location filename="../src/lapspanel.cpp" line="367"/>
+        <location filename="../src/lapspanel.cpp" line="80"/>
+        <location filename="../src/lapspanel.cpp" line="97"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="351"/>
+        <location filename="../src/lapspanel.cpp" line="81"/>
         <source>Use the laps the device recorded instead</source>
         <translation>Натомість брати кола, записані пристроєм</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="353"/>
+        <location filename="../src/lapspanel.cpp" line="83"/>
         <source>Add sector</source>
         <translation>Додати сектор</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="355"/>
+        <location filename="../src/lapspanel.cpp" line="85"/>
         <source>Then click on the map where a sector ends: each line splits the lap once more</source>
         <translation>Потім клацніть на карті там, де закінчується сектор: кожна лінія ділить коло ще раз</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="357"/>
+        <location filename="../src/lapspanel.cpp" line="87"/>
         <source>Clear sectors</source>
         <translation>Прибрати сектори</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="360"/>
+        <location filename="../src/lapspanel.cpp" line="90"/>
         <source>Mark surface</source>
         <translation>Позначити покриття</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="362"/>
+        <location filename="../src/lapspanel.cpp" line="92"/>
         <source>Then click on the map where a stretch begins and where it ends, and choose what it is ridden on: the power estimate counts it in</source>
         <translation>Потім клацніть на мапі, де відрізок починається і де закінчується, та оберіть, по чому там їдуть: оцінка потужності це врахує</translation>
     </message>
@@ -2716,104 +2730,104 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="vanished">Прибрати покриття</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="395"/>
+        <location filename="../src/lapspanel.cpp" line="125"/>
         <source>Street map</source>
         <translation>Карта вулиць</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="398"/>
+        <location filename="../src/lapspanel.cpp" line="128"/>
         <source>The map here and under the gauges that show one</source>
         <translation>Карта тут і під приладами, які її показують</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="403"/>
+        <location filename="../src/lapspanel.cpp" line="133"/>
         <source>Own server</source>
         <translation>Власний сервер</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="428"/>
+        <location filename="../src/lapspanel.cpp" line="160"/>
         <source>Double-click a lap to go to its start; select several to compare them</source>
         <translation>Двічі клацніть коло, щоб перейти до його початку; виберіть кілька, щоб порівняти</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="476"/>
+        <location filename="../src/lapspanel.cpp" line="208"/>
         <source>Laps</source>
         <translation>Кола</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="477"/>
+        <location filename="../src/lapspanel.cpp" line="209"/>
         <source>Surfaces</source>
         <translation>Покриття</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="528"/>
+        <location filename="../src/lapspanel.cpp" line="260"/>
         <source>Lap</source>
         <translation>Коло</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="528"/>
+        <location filename="../src/lapspanel.cpp" line="260"/>
         <source>Time</source>
         <translation>Час</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="531"/>
+        <location filename="../src/lapspanel.cpp" line="263"/>
         <source>S%1</source>
         <translation>С%1</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="533"/>
+        <location filename="../src/lapspanel.cpp" line="265"/>
         <source>To best</source>
         <translation>До найкращого</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="576"/>
+        <location filename="../src/lapspanel.cpp" line="308"/>
         <source>best</source>
         <translation>найкраще</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="591"/>
+        <location filename="../src/lapspanel.cpp" line="323"/>
         <source>The fastest of this sector</source>
         <translation>Найшвидший у цьому секторі</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="631"/>
+        <location filename="../src/lapspanel.cpp" line="363"/>
         <source>Click on the route where a sector ends</source>
         <translation>Клацніть на маршруті там, де закінчується сектор</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="632"/>
+        <location filename="../src/lapspanel.cpp" line="364"/>
         <source>Click on the route where the surface begins</source>
         <translation>Клацніть на маршруті, де покриття починається</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="643"/>
+        <location filename="../src/lapspanel.cpp" line="375"/>
         <source>Click on the route where this surface ends</source>
         <translation>Клацніть на маршруті, де це покриття закінчується</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="649"/>
-        <location filename="../src/lapspanel.cpp" line="683"/>
-        <location filename="../src/lapspanel.cpp" line="688"/>
+        <location filename="../src/lapspanel.cpp" line="381"/>
+        <location filename="../src/lapspanel.cpp" line="415"/>
+        <location filename="../src/lapspanel.cpp" line="420"/>
         <source>%1 (×%2)</source>
         <translation>%1 (×%2)</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="710"/>
+        <location filename="../src/lapspanel.cpp" line="442"/>
         <source> km</source>
         <translation> км</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="731"/>
+        <location filename="../src/lapspanel.cpp" line="463"/>
         <source>%1 km</source>
         <translation>%1 км</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="750"/>
+        <location filename="../src/lapspanel.cpp" line="482"/>
         <source>Open data to see its laps.</source>
         <translation>Відкрийте дані, щоб побачити їхні кола.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="756"/>
+        <location filename="../src/lapspanel.cpp" line="488"/>
         <source>%n lap(s) between crossings of the start/finish line.</source>
         <translation>
             <numerusform>%n коло між перетинами лінії старту/фінішу.</numerusform>
@@ -2822,7 +2836,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="757"/>
+        <location filename="../src/lapspanel.cpp" line="489"/>
         <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
         <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них — фініш.</translation>
     </message>
@@ -2831,7 +2845,7 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="vanished">Маршрут не перетинає лінію старту/фінішу двічі: жодного повного кола.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="762"/>
+        <location filename="../src/lapspanel.cpp" line="494"/>
         <source>%n lap(s) as the device recorded them. Place a start/finish line to time laps on a track.</source>
         <translation>
             <numerusform>%n коло, як його записав пристрій. Поставте лінію старту/фінішу, щоб засікати кола на треку.</numerusform>
@@ -2840,7 +2854,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="764"/>
+        <location filename="../src/lapspanel.cpp" line="496"/>
         <source>No laps. Place a start/finish line to time laps on a track.</source>
         <translation>Кіл немає. Поставте лінію старту/фінішу, щоб засікати кола на треку.</translation>
     </message>
@@ -3681,12 +3695,12 @@ It appears among the templates in the library.</source>
         <translation>Позначити покриття</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1757"/>
+        <location filename="../src/mainwindow.cpp" line="1758"/>
         <source>About</source>
         <translation>Про програму</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1758"/>
+        <location filename="../src/mainwindow.cpp" line="1759"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;Ліцензія GNU GPL v3.</translation>
     </message>
