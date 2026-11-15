@@ -30,6 +30,7 @@ const char kExportQuality[] = "export/quality";
 const char kExportSpeed[] = "export/speed";
 const char kExportHeight[] = "export/height";
 const char kExportAudio[] = "export/audio";
+const char kExportAudioKbps[] = "export/audioKbps";
 const char kPowerEstimated[] = "power/estimated";
 const char kPowerRiderKg[] = "power/riderKg";
 const char kPowerHeightCm[] = "power/heightCm";
@@ -73,7 +74,7 @@ const char *const kColorSchemeWords[] = {"system", "light", "dark"};
 const char *const kDecoderWords[] = {"auto", "vaapi", "cuda", "qsv", "vdpau"};
 const char *const kRateControlWords[] = {"quality", "bitrate"};
 const char *const kExportSpeedWords[] = {"fast", "balanced", "small"};
-const char *const kAudioWords[] = {"copy", "aac", "none"};
+const char *const kAudioWords[] = {"copy", "aac", "none", "opus", "vorbis"};
 const char *const kSpeedWords[] = {"kmh", "mph"};
 const char *const kLengthWords[] = {"metric", "imperial"};
 const char *const kTemperatureWords[] = {"celsius", "fahrenheit"};
@@ -293,6 +294,7 @@ ExportSettings AppSettings::exportDefaults()
     settings.quality = stored.value(kExportQuality, fallback.quality).toInt();
     settings.height = stored.value(kExportHeight, fallback.height).toInt();
     settings.audio = readEnum<ExportSettings::Audio>(kExportAudio, kAudioWords);
+    settings.audioKbps = stored.value(kExportAudioKbps, fallback.audioKbps).toInt();
     return settings;
 }
 
@@ -305,6 +307,7 @@ void AppSettings::setExportDefaults(const ExportSettings &settings)
     stored.setValue(kExportSpeed, kExportSpeedWords[settings.speed]);
     stored.setValue(kExportHeight, settings.height);
     stored.setValue(kExportAudio, kAudioWords[settings.audio]);
+    stored.setValue(kExportAudioKbps, settings.audioKbps);
 }
 
 PowerEstimate::Rider AppSettings::powerRider()

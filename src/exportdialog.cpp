@@ -54,6 +54,12 @@ double toSeconds(const QTime &time)
     return QTime(0, 0).msecsTo(time) / 1000.0;
 }
 
+bool isMp4Family(const QString &suffix)
+{
+    const QString lower = suffix.toLower();
+    return lower == "mp4" || lower == "mov" || lower == "m4v";
+}
+
 QString formatDuration(double seconds)
 {
     const int total = int(seconds + 0.5);
@@ -154,10 +160,24 @@ void ExportDialog::createWidgets()
     m_audioCombo = new QComboBox(m_options);
     m_audioCombo->addItem(tr("Keep the original sound"), ExportSettings::CopyAudio);
     m_audioCombo->addItem(tr("Convert to AAC"), ExportSettings::AacAudio);
+    m_audioCombo->addItem(tr("Convert to Opus (MKV)"), ExportSettings::OpusAudio);
+    m_audioCombo->addItem(tr("Convert to Vorbis (MKV)"), ExportSettings::VorbisAudio);
     m_audioCombo->addItem(tr("No sound"), ExportSettings::NoAudio);
-    m_audioCombo->setCurrentIndex(m_audioCombo->findData(defaults.audio));
+    m_audioCombo->setCurrentIndex(qMax(0, m_audioCombo->findData(defaults.audio)));
     m_audioCombo->setToolTip(tr("Keeping the sound is exact and instant. Convert it if the export fails "
-                                "because the chosen file type cannot hold the camera's sound format."));
+                                "because the chosen file type cannot hold the camera's sound format. "
+                                "Opus sounds best for its size; the sound is only a small part of a video file, though."));
+    m_audioBitrateCombo = new QComboBox(m_options);
+    for (int kbps : {96, 128, 160, 192, 256, 320, 384})
+        {
+            m_audioBitrateCombo->addItem(tr("%1 kbit/s").arg(kbps), kbps);
+        }
+    const int audioBitrateIndex = m_audioBitrateCombo->findData(defaults.audioKbps);
+    m_audioBitrateCombo->setCurrentIndex(audioBitrateIndex >= 0 ? audioBitrateIndex : m_audioBitrateCombo->findData(192));
+    connect(m_audioCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExportDialog::onAudioChanged);
+    QHBoxLayout *audioRow = new QHBoxLayout;
+    audioRow->addWidget(m_audioCombo, 1);
+    audioRow->addWidget(m_audioBitrateCombo);
 
     m_rangeCheck = new QCheckBox(tr("Only a part:"), m_options);
     m_startEdit = new QTimeEdit(m_options);
@@ -186,7 +206,7 @@ void ExportDialog::createWidgets()
     form->addRow(tr("Quality:"), rateRow);
     form->addRow(tr("Speed:"), m_speedCombo);
     form->addRow(tr("Size:"), m_sizeCombo);
-    form->addRow(tr("Sound:"), m_audioCombo);
+    form->addRow(tr("Sound:"), audioRow);
     form->addRow(tr("Range:"), rangeRow);
 
     m_progressBar = new QProgressBar(this);
@@ -213,6 +233,26 @@ void ExportDialog::createWidgets()
     layout->addLayout(buttons);
     resize(560, 0);
     updateRateControls();
+    updateAudioControls();
+}
+
+void ExportDialog::updateAudioControls()
+{
+    const auto audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
+    m_audioBitrateCombo->setEnabled(audio != ExportSettings::CopyAudio && audio != ExportSettings::NoAudio);
+}
+
+void ExportDialog::onAudioChanged()
+{
+    updateAudioControls();
+    // Opus and Vorbis go into Matroska: the file name follows
+    const auto audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
+    const QString path = m_outputEdit->text().trimmed();
+    const QFileInfo output(path);
+    if (ExportSettings::needsMatroska(audio) && isMp4Family(output.suffix()))
+        {
+            m_outputEdit->setText(path.left(path.size() - output.suffix().size()) + "mkv");
+        }
 }
 
 QString ExportDialog::suggestedOutput() const
@@ -220,11 +260,17 @@ QString ExportDialog::suggestedOutput() const
     const QFileInfo video(m_videoPath);
     const QString configured = AppSettings::exportFolder();
     const QString folder = !configured.isEmpty() && QDir(configured).exists() ? configured : video.absolutePath();
+    // the file type chosen so far, or the one the last export's sound needs
+    QString suffix = m_outputEdit ? QFileInfo(m_outputEdit->text().trimmed()).suffix() : QString();
+    if (suffix.isEmpty())
+        {
+            suffix = ExportSettings::needsMatroska(AppSettings::exportDefaults().audio) ? "mkv" : "mp4";
+        }
     // never the name of something that is already there
-    QString path = QString("%1/%2_overlay.mp4").arg(folder, video.completeBaseName());
+    QString path = QString("%1/%2_overlay.%3").arg(folder, video.completeBaseName(), suffix);
     for (int n = 2; QFileInfo::exists(path); ++n)
         {
-            path = QString("%1/%2_overlay_%3.mp4").arg(folder, video.completeBaseName()).arg(n);
+            path = QString("%1/%2_overlay_%3.%4").arg(folder, video.completeBaseName()).arg(n).arg(suffix);
         }
     return QDir::toNativeSeparators(path);
 }
@@ -411,7 +457,8 @@ ExportSettings ExportDialog::currentSettings() const
     settings.outputPath = QDir::fromNativeSeparators(m_outputEdit->text().trimmed());
     if (QFileInfo(settings.outputPath).suffix().isEmpty())
         {
-            settings.outputPath += ".mp4";
+            settings.outputPath += ExportSettings::needsMatroska(ExportSettings::Audio(m_audioCombo->currentData().toInt()))
+                                   ? ".mkv" : ".mp4";
         }
     settings.encoder = m_encoderCombo->currentData().toString();
     settings.rateControl = ExportSettings::RateControl(m_rateCombo->currentData().toInt());
@@ -420,6 +467,7 @@ ExportSettings ExportDialog::currentSettings() const
     settings.speed = ExportSettings::Speed(m_speedCombo->currentData().toInt());
     settings.height = m_sizeCombo->currentData().toInt();
     settings.audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
+    settings.audioKbps = m_audioBitrateCombo->currentData().toInt();
     if (m_rangeCheck->isChecked())
         {
             settings.start = toSeconds(m_startEdit->time());
@@ -440,6 +488,12 @@ void ExportDialog::startExport()
     if (output.absoluteFilePath() == QFileInfo(m_videoPath).absoluteFilePath())
         {
             QMessageBox::warning(this, windowTitle(), tr("The export cannot replace the video it is made from. Choose another name."));
+            return;
+        }
+    if (ExportSettings::needsMatroska(settings.audio) && isMp4Family(output.suffix()))
+        {
+            QMessageBox::warning(this, windowTitle(), tr("A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, "
+                                 "or convert the sound to AAC.").arg(output.suffix()));
             return;
         }
     if (m_rangeCheck->isChecked() && settings.duration <= 0.0)

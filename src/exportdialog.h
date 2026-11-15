@@ -50,6 +50,7 @@ private slots:
     void updateRateControls();
     void onEncoderChanged();
     void updateEstimate();
+    void onAudioChanged();
 
 private:
     void createWidgets();
@@ -57,6 +58,7 @@ private:
     void onProbed(bool ok, const MediaInfo &info, const QString &error);
     void onEncodersDetected(const QVector<VideoEncoder> &encoders);
     void updateReadiness();
+    void updateAudioControls();
     void setRunning(bool running);
     ExportSettings currentSettings() const;
     QString suggestedOutput() const;
@@ -85,6 +87,7 @@ private:
     QComboBox *m_speedCombo{nullptr};
     QComboBox *m_sizeCombo{nullptr};
     QComboBox *m_audioCombo{nullptr};
+    QComboBox *m_audioBitrateCombo{nullptr};
     QCheckBox *m_rangeCheck{nullptr};
     QTimeEdit *m_startEdit{nullptr};
     QTimeEdit *m_endEdit{nullptr};

@@ -7,7 +7,8 @@ struct ExportSettings
 {
     enum RateControl { Quality, Bitrate };
     enum Speed { Fast, Balanced, Small };          // encoding speed against file size
-    enum Audio { CopyAudio, AacAudio, NoAudio };
+    // Opus and Vorbis are kept in Matroska: MP4 and MOV cannot hold Vorbis, and most players no Opus there.
+    enum Audio { CopyAudio, AacAudio, NoAudio, OpusAudio, VorbisAudio };
 
     QString outputPath;                 // the container follows from the suffix (.mp4, .mkv, .mov)
     QString encoder{QStringLiteral("libx264")}; // ffmpeg encoder name, see VideoEncoders
@@ -20,6 +21,9 @@ struct ExportSettings
     Speed speed{Balanced};
     int height{0};                      // output height; 0 = same as the source
     Audio audio{CopyAudio};
+    int audioKbps{192};                 // when the sound is encoded again
+
+    static bool needsMatroska(Audio audio) { return audio == OpusAudio || audio == VorbisAudio; }
 
     double start{0.0};                  // seconds into the video
     double duration{0.0};               // 0 = to the end

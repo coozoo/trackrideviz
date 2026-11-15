@@ -9,6 +9,24 @@
 #include <algorithm>
 #include <cmath>
 
+namespace
+{
+// The sound encoded again as chosen; AAC when it was to be copied but cannot be.
+QStringList audioEncoding(const ExportSettings &settings)
+{
+    const QString bitrate = QString("%1k").arg(settings.audioKbps);
+    switch (settings.audio)
+        {
+        case ExportSettings::OpusAudio:
+            return {"-c:a", "libopus", "-b:a", bitrate};
+        case ExportSettings::VorbisAudio:
+            return {"-c:a", "libvorbis", "-b:a", bitrate};
+        default:
+            return {"-c:a", "aac", "-b:a", bitrate};
+        }
+}
+}
+
 QSize ExportPlan::outputSizeFor(const QSize &source, int wantedHeight)
 {
     auto even = [](double value)
@@ -188,7 +206,7 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
 
     if (cutAudio)
         {
-            args << "-map" << "[a]" << "-c:a" << "aac" << "-b:a" << "192k";
+            args << "-map" << "[a]" << audioEncoding(settings);
         }
     else switch (settings.audio)
         {
@@ -196,11 +214,11 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             // "?": a video without sound is not an error
             args << "-map" << "0:a?" << "-c:a" << "copy";
             break;
-        case ExportSettings::AacAudio:
-            args << "-map" << "0:a?" << "-c:a" << "aac" << "-b:a" << "192k";
-            break;
         case ExportSettings::NoAudio:
             args << "-an";
+            break;
+        default:
+            args << "-map" << "0:a?" << audioEncoding(settings);
             break;
         }
 

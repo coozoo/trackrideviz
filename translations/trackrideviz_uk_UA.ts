@@ -322,10 +322,6 @@
         <translation>Потужність (оц.)</translation>
     </message>
     <message>
-        <source>Power, estimated</source>
-        <translation type="vanished">Потужність, оцінка</translation>
-    </message>
-    <message>
         <location filename="../src/core/units/units.cpp" line="205"/>
         <source>Highest point</source>
         <translation>Найвища точка</translation>
@@ -648,18 +644,6 @@ Shift+перетягування над каналом вибирає зразк
         <translation>Показати зразки каналу, клацнутого останнім</translation>
     </message>
     <message>
-        <source>Click on the route to go there. A stretch picked in the chart is drawn in red.</source>
-        <translation type="vanished">Клацніть на маршруті, щоб перейти туди. Відрізок, вибраний на графіку, намальовано червоним.</translation>
-    </message>
-    <message>
-        <source>Map</source>
-        <translation type="vanished">Мапа</translation>
-    </message>
-    <message>
-        <source>Show the route on a map beside the charts</source>
-        <translation type="vanished">Показати маршрут на мапі поруч із графіками</translation>
-    </message>
-    <message>
         <location filename="../src/datapanel.cpp" line="785"/>
         <source>%1
 Worked out from the other data</source>
@@ -711,256 +695,276 @@ Worked out from the other data</source>
 <context>
     <name>ExportDialog</name>
     <message>
-        <location filename="../src/exportdialog.cpp" line="75"/>
-        <location filename="../src/exportdialog.cpp" line="399"/>
+        <location filename="../src/exportdialog.cpp" line="81"/>
+        <location filename="../src/exportdialog.cpp" line="445"/>
         <source>Export video</source>
         <translation>Експорт відео</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="95"/>
+        <location filename="../src/exportdialog.cpp" line="101"/>
         <source>Reading the video...</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="101"/>
+        <location filename="../src/exportdialog.cpp" line="107"/>
         <source>Browse...</source>
         <translation>Огляд...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="108"/>
+        <location filename="../src/exportdialog.cpp" line="114"/>
         <source>Looking for encoders...</source>
         <translation>Пошук кодувальників...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="113"/>
+        <location filename="../src/exportdialog.cpp" line="119"/>
         <source>Constant quality</source>
         <translation>Стала якість</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="114"/>
+        <location filename="../src/exportdialog.cpp" line="120"/>
         <source>Bitrate</source>
         <translation>Бітрейт</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="121"/>
+        <location filename="../src/exportdialog.cpp" line="127"/>
         <source>Lower is better and bigger. 18-23 is hard to tell from the original; each step of 6 roughly halves or doubles the file.</source>
         <translation>Менше значення — краща якість і більший файл. 18–23 важко відрізнити від оригіналу; кожен крок на 6 приблизно вдвічі зменшує або збільшує файл.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="127"/>
+        <location filename="../src/exportdialog.cpp" line="133"/>
         <source> Mbit/s</source>
         <translation> Мбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="140"/>
+        <location filename="../src/exportdialog.cpp" line="146"/>
         <source>Fast, bigger file</source>
         <translation>Швидко, більший файл</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="141"/>
+        <location filename="../src/exportdialog.cpp" line="147"/>
         <source>Balanced</source>
         <translation>Збалансовано</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="142"/>
+        <location filename="../src/exportdialog.cpp" line="148"/>
         <source>Slow, smaller file</source>
         <translation>Повільно, менший файл</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="146"/>
+        <location filename="../src/exportdialog.cpp" line="152"/>
         <source>Same as the video</source>
         <translation>Як у відео</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="155"/>
+        <location filename="../src/exportdialog.cpp" line="161"/>
         <source>Keep the original sound</source>
         <translation>Залишити оригінальний звук</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="156"/>
+        <location filename="../src/exportdialog.cpp" line="162"/>
         <source>Convert to AAC</source>
         <translation>Перетворити на AAC</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="157"/>
+        <location filename="../src/exportdialog.cpp" line="163"/>
+        <source>Convert to Opus (MKV)</source>
+        <translation>Перетворити на Opus (MKV)</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="164"/>
+        <source>Convert to Vorbis (MKV)</source>
+        <translation>Перетворити на Vorbis (MKV)</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="165"/>
         <source>No sound</source>
         <translation>Без звуку</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="159"/>
-        <source>Keeping the sound is exact and instant. Convert it if the export fails because the chosen file type cannot hold the camera&apos;s sound format.</source>
-        <translation>Збереження звуку точне й миттєве. Перетворіть його, якщо експорт не вдається через те, що обраний тип файлу не підтримує формат звуку камери.</translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="162"/>
+        <location filename="../src/exportdialog.cpp" line="182"/>
         <source>Only a part:</source>
         <translation>Лише частину:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="184"/>
+        <location filename="../src/exportdialog.cpp" line="204"/>
         <source>Save as:</source>
         <translation>Зберегти як:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="185"/>
+        <location filename="../src/exportdialog.cpp" line="205"/>
         <source>Encoder:</source>
         <translation>Кодувальник:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="186"/>
+        <location filename="../src/exportdialog.cpp" line="206"/>
         <source>Quality:</source>
         <translation>Якість:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="187"/>
+        <location filename="../src/exportdialog.cpp" line="207"/>
         <source>Speed:</source>
         <translation>Швидкість:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="188"/>
+        <location filename="../src/exportdialog.cpp" line="208"/>
         <source>Size:</source>
         <translation>Розмір:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="189"/>
+        <location filename="../src/exportdialog.cpp" line="209"/>
         <source>Sound:</source>
         <translation>Звук:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="190"/>
+        <location filename="../src/exportdialog.cpp" line="210"/>
         <source>Range:</source>
         <translation>Діапазон:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="197"/>
+        <location filename="../src/exportdialog.cpp" line="217"/>
         <source>Export</source>
         <translation>Експорт</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="200"/>
-        <location filename="../src/exportdialog.cpp" line="479"/>
+        <location filename="../src/exportdialog.cpp" line="220"/>
+        <location filename="../src/exportdialog.cpp" line="533"/>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="283"/>
+        <location filename="../src/exportdialog.cpp" line="329"/>
         <source>%1: %2 x %3, %4 fps, %5</source>
         <translation>%1: %2 x %3, %4 кадр/с, %5</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="321"/>
+        <location filename="../src/exportdialog.cpp" line="367"/>
         <source>None found</source>
         <translation>Нічого не знайдено</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="322"/>
+        <location filename="../src/exportdialog.cpp" line="368"/>
         <source>ffmpeg could not be run (%1). Install it, or set its location in the settings.</source>
         <translation>Не вдалося запустити ffmpeg (%1). Встановіть його або вкажіть розташування в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="385"/>
+        <location filename="../src/exportdialog.cpp" line="431"/>
         <source>about %1 GB</source>
         <translation>близько %1 ГБ</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="386"/>
+        <location filename="../src/exportdialog.cpp" line="432"/>
         <source>about %1 MB</source>
         <translation>близько %1 МБ</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="388"/>
+        <location filename="../src/exportdialog.cpp" line="434"/>
         <source>%1; the video itself is %2 Mbit/s</source>
         <translation>%1; саме відео — %2 Мбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="400"/>
+        <location filename="../src/exportdialog.cpp" line="446"/>
         <source>MP4 video (*.mp4);;Matroska video (*.mkv);;QuickTime video (*.mov)</source>
         <translation>Відео MP4 (*.mp4);;Відео Matroska (*.mkv);;Відео QuickTime (*.mov)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="437"/>
+        <location filename="../src/exportdialog.cpp" line="485"/>
         <source>The folder to save into does not exist.</source>
         <translation>Тека для збереження не існує.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="442"/>
+        <location filename="../src/exportdialog.cpp" line="490"/>
         <source>The export cannot replace the video it is made from. Choose another name.</source>
         <translation>Експорт не може замінити відео, з якого його створюють. Виберіть іншу назву.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="447"/>
+        <location filename="../src/exportdialog.cpp" line="495"/>
+        <source>A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, or convert the sound to AAC.</source>
+        <translation>Файл .%1 не може містити звук Opus чи Vorbis. Збережіть його як .mkv або перетворіть звук на AAC.</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="501"/>
         <source>The end of the range has to be after its start.</source>
         <translation>Кінець діапазону має бути після його початку.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="451"/>
+        <location filename="../src/exportdialog.cpp" line="505"/>
         <source>%1 already exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="470"/>
+        <location filename="../src/exportdialog.cpp" line="524"/>
         <source>Starting...</source>
         <translation>Запуск...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="479"/>
+        <location filename="../src/exportdialog.cpp" line="533"/>
         <source>Stop</source>
         <translation>Зупинити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="530"/>
+        <location filename="../src/exportdialog.cpp" line="584"/>
         <source>Stopped. The part exported so far was saved as %1</source>
         <translation>Зупинено. Експортовану частину збережено як %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="534"/>
+        <location filename="../src/exportdialog.cpp" line="588"/>
         <source>Stopped before anything could be saved.</source>
         <translation>Зупинено до того, як вдалося щось зберегти.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="550"/>
+        <location filename="../src/exportdialog.cpp" line="604"/>
         <source>Stop the export? The part done so far is kept as a playable video.</source>
         <translation>Зупинити експорт? Уже зроблена частина залишиться як відео, яке можна відтворити.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="553"/>
+        <location filename="../src/exportdialog.cpp" line="607"/>
         <source>Stopping: finishing the file...</source>
         <translation>Зупинка: завершення файлу...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="491"/>
+        <location filename="../src/exportdialog.cpp" line="545"/>
         <source>Frame %1 of %2, %3 frames per second</source>
         <translation>Кадр %1 з %2, %3 кадрів за секунду</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="495"/>
+        <location filename="../src/exportdialog.cpp" line="167"/>
+        <source>Keeping the sound is exact and instant. Convert it if the export fails because the chosen file type cannot hold the camera&apos;s sound format. Opus sounds best for its size; the sound is only a small part of a video file, though.</source>
+        <translation>Збереження звуку точне й миттєве. Перетворіть його, якщо експорт не вдається, бо обраний тип файлу не може містити звуковий формат камери. Opus звучить найкраще для свого розміру, хоча звук — лише невелика частина відеофайлу.</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="173"/>
+        <source>%1 kbit/s</source>
+        <translation>%1 кбіт/с</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="549"/>
         <source>, about %1 left</source>
         <translation>, залишилося близько %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="515"/>
+        <location filename="../src/exportdialog.cpp" line="569"/>
         <source>Saved %1</source>
         <translation>Збережено %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="517"/>
+        <location filename="../src/exportdialog.cpp" line="571"/>
         <source>The video was exported to
 %1</source>
         <translation>Відео експортовано до
 %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="519"/>
+        <location filename="../src/exportdialog.cpp" line="573"/>
         <source>Open folder</source>
         <translation>Відкрити теку</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="537"/>
+        <location filename="../src/exportdialog.cpp" line="591"/>
         <source>The export failed.</source>
         <translation>Експорт не вдався.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="538"/>
+        <location filename="../src/exportdialog.cpp" line="592"/>
         <source>The export failed.
 
 %1</source>
@@ -1329,10 +1333,6 @@ Worked out from the other data</source>
         <location filename="../src/gaugeeditor.cpp" line="748"/>
         <source>A moment of the sample ride: how the gauge looks with other values</source>
         <translation>Момент зразкової поїздки: як виглядає прилад з іншими значеннями</translation>
-    </message>
-    <message>
-        <source>Click a part to pick it, drag it to move it, drag its corner to size it. Arrow keys move it by one unit, with Shift by ten.</source>
-        <translation type="vanished">Клацніть частину, щоб вибрати її, перетягніть, щоб пересунути, тягніть за кут, щоб змінити розмір. Стрілки на клавіатурі зсувають на одну одиницю, із Shift — на десять.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="759"/>
@@ -2799,10 +2799,6 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>LapsPanel</name>
     <message>
-        <source>No positions in the data</source>
-        <translation type="vanished">У даних немає координат</translation>
-    </message>
-    <message>
         <location filename="../src/lapspanel.cpp" line="95"/>
         <source>Clear all</source>
         <translation>Прибрати всі</translation>
@@ -2887,10 +2883,6 @@ Comes with the program; it cannot be deleted.</source>
         <location filename="../src/lapspanel.cpp" line="92"/>
         <source>Then click on the map where a stretch begins and where it ends, and choose what it is ridden on: the power estimate counts it in</source>
         <translation>Потім клацніть на мапі, де відрізок починається і де закінчується, та оберіть, по чому там їдуть: оцінка потужності це врахує</translation>
-    </message>
-    <message>
-        <source>Clear surfaces</source>
-        <translation type="vanished">Прибрати покриття</translation>
     </message>
     <message>
         <location filename="../src/lapspanel.cpp" line="125"/>
@@ -2985,10 +2977,6 @@ Comes with the program; it cannot be deleted.</source>
         <translation> милі</translation>
     </message>
     <message>
-        <source>%1 km</source>
-        <translation type="vanished">%1 км</translation>
-    </message>
-    <message>
         <location filename="../src/lapspanel.cpp" line="501"/>
         <source>Open data to see its laps.</source>
         <translation>Відкрийте дані, щоб побачити їхні кола.</translation>
@@ -3006,10 +2994,6 @@ Comes with the program; it cannot be deleted.</source>
         <location filename="../src/lapspanel.cpp" line="508"/>
         <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
         <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них — фініш.</translation>
-    </message>
-    <message>
-        <source>The route does not cross the start/finish line twice: no full lap.</source>
-        <translation type="vanished">Маршрут не перетинає лінію старту/фінішу двічі: жодного повного кола.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/lapspanel.cpp" line="513"/>
@@ -4347,10 +4331,6 @@ It appears among the templates in the library.</source>
         <translation>Касета:</translation>
     </message>
     <message>
-        <source>With the chainrings and the sprockets filled in, the gear of every moment is worked out from the speed and the cadence (a recording without cadence has no gears). While coasting, or pedaling slower than the wheel turns, the last gear is kept. Gears that electronic shifting recorded are always used instead. Gears count from the largest sprocket: 1 is the easiest.</source>
-        <translation type="vanished">Коли заповнено передні зірки й касету, передача кожної миті визначається зі швидкості та каденсу (запис без каденсу передач не має). Під час накату або коли педалі обертаються повільніше за колесо зберігається остання передача. Передачі, записані електронним перемиканням, завжди мають перевагу. Передачі рахуються від найбільшої зірочки: 1 — найлегша.</translation>
-    </message>
-    <message>
         <location filename="../src/settingsdialog.cpp" line="368"/>
         <source>Estimate the power of rides recorded without a power meter</source>
         <translation>Оцінювати потужність у поїздках, записаних без вимірювача потужності</translation>
@@ -4366,10 +4346,6 @@ It appears among the templates in the library.</source>
         <location filename="../src/settingsdialog.cpp" line="380"/>
         <source> cm</source>
         <translation> см</translation>
-    </message>
-    <message>
-        <source>With everything on it: bottles, bags, tools</source>
-        <translation type="vanished">З усім, що на ньому: фляги, сумки, інструменти</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="410"/>
@@ -4428,14 +4404,6 @@ It appears among the templates in the library.</source>
         <translation>Швидкі: гоночні шини, туго накачані. Повільні: товсті, з захистом від проколів або з шипами.</translation>
     </message>
     <message>
-        <source>700x25, 26x1.95, 40-622...</source>
-        <translation type="vanished">700x25, 26x1.95, 40-622...</translation>
-    </message>
-    <message>
-        <source>The size printed on the tire picks road, gravel or mountain bike by its width</source>
-        <translation type="vanished">За розміром, надрукованим на шині, обирається шосейна, гравійна чи гірська — за шириною</translation>
-    </message>
-    <message>
         <location filename="../src/settingsdialog.cpp" line="446"/>
         <source>Road bike, hands on the tops</source>
         <translation>Шосейний, руки зверху на кермі</translation>
@@ -4470,10 +4438,6 @@ It appears among the templates in the library.</source>
         <location filename="../src/settingsdialog.cpp" line="564"/>
         <source> %</source>
         <translation> %</translation>
-    </message>
-    <message>
-        <source>What the chain and the bearings take: 2-3 % when clean, more when worn or dirty</source>
-        <translation type="vanished">Що забирають ланцюг і підшипники: 2-3 % у чистих, більше у зношених чи брудних</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="480"/>
@@ -4546,10 +4510,6 @@ It appears among the templates in the library.</source>
         <translation>Видалити збережену погоду (%1)</translation>
     </message>
     <message>
-        <source>Count in the wind and the air of the day of the ride, from weather history</source>
-        <translation type="vanished">Враховувати вітер і повітря дня поїздки з архіву погоди</translation>
-    </message>
-    <message>
         <location filename="../src/settingsdialog.cpp" line="560"/>
         <source>Asks a weather service for the wind, the temperature and the pressure at places along the ride, hour by hour. Sent to it: those places and the date.</source>
         <translation>Запитує в сервісу погоди вітер, температуру й тиск у точках уздовж маршруту, година за годиною. Йому надсилаються ці точки й дата.</translation>
@@ -4611,10 +4571,6 @@ It appears among the templates in the library.</source>
         <translation>Шини:</translation>
     </message>
     <message>
-        <source>Or the tire size:</source>
-        <translation type="vanished">Або розмір шини:</translation>
-    </message>
-    <message>
         <location filename="../src/settingsdialog.cpp" line="476"/>
         <source>Rolling resistance:</source>
         <translation>Опір коченню:</translation>
@@ -4635,10 +4591,6 @@ It appears among the templates in the library.</source>
         <translation>Втрати в трансмісії:</translation>
     </message>
     <message>
-        <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power, estimated&quot;, to compare the two. Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a tailwind high.</source>
-        <translation type="vanished">Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як «Потужність, оцінка», щоб їх порівняти. Без погоди дня (див. сторінку «Погода») вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
-    </message>
-    <message>
         <location filename="../src/settingsdialog.cpp" line="491"/>
         <source>Rolling resistance ×</source>
         <translation>Опір коченню ×</translation>
@@ -4657,18 +4609,6 @@ It appears among the templates in the library.</source>
         <location filename="../src/settingsdialog.cpp" line="600"/>
         <source>Wind reaching the rider:</source>
         <translation>Вітер, що доходить до райдера:</translation>
-    </message>
-    <message>
-        <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power, estimated&quot;, to compare the two. Without the weather the wind is not known: a headwind reads low and a tailwind high.</source>
-        <translation type="vanished">Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як «Потужність, оцінка», щоб їх порівняти. Без погоди вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
-    </message>
-    <message>
-        <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power, estimated&quot;, to compare the two. The wind is not known: a headwind reads low and a tailwind high.</source>
-        <translation type="vanished">Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як «Потужність, оцінка», щоб їх порівняти. Вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
-    </message>
-    <message>
-        <source>Worked out from the speed, the grade and the elevation; a recorded power is never replaced. The wind is not known: a headwind reads low and a tailwind high.</source>
-        <translation type="vanished">Обчислюється зі швидкості, ухилу та висоти; записану потужність ніколи не замінює. Вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="645"/>

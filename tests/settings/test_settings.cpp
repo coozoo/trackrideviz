@@ -110,7 +110,8 @@ private slots:
         settings.quality = 28;
         settings.speed = ExportSettings::Fast;
         settings.height = 720;
-        settings.audio = ExportSettings::NoAudio;
+        settings.audio = ExportSettings::OpusAudio;
+        settings.audioKbps = 128;
         // these belong to one video and one export
         settings.outputPath = "/somewhere/out.mp4";
         settings.start = 12.0;
@@ -125,7 +126,8 @@ private slots:
         QCOMPARE(loaded.quality, 28);
         QCOMPARE(loaded.speed, ExportSettings::Fast);
         QCOMPARE(loaded.height, 720);
-        QCOMPARE(loaded.audio, ExportSettings::NoAudio);
+        QCOMPARE(loaded.audio, ExportSettings::OpusAudio);
+        QCOMPARE(loaded.audioKbps, 128);
         QVERIFY(loaded.outputPath.isEmpty());
         QCOMPARE(loaded.start, 0.0);
         QCOMPARE(loaded.duration, 0.0);

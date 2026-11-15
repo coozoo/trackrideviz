@@ -356,6 +356,20 @@ private slots:
         settings.audio = ExportSettings::AacAudio;
         plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
         QVERIFY(hasPair(plan.arguments, "-c:a", "aac"));
+        QVERIFY(hasPair(plan.arguments, "-b:a", "192k"));
+
+        settings.outputPath = "out.mkv";
+        settings.audio = ExportSettings::OpusAudio;
+        settings.audioKbps = 128;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        QVERIFY(hasPair(plan.arguments, "-c:a", "libopus"));
+        QVERIFY(hasPair(plan.arguments, "-b:a", "128k"));
+
+        settings.audio = ExportSettings::VorbisAudio;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        QVERIFY(hasPair(plan.arguments, "-c:a", "libvorbis"));
+        QVERIFY(ExportSettings::needsMatroska(settings.audio));
+        QVERIFY(!ExportSettings::needsMatroska(ExportSettings::AacAudio));
 
         settings.audio = ExportSettings::NoAudio;
         plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
