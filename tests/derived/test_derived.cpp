@@ -430,10 +430,31 @@ private slots:
         const QByteArray answer = R"({"hourly":{"time":["2025-07-15T00:00","2025-07-15T01:00"],
             "temperature_2m":[10.0,20.0],"surface_pressure":[1000.0,990.0],
             "wind_speed_10m":[2.0,4.0],"wind_direction_10m":[350,10]}})";
-        const QVector<Weather::Air> hours = WeatherStore::parse(answer);
+        const qint64 midnight = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
+        const QVector<Weather::Air> hours = WeatherStore::parse(answer, midnight);
         QCOMPARE(hours.size(), 2);
         QCOMPARE(hours.at(1).windSpeed, 4.0);
-        QVERIFY(WeatherStore::parse("{\"error\":true}").isEmpty());
+        QVERIFY(!hours.at(0).seaLevel);
+        QVERIFY(WeatherStore::parse("{\"error\":true}", midnight).isEmpty());
+        // the other services: km/h, the pressure at the sea, times as seconds; hours before the first as the first
+        const QByteArray crossing = R"({"days":[{"hours":[{"datetimeEpoch":1752541200,"temp":18.0,"windspeed":36.0,
+            "winddir":90.0,"pressure":1013.0},{"datetimeEpoch":1752544800,"temp":19.0,"windspeed":18.0,"winddir":95.0,
+            "pressure":1012.0}]}]})";
+        const QVector<Weather::Air> crossed = WeatherStore::parse(crossing, midnight);
+        // its first hour is 01:00: midnight takes it too
+        QCOMPARE(crossed.size(), 3);
+        QVERIFY(std::fabs(crossed.at(0).windSpeed - 10.0) < 1e-9);
+        QVERIFY(std::fabs(crossed.at(2).windSpeed - 5.0) < 1e-9);
+        QVERIFY(crossed.at(0).seaLevel);
+        const QByteArray weatherApi = R"({"forecast":{"forecastday":[{"hour":[{"time_epoch":1752548400,"temp_c":21.0,
+            "wind_kph":7.2,"wind_degree":180,"pressure_mb":1010.0}]}]}})";
+        const QVector<Weather::Air> api = WeatherStore::parse(weatherApi, midnight);
+        QCOMPARE(api.size(), 4);   // midnight to 3 o'clock, all as the one reading
+        QVERIFY(std::fabs(api.at(3).windSpeed - 2.0) < 1e-9);
+        // at the sea 1013 hPa; 1000 m up, about 12 % less dense
+        Weather::Air sea;
+        sea.seaLevel = true;
+        QVERIFY(std::fabs(sea.density(1000.0) / sea.density(0.0) - std::exp(-1000.0 / 8434.5)) < 1e-9);
         Weather weather;
         weather.firstHour = 1000000;
         weather.places.append({0.0, hours});
@@ -448,7 +469,7 @@ private slots:
         // nothing is fetched or found for a ride without a date
         WeatherStore::instance()->setFolder(QDir::tempPath() + "/rtv-no-weather");
         bool waiting = true;
-        QVERIFY(WeatherStore::instance()->along(*ride(100.0, 1.0, [](double t) { return QPointF(8.0 * t, 0.0); }), 10.0,
+        QVERIFY(WeatherStore::instance()->along(*ride(100.0, 1.0, [](double t) { return QPointF(8.0 * t, 0.0); }), WeatherChoice(),
                                                 &waiting).isEmpty());
         QVERIFY(!waiting);
     }

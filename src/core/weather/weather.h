@@ -19,10 +19,11 @@ struct Weather
         double windSpeed{0.0};        // m/s, 10 m above the ground
         double windFrom{0.0};         // degrees, where it blows from: 0 = north, clockwise
         double celsius{15.0};
-        double pressureHpa{1013.25};  // at the ground there, not brought down to the sea
+        double pressureHpa{1013.25};  // at the ground there ...
+        bool seaLevel{false};         // ... or, as some services give it, brought down to the sea
 
-        // kg/m3
-        double density() const;
+        // kg/m3 at `elevation` meters (used only for a pressure at the sea)
+        double density(double elevation = 0.0) const;
     };
 
     struct Place
@@ -43,13 +44,16 @@ struct Weather
 struct WeatherChoice
 {
     bool enabled{false};
+    QString provider{"open-meteo"};   // one of WeatherStore::providers()
+    QString apiKey;                   // for a service that wants one
     double spacingKm{10.0};   // a place this often along the ride
     // % of the wind 10 m up that reaches a rider: less between houses and trees.
     double windShare{60.0};
 
     bool operator==(const WeatherChoice &other) const
     {
-        return enabled == other.enabled && spacingKm == other.spacingKm && windShare == other.windShare;
+        return enabled == other.enabled && provider == other.provider && apiKey == other.apiKey
+               && spacingKm == other.spacingKm && windShare == other.windShare;
     }
     bool operator!=(const WeatherChoice &other) const { return !(*this == other); }
 };
@@ -92,10 +96,25 @@ class WeatherStore : public QObject
 public:
     static WeatherStore *instance();
 
-    // The weather at places `spacingKm` apart along the ride. Empty when the
-    // recording has no positions or no date, or nothing of it is on disk;
-    // *waiting says that some of it has been asked for.
-    Weather along(const TelemetrySession &session, double spacingKm, bool *waiting = nullptr);
+    // A weather history service.
+    struct Provider
+    {
+        QString id;            // kept in the settings
+        QString name;
+        bool needsKey{false};
+        QString attribution;
+    };
+    // The services the program knows; the first is the one it starts with.
+    static QVector<Provider> providers();
+    // By id; the first one when the id is not known.
+    static Provider provider(const QString &id);
+
+    // The weather at places `choice.spacingKm` apart along the ride, from the
+    // service chosen. Empty when the recording has no positions or no date, or
+    // nothing of it is on disk; *waiting says that some of it has been asked for.
+    Weather along(const TelemetrySession &session, const WeatherChoice &choice, bool *waiting = nullptr);
+    // Why the last answer was refused (a wrong key, no connection); empty when nothing was.
+    QString problem() const;
 
     void setDownloads(bool allowed);
     void setFolder(const QString &folder);
@@ -106,11 +125,11 @@ public:
     void clearStored();
 
     // Whose data it is, to be said where it is used.
-    static QString attribution();
+    static QString attribution(const QString &provider);
 
-    // What one answer of the service holds, from the first hour of its first day; empty when it
-    // is not such an answer.
-    static QVector<Weather::Air> parse(const QByteArray &json);
+    // What one answer of a service holds (any of providers(): told apart by its shape), hour by
+    // hour from `firstHour` (seconds since 1970 UTC) to its last; empty when it is no such answer.
+    static QVector<Weather::Air> parse(const QByteArray &json, qint64 firstHour);
 
 signals:
     // What was asked for has come (or failed for good).
@@ -129,5 +148,7 @@ private:
     QSet<QString> m_wanted;
     QSet<QString> m_failed;   // not asked for again in this run
     QSet<QString> m_running;
+    QHash<QString, QString> m_apiKeys;   // by provider
+    QString m_problem;
     QNetworkAccessManager *m_network{nullptr};
 };

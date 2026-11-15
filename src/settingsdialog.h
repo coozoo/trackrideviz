@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QHash>
 
 class QCheckBox;
 class QComboBox;
@@ -84,6 +85,10 @@ private:
     QDoubleSpinBox *m_lossSpin{nullptr};
     QTableWidget *m_surfaceTable{nullptr};
     QCheckBox *m_weatherCheck{nullptr};
+    QComboBox *m_weatherProviderCombo{nullptr};
+    QLineEdit *m_weatherKeyEdit{nullptr};
+    QLabel *m_weatherCredit{nullptr};
+    QHash<QString, QString> m_weatherKeys;   // typed so far, by service
     QPushButton *m_weatherClearButton{nullptr};
     // weights in pounds and the height in inches, as the units of the settings were when the dialog opened
     bool m_imperialBody{false};

@@ -40,6 +40,8 @@ const char kPowerLoss[] = "power/drivetrainLoss";
 const char kSurfaces[] = "surfaces";
 const char kWeatherFetched[] = "weather/fetched";
 const char kWeatherSpacing[] = "weather/spacingKm";
+const char kWeatherProvider[] = "weather/provider";
+const char kWeatherKeys[] = "weather/apiKey/";
 const char kWeatherWindShare[] = "weather/windShare";
 const char kSpeedUnit[] = "units/speed";
 const char kLengthUnit[] = "units/length";
@@ -384,6 +386,8 @@ WeatherChoice AppSettings::weather()
     choice.enabled = settings.value(kWeatherFetched, usual.enabled).toBool();
     choice.spacingKm = settings.value(kWeatherSpacing, usual.spacingKm).toDouble();
     choice.windShare = settings.value(kWeatherWindShare, usual.windShare).toDouble();
+    choice.provider = WeatherStore::provider(settings.value(kWeatherProvider, usual.provider).toString()).id;
+    choice.apiKey = weatherApiKey(choice.provider);
     return choice;
 }
 
@@ -393,6 +397,18 @@ void AppSettings::setWeather(const WeatherChoice &choice)
     settings.setValue(kWeatherFetched, choice.enabled);
     settings.setValue(kWeatherSpacing, choice.spacingKm);
     settings.setValue(kWeatherWindShare, choice.windShare);
+    settings.setValue(kWeatherProvider, choice.provider);
+    setWeatherApiKey(choice.provider, choice.apiKey);
+}
+
+QString AppSettings::weatherApiKey(const QString &provider)
+{
+    return QSettings().value(kWeatherKeys + provider).toString();
+}
+
+void AppSettings::setWeatherApiKey(const QString &provider, const QString &key)
+{
+    QSettings().setValue(kWeatherKeys + provider, key.trimmed());
 }
 
 Units AppSettings::units()

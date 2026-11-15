@@ -233,8 +233,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
      (tops, hoods, drops, aero bars, mountain bike upright, or a drag area of the user's own) and
      the switch. Beside a recorded power the estimate is a measurement of its own, to compare
      the two
-  2. ✅ (2026-11-15, `WeatherStore`, Open-Meteo only; a wind entered by hand and the other
-     services are still to do) Wind and air: the wind's speed and direction, the temperature and the pressure of the day
+  2. ✅ (2026-11-15, `WeatherStore`: Open-Meteo, Visual Crossing and WeatherAPI.com, the last two
+     with the user's key and not tried against the real services; a wind by hand in the Sources dock)
+     Wind and air: the wind's speed and direction, the temperature and the pressure of the day
      of the ride from a weather history service, asked for at points along the route and hour by
      hour, so a ride between towns gets each place's weather; off until switched on, the wind
      brought down from the 10 m it is measured at to the rider's height; a wind entered by hand

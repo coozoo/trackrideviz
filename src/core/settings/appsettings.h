@@ -105,6 +105,9 @@ public:
     // The wind and the air of the day of a ride, from a weather history service.
     static WeatherChoice weather();
     static void setWeather(const WeatherChoice &choice);
+    // Each service's key is kept, so that going back to one needs no typing.
+    static QString weatherApiKey(const QString &provider);
+    static void setWeatherApiKey(const QString &provider, const QString &key);
 
     // --- Units ------------------------------------------------------------
     static Units units();

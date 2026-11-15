@@ -105,7 +105,7 @@ TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<Data
     *weatherWaiting = false;
     // a wind entered by hand stands in for the weather history's
     const Weather weather = complete && weatherChoice.enabled && !handWind.used
-                            ? WeatherStore::instance()->along(*complete, weatherChoice.spacingKm, weatherWaiting) : Weather();
+                            ? WeatherStore::instance()->along(*complete, weatherChoice, weatherWaiting) : Weather();
     const TelemetrySessionPtr windy = handWind.used ? WeatherChannels::addWind(complete, handWind, weatherChoice.windShare)
                                       : WeatherChannels::add(complete, weather, weatherChoice.windShare);
     // the estimate wants the speed, the grade and the wind; what is worked out from a power wants the estimate
@@ -1521,6 +1521,10 @@ void MainWindow::updateSourcesInfo()
             if (m_weatherWaiting)
                 {
                     lines << tr("Fetching the weather of the ride...");
+                }
+            else if (m_weather.enabled && !m_project.wind.used && !WeatherStore::instance()->problem().isEmpty())
+                {
+                    lines << tr("Weather: %1").arg(WeatherStore::instance()->problem());
                 }
             if (!m_session->warnings().isEmpty())
                 {

@@ -30,10 +30,10 @@ const int kHistoryLagDays = 7;
 const char kHistory[] = "https://archive-api.open-meteo.com/v1/archive";
 const char kRecent[] = "https://api.open-meteo.com/v1/forecast";
 
-// A place and its days as one word: "49.23_28.45_2025-07-15_2025-07-15".
-QString keyOf(double latitude, double longitude, const QDate &first, const QDate &last)
+// A service, a place and its days as one word: "open-meteo_49.23_28.45_2025-07-15_2025-07-15".
+QString keyOf(const QString &provider, double latitude, double longitude, const QDate &first, const QDate &last)
 {
-    return QString("%1_%2_%3_%4").arg(latitude, 0, 'f', 2).arg(longitude, 0, 'f', 2)
+    return QString("%1_%2_%3_%4_%5").arg(provider).arg(latitude, 0, 'f', 2).arg(longitude, 0, 'f', 2)
            .arg(first.toString(Qt::ISODate), last.toString(Qt::ISODate));
 }
 
@@ -51,6 +51,7 @@ Weather::Air blend(const Weather::Air &a, const Weather::Air &b, double share)
     air.windFrom = std::fmod(std::atan2(wind.y(), wind.x()) * 180.0 / kPi + 360.0, 360.0);
     air.celsius = a.celsius * (1.0 - share) + b.celsius * share;
     air.pressureHpa = a.pressureHpa * (1.0 - share) + b.pressureHpa * share;
+    air.seaLevel = a.seaLevel;
     return air;
 }
 
@@ -67,10 +68,12 @@ Weather::Air atHour(const QVector<Weather::Air> &hours, double hour)
 }
 }
 
-double Weather::Air::density() const
+double Weather::Air::density(double elevation) const
 {
+    // a pressure at the sea is less higher up: by e every 8.4 km
+    const double pressure = seaLevel ? pressureHpa * std::exp(-elevation / 8434.5) : pressureHpa;
     // dry air: the pressure over the gas constant and the temperature
-    return pressureHpa * 100.0 / (287.05 * (celsius + 273.15));
+    return pressure * 100.0 / (287.05 * (celsius + 273.15));
 }
 
 Weather::Air Weather::at(double distance, qint64 secondsUtc) const
@@ -99,6 +102,7 @@ TelemetrySessionPtr WeatherChannels::add(const TelemetrySessionPtr &original, co
             return original;
         }
     const Channel *distance = original->channel(ChannelId::Distance);
+    const Channel *elevation = original->channel(ChannelId::Elevation);
     const Channel *heading = original->channel(ChannelId::Heading);
     if (!distance || distance->count() < 2)
         {
@@ -124,7 +128,7 @@ TelemetrySessionPtr WeatherChannels::add(const TelemetrySessionPtr &original, co
             const Weather::Air air = weather.at(distance->valueAt(t), startUtc + qint64(t));
             speed.append(t, air.windSpeed);
             from.append(t, air.windFrom);
-            density.append(t, air.density());
+            density.append(t, air.density(elevation && !elevation->isEmpty() ? elevation->valueAt(t) : 0.0));
             if (against)
                 {
                     const double turned = std::fmod(air.windFrom - heading->valueAt(t) + 720.0, 360.0);
@@ -206,9 +210,38 @@ WeatherStore::WeatherStore()
 {
 }
 
-QString WeatherStore::attribution()
+QVector<WeatherStore::Provider> WeatherStore::providers()
 {
-    return QStringLiteral("Weather data by Open-Meteo.com");
+    return
+    {
+        {"open-meteo", "Open-Meteo", false, "Weather data by Open-Meteo.com"},
+        {"visualcrossing", "Visual Crossing", true, "Weather data by Visual Crossing"},
+        {"weatherapi", "WeatherAPI.com", true, "Powered by WeatherAPI.com"},
+    };
+}
+
+WeatherStore::Provider WeatherStore::provider(const QString &id)
+{
+    const QVector<Provider> all = providers();
+    for (const Provider &p : all)
+        {
+            if (p.id == id)
+                {
+                    return p;
+                }
+        }
+    return all.first();
+}
+
+QString WeatherStore::attribution(const QString &id)
+{
+    return provider(id).attribution;
+}
+
+QString WeatherStore::problem() const
+{
+    const QMutexLocker lock(&m_mutex);
+    return m_problem;
 }
 
 void WeatherStore::setDownloads(bool allowed)
@@ -244,41 +277,101 @@ QString WeatherStore::pathOf(const QString &key) const
     return m_folder + "/" + key + ".json";
 }
 
-QVector<Weather::Air> WeatherStore::parse(const QByteArray &json)
+QVector<Weather::Air> WeatherStore::parse(const QByteArray &json, qint64 firstHour)
 {
-    const QJsonObject hourly = QJsonDocument::fromJson(json).object().value("hourly").toObject();
-    const QJsonArray speed = hourly.value("wind_speed_10m").toArray();
-    const QJsonArray from = hourly.value("wind_direction_10m").toArray();
-    const QJsonArray celsius = hourly.value("temperature_2m").toArray();
-    const QJsonArray pressure = hourly.value("surface_pressure").toArray();
-    QVector<Weather::Air> hours;
-    if (speed.isEmpty() || from.size() != speed.size() || celsius.size() != speed.size() || pressure.size() != speed.size())
+    // every hour the answer has, by its time; values it has nothing for are as the hour before's
+    QVector<QPair<qint64, Weather::Air>> readings;
+    Weather::Air air;
+    const auto keep = [&](qint64 when, const QJsonValue &speed, double speedScale, const QJsonValue &from,
+                          const QJsonValue &celsius, const QJsonValue &pressure)
+    {
+        if (speed.isDouble() && from.isDouble())
+            {
+                air.windSpeed = speed.toDouble() * speedScale;
+                air.windFrom = from.toDouble();
+            }
+        if (celsius.isDouble())
+            {
+                air.celsius = celsius.toDouble();
+            }
+        if (pressure.isDouble())
+            {
+                air.pressureHpa = pressure.toDouble();
+            }
+        readings.append({when, air});
+    };
+    const QJsonObject root = QJsonDocument::fromJson(json).object();
+    if (root.contains("hourly"))
         {
-            return hours;
+            // Open-Meteo: lists side by side, the times in UTC without a zone
+            const QJsonObject hourly = root.value("hourly").toObject();
+            const QJsonArray times = hourly.value("time").toArray();
+            const QJsonArray speed = hourly.value("wind_speed_10m").toArray();
+            const QJsonArray from = hourly.value("wind_direction_10m").toArray();
+            const QJsonArray celsius = hourly.value("temperature_2m").toArray();
+            const QJsonArray pressure = hourly.value("surface_pressure").toArray();
+            if (from.size() != speed.size() || celsius.size() != speed.size() || pressure.size() != speed.size())
+                {
+                    return {};
+                }
+            for (int i = 0; i < speed.size(); ++i)
+                {
+                    QDateTime when = QDateTime::fromString(times.at(i).toString(), "yyyy-MM-ddTHH:mm");
+                    when.setTimeZone(QTimeZone::UTC);
+                    // without times (older answers kept on disk): an hour each from the first
+                    const qint64 at = when.isValid() ? when.toSecsSinceEpoch() : firstHour + 3600 * qint64(i);
+                    keep(at, speed.at(i), 1.0, from.at(i), celsius.at(i), pressure.at(i));
+                }
         }
-    for (int i = 0; i < speed.size(); ++i)
+    else if (root.contains("days"))
         {
-            // hours the service has nothing for yet are null: as the hour before
-            Weather::Air air = hours.isEmpty() ? Weather::Air() : hours.last();
-            if (speed.at(i).isDouble() && from.at(i).isDouble())
+            // Visual Crossing: days of hours, km/h, the pressure at the sea
+            air.seaLevel = true;
+            for (const QJsonValue &day : root.value("days").toArray())
                 {
-                    air.windSpeed = speed.at(i).toDouble();
-                    air.windFrom = from.at(i).toDouble();
+                    for (const QJsonValue &value : day.toObject().value("hours").toArray())
+                        {
+                            const QJsonObject hour = value.toObject();
+                            keep(qint64(hour.value("datetimeEpoch").toDouble()), hour.value("windspeed"), 1.0 / 3.6,
+                                 hour.value("winddir"), hour.value("temp"), hour.value("pressure"));
+                        }
                 }
-            if (celsius.at(i).isDouble())
+        }
+    else if (root.contains("forecast"))
+        {
+            // WeatherAPI.com: the same, other names
+            air.seaLevel = true;
+            for (const QJsonValue &day : root.value("forecast").toObject().value("forecastday").toArray())
                 {
-                    air.celsius = celsius.at(i).toDouble();
+                    for (const QJsonValue &value : day.toObject().value("hour").toArray())
+                        {
+                            const QJsonObject hour = value.toObject();
+                            keep(qint64(hour.value("time_epoch").toDouble()), hour.value("wind_kph"), 1.0 / 3.6,
+                                 hour.value("wind_degree"), hour.value("temp_c"), hour.value("pressure_mb"));
+                        }
                 }
-            if (pressure.at(i).isDouble())
+        }
+    if (readings.isEmpty())
+        {
+            return {};
+        }
+    std::sort(readings.begin(), readings.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+    // hour by hour from the first wanted: each the last reading by then (the first before any)
+    QVector<Weather::Air> hours;
+    const qint64 last = std::max(readings.last().first, firstHour);
+    int reading = 0;
+    for (qint64 at = firstHour; at <= last; at += 3600)
+        {
+            while (reading + 1 < readings.size() && readings.at(reading + 1).first <= at)
                 {
-                    air.pressureHpa = pressure.at(i).toDouble();
+                    ++reading;
                 }
-            hours.append(air);
+            hours.append(readings.at(reading).second);
         }
     return hours;
 }
 
-Weather WeatherStore::along(const TelemetrySession &session, double spacingKm, bool *waiting)
+Weather WeatherStore::along(const TelemetrySession &session, const WeatherChoice &choice, bool *waiting)
 {
     if (waiting)
         {
@@ -298,7 +391,8 @@ Weather WeatherStore::along(const TelemetrySession &session, double spacingKm, b
     weather.firstHour = QDateTime(first, QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
 
     // where the ride was after every `spacing`, and where it ended
-    const double spacing = std::max(1.0, spacingKm) * 1000.0;
+    const double spacing = std::max(1.0, choice.spacingKm) * 1000.0;
+    const Provider service = provider(choice.provider);
     const double begun = distance->valueAtIndex(0);
     const double whole = distance->valueAtIndex(distance->count() - 1);
     QVector<double> marks;
@@ -315,6 +409,13 @@ Weather WeatherStore::along(const TelemetrySession &session, double spacingKm, b
     int sample = 0;
     QHash<QString, QVector<Weather::Air>> read;   // places close together are one to the service
     const QMutexLocker lock(&m_mutex);
+    m_apiKeys.insert(service.id, choice.apiKey.trimmed());
+    // nothing to ask without the key the service wants
+    const bool askable = !service.needsKey || !choice.apiKey.trimmed().isEmpty();
+    if (!askable)
+        {
+            m_problem = tr("%1 wants a key of its own: enter it on the Weather page of the settings.").arg(service.name);
+        }
     for (const double mark : std::as_const(marks))
         {
             while (sample < distance->count() - 1 && distance->valueAtIndex(sample) < mark)
@@ -322,17 +423,17 @@ Weather WeatherStore::along(const TelemetrySession &session, double spacingKm, b
                     ++sample;
                 }
             const double t = distance->timeAt(sample);
-            const QString key = keyOf(lat->valueAt(t), lon->valueAt(t), first, last);
+            const QString key = keyOf(service.id, lat->valueAt(t), lon->valueAt(t), first, last);
             if (!read.contains(key))
                 {
                     QFile file(pathOf(key));
-                    read.insert(key, file.open(QIODevice::ReadOnly) ? parse(file.readAll()) : QVector<Weather::Air>());
+                    read.insert(key, file.open(QIODevice::ReadOnly) ? parse(file.readAll(), weather.firstHour) : QVector<Weather::Air>());
                 }
             if (!read.value(key).isEmpty())
                 {
                     weather.places.append({mark, read.value(key)});
                 }
-            else if (!m_failed.contains(key))
+            else if (askable && !m_failed.contains(key))
                 {
                     asked = asked || (!m_wanted.contains(key) && !m_running.contains(key));
                     if (!m_running.contains(key))
@@ -378,13 +479,42 @@ void WeatherStore::startNext()
                 m_running.insert(key);
                 path = pathOf(key);
             }
+            // service, latitude, longitude, first and last day
             const QStringList parts = key.split('_');
-            const QDate first = QDate::fromString(parts.value(2), Qt::ISODate);
-            const bool recent = first.daysTo(QDateTime::currentDateTimeUtc().date()) < kHistoryLagDays;
-            const QString address = QString("%1?latitude=%2&longitude=%3&start_date=%4&end_date=%5"
-                                            "&hourly=temperature_2m,surface_pressure,wind_speed_10m,wind_direction_10m"
-                                            "&wind_speed_unit=ms")
-                                    .arg(recent ? kRecent : kHistory, parts.value(0), parts.value(1), parts.value(2), parts.value(3));
+            const QString service = parts.value(0);
+            QString apiKey;
+            {
+                const QMutexLocker lock(&m_mutex);
+                apiKey = m_apiKeys.value(service);
+            }
+            QString address;
+            if (service == QLatin1String("visualcrossing"))
+                {
+                    address = QString("https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
+                                      "%1,%2/%3/%4?unitGroup=metric&include=hours&contentType=json"
+                                      "&elements=datetimeEpoch,temp,windspeed,winddir,pressure&key=%5")
+                              .arg(parts.value(1), parts.value(2), parts.value(3), parts.value(4),
+                                   QString::fromLatin1(QUrl::toPercentEncoding(apiKey)));
+                }
+            else if (service == QLatin1String("weatherapi"))
+                {
+                    address = QString("https://api.weatherapi.com/v1/history.json?key=%1&q=%2,%3&dt=%4")
+                              .arg(QString::fromLatin1(QUrl::toPercentEncoding(apiKey)), parts.value(1), parts.value(2),
+                                   parts.value(3));
+                    if (parts.value(4) != parts.value(3))
+                        {
+                            address += "&end_dt=" + parts.value(4);
+                        }
+                }
+            else
+                {
+                    const QDate first = QDate::fromString(parts.value(3), Qt::ISODate);
+                    const bool recent = first.daysTo(QDateTime::currentDateTimeUtc().date()) < kHistoryLagDays;
+                    address = QString("%1?latitude=%2&longitude=%3&start_date=%4&end_date=%5"
+                                      "&hourly=temperature_2m,surface_pressure,wind_speed_10m,wind_direction_10m"
+                                      "&wind_speed_unit=ms")
+                              .arg(recent ? kRecent : kHistory, parts.value(1), parts.value(2), parts.value(3), parts.value(4));
+                }
             QNetworkRequest request{QUrl(address)};
             request.setHeader(QNetworkRequest::UserAgentHeader,
                               QString("%1/%2 (+https://github.com/coozoo/trackrideviz)")
@@ -396,7 +526,8 @@ void WeatherStore::startNext()
                 reply->deleteLater();
                 const QByteArray data = reply->readAll();
                 bool kept = false;
-                if (reply->error() == QNetworkReply::NoError && !parse(data).isEmpty())
+                const bool answered = reply->error() == QNetworkReply::NoError && !parse(data, 0).isEmpty();
+                if (answered)
                     {
                         QDir().mkpath(QFileInfo(path).path());
                         QSaveFile file(path);
@@ -409,6 +540,14 @@ void WeatherStore::startNext()
                     if (!kept)
                         {
                             m_failed.insert(key);
+                            // what the service says, as far as it says something short
+                            const QString said = QString::fromUtf8(data.left(200)).simplified();
+                            m_problem = answered ? tr("The weather could not be kept on disk.")
+                                        : tr("The weather service refused: %1").arg(said.isEmpty() ? reply->errorString() : said);
+                        }
+                    else
+                        {
+                            m_problem.clear();
                         }
                     done = m_running.isEmpty() && m_wanted.isEmpty();
                 }

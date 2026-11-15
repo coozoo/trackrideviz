@@ -22,6 +22,7 @@
 #include <QHeaderView>
 #include <QLocale>
 #include <QScrollArea>
+#include <QSignalBlocker>
 #include <QTableWidget>
 #include <QStackedWidget>
 #include <QStyleFactory>
@@ -464,8 +465,35 @@ QWidget *SettingsDialog::createWeatherPage()
     connect(m_weatherCheck, &QCheckBox::toggled, m_weatherSpacingSpin, &QWidget::setEnabled);
     connect(m_weatherCheck, &QCheckBox::toggled, m_windShareSpin, &QWidget::setEnabled);
 
+    m_weatherProviderCombo = new QComboBox(page);
+    for (const WeatherStore::Provider &provider : WeatherStore::providers())
+        {
+            m_weatherProviderCombo->addItem(provider.needsKey ? tr("%1 (with a key of your own)").arg(provider.name)
+                                            : tr("%1 (no key needed)").arg(provider.name), provider.id);
+        }
+    m_weatherKeyEdit = new QLineEdit(page);
+    m_weatherKeyEdit->setPlaceholderText(tr("from the service's website, after signing up"));
+    m_weatherCredit = note(QString(), page);
+    const auto showProvider = [this]()
+    {
+        const WeatherStore::Provider provider = WeatherStore::provider(m_weatherProviderCombo->currentData().toString());
+        const QSignalBlocker blocker(m_weatherKeyEdit);
+        m_weatherKeyEdit->setText(m_weatherKeys.value(provider.id));
+        m_weatherKeyEdit->setEnabled(provider.needsKey && m_weatherCheck->isChecked());
+        m_weatherCredit->setText(provider.attribution);
+    };
+    connect(m_weatherProviderCombo, &QComboBox::currentIndexChanged, this, showProvider);
+    connect(m_weatherCheck, &QCheckBox::toggled, this, showProvider);
+    connect(m_weatherCheck, &QCheckBox::toggled, m_weatherProviderCombo, &QWidget::setEnabled);
+    connect(m_weatherKeyEdit, &QLineEdit::textEdited, this, [this](const QString &key)
+    {
+        m_weatherKeys.insert(m_weatherProviderCombo->currentData().toString(), key.trimmed());
+    });
+
     QFormLayout *form = new QFormLayout(page);
     form->addRow(m_weatherCheck);
+    form->addRow(tr("Service:"), m_weatherProviderCombo);
+    form->addRow(tr("Key:"), m_weatherKeyEdit);
     form->addRow(tr("A place every:"), m_weatherSpacingSpin);
     form->addRow(tr("Wind reaching the rider:"), m_windShareSpin);
     form->addRow(note(tr("The wind's speed and direction, the wind against the rider and the air's density are then "
@@ -480,7 +508,7 @@ QWidget *SettingsDialog::createWeatherPage()
     });
     updateStoredWeather();
     form->addRow(m_weatherClearButton);
-    form->addRow(note(WeatherStore::attribution(), page));
+    form->addRow(m_weatherCredit);
     return page;
 }
 
@@ -600,6 +628,16 @@ void SettingsDialog::load()
     m_windShareSpin->setValue(weather.windShare);
     m_weatherSpacingSpin->setEnabled(weather.enabled);
     m_windShareSpin->setEnabled(weather.enabled);
+    m_weatherProviderCombo->setEnabled(weather.enabled);
+    for (const WeatherStore::Provider &provider : WeatherStore::providers())
+        {
+            m_weatherKeys.insert(provider.id, AppSettings::weatherApiKey(provider.id));
+        }
+    select(m_weatherProviderCombo, weather.provider);
+    // the key and the credit of the service shown, also when it is the first and so did not change
+    m_weatherKeyEdit->setText(m_weatherKeys.value(weather.provider));
+    m_weatherKeyEdit->setEnabled(weather.enabled && WeatherStore::provider(weather.provider).needsKey);
+    m_weatherCredit->setText(WeatherStore::attribution(weather.provider));
     updatePowerFields();
 
     const Units units = AppSettings::units();
@@ -667,6 +705,12 @@ void SettingsDialog::accept()
 
     WeatherChoice weather;
     weather.enabled = m_weatherCheck->isChecked();
+    weather.provider = m_weatherProviderCombo->currentData().toString();
+    weather.apiKey = m_weatherKeys.value(weather.provider);
+    for (auto it = m_weatherKeys.cbegin(); it != m_weatherKeys.cend(); ++it)
+        {
+            AppSettings::setWeatherApiKey(it.key(), it.value());
+        }
     weather.spacingKm = m_weatherSpacingSpin->value();
     weather.windShare = m_windShareSpin->value();
     AppSettings::setWeather(weather);
