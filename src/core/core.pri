@@ -53,6 +53,7 @@ SOURCES += \
     $$PWD/telemetry/telemetrysession.cpp \
     $$PWD/units/units.cpp \
     $$PWD/util/gzip.cpp \
+    $$PWD/weather/weather.cpp \
     $$PWD/video/cutlist.cpp \
     $$PWD/video/exportjob.cpp \
     $$PWD/video/exportplan.cpp \
@@ -106,6 +107,7 @@ HEADERS += \
     $$PWD/telemetry/telemetrysession.h \
     $$PWD/units/units.h \
     $$PWD/util/gzip.h \
+    $$PWD/weather/weather.h \
     $$PWD/video/cutlist.h \
     $$PWD/video/exportjob.h \
     $$PWD/video/exportplan.h \

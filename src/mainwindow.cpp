@@ -19,6 +19,7 @@
 #include "sync/videosync.h"
 #include "telemetry/dataedits.h"
 #include "telemetry/derivedchannels.h"
+#include "weather/weather.h"
 #include "telemetry/telemetryimporter.h"
 #include "videocanvas.h"
 
@@ -88,18 +89,22 @@ struct ImportResult
     TelemetrySessionPtr raw;       // as the file gave it
     TelemetrySessionPtr session;   // corrected, and completed with what could be worked out
     bool waiting{false};           // for heights of the terrain still being fetched
+    bool weatherWaiting{false};    // for the weather of the ride
     QString error;
 };
 
 // What gauges read: the file's data corrected, with the terrain's heights where the project
 // asks for them, and everything that can be worked out from that.
 TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
-                              const PowerEstimate::Rider &rider, bool *waiting)
+                              const PowerEstimate::Rider &rider, bool *waiting, bool *weatherWaiting)
 {
     const TelemetrySessionPtr complete = DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation,
                                          waiting));
+    *weatherWaiting = false;
+    const Weather weather = complete && rider.enabled && rider.weather
+                            ? WeatherStore::instance()->along(*complete, rider.weatherSpacingKm, weatherWaiting) : Weather();
     // the estimate wants the speed and the grade; what is worked out from a power wants the estimate
-    const TelemetrySessionPtr powered = PowerEstimate::apply(complete, rider);
+    const TelemetrySessionPtr powered = PowerEstimate::apply(complete, rider, weather);
     return powered == complete ? complete : DerivedChannels::complete(powered);
 }
 
@@ -165,6 +170,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(TileStore::terrain(), &TileStore::arrived, this, [this]()
     {
         if (m_terrainWaiting)
+            {
+                recomputeData();
+            }
+    });
+    // ... and the weather of the ride
+    connect(WeatherStore::instance(), &WeatherStore::arrived, this, [this]()
+    {
+        if (m_weatherWaiting)
             {
                 recomputeData();
             }
@@ -559,6 +572,7 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
         const ImportResult result = watcher->result();
         watcher->deleteLater();
         m_terrainWaiting = result.waiting;
+        m_weatherWaiting = result.weatherWaiting;
         telemetryImported(path, result.raw, result.session, result.error);
     });
     const QVector<DataEdit> edits = m_project.dataEdits;
@@ -568,7 +582,7 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = workedOut(result.raw, edits, elevation, rider, &result.waiting);
+        result.session = workedOut(result.raw, edits, elevation, rider, &result.waiting, &result.weatherWaiting);
         return result;
     }));
 }
@@ -713,11 +727,12 @@ void MainWindow::exportVideo()
             return;
         }
     const int pending = TileStore::instance()->pending();
-    if (pending > 0 || m_terrainWaiting)
+    if (pending > 0 || m_terrainWaiting || m_weatherWaiting)
         {
             // what is drawn before they come stays as it is in the exported file
             const QString what = pending > 0 ? tr("%n piece(s) of the map under the gauges are still being fetched.", nullptr, pending)
-                                 : tr("The heights of the terrain are still being fetched.");
+                                 : m_terrainWaiting ? tr("The heights of the terrain are still being fetched.")
+                                 : tr("The weather of the ride is still being fetched.");
             if (QMessageBox::question(this, tr("Export video"),
                                       tr("%1\nAn export started now would be drawn without them. Export anyway?").arg(what))
                     != QMessageBox::Yes)
@@ -1389,6 +1404,10 @@ void MainWindow::updateSourcesInfo()
                 {
                     lines << tr("Fetching the heights of the terrain...");
                 }
+            if (m_weatherWaiting)
+                {
+                    lines << tr("Fetching the weather of the ride...");
+                }
             if (!m_session->warnings().isEmpty())
                 {
                     lines << QString();
@@ -1544,7 +1563,8 @@ void MainWindow::recomputeData()
         {
             return;
         }
-    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, &m_terrainWaiting);
+    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, &m_terrainWaiting,
+                                  &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
     updateLaps();
 }
@@ -1631,6 +1651,8 @@ void MainWindow::applyMapSettings()
     maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
     maps->setDownloads(AppSettings::mapDownloads());
     TileStore::terrain()->setDownloads(AppSettings::mapDownloads());
+    // asked for only by the power estimate, which has a switch of its own
+    WeatherStore::instance()->setDownloads(true);
     m_lapsPanel->refreshMapChoice();
     if (maps->urlTemplate() + maps->attribution() != before)
         {

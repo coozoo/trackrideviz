@@ -4,6 +4,7 @@
 #include "maps/tilestore.h"
 #include "telemetry/derivedchannels.h"
 #include "telemetry/powerestimate.h"
+#include "weather/weather.h"
 
 #include <QtTest>
 
@@ -362,6 +363,61 @@ private slots:
         rider.tires = PowerEstimate::OwnValue;
         rider.crr = 0.0042;
         QCOMPARE(PowerEstimate::crr(rider), 0.0042);
+    }
+
+    void windAgainstAndBehind()
+    {
+        // 8 m/s north on level ground on a day with 5 m/s from the north 10 m up
+        auto recorded = ride(300.0, 1.0, [](double t) { return QPointF(8.0 * t, 0.0); });
+        recorded->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(6, 0), QTimeZone::UTC));
+        const TelemetrySessionPtr north = DerivedChannels::complete(recorded);
+        PowerEstimate::Rider rider;
+        rider.enabled = true;
+        rider.windShare = 60.0;
+        Weather::Air air;
+        air.windSpeed = 5.0;
+        air.windFrom = 0.0;
+        Weather weather;
+        weather.firstHour = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
+        weather.places.append({0.0, QVector<Weather::Air>(24, air)});
+        const double calm = at(PowerEstimate::apply(north, rider), ChannelId::Power, 150.0);
+        const double against = at(PowerEstimate::apply(north, rider, weather), ChannelId::Power, 150.0);
+        weather.places[0].hours.fill([&] { air.windFrom = 180.0; return air; }());
+        const double behind = at(PowerEstimate::apply(north, rider, weather), ChannelId::Power, 150.0);
+        weather.places[0].hours.fill([&] { air.windFrom = 90.0; return air; }());
+        const double across = at(PowerEstimate::apply(north, rider, weather), ChannelId::Power, 150.0);
+        // the air met at 8 + 3 and 8 - 3 m/s instead of 8: drag as the square of it
+        QVERIFY2(against > calm * 1.4, qPrintable(QString("%1 %2").arg(calm).arg(against)));
+        QVERIFY2(behind < calm * 0.7, qPrintable(QString("%1 %2").arg(calm).arg(behind)));
+        QVERIFY2(std::fabs(across - calm) < calm * 0.05, qPrintable(QString("%1 %2").arg(calm).arg(across)));
+    }
+
+    void weatherBetweenPlacesAndHours()
+    {
+        const QByteArray answer = R"({"hourly":{"time":["2025-07-15T00:00","2025-07-15T01:00"],
+            "temperature_2m":[10.0,20.0],"surface_pressure":[1000.0,990.0],
+            "wind_speed_10m":[2.0,4.0],"wind_direction_10m":[350,10]}})";
+        const QVector<Weather::Air> hours = WeatherStore::parse(answer);
+        QCOMPARE(hours.size(), 2);
+        QCOMPARE(hours.at(1).windSpeed, 4.0);
+        QVERIFY(WeatherStore::parse("{\"error\":true}").isEmpty());
+        Weather weather;
+        weather.firstHour = 1000000;
+        weather.places.append({0.0, hours});
+        const Weather::Air half = weather.at(0.0, 1000000 + 1800);
+        QVERIFY(std::fabs(half.celsius - 15.0) < 1e-9);
+        // 350 and 10 degrees meet at north
+        QVERIFY2(half.windFrom < 5.0 || half.windFrom > 355.0, qPrintable(QString::number(half.windFrom)));
+        // a second place 10 km on with still air: half the wind half way
+        weather.places.append({10000.0, QVector<Weather::Air>(2)});
+        QVERIFY(std::fabs(weather.at(5000.0, 1000000).windSpeed - 1.0) < 1e-9);
+        QVERIFY(std::fabs(Weather::Air().density() - 1.225) < 0.005);
+        // nothing is fetched or found for a ride without a date
+        WeatherStore::instance()->setFolder(QDir::tempPath() + "/rtv-no-weather");
+        bool waiting = true;
+        QVERIFY(WeatherStore::instance()->along(*ride(100.0, 1.0, [](double t) { return QPointF(8.0 * t, 0.0); }), 10.0,
+                                                &waiting).isEmpty());
+        QVERIFY(!waiting);
     }
 };
 

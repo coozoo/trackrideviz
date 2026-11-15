@@ -76,6 +76,9 @@ private:
     QComboBox *m_positionCombo{nullptr};
     QDoubleSpinBox *m_cdaSpin{nullptr};
     QDoubleSpinBox *m_lossSpin{nullptr};
+    QCheckBox *m_weatherCheck{nullptr};
+    QDoubleSpinBox *m_weatherSpacingSpin{nullptr};
+    QDoubleSpinBox *m_windShareSpin{nullptr};
     // the user's own numbers, kept while a ready kind is shown in their place
     double m_ownCrr{0.0};
     double m_ownCda{0.0};

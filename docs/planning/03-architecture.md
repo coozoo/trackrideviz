@@ -276,7 +276,9 @@ before binding, giving a gauge drawn without a map a dimmed one with the corners
 `Terrain` reads heights from a second store (`TileStore::terrain()`, tiles with the height in
 the pixel's color) and can put them in place of a recording's elevation before
 `DerivedChannels` runs: file -> `DataEdits` -> `Terrain` -> `DerivedChannels` -> `PowerEstimate`
-(when switched on and no power was recorded; `DerivedChannels` once more after it) -> `LapEngine`.
+(when switched on; `DerivedChannels` once more after it) -> `LapEngine`. The estimate can count in
+the wind and the air of the day: `WeatherStore` asks a weather history service for them at places
+along the ride and keeps the answers on disk, missing ones coming later as the terrain's heights do.
 With tiles missing the data is left as it is and worked out again when they have come.
 
 ## 3.8 Touch UI (QML, later)

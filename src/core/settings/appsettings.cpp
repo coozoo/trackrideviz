@@ -37,6 +37,9 @@ const char kPowerCrr[] = "power/rollingResistance";
 const char kPowerPosition[] = "power/position";
 const char kPowerCda[] = "power/dragArea";
 const char kPowerLoss[] = "power/drivetrainLoss";
+const char kPowerWeather[] = "power/weather";
+const char kPowerWeatherSpacing[] = "power/weatherSpacingKm";
+const char kPowerWindShare[] = "power/windShare";
 const char kSpeedUnit[] = "units/speed";
 const char kLengthUnit[] = "units/length";
 const char kTemperatureUnit[] = "units/temperature";
@@ -309,6 +312,9 @@ PowerEstimate::Rider AppSettings::powerRider()
     rider.position = settings.value(kPowerPosition, usual.position).toString();
     rider.cda = settings.value(kPowerCda, usual.cda).toDouble();
     rider.drivetrainLoss = settings.value(kPowerLoss, usual.drivetrainLoss).toDouble();
+    rider.weather = settings.value(kPowerWeather, usual.weather).toBool();
+    rider.weatherSpacingKm = settings.value(kPowerWeatherSpacing, usual.weatherSpacingKm).toDouble();
+    rider.windShare = settings.value(kPowerWindShare, usual.windShare).toDouble();
     // a word nobody knows is the usual kind, not a value of the user's own
     if (rider.tires != PowerEstimate::OwnValue && PowerEstimate::crrOf(rider.tires) <= 0.0)
         {
@@ -333,6 +339,9 @@ void AppSettings::setPowerRider(const PowerEstimate::Rider &rider)
     settings.setValue(kPowerPosition, rider.position);
     settings.setValue(kPowerCda, rider.cda);
     settings.setValue(kPowerLoss, rider.drivetrainLoss);
+    settings.setValue(kPowerWeather, rider.weather);
+    settings.setValue(kPowerWeatherSpacing, rider.weatherSpacingKm);
+    settings.setValue(kPowerWindShare, rider.windShare);
 }
 
 Units AppSettings::units()

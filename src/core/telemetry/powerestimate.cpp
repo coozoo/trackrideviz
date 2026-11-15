@@ -11,6 +11,7 @@
 namespace
 {
 const double kGravity = 9.80665;
+const double kPi = 3.14159265358979323846;
 // air at sea level and 15 degrees, kg/m3, and the height over which it thins e-fold
 const double kSeaLevelDensity = 1.225;
 const double kScaleHeight = 8434.5;   // m
@@ -156,7 +157,7 @@ QString PowerEstimate::tireKind(const QString &size)
     return width < 33.0 ? "road" : width < 48.0 ? "gravel" : "mtb";
 }
 
-TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, const Rider &rider)
+TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, const Rider &rider, const Weather &weather)
 {
     if (!original || !rider.enabled)
         {
@@ -172,6 +173,12 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
     const Channel *elevation = original->channel(ChannelId::Elevation);
     const Channel *temperature = original->channel(ChannelId::Temperature);
     const Channel *cadence = original->channel(ChannelId::Cadence);
+    const Channel *heading = original->channel(ChannelId::Heading);
+    const Channel *distance = original->channel(ChannelId::Distance);
+    const bool windKnown = !weather.isEmpty() && heading && !heading->isEmpty() && distance && !distance->isEmpty()
+                           && original->startUtc().isValid();
+    const qint64 startUtc = windKnown ? original->startUtc().toSecsSinceEpoch() : 0;
+    const double reaching = std::clamp(rider.windShare, 0.0, 100.0) / 100.0;
 
     // one value a second, not inside pauses
     const double start = speed->startTime();
@@ -215,10 +222,19 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
             const double angle = std::atan((ok ? percent : 0.0) / 100.0);
             const double height = elevation && !elevation->isEmpty() ? elevation->valueAt(t) : 0.0;
             const double celsius = temperature && !temperature->isEmpty() ? temperature->valueAt(t) : 15.0;
-            const double density = kSeaLevelDensity * std::exp(-height / kScaleHeight)
-                                   * kStandardKelvin / (273.15 + std::clamp(celsius, -40.0, 60.0));
+            double density = kSeaLevelDensity * std::exp(-height / kScaleHeight)
+                             * kStandardKelvin / (273.15 + std::clamp(celsius, -40.0, 60.0));
+            // the air the rider meets: the riding speed and what of the wind blows against it
+            double airSpeed = v.at(i);
+            if (windKnown)
+                {
+                    const Weather::Air air = weather.at(distance->valueAt(t), startUtc + qint64(t));
+                    density = air.density();
+                    airSpeed += reaching * air.windSpeed * std::cos((heading->valueAt(t) - air.windFrom) * kPi / 180.0);
+                }
 
-            const double force = 0.5 * density * dragArea * v.at(i) * v.at(i)
+            // a wind from behind faster than the ride pushes
+            const double force = 0.5 * density * dragArea * airSpeed * std::fabs(airSpeed)
                                  + mass * kGravity * (rolling * std::cos(angle) + std::sin(angle))
                                  + mass * gain;
             watts[i] = force * v.at(i) / kept;

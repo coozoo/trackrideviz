@@ -1,6 +1,7 @@
 #pragma once
 
 #include "telemetrysession.h"
+#include "../weather/weather.h"
 
 #include <QString>
 #include <QStringList>
@@ -10,8 +11,9 @@
 // moment, from the speed, the grade and the elevation, and from what is known
 // of the rider and the bike.
 //
-// It is an estimate: the wind is not known, so a headwind reads low and a
-// tailwind high. A recorded power is never replaced: the estimate then goes
+// It is an estimate. Without the weather of the day the wind is not known,
+// so a headwind reads low and a tailwind high; with it (weather.h) the wind
+// along the way and the air's own density are counted in. A recorded power is never replaced: the estimate then goes
 // beside it as a measurement of its own (ChannelId::PowerEstimated), so the
 // two can be compared and the rider's numbers set by a real power meter.
 // Either is listed in TelemetrySession::derivedChannels().
@@ -31,12 +33,18 @@ struct Rider
     QString position{"hoods"};
     double cda{0.36};          // m2
     double drivetrainLoss{3.0}; // % of the power at the cranks
+    // The wind and the air of the day from a weather history service, at places this far apart.
+    bool weather{false};
+    double weatherSpacingKm{10.0};
+    // % of the wind 10 m up that reaches a rider: less between houses and trees.
+    double windShare{60.0};
 
     bool operator==(const Rider &other) const
     {
         return enabled == other.enabled && riderKg == other.riderKg && heightCm == other.heightCm
                && bikeKg == other.bikeKg && tires == other.tires && crr == other.crr
-               && position == other.position && cda == other.cda && drivetrainLoss == other.drivetrainLoss;
+               && position == other.position && cda == other.cda && drivetrainLoss == other.drivetrainLoss
+               && weather == other.weather && weatherSpacingKm == other.weatherSpacingKm && windShare == other.windShare;
     }
     bool operator!=(const Rider &other) const { return !(*this == other); }
 };
@@ -61,6 +69,7 @@ QString tireKind(const QString &size);
 
 // A copy of `session` with the power added; the session itself when the
 // estimate is off or there is no speed to work from.
-// Wants the speed and the grade in place (DerivedChannels::complete).
-TelemetrySessionPtr apply(const TelemetrySessionPtr &session, const Rider &rider);
+// Wants the speed and the grade in place (DerivedChannels::complete), and for
+// the wind the heading and the distance too.
+TelemetrySessionPtr apply(const TelemetrySessionPtr &session, const Rider &rider, const Weather &weather = {});
 }
