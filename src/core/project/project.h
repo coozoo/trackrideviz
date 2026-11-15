@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../telemetry/surfaces.h"
 #include "../maps/terrain.h"
 #include "../laps/lapengine.h"
 #include "../overlay/overlay.h"
@@ -37,6 +38,8 @@ struct Project
     QVector<TimeRange> cuts;
     // corrections of the data, applied before anything is worked out from it
     QVector<DataEdit> dataEdits;
+    // stretches of the ride marked as a surface, for the power estimate
+    QVector<SurfaceStretch> surfaces;
     // the heights of a terrain model as the elevation: when the recording has none, always, never
     Terrain::Use elevation{Terrain::WhenMissing};
 

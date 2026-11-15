@@ -1,6 +1,7 @@
 #pragma once
 
 #include "laps/lapengine.h"
+#include "telemetry/surfaces.h"
 
 #include <QWidget>
 
@@ -28,6 +29,8 @@ public:
 
     // The map chosen in the settings may have changed.
     void refreshMapChoice();
+    // Stretches of the ride marked as a surface, drawn along the route.
+    void setSurfaces(const QVector<SurfaceStretch> &surfaces);
 
 signals:
     // Another map was chosen here: the settings hold it already.
@@ -37,6 +40,10 @@ signals:
     void removeLineRequested();
     void sectorRequested(double lat, double lon);
     void removeSectorsRequested();
+    // The user clicked where a stretch begins and where it ends, and chose what it is ridden on.
+    void surfaceRequested(double fromLat, double fromLon, double toLat, double toLon, const QString &surface,
+                          double factor);
+    void removeSurfacesRequested();
     // Telemetry time to show: a lap was double-clicked.
     void seekRequested(double time);
     // the laps selected in the table, as indexes into the session's laps
@@ -44,6 +51,7 @@ signals:
 
 private:
     void placeToggled(QPushButton *button, bool checked);
+    void surfaceClicked(double lat, double lon);
     void lapActivated(QTreeWidgetItem *item);
     void updateInfo();
 
@@ -54,6 +62,12 @@ private:
     QPushButton *m_removeButton{nullptr};
     QPushButton *m_sectorButton{nullptr};
     QPushButton *m_clearSectorsButton{nullptr};
+    QPushButton *m_surfaceButton{nullptr};
+    QPushButton *m_clearSurfacesButton{nullptr};
+    // where the stretch being marked begins, once clicked
+    bool m_surfaceBegun{false};
+    double m_surfaceLat{0.0};
+    double m_surfaceLon{0.0};
     QLabel *m_info{nullptr};
     QTreeWidget *m_lapTable{nullptr};
     TelemetrySessionPtr m_session;

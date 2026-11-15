@@ -294,6 +294,7 @@ private slots:
         project.startFinish = topLine();
         project.sectors = {sectorLine(0.0, kRadius)};
         project.cuts = {{12.5, 30.0}, {40.0, 41.0}};
+        project.surfaces = {{1200.0, 3400.5, "Hard gravel", 1.8}};
         project.dataEdits = {{ChannelId::Speed, 3.0, 4.5}};
         Project loaded;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(project, "/tmp"), "/tmp", &loaded));
@@ -301,6 +302,7 @@ private slots:
         QCOMPARE(loaded.sectors.size(), 1);
         QVERIFY(loaded.sectors.first() == project.sectors.first());
         QVERIFY(loaded.cuts == project.cuts);
+        QVERIFY(loaded.surfaces == project.surfaces);
         QVERIFY(loaded.dataEdits == project.dataEdits);
         Project none;
         QVERIFY(ProjectFile::fromJson(ProjectFile::toJson(Project(), "/tmp"), "/tmp", &none));

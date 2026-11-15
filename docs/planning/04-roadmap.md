@@ -235,7 +235,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
      services' own grid is 10-25 km and an hour, so finer brings little). Services to choose
      from: Open-Meteo (no key, free for non-commercial use), Visual Crossing and WeatherAPI.com
      (each with a key and a free allowance)
-  3. Surfaces: stretches of the ride marked as smooth, typical or rough asphalt, gravel, dirt,
+  3. ✅ (2026-11-15: "Mark surface" in the Laps panel, the Surfaces page of the settings) Surfaces: stretches of the ride marked as smooth, typical or rough asphalt, gravel, dirt,
      chosen as the lap sections are and kept in the project; typical asphalt where nothing is
      marked. The rolling resistance is the tire's times the surface's
 - ✅ Measurements imported gauges ask for, worked out from the ride (2026-11-14): running time,

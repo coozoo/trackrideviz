@@ -19,7 +19,10 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
+#include <QHeaderView>
+#include <QLocale>
 #include <QScrollArea>
+#include <QTableWidget>
 #include <QStackedWidget>
 #include <QStyleFactory>
 #include <QVBoxLayout>
@@ -57,6 +60,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     addPage(tr("Export"), createExportPage());
     addPage(tr("Maps"), createMapsPage());
     addPage(tr("Power"), createPowerPage());
+    addPage(tr("Surfaces"), createSurfacesPage());
     addPage(tr("Weather"), createWeatherPage());
     m_pageList->setCurrentRow(0);
 
@@ -374,6 +378,66 @@ QWidget *SettingsDialog::createPowerPage()
     return page;
 }
 
+QWidget *SettingsDialog::createSurfacesPage()
+{
+    QWidget *page = new QWidget(this);
+    m_surfaceTable = new QTableWidget(0, 2, page);
+    m_surfaceTable->setHorizontalHeaderLabels({tr("Surface"), tr("Rolling resistance ×")});
+    m_surfaceTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_surfaceTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    m_surfaceTable->verticalHeader()->hide();
+    m_surfaceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_surfaceTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_surfaceTable->setMinimumHeight(220);
+
+    QPushButton *add = new QPushButton(tr("Add"), page);
+    connect(add, &QPushButton::clicked, this, [this]()
+    {
+        const int row = m_surfaceTable->rowCount();
+        m_surfaceTable->insertRow(row);
+        m_surfaceTable->setItem(row, 0, new QTableWidgetItem(tr("New surface")));
+        m_surfaceTable->setItem(row, 1, new QTableWidgetItem(QLocale().toString(1.0, 'f', 2)));
+        m_surfaceTable->setCurrentCell(row, 0);
+        m_surfaceTable->editItem(m_surfaceTable->item(row, 0));
+    });
+    QPushButton *remove = new QPushButton(tr("Remove"), page);
+    connect(remove, &QPushButton::clicked, this, [this]()
+    {
+        if (m_surfaceTable->currentRow() >= 0)
+            {
+                m_surfaceTable->removeRow(m_surfaceTable->currentRow());
+            }
+    });
+    QPushButton *usual = new QPushButton(tr("Restore the usual ones"), page);
+    connect(usual, &QPushButton::clicked, this, [this]() { showSurfaces(Surfaces::usual()); });
+    QHBoxLayout *buttons = new QHBoxLayout;
+    buttons->addWidget(add);
+    buttons->addWidget(remove);
+    buttons->addStretch(1);
+    buttons->addWidget(usual);
+
+    QVBoxLayout *layout = new QVBoxLayout(page);
+    layout->addWidget(m_surfaceTable, 1);
+    layout->addLayout(buttons);
+    layout->addWidget(note(tr("What a stretch of a ride can be marked as in the Laps panel (\"Mark surface\"). The number is "
+                              "how much harder the tires roll there than on typical asphalt: the power estimate multiplies "
+                              "their rolling resistance by it. Stretches marked already keep the number they were marked with."),
+                           page));
+    return page;
+}
+
+void SettingsDialog::showSurfaces(const QVector<SurfaceType> &types)
+{
+    m_surfaceTable->setRowCount(0);
+    for (const SurfaceType &type : types)
+        {
+            const int row = m_surfaceTable->rowCount();
+            m_surfaceTable->insertRow(row);
+            m_surfaceTable->setItem(row, 0, new QTableWidgetItem(type.name));
+            m_surfaceTable->setItem(row, 1, new QTableWidgetItem(QLocale().toString(type.factor, 'f', 2)));
+        }
+}
+
 QWidget *SettingsDialog::createWeatherPage()
 {
     QWidget *page = new QWidget(this);
@@ -487,6 +551,8 @@ void SettingsDialog::load()
     select(m_positionCombo, rider.position);
     m_lossSpin->setValue(rider.drivetrainLoss);
 
+    showSurfaces(AppSettings::surfaceTypes());
+
     const WeatherChoice weather = AppSettings::weather();
     m_weatherCheck->setChecked(weather.enabled);
     m_weatherSpacingSpin->setValue(weather.spacingKm);
@@ -544,6 +610,19 @@ void SettingsDialog::accept()
     rider.cda = m_ownCda;
     rider.drivetrainLoss = m_lossSpin->value();
     AppSettings::setPowerRider(rider);
+
+    QVector<SurfaceType> surfaces;
+    for (int row = 0; row < m_surfaceTable->rowCount(); ++row)
+        {
+            bool ok = false;
+            const QString name = m_surfaceTable->item(row, 0)->text().trimmed();
+            const double factor = QLocale().toDouble(m_surfaceTable->item(row, 1)->text(), &ok);
+            if (!name.isEmpty() && ok && factor > 0.0)
+                {
+                    surfaces.append({name, factor});
+                }
+        }
+    AppSettings::setSurfaceTypes(surfaces);
 
     WeatherChoice weather;
     weather.enabled = m_weatherCheck->isChecked();

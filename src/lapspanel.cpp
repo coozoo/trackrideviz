@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -63,6 +64,8 @@ public:
         m_line = line;
         m_sectors = sectors;
         m_points.clear();
+        m_distances.clear();
+        const Channel *distance = session ? session->channel(ChannelId::Distance) : nullptr;
         const Channel *lat = session ? session->channel(ChannelId::PositionLat) : nullptr;
         const Channel *lon = session ? session->channel(ChannelId::PositionLon) : nullptr;
         if (lat && lon && lat->count() >= 2)
@@ -72,8 +75,23 @@ public:
                 for (int i = 0; i < lat->count(); i += step)
                     {
                         m_points.append(QPointF(lon->valueAt(lat->timeAt(i)), lat->valueAtIndex(i)));
+                        m_distances.append(distance && !distance->isEmpty() ? distance->valueAt(lat->timeAt(i)) : 0.0);
                     }
             }
+        update();
+    }
+
+    void setSurfaces(const QVector<SurfaceStretch> &surfaces)
+    {
+        m_surfaces = surfaces;
+        update();
+    }
+
+    // where a stretch being marked begins; nowhere when `shown` is false
+    void setMark(bool shown, double lat = 0.0, double lon = 0.0)
+    {
+        m_marked = shown;
+        m_mark = QPointF(lon, lat);
         update();
     }
 
@@ -142,6 +160,44 @@ protected:
                 painter.setPen(QPen(palette().color(QPalette::Text), 1.5));
             }
         painter.drawPath(route);
+
+        // the surfaces marked: a broad band along the route, each kind in a color of its own
+        for (const SurfaceStretch &stretch : std::as_const(m_surfaces))
+            {
+                QPainterPath band;
+                bool begun = false;
+                for (int i = 0; i < m_points.size(); ++i)
+                    {
+                        if (m_distances.at(i) < stretch.from || m_distances.at(i) > stretch.to)
+                            {
+                                continue;
+                            }
+                        const QPointF p = map.map(projected(m_points.at(i)));
+                        begun ? band.lineTo(p) : band.moveTo(p);
+                        begun = true;
+                    }
+                if (!begun)
+                    {
+                        continue;
+                    }
+                QColor color = QColor::fromHsv(int(qHash(stretch.surface) % 360), 220, 230);
+                color.setAlpha(170);
+                painter.setPen(QPen(color, 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter.setBrush(Qt::NoBrush);
+                painter.drawPath(band);
+                const QPointF middle = band.pointAtPercent(0.5);
+                const QRectF label = painter.boundingRect(QRectF(middle + QPointF(8, -8), QSizeF(1, 1)),
+                                     Qt::AlignLeft | Qt::AlignVCenter | Qt::TextDontClip, stretch.surface);
+                painter.fillRect(label.adjusted(-3, -1, 3, 1), QColor(255, 255, 255, 200));
+                painter.setPen(QColor(30, 30, 30));
+                painter.drawText(label, Qt::AlignCenter | Qt::TextDontClip, stretch.surface);
+            }
+        if (m_marked)
+            {
+                painter.setPen(QPen(Qt::white, 2));
+                painter.setBrush(QColor(230, 120, 20));
+                painter.drawEllipse(map.map(projected(m_mark)), 6, 6);
+            }
 
         for (const StartFinishLine &sector : m_sectors)
             {
@@ -240,6 +296,10 @@ private:
     StartFinishLine m_line;
     QVector<StartFinishLine> m_sectors;
     QVector<QPointF> m_points;   // lon, lat
+    QVector<double> m_distances; // how far into the ride each of them is, m
+    QVector<SurfaceStretch> m_surfaces;
+    bool m_marked{false};
+    QPointF m_mark;              // lon, lat
     double m_time{0.0};
     bool m_streets{false};
     QString m_credit;
@@ -252,6 +312,11 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_track = new TrackView(this);
     m_track->clicked = [this](double lat, double lon)
     {
+        if (m_surfaceButton->isChecked())
+            {
+                surfaceClicked(lat, lon);
+                return;
+            }
         const bool sector = m_sectorButton->isChecked();
         m_placeButton->setChecked(false);
         m_sectorButton->setChecked(false);
@@ -278,6 +343,14 @@ LapsPanel::LapsPanel(QWidget *parent)
     connect(m_sectorButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_sectorButton, checked); });
     m_clearSectorsButton = new QPushButton(tr("Clear sectors"), this);
     connect(m_clearSectorsButton, &QPushButton::clicked, this, &LapsPanel::removeSectorsRequested);
+
+    m_surfaceButton = new QPushButton(tr("Mark surface"), this);
+    m_surfaceButton->setCheckable(true);
+    m_surfaceButton->setToolTip(tr("Then click on the map where a stretch begins and where it ends, and choose what it is "
+                                   "ridden on: the power estimate counts it in"));
+    connect(m_surfaceButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_surfaceButton, checked); });
+    m_clearSurfacesButton = new QPushButton(tr("Clear surfaces"), this);
+    connect(m_clearSurfacesButton, &QPushButton::clicked, this, &LapsPanel::removeSurfacesRequested);
 
     m_streetsCheck = new QCheckBox(tr("Street map"), this);
     m_streetsCheck->setChecked(AppSettings::lapsMapShown());
@@ -334,6 +407,10 @@ LapsPanel::LapsPanel(QWidget *parent)
     sectorButtons->addWidget(m_sectorButton);
     sectorButtons->addWidget(m_clearSectorsButton);
     sectorButtons->addStretch(1);
+    QHBoxLayout *surfaceButtons = new QHBoxLayout;
+    surfaceButtons->addWidget(m_surfaceButton);
+    surfaceButtons->addWidget(m_clearSurfacesButton);
+    surfaceButtons->addStretch(1);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(6, 6, 6, 6);
     QHBoxLayout *mapChoice = new QHBoxLayout;
@@ -343,9 +420,11 @@ LapsPanel::LapsPanel(QWidget *parent)
     layout->addLayout(mapChoice);
     layout->addLayout(buttons);
     layout->addLayout(sectorButtons);
+    layout->addLayout(surfaceButtons);
     layout->addWidget(m_info);
     layout->addWidget(m_lapTable, 1);
     setSession(nullptr, StartFinishLine(), {});
+    setSurfaces({});
 }
 
 void LapsPanel::refreshMapChoice()
@@ -364,7 +443,7 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
     m_sectors = sectors;
     m_track->setSession(session, line, sectors);
     const bool positions = session && session->channel(ChannelId::PositionLat);
-    for (QPushButton *button : {m_placeButton, m_sectorButton})
+    for (QPushButton *button : {m_placeButton, m_sectorButton, m_surfaceButton})
         {
             button->setEnabled(positions);
             if (!positions)
@@ -475,13 +554,55 @@ void LapsPanel::placeToggled(QPushButton *button, bool checked)
     if (checked)
         {
             // one thing at a time
-            QPushButton *other = button == m_placeButton ? m_sectorButton : m_placeButton;
-            const QSignalBlocker blocker(other);
-            other->setChecked(false);
+            for (QPushButton *other : {m_placeButton, m_sectorButton, m_surfaceButton})
+                {
+                    if (other != button)
+                        {
+                            const QSignalBlocker blocker(other);
+                            other->setChecked(false);
+                        }
+                }
         }
+    m_surfaceBegun = false;
+    m_track->setMark(false);
     m_track->setPlacing(!checked ? QString()
                         : button == m_placeButton ? tr("Click on the route where laps begin")
-                        : tr("Click on the route where a sector ends"));
+                        : button == m_sectorButton ? tr("Click on the route where a sector ends")
+                        : tr("Click on the route where the surface begins"));
+}
+
+void LapsPanel::surfaceClicked(double lat, double lon)
+{
+    if (!m_surfaceBegun)
+        {
+            m_surfaceBegun = true;
+            m_surfaceLat = lat;
+            m_surfaceLon = lon;
+            m_track->setMark(true, lat, lon);
+            m_track->setPlacing(tr("Click on the route where this surface ends"));
+            return;
+        }
+    QMenu menu(this);
+    for (const SurfaceType &type : AppSettings::surfaceTypes())
+        {
+            QAction *action = menu.addAction(tr("%1 (×%2)").arg(type.name).arg(type.factor, 0, 'g', 3));
+            action->setData(QVariantList{type.name, type.factor});
+        }
+    const QAction *chosen = menu.exec(QCursor::pos());
+    const double fromLat = m_surfaceLat;
+    const double fromLon = m_surfaceLon;
+    m_surfaceButton->setChecked(false);
+    if (chosen)
+        {
+            const QVariantList type = chosen->data().toList();
+            emit surfaceRequested(fromLat, fromLon, lat, lon, type.at(0).toString(), type.at(1).toDouble());
+        }
+}
+
+void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
+{
+    m_track->setSurfaces(surfaces);
+    m_clearSurfacesButton->setEnabled(!surfaces.isEmpty());
 }
 
 void LapsPanel::lapActivated(QTreeWidgetItem *item)

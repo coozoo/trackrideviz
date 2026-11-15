@@ -96,8 +96,8 @@ struct ImportResult
 // What gauges read: the file's data corrected, with the terrain's heights where the project
 // asks for them, and everything that can be worked out from that.
 TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
-                              const PowerEstimate::Rider &rider, const WeatherChoice &weatherChoice, bool *waiting,
-                              bool *weatherWaiting)
+                              const PowerEstimate::Rider &rider, const QVector<SurfaceStretch> &surfaces,
+                              const WeatherChoice &weatherChoice, bool *waiting, bool *weatherWaiting)
 {
     const TelemetrySessionPtr complete = DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation,
                                          waiting));
@@ -106,7 +106,7 @@ TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<Data
                             ? WeatherStore::instance()->along(*complete, weatherChoice.spacingKm, weatherWaiting) : Weather();
     // the estimate wants the speed, the grade and the wind; what is worked out from a power wants the estimate
     const TelemetrySessionPtr powered = PowerEstimate::apply(WeatherChannels::add(complete, weather, weatherChoice.windShare),
-                                        rider);
+                                        rider, surfaces);
     return powered == complete ? complete : DerivedChannels::complete(powered);
 }
 
@@ -363,6 +363,11 @@ void MainWindow::createDocks()
     {
         setLapLines(m_project.startFinish, {}, tr("Remove sector lines"));
     });
+    connect(m_lapsPanel, &LapsPanel::surfaceRequested, this, &MainWindow::markSurface);
+    connect(m_lapsPanel, &LapsPanel::removeSurfacesRequested, this, [this]()
+    {
+        setSurfaces({}, tr("Clear surfaces"));
+    });
     connect(m_lapsPanel, &LapsPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
     connect(m_lapsPanel, &LapsPanel::lapsSelected, this, [this](const QVector<int> &laps)
     {
@@ -582,11 +587,13 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     const Terrain::Use elevation = m_project.elevation;
     const PowerEstimate::Rider rider = m_rider;
     const WeatherChoice weather = m_weather;
-    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, weather]()
+    const QVector<SurfaceStretch> surfaces = m_project.surfaces;
+    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather]()
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = workedOut(result.raw, edits, elevation, rider, weather, &result.waiting, &result.weatherWaiting);
+        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, &result.waiting,
+                                   &result.weatherWaiting);
         return result;
     }));
 }
@@ -635,6 +642,7 @@ void MainWindow::openProject(const QString &path)
     m_rawSession.reset();
     m_dataPanel->setSessions(nullptr, nullptr, m_units);
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
+    m_lapsPanel->setSurfaces(m_project.surfaces);
     m_timelinePanel->setSession(nullptr, m_units);
     m_comparePanel->setSession(nullptr, m_units);
     m_timelinePanel->setCuts(m_project.cuts);
@@ -1269,6 +1277,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
     m_dataPanel->setSessions(raw, session, m_units);
     m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
+    m_lapsPanel->setSurfaces(m_project.surfaces);
     m_timelinePanel->setSession(m_session, m_units);
     m_comparePanel->setSession(m_session, m_units);
     if (!m_pendingKeepsSync)
@@ -1460,12 +1469,14 @@ void MainWindow::updateLaps()
     if (!m_recordedSession)
         {
             m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
+            m_lapsPanel->setSurfaces(m_project.surfaces);
             m_timelinePanel->setSession(nullptr, m_units);
             m_comparePanel->setSession(nullptr, m_units);
             return;
         }
     m_session = LapEngine::apply(m_recordedSession, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
+    m_lapsPanel->setSurfaces(m_project.surfaces);
     m_timelinePanel->setSession(m_session, m_units);
     m_comparePanel->setSession(m_session, m_units);
     rebuildOverlay();
@@ -1530,6 +1541,54 @@ void MainWindow::setLapLines(const StartFinishLine &line, const QVector<StartFin
     }));
 }
 
+void MainWindow::markSurface(double fromLat, double fromLon, double toLat, double toLon, const QString &surface,
+                             double factor)
+{
+    const Channel *distance = m_recordedSession ? m_recordedSession->channel(ChannelId::Distance) : nullptr;
+    if (!distance || distance->isEmpty())
+        {
+            return;
+        }
+    double fromOff = 0.0;
+    double toOff = 0.0;
+    const double fromTime = LapEngine::nearestTime(*m_recordedSession, fromLat, fromLon, &fromOff);
+    const double toTime = LapEngine::nearestTime(*m_recordedSession, toLat, toLon, &toOff);
+    // a click well off the route is not meant for it
+    if (fromTime < 0.0 || toTime < 0.0 || fromOff > 60.0 || toOff > 60.0)
+        {
+            statusBar()->showMessage(tr("Click on the route to mark a surface."), 5000);
+            return;
+        }
+    SurfaceStretch stretch;
+    stretch.from = distance->valueAt(std::min(fromTime, toTime));
+    stretch.to = distance->valueAt(std::max(fromTime, toTime));
+    stretch.surface = surface;
+    stretch.factor = factor;
+    if (stretch.to <= stretch.from)
+        {
+            return;
+        }
+    QVector<SurfaceStretch> surfaces = m_project.surfaces;
+    surfaces.append(stretch);
+    setSurfaces(surfaces, tr("Mark surface"));
+}
+
+void MainWindow::setSurfaces(const QVector<SurfaceStretch> &surfaces, const QString &description)
+{
+    const QVector<SurfaceStretch> before = m_project.surfaces;
+    if (before == surfaces)
+        {
+            return;
+        }
+    m_undoStack->push(new OverlayCommand(description, [this, before, surfaces](bool forward)
+    {
+        m_project.surfaces = forward ? surfaces : before;
+        setModified(true);
+        // the power estimate counts them in
+        recomputeData();
+    }));
+}
+
 void MainWindow::setCuts(const QVector<TimeRange> &cuts, const QString &description)
 {
     const QVector<TimeRange> before = m_project.cuts;
@@ -1567,7 +1626,7 @@ void MainWindow::recomputeData()
         {
             return;
         }
-    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_weather,
+    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
                                   &m_terrainWaiting, &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
     updateLaps();

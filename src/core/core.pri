@@ -44,6 +44,7 @@ SOURCES += \
     $$PWD/telemetry/dataedits.cpp \
     $$PWD/telemetry/derivedchannels.cpp \
     $$PWD/telemetry/powerestimate.cpp \
+    $$PWD/telemetry/surfaces.cpp \
     $$PWD/telemetry/smoothing.cpp \
     $$PWD/telemetry/demosession.cpp \
     $$PWD/telemetry/fit/fitdecoder.cpp \
@@ -97,6 +98,7 @@ HEADERS += \
     $$PWD/telemetry/dataedits.h \
     $$PWD/telemetry/derivedchannels.h \
     $$PWD/telemetry/powerestimate.h \
+    $$PWD/telemetry/surfaces.h \
     $$PWD/telemetry/smoothing.h \
     $$PWD/telemetry/demosession.h \
     $$PWD/telemetry/fit/fitdecoder.h \

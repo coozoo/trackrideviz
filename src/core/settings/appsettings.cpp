@@ -37,6 +37,7 @@ const char kPowerCrr[] = "power/rollingResistance";
 const char kPowerPosition[] = "power/position";
 const char kPowerCda[] = "power/dragArea";
 const char kPowerLoss[] = "power/drivetrainLoss";
+const char kSurfaces[] = "surfaces";
 const char kWeatherFetched[] = "weather/fetched";
 const char kWeatherSpacing[] = "weather/spacingKm";
 const char kWeatherWindShare[] = "weather/windShare";
@@ -336,6 +337,43 @@ void AppSettings::setPowerRider(const PowerEstimate::Rider &rider)
     settings.setValue(kPowerPosition, rider.position);
     settings.setValue(kPowerCda, rider.cda);
     settings.setValue(kPowerLoss, rider.drivetrainLoss);
+}
+
+QVector<SurfaceType> AppSettings::surfaceTypes()
+{
+    QSettings settings;
+    QVector<SurfaceType> types;
+    const int count = settings.beginReadArray(kSurfaces);
+    for (int i = 0; i < count; ++i)
+        {
+            settings.setArrayIndex(i);
+            const SurfaceType type{settings.value("name").toString().trimmed(), settings.value("factor").toDouble()};
+            if (!type.name.isEmpty() && type.factor > 0.0)
+                {
+                    types.append(type);
+                }
+        }
+    settings.endArray();
+    return types.isEmpty() ? Surfaces::usual() : types;
+}
+
+void AppSettings::setSurfaceTypes(const QVector<SurfaceType> &types)
+{
+    QSettings settings;
+    settings.remove(kSurfaces);
+    // the usual ones are not written: they follow the language and later versions
+    if (types == Surfaces::usual())
+        {
+            return;
+        }
+    settings.beginWriteArray(kSurfaces, int(types.size()));
+    for (int i = 0; i < types.size(); ++i)
+        {
+            settings.setArrayIndex(i);
+            settings.setValue("name", types.at(i).name);
+            settings.setValue("factor", types.at(i).factor);
+        }
+    settings.endArray();
 }
 
 WeatherChoice AppSettings::weather()

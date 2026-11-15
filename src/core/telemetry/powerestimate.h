@@ -1,5 +1,6 @@
 #pragma once
 
+#include "surfaces.h"
 #include "telemetrysession.h"
 
 #include <QString>
@@ -62,6 +63,8 @@ QString tireKind(const QString &size);
 
 // A copy of `session` with the power added; the session itself when the
 // estimate is off or there is no speed to work from.
-// Wants the speed and the grade in place (DerivedChannels::complete).
-TelemetrySessionPtr apply(const TelemetrySessionPtr &session, const Rider &rider);
+// Wants the speed and the grade in place (DerivedChannels::complete). On the
+// stretches of `surfaces` the tires roll as much harder as their surface says.
+TelemetrySessionPtr apply(const TelemetrySessionPtr &session, const Rider &rider,
+                          const QVector<SurfaceStretch> &surfaces = {});
 }

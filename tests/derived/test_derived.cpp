@@ -326,6 +326,25 @@ private slots:
         QCOMPARE(at(PowerEstimate::apply(down, rider), ChannelId::Power, 150.0), 0.0);
     }
 
+    void surfacesRollHarder()
+    {
+        // 5 m/s on the flat; from 500 m to 1000 m on a surface that rolls three times as hard
+        const TelemetrySessionPtr flat = DerivedChannels::complete(ride(300.0, 1.0, [](double t) { return QPointF(5.0 * t, 0.0); }));
+        PowerEstimate::Rider rider;
+        rider.enabled = true;
+        rider.drivetrainLoss = 0.0;
+        const QVector<SurfaceStretch> surfaces{{500.0, 1000.0, "Loose gravel", 3.0}};
+        const TelemetrySessionPtr powered = PowerEstimate::apply(flat, rider, surfaces);
+        const double asphalt = at(powered, ChannelId::Power, 50.0);
+        const double gravel = at(powered, ChannelId::Power, 150.0);
+        // twice the rolling resistance more: 2 * 85 * 9.80665 * 0.005 * 5
+        QVERIFY2(std::fabs(gravel - asphalt - 41.7) < 3.0, qPrintable(QString("%1 %2").arg(asphalt).arg(gravel)));
+        QCOMPARE(at(powered, ChannelId::Power, 250.0), at(PowerEstimate::apply(flat, rider), ChannelId::Power, 250.0));
+        QCOMPARE(Surfaces::factorAt(surfaces, 1200.0), 1.0);
+        // where two overlap, the one marked last
+        QCOMPARE(Surfaces::factorAt({{0.0, 900.0, "a", 2.0}, {400.0, 600.0, "b", 1.5}}, 500.0), 1.5);
+    }
+
     void recordedPowerStays()
     {
         auto session = ride(100.0, 1.0, [](double t) { return QPointF(10.0 * t, 0.0); });

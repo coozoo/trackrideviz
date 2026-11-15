@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../telemetry/powerestimate.h"
+#include "../telemetry/surfaces.h"
 #include "../units/units.h"
 #include "../weather/weather.h"
 #include "../video/exportsettings.h"
@@ -94,6 +95,11 @@ public:
     // The rider and the bike, for the power of rides recorded without a power meter.
     static PowerEstimate::Rider powerRider();
     static void setPowerRider(const PowerEstimate::Rider &rider);
+
+    // --- Surfaces -------------------------------------------------------
+    // The kinds of surface a stretch of a ride can be marked as; Surfaces::usual() until changed.
+    static QVector<SurfaceType> surfaceTypes();
+    static void setSurfaceTypes(const QVector<SurfaceType> &types);
 
     // --- Weather --------------------------------------------------------
     // The wind and the air of the day of a ride, from a weather history service.

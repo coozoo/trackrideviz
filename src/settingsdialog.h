@@ -10,6 +10,8 @@ class QLineEdit;
 class QListWidget;
 class QPushButton;
 class QStackedWidget;
+class QTableWidget;
+struct SurfaceType;
 
 // Application preferences: a page list on the left, the page on the right.
 // Nothing is written until Save; the caller applies what can change at run
@@ -33,6 +35,8 @@ private:
     QWidget *createMapsPage();
     QWidget *createPowerPage();
     QWidget *createWeatherPage();
+    QWidget *createSurfacesPage();
+    void showSurfaces(const QVector<SurfaceType> &types);
     // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
     void checkFfmpeg();
     void updateMapFields();
@@ -77,6 +81,7 @@ private:
     QComboBox *m_positionCombo{nullptr};
     QDoubleSpinBox *m_cdaSpin{nullptr};
     QDoubleSpinBox *m_lossSpin{nullptr};
+    QTableWidget *m_surfaceTable{nullptr};
     QCheckBox *m_weatherCheck{nullptr};
     QDoubleSpinBox *m_weatherSpacingSpin{nullptr};
     QDoubleSpinBox *m_windShareSpin{nullptr};

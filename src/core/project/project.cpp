@@ -131,6 +131,16 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 }
             root["sectors"] = sectors;
         }
+    if (!project.surfaces.isEmpty())
+        {
+            QJsonArray surfaces;
+            for (const SurfaceStretch &stretch : project.surfaces)
+                {
+                    surfaces.append(QJsonObject{{"from", stretch.from}, {"to", stretch.to}, {"surface", stretch.surface},
+                        {"factor", stretch.factor}});
+                }
+            root["surfaces"] = surfaces;
+        }
     return QJsonDocument(root).toJson(QJsonDocument::Indented);
 }
 
@@ -201,6 +211,16 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             if (sector.size() == 4 && l.isValid())
                 {
                     loaded.sectors.append(l);
+                }
+        }
+    for (const QJsonValue &value : root.value("surfaces").toArray())
+        {
+            const QJsonObject o = value.toObject();
+            const SurfaceStretch stretch{o.value("from").toDouble(), o.value("to").toDouble(), o.value("surface").toString(),
+                                         o.value("factor").toDouble(1.0)};
+            if (stretch.to > stretch.from && stretch.factor > 0.0)
+                {
+                    loaded.surfaces.append(stretch);
                 }
         }
     loaded.overlay.clear();

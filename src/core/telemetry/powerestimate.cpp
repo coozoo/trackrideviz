@@ -156,7 +156,8 @@ QString PowerEstimate::tireKind(const QString &size)
     return width < 33.0 ? "road" : width < 48.0 ? "gravel" : "mtb";
 }
 
-TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, const Rider &rider)
+TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, const Rider &rider,
+        const QVector<SurfaceStretch> &surfaces)
 {
     if (!original || !rider.enabled)
         {
@@ -172,6 +173,7 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
     const Channel *elevation = original->channel(ChannelId::Elevation);
     const Channel *temperature = original->channel(ChannelId::Temperature);
     const Channel *cadence = original->channel(ChannelId::Cadence);
+    const Channel *distance = surfaces.isEmpty() ? nullptr : original->channel(ChannelId::Distance);
     // the weather of the day, when it was asked for
     const Channel *headwind = original->channel(ChannelId::Headwind);
     const Channel *airDensity = original->channel(ChannelId::AirDensity);
@@ -231,9 +233,10 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
                     airSpeed += headwind->valueAt(t);
                 }
 
+            const double surface = distance && !distance->isEmpty() ? Surfaces::factorAt(surfaces, distance->valueAt(t)) : 1.0;
             // a wind from behind faster than the ride pushes
             const double force = 0.5 * density * dragArea * airSpeed * std::fabs(airSpeed)
-                                 + mass * kGravity * (rolling * std::cos(angle) + std::sin(angle))
+                                 + mass * kGravity * (rolling * surface * std::cos(angle) + std::sin(angle))
                                  + mass * gain;
             watts[i] = force * v.at(i) / kept;
         }
