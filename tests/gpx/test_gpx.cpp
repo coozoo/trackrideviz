@@ -7,6 +7,9 @@
 #include "telemetry/gpmfimporter.h"
 #include "telemetry/gpximporter.h"
 #include "telemetry/tcximporter.h"
+#include "telemetry/telemetryimporter.h"
+
+#include <QTemporaryDir>
 
 class TestGpx : public QObject
 {
@@ -28,6 +31,7 @@ private slots:
     void cameraPositions();
     void cameraVideoFile();
     void cameraNestingIsLimited();
+    void strayTimesAreLeftOut();
 
 private:
     static TelemetrySessionPtr parse(const QByteArray &gpx, QString *error = nullptr);
@@ -388,6 +392,33 @@ void TestGpx::cameraNestingIsLimited()
             qToBigEndian<quint16>(quint16(2 * (depth - 1 - i)), at + 6); // ... times the rest
         }
     QVERIFY(!GpmfImporter::fromPayloads({{0.0, 1.0, data}}));
+}
+
+void TestGpx::strayTimesAreLeftOut()
+{
+    // a point stamped 1970 (a clock not set yet) before an hour of riding, a point a second
+    QByteArray gpx = R"(<?xml version="1.0"?><gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>
+        <trkpt lat="49.0" lon="28.0"><time>1970-01-01T00:00:00Z</time></trkpt>)";
+    for (int i = 0; i < 3600; ++i)
+        {
+            gpx += QString(R"(<trkpt lat="%1" lon="28.0"><time>%2</time></trkpt>)")
+                   .arg(49.0 + i * 1e-5, 0, 'f', 6)
+                   .arg(QDateTime(QDate(2026, 6, 25), QTime(10, 0), QTimeZone::UTC).addSecs(i).toString(Qt::ISODate)).toUtf8();
+        }
+    gpx += "</trkseg></trk></gpx>";
+    QTemporaryDir dir;
+    QFile file(dir.filePath("ride.gpx"));
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write(gpx);
+    file.close();
+    const TelemetrySessionPtr session = TelemetryImporter::loadRecorded(file.fileName());
+    QVERIFY(session);
+    const Channel *lat = session->channel(ChannelId::PositionLat);
+    QCOMPARE(lat->count(), 3600);
+    QVERIFY(lat->endTime() - lat->startTime() < 3600.0);
+    QVERIFY(session->warnings().join(' ').contains("away from the rest"));
+    // worked out second by second without going through 56 years
+    QVERIFY(TelemetryImporter::load(file.fileName()));
 }
 
 QTEST_APPLESS_MAIN(TestGpx)

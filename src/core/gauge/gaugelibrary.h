@@ -47,8 +47,6 @@ public:
     // numbers on a dial), whose end can then be chosen.
     static bool hasScale(const Gauge &gauge);
 
-    // The id a gauge stored under this name gets (whether it exists or not).
-    static QString idForName(const QString &name);
     // The id of the stored gauge of this name, ignoring case (names come from
     // files made on Windows); empty when there is none.
     static QString findByName(const QString &name);

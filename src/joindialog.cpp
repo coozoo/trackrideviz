@@ -243,7 +243,12 @@ void JoinDialog::join()
             m_status->setText(tr("Choose two or more videos."));
             return;
         }
-    if (m_outputPath.isEmpty() || files.contains(m_outputPath))
+    // as the disk compares names: where case does not count, "A.MP4" is one of "a.mp4"
+    const bool isInput = std::any_of(files.cbegin(), files.cend(), [this](const QString &file)
+    {
+        return QFileInfo(file) == QFileInfo(m_outputPath);
+    });
+    if (m_outputPath.isEmpty() || isInput)
         {
             m_status->setText(tr("Choose a new file to save the joined video in."));
             return;

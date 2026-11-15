@@ -78,9 +78,6 @@ Enum readEnum(const char *key, const char *const (&words)[N])
 
 const char *const kColorSchemeWords[] = {"system", "light", "dark"};
 const char *const kDecoderWords[] = {"auto", "vaapi", "cuda", "qsv", "vdpau"};
-const char *const kRateControlWords[] = {"quality", "bitrate"};
-const char *const kExportSpeedWords[] = {"fast", "balanced", "small"};
-const char *const kAudioWords[] = {"copy", "aac", "none", "opus", "vorbis"};
 const char *const kSpeedWords[] = {"kmh", "mph"};
 const char *const kLengthWords[] = {"metric", "imperial"};
 const char *const kTemperatureWords[] = {"celsius", "fahrenheit"};
@@ -294,12 +291,12 @@ ExportSettings AppSettings::exportDefaults()
     // these two defaults are not the first word of their list, so readEnum's
     // fallback would be wrong for a key that was never written
     settings.rateControl = stored.contains(kExportRateControl)
-                           ? readEnum<ExportSettings::RateControl>(kExportRateControl, kRateControlWords) : fallback.rateControl;
+                           ? readEnum<ExportSettings::RateControl>(kExportRateControl, ExportSettings::RateControlWords) : fallback.rateControl;
     settings.speed = stored.contains(kExportSpeed)
-                     ? readEnum<ExportSettings::Speed>(kExportSpeed, kExportSpeedWords) : fallback.speed;
+                     ? readEnum<ExportSettings::Speed>(kExportSpeed, ExportSettings::SpeedWords) : fallback.speed;
     settings.quality = stored.value(kExportQuality, fallback.quality).toInt();
     settings.height = stored.value(kExportHeight, fallback.height).toInt();
-    settings.audio = readEnum<ExportSettings::Audio>(kExportAudio, kAudioWords);
+    settings.audio = readEnum<ExportSettings::Audio>(kExportAudio, ExportSettings::AudioWords);
     settings.audioKbps = stored.value(kExportAudioKbps, fallback.audioKbps).toInt();
     return settings;
 }
@@ -308,11 +305,11 @@ void AppSettings::setExportDefaults(const ExportSettings &settings)
 {
     QSettings stored;
     stored.setValue(kExportEncoder, settings.encoder);
-    stored.setValue(kExportRateControl, kRateControlWords[settings.rateControl]);
+    stored.setValue(kExportRateControl, ExportSettings::RateControlWords[settings.rateControl]);
     stored.setValue(kExportQuality, settings.quality);
-    stored.setValue(kExportSpeed, kExportSpeedWords[settings.speed]);
+    stored.setValue(kExportSpeed, ExportSettings::SpeedWords[settings.speed]);
     stored.setValue(kExportHeight, settings.height);
-    stored.setValue(kExportAudio, kAudioWords[settings.audio]);
+    stored.setValue(kExportAudio, ExportSettings::AudioWords[settings.audio]);
     stored.setValue(kExportAudioKbps, settings.audioKbps);
     const QString fileType = QFileInfo(settings.outputPath).suffix().toLower();
     if (!fileType.isEmpty())

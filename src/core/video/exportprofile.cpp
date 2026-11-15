@@ -8,10 +8,6 @@
 
 namespace
 {
-const char *const kRateControlWords[] = {"quality", "bitrate"};
-const char *const kSpeedWords[] = {"fast", "balanced", "small"};
-const char *const kAudioWords[] = {"copy", "aac", "none", "opus", "vorbis"};
-
 template <typename Enum, int N>
 Enum enumOf(const QString &word, const char *const (&words)[N], Enum fallback)
 {
@@ -24,20 +20,6 @@ Enum enumOf(const QString &word, const char *const (&words)[N], Enum fallback)
         }
     return fallback;
 }
-
-QString withSuffix(const QString &path, const QString &suffix)
-{
-    const QFileInfo file(path);
-    if (path.isEmpty() || file.suffix().compare(suffix, Qt::CaseInsensitive) == 0)
-        {
-            return path;
-        }
-    if (file.suffix().isEmpty())
-        {
-            return path + "." + suffix;
-        }
-    return path.left(path.size() - file.suffix().size()) + suffix;
-}
 }
 
 QJsonObject ExportProfile::toJson() const
@@ -47,12 +29,12 @@ QJsonObject ExportProfile::toJson() const
     {
         {"name", name},
         {"encoder", encoder},
-        {"rateControl", kRateControlWords[rateControl]},
+        {"rateControl", ExportSettings::RateControlWords[rateControl]},
         {"quality", quality},
         {"bitrateKbps", bitrateKbps},
-        {"speed", kSpeedWords[speed]},
+        {"speed", ExportSettings::SpeedWords[speed]},
         {"height", height},
-        {"audio", kAudioWords[audio]},
+        {"audio", ExportSettings::AudioWords[audio]},
         {"audioKbps", audioKbps},
         {"suffix", suffix},
     };
@@ -64,12 +46,12 @@ ExportProfile ExportProfile::fromJson(const QJsonObject &json)
     profile.name = json.value("name").toString();
     profile.id = profile.name;
     profile.encoder = json.value("encoder").toString(QStringLiteral("libx264"));
-    profile.rateControl = enumOf(json.value("rateControl").toString(), kRateControlWords, ExportSettings::Bitrate);
+    profile.rateControl = enumOf(json.value("rateControl").toString(), ExportSettings::RateControlWords, ExportSettings::Bitrate);
     profile.quality = json.value("quality").toInt(23);
     profile.bitrateKbps = json.value("bitrateKbps").toInt(20000);
-    profile.speed = enumOf(json.value("speed").toString(), kSpeedWords, ExportSettings::Balanced);
+    profile.speed = enumOf(json.value("speed").toString(), ExportSettings::SpeedWords, ExportSettings::Balanced);
     profile.height = json.value("height").toInt(0);
-    profile.audio = enumOf(json.value("audio").toString(), kAudioWords, ExportSettings::CopyAudio);
+    profile.audio = enumOf(json.value("audio").toString(), ExportSettings::AudioWords, ExportSettings::CopyAudio);
     profile.audioKbps = json.value("audioKbps").toInt(192);
     profile.suffix = json.value("suffix").toString(QStringLiteral("mp4"));
     return profile;
@@ -230,7 +212,7 @@ ExportSettings ExportProfiles::apply(const ExportProfile &profile, const ExportS
             break;
         }
         }
-    settings.outputPath = withSuffix(current.outputPath, profile.suffix);
+    settings.outputPath = ExportSettings::withSuffix(current.outputPath, profile.suffix);
     return settings;
 }
 

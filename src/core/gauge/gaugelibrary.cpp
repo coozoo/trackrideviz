@@ -165,12 +165,6 @@ Gauge GaugeLibrary::gauge(const QString &id)
     return loaded;
 }
 
-QString GaugeLibrary::idForName(const QString &name)
-{
-    const QString folder = safeFolderName(name);
-    return folder.isEmpty() ? QString() : kLibraryPrefix + folder;
-}
-
 QString GaugeLibrary::findByName(const QString &name)
 {
     const QString folder = safeFolderName(name);

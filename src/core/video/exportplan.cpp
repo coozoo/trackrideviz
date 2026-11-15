@@ -22,9 +22,12 @@ QStringList audioEncoding(const ExportSettings &settings)
             return {"-c:a", "libopus", "-b:a", bitrate};
         case ExportSettings::VorbisAudio:
             return {"-c:a", "libvorbis", "-b:a", bitrate};
-        default:
-            return {"-c:a", "aac", "-b:a", bitrate};
+        case ExportSettings::AacAudio:
+        case ExportSettings::CopyAudio:
+        case ExportSettings::NoAudio:
+            break;
         }
+    return {"-c:a", "aac", "-b:a", bitrate};
 }
 }
 
@@ -264,14 +267,16 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
         case ExportSettings::NoAudio:
             args << "-an";
             break;
-        default:
+        case ExportSettings::AacAudio:
+        case ExportSettings::OpusAudio:
+        case ExportSettings::VorbisAudio:
             args << "-map" << "0:a?" << audioEncoding(settings);
             break;
         }
 
     args << VideoEncoders::arguments(encoder, settings);
     const QString suffix = QFileInfo(settings.outputPath).suffix().toLower();
-    const bool mp4Family = suffix == "mp4" || suffix == "mov" || suffix == "m4v";
+    const bool mp4Family = ExportSettings::isMp4Family(suffix);
     if (encoder.hevc && mp4Family)
         {
             // without this tag Apple players refuse HEVC in MP4

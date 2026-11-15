@@ -7,6 +7,7 @@
 #include <QTimeZone>
 #include <QtEndian>
 
+#include <algorithm>
 #include <cmath>
 
 namespace
@@ -113,20 +114,25 @@ QVector<Sample> dataSamples(const QByteArray &moov)
             const double timescale = std::max<quint32>(1, u32(moov, mdhd.start + (longTimes ? 20 : 12)));
 
             // sizes
+            // Counts the file states are held to what its tables have room for: a damaged or made-up
+            // file could otherwise ask for billions of turns of the loops below. The camera writes a
+            // sample a second: a million is eleven days of video.
+            constexpr quint32 kMaxSamples = 1000000;
+            const auto entries = [](const Box &table, qint64 header, qint64 entrySize)
+            {
+                return quint32(std::clamp<qint64>((table.size - header) / entrySize, 0, kMaxSamples));
+            };
             const quint32 sameSize = u32(moov, stsz.start + 4);
-            const quint32 count = u32(moov, stsz.start + 8);
+            const quint32 count = sameSize ? std::min<quint32>(u32(moov, stsz.start + 8), kMaxSamples)
+                                  : std::min(u32(moov, stsz.start + 8), entries(stsz, 12, 4));
             QVector<Sample> samples;
-            if (count > 10000000)
-                {
-                    return samples;
-                }
             samples.resize(count);
             for (quint32 i = 0; i < count; ++i)
                 {
                     samples[i].size = sameSize ? sameSize : u32(moov, stsz.start + 12 + 4 * qint64(i));
                 }
             // times: runs of samples of one length
-            const quint32 runs = u32(moov, stts.start + 4);
+            const quint32 runs = std::min(u32(moov, stts.start + 4), entries(stts, 8, 8));
             double clock = 0.0;
             quint32 index = 0;
             for (quint32 r = 0; r < runs && index < count; ++r)
@@ -141,8 +147,8 @@ QVector<Sample> dataSamples(const QByteArray &moov)
                         }
                 }
             // places: chunks of the file, each holding some samples one after another
-            const quint32 chunkCount = u32(moov, chunks.start + 4);
-            const quint32 groups = u32(moov, stsc.start + 4);
+            const quint32 chunkCount = std::min(u32(moov, chunks.start + 4), entries(chunks, 8, wide ? 8 : 4));
+            const quint32 groups = std::min(u32(moov, stsc.start + 4), entries(stsc, 8, 12));
             index = 0;
             for (quint32 g = 0; g < groups && index < count; ++g)
                 {

@@ -493,6 +493,13 @@ private slots:
         QCOMPARE(hours.at(1).windSpeed, 4.0);
         QVERIFY(!hours.at(0).seaLevel);
         QVERIFY(WeatherStore::parse("{\"error\":true}", midnight).isEmpty());
+        // without a first hour: from the answer's own first, not from 1970
+        QCOMPARE(WeatherStore::parse(answer, 0).size(), 2);
+        // years of hours (times in milliseconds, garbage) are no answer about a ride
+        const QByteArray years = R"({"days":[{"hours":[{"datetimeEpoch":1752541200,"temp":18.0,"windspeed":36.0,
+            "winddir":90.0,"pressure":1013.0},{"datetimeEpoch":1752541200000,"temp":19.0,"windspeed":18.0,"winddir":95.0,
+            "pressure":1012.0}]}]})";
+        QVERIFY(WeatherStore::parse(years, midnight).isEmpty());
         // the other services: km/h, the pressure at the sea, times as seconds; hours before the first as the first
         const QByteArray crossing = R"({"days":[{"hours":[{"datetimeEpoch":1752541200,"temp":18.0,"windspeed":36.0,
             "winddir":90.0,"pressure":1013.0},{"datetimeEpoch":1752544800,"temp":19.0,"windspeed":18.0,"winddir":95.0,

@@ -60,23 +60,6 @@ double toSeconds(const QTime &time)
     return QTime(0, 0).msecsTo(time) / 1000.0;
 }
 
-bool isMp4Family(const QString &suffix)
-{
-    const QString lower = suffix.toLower();
-    return lower == "mp4" || lower == "mov" || lower == "m4v";
-}
-
-// `path` with its extension, which ffmpeg picks the container by, made `suffix`.
-QString withSuffix(const QString &path, const QString &suffix)
-{
-    const QFileInfo file(path);
-    if (path.isEmpty() || file.suffix().compare(suffix, Qt::CaseInsensitive) == 0)
-        {
-            return path;
-        }
-    return file.suffix().isEmpty() ? path + "." + suffix : path.left(path.size() - file.suffix().size()) + suffix;
-}
-
 QString formatDuration(double seconds)
 {
     const int total = int(seconds + 0.5);
@@ -460,9 +443,9 @@ void ExportDialog::onAudioChanged()
     // Opus and Vorbis go into Matroska: the file name follows
     const auto audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
     const QString path = m_outputEdit->text().trimmed();
-    if (ExportSettings::needsMatroska(audio) && isMp4Family(QFileInfo(path).suffix()))
+    if (ExportSettings::needsMatroska(audio) && ExportSettings::isMp4Family(QFileInfo(path).suffix()))
         {
-            m_outputEdit->setText(withSuffix(path, "mkv"));
+            m_outputEdit->setText(ExportSettings::withSuffix(path, "mkv"));
         }
 }
 
@@ -475,9 +458,9 @@ void ExportDialog::showContainer()
 void ExportDialog::onContainerChosen()
 {
     const QString suffix = m_containerCombo->currentData().toString();
-    m_outputEdit->setText(withSuffix(m_outputEdit->text().trimmed(), suffix));
+    m_outputEdit->setText(ExportSettings::withSuffix(m_outputEdit->text().trimmed(), suffix));
     // MP4 and MOV cannot hold Opus or Vorbis: the sound is made AAC
-    if (isMp4Family(suffix) && ExportSettings::needsMatroska(ExportSettings::Audio(m_audioCombo->currentData().toInt())))
+    if (ExportSettings::isMp4Family(suffix) && ExportSettings::needsMatroska(ExportSettings::Audio(m_audioCombo->currentData().toInt())))
         {
             m_audioCombo->setCurrentIndex(m_audioCombo->findData(ExportSettings::AacAudio));
         }
@@ -722,12 +705,22 @@ void ExportDialog::startExport()
             QMessageBox::warning(this, windowTitle(), tr("The folder to save into does not exist."));
             return;
         }
-    if (output.absoluteFilePath() == QFileInfo(m_videoPath).absoluteFilePath())
+    // QFileInfo compares as the disk does: "Ride.MP4" is "ride.mp4" where case does not count
+    QStringList inputs{m_videoPath};
+    for (const MusicTrack &track : m_soundtrack.tracks)
         {
-            QMessageBox::warning(this, windowTitle(), tr("The export cannot replace the video it is made from. Choose another name."));
-            return;
+            inputs << track.path;
         }
-    if (ExportSettings::needsMatroska(settings.audio) && isMp4Family(output.suffix()))
+    for (const QString &input : std::as_const(inputs))
+        {
+            if (output == QFileInfo(input))
+                {
+                    QMessageBox::warning(this, windowTitle(), tr("The export cannot replace a file it is made from (%1). "
+                                         "Choose another name.").arg(QFileInfo(input).fileName()));
+                    return;
+                }
+        }
+    if (ExportSettings::needsMatroska(settings.audio) && ExportSettings::isMp4Family(output.suffix()))
         {
             QMessageBox::warning(this, windowTitle(), tr("A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, "
                                  "or convert the sound to AAC.").arg(output.suffix()));

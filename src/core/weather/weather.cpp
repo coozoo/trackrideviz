@@ -208,6 +208,11 @@ WeatherStore *WeatherStore::instance()
 WeatherStore::WeatherStore()
     : m_folder(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/weather")
 {
+    // asked for from workers too: it fetches on the main thread, whichever made it first
+    if (QCoreApplication::instance())
+        {
+            moveToThread(QCoreApplication::instance()->thread());
+        }
 }
 
 QVector<WeatherStore::Provider> WeatherStore::providers()
@@ -356,11 +361,19 @@ QVector<Weather::Air> WeatherStore::parse(const QByteArray &json, qint64 firstHo
             return {};
         }
     std::sort(readings.begin(), readings.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
-    // hour by hour from the first wanted: each the last reading by then (the first before any)
+    // hour by hour from the first wanted (none: the first there is): each the last reading by
+    // then (the first before any). A stretch of more than a year is no answer about one ride:
+    // a time in milliseconds, or garbage, would ask for millions of hours.
+    constexpr qint64 kMaxHours = 366 * 24;
+    const qint64 from = firstHour > 0 ? firstHour : readings.first().first / 3600 * 3600;
+    const qint64 last = std::max(readings.last().first, from);
+    if ((last - from) / 3600 > kMaxHours)
+        {
+            return {};
+        }
     QVector<Weather::Air> hours;
-    const qint64 last = std::max(readings.last().first, firstHour);
     int reading = 0;
-    for (qint64 at = firstHour; at <= last; at += 3600)
+    for (qint64 at = from; at <= last; at += 3600)
         {
             while (reading + 1 < readings.size() && readings.at(reading + 1).first <= at)
                 {

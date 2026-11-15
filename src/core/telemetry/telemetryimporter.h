@@ -23,4 +23,8 @@ public:
     static TelemetrySessionPtr load(const QString &path, QString *error = nullptr);
     // What the file holds, nothing added.
     static TelemetrySessionPtr loadRecorded(const QString &path, QString *error = nullptr);
+
+private:
+    // The file's importer, as it reads it.
+    static TelemetrySessionPtr loadFile(const QString &path, QString *error);
 };
