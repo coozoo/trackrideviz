@@ -1935,6 +1935,40 @@ private slots:
         QCOMPARE(BoundGauge::fraction(m, range, 5.0), 0.75);
     }
 
+    void tintedDrawingsKeepTheirColor()
+    {
+        // a drawing colored by the gauge, turning with the value: drawn once per size and color
+        auto gauge = [](const QColor &color)
+        {
+            GaugeComponent part;
+            part.type = GaugeComponent::Image;
+            part.svg = "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>"
+                       "<rect x='40' y='10' width='20' height='80' fill='black'/></svg>";
+            part.frame = QRectF(0, 0, 100, 100);
+            part.color = GaugeColor{GaugeColor::Custom, color};
+            GaugeManipulation turn;
+            turn.type = GaugeManipulation::Rotate;
+            turn.pivot = QPointF(50, 50);
+            turn.minAngle = 0;
+            turn.maxAngle = 90;
+            part.manipulations.append(turn);
+            Gauge g;
+            g.size = QSizeF(100, 100);
+            g.components.append(part);
+            return g;
+        };
+        const QImage red = draw(gauge(Qt::red), 0.0);
+        QCOMPARE(red.pixelColor(50, 50), QColor(Qt::red));
+        QCOMPARE(red.pixelColor(50, 15), QColor(Qt::red));
+        // the same again, and another color of the same drawing: never the picture kept for the other
+        QCOMPARE(draw(gauge(Qt::red), 0.0), red);
+        QCOMPARE(draw(gauge(Qt::blue), 0.0).pixelColor(50, 50), QColor(Qt::blue));
+        // turned by the value: lying across at the top speed
+        const QImage turned = draw(gauge(Qt::red), 10.0);
+        QCOMPARE(turned.pixelColor(85, 50), QColor(Qt::red));
+        QVERIFY(qAlpha(turned.pixel(50, 15)) == 0);
+    }
+
     void fixedDialFollowsTheData()
     {
         // a dial made with its own numbers, as imported speedometers are, and a needle for them

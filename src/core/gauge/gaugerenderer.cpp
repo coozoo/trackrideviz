@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <unordered_map>
 
 namespace
 {
@@ -89,19 +90,74 @@ QByteArray themedSvg(QByteArray svg, const GaugeTheme &theme)
 
 // Parsing a drawing for every frame would cost more than drawing it. Each
 // thread keeps its own: preview and export draw at the same time.
+// Looked up by the drawing's buffer, not its text: hashing kilobytes of SVG for every part of
+// every frame cost more than drawing some. The cache keeps a copy of each drawing, so a buffer
+// it knows cannot be freed and come back holding another.
+struct CachedSvg
+{
+    QByteArray svg;
+    std::shared_ptr<QSvgRenderer> renderer;
+};
+
 QSvgRenderer *svgRenderer(const QByteArray &svg)
 {
-    thread_local QHash<QByteArray, std::shared_ptr<QSvgRenderer>> cache;
-    auto found = cache.find(svg);
-    if (found == cache.end())
+    thread_local QHash<const char *, CachedSvg> cache;
+    auto found = cache.find(svg.constData());
+    if (found == cache.end() || found->svg.size() != svg.size())
         {
             if (cache.size() > 200)
                 {
                     cache.clear();
                 }
-            found = cache.insert(svg, std::make_shared<QSvgRenderer>(svg));
+            found = cache.insert(svg.constData(), {svg, std::make_shared<QSvgRenderer>(svg)});
         }
-    return found.value().get();
+    return found->renderer.get();
+}
+
+// A drawing of one color at one size, made once: a needle turns, but stays the same picture.
+QImage tintedSvg(QSvgRenderer *renderer, const QByteArray &svg, const QSize &size, const QColor &color)
+{
+    struct Key
+    {
+        const char *svg;
+        int width;
+        int height;
+        QRgb color;
+        bool operator==(const Key &other) const
+        {
+            return svg == other.svg && width == other.width && height == other.height && color == other.color;
+        }
+    };
+    struct KeyHash
+    {
+        size_t operator()(const Key &key) const
+        {
+            return qHashMulti(0, key.svg, key.width, key.height, key.color);
+        }
+    };
+    // each with its drawing, so that the buffer it is known by stays that drawing's
+    thread_local std::unordered_map<Key, std::pair<QByteArray, QImage>, KeyHash> cache;
+    const Key key{svg.constData(), size.width(), size.height(), color.rgba()};
+    const auto found = cache.find(key);
+    if (found != cache.end() && found->second.first.size() == svg.size())
+        {
+            return found->second.second;
+        }
+    QImage picture(size, QImage::Format_ARGB32_Premultiplied);
+    picture.fill(Qt::transparent);
+    {
+        QPainter drawing(&picture);
+        drawing.setRenderHint(QPainter::Antialiasing);
+        renderer->render(&drawing);
+        drawing.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        drawing.fillRect(picture.rect(), color);
+    }
+    if (cache.size() > 64)
+        {
+            cache.clear();
+        }
+    cache[key] = {svg, picture};
+    return picture;
 }
 
 // "25 km/h", but "204°": a plain degree sign sits on the number.
@@ -1162,7 +1218,13 @@ void BoundGauge::render(QPainter &painter, const QRectF &target, double time) co
                 }
             if (offscreen)
                 {
-                    QImage live(box.size() * context.devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
+                    // one picture kept for this, not a new one of megabytes for every part every frame
+                    thread_local QImage live;
+                    const QSize size = box.size() * context.devicePixelRatio;
+                    if (live.size() != size)
+                        {
+                            live = QImage(size, QImage::Format_ARGB32_Premultiplied);
+                        }
                     live.setDevicePixelRatio(context.devicePixelRatio);
                     live.fill(Qt::transparent);
                     QPainter drawing(&live);
@@ -1768,14 +1830,7 @@ void BoundGauge::drawSvg(QPainter &painter, const Node &node) const
         {
             return;
         }
-    QImage picture(size, QImage::Format_ARGB32_Premultiplied);
-    picture.fill(Qt::transparent);
-    {
-        QPainter drawing(&picture);
-        drawing.setRenderHint(QPainter::Antialiasing);
-        renderer->render(&drawing);
-    }
-    painter.drawImage(frame, tinted(picture, node.color));
+    painter.drawImage(frame, tintedSvg(renderer, node.component.svg, size, node.color));
 }
 
 namespace
