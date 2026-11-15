@@ -3,6 +3,7 @@
 #include "maps/terrain.h"
 #include "maps/tilestore.h"
 #include "telemetry/derivedchannels.h"
+#include "telemetry/powerestimate.h"
 
 #include <QtTest>
 
@@ -280,6 +281,82 @@ private slots:
             return QPointF(t == 50.0 ? 5000.0 : 10.0 * t, 0.0);
         }));
         QVERIFY(at(s, ChannelId::Distance, 100.0) < 1100.0);
+    }
+
+    void powerOnTheFlat()
+    {
+        // 10 m/s north on level ground, 85 kg in all
+        const TelemetrySessionPtr flat = DerivedChannels::complete(ride(300.0, 1.0, [](double t) { return QPointF(10.0 * t, 0.0); }));
+        PowerEstimate::Rider rider;
+        QCOMPARE(PowerEstimate::apply(flat, rider), flat);   // off until switched on
+        rider.enabled = true;
+        rider.tires = PowerEstimate::OwnValue;
+        rider.crr = 0.005;
+        rider.position = PowerEstimate::OwnValue;
+        rider.cda = 0.36;
+        rider.drivetrainLoss = 0.0;
+        const TelemetrySessionPtr powered = PowerEstimate::apply(flat, rider);
+        // 0.5 * 1.225 * 0.36 * 10^3 of air and 85 * 9.80665 * 0.005 * 10 of rolling
+        const double expected = 220.5 + 41.7;
+        const double watts = at(powered, ChannelId::Power, 150.0);
+        QVERIFY2(std::fabs(watts - expected) < 8.0, qPrintable(QString::number(watts)));
+        QVERIFY(powered->derivedChannels().contains(ChannelId::Power));
+        // a loss in the drivetrain asks for more at the cranks
+        rider.drivetrainLoss = 10.0;
+        QVERIFY(std::fabs(at(PowerEstimate::apply(flat, rider), ChannelId::Power, 150.0) - watts / 0.9) < 1.0);
+    }
+
+    void powerOnAClimbAndADescent()
+    {
+        PowerEstimate::Rider rider;
+        rider.enabled = true;
+        rider.drivetrainLoss = 0.0;
+        // 5 m/s up 5 %: 85 * 9.80665 * 0.05 * 5 of climbing over the flat's
+        const TelemetrySessionPtr up = DerivedChannels::complete(
+                                           ride(300.0, 1.0, [](double t) { return QPointF(5.0 * t, 0.0); }, true));
+        const TelemetrySessionPtr level = DerivedChannels::complete(
+                                              ride(300.0, 1.0, [](double t) { return QPointF(5.0 * t, 0.0); }));
+        const double climbing = at(PowerEstimate::apply(up, rider), ChannelId::Power, 150.0)
+                                - at(PowerEstimate::apply(level, rider), ChannelId::Power, 150.0);
+        QVERIFY2(std::fabs(climbing - 208.0) < 15.0, qPrintable(QString::number(climbing)));
+        // rolling down the same hill takes nothing
+        const TelemetrySessionPtr down = DerivedChannels::complete(
+                                             ride(300.0, 1.0, [](double t) { return QPointF(-5.0 * t, 0.0); }, true));
+        QCOMPARE(at(PowerEstimate::apply(down, rider), ChannelId::Power, 150.0), 0.0);
+    }
+
+    void recordedPowerStays()
+    {
+        auto session = ride(100.0, 1.0, [](double t) { return QPointF(10.0 * t, 0.0); });
+        session->channelForWriting(ChannelId::Power, "W").append(0.0, 123.0);
+        const TelemetrySessionPtr complete = DerivedChannels::complete(session);
+        PowerEstimate::Rider rider;
+        rider.enabled = true;
+        QCOMPARE(PowerEstimate::apply(complete, rider), complete);
+    }
+
+    void tiresAndPositions()
+    {
+        QCOMPARE(PowerEstimate::tireKind("700x25c"), QString("road"));
+        QCOMPARE(PowerEstimate::tireKind("700 x 40"), QString("gravel"));
+        QCOMPARE(PowerEstimate::tireKind("26x1.95"), QString("mtb"));
+        QCOMPARE(PowerEstimate::tireKind("29x2,25"), QString("mtb"));
+        QCOMPARE(PowerEstimate::tireKind("40-622"), QString("gravel"));
+        QCOMPARE(PowerEstimate::tireKind("25-622"), QString("road"));
+        QCOMPARE(PowerEstimate::tireKind("nice ones"), QString());
+        for (const QString &tires : PowerEstimate::tires())
+            {
+                QVERIFY(PowerEstimate::crrOf(tires) > 0.0);
+            }
+        // a bigger rider shows the wind a bigger front
+        QVERIFY(PowerEstimate::cdaOf("hoods", 95.0, 190.0) > PowerEstimate::cdaOf("hoods", 60.0, 165.0));
+        QCOMPARE(PowerEstimate::cdaOf("hoods", 75.0, 178.0), 0.36);
+        PowerEstimate::Rider rider;
+        rider.tires = "gravel-slow";
+        QCOMPARE(PowerEstimate::crr(rider), 0.010);
+        rider.tires = PowerEstimate::OwnValue;
+        rider.crr = 0.0042;
+        QCOMPARE(PowerEstimate::crr(rider), 0.0042);
     }
 };
 

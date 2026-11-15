@@ -218,7 +218,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Multiple data sources per project
 - Power estimated for rides without a power meter (there is none now), shown as an estimate,
   never in place of a recorded power. In three steps:
-  1. The estimate itself: air drag, rolling resistance, gravity and acceleration from speed and
+  1. ✅ (2026-11-15, `PowerEstimate`, the Power page of the settings) The estimate itself: air drag, rolling resistance, gravity and acceleration from speed and
      the smoothed elevation, with a drivetrain loss; no power while braking or with the cranks
      still. A settings page with the rider's weight and height, the bike's weight, the tires
      (road, gravel, mountain bike, each fast, typical or slow, or a rolling resistance of the
@@ -229,7 +229,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
      of the ride from a weather history service, asked for at points along the route and hour by
      hour, so a ride between towns gets each place's weather; off until switched on, the wind
      brought down from the 10 m it is measured at to the rider's height; a wind entered by hand
-     when there is no network
+     when there is no network. A point every 5 km by default, to be changed by the user (the
+     services' own grid is 10-25 km and an hour, so finer brings little). Services to choose
+     from: Open-Meteo (no key, free for non-commercial use), Visual Crossing and WeatherAPI.com
+     (each with a key and a free allowance)
   3. Surfaces: stretches of the ride marked as smooth, typical or rough asphalt, gravel, dirt,
      chosen as the lap sections are and kept in the project; typical asphalt where nothing is
      marked. The rolling resistance is the tire's times the surface's

@@ -17,6 +17,7 @@
 #include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QDoubleSpinBox>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QStyleFactory>
@@ -54,6 +55,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     addPage(tr("Units"), createUnitsPage());
     addPage(tr("Export"), createExportPage());
     addPage(tr("Maps"), createMapsPage());
+    addPage(tr("Power"), createPowerPage());
     m_pageList->setCurrentRow(0);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this);
@@ -275,6 +277,115 @@ QWidget *SettingsDialog::createMapsPage()
     return page;
 }
 
+QWidget *SettingsDialog::createPowerPage()
+{
+    QWidget *page = new QWidget(this);
+    m_powerCheck = new QCheckBox(tr("Estimate the power of rides recorded without a power meter"), page);
+
+    auto spin = [page](double low, double high, int decimals, double step, const QString &suffix)
+    {
+        QDoubleSpinBox *box = new QDoubleSpinBox(page);
+        box->setRange(low, high);
+        box->setDecimals(decimals);
+        box->setSingleStep(step);
+        box->setSuffix(suffix);
+        return box;
+    };
+    m_riderWeightSpin = spin(30.0, 200.0, 1, 0.5, tr(" kg"));
+    m_riderHeightSpin = spin(100.0, 230.0, 0, 1.0, tr(" cm"));
+    m_bikeWeightSpin = spin(3.0, 60.0, 1, 0.5, tr(" kg"));
+    m_bikeWeightSpin->setToolTip(tr("With everything on it: bottles, bags, tools"));
+
+    m_tiresCombo = new QComboBox(page);
+    m_tiresCombo->addItem(tr("Road, fast"), "road-fast");
+    m_tiresCombo->addItem(tr("Road, typical"), "road-typical");
+    m_tiresCombo->addItem(tr("Road, slow"), "road-slow");
+    m_tiresCombo->addItem(tr("Gravel, fast"), "gravel-fast");
+    m_tiresCombo->addItem(tr("Gravel, typical"), "gravel-typical");
+    m_tiresCombo->addItem(tr("Gravel, slow"), "gravel-slow");
+    m_tiresCombo->addItem(tr("Mountain bike, fast"), "mtb-fast");
+    m_tiresCombo->addItem(tr("Mountain bike, typical"), "mtb-typical");
+    m_tiresCombo->addItem(tr("Mountain bike, slow"), "mtb-slow");
+    m_tiresCombo->addItem(tr("My own value"), PowerEstimate::OwnValue);
+    m_tiresCombo->setToolTip(tr("Fast: racing tires, pumped hard. Slow: thick, puncture-proof or knobby ones."));
+    m_tireSizeEdit = new QLineEdit(page);
+    m_tireSizeEdit->setPlaceholderText(tr("700x25, 26x1.95, 40-622..."));
+    m_tireSizeEdit->setToolTip(tr("The size printed on the tire picks road, gravel or mountain bike by its width"));
+    m_crrSpin = spin(0.001, 0.05, 4, 0.0005, QString());
+    connect(m_tiresCombo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updatePowerFields);
+    connect(m_crrSpin, &QDoubleSpinBox::valueChanged, this, [this](double value)
+    {
+        if (m_crrSpin->isEnabled())
+            {
+                m_ownCrr = value;
+            }
+    });
+    connect(m_tireSizeEdit, &QLineEdit::textEdited, this, [this](const QString &size)
+    {
+        // the kind by the size, as fast or as slow as it was
+        const QString kind = PowerEstimate::tireKind(size);
+        const QString now = m_tiresCombo->currentData().toString();
+        if (!kind.isEmpty())
+            {
+                const QString level = now.contains('-') ? now.section('-', 1) : QString("typical");
+                select(m_tiresCombo, kind + "-" + level);
+            }
+    });
+
+    m_positionCombo = new QComboBox(page);
+    m_positionCombo->addItem(tr("Road bike, hands on the tops"), "tops");
+    m_positionCombo->addItem(tr("Road bike, hands on the hoods"), "hoods");
+    m_positionCombo->addItem(tr("Road bike, in the drops"), "drops");
+    m_positionCombo->addItem(tr("On aero bars"), "aerobars");
+    m_positionCombo->addItem(tr("Upright: mountain or city bike"), "upright");
+    m_positionCombo->addItem(tr("My own value"), PowerEstimate::OwnValue);
+    m_cdaSpin = spin(0.10, 1.50, 3, 0.01, tr(" m²"));
+    connect(m_positionCombo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updatePowerFields);
+    connect(m_riderWeightSpin, &QDoubleSpinBox::valueChanged, this, &SettingsDialog::updatePowerFields);
+    connect(m_riderHeightSpin, &QDoubleSpinBox::valueChanged, this, &SettingsDialog::updatePowerFields);
+    connect(m_cdaSpin, &QDoubleSpinBox::valueChanged, this, [this](double value)
+    {
+        if (m_cdaSpin->isEnabled())
+            {
+                m_ownCda = value;
+            }
+    });
+
+    m_lossSpin = spin(0.0, 20.0, 1, 0.5, tr(" %"));
+    m_lossSpin->setToolTip(tr("What the chain and the bearings take: 2-3 % when clean, more when worn or dirty"));
+
+    QFormLayout *form = new QFormLayout(page);
+    form->addRow(m_powerCheck);
+    form->addRow(tr("Rider's weight:"), m_riderWeightSpin);
+    form->addRow(tr("Rider's height:"), m_riderHeightSpin);
+    form->addRow(tr("Bike's weight:"), m_bikeWeightSpin);
+    form->addRow(tr("Tires:"), m_tiresCombo);
+    form->addRow(tr("Or the tire size:"), m_tireSizeEdit);
+    form->addRow(tr("Rolling resistance:"), m_crrSpin);
+    form->addRow(tr("Riding position:"), m_positionCombo);
+    form->addRow(tr("Drag area (CdA):"), m_cdaSpin);
+    form->addRow(tr("Drivetrain loss:"), m_lossSpin);
+    form->addRow(note(tr("Worked out from the speed, the grade and the elevation; a recorded power is never replaced. "
+                         "The wind is not known: a headwind reads low and a tailwind high."), page));
+    return page;
+}
+
+void SettingsDialog::updatePowerFields()
+{
+    const QString tires = m_tiresCombo->currentData().toString();
+    const bool ownCrr = tires == PowerEstimate::OwnValue;
+    m_crrSpin->setEnabled(false);   // so that showing a kind's number is not taken for typing one
+    m_crrSpin->setValue(ownCrr ? m_ownCrr : PowerEstimate::crrOf(tires));
+    m_crrSpin->setEnabled(ownCrr);
+
+    const QString position = m_positionCombo->currentData().toString();
+    const bool ownCda = position == PowerEstimate::OwnValue;
+    m_cdaSpin->setEnabled(false);
+    m_cdaSpin->setValue(ownCda ? m_ownCda
+                        : PowerEstimate::cdaOf(position, m_riderWeightSpin->value(), m_riderHeightSpin->value()));
+    m_cdaSpin->setEnabled(ownCda);
+}
+
 void SettingsDialog::updateStoredMaps()
 {
     const qint64 bytes = TileStore::instance()->storedBytes() + TileStore::terrain()->storedBytes();
@@ -327,6 +438,18 @@ void SettingsDialog::load()
     m_mapCreditCheck->setChecked(AppSettings::mapCreditShown());
     updateMapFields();
 
+    const PowerEstimate::Rider rider = AppSettings::powerRider();
+    m_ownCrr = rider.crr;
+    m_ownCda = rider.cda;
+    m_powerCheck->setChecked(rider.enabled);
+    m_riderWeightSpin->setValue(rider.riderKg);
+    m_riderHeightSpin->setValue(rider.heightCm);
+    m_bikeWeightSpin->setValue(rider.bikeKg);
+    select(m_tiresCombo, rider.tires);
+    select(m_positionCombo, rider.position);
+    m_lossSpin->setValue(rider.drivetrainLoss);
+    updatePowerFields();
+
     const Units units = AppSettings::units();
     select(m_speedCombo, units.speed);
     select(m_lengthCombo, units.length);
@@ -364,6 +487,18 @@ void SettingsDialog::accept()
     AppSettings::setMapCreditShown(m_mapCreditCheck->isChecked());
     AppSettings::setMapTileUrl(m_mapUrlEdit->text().trimmed());
     AppSettings::setMapAttribution(m_mapAttributionEdit->text().trimmed());
+
+    PowerEstimate::Rider rider;
+    rider.enabled = m_powerCheck->isChecked();
+    rider.riderKg = m_riderWeightSpin->value();
+    rider.heightCm = m_riderHeightSpin->value();
+    rider.bikeKg = m_bikeWeightSpin->value();
+    rider.tires = m_tiresCombo->currentData().toString();
+    rider.crr = m_ownCrr;
+    rider.position = m_positionCombo->currentData().toString();
+    rider.cda = m_ownCda;
+    rider.drivetrainLoss = m_lossSpin->value();
+    AppSettings::setPowerRider(rider);
 
     if (needsRestart)
         {

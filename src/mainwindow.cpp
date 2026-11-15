@@ -94,9 +94,13 @@ struct ImportResult
 // What gauges read: the file's data corrected, with the terrain's heights where the project
 // asks for them, and everything that can be worked out from that.
 TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
-                              bool *waiting)
+                              const PowerEstimate::Rider &rider, bool *waiting)
 {
-    return DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation, waiting));
+    const TelemetrySessionPtr complete = DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation,
+                                         waiting));
+    // the estimate wants the speed and the grade; what is worked out from a power wants the estimate
+    const TelemetrySessionPtr powered = PowerEstimate::apply(complete, rider);
+    return powered == complete ? complete : DerivedChannels::complete(powered);
 }
 
 // One change of the overlay. Whole states are kept rather than differences:
@@ -152,6 +156,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar();
 
     m_units = AppSettings::units();
+    m_rider = AppSettings::powerRider();
     applyMapSettings();
     rebuildOverlay();
     // map tiles come one by one: gauges with a street map are drawn again with them
@@ -558,11 +563,12 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     });
     const QVector<DataEdit> edits = m_project.dataEdits;
     const Terrain::Use elevation = m_project.elevation;
-    watcher->setFuture(QtConcurrent::run([path, edits, elevation]()
+    const PowerEstimate::Rider rider = m_rider;
+    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider]()
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = workedOut(result.raw, edits, elevation, &result.waiting);
+        result.session = workedOut(result.raw, edits, elevation, rider, &result.waiting);
         return result;
     }));
 }
@@ -1538,7 +1544,7 @@ void MainWindow::recomputeData()
         {
             return;
         }
-    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, &m_terrainWaiting);
+    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, &m_terrainWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
     updateLaps();
 }
@@ -1589,6 +1595,12 @@ void MainWindow::applySettings()
 {
     Appearance::apply();
     applyMapSettings();
+    const PowerEstimate::Rider rider = AppSettings::powerRider();
+    if (rider != m_rider)
+        {
+            m_rider = rider;
+            recomputeData();
+        }
     const Units units = AppSettings::units();
     if (units != m_units)
         {

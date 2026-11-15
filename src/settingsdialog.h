@@ -4,9 +4,11 @@
 
 class QCheckBox;
 class QComboBox;
+class QDoubleSpinBox;
 class QLabel;
 class QLineEdit;
 class QListWidget;
+class QPushButton;
 class QStackedWidget;
 
 // Application preferences: a page list on the left, the page on the right.
@@ -29,10 +31,13 @@ private:
     QWidget *createUnitsPage();
     QWidget *createExportPage();
     QWidget *createMapsPage();
+    QWidget *createPowerPage();
     // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
     void checkFfmpeg();
     void updateMapFields();
     void updateStoredMaps();
+    // Shows what the chosen tires and position stand for; the numbers can be typed only for "my own".
+    void updatePowerFields();
     void load();
 
     QListWidget *m_pageList{nullptr};
@@ -60,4 +65,18 @@ private:
     QPushButton *m_mapClearButton{nullptr};
     QLineEdit *m_mapUrlEdit{nullptr};
     QLineEdit *m_mapAttributionEdit{nullptr};
+
+    QCheckBox *m_powerCheck{nullptr};
+    QDoubleSpinBox *m_riderWeightSpin{nullptr};
+    QDoubleSpinBox *m_riderHeightSpin{nullptr};
+    QDoubleSpinBox *m_bikeWeightSpin{nullptr};
+    QLineEdit *m_tireSizeEdit{nullptr};
+    QComboBox *m_tiresCombo{nullptr};
+    QDoubleSpinBox *m_crrSpin{nullptr};
+    QComboBox *m_positionCombo{nullptr};
+    QDoubleSpinBox *m_cdaSpin{nullptr};
+    QDoubleSpinBox *m_lossSpin{nullptr};
+    // the user's own numbers, kept while a ready kind is shown in their place
+    double m_ownCrr{0.0};
+    double m_ownCda{0.0};
 };

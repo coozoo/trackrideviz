@@ -28,6 +28,15 @@ const char kExportQuality[] = "export/quality";
 const char kExportSpeed[] = "export/speed";
 const char kExportHeight[] = "export/height";
 const char kExportAudio[] = "export/audio";
+const char kPowerEstimated[] = "power/estimated";
+const char kPowerRiderKg[] = "power/riderKg";
+const char kPowerHeightCm[] = "power/heightCm";
+const char kPowerBikeKg[] = "power/bikeKg";
+const char kPowerTires[] = "power/tires";
+const char kPowerCrr[] = "power/rollingResistance";
+const char kPowerPosition[] = "power/position";
+const char kPowerCda[] = "power/dragArea";
+const char kPowerLoss[] = "power/drivetrainLoss";
 const char kSpeedUnit[] = "units/speed";
 const char kLengthUnit[] = "units/length";
 const char kTemperatureUnit[] = "units/temperature";
@@ -284,6 +293,46 @@ void AppSettings::setExportDefaults(const ExportSettings &settings)
     stored.setValue(kExportSpeed, kExportSpeedWords[settings.speed]);
     stored.setValue(kExportHeight, settings.height);
     stored.setValue(kExportAudio, kAudioWords[settings.audio]);
+}
+
+PowerEstimate::Rider AppSettings::powerRider()
+{
+    const QSettings settings;
+    const PowerEstimate::Rider usual;
+    PowerEstimate::Rider rider;
+    rider.enabled = settings.value(kPowerEstimated, usual.enabled).toBool();
+    rider.riderKg = settings.value(kPowerRiderKg, usual.riderKg).toDouble();
+    rider.heightCm = settings.value(kPowerHeightCm, usual.heightCm).toDouble();
+    rider.bikeKg = settings.value(kPowerBikeKg, usual.bikeKg).toDouble();
+    rider.tires = settings.value(kPowerTires, usual.tires).toString();
+    rider.crr = settings.value(kPowerCrr, usual.crr).toDouble();
+    rider.position = settings.value(kPowerPosition, usual.position).toString();
+    rider.cda = settings.value(kPowerCda, usual.cda).toDouble();
+    rider.drivetrainLoss = settings.value(kPowerLoss, usual.drivetrainLoss).toDouble();
+    // a word nobody knows is the usual kind, not a value of the user's own
+    if (rider.tires != PowerEstimate::OwnValue && PowerEstimate::crrOf(rider.tires) <= 0.0)
+        {
+            rider.tires = usual.tires;
+        }
+    if (rider.position != PowerEstimate::OwnValue && !PowerEstimate::positions().contains(rider.position))
+        {
+            rider.position = usual.position;
+        }
+    return rider;
+}
+
+void AppSettings::setPowerRider(const PowerEstimate::Rider &rider)
+{
+    QSettings settings;
+    settings.setValue(kPowerEstimated, rider.enabled);
+    settings.setValue(kPowerRiderKg, rider.riderKg);
+    settings.setValue(kPowerHeightCm, rider.heightCm);
+    settings.setValue(kPowerBikeKg, rider.bikeKg);
+    settings.setValue(kPowerTires, rider.tires);
+    settings.setValue(kPowerCrr, rider.crr);
+    settings.setValue(kPowerPosition, rider.position);
+    settings.setValue(kPowerCda, rider.cda);
+    settings.setValue(kPowerLoss, rider.drivetrainLoss);
 }
 
 Units AppSettings::units()

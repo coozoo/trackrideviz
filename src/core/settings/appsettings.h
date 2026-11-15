@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../telemetry/powerestimate.h"
 #include "../units/units.h"
 #include "../video/exportsettings.h"
 
@@ -87,6 +88,11 @@ public:
     static bool mapCreditShown();
     static void setMapCreditShown(bool shown);
     static void setExportDefaults(const ExportSettings &settings);
+
+    // --- Power ----------------------------------------------------------
+    // The rider and the bike, for the power of rides recorded without a power meter.
+    static PowerEstimate::Rider powerRider();
+    static void setPowerRider(const PowerEstimate::Rider &rider);
 
     // --- Units ------------------------------------------------------------
     static Units units();
