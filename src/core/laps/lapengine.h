@@ -25,7 +25,9 @@ struct StartFinishLine
 // With a start/finish line, laps are the stretches between two crossings of
 // it in the same direction as the first one; a crossing sooner than
 // `minimumLap` after the last is GPS jitter at the line, not a lap. Without
-// one, the laps the device recorded are used.
+// one, the laps the device recorded are used. A ride from one place to
+// another crosses its line only once: the last sector line it comes to is
+// then the finish, and the stretch from the line to it is the one lap.
 //
 // From the laps come the lap channels (channelids.h): the lap under way, its
 // running time, the previous and the best lap so far, the number of laps,

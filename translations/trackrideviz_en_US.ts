@@ -2658,11 +2658,11 @@ Comes with the program; it cannot be deleted.</source>
     </message>
     <message>
         <location filename="../src/lapspanel.cpp" line="503"/>
-        <source>The route does not cross the start/finish line twice: no full lap.</source>
+        <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="507"/>
+        <location filename="../src/lapspanel.cpp" line="508"/>
         <source>%n lap(s) as the device recorded them. Place a start/finish line to time laps on a track.</source>
         <translation>
             <numerusform>%n lap as the device recorded them. Place a start/finish line to time laps on a track.</numerusform>
@@ -2670,7 +2670,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="509"/>
+        <location filename="../src/lapspanel.cpp" line="510"/>
         <source>No laps. Place a start/finish line to time laps on a track.</source>
         <translation type="unfinished"></translation>
     </message>

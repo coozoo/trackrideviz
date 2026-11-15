@@ -406,8 +406,10 @@ QVector<QPointF> LapEngine::deltaByDistance(const TelemetrySession &session, con
 }
 
 TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const StartFinishLine &line,
-                                     const QVector<StartFinishLine> &sectors)
+                                     const QVector<StartFinishLine> &givenSectors)
 {
+    QVector<StartFinishLine> sectors = givenSectors;
+    bool openCourse = false;
     if (!base)
         {
             return base;
@@ -418,6 +420,28 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
     if (line.isValid())
         {
             laps = detect(*session, line);
+            // A ride from one place to another crosses its start line once. The last of the
+            // other lines it comes to is then the finish, and the stretch between is the lap.
+            if (laps.size() == 1 && laps.first().endTime <= laps.first().startTime && !sectors.isEmpty())
+                {
+                    int last = -1;
+                    double finish = laps.first().startTime;
+                    for (int i = 0; i < sectors.size(); ++i)
+                        {
+                            const QVector<double> crossed = splits(*session, {sectors.at(i)}, laps.first().startTime, end);
+                            if (!crossed.isEmpty() && crossed.first() > finish)
+                                {
+                                    finish = crossed.first();
+                                    last = i;
+                                }
+                        }
+                    if (last >= 0)
+                        {
+                            laps.first().endTime = finish;
+                            sectors.removeAt(last);
+                            openCourse = true;
+                        }
+                }
             // the line decides: whatever the file said about laps goes
             for (const char *id : kLapChannels)
                 {
@@ -453,7 +477,7 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
                 }
         }
     const double lastStart = all.isEmpty() ? laps.last().startTime : all.last().endTime;
-    const bool underWay = line.isValid() && end - lastStart > 1.0;
+    const bool underWay = line.isValid() && !openCourse && end - lastStart > 1.0;
     const int finished = int(all.size());
     if (!sectors.isEmpty())
         {

@@ -500,7 +500,8 @@ void LapsPanel::updateInfo()
     if (m_line.isValid())
         {
             m_info->setText(laps > 0 ? tr("%n lap(s) between crossings of the start/finish line.", nullptr, laps)
-                            : tr("The route does not cross the start/finish line twice: no full lap."));
+                            : tr("The route crosses the start/finish line only once. For a ride from one place to "
+                                 "another add a sector line where the stretch ends: the last one is the finish."));
         }
     else
         {

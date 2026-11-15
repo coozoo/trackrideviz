@@ -211,6 +211,22 @@ private slots:
         QVERIFY(!LapEngine::lineAt(TelemetrySession(), 5.0).isValid());
     }
 
+    void fromOnePlaceToAnother()
+    {
+        // a line at 6 o'clock is come to once, at 35 s; 9 o'clock follows at 50 s and 3 o'clock at 80 s
+        const TelemetrySessionPtr once = circuit({60.0});
+        const StartFinishLine start = sectorLine(-kRadius, 0.0);
+        QCOMPARE(LapEngine::apply(once, start)->laps().size(), 0);
+        const TelemetrySessionPtr s = LapEngine::apply(once, start, {sectorLine(0.0, kRadius), sectorLine(0.0, -kRadius)});
+        QCOMPARE(s->laps().size(), 1);
+        const TelemetrySession::Lap lap = s->laps().first();
+        QVERIFY2(std::fabs(lap.endTime - lap.startTime - 45.0) < 1.0, qPrintable(QString::number(lap.endTime - lap.startTime)));
+        QCOMPARE(lap.splits.size(), 1);
+        QVERIFY(lap.splits.first() > lap.startTime && lap.splits.first() < lap.endTime);
+        // after the finish no lap is under way
+        QCOMPARE(at(s, ChannelId::Lap, lap.endTime + 5.0), 1.0);
+    }
+
     void sectors()
     {
         // at 3 o'clock and at 6 o'clock, given in reverse: a quarter, a quarter and a half of each lap

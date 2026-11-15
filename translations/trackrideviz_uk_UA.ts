@@ -2672,11 +2672,15 @@ Comes with the program; it cannot be deleted.</source>
     </message>
     <message>
         <location filename="../src/lapspanel.cpp" line="503"/>
+        <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
+        <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них — фініш.</translation>
+    </message>
+    <message>
         <source>The route does not cross the start/finish line twice: no full lap.</source>
-        <translation>Маршрут не перетинає лінію старту/фінішу двічі: жодного повного кола.</translation>
+        <translation type="vanished">Маршрут не перетинає лінію старту/фінішу двічі: жодного повного кола.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="507"/>
+        <location filename="../src/lapspanel.cpp" line="508"/>
         <source>%n lap(s) as the device recorded them. Place a start/finish line to time laps on a track.</source>
         <translation>
             <numerusform>%n коло, як його записав пристрій. Поставте лінію старту/фінішу, щоб засікати кола на треку.</numerusform>
@@ -2685,7 +2689,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="509"/>
+        <location filename="../src/lapspanel.cpp" line="510"/>
         <source>No laps. Place a start/finish line to time laps on a track.</source>
         <translation>Кіл немає. Поставте лінію старту/фінішу, щоб засікати кола на треку.</translation>
     </message>
