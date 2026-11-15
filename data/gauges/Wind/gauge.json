@@ -49,10 +49,25 @@
         },
         {
             "type": "text",
+            "autoText": "label",
+            "frame": [
+                200,
+                224
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center"
+        },
+        {
+            "type": "text",
             "autoText": "value",
             "frame": [
                 200,
-                262
+                274
             ],
             "font": {
                 "family": "Barlow Semi Condensed",
@@ -69,7 +84,7 @@
             "autoText": "unit",
             "frame": [
                 200,
-                312
+                322
             ],
             "font": {
                 "family": "Barlow Semi Condensed",

@@ -485,8 +485,10 @@ def wind(name):
     components = [image("face.svg", (0, 0, 400, 400)),
                   dict(image("arrow.svg", (0, 0, 400, 400), manipulations=[
                       rotate(0, 360, (C, C), minValue=0, maxValue=360, wrap=True)]), channel="windRelative"),
-                  text("value", (C, C + 62), 64, bold=True, precision=0),
-                  text("unit", (C, C + 112), 26)]
+                  # what the number is, for whoever does not know the gauge
+                  text("label", (C, C + 24), 22, "accent2"),
+                  text("value", (C, C + 74), 64, bold=True, precision=0),
+                  text("unit", (C, C + 122), 26)]
     write(name, (400, 400), components, drawings, ["windSpeed"])
 
 
