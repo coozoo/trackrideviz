@@ -78,6 +78,15 @@ public:
     QStringList derivedChannels() const { return m_derived; }
     void addDerivedChannel(const QString &id) { m_derived.append(id); }
 
+    // The teeth of the bike's chainrings and sprockets, smallest first, when known (gears.h).
+    QVector<int> chainrings() const { return m_chainrings; }
+    QVector<int> cassette() const { return m_cassette; }
+    void setGearing(const QVector<int> &chainrings, const QVector<int> &cassette)
+    {
+        m_chainrings = chainrings;
+        m_cassette = cassette;
+    }
+
     // Non-fatal problems met while importing (bad CRC, truncated file...).
     QStringList warnings() const { return m_warnings; }
     void addWarning(const QString &warning) { m_warnings.append(warning); }
@@ -94,6 +103,8 @@ private:
     QString m_sourceInfo;
     QStringList m_derived;
     QStringList m_warnings;
+    QVector<int> m_chainrings;
+    QVector<int> m_cassette;
 };
 
 using TelemetrySessionPtr = std::shared_ptr<const TelemetrySession>;

@@ -159,7 +159,9 @@ struct GaugeComponent
         LapMap,  // the route of the current lap, with `startLine` where the lap began
         Shape,   // a rectangle, ellipse, arc, pie slice or line drawn with a pen or filled
         Dial,    // a round scale: arc, ticks and numbers (`scale`)
-        Tape     // a sliding straight scale (`scale`)
+        Tape,    // a sliding straight scale (`scale`)
+        Gears    // the bike's chainrings and sprockets as bars (TelemetrySession::cassette()), those in use
+                 // in `activeColor`, the chain between them; the others in `color`
     };
     enum ShapeKind
     {
@@ -241,6 +243,9 @@ struct GaugeComponent
     QVector<QPointF> points;
     GaugeColor gradientColor;      // Original = no gradient
     QLineF gradientLine;
+
+    // Gears: the chainring and the sprocket in use, and the chain.
+    GaugeColor activeColor{GaugeColor::Accent, QColor()};
 
     // Dial, Tape. Numbers in the text font, alignment and color above.
     GaugeScale scale;

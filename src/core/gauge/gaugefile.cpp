@@ -13,7 +13,8 @@ namespace
 const char kFormat[] = "rtvgauge";
 const int kVersion = 1;
 
-const char *const kComponentTypes[] = {"image", "text", "group", "graph", "trackMap", "lapMap", "shape", "dial", "tape"};
+const char *const kComponentTypes[] = {"image", "text", "group", "graph", "trackMap", "lapMap", "shape", "dial", "tape",
+                                       "gears"};
 const char *const kAutoTexts[] = {"fixed", "value", "unit", "valueAndUnit", "label", "labelValueUnit", "intervalMarking"};
 const char *const kShapeKinds[] = {"rectangle", "ellipse", "arc", "pie", "line"};
 const char *const kValueFormats[] = {"number", "wholeNumber", "duration", "degreesMinutesSeconds", "clock"};
@@ -448,6 +449,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                                                         c.gradientLine.x2(), c.gradientLine.y2()};
                 }
             break;
+        case GaugeComponent::Gears:
+            object["activeColor"] = colorToJson(c.activeColor);
+            object["lineWidth"] = c.lineWidth;
+            break;
         case GaugeComponent::Dial:
         case GaugeComponent::Tape:
             object["scale"] = scaleToJson(c.scale, c.type);
@@ -542,6 +547,10 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.channelIcon = object.value("channelIcon").toBool();
     c.autoText = GaugeComponent::AutoText(indexOf(kAutoTexts, object.value("autoText").toString()));
     c.text = object.value("text").toString();
+    if (object.contains("activeColor"))
+        {
+            c.activeColor = colorFromJson(object.value("activeColor"));
+        }
     const QJsonObject font = object.value("font").toObject();
     c.fontFamily = font.value("family").toString();
     c.fontSize = font.value("size").toDouble(c.fontSize);

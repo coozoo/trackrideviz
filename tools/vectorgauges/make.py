@@ -1904,6 +1904,21 @@ def gear(name):
     write(name, (w, h), components, drawings, ["rearGearNumber"])
 
 
+def cassette(name):
+    """The bike's chainrings and sprockets as bars, those in use lit and the chain between them,
+    sliding over at a shift; the teeth under them."""
+    w, h = 400, 170
+    plate_ = f"<rect x='0' y='0' width='{w}' height='{h}' rx='8' fill='@background' fill-opacity='0.35'/>"
+    drawings = {"plate.svg": svg(w, h, plate_)}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  {"type": "gears", "frame": [20, 14, w - 40, 104], "color": "foreground", "activeColor": "accent",
+                   "lineWidth": 3},
+                  dict(text("value", (w / 2 - 16, 144), 28, align="right", bold=True, precision=0), channel="frontGear"),
+                  dict(text("fixed", (w / 2, 144), 24, "accent2"), text="×"),
+                  dict(text("value", (w / 2 + 16, 144), 28, align="left", bold=True, precision=0), channel="rearGear")]
+    write(name, (w, h), components, drawings, ["rearGearNumber"])
+
+
 def skid_ball(name):
     """A curved glass tube with a ball that rolls to the side of the force: to the right in a
     right-hand bend; two marks for the middle."""
@@ -2112,6 +2127,7 @@ def main():
     compass("Compass rose")
     wind("Wind")
     gear("Gear")
+    cassette("Cassette")
     heart("Heart")
     tile("Tile")
     tile("Tile speed", "speed", ["speed"])

@@ -16,15 +16,16 @@ const double kUsualWheelMm = 2105.0;
 // below this the cranks are not driving the wheel, or the numbers are too small to tell gears apart
 const double kLeastCadence = 25.0;   // rpm
 const double kLeastSpeed = 1.5;      // m/s
-// ratios this far off every gear are freewheeling or a glitch: nothing is decided
-const double kMostOff = 0.08;
-// the gear in use stays while it explains the ratio this well: speed and cadence never agree exactly
-const double kStillFits = 0.05;
-// the front changes only when no sprocket on the ring in use explains the ratio this well,
-// and another ring does: a sprocket is the usual shift, a chainring the rare one
-const double kRearFits = 0.065;
-// seconds a new gear must hold before it counts
-const int kHold = 3;
+// How well a gear explains a second: its ratio this far off (as a fraction) costs 1, twice as far 4,
+// and no more than kWorst - a second that fits no gear (coasting with the cranks turning) tells little.
+const double kMatch = 0.05;
+const double kWorst = 9.0;
+// What a shift costs against seconds that fit: a sprocket now and then, a chainring seldom.
+const double kRearShift = 10.0;      // and as much again for every sprocket further
+const double kFrontShift = 60.0;
+// A crossed chain (the small ring on a small sprocket, the big ring on a big one) costs this much a
+// second at its worst: riders keep the chain straight where two gears are alike.
+const double kCrossed = 0.5;
 
 bool has(const TelemetrySession &session, const char *id)
 {
@@ -176,12 +177,35 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
     const bool recordedFront = has(*original, ChannelId::FrontGear);
     if (recordedRear)
         {
-            // the gears the bike recorded: the ratio from them, the front of a single ring from the settings
+            auto session = std::make_shared<TelemetrySession>(*original);
+            // the bike's teeth: as entered, else every one the recording went through
+            if (!drivetrain.isEmpty())
+                {
+                    session->setGearing(drivetrain.chainrings, drivetrain.cassette);
+                }
+            else
+                {
+                    const auto seen = [&](const char *id)
+                    {
+                        QVector<int> teeth;
+                        if (const Channel *channel = session->channel(id))
+                            {
+                                for (int i = 0; i < channel->count(); ++i)
+                                    {
+                                        teeth.append(int(channel->valueAtIndex(i)));
+                                    }
+                            }
+                        std::sort(teeth.begin(), teeth.end());
+                        teeth.erase(std::unique(teeth.begin(), teeth.end()), teeth.end());
+                        return teeth;
+                    };
+                    session->setGearing(seen(ChannelId::FrontGear), seen(ChannelId::RearGear));
+                }
+            // the ratio from them, the front of a single ring from the settings
             if (has(*original, ChannelId::GearRatio) || (!recordedFront && drivetrain.chainrings.size() != 1))
                 {
-                    return original;
+                    return session;
                 }
-            auto session = std::make_shared<TelemetrySession>(*original);
             const Channel rear = *session->channel(ChannelId::RearGear);
             const Channel *front = recordedFront ? session->channel(ChannelId::FrontGear) : nullptr;
             const Channel frontCopy = front ? *front : Channel();
@@ -216,33 +240,38 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
         bool operator==(const Gear &other) const { return front == other.front && rear == other.rear; }
     };
     const auto ratioOf = [&](const Gear &gear) { return double(rings.at(gear.front)) / sprockets.at(gear.rear); };
-    // the sprocket on `front` nearest to `ratio`, and how far off it is
-    const auto bestRear = [&](int front, double ratio, double *off)
-    {
-        Gear best{front, 0};
-        *off = std::numeric_limits<double>::max();
-        for (int r = 0; r < sprockets.size(); ++r)
-            {
-                const double o = offBy(ratio, double(rings.at(front)) / sprockets.at(r));
-                if (o < *off)
-                    {
-                        *off = o;
-                        best.rear = r;
-                    }
-            }
-        return best;
-    };
 
     struct Change
     {
         double time;
         Gear gear;
     };
-    QVector<Change> changes;
-    Gear current;
-    Gear pending;
-    double pendingSince = 0.0;
-    int pendingFor = 0;
+    // Every gear the bike has; for every second the ride gives, how well each explains it, and the
+    // cheapest way through the whole ride to each (Viterbi): one wrong guess at the start cannot
+    // hold the rest, and a shift is taken only where the seconds after it pay for it.
+    const int ringCount = int(rings.size());
+    const int sprocketCount = int(sprockets.size());
+    const int gearCount = ringCount * sprocketCount;
+    const auto gearAt = [&](int state) { return Gear{state / sprocketCount, state % sprocketCount}; };
+    QVector<double> crossed(gearCount);
+    for (int g = 0; g < gearCount; ++g)
+        {
+            const Gear gear = gearAt(g);
+            // 0 the smallest, 1 the largest of each; straight is a large ring on a small sprocket
+            const double ringPlace = ringCount > 1 ? double(gear.front) / (ringCount - 1) : 0.5;
+            const double sprocketPlace = sprocketCount > 1 ? double(gear.rear) / (sprocketCount - 1) : 0.5;
+            const double off = ringCount > 1 ? std::fabs(ringPlace - (1.0 - sprocketPlace)) : 0.0;
+            crossed[g] = kCrossed * off * off;
+        }
+    const auto shiftCost = [&](int from, int to)
+    {
+        const Gear a = gearAt(from);
+        const Gear b = gearAt(to);
+        return (a.rear != b.rear ? kRearShift * (1 + std::abs(a.rear - b.rear)) : 0.0) + (a.front != b.front ? kFrontShift : 0.0);
+    };
+
+    QVector<double> seconds;            // the times looked at
+    QVector<double> ratios;             // what was ridden; 0 where nothing can be told
     const double start = std::max(speed->startTime(), cadence->startTime());
     const double end = std::min(speed->endTime(), cadence->endTime());
     for (double t = start; t <= end; t += 1.0)
@@ -252,7 +281,7 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
                 {
                     paused = paused || (t > p.startTime && t < p.endTime);
                 }
-            // three seconds of each, so that one sample out of step decides nothing
+            // three seconds of each, so that one sample out of step decides little
             double v = 0.0;
             double rpm = 0.0;
             for (const double d : {-1.0, 0.0, 1.0})
@@ -260,68 +289,75 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
                     v += speed->valueAt(t + d) / 3.0;
                     rpm += cadence->valueAt(t + d) / 3.0;
                 }
-            if (paused || rpm < kLeastCadence || v < kLeastSpeed)
+            seconds.append(t);
+            ratios.append(paused || rpm < kLeastCadence || v < kLeastSpeed ? 0.0 : v / (rpm / 60.0 * meters));
+        }
+    // the first second anything can be told
+    int first = 0;
+    while (first < ratios.size() && ratios.at(first) <= 0.0)
+        {
+            ++first;
+        }
+    if (first >= ratios.size())
+        {
+            return original;
+        }
+    QVector<double> cost(gearCount, 0.0);
+    QVector<QVector<qint8>> from(ratios.size(), QVector<qint8>(gearCount, -1));
+    for (int k = first; k < ratios.size(); ++k)
+        {
+            QVector<double> next(gearCount);
+            for (int g = 0; g < gearCount; ++g)
                 {
-                    pendingFor = 0;
-                    continue;
-                }
-            const double ratio = v / (rpm / 60.0 * meters);
-            // the best everywhere, and the best without changing the front
-            Gear best;
-            double bestOff = std::numeric_limits<double>::max();
-            for (int f = 0; f < rings.size(); ++f)
-                {
-                    double off = 0.0;
-                    const Gear g = bestRear(f, ratio, &off);
-                    if (off < bestOff)
+                    double best = cost.at(g);
+                    int bestFrom = g;
+                    if (k > first)
                         {
-                            bestOff = off;
-                            best = g;
+                            for (int h = 0; h < gearCount; ++h)
+                                {
+                                    if (h != g)
+                                        {
+                                            const double c = cost.at(h) + shiftCost(h, g);
+                                            if (c < best)
+                                                {
+                                                    best = c;
+                                                    bestFrom = h;
+                                                }
+                                        }
+                                }
                         }
-                }
-            Gear chosen = best;
-            double chosenOff = bestOff;
-            if (current.isValid() && offBy(ratio, ratioOf(current)) < kStillFits)
-                {
-                    chosen = current;
-                    chosenOff = 0.0;
-                }
-            else if (current.isValid() && best.front != current.front)
-                {
-                    double off = 0.0;
-                    const Gear same = bestRear(current.front, ratio, &off);
-                    if (off < kRearFits || off - bestOff < kRearFits)
+                    const double ratio = ratios.at(k);
+                    double fit = 0.0;
+                    if (ratio > 0.0)
                         {
-                            chosen = same;
-                            chosenOff = off;
+                            const double off = offBy(ratio, ratioOf(gearAt(g))) / kMatch;
+                            fit = std::min(off * off, kWorst) + crossed.at(g);
                         }
+                    next[g] = best + fit;
+                    from[k][g] = qint8(bestFrom);
                 }
-            if (chosenOff > kMostOff)
+            // only differences matter: kept small
+            const double least = *std::min_element(next.cbegin(), next.cend());
+            for (double &c : next)
                 {
-                    // pedaling slower than the wheel turns, or a glitch
-                    pendingFor = 0;
-                    continue;
+                    c -= least;
                 }
-            if (chosen == current)
+            cost = next;
+        }
+    // back from the cheapest end
+    QVector<int> path(ratios.size(), -1);
+    int state = int(std::min_element(cost.cbegin(), cost.cend()) - cost.cbegin());
+    for (int k = int(ratios.size()) - 1; k >= first; --k)
+        {
+            path[k] = state;
+            state = from.at(k).at(state);
+        }
+    QVector<Change> changes;
+    for (int k = first; k < ratios.size(); ++k)
+        {
+            if (k == first || path.at(k) != path.at(k - 1))
                 {
-                    pendingFor = 0;
-                    continue;
-                }
-            if (pendingFor > 0 && chosen == pending)
-                {
-                    ++pendingFor;
-                }
-            else
-                {
-                    pending = chosen;
-                    pendingSince = t;
-                    pendingFor = 1;
-                }
-            if (pendingFor >= kHold)
-                {
-                    current = pending;
-                    changes.append({pendingSince, current});
-                    pendingFor = 0;
+                    changes.append({seconds.at(k), gearAt(path.at(k))});
                 }
         }
     if (changes.isEmpty())
@@ -329,6 +365,7 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
             return original;
         }
     auto session = std::make_shared<TelemetrySession>(*original);
+    session->setGearing(rings, sprockets);
     Channel &frontTeeth = session->channelForWriting(ChannelId::FrontGear, "T", Channel::Step);
     Channel &rearTeeth = session->channelForWriting(ChannelId::RearGear, "T", Channel::Step);
     Channel &frontNumber = session->channelForWriting(ChannelId::FrontGearNumber, QString(), Channel::Step);

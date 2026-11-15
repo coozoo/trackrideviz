@@ -8,6 +8,7 @@
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 #include "telemetry/derivedchannels.h"
+#include "telemetry/gears.h"
 #include "units/units.h"
 
 #include <QCheckBox>
@@ -48,7 +49,7 @@ namespace
 enum PartKind
 {
     ValueText, LabelText, FixedTextPart, Picture, RectanglePart, EllipsePart, ArcPart, LinePart,
-    NeedlePart, BarPart, ArcFillPart, DialPart, TapePart, GraphPart, RoutePart, LapRoutePart, GroupPart
+    NeedlePart, BarPart, ArcFillPart, DialPart, TapePart, GraphPart, RoutePart, LapRoutePart, GearsPart, GroupPart
 };
 
 // The parts a part holds that are shown in the list under it: a group's, or what a graph
@@ -191,6 +192,8 @@ QString describe(const GaugeComponent &part)
             return GaugeEditor::tr("Route");
         case GaugeComponent::LapMap:
             return GaugeEditor::tr("Route of the lap");
+        case GaugeComponent::Gears:
+            return GaugeEditor::tr("Gears");
         case GaugeComponent::Dial:
             return GaugeEditor::tr("Round scale");
         case GaugeComponent::Tape:
@@ -542,7 +545,10 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
         }
     // the sample ride, with laps, so that every kind of part has something to show
     const TelemetrySessionPtr ride = DerivedChannels::complete(DemoSession::create());
-    m_session = LapEngine::apply(ride, LapEngine::lineAt(*ride, 20.0));
+    Drivetrain sample;
+    sample.chainrings = {34, 50};
+    sample.cassette = {11, 12, 13, 14, 15, 17, 19, 21, 24, 28, 32};
+    m_session = LapEngine::apply(Gears::apply(ride, sample), LapEngine::lineAt(*ride, 20.0));
 
     m_nameEdit = new QLineEdit(m_gauge.name, this);
     m_nameEdit->setPlaceholderText(tr("Name of the gauge"));
@@ -633,6 +639,7 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
         {tr("Picture..."), Picture},
         {QString(), -1},
         {tr("Graph"), GraphPart}, {tr("Route"), RoutePart}, {tr("Route of the lap"), LapRoutePart},
+        {tr("Gears (chainrings and sprockets)"), GearsPart},
         {QString(), -1},
         {tr("Group"), GroupPart},
     };
@@ -1179,6 +1186,13 @@ void GaugeEditor::addPart(int kind)
             part.knob.append(dot);
             break;
         }
+        case GearsPart:
+            part.type = GaugeComponent::Gears;
+            part.frame = QRectF(w * 0.05, h * 0.2, w * 0.9, h * 0.6);
+            part.color.role = GaugeColor::Foreground;
+            part.activeColor.role = GaugeColor::Accent;
+            part.lineWidth = std::max(2.0, std::round(unit * 0.01));
+            break;
         case GroupPart:
             part.type = GaugeComponent::Group;
             break;
@@ -1808,6 +1822,12 @@ void GaugeEditor::fillProperties()
     if (part.type == GaugeComponent::Dial || part.type == GaugeComponent::Tape)
         {
             addScale(section(tr("Scale")), part);
+        }
+    if (part.type == GaugeComponent::Gears)
+        {
+            QFormLayout *form = section(tr("Gears"));
+            addColor(form, tr("In use:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
+            addNumber(form, tr("Width of the chain:"), part.lineWidth, 0.1, 1000, 1, [](Part &p, double v) { p.lineWidth = v; });
         }
     if (part.type == GaugeComponent::Graph || route)
         {

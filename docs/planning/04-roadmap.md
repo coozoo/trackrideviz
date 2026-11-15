@@ -223,7 +223,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Gears (2026-11-15, `Gears`, the Bike page of the settings, the "Gear" gauge): recorded by
   electronic shifting (FIT gear change events), or worked out from the speed and the cadence with the
   chainrings, the sprockets and the wheel entered once; the last gear held while coasting
-- A cassette drawn with the sprocket in use lit
+- ✅ A cassette drawn with the gear in use lit and the chain sliding over at a shift ("Cassette"; the
+  `gears` part of gauges)
 - ✅ TCX (2026-11-15, `TcxImporter`): track points of every lap with heart rate, cadence, speed and
   power; the file's laps when it has more than one
 - Multiple data sources per project

@@ -383,6 +383,22 @@ QWidget *SettingsDialog::createPowerPage()
     m_riderHeightSpin = spin(100.0, 230.0, 0, 1.0, tr(" cm"));
     m_bikeWeightSpin = spin(3.0, 60.0, 1, 0.5, tr(" kg"));
     m_bikeWeightSpin->setToolTip(tr("With everything on it: bottles, bags, tools. The same as on the Bike page."));
+    // the tire size again: it picks the kind of tires here
+    m_tireSizePowerEdit = new QLineEdit(page);
+    m_tireSizePowerEdit->setPlaceholderText(m_tireSizeEdit->placeholderText());
+    m_tireSizePowerEdit->setToolTip(tr("The size printed on the tire picks road, gravel or mountain bike tires by its width. "
+                                       "The same as on the Bike page."));
+    for (auto [from, to] : {std::pair{m_tireSizeEdit, m_tireSizePowerEdit}, std::pair{m_tireSizePowerEdit, m_tireSizeEdit}})
+        {
+            connect(from, &QLineEdit::textChanged, to, [to](const QString &text)
+            {
+                if (to->text() != text)
+                    {
+                        const QSignalBlocker blocker(to);
+                        to->setText(text);
+                    }
+            });
+        }
     // one weight, shown on both pages
     for (auto [from, to] : {std::pair{m_bikeWeightSpin, m_bikeWeightBikeSpin}, std::pair{m_bikeWeightBikeSpin, m_bikeWeightSpin}})
         {
@@ -414,7 +430,7 @@ QWidget *SettingsDialog::createPowerPage()
                 m_ownCrr = value;
             }
     });
-    connect(m_tireSizeEdit, &QLineEdit::textEdited, this, [this](const QString &size)
+    const auto pickKind = [this](const QString &size)
     {
         // the kind by the size, as fast or as slow as it was
         const QString kind = PowerEstimate::tireKind(size);
@@ -424,7 +440,10 @@ QWidget *SettingsDialog::createPowerPage()
                 const QString level = now.contains('-') ? now.section('-', 1) : QString("typical");
                 select(m_tiresCombo, kind + "-" + level);
             }
-    });
+    };
+    // typed on either page; not when the settings are filled in, which keeps the kind chosen
+    connect(m_tireSizePowerEdit, &QLineEdit::textEdited, this, pickKind);
+    connect(m_tireSizeEdit, &QLineEdit::textEdited, this, pickKind);
 
     m_positionCombo = new QComboBox(page);
     m_positionCombo->addItem(tr("Road bike, hands on the tops"), "tops");
@@ -455,6 +474,7 @@ QWidget *SettingsDialog::createPowerPage()
     form->addRow(tr("Rider's weight:"), m_riderWeightSpin);
     form->addRow(tr("Rider's height:"), m_riderHeightSpin);
     form->addRow(tr("Bike's weight:"), m_bikeWeightSpin);
+    form->addRow(tr("Tire size:"), m_tireSizePowerEdit);
     form->addRow(tr("Tires:"), m_tiresCombo);
     form->addRow(tr("Rolling resistance:"), m_crrSpin);
     form->addRow(tr("Riding position:"), m_positionCombo);

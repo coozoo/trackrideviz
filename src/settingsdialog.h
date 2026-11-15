@@ -88,6 +88,7 @@ private:
     QDoubleSpinBox *m_wheelSpin{nullptr};
     QLabel *m_wheelNote{nullptr};
     QLineEdit *m_chainringsEdit{nullptr};
+    QLineEdit *m_tireSizePowerEdit{nullptr};   // the tire size again, on the Power page
     QLineEdit *m_cassetteEdit{nullptr};
     QTableWidget *m_surfaceTable{nullptr};
     QCheckBox *m_weatherCheck{nullptr};

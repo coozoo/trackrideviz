@@ -653,6 +653,10 @@ BoundGauge::Node BoundGauge::bind(const GaugeComponent &component, const Units &
                     node.gradient = themeColor(component.gradientColor, theme);
                 }
         }
+    if (component.type == GaugeComponent::Gears)
+        {
+            node.markerColor = themeColor(component.activeColor, theme);
+        }
     if (component.type == GaugeComponent::Dial || component.type == GaugeComponent::Tape)
         {
             node.minorColor = themeColor(component.scale.minor.color, theme);
@@ -1216,6 +1220,9 @@ void BoundGauge::draw(QPainter &painter, const Node &node, double time, const Co
         case GaugeComponent::Tape:
             drawTape(painter, node, known, value);
             break;
+        case GaugeComponent::Gears:
+            drawGears(painter, node, time);
+            break;
         case GaugeComponent::Group:
             for (const Node &child : node.children)
                 {
@@ -1651,6 +1658,119 @@ void BoundGauge::drawSvg(QPainter &painter, const Node &node) const
         renderer->render(&drawing);
     }
     painter.drawImage(frame, tinted(picture, node.color));
+}
+
+namespace
+{
+// The teeth of a gear channel at `time`, those before its last change, and when that was;
+// 0 teeth where the channel says nothing.
+struct Shift
+{
+    int now{0};
+    int before{0};
+    double since{-1e9};
+};
+
+Shift shiftAt(const Channel *channel, double time)
+{
+    Shift shift;
+    if (!channel || channel->isEmpty() || time < channel->startTime())
+        {
+            return shift;
+        }
+    int i = 0;
+    int high = channel->count() - 1;
+    // the last sample not after `time`
+    while (i < high)
+        {
+            const int middle = (i + high + 1) / 2;
+            channel->timeAt(middle) <= time ? i = middle : high = middle - 1;
+        }
+    shift.now = int(channel->valueAtIndex(i));
+    // back to where this gear began
+    while (i > 0 && int(channel->valueAtIndex(i - 1)) == shift.now)
+        {
+            --i;
+        }
+    shift.since = channel->timeAt(i);
+    shift.before = i > 0 ? int(channel->valueAtIndex(i - 1)) : shift.now;
+    return shift;
+}
+}
+
+void BoundGauge::drawGears(QPainter &painter, const Node &node, double time) const
+{
+    const QVector<int> rings = m_session ? m_session->chainrings() : QVector<int>();
+    const QVector<int> sprockets = m_session ? m_session->cassette() : QVector<int>();
+    if (sprockets.isEmpty())
+        {
+            return;
+        }
+    const GaugeComponent &component = node.component;
+    const QRectF frame = component.frame;
+    int largest = 1;
+    for (const int teeth : rings + sprockets)
+        {
+            largest = std::max(largest, teeth);
+        }
+    // the rings, a gap, then the sprockets from the largest (gear 1) to the smallest
+    const double places = rings.size() + sprockets.size() + (rings.isEmpty() ? 0.0 : 1.0);
+    const double slot = frame.width() / std::max(1.0, places);
+    const double barWidth = std::max(1.0, slot * 0.42);
+    const auto heightOf = [&](int teeth) { return frame.height() * teeth / largest; };
+    const auto ringX = [&](int index) { return frame.left() + slot * (index + 0.5); };
+    const auto sprocketX = [&](int index)   // index into `sprockets`, smallest first
+    {
+        const int fromLargest = int(sprockets.size()) - 1 - index;
+        return frame.left() + slot * ((rings.isEmpty() ? 0.0 : rings.size() + 1.0) + fromLargest + 0.5);
+    };
+    const Shift front = shiftAt(m_session->channel(ChannelId::FrontGear), time);
+    const Shift rear = shiftAt(m_session->channel(ChannelId::RearGear), time);
+    const int ringNow = rings.size() == 1 ? 0 : int(rings.indexOf(front.now));
+    const int sprocketNow = int(sprockets.indexOf(rear.now));
+
+    // the others faint, those in use in the active color
+    QColor idle = node.color;
+    idle.setAlphaF(idle.alphaF() * 0.45);
+    painter.setPen(Qt::NoPen);
+    const auto bar = [&](double x, int teeth, const QColor &color)
+    {
+        const double h = heightOf(teeth);
+        painter.setBrush(color);
+        painter.drawRoundedRect(QRectF(x - barWidth / 2.0, frame.center().y() - h / 2.0, barWidth, h),
+                                barWidth / 2.0, barWidth / 2.0);
+    };
+    for (int i = 0; i < rings.size(); ++i)
+        {
+            bar(ringX(i), rings.at(i), i == ringNow ? node.markerColor : idle);
+        }
+    for (int i = 0; i < sprockets.size(); ++i)
+        {
+            bar(sprocketX(i), sprockets.at(i), i == sprocketNow ? node.markerColor : idle);
+        }
+    if (ringNow < 0 || sprocketNow < 0 || rings.isEmpty())
+        {
+            return;
+        }
+    // the chain, sliding from the old gear to the new one for a moment after a shift
+    const auto eased = [](double p) { return p * p * (3.0 - 2.0 * p); };
+    const auto along = [&](const Shift &shift, int now, const auto &xOf, const QVector<int> &teeth, double *x, double *h)
+    {
+        const int before = int(teeth.indexOf(shift.before));
+        const double p = before < 0 ? 1.0 : eased(std::clamp((time - shift.since) / 0.35, 0.0, 1.0));
+        const int from = before < 0 ? now : before;
+        *x = xOf(from) + (xOf(now) - xOf(from)) * p;
+        *h = heightOf(teeth.at(from)) + (heightOf(teeth.at(now)) - heightOf(teeth.at(from))) * p;
+    };
+    double ringAt = 0.0, ringHeight = 0.0, sprocketAt = 0.0, sprocketHeight = 0.0;
+    along(front, ringNow, ringX, rings, &ringAt, &ringHeight);
+    along(rear, sprocketNow, sprocketX, sprockets, &sprocketAt, &sprocketHeight);
+    QColor chain = node.markerColor;
+    chain.setAlphaF(chain.alphaF() * 0.8);
+    painter.setPen(QPen(chain, component.lineWidth, Qt::SolidLine, Qt::RoundCap));
+    const double middle = frame.center().y();
+    painter.drawLine(QPointF(ringAt, middle - ringHeight / 2.0), QPointF(sprocketAt, middle - sprocketHeight / 2.0));
+    painter.drawLine(QPointF(ringAt, middle + ringHeight / 2.0), QPointF(sprocketAt, middle + sprocketHeight / 2.0));
 }
 
 void BoundGauge::drawShape(QPainter &painter, const Node &node) const

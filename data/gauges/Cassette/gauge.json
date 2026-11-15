@@ -1,0 +1,89 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Cassette",
+    "size": [
+        400,
+        170
+    ],
+    "supportedTypes": [
+        "rearGearNumber"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                170
+            ],
+            "color": "original"
+        },
+        {
+            "type": "gears",
+            "frame": [
+                20,
+                14,
+                360,
+                104
+            ],
+            "color": "foreground",
+            "activeColor": "accent",
+            "lineWidth": 3
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                184.0,
+                144
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0,
+            "channel": "frontGear"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                200.0,
+                144
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 24
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "\u00d7"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                216.0,
+                144
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0,
+            "channel": "rearGear"
+        }
+    ]
+}

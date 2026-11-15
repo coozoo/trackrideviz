@@ -145,6 +145,7 @@ private:
     void drawText(QPainter &painter, const Node &node, const Metric &metric, bool known, double value, double time) const;
     QString clockText(const GaugeComponent &component, double time) const;
     void drawShape(QPainter &painter, const Node &node) const;
+    void drawGears(QPainter &painter, const Node &node, double time) const;
     void drawSvg(QPainter &painter, const Node &node) const;
     void drawDial(QPainter &painter, const Node &node) const;
     void drawTape(QPainter &painter, const Node &node, bool known, double value) const;

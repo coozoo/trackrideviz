@@ -34,11 +34,11 @@ struct Drivetrain
 //
 // Electronic shifting records the gears; the FIT importer reads them and they
 // are kept. Otherwise they are worked out from the speed and the cadence: the
-// distance a turn of the cranks went, against what each gear gives. Where the
-// cranks are still or turn slower than the wheel (coasting, soft pedaling
-// downhill) nothing is decided and the last gear stays; a gear must hold for a
-// couple of seconds before it counts; the front changes only when the rear
-// alone cannot explain what was ridden.
+// distance a turn of the cranks went, against what each gear gives, over the
+// whole ride at once: the gears that explain the seconds best with the fewest
+// shifts, a chainring change costing much more than a sprocket, and a crossed
+// chain a little. Where the cranks are still or turn slower than the wheel
+// (coasting, soft pedaling downhill) the seconds tell little and the gear stays.
 class Gears
 {
     Q_DECLARE_TR_FUNCTIONS(Gears)
