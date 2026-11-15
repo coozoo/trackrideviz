@@ -2,6 +2,8 @@
 
 #include "ffmpegtools.h"
 
+#include <QDir>
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -118,6 +120,16 @@ bool MediaProbe::probe(const QString &ffprobeProgram, const QString &videoPath, 
 {
     const FfmpegTools::RunResult run = FfmpegTools::run(ffprobeProgram,
     {"-v", "error", "-print_format", "json", "-show_format", "-show_streams", videoPath});
+    if (run.timedOut)
+        {
+            if (error)
+                {
+                    // ffprobe is there: the file is slow to get at (a network share) or damaged
+                    *error = tr("ffprobe took too long to read %1. Is it on a slow drive, or damaged?")
+                             .arg(QDir::toNativeSeparators(videoPath));
+                }
+            return false;
+        }
     if (!run.started)
         {
             if (error)

@@ -37,6 +37,8 @@ public:
     void setHighlight(double start, double end);
     // Kilometers or miles in the table of surfaces.
     void setUnits(const Units &units);
+    // The laps selected in the table, by number from 0.
+    QVector<int> selectedLaps() const;
 
 signals:
     // Another map was chosen here: the settings hold it already.

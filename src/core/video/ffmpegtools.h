@@ -16,6 +16,7 @@ QString ffprobeFor(const QString &ffmpegProgram);
 struct RunResult
 {
     bool started{false};   // false: not found, not executable, or it did not finish in time
+    bool timedOut{false};  // it ran, but did not finish in time (and was stopped)
     int exitCode{-1};
     QByteArray output;
     QByteArray errorOutput;

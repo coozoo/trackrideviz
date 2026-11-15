@@ -664,6 +664,21 @@ private slots:
         QVERIFY(qAbs((centerd.first + centerd.second) / 2 - 50) <= 2);
     }
 
+    void durationsAndDegrees()
+    {
+        // rounded as a whole, then split: never a 60th second
+        QCOMPARE(BoundGauge::durationText(119.97, 1), QString("2:00.0"));
+        QCOMPARE(BoundGauge::durationText(59.6, 0), QString("1:00"));
+        QCOMPARE(BoundGauge::durationText(83.25, 2), QString("1:23.25"));
+        QCOMPARE(BoundGauge::durationText(-5.4, 0), QString("-0:05"));
+        QCOMPARE(BoundGauge::durationText(-0.2, 0), QString("0:00"));
+        QCOMPARE(BoundGauge::durationText(3.0, 0, "+"), QString("+0:03"));
+        QCOMPARE(BoundGauge::degreesText(49.5, 0), QString("49° 30' 0\""));
+        // west of Greenwich within a degree keeps its sign
+        QCOMPARE(BoundGauge::degreesText(-0.12, 0), QString("-0° 7' 12\""));
+        QCOMPARE(BoundGauge::degreesText(10.0 - 0.1 / 3600.0, 0), QString("10° 0' 0\""));
+    }
+
     void scaleUpToAChosenEnd()
     {
         // as close to the count asked as gives a round step
@@ -2583,6 +2598,23 @@ private slots:
         QVERIFY(!imported.isEmpty());
         QVERIFY(QFile::exists(GaugeLibrary::userFolder() + "/Plate/images/plate.png"));
         QVERIFY(paintedPixels(draw(imported, 1.0)) > 0);
+    }
+
+    void xmlPicturesStayInTheGaugeFolder()
+    {
+        // a picture beside the gauge's folder, and one named by its full path: neither is taken
+        const QString folder = m_dir.filePath("xml-outside/Gauge");
+        QVERIFY(QDir().mkpath(folder));
+        const QString outside = m_dir.filePath("xml-outside/private.png");
+        QVERIFY(filled(Qt::white, 20).save(outside));
+        for (const QString &src : {QString("../private.png"), outside})
+            {
+                const QByteArray xml = QString(R"(<Gauge version="3" width="50" height="50"><Components>
+                    <Image x="0" y="0" width="50" height="50" src="%1" transparency="1"/></Components></Gauge>)")
+                                       .arg(src.toHtmlEscaped()).toUtf8();
+                const XmlGaugeImporter::Result result = XmlGaugeImporter::parse(xml, "x", folder);
+                QVERIFY(!result.ok || paintedPixels(draw(result.gauge, 1.0)) == 0);
+            }
     }
 
     // Imports every gauge folder in RTV_XML_GAUGES and prints what was found.

@@ -620,6 +620,58 @@ QVector<QImage> BoundGauge::staticLayers(const QSize &size, qreal devicePixelRat
     return entry.layers;
 }
 
+namespace
+{
+// The value rounded to `decimals` of its smallest unit (seconds, of time or of arc) first and
+// only then split, so that 119.97 s is 2:00.0, not 1:60.0.
+struct Split
+{
+    bool negative{false};
+    qint64 whole{0};      // minutes, degrees
+    qint64 middle{0};     // arc minutes; unused for a duration
+    double last{0.0};     // seconds
+};
+
+// `secondsPerValue`: seconds in one of the value's units (1 for a duration, 3600 for degrees);
+// `secondsPerWhole`: seconds in the first part shown (60 in a minute, 3600 in a degree).
+Split split(double value, double secondsPerValue, double secondsPerWhole, bool withMiddle, int decimals)
+{
+    const int places = std::clamp(decimals, 0, 6);
+    const double step = std::pow(10.0, places);
+    const qint64 total = qint64(std::llround(std::fabs(value) * secondsPerValue * step));
+    const qint64 perWhole = qint64(std::llround(secondsPerWhole * step));
+    const qint64 perMiddle = qint64(std::llround(60.0 * step));
+    Split parts;
+    parts.negative = value < 0.0 && total > 0;   // rounded to nothing: no minus
+    parts.whole = total / perWhole;
+    qint64 rest = total % perWhole;
+    if (withMiddle)
+        {
+            parts.middle = rest / perMiddle;
+            rest %= perMiddle;
+        }
+    parts.last = double(rest) / step;
+    return parts;
+}
+}
+
+QString BoundGauge::durationText(double value, int decimals, const QString &plus)
+{
+    const Split parts = split(value, 1.0, 60.0, false, decimals);
+    const int places = std::clamp(decimals, 0, 6);
+    const int width = places > 0 ? places + 3 : 2;
+    return (parts.negative ? QStringLiteral("-") : plus) + QString::number(parts.whole) + ':'
+           + QString("%1").arg(parts.last, width, 'f', places, QLatin1Char('0'));
+}
+
+QString BoundGauge::degreesText(double value, int decimals)
+{
+    // a place west or south of zero but within a degree keeps its sign: -0° 7' 12"
+    const Split parts = split(value, 3600.0, 3600.0, true, decimals);
+    return QString("%1%2° %3' %4\"").arg(parts.negative ? QStringLiteral("-") : QString()).arg(parts.whole)
+           .arg(parts.middle).arg(parts.last, 0, 'f', std::clamp(decimals, 0, 6));
+}
+
 QString BoundGauge::shownChannel(const QString &channel) const
 {
     return channel.isEmpty() ? m_channel : m_choices.channels.value(channel, channel);
@@ -1605,21 +1657,11 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
                     number = sign + QString::number(qint64(std::trunc(value)));
                     break;
                 case GaugeComponent::Duration:
-                {
-                    const double seconds = std::fabs(value);
-                    const int width = decimals > 0 ? decimals + 3 : 2;
-                    number = (value < 0.0 ? QStringLiteral("-") : sign) + QString::number(qint64(seconds / 60.0)) + ':'
-                             + QString("%1").arg(std::fmod(seconds, 60.0), width, 'f', std::max(0, decimals), QLatin1Char('0'));
+                    number = durationText(value, decimals, sign);
                     break;
-                }
                 case GaugeComponent::DegreesMinutesSeconds:
-                {
-                    const qint64 degrees = qint64(std::trunc(value));
-                    const double minutes = (std::fabs(value) - std::fabs(double(degrees))) * 60.0;
-                    const double seconds = (minutes - std::trunc(minutes)) * 60.0;
-                    number = QString("%1° %2' %3\"").arg(degrees).arg(qint64(minutes)).arg(seconds, 0, 'f', std::max(0, decimals));
+                    number = degreesText(value, decimals);
                     break;
-                }
                 default:
                     number = sign + QString::number(value, 'f', decimals);
                     break;

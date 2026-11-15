@@ -128,13 +128,13 @@ QString VideoJoin::whyNot(const QVector<Part> &parts)
             if (info.videoCodec != first.videoCodec || info.size != first.size)
                 {
                     return tr("%1 is %2 %3×%4, the first video %5 %6×%7: only videos of the same kind can be joined.")
-                           .arg(name, info.videoCodec).arg(info.size.width()).arg(info.size.height())
-                           .arg(first.videoCodec).arg(first.size.width()).arg(first.size.height());
+                           .arg(name, info.videoCodec, QString::number(info.size.width()), QString::number(info.size.height()),
+                                first.videoCodec, QString::number(first.size.width()), QString::number(first.size.height()));
                 }
             if (std::fabs(info.fps() - first.fps()) > 0.01)
                 {
                     return tr("%1 has %2 frames per second, the first video %3: only videos of the same kind can be joined.")
-                           .arg(name).arg(info.fps(), 0, 'f', 2).arg(first.fps(), 0, 'f', 2);
+                           .arg(name, QString::number(info.fps(), 'f', 2), QString::number(first.fps(), 'f', 2));
                 }
             if (info.hasAudio != first.hasAudio || info.audioCodec != first.audioCodec)
                 {

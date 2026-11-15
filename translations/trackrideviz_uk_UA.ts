@@ -2760,108 +2760,108 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>JoinDialog</name>
     <message>
-        <location filename="../src/joindialog.cpp" line="39"/>
+        <location filename="../src/joindialog.cpp" line="41"/>
         <source>Join videos</source>
         <translation>Об’єднання відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="44"/>
+        <location filename="../src/joindialog.cpp" line="46"/>
         <source>Joined in this order; drag to change it</source>
         <translation>Об’єднуються в цьому порядку; перетягніть, щоб змінити</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="53"/>
+        <location filename="../src/joindialog.cpp" line="57"/>
         <source>Add...</source>
         <translation>Додати...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="54"/>
+        <location filename="../src/joindialog.cpp" line="58"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="55"/>
+        <location filename="../src/joindialog.cpp" line="59"/>
         <source>Up</source>
         <translation>Вгору</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="56"/>
+        <location filename="../src/joindialog.cpp" line="60"/>
         <source>Down</source>
         <translation>Вниз</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="65"/>
+        <location filename="../src/joindialog.cpp" line="69"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="71"/>
+        <location filename="../src/joindialog.cpp" line="75"/>
         <source>Save as:</source>
         <translation>Зберегти як:</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="73"/>
+        <location filename="../src/joindialog.cpp" line="77"/>
         <source>The pictures and the sound are copied, not encoded again: joining is quick and loses nothing, but the videos must be of the same kind, such as the chapters a camera splits a long recording into.</source>
         <translation>Зображення і звук копіюються без повторного кодування: об’єднання швидке і без втрат, але відео мають бути однакового виду, як-от частини, на які камера ділить довгий запис.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="89"/>
+        <location filename="../src/joindialog.cpp" line="93"/>
         <source>Join</source>
         <translation>Об’єднати</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="158"/>
+        <location filename="../src/joindialog.cpp" line="162"/>
         <source>Add videos</source>
         <translation>Додати відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="160"/>
-        <location filename="../src/joindialog.cpp" line="191"/>
+        <location filename="../src/joindialog.cpp" line="164"/>
+        <location filename="../src/joindialog.cpp" line="215"/>
         <source>Videos (%1)</source>
         <translation>Відео (%1)</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="190"/>
+        <location filename="../src/joindialog.cpp" line="214"/>
         <source>Save joined video</source>
         <translation>Зберегти об’єднане відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="219"/>
+        <location filename="../src/joindialog.cpp" line="243"/>
         <source>Choose two or more videos.</source>
         <translation>Виберіть два або більше відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="224"/>
+        <location filename="../src/joindialog.cpp" line="248"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation>Виберіть новий файл для об’єднаного відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="228"/>
+        <location filename="../src/joindialog.cpp" line="252"/>
         <source>%1 exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="234"/>
+        <location filename="../src/joindialog.cpp" line="258"/>
         <source>Reading the videos...</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="255"/>
+        <location filename="../src/joindialog.cpp" line="279"/>
         <source>A temporary file could not be written.</source>
         <translation>Не вдалося записати тимчасовий файл.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="260"/>
+        <location filename="../src/joindialog.cpp" line="284"/>
         <source>Joining...</source>
         <translation>Об’єднання...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="267"/>
+        <location filename="../src/joindialog.cpp" line="291"/>
         <source>ffmpeg could not be started; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffmpeg; його розташування можна вказати в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="300"/>
+        <location filename="../src/joindialog.cpp" line="324"/>
         <source>Joining failed: %1</source>
         <translation>Об’єднати не вдалося: %1</translation>
     </message>
@@ -2942,7 +2942,7 @@ Comes with the program; it cannot be deleted.</source>
         <translation>По чому їдуть на кожному відрізку та де він починається й закінчується вздовж поїздки; де два накладаються, діє нижчий у списку</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="360"/>
+        <location filename="../src/lapspanel.cpp" line="354"/>
         <source>Click on the route where laps begin</source>
         <translation>Клацніть на маршруті там, де починаються кола</translation>
     </message>
@@ -3013,84 +3013,84 @@ Comes with the program; it cannot be deleted.</source>
         <translation>Двічі клацніть коло, щоб перейти до його початку; виберіть кілька, щоб порівняти</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="206"/>
+        <location filename="../src/lapspanel.cpp" line="200"/>
         <source>Laps</source>
         <translation>Кола</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="207"/>
+        <location filename="../src/lapspanel.cpp" line="201"/>
         <source>Surfaces</source>
         <translation>Покриття</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="258"/>
+        <location filename="../src/lapspanel.cpp" line="252"/>
         <source>Lap</source>
         <translation>Коло</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="258"/>
+        <location filename="../src/lapspanel.cpp" line="252"/>
         <source>Time</source>
         <translation>Час</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="261"/>
+        <location filename="../src/lapspanel.cpp" line="255"/>
         <source>S%1</source>
         <translation>С%1</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="263"/>
+        <location filename="../src/lapspanel.cpp" line="257"/>
         <source>To best</source>
         <translation>До найкращого</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="306"/>
+        <location filename="../src/lapspanel.cpp" line="300"/>
         <source>best</source>
         <translation>найкраще</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="321"/>
+        <location filename="../src/lapspanel.cpp" line="315"/>
         <source>The fastest of this sector</source>
         <translation>Найшвидший у цьому секторі</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="361"/>
+        <location filename="../src/lapspanel.cpp" line="355"/>
         <source>Click on the route where a sector ends</source>
         <translation>Клацніть на маршруті там, де закінчується сектор</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="362"/>
+        <location filename="../src/lapspanel.cpp" line="356"/>
         <source>Click on the route where the surface begins</source>
         <translation>Клацніть на маршруті, де покриття починається</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="373"/>
+        <location filename="../src/lapspanel.cpp" line="367"/>
         <source>Click on the route where this surface ends</source>
         <translation>Клацніть на маршруті, де це покриття закінчується</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="379"/>
-        <location filename="../src/lapspanel.cpp" line="428"/>
+        <location filename="../src/lapspanel.cpp" line="373"/>
         <location filename="../src/lapspanel.cpp" line="433"/>
+        <location filename="../src/lapspanel.cpp" line="438"/>
         <source>%1 (×%2)</source>
         <translation>%1 (×%2)</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="409"/>
+        <location filename="../src/lapspanel.cpp" line="414"/>
         <source> km</source>
         <translation> км</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="409"/>
+        <location filename="../src/lapspanel.cpp" line="414"/>
         <source> mi</source>
         <translation> милі</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="501"/>
+        <location filename="../src/lapspanel.cpp" line="506"/>
         <source>Open data to see its laps.</source>
         <translation>Відкрийте дані, щоб побачити їхні кола.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="507"/>
+        <location filename="../src/lapspanel.cpp" line="512"/>
         <source>%n lap(s) between crossings of the start/finish line.</source>
         <translation>
             <numerusform>%n коло між перетинами лінії старту/фінішу.</numerusform>
@@ -3099,12 +3099,12 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="508"/>
+        <location filename="../src/lapspanel.cpp" line="513"/>
         <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
         <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них — фініш.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="513"/>
+        <location filename="../src/lapspanel.cpp" line="518"/>
         <source>%n lap(s) as the device recorded them. Place a start/finish line to time laps on a track.</source>
         <translation>
             <numerusform>%n коло, як його записав пристрій. Поставте лінію старту/фінішу, щоб засікати кола на треку.</numerusform>
@@ -3113,7 +3113,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="515"/>
+        <location filename="../src/lapspanel.cpp" line="520"/>
         <source>No laps. Place a start/finish line to time laps on a track.</source>
         <translation>Кіл немає. Поставте лінію старту/фінішу, щоб засікати кола на треку.</translation>
     </message>
@@ -3458,7 +3458,7 @@ Increase it if the gauges are late compared to the picture.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="672"/>
-        <location filename="../src/mainwindow.cpp" line="1581"/>
+        <location filename="../src/mainwindow.cpp" line="1596"/>
         <source>Open data</source>
         <translation>Відкрити дані</translation>
     </message>
@@ -3472,24 +3472,24 @@ Increase it if the gauges are late compared to the picture.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="732"/>
+        <location filename="../src/mainwindow.cpp" line="734"/>
         <source>Loading %1...</source>
         <translation>Завантаження %1...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="763"/>
-        <location filename="../src/mainwindow.cpp" line="782"/>
-        <location filename="../src/mainwindow.cpp" line="841"/>
+        <location filename="../src/mainwindow.cpp" line="778"/>
+        <location filename="../src/mainwindow.cpp" line="797"/>
+        <location filename="../src/mainwindow.cpp" line="856"/>
         <source>Open project</source>
         <translation>Відкрити проєкт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="764"/>
+        <location filename="../src/mainwindow.cpp" line="779"/>
         <source>Projects (*.%1);;All files (*)</source>
         <translation>Проєкти (*.%1);;Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="842"/>
+        <location filename="../src/mainwindow.cpp" line="857"/>
         <source>These files of the project were not found:
 %1
 
@@ -3500,34 +3500,34 @@ Open them again from where they are now and save the project.</source>
 Відкрийте їх знову з теперішнього місця та збережіть проєкт.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="856"/>
-        <location filename="../src/mainwindow.cpp" line="878"/>
+        <location filename="../src/mainwindow.cpp" line="871"/>
+        <location filename="../src/mainwindow.cpp" line="893"/>
         <source>Save project</source>
         <translation>Зберегти проєкт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="860"/>
+        <location filename="../src/mainwindow.cpp" line="875"/>
         <source>Project saved.</source>
         <translation>Проєкт збережено.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="879"/>
+        <location filename="../src/mainwindow.cpp" line="894"/>
         <source>Projects (*.%1)</source>
         <translation>Проєкти (*.%1)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="908"/>
-        <location filename="../src/mainwindow.cpp" line="919"/>
+        <location filename="../src/mainwindow.cpp" line="923"/>
+        <location filename="../src/mainwindow.cpp" line="934"/>
         <source>Export video</source>
         <translation>Експорт відео</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="909"/>
+        <location filename="../src/mainwindow.cpp" line="924"/>
         <source>Open the data for this video first: without it there is nothing to draw.</source>
         <translation>Спершу відкрийте дані для цього відео: без них нічого малювати.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="916"/>
+        <location filename="../src/mainwindow.cpp" line="931"/>
         <source>%n piece(s) of the map under the gauges are still being fetched.</source>
         <translation>
             <numerusform>%n фрагмент карти під приладами ще завантажується.</numerusform>
@@ -3536,294 +3536,294 @@ Open them again from where they are now and save the project.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="917"/>
+        <location filename="../src/mainwindow.cpp" line="932"/>
         <source>The heights of the terrain are still being fetched.</source>
         <translation>Висоти рельєфу ще завантажуються.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="918"/>
+        <location filename="../src/mainwindow.cpp" line="933"/>
         <source>The weather of the ride is still being fetched.</source>
         <translation>Погода поїздки ще завантажується.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="920"/>
+        <location filename="../src/mainwindow.cpp" line="935"/>
         <source>%1
 An export started now would be drawn without them. Export anyway?</source>
         <translation>%1
 Експорт, розпочатий зараз, буде намальовано без них. Усе одно експортувати?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="965"/>
+        <location filename="../src/mainwindow.cpp" line="980"/>
         <source>Unsaved changes</source>
         <translation>Незбережені зміни</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="966"/>
+        <location filename="../src/mainwindow.cpp" line="981"/>
         <source>The gauges or the synchronization were changed. Save the project?</source>
         <translation>Прилади або синхронізацію було змінено. Зберегти проєкт?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1017"/>
+        <location filename="../src/mainwindow.cpp" line="1032"/>
         <source>Add gauge</source>
         <translation>Додати прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1031"/>
+        <location filename="../src/mainwindow.cpp" line="1046"/>
         <source>Apply template</source>
         <translation>Застосувати шаблон</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1038"/>
-        <location filename="../src/mainwindow.cpp" line="1057"/>
-        <location filename="../src/mainwindow.cpp" line="1081"/>
-        <location filename="../src/mainwindow.cpp" line="1094"/>
+        <location filename="../src/mainwindow.cpp" line="1053"/>
+        <location filename="../src/mainwindow.cpp" line="1072"/>
+        <location filename="../src/mainwindow.cpp" line="1096"/>
+        <location filename="../src/mainwindow.cpp" line="1109"/>
         <source>Save as template</source>
         <translation>Зберегти як шаблон</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1038"/>
+        <location filename="../src/mainwindow.cpp" line="1053"/>
         <source>There are no gauges on the video to save.</source>
         <translation>На відео немає приладів для збереження.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1070"/>
+        <location filename="../src/mainwindow.cpp" line="1085"/>
         <source>Name:</source>
         <translation>Назва:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1071"/>
+        <location filename="../src/mainwindow.cpp" line="1086"/>
         <source>Category:</source>
         <translation>Категорія:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1072"/>
+        <location filename="../src/mainwindow.cpp" line="1087"/>
         <source>The gauges on the video, where they are and their colors.
 It appears among the templates in the library.</source>
         <translation>Прилади на відео, їхнє розташування та кольори.
 Шаблон з&apos;явиться серед шаблонів у бібліотеці.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1081"/>
+        <location filename="../src/mainwindow.cpp" line="1096"/>
         <source>There is a template &quot;%1&quot; already. Replace it?</source>
         <translation>Шаблон «%1» уже існує. Замінити його?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1098"/>
+        <location filename="../src/mainwindow.cpp" line="1113"/>
         <source>Template &quot;%1&quot; saved to the library</source>
         <translation>Шаблон «%1» збережено до бібліотеки</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1110"/>
-        <location filename="../src/mainwindow.cpp" line="1330"/>
+        <location filename="../src/mainwindow.cpp" line="1125"/>
+        <location filename="../src/mainwindow.cpp" line="1345"/>
         <source>Remove gauge</source>
         <translation>Вилучити прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1123"/>
+        <location filename="../src/mainwindow.cpp" line="1138"/>
         <source>Move gauge</source>
         <translation>Перемістити прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1139"/>
-        <location filename="../src/mainwindow.cpp" line="1160"/>
+        <location filename="../src/mainwindow.cpp" line="1154"/>
+        <location filename="../src/mainwindow.cpp" line="1175"/>
         <source>Change what a gauge shows</source>
         <translation>Змінити показник приладу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1172"/>
+        <location filename="../src/mainwindow.cpp" line="1187"/>
         <source>Change a gauge&apos;s scale</source>
         <translation>Змінити шкалу індикатора</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1183"/>
+        <location filename="../src/mainwindow.cpp" line="1198"/>
         <source>Show the street map</source>
         <translation>Показати карту вулиць</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1183"/>
+        <location filename="../src/mainwindow.cpp" line="1198"/>
         <source>Hide the street map</source>
         <translation>Сховати карту вулиць</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1194"/>
+        <location filename="../src/mainwindow.cpp" line="1209"/>
         <source>Show the route close up</source>
         <translation>Показати маршрут крупним планом</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1194"/>
+        <location filename="../src/mainwindow.cpp" line="1209"/>
         <source>Show the whole route</source>
         <translation>Показати весь маршрут</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1216"/>
+        <location filename="../src/mainwindow.cpp" line="1231"/>
         <source>Show</source>
         <translation>Показувати</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1231"/>
+        <location filename="../src/mainwindow.cpp" line="1246"/>
         <source>Street map</source>
         <translation>Карта вулиць</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1239"/>
+        <location filename="../src/mainwindow.cpp" line="1254"/>
         <source>Close-up</source>
         <translation>Крупний план</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1243"/>
+        <location filename="../src/mainwindow.cpp" line="1258"/>
         <source>Off: the whole route</source>
         <translation>Вимкнено: весь маршрут</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1243"/>
+        <location filename="../src/mainwindow.cpp" line="1258"/>
         <source>300 m</source>
         <translation>300 м</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1243"/>
+        <location filename="../src/mainwindow.cpp" line="1258"/>
         <source>600 m</source>
         <translation>600 м</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1244"/>
+        <location filename="../src/mainwindow.cpp" line="1259"/>
         <source>1 km</source>
         <translation>1 км</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1244"/>
+        <location filename="../src/mainwindow.cpp" line="1259"/>
         <source>2 km</source>
         <translation>2 км</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1244"/>
+        <location filename="../src/mainwindow.cpp" line="1259"/>
         <source>5 km</source>
         <translation>5 км</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1258"/>
+        <location filename="../src/mainwindow.cpp" line="1273"/>
         <source>The way ahead up</source>
         <translation>Напрямок руху вгору</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1259"/>
+        <location filename="../src/mainwindow.cpp" line="1274"/>
         <source>Turns the close-up so that the direction of travel points up; north is up otherwise</source>
         <translation>Повертає крупний план так, щоб напрямок руху був угорі; інакше вгорі північ</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1269"/>
+        <location filename="../src/mainwindow.cpp" line="1284"/>
         <source>Turn the map to the way ahead</source>
         <translation>Повернути карту за напрямком руху</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1269"/>
+        <location filename="../src/mainwindow.cpp" line="1284"/>
         <source>Turn the map north up</source>
         <translation>Повернути карту північчю вгору</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1274"/>
+        <location filename="../src/mainwindow.cpp" line="1289"/>
         <source>Units</source>
         <translation>Одиниці</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1277"/>
+        <location filename="../src/mainwindow.cpp" line="1292"/>
         <source>As in the settings</source>
         <translation>Як у налаштуваннях</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1277"/>
+        <location filename="../src/mainwindow.cpp" line="1292"/>
         <source>Metric (km/h, m, °C)</source>
         <translation>Метричні (км/год, м, °C)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1278"/>
+        <location filename="../src/mainwindow.cpp" line="1293"/>
         <source>Imperial (mph, ft, °F)</source>
         <translation>Імперські (миль/год, фути, °F)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1292"/>
+        <location filename="../src/mainwindow.cpp" line="1307"/>
         <source>Change a gauge&apos;s units</source>
         <translation>Змінити одиниці приладу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1297"/>
+        <location filename="../src/mainwindow.cpp" line="1312"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1308"/>
+        <location filename="../src/mainwindow.cpp" line="1323"/>
         <source>Text and numbers</source>
         <translation>Текст і цифри</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1308"/>
+        <location filename="../src/mainwindow.cpp" line="1323"/>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1309"/>
+        <location filename="../src/mainwindow.cpp" line="1324"/>
         <source>Background</source>
         <translation>Тло</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1309"/>
+        <location filename="../src/mainwindow.cpp" line="1324"/>
         <source>Plates behind the gauges</source>
         <translation>Підкладки під приладами</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1311"/>
+        <location filename="../src/mainwindow.cpp" line="1326"/>
         <source>Accent</source>
         <translation>Акцент</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1323"/>
+        <location filename="../src/mainwindow.cpp" line="1338"/>
         <source>The measurement the selected gauge shows</source>
         <translation>Показник, який відображає вибраний прилад</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1344"/>
+        <location filename="../src/mainwindow.cpp" line="1359"/>
         <source>From the data</source>
         <translation>За даними</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1345"/>
+        <location filename="../src/mainwindow.cpp" line="1360"/>
         <source>Where the gauge&apos;s scale ends, in its units. From the data: a round number above the highest value of the recording.</source>
         <translation>Де закінчується шкала індикатора, в його одиницях. За даними: кругле число, більше за найбільше значення запису.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1351"/>
+        <location filename="../src/mainwindow.cpp" line="1366"/>
         <source>Scale up to:</source>
         <translation>Шкала до:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1407"/>
+        <location filename="../src/mainwindow.cpp" line="1422"/>
         <source>Default</source>
         <comment>font weight</comment>
         <translation>Типова</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1434"/>
+        <location filename="../src/mainwindow.cpp" line="1449"/>
         <source>Type to find a font</source>
         <translation>Введіть, щоб знайти шрифт</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1470"/>
+        <location filename="../src/mainwindow.cpp" line="1485"/>
         <source>Change gauge colors</source>
         <translation>Змінити кольори приладів</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1525"/>
+        <location filename="../src/mainwindow.cpp" line="1540"/>
         <source>What the part of the gauge made for %1 shows</source>
         <translation>Що показує частина індикатора, зроблена для «%1»</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1661"/>
-        <location filename="../src/mainwindow.cpp" line="1721"/>
+        <location filename="../src/mainwindow.cpp" line="1676"/>
+        <location filename="../src/mainwindow.cpp" line="1736"/>
         <source>Video: %1</source>
         <translation>Відео: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="828"/>
-        <location filename="../src/mainwindow.cpp" line="1672"/>
+        <location filename="../src/mainwindow.cpp" line="843"/>
+        <location filename="../src/mainwindow.cpp" line="1687"/>
         <source>Set by hand.</source>
         <translation>Задано вручну.</translation>
     </message>
@@ -3833,114 +3833,114 @@ It appears among the templates in the library.</source>
         <translation>Музика: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1386"/>
+        <location filename="../src/mainwindow.cpp" line="1401"/>
         <source>%1 (comes with the program)</source>
         <translation>%1 (постачається з програмою)</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1408"/>
+        <location filename="../src/mainwindow.cpp" line="1423"/>
         <source>Light</source>
         <translation>Легка</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1409"/>
+        <location filename="../src/mainwindow.cpp" line="1424"/>
         <source>Regular</source>
         <translation>Звичайна</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1410"/>
+        <location filename="../src/mainwindow.cpp" line="1425"/>
         <source>Medium</source>
         <translation>Середня</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1411"/>
+        <location filename="../src/mainwindow.cpp" line="1426"/>
         <source>Semibold</source>
         <translation>Напівжирна</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1412"/>
+        <location filename="../src/mainwindow.cpp" line="1427"/>
         <source>Bold</source>
         <translation>Жирна</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1415"/>
+        <location filename="../src/mainwindow.cpp" line="1430"/>
         <source>Imported gauges often name a font (Arial...); with this they use the one chosen here too</source>
         <translation>Імпортовані прилади часто задають свій шрифт (Arial...); з цим вони теж використовують вибраний тут</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1424"/>
+        <location filename="../src/mainwindow.cpp" line="1439"/>
         <source>Change gauge font</source>
         <translation>Змінити шрифт приладів</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1453"/>
+        <location filename="../src/mainwindow.cpp" line="1468"/>
         <source>Font:</source>
         <translation>Шрифт:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1454"/>
+        <location filename="../src/mainwindow.cpp" line="1469"/>
         <source>Weight:</source>
         <translation>Насиченість:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1684"/>
+        <location filename="../src/mainwindow.cpp" line="1699"/>
         <source>The data comes from this video: nothing to synchronize.</source>
         <translation>Дані взято з цього відео: синхронізувати нічого.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1697"/>
+        <location filename="../src/mainwindow.cpp" line="1712"/>
         <source>Not synchronized: %1 Set the offset by hand.</source>
         <translation>Не синхронізовано: %1 Задайте зсув вручну.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1721"/>
-        <location filename="../src/mainwindow.cpp" line="1725"/>
+        <location filename="../src/mainwindow.cpp" line="1736"/>
+        <location filename="../src/mainwindow.cpp" line="1740"/>
         <source>none</source>
         <translation>немає</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1725"/>
-        <location filename="../src/mainwindow.cpp" line="1729"/>
+        <location filename="../src/mainwindow.cpp" line="1740"/>
+        <location filename="../src/mainwindow.cpp" line="1744"/>
         <source>Data: %1</source>
         <translation>Дані: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1733"/>
+        <location filename="../src/mainwindow.cpp" line="1748"/>
         <source>Start: %1 UTC</source>
         <translation>Початок: %1 UTC</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1735"/>
+        <location filename="../src/mainwindow.cpp" line="1750"/>
         <source>Duration: %1</source>
         <translation>Тривалість: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1736"/>
+        <location filename="../src/mainwindow.cpp" line="1751"/>
         <source>Laps: %1, pauses: %2</source>
         <translation>Кіл: %1, пауз: %2</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1739"/>
+        <location filename="../src/mainwindow.cpp" line="1754"/>
         <source>Fetching the heights of the terrain...</source>
         <translation>Завантаження висот рельєфу...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1743"/>
+        <location filename="../src/mainwindow.cpp" line="1758"/>
         <source>Fetching the weather of the ride...</source>
         <translation>Завантаження погоди поїздки...</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1747"/>
+        <location filename="../src/mainwindow.cpp" line="1762"/>
         <source>Weather: %1</source>
         <translation>Погода: %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1752"/>
+        <location filename="../src/mainwindow.cpp" line="1767"/>
         <source>Warnings:</source>
         <translation>Попередження:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1777"/>
+        <location filename="../src/mainwindow.cpp" line="1793"/>
         <source>Not recorded: worked out from the other measurements</source>
         <translation>Не записано: обчислено з інших вимірів</translation>
     </message>
@@ -3954,98 +3954,98 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1835"/>
+        <location filename="../src/mainwindow.cpp" line="1851"/>
         <source>Click on the route to place the start/finish line.</source>
         <translation>Клацніть на маршруті, щоб поставити лінію старту/фінішу.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1828"/>
+        <location filename="../src/mainwindow.cpp" line="1844"/>
         <source>The direction of travel is not known there.</source>
         <translation>Напрямок руху там невідомий.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1311"/>
+        <location filename="../src/mainwindow.cpp" line="1326"/>
         <source>Needles, bars and highlights</source>
         <translation>Стрілки, смуги і виділення</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1313"/>
+        <location filename="../src/mainwindow.cpp" line="1328"/>
         <source>2nd accent</source>
         <translation>2-й акцент</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1313"/>
+        <location filename="../src/mainwindow.cpp" line="1328"/>
         <source>Scales, units and labels</source>
         <translation>Шкали, одиниці і підписи</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1355"/>
+        <location filename="../src/mainwindow.cpp" line="1370"/>
         <source>Gauge data:</source>
         <translation>Дані приладу:</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1361"/>
+        <location filename="../src/mainwindow.cpp" line="1376"/>
         <source>All gauges</source>
         <translation>Усі прилади</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1362"/>
+        <location filename="../src/mainwindow.cpp" line="1377"/>
         <source>Colors and font of every gauge on the video</source>
         <translation>Кольори і шрифт кожного приладу на відео</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1384"/>
-        <location filename="../src/mainwindow.cpp" line="1403"/>
+        <location filename="../src/mainwindow.cpp" line="1399"/>
+        <location filename="../src/mainwindow.cpp" line="1418"/>
         <source>The font of the gauges&apos; texts; Default: as each gauge is designed</source>
         <translation>Шрифт текстів приладів; «Типовий»: як задумано в кожному приладі</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1385"/>
+        <location filename="../src/mainwindow.cpp" line="1400"/>
         <source>Default</source>
         <translation>Типовий</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1413"/>
+        <location filename="../src/mainwindow.cpp" line="1428"/>
         <source>One weight for every text; Default keeps each gauge&apos;s bold values and lighter labels</source>
         <translation>Одна насиченість для всіх текстів; «Типова» лишає жирні значення і легші підписи кожного приладу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1414"/>
+        <location filename="../src/mainwindow.cpp" line="1429"/>
         <source>Override own fonts</source>
         <translation>Замінити власні шрифти</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1838"/>
+        <location filename="../src/mainwindow.cpp" line="1854"/>
         <source>Place start/finish line</source>
         <translation>Поставити лінію старту/фінішу</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1844"/>
+        <location filename="../src/mainwindow.cpp" line="1860"/>
         <source>Click on the route to place the sector line.</source>
         <translation>Клацніть на маршруті, щоб поставити лінію сектора.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1847"/>
+        <location filename="../src/mainwindow.cpp" line="1863"/>
         <source>Add sector line</source>
         <translation>Додати лінію сектора</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1893"/>
+        <location filename="../src/mainwindow.cpp" line="1909"/>
         <source>Click on the route to mark a surface.</source>
         <translation>Клацніть на маршруті, щоб позначити покриття.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1907"/>
+        <location filename="../src/mainwindow.cpp" line="1923"/>
         <source>Mark surface</source>
         <translation>Позначити покриття</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2158"/>
+        <location filename="../src/mainwindow.cpp" line="2176"/>
         <source>About</source>
         <translation>Про програму</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2159"/>
+        <location filename="../src/mainwindow.cpp" line="2177"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;Ліцензія GNU GPL v3.</translation>
     </message>
@@ -4053,22 +4053,27 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="96"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="98"/>
         <source>The file has no video.</source>
         <translation>Файл не містить відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="111"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="113"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation>Не вдалося прочитати розмір або частоту кадрів відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="125"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="128"/>
+        <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
+        <translation>ffprobe читав %1 надто довго. Можливо, файл на повільному диску або пошкоджений?</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/mediainfo.cpp" line="137"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffprobe (%1). Його встановлюють разом із ffmpeg; розташування можна вказати в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="134"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="146"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation>ffprobe не може прочитати відео: %1</translation>
     </message>
@@ -5529,78 +5534,78 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>XmlGaugeImporter</name>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="226"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="233"/>
         <source>vertical text is drawn horizontally</source>
         <translation>вертикальний текст показано горизонтально</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="253"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="260"/>
         <source>values from the fastest lap are not there yet</source>
         <translation>значень із найшвидшого кола ще немає</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="308"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="315"/>
         <source>an uneven scale running backwards is drawn even</source>
         <translation>нерівномірну шкалу, що йде у зворотний бік, показано рівномірною</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="357"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="364"/>
         <source>image %1 not found</source>
         <translation>зображення %1 не знайдено</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="510"/>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="797"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="517"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="804"/>
         <source>%1 is not supported</source>
         <translation>%1 не підтримується</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="742"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="749"/>
         <source>the G-plot&apos;s stick and tail are not drawn</source>
         <translation>стрижень і слід на графіку перевантажень не показано</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="840"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="847"/>
         <source>a chart over distance is drawn over time</source>
         <translation>графік за відстанню показано за часом</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="849"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="856"/>
         <source>a chart&apos;s fixed value scale is set from the data</source>
         <translation>сталу шкалу графіка взято з даних</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="853"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="860"/>
         <source>chart axis labels are not drawn</source>
         <translation>підписи осей графіка не показано</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="911"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="918"/>
         <source>This is not an XML gauge: %1</source>
         <translation>Це не прилад XML: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="916"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="923"/>
         <source>This is not an XML gauge.</source>
         <translation>Це не прилад XML.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="922"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="929"/>
         <source>Gauge file version %1 is not supported.</source>
         <translation>Версія файлу приладу %1 не підтримується.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="930"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="937"/>
         <source>The gauge has no size.</source>
         <translation>Прилад не має розміру.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="955"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="962"/>
         <source>The gauge has nothing in it that can be shown.</source>
         <translation>У приладі немає нічого, що можна показати.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="970"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="977"/>
         <source>There is no %1 in %2.</source>
         <translation>У %2 немає %1.</translation>
     </message>

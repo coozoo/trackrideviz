@@ -729,17 +729,10 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
 {
     m_pendingTelemetryPath = path;
     m_pendingKeepsSync = keepSync;
+    // only the last load counts, also when the same file is loaded again before the first is done
+    const quint64 generation = ++m_importGeneration;
     statusBar()->showMessage(tr("Loading %1...").arg(QFileInfo(path).fileName()));
 
-    auto *watcher = new QFutureWatcher<ImportResult>(this);
-    connect(watcher, &QFutureWatcher<ImportResult>::finished, this, [this, watcher, path]()
-    {
-        const ImportResult result = watcher->result();
-        watcher->deleteLater();
-        m_terrainWaiting = result.waiting;
-        m_weatherWaiting = result.weatherWaiting;
-        telemetryImported(path, result.raw, result.session, result.error);
-    });
     const QVector<DataEdit> edits = m_project.dataEdits;
     const Terrain::Use elevation = m_project.elevation;
     const PowerEstimate::Rider rider = m_rider;
@@ -747,6 +740,28 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     const QVector<SurfaceStretch> surfaces = m_project.surfaces;
     const HandWind wind = m_project.wind;
     const Drivetrain drivetrain = m_drivetrain;
+    auto *watcher = new QFutureWatcher<ImportResult>(this);
+    connect(watcher, &QFutureWatcher<ImportResult>::finished, this,
+            [this, watcher, path, generation, edits, elevation, rider, weather, surfaces, wind, drivetrain]()
+    {
+        const ImportResult result = watcher->result();
+        watcher->deleteLater();
+        if (generation != m_importGeneration)
+            {
+                return;
+            }
+        m_terrainWaiting = result.waiting;
+        m_weatherWaiting = result.weatherWaiting;
+        telemetryImported(path, result.raw, result.session, result.error);
+        // what was changed while it was worked out (the elevation, the wind, an edit...) counts too
+        const bool changed = edits != m_project.dataEdits || elevation != m_project.elevation || rider != m_rider
+                             || weather != m_weather || surfaces != m_project.surfaces || wind != m_project.wind
+                             || drivetrain != m_drivetrain;
+        if (result.session && changed)
+            {
+                recomputeData();
+            }
+    });
     watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather, wind, drivetrain]()
     {
         ImportResult result;
@@ -1768,14 +1783,16 @@ void MainWindow::updateSourcesInfo()
                     QTreeWidgetItem *item = new QTreeWidgetItem(m_channelTree);
                     item->setData(NameColumn, Qt::UserRole, id);
                     item->setText(NameColumn, display.name);
+                    QString tip = tr("%1: %n samples", nullptr, channel->count()).arg(id);
                     if (m_session->derivedChannels().contains(id))
                         {
                             // not in the file: say so, it is an estimate
                             QFont font = item->font(NameColumn);
                             font.setItalic(true);
                             item->setFont(NameColumn, font);
-                            item->setToolTip(NameColumn, tr("Not recorded: worked out from the other measurements"));
+                            tip += "\n" + tr("Not recorded: worked out from the other measurements");
                         }
+                    item->setToolTip(NameColumn, tip);
                     item->setText(MinColumn, QLocale().toString(display.convert(channel->minValue()), 'f', display.decimals));
                     item->setText(MaxColumn, QLocale().toString(display.convert(channel->maxValue()), 'f', display.decimals));
                     item->setText(UnitColumn, display.unit);
@@ -1783,7 +1800,6 @@ void MainWindow::updateSourcesInfo()
                         {
                             item->setTextAlignment(column, Qt::AlignRight | Qt::AlignVCenter);
                         }
-                    item->setToolTip(NameColumn, tr("%1: %n samples", nullptr, channel->count()).arg(id));
                 }
         }
     updateChannelValues();
@@ -2120,6 +2136,8 @@ void MainWindow::applySettings()
             m_lapsPanel->setUnits(m_units);
             m_timelinePanel->setSession(m_session, m_units);
             m_comparePanel->setSession(m_session, m_units);
+            // the same laps, in the new units: the table still shows them selected
+            m_comparePanel->setLaps(m_lapsPanel->selectedLaps());
             m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
             rebuildOverlay();
             updateSourcesInfo();

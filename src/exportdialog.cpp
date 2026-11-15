@@ -502,7 +502,7 @@ QString ExportDialog::suggestedOutput() const
     QString path = QString("%1/%2_overlay.%3").arg(folder, video.completeBaseName(), suffix);
     for (int n = 2; QFileInfo::exists(path); ++n)
         {
-            path = QString("%1/%2_overlay_%3.%4").arg(folder, video.completeBaseName()).arg(n).arg(suffix);
+            path = QString("%1/%2_overlay_%3.%4").arg(folder, video.completeBaseName(), QString::number(n), suffix);
         }
     return QDir::toNativeSeparators(path);
 }

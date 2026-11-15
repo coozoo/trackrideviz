@@ -42,6 +42,7 @@ FfmpegTools::RunResult FfmpegTools::run(const QString &program, const QStringLis
         {
             process.kill();
             process.waitForFinished(2000);
+            result.timedOut = true;
             return result;
         }
     result.started = true;

@@ -63,6 +63,10 @@ public:
 
     // Where a value lies on a manipulation's scale, 0..1.
     static double fraction(const GaugeManipulation &manipulation, const MetricRange &range, double value);
+    // Seconds as minutes:seconds with `decimals` of a second; `plus` before a value not below zero.
+    static QString durationText(double seconds, int decimals, const QString &plus = QString());
+    // Degrees as degrees, arc minutes and seconds with `decimals` of a second.
+    static QString degreesText(double degrees, int decimals);
 
 private:
     struct Metric

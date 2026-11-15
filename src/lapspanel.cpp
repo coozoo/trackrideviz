@@ -160,13 +160,7 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_lapTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(m_lapTable, &QTreeWidget::itemSelectionChanged, this, [this]()
     {
-        QVector<int> laps;
-        for (const QTreeWidgetItem *item : m_lapTable->selectedItems())
-            {
-                laps.append(m_lapTable->indexOfTopLevelItem(const_cast<QTreeWidgetItem *>(item)));
-            }
-        std::sort(laps.begin(), laps.end());
-        emit lapsSelected(laps);
+        emit lapsSelected(selectedLaps());
     });
 
     QHBoxLayout *buttons = new QHBoxLayout;
@@ -376,7 +370,7 @@ void LapsPanel::surfaceClicked(double lat, double lon)
     QMenu menu(this);
     for (const SurfaceType &type : AppSettings::surfaceTypes())
         {
-            QAction *action = menu.addAction(tr("%1 (×%2)").arg(type.name).arg(type.factor, 0, 'g', 3));
+            QAction *action = menu.addAction(tr("%1 (×%2)").arg(type.name, QString::number(type.factor, 'g', 3)));
             action->setData(QVariantList{type.name, type.factor});
         }
     const QAction *chosen = menu.exec(QCursor::pos());
@@ -393,6 +387,17 @@ void LapsPanel::surfaceClicked(double lat, double lon)
 void LapsPanel::setHighlight(double start, double end)
 {
     m_track->setHighlight(start, end);
+}
+
+QVector<int> LapsPanel::selectedLaps() const
+{
+    QVector<int> laps;
+    for (QTreeWidgetItem *item : m_lapTable->selectedItems())
+        {
+            laps.append(m_lapTable->indexOfTopLevelItem(item));
+        }
+    std::sort(laps.begin(), laps.end());
+    return laps;
 }
 
 void LapsPanel::setUnits(const Units &units)
@@ -425,12 +430,12 @@ void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
             // a kind the settings no longer have stays what it was
             if (!types.contains(SurfaceType{stretch.surface, stretch.factor}))
                 {
-                    kind->addItem(tr("%1 (×%2)").arg(stretch.surface).arg(stretch.factor, 0, 'g', 3),
+                    kind->addItem(tr("%1 (×%2)").arg(stretch.surface, QString::number(stretch.factor, 'g', 3)),
                                   QVariantList{stretch.surface, stretch.factor});
                 }
             for (const SurfaceType &type : types)
                 {
-                    kind->addItem(tr("%1 (×%2)").arg(type.name).arg(type.factor, 0, 'g', 3), QVariantList{type.name, type.factor});
+                    kind->addItem(tr("%1 (×%2)").arg(type.name, QString::number(type.factor, 'g', 3)), QVariantList{type.name, type.factor});
                     if (type.name == stretch.surface && type.factor == stretch.factor)
                         {
                             kind->setCurrentIndex(kind->count() - 1);

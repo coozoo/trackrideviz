@@ -123,6 +123,13 @@ QString scaleNumber(double value)
 // The file name as it is on disk; the gauges were made on Windows.
 QString findFile(const QString &folder, const QString &name)
 {
+    // only what lies in the gauge's folder or below: a picture named "../../x.png", "/home/..."
+    // or "C:\\..." would take a file of the user's into a gauge that may be passed on
+    const QString path = QDir::fromNativeSeparators(name);
+    if (path.isEmpty() || QDir::isAbsolutePath(path) || path.contains(':') || path.split('/').contains(".."))
+        {
+            return QString();
+        }
     const QDir dir(folder);
     if (dir.exists(name))
         {

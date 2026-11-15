@@ -255,7 +255,8 @@ QString TileStore::pathOf(const Tile &tile) const
 {
     // one folder per server, so changing it never shows the old one's tiles
     const QByteArray server = QCryptographicHash::hash(m_urlTemplate.toUtf8(), QCryptographicHash::Sha1).toHex().left(12);
-    return QString("%1/%2/%3/%4/%5.png").arg(m_folder, QString::fromLatin1(server)).arg(tile.zoom).arg(tile.x).arg(tile.y);
+    return QString("%1/%2/%3/%4/%5.png").arg(m_folder, QString::fromLatin1(server), QString::number(tile.zoom), QString::number(tile.x),
+                                                QString::number(tile.y));
 }
 
 QString TileStore::tilePath(int zoom, int x, int y) const

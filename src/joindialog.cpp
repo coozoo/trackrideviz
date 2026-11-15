@@ -20,6 +20,8 @@
 #include <QTemporaryDir>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+#include <algorithm>
 #include <QtConcurrent>
 
 namespace
@@ -42,6 +44,8 @@ JoinDialog::JoinDialog(const QStringList &paths, QWidget *parent)
     m_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_list->setDragDropMode(QAbstractItemView::InternalMove);
     m_list->setToolTip(tr("Joined in this order; drag to change it"));
+    // a file dragged to the top names the output as Up would
+    connect(m_list->model(), &QAbstractItemModel::rowsMoved, this, &JoinDialog::suggestOutput, Qt::QueuedConnection);
 
     auto button = [this](const QString &text, auto slot)
     {
@@ -133,18 +137,18 @@ QStringList JoinDialog::paths() const
 
 void JoinDialog::addFiles(const QStringList &added)
 {
-    QStringList all = paths();
+    const QStringList present = paths();
+    QStringList fresh;
     for (const QString &path : added)
         {
-            if (!all.contains(path))
+            if (!present.contains(path) && !fresh.contains(path))
                 {
-                    all << path;
+                    fresh << path;
                 }
         }
-    // the order the camera recorded them in; the user can change it after
-    all = VideoJoin::ordered(all);
-    m_list->clear();
-    for (const QString &path : all)
+    // the order the camera recorded them in, after those there already: an order the user
+    // made stays
+    for (const QString &path : VideoJoin::ordered(fresh))
         {
             QListWidgetItem *item = new QListWidgetItem(QFileInfo(path).fileName(), m_list);
             item->setData(Qt::UserRole, path);
@@ -163,14 +167,34 @@ void JoinDialog::addFilesFromDialog()
 
 void JoinDialog::move(int step)
 {
-    const int row = m_list->currentRow();
-    const int to = row + step;
-    if (row < 0 || to < 0 || to >= m_list->count())
+    // all those selected, one place each, keeping their order among themselves
+    QVector<int> rows;
+    for (QListWidgetItem *item : m_list->selectedItems())
+        {
+            rows.append(m_list->row(item));
+        }
+    std::sort(rows.begin(), rows.end());
+    if (rows.isEmpty() || rows.first() + step < 0 || rows.last() + step >= m_list->count())
         {
             return;
         }
-    m_list->insertItem(to, m_list->takeItem(row));
-    m_list->setCurrentRow(to);
+    if (step > 0)
+        {
+            std::reverse(rows.begin(), rows.end());
+        }
+    QList<QListWidgetItem *> moved;
+    for (int row : rows)
+        {
+            QListWidgetItem *item = m_list->takeItem(row);
+            m_list->insertItem(row + step, item);
+            moved.append(item);
+        }
+    m_list->clearSelection();
+    for (QListWidgetItem *item : moved)
+        {
+            item->setSelected(true);
+        }
+    m_list->setCurrentItem(moved.last());
     suggestOutput();
 }
 

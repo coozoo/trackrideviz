@@ -123,7 +123,7 @@ QString addGauge(Gauge gauge, const QJsonObject &files, bool *added, QString *er
     const QString base = gauge.name;
     for (int n = 1; n < 100; ++n)
         {
-            const QString name = n == 1 ? base : QString("%1 (%2)").arg(base).arg(n);
+            const QString name = n == 1 ? base : QString("%1 (%2)").arg(base, QString::number(n));
             const QString existing = GaugeLibrary::findByName(name);
             if (existing.isEmpty())
                 {
@@ -250,7 +250,7 @@ QString LibraryPackage::importTemplate(const QByteArray &package, int *gaugesAdd
     const QString base = gaugeTemplate.name;
     for (int n = 2; names.contains(gaugeTemplate.name.toLower()) && n < 100; ++n)
         {
-            gaugeTemplate.name = QString("%1 (%2)").arg(base).arg(n);
+            gaugeTemplate.name = QString("%1 (%2)").arg(base, QString::number(n));
         }
     return TemplateLibrary::add(gaugeTemplate, error);
 }
