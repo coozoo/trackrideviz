@@ -5,13 +5,14 @@
 #include "derivedchannels.h"
 #include "fit/fitimporter.h"
 #include "gpximporter.h"
+#include "tcximporter.h"
 
 #include <QFileInfo>
 
 QStringList TelemetryImporter::suffixes()
 {
     // CSV through the data profiles; loggers also write .txt and .log
-    return {"fit", "gpx", "csv", "txt", "log"};
+    return {"fit", "gpx", "tcx", "csv", "txt", "log"};
 }
 
 bool TelemetryImporter::canLoad(const QString &path)
@@ -44,6 +45,10 @@ TelemetrySessionPtr TelemetryImporter::loadRecorded(const QString &path, QString
     if (suffix == "gpx")
         {
             return GpxImporter::load(path, error);
+        }
+    if (suffix == "tcx")
+        {
+            return TcxImporter::load(path, error);
         }
     if (suffix == "csv" || suffix == "txt" || suffix == "log")
         {

@@ -50,6 +50,7 @@ SOURCES += \
     $$PWD/telemetry/fit/fitdecoder.cpp \
     $$PWD/telemetry/fit/fitimporter.cpp \
     $$PWD/telemetry/gpximporter.cpp \
+    $$PWD/telemetry/tcximporter.cpp \
     $$PWD/telemetry/telemetryimporter.cpp \
     $$PWD/telemetry/telemetrysession.cpp \
     $$PWD/units/units.cpp \
@@ -105,6 +106,7 @@ HEADERS += \
     $$PWD/telemetry/fit/fitimporter.h \
     $$PWD/telemetry/geo.h \
     $$PWD/telemetry/gpximporter.h \
+    $$PWD/telemetry/tcximporter.h \
     $$PWD/telemetry/telemetryimporter.h \
     $$PWD/telemetry/telemetrysession.h \
     $$PWD/units/units.h \

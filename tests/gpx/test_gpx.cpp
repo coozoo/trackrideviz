@@ -4,6 +4,7 @@
 
 #include "telemetry/channelids.h"
 #include "telemetry/gpximporter.h"
+#include "telemetry/tcximporter.h"
 
 class TestGpx : public QObject
 {
@@ -20,6 +21,8 @@ private slots:
     void truncatedFileKeepsPoints();
     void backwardTimeIsSkipped();
     void sampleFile();
+    void tcxTrackWithLaps();
+    void tcxErrors();
 
 private:
     static TelemetrySessionPtr parse(const QByteArray &gpx, QString *error = nullptr);
@@ -196,6 +199,67 @@ void TestGpx::sampleFile()
             const Channel *c = session->channel(id);
             qInfo() << id << c->count() << "samples, mid value" << c->valueAt(session->duration() / 2);
         }
+}
+
+void TestGpx::tcxTrackWithLaps()
+{
+    QByteArray tcx = R"(<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+    xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+ <Activities><Activity Sport="Biking"><Id>2026-06-25T10:00:00Z</Id>
+  <Lap StartTime="2026-06-25T10:00:00Z"><TotalTimeSeconds>10</TotalTimeSeconds><Track>
+   <Trackpoint><Time>2026-06-25T10:00:00Z</Time>
+    <Position><LatitudeDegrees>49.0</LatitudeDegrees><LongitudeDegrees>28.0</LongitudeDegrees></Position>
+    <AltitudeMeters>100.5</AltitudeMeters><DistanceMeters>0</DistanceMeters>
+    <HeartRateBpm><Value>120</Value></HeartRateBpm><Cadence>80</Cadence>
+    <Extensions><ns3:TPX><ns3:Speed>5.5</ns3:Speed><ns3:Watts>210</ns3:Watts></ns3:TPX></Extensions>
+   </Trackpoint>
+   <Trackpoint><Time>2026-06-25T10:00:05.500Z</Time>
+    <AltitudeMeters>101</AltitudeMeters><DistanceMeters>30</DistanceMeters>
+    <HeartRateBpm><Value>125</Value></HeartRateBpm>
+   </Trackpoint>
+  </Track></Lap>
+  <Lap StartTime="2026-06-25T10:00:10Z"><TotalTimeSeconds>8</TotalTimeSeconds><Track>
+   <Trackpoint><Time>2026-06-25T10:00:18Z</Time>
+    <Position><LatitudeDegrees>49.001</LatitudeDegrees><LongitudeDegrees>28.0</LongitudeDegrees></Position>
+    <DistanceMeters>111</DistanceMeters>
+   </Trackpoint>
+  </Track></Lap>
+ </Activity></Activities>
+</TrainingCenterDatabase>)";
+    QBuffer buffer(&tcx);
+    buffer.open(QIODevice::ReadOnly);
+    QString error;
+    const TelemetrySessionPtr session = TcxImporter::read(&buffer, &error);
+    QVERIFY2(session, qPrintable(error));
+    QCOMPARE(session->sourceInfo(), QString("TCX, Biking"));
+    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0), QTimeZone::UTC));
+    // a point without a position still gives its other values
+    QCOMPARE(session->channel(ChannelId::PositionLat)->count(), 2);
+    QCOMPARE(session->channel(ChannelId::Distance)->count(), 3);
+    QCOMPARE(session->channel(ChannelId::Distance)->timeAt(1), 5.5);
+    QCOMPARE(session->channel(ChannelId::HeartRate)->valueAtIndex(1), 125.0);
+    QCOMPARE(session->channel(ChannelId::Cadence)->valueAtIndex(0), 80.0);
+    QCOMPARE(session->channel(ChannelId::Speed)->valueAtIndex(0), 5.5);
+    QCOMPARE(session->channel(ChannelId::Power)->valueAtIndex(0), 210.0);
+    QCOMPARE(session->channel(ChannelId::Elevation)->valueAtIndex(0), 100.5);
+    QCOMPARE(session->laps().size(), 2);
+    QCOMPARE(session->laps().at(1).startTime, 10.0);
+    QCOMPARE(session->laps().at(1).endTime, 18.0);
+}
+
+void TestGpx::tcxErrors()
+{
+    QString error;
+    QByteArray gpx = "<gpx><trk><trkseg><trkpt lat='1' lon='2'><time>2026-06-25T10:00:00Z</time></trkpt></trkseg></trk></gpx>";
+    QBuffer wrong(&gpx);
+    wrong.open(QIODevice::ReadOnly);
+    QVERIFY(!TcxImporter::read(&wrong, &error));
+    QVERIFY(!error.isEmpty());
+    QByteArray empty = "<TrainingCenterDatabase><Activities/></TrainingCenterDatabase>";
+    QBuffer none(&empty);
+    none.open(QIODevice::ReadOnly);
+    QVERIFY(!TcxImporter::read(&none, &error));
 }
 
 QTEST_APPLESS_MAIN(TestGpx)

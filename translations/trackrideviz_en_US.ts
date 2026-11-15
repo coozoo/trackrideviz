@@ -4255,14 +4255,42 @@ It appears among the templates in the library.</source>
     </message>
 </context>
 <context>
+    <name>TcxImporter</name>
+    <message>
+        <location filename="../src/core/telemetry/tcximporter.cpp" line="142"/>
+        <source>Cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/tcximporter.cpp" line="204"/>
+        <source>Not a valid TCX file: %1 (line %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/tcximporter.cpp" line="206"/>
+        <source>Not a TCX file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/tcximporter.cpp" line="214"/>
+        <source>The TCX file contains no track points.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/tcximporter.cpp" line="223"/>
+        <source>The file is damaged after line %1; only the points before it were read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TelemetryImporter</name>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="29"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="30"/>
         <source>Telemetry files (%1);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="54"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="59"/>
         <source>%1: unsupported file type. Supported: %2.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -214,7 +214,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 ## M5 — More data
 - GoPro GPMF embedded telemetry, chapter auto-join
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
-- AiM and DriftBox CSV layouts; our own profiles for common loggers; TCX, NMEA, VBO
+- AiM and DriftBox CSV layouts; our own profiles for common loggers; NMEA, VBO
+- ✅ TCX (2026-11-15, `TcxImporter`): track points of every lap with heart rate, cadence, speed and
+  power; the file's laps when it has more than one
 - Multiple data sources per project
 - Power estimated for rides without a power meter (there is none now), shown as an estimate,
   never in place of a recorded power. In three steps:
