@@ -24,7 +24,8 @@ const double kWorst = 9.0;
 const double kRearShift = 10.0;      // and as much again for every sprocket further
 const double kFrontShift = 60.0;
 // A crossed chain (the small ring on a small sprocket, the big ring on a big one) costs this much a
-// second at its worst: riders keep the chain straight where two gears are alike.
+// second at its worst: riders keep the chain straight where two gears are alike. The big ring on the
+// middle sprockets is not crossed yet: only the outer half of the way counts.
 const double kCrossed = 0.5;
 
 bool has(const TelemetrySession &session, const char *id)
@@ -261,7 +262,8 @@ TelemetrySessionPtr Gears::apply(const TelemetrySessionPtr &original, const Driv
             const double ringPlace = ringCount > 1 ? double(gear.front) / (ringCount - 1) : 0.5;
             const double sprocketPlace = sprocketCount > 1 ? double(gear.rear) / (sprocketCount - 1) : 0.5;
             const double off = ringCount > 1 ? std::fabs(ringPlace - (1.0 - sprocketPlace)) : 0.0;
-            crossed[g] = kCrossed * off * off;
+            const double beyond = std::max(0.0, off - 0.5) * 2.0;
+            crossed[g] = kCrossed * beyond * beyond;
         }
     const auto shiftCost = [&](int from, int to)
     {
