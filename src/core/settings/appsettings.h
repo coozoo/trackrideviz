@@ -2,6 +2,7 @@
 
 #include "../telemetry/powerestimate.h"
 #include "../units/units.h"
+#include "../weather/weather.h"
 #include "../video/exportsettings.h"
 
 #include <QByteArray>
@@ -93,6 +94,11 @@ public:
     // The rider and the bike, for the power of rides recorded without a power meter.
     static PowerEstimate::Rider powerRider();
     static void setPowerRider(const PowerEstimate::Rider &rider);
+
+    // --- Weather --------------------------------------------------------
+    // The wind and the air of the day of a ride, from a weather history service.
+    static WeatherChoice weather();
+    static void setWeather(const WeatherChoice &choice);
 
     // --- Units ------------------------------------------------------------
     static Units units();

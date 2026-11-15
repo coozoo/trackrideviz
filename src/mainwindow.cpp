@@ -96,15 +96,17 @@ struct ImportResult
 // What gauges read: the file's data corrected, with the terrain's heights where the project
 // asks for them, and everything that can be worked out from that.
 TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
-                              const PowerEstimate::Rider &rider, bool *waiting, bool *weatherWaiting)
+                              const PowerEstimate::Rider &rider, const WeatherChoice &weatherChoice, bool *waiting,
+                              bool *weatherWaiting)
 {
     const TelemetrySessionPtr complete = DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation,
                                          waiting));
     *weatherWaiting = false;
-    const Weather weather = complete && rider.enabled && rider.weather
-                            ? WeatherStore::instance()->along(*complete, rider.weatherSpacingKm, weatherWaiting) : Weather();
-    // the estimate wants the speed and the grade; what is worked out from a power wants the estimate
-    const TelemetrySessionPtr powered = PowerEstimate::apply(complete, rider, weather);
+    const Weather weather = complete && weatherChoice.enabled
+                            ? WeatherStore::instance()->along(*complete, weatherChoice.spacingKm, weatherWaiting) : Weather();
+    // the estimate wants the speed, the grade and the wind; what is worked out from a power wants the estimate
+    const TelemetrySessionPtr powered = PowerEstimate::apply(WeatherChannels::add(complete, weather, weatherChoice.windShare),
+                                        rider);
     return powered == complete ? complete : DerivedChannels::complete(powered);
 }
 
@@ -162,6 +164,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_units = AppSettings::units();
     m_rider = AppSettings::powerRider();
+    m_weather = AppSettings::weather();
     applyMapSettings();
     rebuildOverlay();
     // map tiles come one by one: gauges with a street map are drawn again with them
@@ -578,11 +581,12 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     const QVector<DataEdit> edits = m_project.dataEdits;
     const Terrain::Use elevation = m_project.elevation;
     const PowerEstimate::Rider rider = m_rider;
-    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider]()
+    const WeatherChoice weather = m_weather;
+    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, weather]()
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = workedOut(result.raw, edits, elevation, rider, &result.waiting, &result.weatherWaiting);
+        result.session = workedOut(result.raw, edits, elevation, rider, weather, &result.waiting, &result.weatherWaiting);
         return result;
     }));
 }
@@ -1563,8 +1567,8 @@ void MainWindow::recomputeData()
         {
             return;
         }
-    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, &m_terrainWaiting,
-                                  &m_weatherWaiting);
+    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_weather,
+                                  &m_terrainWaiting, &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
     updateLaps();
 }
@@ -1616,9 +1620,11 @@ void MainWindow::applySettings()
     Appearance::apply();
     applyMapSettings();
     const PowerEstimate::Rider rider = AppSettings::powerRider();
-    if (rider != m_rider)
+    const WeatherChoice weather = AppSettings::weather();
+    if (rider != m_rider || weather != m_weather)
         {
             m_rider = rider;
+            m_weather = weather;
             recomputeData();
         }
     const Units units = AppSettings::units();
@@ -1651,7 +1657,7 @@ void MainWindow::applyMapSettings()
     maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
     maps->setDownloads(AppSettings::mapDownloads());
     TileStore::terrain()->setDownloads(AppSettings::mapDownloads());
-    // asked for only by the power estimate, which has a switch of its own
+    // asked for only when the Weather page of the settings says so
     WeatherStore::instance()->setDownloads(true);
     m_lapsPanel->refreshMapChoice();
     if (maps->urlTemplate() + maps->attribution() != before)

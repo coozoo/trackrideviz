@@ -2,6 +2,7 @@
 
 #include "project/project.h"
 #include "telemetry/powerestimate.h"
+#include "weather/weather.h"
 #include "telemetry/telemetrysession.h"
 #include "units/units.h"
 
@@ -179,6 +180,7 @@ private:
     TelemetrySessionPtr m_recordedSession;  // as the file gave it (and what could be worked out)
     Units m_units;
     PowerEstimate::Rider m_rider;
+    WeatherChoice m_weather;
     // the weather of the ride was asked for when the data was worked out, and has not come yet
     bool m_weatherWaiting{false};
 };

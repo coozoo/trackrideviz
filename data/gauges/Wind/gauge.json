@@ -1,0 +1,83 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Wind",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "windSpeed"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/arrow.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": 360,
+                    "pivot": [
+                        200,
+                        200
+                    ],
+                    "minValue": 0,
+                    "maxValue": 360,
+                    "wrap": true
+                }
+            ],
+            "channel": "windRelative"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                200,
+                262
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 64,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                200,
+                312
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center"
+        }
+    ]
+}

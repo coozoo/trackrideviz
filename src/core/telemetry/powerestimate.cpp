@@ -11,7 +11,6 @@
 namespace
 {
 const double kGravity = 9.80665;
-const double kPi = 3.14159265358979323846;
 // air at sea level and 15 degrees, kg/m3, and the height over which it thins e-fold
 const double kSeaLevelDensity = 1.225;
 const double kScaleHeight = 8434.5;   // m
@@ -157,7 +156,7 @@ QString PowerEstimate::tireKind(const QString &size)
     return width < 33.0 ? "road" : width < 48.0 ? "gravel" : "mtb";
 }
 
-TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, const Rider &rider, const Weather &weather)
+TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, const Rider &rider)
 {
     if (!original || !rider.enabled)
         {
@@ -173,12 +172,9 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
     const Channel *elevation = original->channel(ChannelId::Elevation);
     const Channel *temperature = original->channel(ChannelId::Temperature);
     const Channel *cadence = original->channel(ChannelId::Cadence);
-    const Channel *heading = original->channel(ChannelId::Heading);
-    const Channel *distance = original->channel(ChannelId::Distance);
-    const bool windKnown = !weather.isEmpty() && heading && !heading->isEmpty() && distance && !distance->isEmpty()
-                           && original->startUtc().isValid();
-    const qint64 startUtc = windKnown ? original->startUtc().toSecsSinceEpoch() : 0;
-    const double reaching = std::clamp(rider.windShare, 0.0, 100.0) / 100.0;
+    // the weather of the day, when it was asked for
+    const Channel *headwind = original->channel(ChannelId::Headwind);
+    const Channel *airDensity = original->channel(ChannelId::AirDensity);
 
     // one value a second, not inside pauses
     const double start = speed->startTime();
@@ -226,11 +222,13 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
                              * kStandardKelvin / (273.15 + std::clamp(celsius, -40.0, 60.0));
             // the air the rider meets: the riding speed and what of the wind blows against it
             double airSpeed = v.at(i);
-            if (windKnown)
+            if (airDensity && !airDensity->isEmpty())
                 {
-                    const Weather::Air air = weather.at(distance->valueAt(t), startUtc + qint64(t));
-                    density = air.density();
-                    airSpeed += reaching * air.windSpeed * std::cos((heading->valueAt(t) - air.windFrom) * kPi / 180.0);
+                    density = airDensity->valueAt(t);
+                }
+            if (headwind && !headwind->isEmpty())
+                {
+                    airSpeed += headwind->valueAt(t);
                 }
 
             // a wind from behind faster than the ride pushes

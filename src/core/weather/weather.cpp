@@ -91,6 +91,50 @@ Weather::Air Weather::at(double distance, qint64 secondsUtc) const
     return blend(atHour(places.at(before).hours, hour), atHour(places.at(after).hours, hour), share);
 }
 
+TelemetrySessionPtr WeatherChannels::add(const TelemetrySessionPtr &original, const Weather &weather,
+        double windSharePercent)
+{
+    if (!original || weather.isEmpty() || !original->startUtc().isValid())
+        {
+            return original;
+        }
+    const Channel *distance = original->channel(ChannelId::Distance);
+    const Channel *heading = original->channel(ChannelId::Heading);
+    if (!distance || distance->count() < 2)
+        {
+            return original;
+        }
+    auto session = std::make_shared<TelemetrySession>(*original);
+    const auto fresh = [&](const char *id, const char *unit) -> Channel &
+    {
+        session->removeChannel(id);
+        session->addDerivedChannel(id);
+        return session->channelForWriting(id, unit);
+    };
+    Channel &speed = fresh(ChannelId::WindSpeed, "m/s");
+    Channel &from = fresh(ChannelId::WindDirection, "deg");
+    Channel &density = fresh(ChannelId::AirDensity, "kg/m3");
+    Channel *against = heading && !heading->isEmpty() ? &fresh(ChannelId::Headwind, "m/s") : nullptr;
+    Channel *felt = against ? &fresh(ChannelId::WindRelative, "deg") : nullptr;
+    const qint64 startUtc = original->startUtc().toSecsSinceEpoch();
+    const double reaching = std::clamp(windSharePercent, 0.0, 100.0) / 100.0;
+    // the wind changes by the hour, but the rider turns by the second
+    for (double t = distance->startTime(); t <= distance->endTime(); t += 1.0)
+        {
+            const Weather::Air air = weather.at(distance->valueAt(t), startUtc + qint64(t));
+            speed.append(t, air.windSpeed);
+            from.append(t, air.windFrom);
+            density.append(t, air.density());
+            if (against)
+                {
+                    const double turned = std::fmod(air.windFrom - heading->valueAt(t) + 720.0, 360.0);
+                    against->append(t, reaching * air.windSpeed * std::cos(turned * kPi / 180.0));
+                    felt->append(t, turned);
+                }
+        }
+    return session;
+}
+
 WeatherStore *WeatherStore::instance()
 {
     static WeatherStore *store = new WeatherStore;

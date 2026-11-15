@@ -39,6 +39,30 @@ struct Weather
     Air at(double distance, qint64 secondsUtc) const;
 };
 
+// Whether the weather of rides is asked for, and how.
+struct WeatherChoice
+{
+    bool enabled{false};
+    double spacingKm{10.0};   // a place this often along the ride
+    // % of the wind 10 m up that reaches a rider: less between houses and trees.
+    double windShare{60.0};
+
+    bool operator==(const WeatherChoice &other) const
+    {
+        return enabled == other.enabled && spacingKm == other.spacingKm && windShare == other.windShare;
+    }
+    bool operator!=(const WeatherChoice &other) const { return !(*this == other); }
+};
+
+// The weather as measurements of the ride (channelids.h): the wind's speed and direction, how
+// much of it blows against the rider and from where the rider feels it, and the air's density.
+namespace WeatherChannels
+{
+// A copy of `session` with them; the session itself without weather or positions.
+// Wants the distance and the heading in place (DerivedChannels::complete).
+TelemetrySessionPtr add(const TelemetrySessionPtr &session, const Weather &weather, double windSharePercent);
+}
+
 // Fetches the weather of rides and keeps it on disk: a ride asked about once
 // needs no connection again.
 //

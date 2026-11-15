@@ -77,6 +77,19 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
             return imperial ? ChannelDisplay{tr("Distance"), tr("mi"), kMetersToMiles, 0.0, 2}
                    : ChannelDisplay{tr("Distance"), tr("km"), 0.001, 0.0, 2};
         }
+    if (id == ChannelId::WindSpeed || id == ChannelId::Headwind)
+        {
+            return {id == ChannelId::WindSpeed ? tr("Wind speed") : tr("Headwind"), units.speedLabel(), units.speedScale(),
+                    0.0, 1};
+        }
+    if (id == ChannelId::WindDirection || id == ChannelId::WindRelative)
+        {
+            return {id == ChannelId::WindDirection ? tr("Wind direction") : tr("Wind as the rider meets it"), "°", 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::AirDensity)
+        {
+            return {tr("Air density"), tr("kg/m³"), 1.0, 0.0, 3};
+        }
     if (id == ChannelId::Heading)
         {
             return {tr("Heading"), "°", 1.0, 0.0, 0};

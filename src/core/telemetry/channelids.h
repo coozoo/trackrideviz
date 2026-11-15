@@ -26,6 +26,12 @@ inline constexpr char ElapsedTime[] = "elapsedTime";   // s since the recording 
 inline constexpr char Pace[] = "pace";                 // s/km; none while standing
 inline constexpr char Power3s[] = "power3secAverage";  // W, the mean of the last 3 s
 inline constexpr char Power30s[] = "power30secAverage"; // W, of the last 30 s
+// The weather of the day along the ride (weather.h).
+inline constexpr char WindSpeed[] = "windSpeed";         // m/s, 10 m above the ground
+inline constexpr char WindDirection[] = "windDirection"; // degrees, where it blows from: 0 = north, clockwise
+inline constexpr char Headwind[] = "headwind";           // m/s against the rider, at the rider's height; - from behind
+inline constexpr char WindRelative[] = "windRelative";   // degrees, where it blows from as the rider sees it: 0 = ahead, 90 = the right
+inline constexpr char AirDensity[] = "airDensity";       // kg/m3
 inline constexpr char PowerEstimated[] = "powerEstimated"; // W, the estimate beside a recorded power, to compare
 inline constexpr char ElevationMax[] = "elevationMax"; // m, the highest point of the recording (the same all along)
 inline constexpr char ElevationMin[] = "elevationMin"; // m, the lowest

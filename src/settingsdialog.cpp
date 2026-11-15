@@ -57,6 +57,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     addPage(tr("Export"), createExportPage());
     addPage(tr("Maps"), createMapsPage());
     addPage(tr("Power"), createPowerPage());
+    addPage(tr("Weather"), createWeatherPage());
     m_pageList->setCurrentRow(0);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this);
@@ -355,17 +356,6 @@ QWidget *SettingsDialog::createPowerPage()
     m_lossSpin = spin(0.0, 20.0, 1, 0.5, tr(" %"));
     m_lossSpin->setToolTip(tr("What the chain and the bearings take: 2-3 % when clean, more when worn or dirty"));
 
-    m_weatherCheck = new QCheckBox(tr("Count in the wind and the air of the day of the ride, from weather history"), page);
-    m_weatherCheck->setToolTip(tr("Asks a weather service for the wind, the temperature and the pressure at places along the ride, "
-                                  "hour by hour. Sent to it: those places and the date."));
-    m_weatherSpacingSpin = spin(1.0, 100.0, 0, 1.0, tr(" km"));
-    m_weatherSpacingSpin->setToolTip(tr("The weather services know places 10-25 km apart: closer than that brings little"));
-    m_windShareSpin = spin(0.0, 100.0, 0, 5.0, tr(" %"));
-    m_windShareSpin->setToolTip(tr("The wind is measured 10 m above the ground. Near it about 60 % is left in the open, "
-                                   "less between houses and trees."));
-    connect(m_weatherCheck, &QCheckBox::toggled, m_weatherSpacingSpin, &QWidget::setEnabled);
-    connect(m_weatherCheck, &QCheckBox::toggled, m_windShareSpin, &QWidget::setEnabled);
-
     QFormLayout *form = new QFormLayout(page);
     form->addRow(m_powerCheck);
     form->addRow(tr("Rider's weight:"), m_riderWeightSpin);
@@ -377,12 +367,43 @@ QWidget *SettingsDialog::createPowerPage()
     form->addRow(tr("Riding position:"), m_positionCombo);
     form->addRow(tr("Drag area (CdA):"), m_cdaSpin);
     form->addRow(tr("Drivetrain loss:"), m_lossSpin);
+    form->addRow(note(tr("Worked out from the speed, the grade and the elevation. A recorded power is never replaced: "
+                         "the estimate is then listed beside it as \"Power, estimated\", to compare the two. "
+                         "Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a "
+                         "tailwind high."), page));
+    return page;
+}
+
+QWidget *SettingsDialog::createWeatherPage()
+{
+    QWidget *page = new QWidget(this);
+    auto spin = [page](double low, double high, int decimals, double step, const QString &suffix)
+    {
+        QDoubleSpinBox *box = new QDoubleSpinBox(page);
+        box->setRange(low, high);
+        box->setDecimals(decimals);
+        box->setSingleStep(step);
+        box->setSuffix(suffix);
+        return box;
+    };
+    m_weatherCheck = new QCheckBox(tr("Fetch the wind and the air of the day of each ride from weather history"), page);
+    m_weatherCheck->setToolTip(tr("Asks a weather service for the wind, the temperature and the pressure at places along the ride, "
+                                  "hour by hour. Sent to it: those places and the date."));
+    m_weatherSpacingSpin = spin(1.0, 100.0, 0, 1.0, tr(" km"));
+    m_weatherSpacingSpin->setToolTip(tr("The weather services know places 10-25 km apart: closer than that brings little"));
+    m_windShareSpin = spin(0.0, 100.0, 0, 5.0, tr(" %"));
+    m_windShareSpin->setToolTip(tr("The wind is measured 10 m above the ground. Near it about 60 % is left in the open, "
+                                   "less between houses and trees."));
+    connect(m_weatherCheck, &QCheckBox::toggled, m_weatherSpacingSpin, &QWidget::setEnabled);
+    connect(m_weatherCheck, &QCheckBox::toggled, m_windShareSpin, &QWidget::setEnabled);
+
+    QFormLayout *form = new QFormLayout(page);
     form->addRow(m_weatherCheck);
     form->addRow(tr("A place every:"), m_weatherSpacingSpin);
     form->addRow(tr("Wind reaching the rider:"), m_windShareSpin);
-    form->addRow(note(tr("Worked out from the speed, the grade and the elevation. A recorded power is never replaced: "
-                         "the estimate is then listed beside it as \"Power, estimated\", to compare the two. "
-                         "Without the weather the wind is not known: a headwind reads low and a tailwind high."), page));
+    form->addRow(note(tr("The wind's speed and direction, the wind against the rider and the air's density are then "
+                         "measurements of the ride like any other: for gauges, for the data viewer, and counted in "
+                         "by the power estimate. Kept on disk: a ride asked about once needs no connection again."), page));
     form->addRow(note(WeatherStore::attribution(), page));
     return page;
 }
@@ -465,11 +486,13 @@ void SettingsDialog::load()
     select(m_tiresCombo, rider.tires);
     select(m_positionCombo, rider.position);
     m_lossSpin->setValue(rider.drivetrainLoss);
-    m_weatherCheck->setChecked(rider.weather);
-    m_weatherSpacingSpin->setValue(rider.weatherSpacingKm);
-    m_windShareSpin->setValue(rider.windShare);
-    m_weatherSpacingSpin->setEnabled(rider.weather);
-    m_windShareSpin->setEnabled(rider.weather);
+
+    const WeatherChoice weather = AppSettings::weather();
+    m_weatherCheck->setChecked(weather.enabled);
+    m_weatherSpacingSpin->setValue(weather.spacingKm);
+    m_windShareSpin->setValue(weather.windShare);
+    m_weatherSpacingSpin->setEnabled(weather.enabled);
+    m_windShareSpin->setEnabled(weather.enabled);
     updatePowerFields();
 
     const Units units = AppSettings::units();
@@ -520,10 +543,13 @@ void SettingsDialog::accept()
     rider.position = m_positionCombo->currentData().toString();
     rider.cda = m_ownCda;
     rider.drivetrainLoss = m_lossSpin->value();
-    rider.weather = m_weatherCheck->isChecked();
-    rider.weatherSpacingKm = m_weatherSpacingSpin->value();
-    rider.windShare = m_windShareSpin->value();
     AppSettings::setPowerRider(rider);
+
+    WeatherChoice weather;
+    weather.enabled = m_weatherCheck->isChecked();
+    weather.spacingKm = m_weatherSpacingSpin->value();
+    weather.windShare = m_windShareSpin->value();
+    AppSettings::setWeather(weather);
 
     if (needsRestart)
         {

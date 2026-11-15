@@ -469,6 +469,27 @@ def compass(name):
     write(name, (400, 400), components, drawings, ["heading"])
 
 
+def wind(name):
+    """Where the wind blows from as the rider meets it: an arrow on the rim blowing at the rider
+    in the middle, who looks up the gauge. The speed of the wind underneath."""
+    defs, body = plate(C, C, 190, gid="plate", opacity=0.3)
+    body += f"<circle cx='{C}' cy='{C}' r='190' fill='none' {theme('accent2', 'stroke')} stroke-width='2'/>"
+    body += ticks(C, C, 0, 360, 13, 184, 14, 2.5, "foreground")
+    # the rider: a dart pointing the way of the ride
+    body += f"<path d='M{C},{C - 62} L{C + 26},{C - 6} L{C},{C - 20} L{C - 26},{C - 6} Z' {theme('foreground')}/>"
+    drawings = {"face.svg": svg(400, 400, body, defs)}
+    # drawn at the top, blowing down at the middle
+    arrow = (f"<path d='M{C},112 L{C - 30},60 L{C - 10},66 L{C - 10},22 L{C + 10},22 L{C + 10},66 L{C + 30},60 Z' "
+             f"{theme('accent')}/>")
+    drawings["arrow.svg"] = svg(400, 400, arrow)
+    components = [image("face.svg", (0, 0, 400, 400)),
+                  dict(image("arrow.svg", (0, 0, 400, 400), manipulations=[
+                      rotate(0, 360, (C, C), minValue=0, maxValue=360, wrap=True)]), channel="windRelative"),
+                  text("value", (C, C + 62), 64, bold=True, precision=0),
+                  text("unit", (C, C + 112), 26)]
+    write(name, (400, 400), components, drawings, ["windSpeed"])
+
+
 HEART = ("M200,330 C150,290 70,235 70,160 C70,110 105,78 148,78 C172,78 190,92 200,110 "
          "C210,92 228,78 252,78 C295,78 330,110 330,160 C330,235 250,290 200,330 Z")
 
@@ -2069,6 +2090,7 @@ def main():
     small_metal_dial("Dial small metal")
     open_arc("Open arc")
     compass("Compass rose")
+    wind("Wind")
     heart("Heart")
     tile("Tile")
     tile("Tile speed", "speed", ["speed"])

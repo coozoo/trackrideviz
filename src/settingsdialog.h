@@ -32,6 +32,7 @@ private:
     QWidget *createExportPage();
     QWidget *createMapsPage();
     QWidget *createPowerPage();
+    QWidget *createWeatherPage();
     // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
     void checkFfmpeg();
     void updateMapFields();

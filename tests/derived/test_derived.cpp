@@ -373,7 +373,6 @@ private slots:
         const TelemetrySessionPtr north = DerivedChannels::complete(recorded);
         PowerEstimate::Rider rider;
         rider.enabled = true;
-        rider.windShare = 60.0;
         Weather::Air air;
         air.windSpeed = 5.0;
         air.windFrom = 0.0;
@@ -381,11 +380,14 @@ private slots:
         weather.firstHour = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
         weather.places.append({0.0, QVector<Weather::Air>(24, air)});
         const double calm = at(PowerEstimate::apply(north, rider), ChannelId::Power, 150.0);
-        const double against = at(PowerEstimate::apply(north, rider, weather), ChannelId::Power, 150.0);
+        const double against = at(PowerEstimate::apply(WeatherChannels::add(north, weather, 60.0), rider), ChannelId::Power, 150.0);
+        QVERIFY(std::fabs(at(WeatherChannels::add(north, weather, 60.0), ChannelId::Headwind, 150.0) - 3.0) < 0.05);
         weather.places[0].hours.fill([&] { air.windFrom = 180.0; return air; }());
-        const double behind = at(PowerEstimate::apply(north, rider, weather), ChannelId::Power, 150.0);
+        const double behind = at(PowerEstimate::apply(WeatherChannels::add(north, weather, 60.0), rider), ChannelId::Power, 150.0);
         weather.places[0].hours.fill([&] { air.windFrom = 90.0; return air; }());
-        const double across = at(PowerEstimate::apply(north, rider, weather), ChannelId::Power, 150.0);
+        const double across = at(PowerEstimate::apply(WeatherChannels::add(north, weather, 60.0), rider), ChannelId::Power, 150.0);
+        // from the east, to one riding north: from the right
+        QVERIFY(std::fabs(at(WeatherChannels::add(north, weather, 60.0), ChannelId::WindRelative, 150.0) - 90.0) < 2.0);
         // the air met at 8 + 3 and 8 - 3 m/s instead of 8: drag as the square of it
         QVERIFY2(against > calm * 1.4, qPrintable(QString("%1 %2").arg(calm).arg(against)));
         QVERIFY2(behind < calm * 0.7, qPrintable(QString("%1 %2").arg(calm).arg(behind)));
