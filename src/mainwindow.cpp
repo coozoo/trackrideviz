@@ -229,6 +229,8 @@ MainWindow::MainWindow(QWidget *parent)
     updateTimeLabel();
     updateWindowTitle();
 
+    // the docks as the program places them, for View > Reset layout
+    m_defaultLayout = saveState();
     if (AppSettings::saveWindowLayout())
         {
             QSettings settings;
@@ -560,6 +562,18 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_timelineDock->toggleViewAction());
     viewMenu->addAction(m_compareDock->toggleViewAction());
     viewMenu->addAction(m_dataDock->toggleViewAction());
+    viewMenu->addAction(m_lapsDock->toggleViewAction());
+    viewMenu->addSeparator();
+    viewMenu->addAction(tr("&Reset layout"), this, [this]()
+    {
+        restoreState(m_defaultLayout);
+        // a dock closed before is brought back with the rest
+        for (QDockWidget *dock : findChildren<QDockWidget *>())
+            {
+                dock->setFloating(false);
+            }
+        m_lapsDock->raise();
+    });
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&About"), this, &MainWindow::showAbout);
