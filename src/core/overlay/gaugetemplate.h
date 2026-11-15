@@ -25,12 +25,14 @@ struct TemplateItem
     OverlayItem::Streets streets{OverlayItem::AsDesigned};
     double closeUp{-1.0};    // as OverlayItem's
     int headingUp{-1};
+    OverlayItem::UnitSystem units{OverlayItem::AsSettings};
 
     bool operator==(const TemplateItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel && edgeX == other.edgeX && edgeY == other.edgeY
                && offsetX == other.offsetX && offsetY == other.offsetY && height == other.height
-               && streets == other.streets && closeUp == other.closeUp && headingUp == other.headingUp;
+               && streets == other.streets && closeUp == other.closeUp && headingUp == other.headingUp
+               && units == other.units;
     }
 };
 

@@ -29,12 +29,29 @@ struct OverlayItem
     double closeUp{-1.0};
     // The close-up turned so that the way ahead points up: 1, north up: 0, as the gauge was drawn: -1.
     int headingUp{-1};
+    // The units this gauge shows its values in: those of the settings, or its own.
+    enum UnitSystem { AsSettings, MetricUnits, ImperialUnits };
+    UnitSystem units{AsSettings};
+
+    // The units to draw the gauge with, `usual` being those of the settings.
+    Units unitsFor(const Units &usual) const
+    {
+        if (units == AsSettings)
+            {
+                return usual;
+            }
+        Units own;
+        own.speed = units == ImperialUnits ? Units::MilesPerHour : Units::KilometersPerHour;
+        own.length = units == ImperialUnits ? Units::Imperial : Units::Metric;
+        own.temperature = units == ImperialUnits ? Units::Fahrenheit : Units::Celsius;
+        return own;
+    }
 
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
                && x == other.x && y == other.y && height == other.height && streets == other.streets
-               && closeUp == other.closeUp && headingUp == other.headingUp;
+               && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
 };

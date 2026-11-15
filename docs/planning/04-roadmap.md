@@ -128,7 +128,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   the fractions, not the edge anchors
 - ✅ Saving the gauges on the video as a template (2026-11-14, File menu): each measured from
   the edge it is nearest to, with a name and a category
-- Units a single gauge shows
+- ✅ Units a single gauge shows (2026-11-15): "Units" in a gauge's menu on the video - as in the settings,
+  metric or imperial; kept in the project and in templates
 
 ## M4 — Track day features
 - ✅ Derived channels (2026-11-13, `DerivedChannels`), for every source, only where the recording

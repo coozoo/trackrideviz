@@ -74,6 +74,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {
                     object.insert("headingUp", item.headingUp > 0);
                 }
+            if (item.units != OverlayItem::AsSettings)
+                {
+                    object.insert("units", item.units == OverlayItem::ImperialUnits ? "imperial" : "metric");
+                }
             overlay.append(object);
         }
     QJsonObject root
@@ -243,6 +247,11 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             if (object.contains("headingUp"))
                 {
                     item.headingUp = object.value("headingUp").toBool() ? 1 : 0;
+                }
+            if (object.contains("units"))
+                {
+                    item.units = object.value("units").toString() == QLatin1String("imperial") ? OverlayItem::ImperialUnits
+                                 : OverlayItem::MetricUnits;
                 }
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {

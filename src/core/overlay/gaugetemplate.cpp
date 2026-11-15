@@ -47,6 +47,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.streets = item.streets;
             placed.closeUp = item.closeUp;
             placed.headingUp = item.headingUp;
+            placed.units = item.units;
             result.append(placed);
         }
     return result;
@@ -78,6 +79,7 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.streets = placed.streets;
             item.closeUp = placed.closeUp;
             item.headingUp = placed.headingUp;
+            item.units = placed.units;
             result.items.append(item);
         }
     return result;
@@ -109,6 +111,10 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             if (item.headingUp >= 0)
                 {
                     object.insert("headingUp", item.headingUp > 0);
+                }
+            if (item.units != OverlayItem::AsSettings)
+                {
+                    object.insert("units", item.units == OverlayItem::ImperialUnits ? "imperial" : "metric");
                 }
             items.append(object);
         }
@@ -173,6 +179,11 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
             if (object.contains("headingUp"))
                 {
                     item.headingUp = object.value("headingUp").toBool() ? 1 : 0;
+                }
+            if (object.contains("units"))
+                {
+                    item.units = object.value("units").toString() == QLatin1String("imperial") ? OverlayItem::ImperialUnits
+                                 : OverlayItem::MetricUnits;
                 }
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {

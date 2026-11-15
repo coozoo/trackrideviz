@@ -135,6 +135,7 @@ private slots:
         t.items = {item(TemplateItem::Start, 20, TemplateItem::Start, 10, 270),
                    item(TemplateItem::End, -400, TemplateItem::End, -400, 400)};
         t.items[1].closeUp = 600.0;
+        t.items[1].units = OverlayItem::ImperialUnits;
         const QVector<OverlayItem> placed = t.overlayItems(16.0 / 9.0);
         const Overlay overlay(placed, nullptr, Units(), t.theme);
         const GaugeTemplate made = GaugeTemplate::fromOverlay(overlay, t.theme, 16.0 / 9.0);
@@ -146,6 +147,9 @@ private slots:
         QCOMPARE(made.items[1].edgeY, TemplateItem::End);
         QVERIFY(qAbs(made.items[1].offsetX + 400.0) < 1e-6);
         QCOMPARE(made.items[1].closeUp, 600.0);
+        QCOMPARE(made.items[1].units, OverlayItem::ImperialUnits);
+        QCOMPARE(placed[1].unitsFor(Units()).speed, Units::MilesPerHour);
+        QCOMPARE(placed[0].unitsFor(Units()).speed, Units::KilometersPerHour);
         const QVector<OverlayItem> again = made.overlayItems(16.0 / 9.0);
         for (int i = 0; i < placed.size(); ++i)
             {

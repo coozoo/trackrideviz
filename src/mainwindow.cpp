@@ -1060,6 +1060,29 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                     }
             });
         }
+    // its own units: one gauge in miles beside the others in kilometers
+    QMenu *unitsMenu = menu.addMenu(tr("Units"));
+    const QVector<QPair<QString, OverlayItem::UnitSystem>> systems
+    {
+        {tr("As in the settings"), OverlayItem::AsSettings}, {tr("Metric (km/h, m, °C)"), OverlayItem::MetricUnits},
+        {tr("Imperial (mph, ft, °F)"), OverlayItem::ImperialUnits},
+    };
+    for (const auto &system : systems)
+        {
+            QAction *action = unitsMenu->addAction(system.first);
+            action->setCheckable(true);
+            action->setChecked(m_project.overlay.at(index).units == system.second);
+            const OverlayItem::UnitSystem units = system.second;
+            connect(action, &QAction::triggered, this, [this, index, units]()
+            {
+                if (index < m_project.overlay.size())
+                    {
+                        OverlayState after{m_project.overlay, m_project.theme};
+                        after.items[index].units = units;
+                        changeOverlay(tr("Change a gauge's units"), after);
+                    }
+            });
+        }
     menu.addSeparator();
     menu.addAction(tr("Remove"), this, [this, index]()
     {

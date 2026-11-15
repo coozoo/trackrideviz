@@ -61,7 +61,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
             chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp);
             if (!gauge.isEmpty())
                 {
-                    placed.gauge = BoundGauge(gauge, item.channel, session, units, theme);
+                    placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), theme);
                 }
             m_placed.append(placed);
         }
