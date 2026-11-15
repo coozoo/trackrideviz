@@ -19,12 +19,16 @@ const double kStandardKelvin = 288.15;
 const double kReferenceKg = 75.0;
 const double kReferenceCm = 178.0;
 // Speed is smoothed over this much on either side, its change taken over as much, and the
-// power smoothed again. A speed worked out from positions needs the longer: positions jitter
-// and are often stored only every few seconds, the speed between them then comes in steps,
-// and what a gain of speed seems to ask for swings both ways from second to second. A speed
-// the logger measured follows the legs closely enough for the shorter.
-const int kSmoothRecorded = 1;   // s: three seconds in all
-const int kSmoothWorkedOut = 5;
+// power smoothed again. A speed that comes in steps needs the longer: positions jitter and
+// are often stored only every few seconds, the speed worked out between them (by us or by
+// whatever wrote the file) then jumps, and what a gain of speed seems to ask for swings both
+// ways from second to second. A speed the logger measured follows the legs closely enough for
+// the shorter.
+const int kSmoothSteady = 1;   // s: three seconds in all
+const int kSmoothJumpy = 5;
+// Jolts above this, on average over the ride, are not a rider's doing: a measured speed
+// stays near 0.04 m/s, one in steps is ten times that.
+const double kJumpy = 0.15;
 
 struct Kind
 {
@@ -195,7 +199,30 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
                     v[i] = speed->valueAt(t);
                 }
         }
-    const int half = original->derivedChannels().contains(ChannelId::Speed) ? kSmoothWorkedOut : kSmoothRecorded;
+    // How much the speed's change itself changes from second to second: a rider's speed bends
+    // gently, one that comes in steps stands still and then leaps.
+    double jolts = 0.0;
+    int seconds = 0;
+    for (int i = 1; i + 1 < count; ++i)
+        {
+            if (std::isfinite(v.at(i - 1)) && std::isfinite(v.at(i)) && std::isfinite(v.at(i + 1)))
+                {
+                    jolts += std::fabs(v.at(i + 1) - 2.0 * v.at(i) + v.at(i - 1));
+                    ++seconds;
+                }
+        }
+    const int half = seconds > 0 && jolts / seconds > kJumpy ? kSmoothJumpy : kSmoothSteady;
+    // a single second far off its neighbors is a glitch of the position, not a sprint
+    {
+        const QVector<double> raw = v;
+        for (int i = 1; i + 1 < count; ++i)
+            {
+                if (std::isfinite(raw.at(i - 1)) && std::isfinite(raw.at(i)) && std::isfinite(raw.at(i + 1)))
+                    {
+                        v[i] = std::max(std::min(raw.at(i - 1), raw.at(i)), std::min(std::max(raw.at(i - 1), raw.at(i)), raw.at(i + 1)));
+                    }
+            }
+    }
     v = smooth(v, half);
 
     const double mass = rider.riderKg + rider.bikeKg;
