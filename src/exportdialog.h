@@ -2,6 +2,7 @@
 
 #include "overlay/overlay.h"
 #include "video/exportjob.h"
+#include "video/exportprofile.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
 
@@ -51,6 +52,10 @@ private slots:
     void onEncoderChanged();
     void updateEstimate();
     void onAudioChanged();
+    void onProfileChosen();
+    void onChoiceChanged();
+    void saveProfile();
+    void deleteProfile();
 
 private:
     void createWidgets();
@@ -59,6 +64,12 @@ private:
     void onEncodersDetected(const QVector<VideoEncoder> &encoders);
     void updateReadiness();
     void updateAudioControls();
+    void fillProfiles(const QString &selected);
+    // The profile chosen; false for none ("Custom").
+    bool chosenProfile(ExportProfile *profile) const;
+    // Fills the controls from the chosen profile once the video and the encoders are known.
+    void applyProfile();
+    void showSettings(const ExportSettings &settings);
     void setRunning(bool running);
     ExportSettings currentSettings() const;
     QString suggestedOutput() const;
@@ -73,10 +84,18 @@ private:
     bool m_probed{false};
     MediaInfo m_info;
     bool m_encodersKnown{false};
+    QVector<VideoEncoder> m_encoders;
+    // What the chosen profile put into the controls: a change from it is a choice of one's own.
+    ExportSettings m_profileSettings;
+    bool m_profileShown{false};
+    bool m_showing{false};
     bool m_running{false};
     QThread *m_thread{nullptr};
 
     QLabel *m_sourceLabel{nullptr};
+    QComboBox *m_profileCombo{nullptr};
+    QPushButton *m_saveProfileButton{nullptr};
+    QPushButton *m_deleteProfileButton{nullptr};
     QLineEdit *m_outputEdit{nullptr};
     QPushButton *m_browseButton{nullptr};
     QComboBox *m_encoderCombo{nullptr};

@@ -692,275 +692,325 @@ Worked out from the other data</source>
 <context>
     <name>ExportDialog</name>
     <message>
-        <location filename="../src/exportdialog.cpp" line="81"/>
-        <location filename="../src/exportdialog.cpp" line="445"/>
+        <location filename="../src/exportdialog.cpp" line="87"/>
+        <location filename="../src/exportdialog.cpp" line="633"/>
         <source>Export video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="101"/>
+        <location filename="../src/exportdialog.cpp" line="107"/>
         <source>Reading the video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="107"/>
-        <source>Browse...</source>
+        <location filename="../src/exportdialog.cpp" line="113"/>
+        <source>Fills in the choices below; the bitrate of the built-in ones follows the video. Changing a choice afterwards makes it your own.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="114"/>
-        <source>Looking for encoders...</source>
+        <location filename="../src/exportdialog.cpp" line="116"/>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="117"/>
+        <source>Keep the choices below under a name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="119"/>
-        <source>Constant quality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="120"/>
-        <source>Bitrate</source>
+        <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="127"/>
-        <source>Lower is better and bigger. 18-23 is hard to tell from the original; each step of 6 roughly halves or doubles the file.</source>
+        <source>Browse...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="133"/>
-        <source> Mbit/s</source>
+        <location filename="../src/exportdialog.cpp" line="134"/>
+        <source>Looking for encoders...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="146"/>
-        <source>Fast, bigger file</source>
+        <location filename="../src/exportdialog.cpp" line="139"/>
+        <source>Constant quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="140"/>
+        <source>Bitrate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="147"/>
-        <source>Balanced</source>
+        <source>Lower is better and bigger. 18-23 is hard to tell from the original; each step of 6 roughly halves or doubles the file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="148"/>
-        <source>Slow, smaller file</source>
+        <location filename="../src/exportdialog.cpp" line="153"/>
+        <source> Mbit/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="152"/>
-        <source>Same as the video</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="161"/>
-        <source>Keep the original sound</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="162"/>
-        <source>Convert to AAC</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="163"/>
-        <source>Convert to Opus (MKV)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="164"/>
-        <source>Convert to Vorbis (MKV)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="165"/>
-        <source>No sound</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="182"/>
-        <source>Only a part:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="204"/>
-        <source>Save as:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="205"/>
-        <source>Encoder:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="206"/>
-        <source>Quality:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="207"/>
-        <source>Speed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="208"/>
-        <source>Size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="209"/>
-        <source>Sound:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="210"/>
-        <source>Range:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="217"/>
-        <source>Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="220"/>
-        <location filename="../src/exportdialog.cpp" line="533"/>
-        <source>Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="329"/>
-        <source>%1: %2 x %3, %4 fps, %5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="367"/>
-        <source>None found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="368"/>
-        <source>ffmpeg could not be run (%1). Install it, or set its location in the settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="431"/>
-        <source>about %1 GB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="432"/>
-        <source>about %1 MB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="434"/>
-        <source>%1; the video itself is %2 Mbit/s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="446"/>
-        <source>MP4 video (*.mp4);;Matroska video (*.mkv);;QuickTime video (*.mov)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="485"/>
-        <source>The folder to save into does not exist.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="490"/>
-        <source>The export cannot replace the video it is made from. Choose another name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="495"/>
-        <source>A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, or convert the sound to AAC.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="501"/>
-        <source>The end of the range has to be after its start.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="505"/>
-        <source>%1 already exists. Replace it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="524"/>
-        <source>Starting...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="533"/>
-        <source>Stop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="584"/>
-        <source>Stopped. The part exported so far was saved as %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="588"/>
-        <source>Stopped before anything could be saved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="604"/>
-        <source>Stop the export? The part done so far is kept as a playable video.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="607"/>
-        <source>Stopping: finishing the file...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/exportdialog.cpp" line="545"/>
-        <source>Frame %1 of %2, %3 frames per second</source>
+        <location filename="../src/exportdialog.cpp" line="166"/>
+        <source>Fast, bigger file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="167"/>
+        <source>Balanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="168"/>
+        <source>Slow, smaller file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="172"/>
+        <source>Same as the video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="181"/>
+        <source>Keep the original sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="182"/>
+        <source>Convert to AAC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="183"/>
+        <source>Convert to Opus (MKV)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="184"/>
+        <source>Convert to Vorbis (MKV)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="185"/>
+        <source>No sound</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="202"/>
+        <source>Only a part:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="224"/>
+        <source>Profile:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="225"/>
+        <source>Save as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="226"/>
+        <source>Encoder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="227"/>
+        <source>Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="228"/>
+        <source>Speed:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="229"/>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="230"/>
+        <source>Sound:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="231"/>
+        <source>Range:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="238"/>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="241"/>
+        <location filename="../src/exportdialog.cpp" line="722"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="273"/>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="375"/>
+        <source>Save profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="375"/>
+        <source>Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="389"/>
+        <source>A profile called %1 is there already. Replace it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="410"/>
+        <source>Delete the profile %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="514"/>
+        <source>%1: %2 x %3, %4 fps, %5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="554"/>
+        <source>None found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="555"/>
+        <source>ffmpeg could not be run (%1). Install it, or set its location in the settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="619"/>
+        <source>about %1 GB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="620"/>
+        <source>about %1 MB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="622"/>
+        <source>%1; the video itself is %2 Mbit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="634"/>
+        <source>MP4 video (*.mp4);;Matroska video (*.mkv);;QuickTime video (*.mov)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="673"/>
+        <source>The folder to save into does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="678"/>
+        <source>The export cannot replace the video it is made from. Choose another name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="683"/>
+        <source>A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, or convert the sound to AAC.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="689"/>
+        <source>The end of the range has to be after its start.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="693"/>
+        <source>%1 already exists. Replace it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="713"/>
+        <source>Starting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="722"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="773"/>
+        <source>Stopped. The part exported so far was saved as %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="777"/>
+        <source>Stopped before anything could be saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="793"/>
+        <source>Stop the export? The part done so far is kept as a playable video.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="796"/>
+        <source>Stopping: finishing the file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="734"/>
+        <source>Frame %1 of %2, %3 frames per second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="187"/>
         <source>Keeping the sound is exact and instant. Convert it if the export fails because the chosen file type cannot hold the camera&apos;s sound format. Opus sounds best for its size; the sound is only a small part of a video file, though.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="173"/>
+        <location filename="../src/exportdialog.cpp" line="193"/>
         <source>%1 kbit/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="549"/>
+        <location filename="../src/exportdialog.cpp" line="738"/>
         <source>, about %1 left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="569"/>
+        <location filename="../src/exportdialog.cpp" line="758"/>
         <source>Saved %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="571"/>
+        <location filename="../src/exportdialog.cpp" line="760"/>
         <source>The video was exported to
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="573"/>
+        <location filename="../src/exportdialog.cpp" line="762"/>
         <source>Open folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="591"/>
+        <location filename="../src/exportdialog.cpp" line="780"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="592"/>
+        <location filename="../src/exportdialog.cpp" line="781"/>
         <source>The export failed.
 
 %1</source>
@@ -983,6 +1033,24 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/core/video/exportjob.cpp" line="321"/>
         <source>ffmpeg could not be started (%1). Install it, or set its location in the settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportProfiles</name>
+    <message>
+        <location filename="../src/core/video/exportprofile.cpp" line="100"/>
+        <source>YouTube upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/exportprofile.cpp" line="108"/>
+        <source>Small file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/exportprofile.cpp" line="119"/>
+        <source>Like the video</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

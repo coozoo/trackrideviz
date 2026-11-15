@@ -2,6 +2,8 @@
 
 #include "../maps/tilestore.h"
 
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QList>
 
 #include <algorithm>
@@ -31,6 +33,8 @@ const char kExportSpeed[] = "export/speed";
 const char kExportHeight[] = "export/height";
 const char kExportAudio[] = "export/audio";
 const char kExportAudioKbps[] = "export/audioKbps";
+const char kExportProfiles[] = "export/profiles";
+const char kExportProfile[] = "export/profile";
 const char kPowerEstimated[] = "power/estimated";
 const char kPowerRiderKg[] = "power/riderKg";
 const char kPowerHeightCm[] = "power/heightCm";
@@ -308,6 +312,41 @@ void AppSettings::setExportDefaults(const ExportSettings &settings)
     stored.setValue(kExportHeight, settings.height);
     stored.setValue(kExportAudio, kAudioWords[settings.audio]);
     stored.setValue(kExportAudioKbps, settings.audioKbps);
+}
+
+QVector<ExportProfile> AppSettings::exportProfiles()
+{
+    QVector<ExportProfile> profiles;
+    const QJsonArray stored = QJsonDocument::fromJson(QSettings().value(kExportProfiles).toByteArray()).array();
+    for (const QJsonValue &value : stored)
+        {
+            const ExportProfile profile = ExportProfile::fromJson(value.toObject());
+            if (!profile.name.isEmpty())
+                {
+                    profiles.append(profile);
+                }
+        }
+    return profiles;
+}
+
+void AppSettings::setExportProfiles(const QVector<ExportProfile> &profiles)
+{
+    QJsonArray stored;
+    for (const ExportProfile &profile : profiles)
+        {
+            stored.append(profile.toJson());
+        }
+    QSettings().setValue(kExportProfiles, QJsonDocument(stored).toJson(QJsonDocument::Compact));
+}
+
+QString AppSettings::exportProfile()
+{
+    return QSettings().value(kExportProfile).toString();
+}
+
+void AppSettings::setExportProfile(const QString &id)
+{
+    QSettings().setValue(kExportProfile, id);
 }
 
 PowerEstimate::Rider AppSettings::powerRider()

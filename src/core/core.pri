@@ -61,6 +61,7 @@ SOURCES += \
     $$PWD/video/cutlist.cpp \
     $$PWD/video/exportjob.cpp \
     $$PWD/video/exportplan.cpp \
+    $$PWD/video/exportprofile.cpp \
     $$PWD/video/ffmpegtools.cpp \
     $$PWD/video/mediainfo.cpp \
     $$PWD/video/videoencoders.cpp \
@@ -119,6 +120,7 @@ HEADERS += \
     $$PWD/video/cutlist.h \
     $$PWD/video/exportjob.h \
     $$PWD/video/exportplan.h \
+    $$PWD/video/exportprofile.h \
     $$PWD/video/exportsettings.h \
     $$PWD/video/ffmpegtools.h \
     $$PWD/video/mediainfo.h \

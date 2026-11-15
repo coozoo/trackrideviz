@@ -4,6 +4,7 @@
 #include "video/cutlist.h"
 #include "video/exportjob.h"
 #include "video/exportplan.h"
+#include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
@@ -407,6 +408,86 @@ private slots:
     }
 
     // --- encoders -----------------------------------------------------------
+
+    // --- profiles ---------------------------------------------------------
+
+    void youTubeBitrates()
+    {
+        QCOMPARE(ExportProfiles::youTubeKbps(QSize(1920, 1080), 30.0), 8000);
+        QCOMPARE(ExportProfiles::youTubeKbps(QSize(1920, 1080), 59.94), 12000);
+        QCOMPARE(ExportProfiles::youTubeKbps(QSize(3840, 2160), 60.0), 68000);
+        // upright video counts by its shorter side
+        QCOMPARE(ExportProfiles::youTubeKbps(QSize(1080, 1920), 30.0), 8000);
+        // 2.7K is near 1440p
+        QCOMPARE(ExportProfiles::youTubeKbps(QSize(2704, 1520), 60.0), 24000);
+        QCOMPARE(ExportProfiles::youTubeKbps(QSize(320, 240), 30.0), 1000);
+    }
+
+    void profilesFillTheChoices()
+    {
+        const QVector<ExportProfile> builtIn = ExportProfiles::builtIn();
+        QCOMPARE(builtIn.size(), 3);
+        const ExportProfile youTube = builtIn.at(0);
+        const ExportProfile small = builtIn.at(1);
+        QCOMPARE(youTube.id, QString("youtube"));
+        QCOMPARE(small.id, QString("small"));
+
+        MediaInfo info = fullHd60();
+        info.bitrateKbps = 30000;
+        const QVector<VideoEncoder> available{VideoEncoders::byId("libx264"), VideoEncoders::byId("libx265"),
+                                              VideoEncoders::byId("h264_vaapi"), VideoEncoders::byId("hevc_vaapi")};
+        ExportSettings current = settingsFor("/v/out.mp4");
+        current.encoder = "h264_vaapi";
+
+        ExportSettings settings = ExportProfiles::apply(youTube, current, info, available);
+        // the graphics card, as before
+        QCOMPARE(settings.encoder, QString("h264_vaapi"));
+        QCOMPARE(settings.rateControl, ExportSettings::Bitrate);
+        QCOMPARE(settings.bitrateKbps, 12000);
+        QCOMPARE(settings.audio, ExportSettings::AacAudio);
+        QCOMPARE(settings.audioKbps, 384);
+        QCOMPARE(settings.outputPath, QString("/v/out.mp4"));
+
+        settings = ExportProfiles::apply(small, current, info, available);
+        QCOMPARE(settings.encoder, QString("hevc_vaapi"));
+        QCOMPARE(settings.bitrateKbps, 12000); // 40 % of the video's
+        QCOMPARE(settings.audio, ExportSettings::OpusAudio);
+        QCOMPARE(settings.outputPath, QString("/v/out.mkv"));
+
+        current.encoder = "libx264";
+        settings = ExportProfiles::apply(small, current, info, available);
+        QCOMPARE(settings.encoder, QString("libx265"));
+        // a video small already: no less than that share of what YouTube takes
+        info.bitrateKbps = 3000;
+        QCOMPARE(ExportProfiles::apply(small, current, info, available).bitrateKbps, 4800);
+        // no HEVC here: whatever there is
+        settings = ExportProfiles::apply(small, current, info, {VideoEncoders::byId("libx264")});
+        QCOMPARE(settings.encoder, QString("libx264"));
+    }
+
+    void ownProfiles()
+    {
+        ExportSettings chosen = settingsFor("/v/out.mkv");
+        chosen.encoder = "libx265";
+        chosen.rateControl = ExportSettings::Quality;
+        chosen.quality = 27;
+        chosen.speed = ExportSettings::Small;
+        chosen.height = 720;
+        chosen.audio = ExportSettings::VorbisAudio;
+        chosen.audioKbps = 160;
+        const ExportProfile profile = ExportProfile::fromJson(ExportProfile::of("Mine", chosen).toJson());
+        QCOMPARE(profile.name, QString("Mine"));
+        QVERIFY(!profile.builtIn);
+        QCOMPARE(profile.suffix, QString("mkv"));
+
+        const ExportSettings applied = ExportProfiles::apply(profile, settingsFor("/v/other.mp4"), fullHd60(),
+                                                             {VideoEncoders::byId("libx264"), VideoEncoders::byId("libx265")});
+        QCOMPARE(applied.outputPath, QString("/v/other.mkv"));
+        QVERIFY(ExportProfiles::sameChoices(applied, chosen));
+        ExportSettings changed = applied;
+        changed.quality = 28;
+        QVERIFY(!ExportProfiles::sameChoices(changed, chosen));
+    }
 
     void encoderRateControl()
     {

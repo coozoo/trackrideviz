@@ -15,6 +15,7 @@
 #include <QFutureWatcher>
 #include <QHBoxLayout>
 #include <QHash>
+#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -26,6 +27,8 @@
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QtConcurrent>
+
+#include <algorithm>
 
 namespace
 {
@@ -43,6 +46,9 @@ QHash<QString, QVector<VideoEncoder>> &encoderCache()
     static QHash<QString, QVector<VideoEncoder>> cache;
     return cache;
 }
+
+// The user's own profiles in the profile list, so that their names never clash with the built-in ones.
+const QString kOwnProfile = QStringLiteral("own:");
 
 QTime toTime(double seconds)
 {
@@ -102,6 +108,20 @@ void ExportDialog::createWidgets()
     m_sourceLabel->setWordWrap(true);
 
     m_options = new QWidget(this);
+
+    m_profileCombo = new QComboBox(m_options);
+    m_profileCombo->setToolTip(tr("Fills in the choices below; the bitrate of the built-in ones follows the video. "
+                                  "Changing a choice afterwards makes it your own."));
+    connect(m_profileCombo, QOverload<int>::of(&QComboBox::activated), this, &ExportDialog::onProfileChosen);
+    m_saveProfileButton = new QPushButton(tr("Save as..."), m_options);
+    m_saveProfileButton->setToolTip(tr("Keep the choices below under a name"));
+    connect(m_saveProfileButton, &QPushButton::clicked, this, &ExportDialog::saveProfile);
+    m_deleteProfileButton = new QPushButton(tr("Delete"), m_options);
+    connect(m_deleteProfileButton, &QPushButton::clicked, this, &ExportDialog::deleteProfile);
+    QHBoxLayout *profileRow = new QHBoxLayout;
+    profileRow->addWidget(m_profileCombo, 1);
+    profileRow->addWidget(m_saveProfileButton);
+    profileRow->addWidget(m_deleteProfileButton);
 
     m_outputEdit = new QLineEdit(suggestedOutput(), m_options);
     m_browseButton = new QPushButton(tr("Browse..."), m_options);
@@ -201,6 +221,7 @@ void ExportDialog::createWidgets()
 
     QFormLayout *form = new QFormLayout(m_options);
     form->setContentsMargins(0, 0, 0, 0);
+    form->addRow(tr("Profile:"), profileRow);
     form->addRow(tr("Save as:"), outputRow);
     form->addRow(tr("Encoder:"), m_encoderCombo);
     form->addRow(tr("Quality:"), rateRow);
@@ -234,6 +255,170 @@ void ExportDialog::createWidgets()
     resize(560, 0);
     updateRateControls();
     updateAudioControls();
+    fillProfiles(AppSettings::exportProfile());
+
+    // a choice changed by hand is no longer the profile's
+    for (QComboBox *combo : {m_encoderCombo, m_rateCombo, m_speedCombo, m_sizeCombo, m_audioCombo, m_audioBitrateCombo})
+        {
+            connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExportDialog::onChoiceChanged);
+        }
+    connect(m_qualitySpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &ExportDialog::onChoiceChanged);
+    connect(m_bitrateSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ExportDialog::onChoiceChanged);
+    connect(m_outputEdit, &QLineEdit::textChanged, this, &ExportDialog::onChoiceChanged);
+}
+
+void ExportDialog::fillProfiles(const QString &selected)
+{
+    m_profileCombo->clear();
+    m_profileCombo->addItem(tr("Custom"), QString());
+    for (const ExportProfile &profile : ExportProfiles::builtIn())
+        {
+            m_profileCombo->addItem(profile.name, profile.id);
+        }
+    const QVector<ExportProfile> own = AppSettings::exportProfiles();
+    if (!own.isEmpty())
+        {
+            m_profileCombo->insertSeparator(m_profileCombo->count());
+        }
+    for (const ExportProfile &profile : own)
+        {
+            m_profileCombo->addItem(profile.name, kOwnProfile + profile.id);
+        }
+    m_profileCombo->setCurrentIndex(qMax(0, m_profileCombo->findData(selected)));
+    m_deleteProfileButton->setEnabled(m_profileCombo->currentData().toString().startsWith(kOwnProfile));
+}
+
+bool ExportDialog::chosenProfile(ExportProfile *profile) const
+{
+    const QString id = m_profileCombo->currentData().toString();
+    if (id.isEmpty())
+        {
+            return false;
+        }
+    const QVector<ExportProfile> list = id.startsWith(kOwnProfile) ? AppSettings::exportProfiles() : ExportProfiles::builtIn();
+    const QString wanted = id.startsWith(kOwnProfile) ? id.mid(kOwnProfile.size()) : id;
+    for (const ExportProfile &candidate : list)
+        {
+            if (candidate.id == wanted)
+                {
+                    *profile = candidate;
+                    return true;
+                }
+        }
+    return false;
+}
+
+void ExportDialog::onProfileChosen()
+{
+    m_deleteProfileButton->setEnabled(m_profileCombo->currentData().toString().startsWith(kOwnProfile));
+    m_profileShown = false;
+    applyProfile();
+}
+
+void ExportDialog::applyProfile()
+{
+    ExportProfile profile;
+    if (!m_probed || !m_encodersKnown || !chosenProfile(&profile))
+        {
+            return;
+        }
+    showSettings(ExportProfiles::apply(profile, currentSettings(), m_info, m_encoders));
+    m_profileSettings = currentSettings();
+    m_profileShown = true;
+}
+
+void ExportDialog::showSettings(const ExportSettings &settings)
+{
+    m_showing = true;
+    const int encoderIndex = m_encoderCombo->findData(settings.encoder);
+    if (encoderIndex >= 0)
+        {
+            m_encoderCombo->setCurrentIndex(encoderIndex);
+        }
+    m_rateCombo->setCurrentIndex(qMax(0, m_rateCombo->findData(settings.rateControl)));
+    m_qualitySpin->setValue(settings.quality);
+    m_bitrateSpin->setValue(settings.bitrateKbps / 1000.0);
+    m_speedCombo->setCurrentIndex(qMax(0, m_speedCombo->findData(settings.speed)));
+    // a size the video is too small for is the video's own
+    m_sizeCombo->setCurrentIndex(qMax(0, m_sizeCombo->findData(settings.height)));
+    m_audioCombo->setCurrentIndex(qMax(0, m_audioCombo->findData(settings.audio)));
+    const int audioBitrateIndex = m_audioBitrateCombo->findData(settings.audioKbps);
+    if (audioBitrateIndex >= 0)
+        {
+            m_audioBitrateCombo->setCurrentIndex(audioBitrateIndex);
+        }
+    m_outputEdit->setText(QDir::toNativeSeparators(settings.outputPath));
+    m_showing = false;
+    updateRateControls();
+    updateAudioControls();
+}
+
+void ExportDialog::onChoiceChanged()
+{
+    if (m_showing || !m_profileShown || m_profileCombo->currentIndex() <= 0)
+        {
+            return;
+        }
+    if (!ExportProfiles::sameChoices(currentSettings(), m_profileSettings))
+        {
+            m_profileCombo->setCurrentIndex(0);
+            m_deleteProfileButton->setEnabled(false);
+            m_profileShown = false;
+        }
+}
+
+void ExportDialog::saveProfile()
+{
+    ExportProfile chosen;
+    const bool own = chosenProfile(&chosen) && !chosen.builtIn;
+    bool ok = false;
+    const QString name = QInputDialog::getText(this, tr("Save profile"), tr("Name:"), QLineEdit::Normal,
+                                               own ? chosen.name : QString(), &ok).trimmed();
+    if (!ok || name.isEmpty())
+        {
+            return;
+        }
+    QVector<ExportProfile> profiles = AppSettings::exportProfiles();
+    const auto same = std::find_if(profiles.begin(), profiles.end(), [&](const ExportProfile &profile)
+    {
+        return profile.name == name;
+    });
+    const ExportProfile profile = ExportProfile::of(name, currentSettings());
+    if (same != profiles.end())
+        {
+            if (QMessageBox::question(this, windowTitle(), tr("A profile called %1 is there already. Replace it?").arg(name))
+                    != QMessageBox::Yes)
+                {
+                    return;
+                }
+            *same = profile;
+        }
+    else
+        {
+            profiles.append(profile);
+        }
+    AppSettings::setExportProfiles(profiles);
+    fillProfiles(kOwnProfile + name);
+    m_profileSettings = currentSettings();
+    m_profileShown = true;
+}
+
+void ExportDialog::deleteProfile()
+{
+    ExportProfile chosen;
+    if (!chosenProfile(&chosen) || chosen.builtIn
+            || QMessageBox::question(this, windowTitle(), tr("Delete the profile %1?").arg(chosen.name)) != QMessageBox::Yes)
+        {
+            return;
+        }
+    QVector<ExportProfile> profiles = AppSettings::exportProfiles();
+    profiles.erase(std::remove_if(profiles.begin(), profiles.end(), [&](const ExportProfile &profile)
+    {
+        return profile.name == chosen.name;
+    }), profiles.end());
+    AppSettings::setExportProfiles(profiles);
+    fillProfiles(QString());
+    m_profileShown = false;
 }
 
 void ExportDialog::updateAudioControls()
@@ -356,11 +541,13 @@ void ExportDialog::onProbed(bool ok, const MediaInfo &info, const QString &error
         }
     updateEstimate();
     updateReadiness();
+    applyProfile();
 }
 
 void ExportDialog::onEncodersDetected(const QVector<VideoEncoder> &encoders)
 {
     m_encodersKnown = !encoders.isEmpty();
+    m_encoders = encoders;
     m_encoderCombo->clear();
     if (encoders.isEmpty())
         {
@@ -388,6 +575,7 @@ void ExportDialog::onEncodersDetected(const QVector<VideoEncoder> &encoders)
     m_encoderCombo->setEnabled(true);
     onEncoderChanged();
     updateReadiness();
+    applyProfile();
 }
 
 void ExportDialog::updateRateControls()
@@ -508,6 +696,7 @@ void ExportDialog::startExport()
             return;
         }
     AppSettings::setExportDefaults(settings);
+    AppSettings::setExportProfile(m_profileCombo->currentData().toString());
 
     const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts);
     ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync);

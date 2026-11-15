@@ -5,6 +5,7 @@
 #include "../telemetry/surfaces.h"
 #include "../units/units.h"
 #include "../weather/weather.h"
+#include "../video/exportprofile.h"
 #include "../video/exportsettings.h"
 
 #include <QByteArray>
@@ -64,6 +65,11 @@ public:
     static ExportSettings exportDefaults();
     // False until the first export: the dialog then picks an encoder itself.
     static bool hasExportDefaults();
+    // The user's own export profiles, and the profile of the last export (empty: none).
+    static QVector<ExportProfile> exportProfiles();
+    static void setExportProfiles(const QVector<ExportProfile> &profiles);
+    static QString exportProfile();
+    static void setExportProfile(const QString &id);
 
     // --- Maps -----------------------------------------------------------
     // Street maps under route gauges that ask for them may be fetched from the

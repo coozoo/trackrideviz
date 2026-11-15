@@ -134,6 +134,22 @@ private slots:
         QCOMPARE(loaded.bitrateKbps, ExportSettings().bitrateKbps);
     }
 
+    void exportProfiles()
+    {
+        QVERIFY(AppSettings::exportProfiles().isEmpty());
+        ExportSettings settings;
+        settings.outputPath = "/v/out.mkv";
+        settings.audio = ExportSettings::OpusAudio;
+        AppSettings::setExportProfiles({ExportProfile::of("Mine", settings)});
+        AppSettings::setExportProfile("youtube");
+        const QVector<ExportProfile> loaded = AppSettings::exportProfiles();
+        QCOMPARE(loaded.size(), 1);
+        QCOMPARE(loaded.first().name, QString("Mine"));
+        QCOMPARE(loaded.first().audio, ExportSettings::OpusAudio);
+        QCOMPARE(loaded.first().suffix, QString("mkv"));
+        QCOMPARE(AppSettings::exportProfile(), QString("youtube"));
+    }
+
     void exportToolSettings()
     {
         QCOMPARE(AppSettings::ffmpegPath(), QString());
