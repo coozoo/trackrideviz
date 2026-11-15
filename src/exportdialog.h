@@ -53,6 +53,8 @@ private slots:
     void onEncoderChanged();
     void updateEstimate();
     void onAudioChanged();
+    void onContainerChosen();
+    void showContainer();
     void onProfileChosen();
     void onChoiceChanged();
     void saveProfile();
@@ -100,6 +102,7 @@ private:
     QPushButton *m_deleteProfileButton{nullptr};
     QLineEdit *m_outputEdit{nullptr};
     QPushButton *m_browseButton{nullptr};
+    QComboBox *m_containerCombo{nullptr};
     QComboBox *m_encoderCombo{nullptr};
     QComboBox *m_rateCombo{nullptr};
     QSpinBox *m_qualitySpin{nullptr};

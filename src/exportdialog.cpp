@@ -66,6 +66,17 @@ bool isMp4Family(const QString &suffix)
     return lower == "mp4" || lower == "mov" || lower == "m4v";
 }
 
+// `path` with its extension, which ffmpeg picks the container by, made `suffix`.
+QString withSuffix(const QString &path, const QString &suffix)
+{
+    const QFileInfo file(path);
+    if (path.isEmpty() || file.suffix().compare(suffix, Qt::CaseInsensitive) == 0)
+        {
+            return path;
+        }
+    return file.suffix().isEmpty() ? path + "." + suffix : path.left(path.size() - file.suffix().size()) + suffix;
+}
+
 QString formatDuration(double seconds)
 {
     const int total = int(seconds + 0.5);
@@ -128,8 +139,19 @@ void ExportDialog::createWidgets()
     m_outputEdit = new QLineEdit(suggestedOutput(), m_options);
     m_browseButton = new QPushButton(tr("Browse..."), m_options);
     connect(m_browseButton, &QPushButton::clicked, this, &ExportDialog::browseOutput);
+    // the file type is the name's extension; picking one here changes it, typing one shows it here
+    m_containerCombo = new QComboBox(m_options);
+    m_containerCombo->addItem(tr("MP4"), "mp4");
+    m_containerCombo->addItem(tr("MKV (Matroska)"), "mkv");
+    m_containerCombo->addItem(tr("MOV (QuickTime)"), "mov");
+    m_containerCombo->setToolTip(tr("MP4 plays everywhere and is what most sites want. "
+                                    "MKV holds any sound, Opus and Vorbis too."));
+    connect(m_containerCombo, QOverload<int>::of(&QComboBox::activated), this, &ExportDialog::onContainerChosen);
+    connect(m_outputEdit, &QLineEdit::textChanged, this, &ExportDialog::showContainer);
+    showContainer();
     QHBoxLayout *outputRow = new QHBoxLayout;
     outputRow->addWidget(m_outputEdit, 1);
+    outputRow->addWidget(m_containerCombo);
     outputRow->addWidget(m_browseButton);
 
     m_encoderCombo = new QComboBox(m_options);
@@ -438,10 +460,26 @@ void ExportDialog::onAudioChanged()
     // Opus and Vorbis go into Matroska: the file name follows
     const auto audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
     const QString path = m_outputEdit->text().trimmed();
-    const QFileInfo output(path);
-    if (ExportSettings::needsMatroska(audio) && isMp4Family(output.suffix()))
+    if (ExportSettings::needsMatroska(audio) && isMp4Family(QFileInfo(path).suffix()))
         {
-            m_outputEdit->setText(path.left(path.size() - output.suffix().size()) + "mkv");
+            m_outputEdit->setText(withSuffix(path, "mkv"));
+        }
+}
+
+void ExportDialog::showContainer()
+{
+    // an extension the list does not know is left as it is: ffmpeg may know it
+    m_containerCombo->setCurrentIndex(m_containerCombo->findData(QFileInfo(m_outputEdit->text().trimmed()).suffix().toLower()));
+}
+
+void ExportDialog::onContainerChosen()
+{
+    const QString suffix = m_containerCombo->currentData().toString();
+    m_outputEdit->setText(withSuffix(m_outputEdit->text().trimmed(), suffix));
+    // MP4 and MOV cannot hold Opus or Vorbis: the sound is made AAC
+    if (isMp4Family(suffix) && ExportSettings::needsMatroska(ExportSettings::Audio(m_audioCombo->currentData().toInt())))
+        {
+            m_audioCombo->setCurrentIndex(m_audioCombo->findData(ExportSettings::AacAudio));
         }
 }
 
@@ -450,8 +488,12 @@ QString ExportDialog::suggestedOutput() const
     const QFileInfo video(m_videoPath);
     const QString configured = AppSettings::exportFolder();
     const QString folder = !configured.isEmpty() && QDir(configured).exists() ? configured : video.absolutePath();
-    // the file type chosen so far, or the one the last export's sound needs
+    // the file type chosen so far, or that of the last export
     QString suffix = m_outputEdit ? QFileInfo(m_outputEdit->text().trimmed()).suffix() : QString();
+    if (suffix.isEmpty())
+        {
+            suffix = AppSettings::exportFileType();
+        }
     if (suffix.isEmpty())
         {
             suffix = ExportSettings::needsMatroska(AppSettings::exportDefaults().audio) ? "mkv" : "mp4";
@@ -635,9 +677,11 @@ void ExportDialog::updateReadiness()
 
 void ExportDialog::browseOutput()
 {
-    const QString path = QFileDialog::getSaveFileName(this, tr("Export video"), m_outputEdit->text(),
-                         tr("MP4 video (*.mp4);;Matroska video (*.mkv);;QuickTime video (*.mov)"),
-                         nullptr, QFileDialog::DontConfirmOverwrite);
+    const QStringList filters = {tr("MP4 video (*.mp4)"), tr("Matroska video (*.mkv)"), tr("QuickTime video (*.mov)")};
+    // the type chosen so far comes first in the dialog
+    QString filter = filters.value(m_containerCombo->currentIndex(), filters.first());
+    const QString path = QFileDialog::getSaveFileName(this, tr("Export video"), m_outputEdit->text(), filters.join(";;"),
+                         &filter, QFileDialog::DontConfirmOverwrite);
     if (!path.isEmpty())
         {
             m_outputEdit->setText(QDir::toNativeSeparators(path));

@@ -70,6 +70,8 @@ public:
     static void setExportProfiles(const QVector<ExportProfile> &profiles);
     static QString exportProfile();
     static void setExportProfile(const QString &id);
+    // The extension of the last exported file ("mp4", "mkv"...); empty before the first export.
+    static QString exportFileType();
 
     // --- Maps -----------------------------------------------------------
     // Street maps under route gauges that ask for them may be fetched from the

@@ -98,6 +98,7 @@ private slots:
     void exportDefaults()
     {
         QVERIFY(!AppSettings::hasExportDefaults());
+        QVERIFY(AppSettings::exportFileType().isEmpty());
         ExportSettings settings = AppSettings::exportDefaults();
         QCOMPARE(settings.encoder, QString("libx264"));
         QCOMPARE(settings.rateControl, ExportSettings::Bitrate);
@@ -128,6 +129,8 @@ private slots:
         QCOMPARE(loaded.height, 720);
         QCOMPARE(loaded.audio, ExportSettings::OpusAudio);
         QCOMPARE(loaded.audioKbps, 128);
+        // the file's type is kept, not its name
+        QCOMPARE(AppSettings::exportFileType(), QString("mp4"));
         QVERIFY(loaded.outputPath.isEmpty());
         QCOMPARE(loaded.start, 0.0);
         QCOMPARE(loaded.duration, 0.0);

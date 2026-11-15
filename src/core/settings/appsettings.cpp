@@ -2,6 +2,7 @@
 
 #include "../maps/tilestore.h"
 
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QList>
@@ -35,6 +36,7 @@ const char kExportAudio[] = "export/audio";
 const char kExportAudioKbps[] = "export/audioKbps";
 const char kExportProfiles[] = "export/profiles";
 const char kExportProfile[] = "export/profile";
+const char kExportFileType[] = "export/fileType";
 const char kPowerEstimated[] = "power/estimated";
 const char kPowerRiderKg[] = "power/riderKg";
 const char kPowerHeightCm[] = "power/heightCm";
@@ -312,6 +314,16 @@ void AppSettings::setExportDefaults(const ExportSettings &settings)
     stored.setValue(kExportHeight, settings.height);
     stored.setValue(kExportAudio, kAudioWords[settings.audio]);
     stored.setValue(kExportAudioKbps, settings.audioKbps);
+    const QString fileType = QFileInfo(settings.outputPath).suffix().toLower();
+    if (!fileType.isEmpty())
+        {
+            stored.setValue(kExportFileType, fileType);
+        }
+}
+
+QString AppSettings::exportFileType()
+{
+    return QSettings().value(kExportFileType).toString();
 }
 
 QVector<ExportProfile> AppSettings::exportProfiles()
