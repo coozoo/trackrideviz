@@ -18,9 +18,10 @@ const double kStandardKelvin = 288.15;
 // the build the drag areas below were measured for
 const double kReferenceKg = 75.0;
 const double kReferenceCm = 178.0;
-// speed is smoothed over this much on either side before its change is taken,
-// and the power over as much: positions jitter, differences of them more so
-const double kSmoothSeconds = 2.0;
+// speed is smoothed over this much on either side, its change taken over as much, and the
+// power smoothed again: positions jitter and many loggers give the speed in steps, so what a
+// gain of speed seems to ask for swings both ways from second to second
+const double kSmoothSeconds = 5.0;
 
 struct Kind
 {
@@ -160,7 +161,7 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
         }
     const Channel *recorded = original->channel(ChannelId::Power);
     const Channel *speed = original->channel(ChannelId::Speed);
-    if ((recorded && !recorded->isEmpty()) || !speed || speed->count() < 2)
+    if (!speed || speed->count() < 2)
         {
             return original;
         }
@@ -202,8 +203,8 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
                     continue;
                 }
             const double t = start + i;
-            const int before = std::max(0, i - 1);
-            const int after = std::min(count - 1, i + 1);
+            const int before = std::max(0, i - half);
+            const int after = std::min(count - 1, i + half);
             const double gain = after > before && std::isfinite(v.at(before)) && std::isfinite(v.at(after))
                                 ? (v.at(after) - v.at(before)) / (after - before) : 0.0;
             bool ok = false;
@@ -217,14 +218,24 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
             const double force = 0.5 * density * dragArea * v.at(i) * v.at(i)
                                  + mass * kGravity * (rolling * std::cos(angle) + std::sin(angle))
                                  + mass * gain;
-            // rolling downhill and braking take nothing from the legs; neither do still cranks
-            const bool coasting = cadence && !cadence->isEmpty() && cadence->valueAt(t) < 1.0;
-            watts[i] = coasting ? 0.0 : std::max(0.0, force * v.at(i) / kept);
+            watts[i] = force * v.at(i) / kept;
         }
+    // smoothed before anything is cut off: cutting first would keep the swings upwards only
     watts = smooth(watts, half);
+    for (int i = 0; i < count; ++i)
+        {
+            // rolling downhill and braking take nothing from the legs; neither do still cranks
+            const bool coasting = cadence && !cadence->isEmpty() && cadence->valueAt(start + i) < 1.0;
+            if (std::isfinite(watts.at(i)))
+                {
+                    watts[i] = coasting ? 0.0 : std::max(0.0, watts.at(i));
+                }
+        }
 
     auto session = std::make_shared<TelemetrySession>(*original);
-    Channel &power = session->channelForWriting(ChannelId::Power, "W");
+    const char *id = recorded && !recorded->isEmpty() ? ChannelId::PowerEstimated : ChannelId::Power;
+    session->removeChannel(ChannelId::PowerEstimated);
+    Channel &power = session->channelForWriting(id, "W");
     for (int i = 0; i < count; ++i)
         {
             if (std::isfinite(watts.at(i)))
@@ -236,6 +247,6 @@ TelemetrySessionPtr PowerEstimate::apply(const TelemetrySessionPtr &original, co
         {
             return original;
         }
-    session->addDerivedChannel(ChannelId::Power);
+    session->addDerivedChannel(id);
     return session;
 }

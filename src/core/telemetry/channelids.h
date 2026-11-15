@@ -26,6 +26,7 @@ inline constexpr char ElapsedTime[] = "elapsedTime";   // s since the recording 
 inline constexpr char Pace[] = "pace";                 // s/km; none while standing
 inline constexpr char Power3s[] = "power3secAverage";  // W, the mean of the last 3 s
 inline constexpr char Power30s[] = "power30secAverage"; // W, of the last 30 s
+inline constexpr char PowerEstimated[] = "powerEstimated"; // W, the estimate beside a recorded power, to compare
 inline constexpr char ElevationMax[] = "elevationMax"; // m, the highest point of the recording (the same all along)
 inline constexpr char ElevationMin[] = "elevationMin"; // m, the lowest
 inline constexpr char DistanceTotal[] = "distanceTotal"; // m, the length of the recording (the same all along)

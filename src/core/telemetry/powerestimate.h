@@ -11,8 +11,10 @@
 // of the rider and the bike.
 //
 // It is an estimate: the wind is not known, so a headwind reads low and a
-// tailwind high. A recorded power is never replaced; the estimate is listed
-// in TelemetrySession::derivedChannels().
+// tailwind high. A recorded power is never replaced: the estimate then goes
+// beside it as a measurement of its own (ChannelId::PowerEstimated), so the
+// two can be compared and the rider's numbers set by a real power meter.
+// Either is listed in TelemetrySession::derivedChannels().
 namespace PowerEstimate
 {
 // Who rides what. Filled in once in the settings.
@@ -58,7 +60,7 @@ double cda(const Rider &rider);
 QString tireKind(const QString &size);
 
 // A copy of `session` with the power added; the session itself when the
-// estimate is off, a power was recorded, or there is no speed to work from.
+// estimate is off or there is no speed to work from.
 // Wants the speed and the grade in place (DerivedChannels::complete).
 TelemetrySessionPtr apply(const TelemetrySessionPtr &session, const Rider &rider);
 }

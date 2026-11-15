@@ -168,10 +168,11 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
             return imperial ? ChannelDisplay{tr("Pace"), tr("min/mi"), 1.609344 / 60.0, 0.0, 1}
                    : ChannelDisplay{tr("Pace"), tr("min/km"), 1.0 / 60.0, 0.0, 1};
         }
-    if (id == ChannelId::Power3s || id == ChannelId::Power30s || id == ChannelId::PowerLapAvg)
+    if (id == ChannelId::Power3s || id == ChannelId::Power30s || id == ChannelId::PowerLapAvg
+            || id == ChannelId::PowerEstimated)
         {
             const QString name = id == ChannelId::Power3s ? tr("Power, 3 s") : id == ChannelId::Power30s ? tr("Power, 30 s")
-                                 : tr("Lap average power");
+                                 : id == ChannelId::PowerEstimated ? tr("Power, estimated") : tr("Lap average power");
             return {name, tr("W"), 1.0, 0.0, 0};
         }
     if (id == ChannelId::ElevationMax || id == ChannelId::ElevationMin)

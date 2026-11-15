@@ -365,7 +365,8 @@ QWidget *SettingsDialog::createPowerPage()
     form->addRow(tr("Riding position:"), m_positionCombo);
     form->addRow(tr("Drag area (CdA):"), m_cdaSpin);
     form->addRow(tr("Drivetrain loss:"), m_lossSpin);
-    form->addRow(note(tr("Worked out from the speed, the grade and the elevation; a recorded power is never replaced. "
+    form->addRow(note(tr("Worked out from the speed, the grade and the elevation. A recorded power is never replaced: "
+                         "the estimate is then listed beside it as \"Power, estimated\", to compare the two. "
                          "The wind is not known: a headwind reads low and a tailwind high."), page));
     return page;
 }

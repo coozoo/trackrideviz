@@ -332,7 +332,12 @@ private slots:
         const TelemetrySessionPtr complete = DerivedChannels::complete(session);
         PowerEstimate::Rider rider;
         rider.enabled = true;
-        QCOMPARE(PowerEstimate::apply(complete, rider), complete);
+        // the estimate goes beside it
+        const TelemetrySessionPtr both = PowerEstimate::apply(complete, rider);
+        QCOMPARE(both->channel(ChannelId::Power)->count(), 1);
+        QCOMPARE(at(both, ChannelId::Power, 0.0), 123.0);
+        QVERIFY(at(both, ChannelId::PowerEstimated, 50.0) > 100.0);
+        QVERIFY(!both->derivedChannels().contains(ChannelId::Power));
     }
 
     void tiresAndPositions()

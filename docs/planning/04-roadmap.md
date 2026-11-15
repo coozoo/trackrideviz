@@ -224,12 +224,13 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
      (road, gravel, mountain bike, each fast, typical or slow, or a rolling resistance of the
      user's own; a tire size such as 700x25 or 26x1.95 only picks the kind), the riding position
      (tops, hoods, drops, aero bars, mountain bike upright, or a drag area of the user's own) and
-     the switch
+     the switch. Beside a recorded power the estimate is a measurement of its own, to compare
+     the two
   2. Wind and air: the wind's speed and direction, the temperature and the pressure of the day
      of the ride from a weather history service, asked for at points along the route and hour by
      hour, so a ride between towns gets each place's weather; off until switched on, the wind
      brought down from the 10 m it is measured at to the rider's height; a wind entered by hand
-     when there is no network. A point every 5 km by default, to be changed by the user (the
+     when there is no network. A point every 10 km by default, to be changed by the user (the
      services' own grid is 10-25 km and an hour, so finer brings little). Services to choose
      from: Open-Meteo (no key, free for non-commercial use), Visual Crossing and WeatherAPI.com
      (each with a key and a free allowance)
