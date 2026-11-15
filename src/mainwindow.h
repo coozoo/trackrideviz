@@ -7,6 +7,7 @@
 #include "telemetry/telemetrysession.h"
 #include "units/units.h"
 
+#include <QElapsedTimer>
 #include <QMainWindow>
 #include <QMediaPlayer>
 
@@ -18,6 +19,7 @@ class QDockWidget;
 class QDoubleSpinBox;
 class QLabel;
 class QSlider;
+class QTimer;
 class QToolButton;
 class QPushButton;
 class QUndoStack;
@@ -200,6 +202,9 @@ private:
     QString m_pendingTelemetryPath;
     bool m_pendingKeepsSync{false};
     quint64 m_importGeneration{0};   // the load whose result is wanted
+    // terrain or weather arriving: the data is worked out again when they stop coming
+    QTimer *m_arrivalTimer{nullptr};
+    QElapsedTimer m_sinceRecompute;
     TelemetrySessionPtr m_session;          // with the laps of the project's start/finish line
     TelemetrySessionPtr m_rawSession;       // as the file gave it
     TelemetrySessionPtr m_recordedSession;  // as the file gave it (and what could be worked out)

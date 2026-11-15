@@ -82,7 +82,7 @@ TileStore::TileStore()
     , m_attribution(defaultAttribution())
     , m_folder(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/tiles")
     , m_tiles(64)
-    , m_pictures(24)
+    , m_pictures(256)   // megabytes
 {
     if (QCoreApplication::instance())
         {
@@ -158,6 +158,7 @@ void TileStore::setSource(const QString &urlTemplate, const QString &attribution
             m_urlTemplate = address;
             m_maxZoom = maxZoom;
             m_pictures.clear();
+            ++m_picturesCleared;
             m_wanted.clear();
             m_failed.clear();
         }
@@ -173,6 +174,7 @@ void TileStore::setDownloads(bool allowed)
             {
                 m_failed.clear();
                 m_pictures.clear();
+                ++m_picturesCleared;
             }
     }
     if (allowed)
@@ -214,6 +216,7 @@ void TileStore::clearStored()
                 QDir(m_folder).removeRecursively();
             }
         m_pictures.clear();
+        ++m_picturesCleared;
         m_tiles.clear();
         m_failed.clear();
     }
@@ -225,6 +228,7 @@ void TileStore::setFolder(const QString &folder)
     const QMutexLocker lock(&m_mutex);
     m_folder = folder;
     m_pictures.clear();
+    ++m_picturesCleared;
     m_tiles.clear();
 }
 
@@ -253,9 +257,14 @@ TileStore::Block TileStore::blockFor(const QRectF &area, int maxZoom, double pix
 
 QString TileStore::pathOf(const Tile &tile) const
 {
-    // one folder per server, so changing it never shows the old one's tiles
-    const QByteArray server = QCryptographicHash::hash(m_urlTemplate.toUtf8(), QCryptographicHash::Sha1).toHex().left(12);
-    return QString("%1/%2/%3/%4/%5.png").arg(m_folder, QString::fromLatin1(server), QString::number(tile.zoom), QString::number(tile.x),
+    // one folder per server, so changing it never shows the old one's tiles; its name is
+    // worked out once per server, not for every tile
+    if (m_serverOf != m_urlTemplate)
+        {
+            m_serverOf = m_urlTemplate;
+            m_server = QString::fromLatin1(QCryptographicHash::hash(m_urlTemplate.toUtf8(), QCryptographicHash::Sha1).toHex().left(12));
+        }
+    return QString("%1/%2/%3/%4/%5.png").arg(m_folder, m_server, QString::number(tile.zoom), QString::number(tile.x),
                                                 QString::number(tile.y));
 }
 
@@ -267,29 +276,54 @@ QString TileStore::tilePath(int zoom, int x, int y) const
 
 void TileStore::want(const QVector<QRectF> &areas, double pixels)
 {
-    const QMutexLocker lock(&m_mutex);
-    QSet<Tile> tiles;
-    for (const QRectF &area : areas)
+    // which tiles, under the lock; whether they are on disk, without it: the preview and an
+    // export draw maps meanwhile
+    QHash<Tile, QString> candidates;
+    {
+        const QMutexLocker lock(&m_mutex);
+        for (const QRectF &area : areas)
+            {
+                const Block block = blockFor(area, m_maxZoom, pixels);
+                for (int y = block.top; y <= block.bottom; ++y)
+                    {
+                        for (int x = block.left; x <= block.right; ++x)
+                            {
+                                const Tile tile{block.zoom, x, y};
+                                if (!candidates.contains(tile) && !m_wanted.contains(tile) && !m_failed.contains(tile)
+                                        && !m_running.contains(tile))
+                                    {
+                                        candidates.insert(tile, pathOf(tile));
+                                    }
+                            }
+                    }
+            }
+    }
+    QVector<Tile> missing;
+    for (auto it = candidates.cbegin(); it != candidates.cend(); ++it)
         {
-            const Block block = blockFor(area, m_maxZoom, pixels);
-            for (int y = block.top; y <= block.bottom; ++y)
+            if (!QFile::exists(it.value()))
                 {
-                    for (int x = block.left; x <= block.right; ++x)
-                        {
-                            tiles.insert({block.zoom, x, y});
-                        }
+                    missing.append(it.key());
                 }
+        }
+    if (missing.isEmpty())
+        {
+            return;
         }
     bool asked = false;
-    for (const Tile &tile : std::as_const(tiles))
-        {
-            if (!m_wanted.contains(tile) && !m_failed.contains(tile) && !m_running.contains(tile) && !QFile::exists(pathOf(tile)))
-                {
-                    m_wanted.insert(tile);
-                    asked = true;
-                }
-        }
-    if (asked && m_downloads)
+    {
+        const QMutexLocker lock(&m_mutex);
+        for (const Tile &tile : std::as_const(missing))
+            {
+                if (!m_wanted.contains(tile) && !m_failed.contains(tile) && !m_running.contains(tile))
+                    {
+                        m_wanted.insert(tile);
+                        asked = true;
+                    }
+            }
+        asked = asked && m_downloads;
+    }
+    if (asked)
         {
             QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
         }
@@ -301,37 +335,52 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
         {
             return {};
         }
-    const QMutexLocker lock(&m_mutex);
-    const Block block = blockFor(area, m_maxZoom, pixels);
-    const QString key = QString("%1/%2/%3/%4/%5").arg(block.zoom).arg(block.left).arg(block.top).arg(block.right).arg(block.bottom);
-    if (const Picture *known = m_pictures.object(key))
-        {
-            return *known;
-        }
+    // Which block and where its tiles are, under the lock; reading and drawing them, without it:
+    // the preview and an export ask for maps at the same time.
+    Block block;
+    QString key;
+    QVector<QString> paths;
+    quint64 cleared = 0;
+    {
+        const QMutexLocker lock(&m_mutex);
+        block = blockFor(area, m_maxZoom, pixels);
+        cleared = m_picturesCleared;
+        key = QString("%1/%2/%3/%4/%5").arg(block.zoom).arg(block.left).arg(block.top).arg(block.right).arg(block.bottom);
+        if (const Picture *known = m_pictures.object(key))
+            {
+                return *known;
+            }
+        for (int y = block.top; y <= block.bottom; ++y)
+            {
+                for (int x = block.left; x <= block.right; ++x)
+                    {
+                        paths.append(pathOf({block.zoom, x, y}));
+                    }
+            }
+    }
     const int columns = block.right - block.left + 1;
     const int rows = block.bottom - block.top + 1;
     Picture result;
     QImage image(columns * kTileSize, rows * kTileSize, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::transparent);
     int found = 0;
-    bool asked = false;
+    QVector<Tile> missing;
     {
         QPainter painter(&image);
+        int index = 0;
         for (int y = block.top; y <= block.bottom; ++y)
             {
                 for (int x = block.left; x <= block.right; ++x)
                     {
-                        const Tile tile{block.zoom, x, y};
-                        const QImage one(pathOf(tile));
+                        const QImage one(paths.at(index++));
                         if (!one.isNull())
                             {
                                 painter.drawImage(QRect((x - block.left) * kTileSize, (y - block.top) * kTileSize, kTileSize, kTileSize), one);
                                 ++found;
                             }
-                        else if (!m_failed.contains(tile) && !m_running.contains(tile))
+                        else
                             {
-                                m_wanted.insert(tile);
-                                asked = true;
+                                missing.append({block.zoom, x, y});
                             }
                     }
             }
@@ -342,12 +391,27 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
             result.image = image;
             result.bounds = QRectF(block.left * size - 180.0, block.top * size - 180.0, columns * size, rows * size);
         }
-    if (found > 0)
-        {
-            // remembered until a tile comes; a block with nothing yet costs nothing to look at again
-            m_pictures.insert(key, new Picture(result));
-        }
-    if (asked && m_downloads)
+    bool asked = false;
+    {
+        const QMutexLocker lock(&m_mutex);
+        // a tile that came while this was drawn is not in it: then it is not remembered
+        if (found > 0 && cleared == m_picturesCleared)
+            {
+                // remembered until a tile comes; a block with nothing yet costs nothing to look at again.
+                // The cache counts megabytes: a block of a whole route can be a few dozen
+                m_pictures.insert(key, new Picture(result), std::max<qint64>(1, image.sizeInBytes() >> 20));
+            }
+        for (const Tile &tile : std::as_const(missing))
+            {
+                if (!m_failed.contains(tile) && !m_running.contains(tile))
+                    {
+                        m_wanted.insert(tile);
+                        asked = true;
+                    }
+            }
+        asked = asked && m_downloads;
+    }
+    if (asked)
         {
             QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
         }
@@ -414,6 +478,7 @@ void TileStore::startNext()
                     if (kept)
                         {
                             m_pictures.clear();
+                            ++m_picturesCleared;
                         }
                     if (!kept)
                         {

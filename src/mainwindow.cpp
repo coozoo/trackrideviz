@@ -213,23 +213,49 @@ MainWindow::MainWindow(QWidget *parent)
     applyMapSettings();
     rebuildOverlay();
     // map tiles come one by one: gauges with a street map are drawn again with them
-    connect(TileStore::instance(), &TileStore::arrived, this, &MainWindow::rebuildOverlay);
-    // heights of the terrain that were missing when the data was worked out
-    connect(TileStore::terrain(), &TileStore::arrived, this, [this]()
+    connect(TileStore::instance(), &TileStore::arrived, this, [this]()
     {
-        if (m_terrainWaiting)
+        // only gauges with a street map draw tiles (and tiles also come for the Laps panel's map);
+        // the gauges' properties stay as they are, so a choice being made there is not undone
+        const Overlay &shown = m_canvas->overlay();
+        for (int i = 0; i < shown.count(); ++i)
             {
-                recomputeData();
+                if (shown.hasStreets(i))
+                    {
+                        m_canvas->setOverlay(Overlay(m_project.overlay, m_session, m_units, m_project.theme));
+                        return;
+                    }
             }
     });
-    // ... and the weather of the ride
-    connect(WeatherStore::instance(), &WeatherStore::arrived, this, [this]()
+    // Heights of the terrain and the weather of the ride that were missing when the data was
+    // worked out. They come in batches; the data is worked out again once they have stopped
+    // coming, or every few seconds while they go on: not once for every batch.
+    m_arrivalTimer = new QTimer(this);
+    m_arrivalTimer->setSingleShot(true);
+    m_arrivalTimer->setInterval(1000);
+    connect(m_arrivalTimer, &QTimer::timeout, this, [this]()
     {
-        if (m_weatherWaiting)
+        if (!m_terrainWaiting && !m_weatherWaiting)
             {
-                recomputeData();
+                return;
             }
+        const bool more = TileStore::terrain()->pending() > 0 || WeatherStore::instance()->pending() > 0;
+        if (more && m_sinceRecompute.isValid() && m_sinceRecompute.elapsed() < 5000)
+            {
+                m_arrivalTimer->start();
+                return;
+            }
+        recomputeData();
     });
+    auto arrived = [this]()
+    {
+        if (m_terrainWaiting || m_weatherWaiting)
+            {
+                m_arrivalTimer->start();
+            }
+    };
+    connect(TileStore::terrain(), &TileStore::arrived, this, arrived);
+    connect(WeatherStore::instance(), &WeatherStore::arrived, this, arrived);
 
     connect(m_canvas, &VideoCanvas::itemGeometryEdited, this, &MainWindow::onItemGeometryEdited);
     connect(m_canvas, &VideoCanvas::itemDeleteRequested, this, &MainWindow::removeGauge);
@@ -753,6 +779,12 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
         m_terrainWaiting = result.waiting;
         m_weatherWaiting = result.weatherWaiting;
         telemetryImported(path, result.raw, result.session, result.error);
+        if (m_terrainWaiting || m_weatherWaiting)
+            {
+                // what was asked for may have come already, while the data was worked out
+                m_sinceRecompute.start();
+                m_arrivalTimer->start();
+            }
         // what was changed while it was worked out (the elevation, the wind, an edit...) counts too
         const bool changed = edits != m_project.dataEdits || elevation != m_project.elevation || rider != m_rider
                              || weather != m_weather || surfaces != m_project.surfaces || wind != m_project.wind
@@ -2044,6 +2076,7 @@ void MainWindow::recomputeData()
         {
             return;
         }
+    m_sinceRecompute.start();
     m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
                                   m_project.wind, m_drivetrain,
                                   &m_terrainWaiting, &m_weatherWaiting);

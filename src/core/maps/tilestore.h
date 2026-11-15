@@ -129,10 +129,13 @@ private:
     QString m_urlTemplate;
     QString m_attribution;
     QString m_folder;
+    mutable QString m_server;     // the folder of m_urlTemplate's tiles ...
+    mutable QString m_serverOf;   // ... worked out for this template
     int m_maxZoom{19};
     bool m_downloads{false};
     QCache<quint64, QImage> m_tiles;       // single tiles read by tile()
-    QCache<QString, Picture> m_pictures;   // whole blocks, by source and tile numbers
+    QCache<QString, Picture> m_pictures;   // whole blocks, by source and tile numbers; costs in MB
+    quint64 m_picturesCleared{0};          // how often m_pictures was emptied
     QSet<Tile> m_wanted;                   // missing, not asked for yet
     QSet<Tile> m_failed;                   // not asked for again in this run
     QSet<Tile> m_running;

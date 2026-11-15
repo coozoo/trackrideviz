@@ -193,6 +193,11 @@ public:
 
     void setTime(double t)
     {
+        // asked a few times a second, also while the video stands still
+        if (t == m_time)
+            {
+                return;
+            }
         m_time = t;
         update();
     }
