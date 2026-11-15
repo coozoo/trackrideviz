@@ -185,7 +185,7 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
             || id == ChannelId::PowerEstimated)
         {
             const QString name = id == ChannelId::Power3s ? tr("Power, 3 s") : id == ChannelId::Power30s ? tr("Power, 30 s")
-                                 : id == ChannelId::PowerEstimated ? tr("Power, estimated") : tr("Lap average power");
+                                 : id == ChannelId::PowerEstimated ? tr("Power (est.)") : tr("Lap average power");
             return {name, tr("W"), 1.0, 0.0, 0};
         }
     if (id == ChannelId::ElevationMax || id == ChannelId::ElevationMin)

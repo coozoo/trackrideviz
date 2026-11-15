@@ -183,6 +183,11 @@ private:
     Units m_units;
     PowerEstimate::Rider m_rider;
     QByteArray m_defaultLayout;
+    // A moment of the data asked for that the video cannot show (no video, or before or after it):
+    // shown in the panels until the video moves away from where it was then.
+    double m_heldTime{-1.0};
+    qint64 m_heldVideoPosition{-1};
+    double shownTelemetryTime() const;
     WeatherChoice m_weather;
     // the weather of the ride was asked for when the data was worked out, and has not come yet
     bool m_weatherWaiting{false};

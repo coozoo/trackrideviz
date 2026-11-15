@@ -9,13 +9,18 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+#include <QToolButton>
+#include <QWheelEvent>
 #include <QWidget>
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
 
-// The route from above, north up, fitted into the widget.
+// The route from above, north up, fitted into the widget. It can be looked at
+// closer: the wheel or + and - zoom in and out, a drag moves the view (never
+// so far that the route is out of it), and the button between them fits the
+// whole route again.
 class TrackView : public QWidget
 {
 public:
@@ -24,12 +29,30 @@ public:
     {
         setMinimumSize(120, 80);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        const auto button = [this](const QString &text, const QString &tip, const std::function<void()> &action)
+        {
+            QToolButton *b = new QToolButton(this);
+            b->setText(text);
+            b->setToolTip(tip);
+            b->setFixedSize(26, 26);
+            b->setFocusPolicy(Qt::NoFocus);
+            connect(b, &QToolButton::clicked, this, action);
+            return b;
+        };
+        m_zoomIn = button(QStringLiteral("+"), QCoreApplication::translate("TrackView", "Closer (also the wheel)"),
+                          [this]() { zoomAround(QRectF(rect()).center(), 1.5); });
+        m_fit = button(QStringLiteral("⤢"), QCoreApplication::translate("TrackView", "The whole route"), [this]()
+        {
+            m_zoom = 1.0;
+            m_pan = QPointF();
+            update();
+        });
+        m_zoomOut = button(QStringLiteral("−"), QCoreApplication::translate("TrackView", "Farther"),
+                           [this]() { zoomAround(QRectF(rect()).center(), 1.0 / 1.5); });
     }
 
-    // A click on the map: latitude and longitude. Called while something is being placed
-    // (setPlacing), or always with `clicksAlways`.
+    // A click on the map while something is being placed (setPlacing): latitude and longitude.
     std::function<void(double, double)> clicked;
-    bool clicksAlways{false};
 
     void setSession(const TelemetrySessionPtr &session, const StartFinishLine &line,
                     const QVector<StartFinishLine> &sectors)
@@ -37,6 +60,8 @@ public:
         m_session = session;
         m_line = line;
         m_sectors = sectors;
+        // another ride is seen whole; the same one worked out again stays as it was looked at
+        const QPointF firstBefore = m_points.isEmpty() ? QPointF() : m_points.first();
         m_points.clear();
         m_times.clear();
         m_distances.clear();
@@ -53,6 +78,17 @@ public:
                         m_times.append(lat->timeAt(i));
                         m_distances.append(distance && !distance->isEmpty() ? distance->valueAt(lat->timeAt(i)) : 0.0);
                     }
+            }
+        if (m_points.isEmpty() || m_points.first() != firstBefore)
+            {
+                m_zoom = 1.0;
+                m_pan = QPointF();
+            }
+        m_bounds = QRectF();
+        for (const QPointF &p : std::as_const(m_points))
+            {
+                const QPointF q = projected(p);
+                m_bounds = m_bounds.isNull() ? QRectF(q, QSizeF(1e-9, 1e-9)) : m_bounds.united(QRectF(q, QSizeF(1e-9, 1e-9)));
             }
         update();
     }
@@ -256,7 +292,41 @@ protected:
 
     void mousePressEvent(QMouseEvent *event) override
     {
-        if ((m_placing.isEmpty() && !clicksAlways) || m_points.size() < 2 || event->button() != Qt::LeftButton || !clicked)
+        if (event->button() == Qt::LeftButton)
+            {
+                m_pressedAt = event->position();
+                m_lastAt = event->position();
+                m_dragging = false;
+            }
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override
+    {
+        if (!(event->buttons() & Qt::LeftButton) || m_points.size() < 2)
+            {
+                return;
+            }
+        // a few pixels are a shaky click, not a drag
+        if (!m_dragging && (event->position() - m_pressedAt).manhattanLength() < 5)
+            {
+                return;
+            }
+        m_dragging = true;
+        setCursor(Qt::ClosedHandCursor);
+        const double scale = toWidget().m11();
+        m_pan -= (event->position() - m_lastAt) / scale;
+        m_lastAt = event->position();
+        holdPan();
+        update();
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        const bool dragged = m_dragging;
+        m_dragging = false;
+        setCursor(m_placing.isEmpty() ? Qt::ArrowCursor : Qt::CrossCursor);
+        if (dragged || m_placing.isEmpty() || m_points.size() < 2 || event->button() != Qt::LeftButton
+                || !clicked)
             {
                 return;
             }
@@ -264,7 +334,44 @@ protected:
         clicked(TileStore::latitudeOf(-p.y()), p.x());
     }
 
+    void wheelEvent(QWheelEvent *event) override
+    {
+        const double steps = event->angleDelta().y() / 120.0;
+        if (steps != 0.0 && m_points.size() >= 2)
+            {
+                zoomAround(event->position(), std::pow(1.25, steps));
+            }
+        event->accept();
+    }
+
+    void resizeEvent(QResizeEvent *) override
+    {
+        m_zoomIn->move(6, 6);
+        m_fit->move(6, 34);
+        m_zoomOut->move(6, 62);
+    }
+
 private:
+    // Closer by `factor`, the place under `at` staying where it is.
+    void zoomAround(const QPointF &at, double factor)
+    {
+        const QPointF before = toWidget().inverted().map(at);
+        m_zoom = std::clamp(m_zoom * factor, 1.0, 256.0);
+        const QPointF after = toWidget().inverted().map(at);
+        m_pan += before - after;
+        holdPan();
+        update();
+    }
+
+    // The middle of the view stays over the route.
+    void holdPan()
+    {
+        const QPointF middle = m_bounds.center() + m_pan;
+        const QPointF held(std::clamp(middle.x(), m_bounds.left(), m_bounds.right()),
+                           std::clamp(middle.y(), m_bounds.top(), m_bounds.bottom()));
+        m_pan = held - m_bounds.center();
+    }
+
     // drawn long enough to be seen on a long route
     void drawLine(QPainter &painter, const QTransform &map, const StartFinishLine &line, const QColor &color) const
     {
@@ -285,23 +392,27 @@ private:
 
     QTransform toWidget() const
     {
-        QRectF bounds;
-        for (const QPointF &p : m_points)
-            {
-                const QPointF q = projected(p);
-                bounds = bounds.isNull() ? QRectF(q, QSizeF(1e-9, 1e-9)) : bounds.united(QRectF(q, QSizeF(1e-9, 1e-9)));
-            }
         const QRectF area = QRectF(rect()).adjusted(12, 12, -12, -12);
-        const double scale = std::min(area.width() / std::max(bounds.width(), 1e-9),
-                                      area.height() / std::max(bounds.height(), 1e-9));
+        const double scale = m_zoom * std::min(area.width() / std::max(m_bounds.width(), 1e-9),
+                                               area.height() / std::max(m_bounds.height(), 1e-9));
+        const QPointF middle = m_bounds.center() + m_pan;
         QTransform t;
         t.translate(area.center().x(), area.center().y());
         t.scale(scale, scale);
-        t.translate(-bounds.center().x(), -bounds.center().y());
+        t.translate(-middle.x(), -middle.y());
         return t;
     }
 
     TelemetrySessionPtr m_session;
+    QRectF m_bounds;             // the route, projected
+    double m_zoom{1.0};          // 1: the whole route
+    QPointF m_pan;               // the middle of the view from that of the route, projected
+    QPointF m_pressedAt;
+    QPointF m_lastAt;
+    bool m_dragging{false};
+    QToolButton *m_zoomIn{nullptr};
+    QToolButton *m_fit{nullptr};
+    QToolButton *m_zoomOut{nullptr};
     StartFinishLine m_line;
     QVector<StartFinishLine> m_sectors;
     QVector<QPointF> m_points;   // lon, lat

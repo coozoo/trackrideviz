@@ -33,6 +33,8 @@ public:
     void refreshMapChoice();
     // Stretches of the ride marked as a surface, drawn along the route.
     void setSurfaces(const QVector<SurfaceStretch> &surfaces);
+    // A stretch of time drawn red on the map: what is picked in the Data viewer.
+    void setHighlight(double start, double end);
     // Kilometers or miles in the table of surfaces.
     void setUnits(const Units &units);
 

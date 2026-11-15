@@ -135,8 +135,6 @@ LapsPanel::LapsPanel(QWidget *parent)
     {
         AppSettings::setLapsMapShown(shown);
         refreshMapChoice();
-        // the Data viewer's map follows
-        emit mapChoiceChanged();
     });
     connect(m_mapCombo, &QComboBox::activated, this, [this]()
     {
@@ -390,6 +388,11 @@ void LapsPanel::surfaceClicked(double lat, double lon)
             const QVariantList type = chosen->data().toList();
             emit surfaceRequested(fromLat, fromLon, lat, lon, type.at(0).toString(), type.at(1).toDouble());
         }
+}
+
+void LapsPanel::setHighlight(double start, double end)
+{
+    m_track->setHighlight(start, end);
 }
 
 void LapsPanel::setUnits(const Units &units)

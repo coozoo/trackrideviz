@@ -216,11 +216,11 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (m_dataDock->isVisible())
             {
-                m_dataPanel->setTime(m_canvas->telemetryTime());
+                m_dataPanel->setTime(shownTelemetryTime());
             }
         if (m_lapsDock->isVisible())
             {
-                m_lapsPanel->setTime(m_canvas->telemetryTime());
+                m_lapsPanel->setTime(shownTelemetryTime());
             }
     });
     valuesTimer->start();
@@ -347,6 +347,11 @@ void MainWindow::createDocks()
     m_dataPanel = new DataPanel(m_dataDock);
     m_dataDock->setWidget(m_dataPanel);
     connect(m_dataPanel, &DataPanel::seekRequested, this, &MainWindow::seekTelemetryTime);
+    // the route map is the Laps panel's: what is picked in the data is shown on it
+    connect(m_dataPanel, &DataPanel::stretchPicked, this, [this](double start, double end)
+    {
+        m_lapsPanel->setHighlight(start, end);
+    });
     connect(m_dataPanel, &DataPanel::editsChanged, this, &MainWindow::setDataEdits);
     // one smoothing for all charts
     connect(m_dataPanel, &DataPanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
@@ -1381,6 +1386,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
             return;
         }
     m_project.telemetryPath = path;
+    m_heldTime = -1.0;
     m_rawSession = raw;
     m_recordedSession = session;
     m_dataPanel->setSessions(raw, session, m_units);
@@ -1763,12 +1769,33 @@ void MainWindow::recomputeData()
 
 void MainWindow::seekTelemetryTime(double time)
 {
-    if (m_project.videoPath.isEmpty())
-        {
-            return;
-        }
     // telemetry time = video time + offset
-    m_player->setPosition(std::max<qint64>(0, qint64(std::llround(m_project.sync().videoTime(time) * 1000.0))));
+    const double videoTime = m_project.sync().videoTime(time);
+    const double videoEnd = m_player->duration() / 1000.0;
+    const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, std::max<qint64>(0, m_player->duration()));
+    if (!m_project.videoPath.isEmpty())
+        {
+            m_player->setPosition(position);
+        }
+    // a moment the video has no picture for is still shown in the data's own panels
+    const bool outside = m_project.videoPath.isEmpty() || videoTime < 0.0 || (videoEnd > 0.0 && videoTime > videoEnd);
+    m_heldTime = outside ? time : -1.0;
+    m_heldVideoPosition = outside ? (m_project.videoPath.isEmpty() ? -1 : position) : -1;
+    m_dataPanel->setTime(shownTelemetryTime());
+    m_lapsPanel->setTime(shownTelemetryTime());
+}
+
+double MainWindow::shownTelemetryTime() const
+{
+    if (m_heldTime >= 0.0)
+        {
+            // held until the video is played or moved
+            if (m_project.videoPath.isEmpty() || std::llabs(m_player->position() - m_heldVideoPosition) < 50)
+                {
+                    return m_heldTime;
+                }
+        }
+    return m_canvas->telemetryTime();
 }
 
 void MainWindow::updateChannelValues()
@@ -1850,7 +1877,6 @@ void MainWindow::applyMapSettings()
     // asked for only when the Weather page of the settings says so
     WeatherStore::instance()->setDownloads(true);
     m_lapsPanel->refreshMapChoice();
-    m_dataPanel->refreshMapChoice();
     if (maps->urlTemplate() + maps->attribution() != before)
         {
             rebuildOverlay();
