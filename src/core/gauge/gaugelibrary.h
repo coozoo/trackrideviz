@@ -41,6 +41,12 @@ public:
     static QString defaultChannel(const Gauge &gauge, const QStringList &available);
     static void refresh();
 
+    // The channels parts of the gauge follow on their own (not the bound one), in the order met.
+    static QStringList ownChannels(const Gauge &gauge);
+    // Whether the bound channel moves something along a scale (a needle, a bar,
+    // numbers on a dial), whose end can then be chosen.
+    static bool hasScale(const Gauge &gauge);
+
     // The id a gauge stored under this name gets (whether it exists or not).
     static QString idForName(const QString &name);
     // The id of the stored gauge of this name, ignoring case (names come from

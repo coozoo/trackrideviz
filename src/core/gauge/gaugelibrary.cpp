@@ -14,6 +14,8 @@
 #include <QRegularExpression>
 #include <QStandardPaths>
 
+#include <functional>
+
 namespace
 {
 const char kBuiltinPrefix[] = "builtin:";
@@ -273,6 +275,71 @@ GaugeLibrary::ImportSummary GaugeLibrary::importXml(const QStringList &gaugeFold
             store(QFileInfo(folder).fileName(), XmlGaugeImporter::importFolder(folder), &summary);
         }
     return summary;
+}
+
+namespace
+{
+// Every component, sub-components and markers included.
+void eachComponent(const QVector<GaugeComponent> &components, const std::function<void(const GaugeComponent &)> &visit)
+{
+    for (const GaugeComponent &component : components)
+        {
+            visit(component);
+            for (const QVector<GaugeComponent> *list : {&component.children, &component.knob, &component.xMarker,
+                    &component.yMarker, &component.startLine})
+                {
+                    eachComponent(*list, visit);
+                }
+        }
+}
+}
+
+QStringList GaugeLibrary::ownChannels(const Gauge &gauge)
+{
+    QStringList channels;
+    eachComponent(gauge.components, [&channels](const GaugeComponent &component)
+    {
+        QStringList used{component.channel};
+        for (const GaugeManipulation &m : component.manipulations)
+            {
+                used << m.xChannel << m.yChannel;
+            }
+        for (const QString &channel : used)
+            {
+                if (!channel.isEmpty() && !channels.contains(channel))
+                    {
+                        channels.append(channel);
+                    }
+            }
+    });
+    return channels;
+}
+
+bool GaugeLibrary::hasScale(const Gauge &gauge)
+{
+    bool found = false;
+    eachComponent(gauge.components, [&found](const GaugeComponent &component)
+    {
+        if (!component.channel.isEmpty())
+            {
+                return;
+            }
+        if (component.type == GaugeComponent::Dial
+                || (component.type == GaugeComponent::Text && component.autoText == GaugeComponent::IntervalMarking))
+            {
+                found = true;
+            }
+        for (const GaugeManipulation &m : component.manipulations)
+            {
+                // a compass turns round and round; a mask does not move
+                if (!m.wrapValue && m.type != GaugeManipulation::StaticRadialClip && m.type != GaugeManipulation::AnimationStrip
+                        && m.type != GaugeManipulation::Translate2D)
+                    {
+                        found = true;
+                    }
+            }
+    });
+    return found;
 }
 
 QString GaugeLibrary::defaultChannel(const Gauge &gauge, const QStringList &available)

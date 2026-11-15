@@ -1130,8 +1130,46 @@ void MainWindow::setGaugeChannel(int index, const QString &channel)
             return;
         }
     OverlayState after{m_project.overlay, m_project.theme};
+    if (after.items[index].channel != channel)
+        {
+            // an end chosen for another measurement means nothing for this one
+            after.items[index].scaleMax = 0.0;
+        }
     after.items[index].channel = channel;
     changeOverlay(tr("Change what a gauge shows"), after);
+}
+
+void MainWindow::setGaugePartChannel(int index, const QString &own, const QString &shown)
+{
+    if (index < 0 || index >= m_project.overlay.size() || own.isEmpty() || shown.isEmpty())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    QHash<QString, QString> &channels = after.items[index].channels;
+    if (shown == own)
+        {
+            channels.remove(own);
+        }
+    else
+        {
+            channels.insert(own, shown);
+        }
+    if (after.items != m_project.overlay)
+        {
+            changeOverlay(tr("Change what a gauge shows"), after);
+        }
+}
+
+void MainWindow::setGaugeScaleMax(int index, double max)
+{
+    if (index < 0 || index >= m_project.overlay.size() || m_project.overlay.at(index).scaleMax == max)
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items[index].scaleMax = max;
+    changeOverlay(tr("Change a gauge's scale"), after);
 }
 
 void MainWindow::setGaugeStreets(int index, bool shown)
@@ -1295,10 +1333,30 @@ QWidget *MainWindow::createPropertiesPanel()
         removeGauge(m_canvas->selectedItem());
     });
 
+    m_partsHolder = new QWidget(panel);
+    QVBoxLayout *partsLayout = new QVBoxLayout(m_partsHolder);
+    partsLayout->setContentsMargins(0, 0, 0, 0);
+
+    m_scaleMaxSpin = new QDoubleSpinBox(panel);
+    m_scaleMaxSpin->setRange(0.0, 100000.0);
+    m_scaleMaxSpin->setDecimals(1);
+    m_scaleMaxSpin->setKeyboardTracking(false);
+    m_scaleMaxSpin->setSpecialValueText(tr("From the data"));
+    m_scaleMaxSpin->setToolTip(tr("Where the gauge's scale ends, in its units. "
+                                  "From the data: a round number above the highest value of the recording."));
+    connect(m_scaleMaxSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double max)
+    {
+        setGaugeScaleMax(m_canvas->selectedItem(), max);
+    });
+    m_scaleMaxLabel = new QLabel(tr("Scale up to:"), panel);
+    m_scaleMaxLabel->setToolTip(m_scaleMaxSpin->toolTip());
+
     QFormLayout *form = new QFormLayout(panel);
     QLabel *channelLabel = new QLabel(tr("Gauge data:"), panel);
     channelLabel->setToolTip(m_channelCombo->toolTip());
     form->addRow(channelLabel, m_channelCombo);
+    form->addRow(m_partsHolder);
+    form->addRow(m_scaleMaxLabel, m_scaleMaxSpin);
     form->addRow(QString(), m_removeGaugeButton);
     QLabel *colorsTitle = new QLabel(tr("All gauges"), panel);
     colorsTitle->setToolTip(tr("Colors and font of every gauge on the video"));
@@ -1428,6 +1486,59 @@ void MainWindow::updateProperties()
                     m_channelCombo->addItem(ChannelFormat::displayFor(channel, data ? data->unit() : QString(), m_units).name, channel);
                 }
             m_channelCombo->setCurrentIndex(m_channelCombo->findData(current));
+        }
+
+    // the gauge's parts that follow channels of their own, each with its choice
+    if (m_parts)
+        {
+            m_parts->hide();
+            m_parts->deleteLater();
+        }
+    m_parts = new QWidget(m_partsHolder);
+    m_partsHolder->layout()->addWidget(m_parts);
+    QFormLayout *partsForm = new QFormLayout(m_parts);
+    partsForm->setContentsMargins(0, 0, 0, 0);
+    const OverlayItem item = selected ? m_project.overlay.at(index) : OverlayItem();
+    const Gauge gauge = selected ? GaugeLibrary::gauge(item.gaugeId) : Gauge();
+    auto nameOf = [this](const QString &channel, const Units &units)
+    {
+        const Channel *data = m_session ? m_session->channel(channel) : nullptr;
+        return ChannelFormat::displayFor(channel, data ? data->unit() : QString(), units);
+    };
+    for (const QString &own : GaugeLibrary::ownChannels(gauge))
+        {
+            const QString shown = item.channels.value(own, own);
+            QComboBox *combo = new QComboBox(m_parts);
+            combo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+            combo->setMinimumContentsLength(12);
+            QStringList choices = channelChoices(shown);
+            if (!choices.contains(own))
+                {
+                    // the part's own channel stays a choice, even when the data lacks it
+                    choices.append(own);
+                }
+            for (const QString &channel : choices)
+                {
+                    combo->addItem(nameOf(channel, m_units).name, channel);
+                }
+            combo->setCurrentIndex(combo->findData(shown));
+            combo->setToolTip(tr("What the part of the gauge made for %1 shows").arg(nameOf(own, m_units).name));
+            connect(combo, QOverload<int>::of(&QComboBox::activated), this, [this, index, own, combo](int row)
+            {
+                setGaugePartChannel(index, own, combo->itemData(row).toString());
+            });
+            partsForm->addRow(nameOf(own, m_units).name + ":", combo);
+        }
+
+    const bool scaled = selected && GaugeLibrary::hasScale(gauge);
+    m_scaleMaxLabel->setVisible(scaled);
+    m_scaleMaxSpin->setVisible(scaled);
+    if (scaled)
+        {
+            const QSignalBlocker blocker(m_scaleMaxSpin);
+            const QString unit = nameOf(item.channel, item.unitsFor(m_units)).unit;
+            m_scaleMaxSpin->setSuffix(unit.isEmpty() ? QString() : " " + unit);
+            m_scaleMaxSpin->setValue(item.scaleMax);
         }
     for (int role = 0; role < m_themeButtons.size(); ++role)
         {

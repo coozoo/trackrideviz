@@ -48,6 +48,8 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.closeUp = item.closeUp;
             placed.headingUp = item.headingUp;
             placed.units = item.units;
+            placed.channels = item.channels;
+            placed.scaleMax = item.scaleMax;
             result.append(placed);
         }
     return result;
@@ -80,6 +82,8 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.closeUp = placed.closeUp;
             item.headingUp = placed.headingUp;
             item.units = placed.units;
+            item.channels = placed.channels;
+            item.scaleMax = placed.scaleMax;
             result.items.append(item);
         }
     return result;
@@ -116,6 +120,10 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
                 {
                     object.insert("units", item.units == OverlayItem::ImperialUnits ? "imperial" : "metric");
                 }
+            OverlayItem choices;
+            choices.channels = item.channels;
+            choices.scaleMax = item.scaleMax;
+            choices.writeChoices(object);
             items.append(object);
         }
     const QJsonObject root
@@ -185,6 +193,10 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
                     item.units = object.value("units").toString() == QLatin1String("imperial") ? OverlayItem::ImperialUnits
                                  : OverlayItem::MetricUnits;
                 }
+            OverlayItem choices;
+            choices.readChoices(object);
+            item.channels = choices.channels;
+            item.scaleMax = choices.scaleMax;
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.items.append(item);

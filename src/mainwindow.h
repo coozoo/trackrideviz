@@ -67,6 +67,9 @@ private slots:
     void removeGauge(int index);
     void onItemGeometryEdited(int index, double x, double y, double height);
     void setGaugeChannel(int index, const QString &channel);
+    // A part of the gauge made for `own` shows `shown` instead.
+    void setGaugePartChannel(int index, const QString &own, const QString &shown);
+    void setGaugeScaleMax(int index, double max);
     void setGaugeStreets(int index, bool shown);
     void setGaugeCloseUp(int index, double meters);
     // Works the data out again from the file's (corrections, terrain heights, what follows from them).
@@ -171,6 +174,12 @@ private:
     QDockWidget *m_musicDock{nullptr};
     MusicPanel *m_musicPanel{nullptr};
     QComboBox *m_channelCombo{nullptr};
+    // what the parts of the selected gauge with channels of their own show: rows made anew for each
+    // gauge in a widget of their own, which goes when the next is made (a choice in it may be under way)
+    QWidget *m_partsHolder{nullptr};
+    QWidget *m_parts{nullptr};
+    QLabel *m_scaleMaxLabel{nullptr};
+    QDoubleSpinBox *m_scaleMaxSpin{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
     QVector<QPushButton *> m_themeButtons;
     QComboBox *m_fontCombo{nullptr};

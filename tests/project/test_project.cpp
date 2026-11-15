@@ -178,6 +178,9 @@ private slots:
         project.overlay[1].closeUp = 600.0;
         project.overlay[1].headingUp = 1;
         project.overlay[1].units = OverlayItem::ImperialUnits;
+        // a part made for the heading shows the wind's direction; the scale ends at 60
+        project.overlay[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
+        project.overlay[1].scaleMax = 60.0;
         project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);

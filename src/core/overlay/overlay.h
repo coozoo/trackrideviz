@@ -6,6 +6,8 @@
 #include "../telemetry/telemetrysession.h"
 #include "../units/units.h"
 
+#include <QHash>
+#include <QJsonObject>
 #include <QRect>
 #include <QVector>
 
@@ -32,6 +34,10 @@ struct OverlayItem
     // The units this gauge shows its values in: those of the settings, or its own.
     enum UnitSystem { AsSettings, MetricUnits, ImperialUnits };
     UnitSystem units{AsSettings};
+    // Parts that follow a channel of their own showing another one instead: own -> shown.
+    QHash<QString, QString> channels;
+    // Where the scale of `channel` ends, in the gauge's units; 0 = as the data or the gauge has it.
+    double scaleMax{0.0};
 
     // The units to draw the gauge with, `usual` being those of the settings.
     Units unitsFor(const Units &usual) const
@@ -47,11 +53,16 @@ struct OverlayItem
         return own;
     }
 
+    // `channels` and `scaleMax` in a project's or a template's entry of the item (nothing when unchanged).
+    void writeChoices(QJsonObject &object) const;
+    void readChoices(const QJsonObject &object);
+
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
                && x == other.x && y == other.y && height == other.height && streets == other.streets
-               && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units;
+               && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units
+               && channels == other.channels && scaleMax == other.scaleMax;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
 };

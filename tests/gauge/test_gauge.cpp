@@ -664,6 +664,69 @@ private slots:
         QVERIFY(qAbs((centerd.first + centerd.second) / 2 - 50) <= 2);
     }
 
+    void scaleUpToAChosenEnd()
+    {
+        // as close to the count asked as gives a round step
+        MetricRange range = MetricRange::upTo(0.0, 60.0, 8);
+        QCOMPARE(range.max, 60.0);
+        QCOMPARE(range.step, 10.0);
+        QCOMPARE(MetricRange::upTo(0.0, 50.0, 4).step, 10.0);
+        QCOMPARE(MetricRange::upTo(0.0, 45.0, 4).step, 15.0);
+        // none round: the count asked, and numbers that can be read
+        QCOMPARE(MetricRange::upTo(0.0, 7.3, 2).step, 3.65);
+        const MetricRange hundred{0.0, 100.0, 100.0 / 6.0};
+        QCOMPARE(hundred.markingTexts(7), QStringList({"0", "17", "33", "50", "67", "83", "100"}));
+
+        // a speedometer for a bicycle: up to 60 whatever the data
+        BoundGauge::Choices choices;
+        choices.scaleMax = 60.0;
+        const BoundGauge bound(BuiltinGauges::dial(), ChannelId::Speed, makeSession(), Units(), GaugeTheme(), choices);
+        range = bound.rangeOf();
+        QCOMPARE(range.min, 0.0);
+        QCOMPARE(range.max, 60.0);
+        // the dial has 9 places for numbers
+        QCOMPARE(range.step, 7.5);
+    }
+
+    void partsShowAnotherChannel()
+    {
+        GaugeComponent value;
+        value.type = GaugeComponent::Text;
+        value.autoText = GaugeComponent::Value;
+        value.channel = ChannelId::Heading;
+        value.valueFormat = GaugeComponent::Number;
+        value.precision = 0;
+        value.frame = QRectF(100, 50, 0, 0);
+        value.alignment = Qt::AlignCenter;
+        value.fontSize = 30.0;
+        Gauge gauge;
+        gauge.size = QSizeF(200, 100);
+        gauge.components.append(value);
+        QCOMPARE(GaugeLibrary::ownChannels(gauge), QStringList({ChannelId::Heading}));
+        QVERIFY(!GaugeLibrary::hasScale(gauge));
+        QVERIFY(GaugeLibrary::hasScale(BuiltinGauges::dial()));
+        QVERIFY(GaugeLibrary::ownChannels(BuiltinGauges::dial()).isEmpty());
+
+        // the heading part showing the speed looks like the speed itself: 10 m/s = 36 km/h
+        BoundGauge::Choices choices;
+        choices.channels.insert(ChannelId::Heading, ChannelId::Speed);
+        Gauge fixed = gauge;
+        fixed.components[0].autoText = GaugeComponent::FixedText;
+        fixed.components[0].text = "36";
+        auto picture = [](const BoundGauge &bound)
+        {
+            QImage image(200, 100, QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);
+            QPainter painter(&image);
+            bound.render(painter, QRectF(0, 0, 200, 100), 10.0);
+            return image;
+        };
+        const QImage swapped = picture(BoundGauge(gauge, ChannelId::Speed, makeSession(), Units(), GaugeTheme(), choices));
+        QVERIFY(paintedPixels(swapped) > 0);
+        QVERIFY(swapped == picture(BoundGauge(fixed, ChannelId::Speed, makeSession(), Units(), GaugeTheme())));
+        QVERIFY(swapped != picture(BoundGauge(gauge, ChannelId::Speed, makeSession(), Units(), GaugeTheme())));
+    }
+
     void scaleComesFromTheDataAndTheMarkings()
     {
         // the dial has 9 markings; 36 km/h fits 0..40 in steps of 5

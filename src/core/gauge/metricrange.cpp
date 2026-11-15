@@ -1,5 +1,6 @@
 #include "metricrange.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace
@@ -53,6 +54,41 @@ MetricRange MetricRange::covering(double dataMin, double dataMax, int markings)
     return range;
 }
 
+MetricRange MetricRange::upTo(double min, double max, int intervals)
+{
+    MetricRange range;
+    range.min = min;
+    range.max = max > min ? max : min + 1.0;
+    intervals = std::max(1, intervals);
+    const double span = range.max - range.min;
+    // the asked count first, then one more, one less, two more...
+    for (int delta = 0; delta <= intervals; ++delta)
+        {
+            for (int count : {intervals + delta, intervals - delta})
+                {
+                    if (count < 2 || count > 2 * intervals + 1)
+                        {
+                            continue;
+                        }
+                    const double step = span / count;
+                    // an end of one's own may also be counted in 15s, 30s, 40s
+                    const double mantissa = step / std::pow(10.0, std::floor(std::log10(step)));
+                    bool round = false;
+                    for (double factor : {1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 10.0})
+                        {
+                            round = round || std::fabs(mantissa - factor) <= 1e-6;
+                        }
+                    if (round)
+                        {
+                            range.step = step;
+                            return range;
+                        }
+                }
+        }
+    range.step = span / intervals;
+    return range;
+}
+
 QStringList MetricRange::markingTexts(int markings) const
 {
     // as many decimals as the step needs: 2.5 -> 1, 0.25 -> 2, 20 -> 0
@@ -61,6 +97,8 @@ QStringList MetricRange::markingTexts(int markings) const
         {
             ++decimals;
         }
+    // a step that is no round number (an end chosen by hand, 100 in 6 steps): as many as can be read
+    decimals = std::min(decimals, step >= 10.0 ? 0 : step >= 1.0 ? 1 : 3);
     QStringList texts;
     for (int i = 0; i < markings; ++i)
         {

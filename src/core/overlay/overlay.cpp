@@ -61,7 +61,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
             chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp);
             if (!gauge.isEmpty())
                 {
-                    placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), theme);
+                    placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), theme, {item.channels, item.scaleMax});
                 }
             m_placed.append(placed);
         }
@@ -242,4 +242,36 @@ void Overlay::render(QPainter &painter, const QRectF &frame, double time, const 
                     m_placed.at(i).gauge.render(painter, rect, time);
                 }
         }
+}
+
+void OverlayItem::writeChoices(QJsonObject &object) const
+{
+    if (!channels.isEmpty())
+        {
+            QJsonObject shown;
+            for (auto it = channels.cbegin(); it != channels.cend(); ++it)
+                {
+                    shown.insert(it.key(), it.value());
+                }
+            object.insert("channels", shown);
+        }
+    if (scaleMax > 0.0)
+        {
+            object.insert("scaleMax", scaleMax);
+        }
+}
+
+void OverlayItem::readChoices(const QJsonObject &object)
+{
+    channels.clear();
+    const QJsonObject shown = object.value("channels").toObject();
+    for (auto it = shown.constBegin(); it != shown.constEnd(); ++it)
+        {
+            const QString channel = it.value().toString();
+            if (!channel.isEmpty() && channel != it.key())
+                {
+                    channels.insert(it.key(), channel);
+                }
+        }
+    scaleMax = std::max(0.0, object.value("scaleMax").toDouble());
 }

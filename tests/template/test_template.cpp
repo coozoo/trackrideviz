@@ -136,6 +136,8 @@ private slots:
                    item(TemplateItem::End, -400, TemplateItem::End, -400, 400)};
         t.items[1].closeUp = 600.0;
         t.items[1].units = OverlayItem::ImperialUnits;
+        t.items[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
+        t.items[1].scaleMax = 60.0;
         const QVector<OverlayItem> placed = t.overlayItems(16.0 / 9.0);
         const Overlay overlay(placed, nullptr, Units(), t.theme);
         const GaugeTemplate made = GaugeTemplate::fromOverlay(overlay, t.theme, 16.0 / 9.0);
@@ -148,6 +150,8 @@ private slots:
         QVERIFY(qAbs(made.items[1].offsetX + 400.0) < 1e-6);
         QCOMPARE(made.items[1].closeUp, 600.0);
         QCOMPARE(made.items[1].units, OverlayItem::ImperialUnits);
+        QCOMPARE(made.items[1].channels.value(ChannelId::Heading), QString(ChannelId::WindDirection));
+        QCOMPARE(made.items[1].scaleMax, 60.0);
         QCOMPARE(placed[1].unitsFor(Units()).speed, Units::MilesPerHour);
         QCOMPARE(placed[0].unitsFor(Units()).speed, Units::KilometersPerHour);
         const QVector<OverlayItem> again = made.overlayItems(16.0 / 9.0);
@@ -176,6 +180,8 @@ private slots:
         t.items[0].channel = ChannelId::HeartRate;
         t.items[0].streets = OverlayItem::Shown;
         t.items[0].closeUp = 0.0;
+        t.items[0].channels.insert(ChannelId::Cadence, ChannelId::Power);
+        t.items[0].scaleMax = 180.0;
         GaugeTemplate loaded;
         QString error;
         QVERIFY2(TemplateFile::fromJson(TemplateFile::toJson(t), &loaded, &error), qPrintable(error));

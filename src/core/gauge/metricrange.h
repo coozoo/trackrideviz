@@ -15,6 +15,11 @@ struct MetricRange
     // lies far from zero.
     static MetricRange covering(double dataMin, double dataMax, int markings);
 
+    // A scale from `min` to exactly `max` with about `intervals` steps: as
+    // close to that count as gives a round step (1, 1.5, 2, 2.5, 3, 4 or 5
+    // times a power of ten); `intervals` itself when none does.
+    static MetricRange upTo(double min, double max, int intervals);
+
     // The numbers to print along the scale.
     QStringList markingTexts(int markings) const;
 };

@@ -32,10 +32,24 @@ class QPainter;
 class BoundGauge
 {
 public:
+    // What the user changed of a gauge as it was designed.
+    struct Choices
+    {
+        // a part's own channel -> the one it shows instead
+        QHash<QString, QString> channels;
+        // the scale of the bound channel ends here (display units); 0 = as the data or the design has it
+        double scaleMax{0.0};
+    };
+
     BoundGauge() = default;
     // session may be null: every channel is then unknown and scales are 0..100.
     BoundGauge(const Gauge &gauge, const QString &channel, const TelemetrySessionPtr &session,
-               const Units &units, const GaugeTheme &theme);
+               const Units &units, const GaugeTheme &theme, const Choices &choices);
+    BoundGauge(const Gauge &gauge, const QString &channel, const TelemetrySessionPtr &session,
+               const Units &units, const GaugeTheme &theme)
+        : BoundGauge(gauge, channel, session, units, theme, Choices())
+    {
+    }
 
     bool isEmpty() const { return m_nodes.isEmpty() || m_size.isEmpty(); }
     QSizeF size() const { return m_size; }
@@ -123,7 +137,11 @@ private:
         bool topLevel{false};             // drawing one of m_nodes itself, not a part inside one
     };
 
+    // The channel a part shows: its own, or the bound one ("" = the bound one), as chosen.
+    QString shownChannel(const QString &channel) const;
     int metricFor(const QString &channel, const Units &units, const QString &unit = QString());
+    // A dial's own numbers ending at the chosen end.
+    void rescale(GaugeScale &scale) const;
     Node bind(const GaugeComponent &component, const Units &units, const GaugeTheme &theme);
     QVector<Node> bindAll(const QVector<GaugeComponent> &components, const Units &units, const GaugeTheme &theme);
     void prepareGraph(Node &node) const;
@@ -180,6 +198,7 @@ private:
 
     QSizeF m_size;
     QString m_channel;
+    Choices m_choices;
     // projection of positions onto a plane, the same for every map of the gauge
     const Channel *m_lat{nullptr};
     const Channel *m_lon{nullptr};

@@ -80,6 +80,7 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {
                     object.insert("units", item.units == OverlayItem::ImperialUnits ? "imperial" : "metric");
                 }
+            item.writeChoices(object);
             overlay.append(object);
         }
     QJsonObject root
@@ -316,6 +317,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                     item.units = object.value("units").toString() == QLatin1String("imperial") ? OverlayItem::ImperialUnits
                                  : OverlayItem::MetricUnits;
                 }
+            item.readChoices(object);
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.overlay.append(item);

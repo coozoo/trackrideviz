@@ -448,9 +448,10 @@ bool setPen(QPainter &painter, const QColor &color, double width)
 }
 
 BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const TelemetrySessionPtr &session,
-                       const Units &units, const GaugeTheme &theme)
+                       const Units &units, const GaugeTheme &theme, const Choices &choices)
     : m_size(gauge.size)
     , m_channel(channel)
+    , m_choices(choices)
     , m_session(session)
     , m_theme(theme)
 {
@@ -469,13 +470,21 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     metricFor(QString(), units); // index 0: the bound channel
     m_nodes = bindAll(gauge.components, units, theme);
     // scales can be set only now that every marking has been counted
-    for (Metric &metric : m_metrics)
+    const bool ownEnd = m_choices.scaleMax > 0.0;
+    for (int i = 0; i < m_metrics.size(); ++i)
         {
+            Metric &metric = m_metrics[i];
             const bool hasData = metric.channel && !metric.channel->isEmpty();
             metric.range = hasData
                            ? MetricRange::covering(metric.display.convert(metric.channel->minValue()),
                                                    metric.display.convert(metric.channel->maxValue()), metric.markingCount)
                            : MetricRange::covering(0.0, 100.0, metric.markingCount);
+            if (i == 0 && ownEnd && m_choices.scaleMax > metric.range.min)
+                {
+                    // the numbers printed are as many as the gauge has places for
+                    const int intervals = metric.markingCount >= 2 ? metric.markingCount - 1 : 4;
+                    metric.range = {metric.range.min, m_choices.scaleMax, (m_choices.scaleMax - metric.range.min) / intervals};
+                }
             metric.markings = metric.range.markingTexts(metric.markingCount);
         }
     // these need the scales
@@ -483,8 +492,19 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     {
         for (Node &node : nodes)
             {
+                // a tape slides by its numbers' spacing and has no end to move
+                if (ownEnd && node.metric == 0 && node.component.type == GaugeComponent::Dial)
+                    {
+                        rescale(node.component.scale);
+                    }
                 for (GaugeManipulation &m : node.component.manipulations)
                     {
+                        // a needle drawn for a scale of its own goes to the chosen end too
+                        if (ownEnd && node.metric == 0 && m.hasValueRange && m.curve.isEmpty() && !m.wrapValue
+                                && m_choices.scaleMax > m.minValue)
+                            {
+                                m.maxValue = m_choices.scaleMax;
+                            }
                         const Metric &metric = m_metrics.at(node.metric);
                         if (m.recordingRange && metric.channel && !metric.channel->isEmpty())
                             {
@@ -600,9 +620,32 @@ QVector<QImage> BoundGauge::staticLayers(const QSize &size, qreal devicePixelRat
     return entry.layers;
 }
 
+QString BoundGauge::shownChannel(const QString &channel) const
+{
+    return channel.isEmpty() ? m_channel : m_choices.channels.value(channel, channel);
+}
+
+void BoundGauge::rescale(GaugeScale &scale) const
+{
+    if (scale.loop || m_choices.scaleMax <= scale.minValue || scale.major.unit <= 0.0 || scale.maxValue <= scale.minValue)
+        {
+            return;
+        }
+    // about as many numbers as before, at round values
+    const int majors = std::max(1, int(std::lround((scale.maxValue - scale.minValue) / scale.major.unit)));
+    const MetricRange range = MetricRange::upTo(scale.minValue, m_choices.scaleMax, majors);
+    if (scale.minor.unit > 0.0)
+        {
+            const int perMajor = std::max(1, int(std::lround(scale.major.unit / scale.minor.unit)));
+            scale.minor.unit = range.step / perMajor;
+        }
+    scale.major.unit = range.step;
+    scale.maxValue = range.max;
+}
+
 int BoundGauge::metricFor(const QString &channel, const Units &units, const QString &unit)
 {
-    const QString id = channel.isEmpty() ? m_channel : channel;
+    const QString id = shownChannel(channel);
     // the same channel in a unit of its own is a scale of its own
     const QString key = unit.isEmpty() ? id : id + QLatin1Char('\n') + unit;
     const auto known = m_metricIndex.constFind(key);
@@ -644,7 +687,7 @@ BoundGauge::Node BoundGauge::bind(const GaugeComponent &component, const Units &
     node.component.startLine.clear();
     node.metric = metricFor(component.channel, units, component.unit);
     node.color = themeColor(component.color, theme);
-    const QString channelId = component.channel.isEmpty() ? m_channel : component.channel;
+    const QString channelId = shownChannel(component.channel);
     if (component.type == GaugeComponent::Shape)
         {
             node.shape = shapePath(component);
