@@ -364,6 +364,10 @@ void MainWindow::createDocks()
         setLapLines(m_project.startFinish, {}, tr("Remove sector lines"));
     });
     connect(m_lapsPanel, &LapsPanel::surfaceRequested, this, &MainWindow::markSurface);
+    connect(m_lapsPanel, &LapsPanel::surfacesEdited, this, [this](const QVector<SurfaceStretch> &surfaces)
+    {
+        setSurfaces(surfaces, tr("Change surfaces"));
+    });
     connect(m_lapsPanel, &LapsPanel::removeSurfacesRequested, this, [this]()
     {
         setSurfaces({}, tr("Clear surfaces"));

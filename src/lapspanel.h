@@ -9,6 +9,7 @@ class QCheckBox;
 class QComboBox;
 class QLabel;
 class QPushButton;
+class QTableWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
 class TrackView;
@@ -44,6 +45,8 @@ signals:
     void surfaceRequested(double fromLat, double fromLon, double toLat, double toLon, const QString &surface,
                           double factor);
     void removeSurfacesRequested();
+    // The list of surfaces was changed in its table: a kind, where one begins or ends, one removed.
+    void surfacesEdited(const QVector<SurfaceStretch> &surfaces);
     // Telemetry time to show: a lap was double-clicked.
     void seekRequested(double time);
     // the laps selected in the table, as indexes into the session's laps
@@ -64,6 +67,9 @@ private:
     QPushButton *m_clearSectorsButton{nullptr};
     QPushButton *m_surfaceButton{nullptr};
     QPushButton *m_clearSurfacesButton{nullptr};
+    QPushButton *m_removeSurfaceButton{nullptr};
+    QTableWidget *m_surfaceTable{nullptr};
+    QVector<SurfaceStretch> m_surfaces;
     // where the stretch being marked begins, once clicked
     bool m_surfaceBegun{false};
     double m_surfaceLat{0.0};

@@ -15,6 +15,10 @@
 #include <QPainterPath>
 #include <QPushButton>
 #include <QSignalBlocker>
+#include <QDoubleSpinBox>
+#include <QTabWidget>
+#include <QTimer>
+#include <QTableWidget>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
@@ -84,6 +88,13 @@ public:
     void setSurfaces(const QVector<SurfaceStretch> &surfaces)
     {
         m_surfaces = surfaces;
+        update();
+    }
+
+    // the one picked in the table is drawn broader; -1: none
+    void setPickedSurface(int index)
+    {
+        m_pickedSurface = index;
         update();
     }
 
@@ -162,8 +173,9 @@ protected:
         painter.drawPath(route);
 
         // the surfaces marked: a broad band along the route, each kind in a color of its own
-        for (const SurfaceStretch &stretch : std::as_const(m_surfaces))
+        for (int index = 0; index < m_surfaces.size(); ++index)
             {
+                const SurfaceStretch &stretch = m_surfaces.at(index);
                 QPainterPath band;
                 bool begun = false;
                 for (int i = 0; i < m_points.size(); ++i)
@@ -182,7 +194,7 @@ protected:
                     }
                 QColor color = QColor::fromHsv(int(qHash(stretch.surface) % 360), 220, 230);
                 color.setAlpha(170);
-                painter.setPen(QPen(color, 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+                painter.setPen(QPen(color, index == m_pickedSurface ? 12 : 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
                 painter.setBrush(Qt::NoBrush);
                 painter.drawPath(band);
                 const QPointF middle = band.pointAtPercent(0.5);
@@ -298,6 +310,7 @@ private:
     QVector<QPointF> m_points;   // lon, lat
     QVector<double> m_distances; // how far into the ride each of them is, m
     QVector<SurfaceStretch> m_surfaces;
+    int m_pickedSurface{-1};
     bool m_marked{false};
     QPointF m_mark;              // lon, lat
     double m_time{0.0};
@@ -349,8 +362,35 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_surfaceButton->setToolTip(tr("Then click on the map where a stretch begins and where it ends, and choose what it is "
                                    "ridden on: the power estimate counts it in"));
     connect(m_surfaceButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_surfaceButton, checked); });
-    m_clearSurfacesButton = new QPushButton(tr("Clear surfaces"), this);
+    m_clearSurfacesButton = new QPushButton(tr("Clear all"), this);
     connect(m_clearSurfacesButton, &QPushButton::clicked, this, &LapsPanel::removeSurfacesRequested);
+    m_removeSurfaceButton = new QPushButton(tr("Remove"), this);
+    m_removeSurfaceButton->setToolTip(tr("Takes the surface picked in the table off the route"));
+    connect(m_removeSurfaceButton, &QPushButton::clicked, this, [this]()
+    {
+        const int row = m_surfaceTable->currentRow();
+        if (row >= 0 && row < m_surfaces.size())
+            {
+                QVector<SurfaceStretch> surfaces = m_surfaces;
+                surfaces.removeAt(row);
+                emit surfacesEdited(surfaces);
+            }
+    });
+    m_surfaceTable = new QTableWidget(0, 4, this);
+    m_surfaceTable->setHorizontalHeaderLabels({tr("Surface"), tr("From"), tr("To"), tr("Length")});
+    m_surfaceTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    m_surfaceTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_surfaceTable->verticalHeader()->hide();
+    m_surfaceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_surfaceTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_surfaceTable->setMinimumHeight(60);
+    m_surfaceTable->setToolTip(tr("What each stretch is ridden on and where it begins and ends along the ride; "
+                                  "where two overlap, the lower one in the list counts"));
+    connect(m_surfaceTable, &QTableWidget::currentCellChanged, this, [this](int row)
+    {
+        m_track->setPickedSurface(row);
+        m_removeSurfaceButton->setEnabled(row >= 0);
+    });
 
     m_streetsCheck = new QCheckBox(tr("Street map"), this);
     m_streetsCheck->setChecked(AppSettings::lapsMapShown());
@@ -418,11 +458,32 @@ LapsPanel::LapsPanel(QWidget *parent)
     mapChoice->addWidget(m_mapCombo, 1);
     layout->addWidget(m_track, 2);
     layout->addLayout(mapChoice);
-    layout->addLayout(buttons);
-    layout->addLayout(sectorButtons);
-    layout->addLayout(surfaceButtons);
-    layout->addWidget(m_info);
-    layout->addWidget(m_lapTable, 1);
+    surfaceButtons->insertWidget(1, m_removeSurfaceButton);
+    QWidget *lapsTab = new QWidget(this);
+    QVBoxLayout *lapsLayout = new QVBoxLayout(lapsTab);
+    lapsLayout->setContentsMargins(0, 6, 0, 0);
+    lapsLayout->addLayout(buttons);
+    lapsLayout->addLayout(sectorButtons);
+    lapsLayout->addWidget(m_info);
+    lapsLayout->addWidget(m_lapTable, 1);
+    QWidget *surfacesTab = new QWidget(this);
+    QVBoxLayout *surfacesLayout = new QVBoxLayout(surfacesTab);
+    surfacesLayout->setContentsMargins(0, 6, 0, 0);
+    surfacesLayout->addLayout(surfaceButtons);
+    surfacesLayout->addWidget(m_surfaceTable, 1);
+    QTabWidget *tabs = new QTabWidget(this);
+    tabs->setDocumentMode(true);
+    tabs->addTab(lapsTab, tr("Laps"));
+    tabs->addTab(surfacesTab, tr("Surfaces"));
+    // what is being placed belongs to its tab
+    connect(tabs, &QTabWidget::currentChanged, this, [this]()
+    {
+        for (QPushButton *button : {m_placeButton, m_sectorButton, m_surfaceButton})
+            {
+                button->setChecked(false);
+            }
+    });
+    layout->addWidget(tabs, 1);
     setSession(nullptr, StartFinishLine(), {});
     setSurfaces({});
 }
@@ -601,8 +662,80 @@ void LapsPanel::surfaceClicked(double lat, double lon)
 
 void LapsPanel::setSurfaces(const QVector<SurfaceStretch> &surfaces)
 {
+    m_surfaces = surfaces;
     m_track->setSurfaces(surfaces);
     m_clearSurfacesButton->setEnabled(!surfaces.isEmpty());
+
+    const int picked = m_surfaceTable->currentRow();
+    const QSignalBlocker blocker(m_surfaceTable);
+    m_surfaceTable->setRowCount(0);
+    const Channel *distance = m_session ? m_session->channel(ChannelId::Distance) : nullptr;
+    const double whole = distance && !distance->isEmpty() ? distance->maxValue() / 1000.0 : 100000.0;
+    const QVector<SurfaceType> types = AppSettings::surfaceTypes();
+    for (int row = 0; row < surfaces.size(); ++row)
+        {
+            const SurfaceStretch stretch = surfaces.at(row);
+            m_surfaceTable->insertRow(row);
+            QComboBox *kind = new QComboBox(m_surfaceTable);
+            // a kind the settings no longer have stays what it was
+            if (!types.contains(SurfaceType{stretch.surface, stretch.factor}))
+                {
+                    kind->addItem(tr("%1 (×%2)").arg(stretch.surface).arg(stretch.factor, 0, 'g', 3),
+                                  QVariantList{stretch.surface, stretch.factor});
+                }
+            for (const SurfaceType &type : types)
+                {
+                    kind->addItem(tr("%1 (×%2)").arg(type.name).arg(type.factor, 0, 'g', 3), QVariantList{type.name, type.factor});
+                    if (type.name == stretch.surface && type.factor == stretch.factor)
+                        {
+                            kind->setCurrentIndex(kind->count() - 1);
+                        }
+                }
+            connect(kind, &QComboBox::activated, this, [this, row, kind]()
+            {
+                const QVariantList type = kind->currentData().toList();
+                QVector<SurfaceStretch> edited = m_surfaces;
+                edited[row].surface = type.at(0).toString();
+                edited[row].factor = type.at(1).toDouble();
+                // once this box is done with its click: the table is filled anew, and the box goes
+                QTimer::singleShot(0, this, [this, edited]() { emit surfacesEdited(edited); });
+            });
+            m_surfaceTable->setCellWidget(row, 0, kind);
+            const auto place = [&](int column, double meters)
+            {
+                QDoubleSpinBox *box = new QDoubleSpinBox(m_surfaceTable);
+                box->setRange(0.0, whole);
+                box->setDecimals(2);
+                box->setSingleStep(0.1);
+                box->setSuffix(tr(" km"));
+                box->setValue(meters / 1000.0);
+                connect(box, &QDoubleSpinBox::editingFinished, this, [this, row, column, box]()
+                {
+                    QVector<SurfaceStretch> edited = m_surfaces;
+                    (column == 1 ? edited[row].from : edited[row].to) = box->value() * 1000.0;
+                    if (edited.at(row) == m_surfaces.at(row))
+                        {
+                            return;
+                        }
+                    // an end before its beginning: as it was
+                    const bool sound = edited.at(row).to > edited.at(row).from;
+                    QTimer::singleShot(0, this, [this, edited, sound]()
+                    {
+                        sound ? emit surfacesEdited(edited) : setSurfaces(m_surfaces);
+                    });
+                });
+                m_surfaceTable->setCellWidget(row, column, box);
+            };
+            place(1, stretch.from);
+            place(2, stretch.to);
+            QTableWidgetItem *length = new QTableWidgetItem(tr("%1 km").arg((stretch.to - stretch.from) / 1000.0, 0, 'f', 2));
+            length->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            m_surfaceTable->setItem(row, 3, length);
+        }
+    const int row = std::min(picked, int(surfaces.size()) - 1);
+    m_surfaceTable->setCurrentCell(row, 0);
+    m_track->setPickedSurface(row);
+    m_removeSurfaceButton->setEnabled(row >= 0);
 }
 
 void LapsPanel::lapActivated(QTreeWidgetItem *item)
