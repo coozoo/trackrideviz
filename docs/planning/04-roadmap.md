@@ -227,7 +227,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ TCX (2026-11-15, `TcxImporter`): track points of every lap with heart rate, cadence, speed and
   power; the file's laps when it has more than one
 - Multiple data sources per project
-- Power estimated for rides without a power meter (there is none now), shown as an estimate,
+- ✅ Power estimated for rides without a power meter, shown as an estimate,
   never in place of a recorded power. In three steps:
   1. ✅ (2026-11-15, `PowerEstimate`, the Power page of the settings) The estimate itself: air drag, rolling resistance, gravity and acceleration from speed and
      the smoothed elevation, with a drivetrain loss; no power while braking or with the cranks
