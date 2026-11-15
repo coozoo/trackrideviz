@@ -2,6 +2,7 @@
 
 #include "maps/tilestore.h"
 #include "settings/appsettings.h"
+#include "telemetry/gears.h"
 #include "weather/weather.h"
 #include "video/ffmpegtools.h"
 
@@ -22,11 +23,15 @@
 #include <QHeaderView>
 #include <QLocale>
 #include <QScrollArea>
+#include <QMenu>
+#include <QToolButton>
 #include <QSignalBlocker>
 #include <QTableWidget>
 #include <QStackedWidget>
 #include <QStyleFactory>
 #include <QVBoxLayout>
+
+#include <utility>
 
 namespace
 {
@@ -63,6 +68,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     addPage(tr("Units"), createUnitsPage());
     addPage(tr("Export"), createExportPage());
     addPage(tr("Maps"), createMapsPage());
+    addPage(tr("Bike"), createBikePage());
     addPage(tr("Power"), createPowerPage());
     addPage(tr("Surfaces"), createSurfacesPage());
     addPage(tr("Weather"), createWeatherPage());
@@ -287,6 +293,78 @@ QWidget *SettingsDialog::createMapsPage()
     return page;
 }
 
+QWidget *SettingsDialog::createBikePage()
+{
+    QWidget *page = new QWidget(this);
+    m_bikeWeightBikeSpin = new QDoubleSpinBox(page);
+    m_bikeWeightBikeSpin->setRange(3.0, 60.0);
+    m_bikeWeightBikeSpin->setDecimals(1);
+    m_bikeWeightBikeSpin->setSingleStep(0.5);
+    m_bikeWeightBikeSpin->setSuffix(tr(" kg"));
+    m_bikeWeightBikeSpin->setToolTip(tr("With everything on it: bottles, bags, tools. The same as on the Power page."));
+
+    m_tireSizeEdit = new QLineEdit(page);
+    m_tireSizeEdit->setPlaceholderText(tr("700x25, 29x2.25, 26x1.95, 40-622..."));
+    m_tireSizeEdit->setToolTip(tr("The size printed on the tire: it gives the wheel's circumference, and on the Power "
+                                  "page it picks road, gravel or mountain bike tires by its width"));
+    m_wheelSpin = new QDoubleSpinBox(page);
+    m_wheelSpin->setRange(0.0, 3500.0);
+    m_wheelSpin->setDecimals(0);
+    m_wheelSpin->setSingleStep(5.0);
+    m_wheelSpin->setSuffix(tr(" mm"));
+    m_wheelSpin->setSpecialValueText(tr("from the tire size"));
+    m_wheelSpin->setToolTip(tr("How far the bike goes in one turn of the wheel. Measured by rolling it once along "
+                               "the ground with the rider on, it is more exact than from the tire size."));
+    m_wheelNote = note(QString(), page);
+    const auto showWheel = [this]()
+    {
+        const double fromTire = Gears::circumferenceOf(m_tireSizeEdit->text());
+        m_wheelNote->setText(fromTire > 0.0 ? tr("From the tire size: %1 mm").arg(qRound(fromTire))
+                             : m_tireSizeEdit->text().trimmed().isEmpty()
+                             ? tr("Without a tire size: %1 mm, a usual road wheel").arg(qRound(Drivetrain().circumferenceMm()))
+                             : tr("This tire size cannot be read; a usual road wheel is taken"));
+    };
+    connect(m_tireSizeEdit, &QLineEdit::textChanged, this, showWheel);
+
+    // teeth typed, or one of the usual sets picked from the button's menu
+    const auto teeth = [this, page](QLineEdit **edit, const QString &placeholder, const QVector<Gears::Preset> &presets)
+    {
+        *edit = new QLineEdit(page);
+        (*edit)->setPlaceholderText(placeholder);
+        QToolButton *usual = new QToolButton(page);
+        usual->setText(tr("Usual"));
+        usual->setPopupMode(QToolButton::InstantPopup);
+        QMenu *menu = new QMenu(usual);
+        QLineEdit *target = *edit;
+        for (const Gears::Preset &preset : presets)
+            {
+                const QString text = Gears::teethText(preset.teeth);
+                menu->addAction(preset.name, target, [target, text]() { target->setText(text); });
+            }
+        usual->setMenu(menu);
+        QHBoxLayout *row = new QHBoxLayout;
+        row->addWidget(*edit, 1);
+        row->addWidget(usual);
+        return row;
+    };
+    QHBoxLayout *chainrings = teeth(&m_chainringsEdit, tr("teeth of each ring: 34 or 50, 34"), Gears::chainringPresets());
+    QHBoxLayout *cassette = teeth(&m_cassetteEdit, tr("teeth of each sprocket: 11, 13, 15, ..."), Gears::cassettePresets());
+
+    QFormLayout *form = new QFormLayout(page);
+    form->addRow(tr("Bike's weight:"), m_bikeWeightBikeSpin);
+    form->addRow(tr("Tire size:"), m_tireSizeEdit);
+    form->addRow(tr("Wheel circumference:"), m_wheelSpin);
+    form->addRow(QString(), m_wheelNote);
+    form->addRow(tr("Chainrings:"), chainrings);
+    form->addRow(tr("Sprockets:"), cassette);
+    form->addRow(note(tr("With the chainrings and the sprockets filled in, the gear of every moment is worked out from "
+                         "the speed and the cadence (a recording without cadence has no gears). While coasting, or "
+                         "pedaling slower than the wheel turns, the last gear is kept. Gears that electronic shifting "
+                         "recorded are always used instead. Gears count from the largest sprocket: 1 is the easiest."),
+                      page));
+    return page;
+}
+
 QWidget *SettingsDialog::createPowerPage()
 {
     QWidget *page = new QWidget(this);
@@ -304,7 +382,16 @@ QWidget *SettingsDialog::createPowerPage()
     m_riderWeightSpin = spin(30.0, 200.0, 1, 0.5, tr(" kg"));
     m_riderHeightSpin = spin(100.0, 230.0, 0, 1.0, tr(" cm"));
     m_bikeWeightSpin = spin(3.0, 60.0, 1, 0.5, tr(" kg"));
-    m_bikeWeightSpin->setToolTip(tr("With everything on it: bottles, bags, tools"));
+    m_bikeWeightSpin->setToolTip(tr("With everything on it: bottles, bags, tools. The same as on the Bike page."));
+    // one weight, shown on both pages
+    for (auto [from, to] : {std::pair{m_bikeWeightSpin, m_bikeWeightBikeSpin}, std::pair{m_bikeWeightBikeSpin, m_bikeWeightSpin}})
+        {
+            connect(from, &QDoubleSpinBox::valueChanged, to, [to](double value)
+            {
+                const QSignalBlocker blocker(to);
+                to->setValue(value);
+            });
+        }
 
     m_tiresCombo = new QComboBox(page);
     m_tiresCombo->addItem(tr("Road, fast"), "road-fast");
@@ -318,9 +405,6 @@ QWidget *SettingsDialog::createPowerPage()
     m_tiresCombo->addItem(tr("Mountain bike, slow"), "mtb-slow");
     m_tiresCombo->addItem(tr("My own value"), PowerEstimate::OwnValue);
     m_tiresCombo->setToolTip(tr("Fast: racing tires, pumped hard. Slow: thick, puncture-proof or knobby ones."));
-    m_tireSizeEdit = new QLineEdit(page);
-    m_tireSizeEdit->setPlaceholderText(tr("700x25, 26x1.95, 40-622..."));
-    m_tireSizeEdit->setToolTip(tr("The size printed on the tire picks road, gravel or mountain bike by its width"));
     m_crrSpin = spin(0.001, 0.05, 4, 0.0005, QString());
     connect(m_tiresCombo, &QComboBox::currentIndexChanged, this, &SettingsDialog::updatePowerFields);
     connect(m_crrSpin, &QDoubleSpinBox::valueChanged, this, [this](double value)
@@ -372,7 +456,6 @@ QWidget *SettingsDialog::createPowerPage()
     form->addRow(tr("Rider's height:"), m_riderHeightSpin);
     form->addRow(tr("Bike's weight:"), m_bikeWeightSpin);
     form->addRow(tr("Tires:"), m_tiresCombo);
-    form->addRow(tr("Or the tire size:"), m_tireSizeEdit);
     form->addRow(tr("Rolling resistance:"), m_crrSpin);
     form->addRow(tr("Riding position:"), m_positionCombo);
     form->addRow(tr("Drag area (CdA):"), m_cdaSpin);
@@ -591,6 +674,12 @@ void SettingsDialog::load()
     m_mapCreditCheck->setChecked(AppSettings::mapCreditShown());
     updateMapFields();
 
+    const Drivetrain drivetrain = AppSettings::drivetrain();
+    m_tireSizeEdit->setText(drivetrain.tireSize);
+    m_wheelSpin->setValue(drivetrain.wheelMm);
+    m_chainringsEdit->setText(Gears::teethText(drivetrain.chainrings));
+    m_cassetteEdit->setText(Gears::teethText(drivetrain.cassette));
+
     const PowerEstimate::Rider rider = AppSettings::powerRider();
     m_ownCrr = rider.crr;
     m_ownCda = rider.cda;
@@ -618,6 +707,14 @@ void SettingsDialog::load()
         m_riderHeightSpin->setValue(m_imperialBody ? rider.heightCm / kCmPerInch : rider.heightCm);
     }
     m_bikeWeightSpin->setValue(m_imperialBody ? rider.bikeKg * kPoundsPerKg : rider.bikeKg);
+    // the Bike page's copy, in the same units
+    {
+        const QSignalBlocker blocker(m_bikeWeightBikeSpin);
+        m_bikeWeightBikeSpin->setRange(m_bikeWeightSpin->minimum(), m_bikeWeightSpin->maximum());
+        m_bikeWeightBikeSpin->setSingleStep(m_bikeWeightSpin->singleStep());
+        m_bikeWeightBikeSpin->setSuffix(m_bikeWeightSpin->suffix());
+        m_bikeWeightBikeSpin->setValue(m_bikeWeightSpin->value());
+    }
     select(m_tiresCombo, rider.tires);
     select(m_positionCombo, rider.position);
     m_lossSpin->setValue(rider.drivetrainLoss);
@@ -691,6 +788,13 @@ void SettingsDialog::accept()
     rider.cda = m_ownCda;
     rider.drivetrainLoss = m_lossSpin->value();
     AppSettings::setPowerRider(rider);
+
+    Drivetrain drivetrain;
+    drivetrain.tireSize = m_tireSizeEdit->text().trimmed();
+    drivetrain.wheelMm = m_wheelSpin->value();
+    drivetrain.chainrings = Gears::parseTeeth(m_chainringsEdit->text());
+    drivetrain.cassette = Gears::parseTeeth(m_cassetteEdit->text());
+    AppSettings::setDrivetrain(drivetrain);
 
     QVector<SurfaceType> surfaces;
     for (int row = 0; row < m_surfaceTable->rowCount(); ++row)

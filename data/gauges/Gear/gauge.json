@@ -1,0 +1,128 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Gear",
+    "size": [
+        360,
+        110
+    ],
+    "supportedTypes": [
+        "rearGearNumber"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/bar.svg",
+            "frame": [
+                0,
+                0,
+                360,
+                110
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "widthClip",
+                    "minX": 20,
+                    "maxX": 340
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                22,
+                26
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                22,
+                60
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 44,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                250,
+                60
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 34,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0,
+            "channel": "frontGear"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                268,
+                60
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "\u00d7"
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                286,
+                60
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 34,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0,
+            "channel": "rearGear"
+        }
+    ]
+}

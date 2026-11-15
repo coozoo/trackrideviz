@@ -34,6 +34,7 @@ private:
     QWidget *createUnitsPage();
     QWidget *createExportPage();
     QWidget *createMapsPage();
+    QWidget *createBikePage();
     QWidget *createPowerPage();
     QWidget *createWeatherPage();
     QWidget *createSurfacesPage();
@@ -83,6 +84,11 @@ private:
     QComboBox *m_positionCombo{nullptr};
     QDoubleSpinBox *m_cdaSpin{nullptr};
     QDoubleSpinBox *m_lossSpin{nullptr};
+    QDoubleSpinBox *m_bikeWeightBikeSpin{nullptr};   // the bike's weight again, on the Bike page
+    QDoubleSpinBox *m_wheelSpin{nullptr};
+    QLabel *m_wheelNote{nullptr};
+    QLineEdit *m_chainringsEdit{nullptr};
+    QLineEdit *m_cassetteEdit{nullptr};
     QTableWidget *m_surfaceTable{nullptr};
     QCheckBox *m_weatherCheck{nullptr};
     QComboBox *m_weatherProviderCombo{nullptr};

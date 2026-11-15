@@ -3,6 +3,7 @@
 #include "maps/terrain.h"
 #include "maps/tilestore.h"
 #include "telemetry/derivedchannels.h"
+#include "telemetry/gears.h"
 #include "telemetry/powerestimate.h"
 #include "weather/weather.h"
 
@@ -417,6 +418,52 @@ private slots:
         QVERIFY2(against > calm * 1.4, qPrintable(QString("%1 %2").arg(calm).arg(against)));
         QVERIFY2(behind < calm * 0.7, qPrintable(QString("%1 %2").arg(calm).arg(behind)));
         QVERIFY2(std::fabs(across - calm) < calm * 0.05, qPrintable(QString("%1 %2").arg(calm).arg(across)));
+    }
+
+    void gearsFromSpeedAndCadence()
+    {
+        // 90 rpm all along; 34x17 for the first minute, a shift to 34x15, then coasting downhill
+        Drivetrain bike;
+        bike.chainrings = {34, 50};
+        bike.cassette = Gears::parseTeeth("11, 13, 15, 17, 19, 21, 24, 28, 32");
+        bike.wheelMm = 2100.0;
+        const auto metersPerSecond = [](double front, double rear) { return 90.0 / 60.0 * front / rear * 2.1; };
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+        Channel &cadence = session->channelForWriting(ChannelId::Cadence, "rpm");
+        for (int t = 0; t <= 180; ++t)
+            {
+                const bool coasting = t > 120;
+                // a little noise, as a real ride has
+                const double wobble = 1.0 + 0.02 * ((t % 3) - 1);
+                speed.append(t, (t < 60 ? metersPerSecond(34, 17) : metersPerSecond(34, 15)) * wobble * (coasting ? 1.6 : 1.0));
+                cadence.append(t, coasting ? 0.0 : 90.0);
+            }
+        const TelemetrySessionPtr geared = Gears::apply(session, bike);
+        QCOMPARE(at(geared, ChannelId::RearGear, 30.0), 17.0);
+        QCOMPARE(at(geared, ChannelId::FrontGear, 30.0), 34.0);
+        QCOMPARE(at(geared, ChannelId::RearGear, 100.0), 15.0);
+        // the largest sprocket is gear 1: 15 is the third smallest of nine
+        QCOMPARE(at(geared, ChannelId::RearGearNumber, 100.0), 7.0);
+        QVERIFY(std::fabs(at(geared, ChannelId::GearRatio, 100.0) - 34.0 / 15.0) < 1e-9);
+        // coasting: the last gear stays
+        QCOMPARE(at(geared, ChannelId::RearGear, 170.0), 15.0);
+        // nothing without the bike's gears, and recorded gears are kept
+        QCOMPARE(Gears::apply(session, Drivetrain()), TelemetrySessionPtr(session));
+    }
+
+    void wheelsAndTeeth()
+    {
+        QCOMPARE(qRound(Gears::circumferenceOf("700x25c")), 2111);
+        QCOMPARE(qRound(Gears::circumferenceOf("25-622")), 2111);
+        QCOMPARE(qRound(Gears::circumferenceOf("29x2.25")), 2313);
+        QCOMPARE(qRound(Gears::circumferenceOf("26 x 1.95")), 2067);
+        QCOMPARE(qRound(Gears::circumferenceOf("27.5x2.2")), 2186);
+        QCOMPARE(Gears::circumferenceOf("big ones"), 0.0);
+        QCOMPARE(Gears::parseTeeth("50/34"), (QVector<int>{34, 50}));
+        QCOMPARE(Gears::parseTeeth("11 13 15, 3, 200"), (QVector<int>{11, 13, 15}));
+        Drivetrain none;
+        QCOMPARE(none.circumferenceMm(), 2105.0);
     }
 
     void windByHand()

@@ -219,6 +219,8 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
     QVector<LapTimes> laps; // raw FIT timestamps; converted once the start is known
     QVector<LapTimes> pauses;
     double timerStoppedAt = std::nan("");
+    // gear changes of electronic shifting: when, and the gears packed into one number
+    QVector<QPair<double, quint32>> shifts;
     double utcOffset = std::nan("");
     double manufacturer = std::nan("");
     double product = std::nan("");
@@ -324,7 +326,18 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
             }
             case Fit::Event:
             {
-                // 0 event (0 = timer), 1 event_type (0 start, 1 stop, 4 stop_all)
+                // 0 event (0 = timer, 42 front gear change, 43 rear gear change), 1 event_type
+                // (0 start, 1 stop, 4 stop_all), 3 data
+                if (message.value(0) == 42.0 || message.value(0) == 43.0)
+                    {
+                        const double when = message.value(Fit::TimestampField);
+                        const double packed = message.value(3);
+                        if (!std::isnan(when) && !std::isnan(packed))
+                            {
+                                shifts.append({when, quint32(packed)});
+                            }
+                        break;
+                    }
                 if (message.value(0) != 0.0)
                     {
                         break;
@@ -425,6 +438,26 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
     if (!std::isnan(utcOffset))
         {
             session->setUtcOffsetSeconds(int(utcOffset));
+        }
+
+    // each change says the whole gear: rear number and teeth, front number and teeth, a byte each
+    std::sort(shifts.begin(), shifts.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+    for (const auto &shift : std::as_const(shifts))
+        {
+            const double t = shift.first - startTimestamp;
+            const auto part = [&](int byte) { return int((shift.second >> (8 * byte)) & 0xff); };
+            const auto put = [&](const char *id, const char *unit, int value)
+            {
+                // 0 and 255 say "not known"
+                if (value > 0 && value < 255 && t >= 0.0)
+                    {
+                        session->channelForWriting(id, unit, Channel::Step).append(t, value);
+                    }
+            };
+            put(ChannelId::RearGearNumber, "", part(0));
+            put(ChannelId::RearGear, "T", part(1));
+            put(ChannelId::FrontGearNumber, "", part(2));
+            put(ChannelId::FrontGear, "T", part(3));
         }
 
     QString source = "FIT";

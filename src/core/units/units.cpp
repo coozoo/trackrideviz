@@ -77,6 +77,18 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
             return imperial ? ChannelDisplay{tr("Distance"), tr("mi"), kMetersToMiles, 0.0, 2}
                    : ChannelDisplay{tr("Distance"), tr("km"), 0.001, 0.0, 2};
         }
+    if (id == ChannelId::FrontGear || id == ChannelId::RearGear)
+        {
+            return {id == ChannelId::FrontGear ? tr("Chainring") : tr("Sprocket"), tr("T"), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::FrontGearNumber || id == ChannelId::RearGearNumber)
+        {
+            return {id == ChannelId::FrontGearNumber ? tr("Front gear") : tr("Gear"), QString(), 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::GearRatio)
+        {
+            return {tr("Gear ratio"), QString(), 1.0, 0.0, 2};
+        }
     if (id == ChannelId::WindSpeed || id == ChannelId::Headwind)
         {
             return {id == ChannelId::WindSpeed ? tr("Wind speed") : tr("Headwind"), units.speedLabel(), units.speedScale(),

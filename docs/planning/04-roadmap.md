@@ -220,6 +220,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - GoPro: chapters joined by themselves; accelerometer and gyroscope
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; NMEA, VBO
+- ✅ Gears (2026-11-15, `Gears`, the Bike page of the settings, the "Gear" gauge): recorded by
+  electronic shifting (FIT gear change events), or worked out from the speed and the cadence with the
+  chainrings, the sprockets and the wheel entered once; the last gear held while coasting
+- A cassette drawn with the sprocket in use lit
 - ✅ TCX (2026-11-15, `TcxImporter`): track points of every lap with heart rate, cadence, speed and
   power; the file's laps when it has more than one
 - Multiple data sources per project

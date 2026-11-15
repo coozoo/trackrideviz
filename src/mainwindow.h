@@ -1,6 +1,7 @@
 #pragma once
 
 #include "project/project.h"
+#include "telemetry/gears.h"
 #include "telemetry/powerestimate.h"
 #include "weather/weather.h"
 #include "telemetry/telemetrysession.h"
@@ -189,6 +190,7 @@ private:
     qint64 m_heldVideoPosition{-1};
     double shownTelemetryTime() const;
     WeatherChoice m_weather;
+    Drivetrain m_drivetrain;
     // the weather of the ride was asked for when the data was worked out, and has not come yet
     bool m_weatherWaiting{false};
     QComboBox *m_windCombo{nullptr};

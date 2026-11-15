@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../telemetry/gears.h"
 #include "../telemetry/powerestimate.h"
 #include "../telemetry/surfaces.h"
 #include "../units/units.h"
@@ -90,6 +91,11 @@ public:
     static bool mapCreditShown();
     static void setMapCreditShown(bool shown);
     static void setExportDefaults(const ExportSettings &settings);
+
+    // --- Bike -----------------------------------------------------------
+    // Its gears and wheel; its weight is the power estimate's (powerRider()).
+    static Drivetrain drivetrain();
+    static void setDrivetrain(const Drivetrain &drivetrain);
 
     // --- Power ----------------------------------------------------------
     // The rider and the bike, for the power of rides recorded without a power meter.

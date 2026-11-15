@@ -1884,6 +1884,26 @@ def tile_bar(name):
     write(name, (w, h), components, drawings, ["speed", "heartRate", "power", "cadence", "elevation", "temperature"])
 
 
+def gear(name):
+    """The gear: its number big, the chainring and the sprocket beside it, and a bar from the easiest
+    gear to the hardest along the bottom. Recorded by electronic shifting or worked out from the
+    speed and the cadence."""
+    w, h = 360, 110
+    plate_ = (f"<rect x='0' y='0' width='{w}' height='{h}' rx='6' fill='@background' fill-opacity='0.35'/>"
+              f"<rect x='0' y='0' width='5' height='{h}' {theme('accent')}/>"
+              f"<rect x='20' y='{h - 20}' width='{w - 40}' height='8' rx='4' fill='#ffffff' fill-opacity='0.12'/>")
+    drawings = {"plate.svg": svg(w, h, plate_),
+                "bar.svg": svg(w, h, f"<rect x='20' y='{h - 20}' width='{w - 40}' height='8' rx='4' {theme('accent')}/>")}
+    components = [image("plate.svg", (0, 0, w, h)),
+                  image("bar.svg", (0, 0, w, h), manipulations=[{"type": "widthClip", "minX": 20, "maxX": w - 20}]),
+                  text("label", (22, 26), 20, "accent2", align="left", upperCase=True),
+                  text("value", (22, 60), 44, align="left", bold=True, precision=0),
+                  dict(text("value", (250, 60), 34, align="right", bold=True, precision=0), channel="frontGear"),
+                  dict(text("fixed", (268, 60), 28, "accent2"), text="×"),
+                  dict(text("value", (286, 60), 34, align="left", bold=True, precision=0), channel="rearGear")]
+    write(name, (w, h), components, drawings, ["rearGearNumber"])
+
+
 def skid_ball(name):
     """A curved glass tube with a ball that rolls to the side of the force: to the right in a
     right-hand bend; two marks for the middle."""
@@ -2091,6 +2111,7 @@ def main():
     open_arc("Open arc")
     compass("Compass rose")
     wind("Wind")
+    gear("Gear")
     heart("Heart")
     tile("Tile")
     tile("Tile speed", "speed", ["speed"])

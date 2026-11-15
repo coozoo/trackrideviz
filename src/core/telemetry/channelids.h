@@ -26,6 +26,12 @@ inline constexpr char ElapsedTime[] = "elapsedTime";   // s since the recording 
 inline constexpr char Pace[] = "pace";                 // s/km; none while standing
 inline constexpr char Power3s[] = "power3secAverage";  // W, the mean of the last 3 s
 inline constexpr char Power30s[] = "power30secAverage"; // W, of the last 30 s
+// The gears (gears.h): recorded by electronic shifting, or worked out from the speed and the cadence.
+inline constexpr char FrontGear[] = "frontGear";             // teeth of the chainring
+inline constexpr char RearGear[] = "rearGear";               // teeth of the sprocket
+inline constexpr char FrontGearNumber[] = "frontGearNumber"; // 1 = the smallest chainring
+inline constexpr char RearGearNumber[] = "rearGearNumber";   // 1 = the largest sprocket, the easiest gear
+inline constexpr char GearRatio[] = "gearRatio";             // chainring's teeth over the sprocket's
 // The weather of the day along the ride (weather.h).
 inline constexpr char WindSpeed[] = "windSpeed";         // m/s, 10 m above the ground
 inline constexpr char WindDirection[] = "windDirection"; // degrees, where it blows from: 0 = north, clockwise

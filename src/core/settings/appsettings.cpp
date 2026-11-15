@@ -3,6 +3,8 @@
 #include "../maps/tilestore.h"
 
 #include <QList>
+
+#include <algorithm>
 #include <QSettings>
 
 namespace
@@ -38,6 +40,10 @@ const char kPowerPosition[] = "power/position";
 const char kPowerCda[] = "power/dragArea";
 const char kPowerLoss[] = "power/drivetrainLoss";
 const char kSurfaces[] = "surfaces";
+const char kChainrings[] = "bike/chainrings";
+const char kCassette[] = "bike/cassette";
+const char kTireSize[] = "bike/tireSize";
+const char kWheelMm[] = "bike/wheelMm";
 const char kWeatherFetched[] = "weather/fetched";
 const char kWeatherSpacing[] = "weather/spacingKm";
 const char kWeatherProvider[] = "weather/provider";
@@ -339,6 +345,26 @@ void AppSettings::setPowerRider(const PowerEstimate::Rider &rider)
     settings.setValue(kPowerPosition, rider.position);
     settings.setValue(kPowerCda, rider.cda);
     settings.setValue(kPowerLoss, rider.drivetrainLoss);
+}
+
+Drivetrain AppSettings::drivetrain()
+{
+    const QSettings settings;
+    Drivetrain drivetrain;
+    drivetrain.chainrings = Gears::parseTeeth(settings.value(kChainrings).toString());
+    drivetrain.cassette = Gears::parseTeeth(settings.value(kCassette).toString());
+    drivetrain.tireSize = settings.value(kTireSize).toString();
+    drivetrain.wheelMm = std::max(0.0, settings.value(kWheelMm, 0.0).toDouble());
+    return drivetrain;
+}
+
+void AppSettings::setDrivetrain(const Drivetrain &drivetrain)
+{
+    QSettings settings;
+    settings.setValue(kChainrings, Gears::teethText(drivetrain.chainrings));
+    settings.setValue(kCassette, Gears::teethText(drivetrain.cassette));
+    settings.setValue(kTireSize, drivetrain.tireSize.trimmed());
+    settings.setValue(kWheelMm, drivetrain.wheelMm);
 }
 
 QVector<SurfaceType> AppSettings::surfaceTypes()

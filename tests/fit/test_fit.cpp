@@ -155,6 +155,7 @@ private slots:
     void pedalDynamics();
     void lapsAndSource();
     void pausesAndUtcOffset();
+    void gearChanges();
     void chainedFiles();
     void truncatedFileKeepsRecords();
     void unfinalizedHeader();
@@ -519,6 +520,38 @@ void TestFit::pausesAndUtcOffset()
     QCOMPARE(session->pauses().at(0).endTime, 40.0);
     QVERIFY(session->hasUtcOffset());
     QCOMPARE(session->utcOffsetSeconds(), 3 * 3600);
+}
+
+void TestFit::gearChanges()
+{
+    FitBuilder b;
+    b.define(0, Fit::Record, kRecordFields);
+    // event, event_type, data: rear number, rear teeth, front number, front teeth, a byte each
+    b.define(1, Fit::Event, {{253, 4, kUInt32}, {0, 1, 0x00}, {1, 1, 0x00}, {3, 4, kUInt32}});
+    auto shift = [&](quint32 when, int event, int rearNumber, int rearTeeth, int frontNumber, int frontTeeth)
+    {
+        b.data(1);
+        b.number(when, 4);
+        b.number(quint64(event), 1);
+        b.number(3, 1);   // marker
+        b.number(quint64(rearNumber) | quint64(rearTeeth) << 8 | quint64(frontNumber) << 16 | quint64(frontTeeth) << 24, 4);
+    };
+    addRecord(b, 0, kT0, 49.0, 28.0, 100.0, 120, 10.0);
+    shift(kT0 + 5, 43, 7, 17, 2, 50);
+    addRecord(b, 0, kT0 + 10, 49.0, 28.0, 100.0, 120, 10.0);
+    shift(kT0 + 20, 42, 7, 17, 1, 34);
+    addRecord(b, 0, kT0 + 30, 49.0, 28.0, 100.0, 120, 10.0);
+
+    const TelemetrySessionPtr session = FitImporter::read(b.file());
+    QVERIFY(session);
+    const Channel *rear = session->channel(ChannelId::RearGear);
+    const Channel *front = session->channel(ChannelId::FrontGear);
+    QVERIFY(rear && front);
+    QCOMPARE(rear->valueAt(10.0), 17.0);
+    QCOMPARE(front->valueAt(10.0), 50.0);
+    QCOMPARE(front->valueAt(25.0), 34.0);
+    QCOMPARE(front->interpolation(), Channel::Step);
+    QCOMPARE(session->channel(ChannelId::RearGearNumber)->valueAt(25.0), 7.0);
 }
 
 void TestFit::chainedFiles()

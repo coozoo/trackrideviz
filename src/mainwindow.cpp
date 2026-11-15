@@ -19,6 +19,7 @@
 #include "sync/videosync.h"
 #include "telemetry/dataedits.h"
 #include "telemetry/derivedchannels.h"
+#include "telemetry/gears.h"
 #include "weather/weather.h"
 #include "telemetry/telemetryimporter.h"
 #include "videocanvas.h"
@@ -132,11 +133,12 @@ struct ImportResult
 // asks for them, and everything that can be worked out from that.
 TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
                               const PowerEstimate::Rider &rider, const QVector<SurfaceStretch> &surfaces,
-                              const WeatherChoice &weatherChoice, const HandWind &handWind, bool *waiting,
-                              bool *weatherWaiting)
+                              const WeatherChoice &weatherChoice, const HandWind &handWind, const Drivetrain &drivetrain,
+                              bool *waiting, bool *weatherWaiting)
 {
-    const TelemetrySessionPtr complete = DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits), elevation,
-                                         waiting));
+    // the gears want the speed and the cadence only
+    const TelemetrySessionPtr complete = Gears::apply(DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits),
+                                         elevation, waiting)), drivetrain);
     *weatherWaiting = false;
     // a wind entered by hand stands in for the weather history's
     const Weather weather = complete && weatherChoice.enabled && !handWind.used
@@ -203,6 +205,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_units = AppSettings::units();
     m_rider = AppSettings::powerRider();
     m_weather = AppSettings::weather();
+    m_drivetrain = AppSettings::drivetrain();
     applyMapSettings();
     rebuildOverlay();
     // map tiles come one by one: gauges with a street map are drawn again with them
@@ -713,11 +716,12 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     const WeatherChoice weather = m_weather;
     const QVector<SurfaceStretch> surfaces = m_project.surfaces;
     const HandWind wind = m_project.wind;
-    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather, wind]()
+    const Drivetrain drivetrain = m_drivetrain;
+    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather, wind, drivetrain]()
     {
         ImportResult result;
         result.raw = TelemetryImporter::loadRecorded(path, &result.error);
-        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, &result.waiting,
+        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, drivetrain, &result.waiting,
                                    &result.weatherWaiting);
         return result;
     }));
@@ -1796,7 +1800,7 @@ void MainWindow::recomputeData()
             return;
         }
     m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
-                                  m_project.wind,
+                                  m_project.wind, m_drivetrain,
                                   &m_terrainWaiting, &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
     updateLaps();
@@ -1871,10 +1875,12 @@ void MainWindow::applySettings()
     applyMapSettings();
     const PowerEstimate::Rider rider = AppSettings::powerRider();
     const WeatherChoice weather = AppSettings::weather();
-    if (rider != m_rider || weather != m_weather)
+    const Drivetrain drivetrain = AppSettings::drivetrain();
+    if (rider != m_rider || weather != m_weather || drivetrain != m_drivetrain)
         {
             m_rider = rider;
             m_weather = weather;
+            m_drivetrain = drivetrain;
             recomputeData();
         }
     const Units units = AppSettings::units();
