@@ -64,11 +64,13 @@
 #include <QStyle>
 #include <QScreen>
 #include <QAudioDevice>
+#include <QDesktopServices>
 #include <QMetaEnum>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QUndoStack>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QVideoSink>
 #include <QtConcurrent>
@@ -86,6 +88,8 @@ QString enumKey(E value)
 // The arrangement of the docks a saved layout is for: an older one is not restored.
 // 2: Music beside Properties and Laps.
 const int kLayoutVersion = 2;
+const char kRepository[] = "https://github.com/coozoo/trackrideviz";
+const char kSupportUkraine[] = "https://github.com/coozoo/trackrideviz#support-ukraine";
 
 // A line of text that never makes the window wider: what does not fit ends in "...", and the
 // whole of it is the tooltip.
@@ -808,6 +812,8 @@ void MainWindow::createMenus()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(Icons::named("help-about"), tr("&About"), this, &MainWindow::showAbout);
+    // to the README, which anyone can check, not to a fund: a link in the program could be swapped
+    helpMenu->addAction(tr("Support &Ukraine"), this, []() { QDesktopServices::openUrl(QUrl(kSupportUkraine)); });
     helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 }
 
@@ -2536,7 +2542,11 @@ void MainWindow::showAbout()
 {
     QMessageBox::about(this, tr("About"),
                        tr("<b>%1</b><br>Version %2<br><br>"
-                          "Telemetry overlays for action camera video.<br>"
-                          "Licensed under the GNU GPL v3.")
-                       .arg(qApp->property("appname").toString(), qApp->property("appversion").toString()));
+                          "Telemetry overlays for action camera video.<br><br>"
+                          "Author: Yuriy Kuzin<br>"
+                          "<a href=\"%3\">%3</a><br>"
+                          "Licensed under the GNU GPL v3.<br><br>"
+                          "<a href=\"%4\">Support Ukraine</a> in its fight for independence against the empire.")
+                       .arg(qApp->property("appname").toString(), qApp->property("appversion").toString(),
+                            QString::fromLatin1(kRepository), QString::fromLatin1(kSupportUkraine)));
 }

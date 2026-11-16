@@ -95,12 +95,33 @@ docs/planning/               design documents and roadmap
 debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 ```
 
+## Support Ukraine
+
+Ukraine is fighting for its independence against an empire: Russia's full-scale invasion, begun
+in 2022. If this program is useful to you, please consider helping Ukraine through a verified
+fund:
+
+- [UNITED24](https://u24.gov.ua/), the official fundraising platform of Ukraine
+- [Come Back Alive](https://savelife.in.ua/en/), one of the largest foundations supporting
+  Ukraine's defenders
+
+The program links to this section rather than to a fund directly: a link inside a binary can
+be swapped for a fake one by whoever repackages it, while this page is public and its history
+can be checked.
+
+## Author
+
+Yuriy Kuzin ([coozoo](https://github.com/coozoo)).
+
 ## License
 
 [GPL-3.0](LICENSE)
 
 Gauges use the Barlow Semi Condensed font by Jeremy Tribby, under the SIL Open Font License
 ([text](src/core/gauge/fonts/OFL-BarlowSemiCondensed.txt)).
+
+The icons that stand in where the desktop has none are from the Tango Desktop Project, in the
+public domain ([text](images/icons/COPYING.Tango)).
 
 Race Track Visualizer is an independent project, not affiliated with the makers of any other
 program whose files it can read. No code or artwork from other products is included.
