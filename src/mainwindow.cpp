@@ -2,6 +2,7 @@
 
 #include "datapanel.h"
 #include "datasourcesdialog.h"
+#include "dockhome.h"
 #include "joindialog.h"
 #include "video/videojoin.h"
 #include "lapcomparepanel.h"
@@ -59,7 +60,7 @@
 #include <QSlider>
 #include <QStatusBar>
 #include <QStyle>
-#include <QTabBar>
+#include <QScreen>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -324,32 +325,58 @@ MainWindow::MainWindow(QWidget *parent)
             // a layout of an older version keeps the docks added since where they do not belong
             restoreState(settings.value("mainwindow/state").toByteArray(), kLayoutVersion);
         }
-    // A dock put back into a group of tabs (dropped on one, or its floating title double-clicked)
-    // can come back drawn over the tab in front: each group's front tab is brought forward again.
+    // a floating dock's title double-clicked: back where it was docked, whatever it went through
+    new DockHome(this);
     for (QDockWidget *dock : findChildren<QDockWidget *>())
         {
-            connect(dock, &QDockWidget::topLevelChanged, this, &MainWindow::settleDockTabs, Qt::QueuedConnection);
-            connect(dock, &QDockWidget::dockLocationChanged, this, &MainWindow::settleDockTabs, Qt::QueuedConnection);
+            connect(dock, &QDockWidget::topLevelChanged, this, [this, dock](bool floating)
+            {
+                // once Qt has placed it
+                QMetaObject::invokeMethod(this, [this, dock, floating]()
+                {
+                    settleDock(dock, floating);
+                }, Qt::QueuedConnection);
+            });
         }
 }
 
-void MainWindow::settleDockTabs()
+void MainWindow::settleDock(QDockWidget *dock, bool floating)
 {
-    for (QDockWidget *dock : findChildren<QDockWidget *>())
+    if (!floating)
         {
-            if (dock->isFloating() || !dock->isVisible() || tabifiedDockWidgets(dock).isEmpty())
+            // back among tabs: in front, where it was looked for
+            if (!tabifiedDockWidgets(dock).isEmpty())
                 {
-                    continue;
+                    dock->raise();
                 }
-            // the one whose tab is current in its bar: the tab bars name them by title
-            for (QTabBar *bar : findChildren<QTabBar *>(QString(), Qt::FindDirectChildrenOnly))
-                {
-                    if (bar->isVisible() && bar->currentIndex() >= 0 && bar->tabText(bar->currentIndex()) == dock->windowTitle())
-                        {
-                            dock->raise();
-                        }
-                }
+            return;
         }
+    if (!dock->isFloating() || QApplication::mouseButtons() != Qt::NoButton)
+        {
+            // being dragged: where the mouse leaves it
+            return;
+        }
+    // Floated by a double-click it opens right where it was docked, frameless, and reads as the
+    // tabs' contents drawn over each other; on some desktops it lands off the screen and is lost
+    // while the menu says it is shown. A little down and right of there, on a screen, in front.
+    QRect frame = dock->frameGeometry();
+    frame.translate(40, 40);
+    const QScreen *screen = QGuiApplication::screenAt(frame.center());
+    if (!screen)
+        {
+            screen = this->screen();
+        }
+    const QRect area = screen->availableGeometry();
+    frame.setSize(frame.size().boundedTo(area.size() * 0.9));
+    if (!area.contains(frame))
+        {
+            frame.moveCenter(geometry().center());
+            frame.moveLeft(std::clamp(frame.left(), area.left(), area.right() - frame.width()));
+            frame.moveTop(std::clamp(frame.top(), area.top(), area.bottom() - frame.height()));
+        }
+    dock->setGeometry(frame);
+    dock->raise();
+    dock->activateWindow();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
