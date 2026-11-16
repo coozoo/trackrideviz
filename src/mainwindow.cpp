@@ -813,7 +813,8 @@ void MainWindow::createMenus()
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(Icons::named("help-about"), tr("&About"), this, &MainWindow::showAbout);
     // to the README, which anyone can check, not to a fund: a link in the program could be swapped
-    helpMenu->addAction(tr("Support &Ukraine"), this, []() { QDesktopServices::openUrl(QUrl(kSupportUkraine)); });
+    helpMenu->addAction(QIcon(":/images/icons/flag-ukraine.svg"), tr("Support &Ukraine"), this,
+                        []() { QDesktopServices::openUrl(QUrl(kSupportUkraine)); });
     helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 }
 
@@ -2546,6 +2547,7 @@ void MainWindow::showAbout()
                           "Author: coozoo<br>"
                           "<a href=\"%3\">%3</a><br>"
                           "Licensed under the GNU GPL v3.<br><br>"
+                          "<img src=\":/images/icons/flag-ukraine.svg\" width=\"24\" height=\"16\"> "
                           "<a href=\"%4\">Support Ukraine</a> in its fight for independence against the empire.")
                        .arg(qApp->property("appname").toString(), qApp->property("appversion").toString(),
                             QString::fromLatin1(kRepository), QString::fromLatin1(kSupportUkraine)));
