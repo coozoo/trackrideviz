@@ -1,6 +1,7 @@
 #include "appearance.h"
 #include "diagnostics.h"
 #include "gauge/gaugefonts.h"
+#include "gstreamerworkaround.h"
 #include "mainwindow.h"
 #include "project/project.h"
 #include "settings/appsettings.h"
@@ -68,6 +69,9 @@ int main(int argc, char *argv[])
             qputenv(decoderVariable, decoderTypes);
         }
     a.setProperty("decoderFromEnvironment", decoderFromEnvironment);
+
+    // before the players are made
+    GStreamerWorkaround::install();
 
     Appearance::apply();
 

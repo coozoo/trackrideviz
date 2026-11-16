@@ -37,6 +37,7 @@ SOURCES += main.cpp \
     src/datasourcesdialog.cpp \
     src/dockhome.cpp \
     src/diagnostics.cpp \
+    src/gstreamerworkaround.cpp \
     src/timelinepanel.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
@@ -56,11 +57,19 @@ HEADERS += \
     src/datasourcesdialog.h \
     src/dockhome.h \
     src/diagnostics.h \
+    src/gstreamerworkaround.h \
     src/trackview.h \
     src/timelinepanel.h \
     src/mainwindow.h \
     src/settingsdialog.h \
     src/videocanvas.h
+
+# Linux: to work around Qt 6.2's GStreamer playback (see gstreamerworkaround.h)
+unix:!macx:packagesExist(gstreamer-1.0) {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += gstreamer-1.0
+    DEFINES += HAVE_GSTREAMER
+}
 
 win32:RC_FILE = trackrideviz.rc
 macx:ICON = trackrideviz.icns
