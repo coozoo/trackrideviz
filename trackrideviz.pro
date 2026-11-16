@@ -34,6 +34,7 @@ SOURCES += main.cpp \
     src/lapcomparepanel.cpp \
     src/lapspanel.cpp \
     src/musicpanel.cpp \
+    src/datasourcesdialog.cpp \
     src/timelinepanel.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     src/lapcomparepanel.h \
     src/lapspanel.h \
     src/musicpanel.h \
+    src/datasourcesdialog.h \
     src/trackview.h \
     src/timelinepanel.h \
     src/mainwindow.h \

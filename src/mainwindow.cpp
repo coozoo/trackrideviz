@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include "datapanel.h"
+#include "datasourcesdialog.h"
 #include "joindialog.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
@@ -123,8 +124,10 @@ protected:
 
 struct ImportResult
 {
-    TelemetrySessionPtr raw;       // as the file gave it
+    TelemetrySessionPtr main;      // the main file as it gave it
+    TelemetrySessionPtr raw;       // with the channels of the added files
     TelemetrySessionPtr session;   // corrected, and completed with what could be worked out
+    QVector<DataSource> sources;   // the added files, their shifts following the clocks
     bool waiting{false};           // for heights of the terrain still being fetched
     bool weatherWaiting{false};    // for the weather of the ride
     QString error;
@@ -621,6 +624,8 @@ void MainWindow::createMenus()
     openVideoAction->setShortcut(QKeySequence::Open);
     QAction *openDataAction = fileMenu->addAction(tr("Open &data..."), this, &MainWindow::chooseTelemetry);
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+    m_dataSourcesAction = fileMenu->addAction(tr("Add data from other &files..."), this, &MainWindow::editDataSources);
+    m_dataSourcesAction->setEnabled(false);
     fileMenu->addAction(tr("&Join videos..."), this, &MainWindow::joinVideos);
     fileMenu->addSeparator();
     QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
@@ -745,8 +750,9 @@ void MainWindow::loadVideo(const QString &path)
 
 void MainWindow::openTelemetry(const QString &path)
 {
-    // corrections belong to the data before
+    // corrections and added files belong to the data before
     m_project.dataEdits.clear();
+    m_project.moreData.clear();
     m_dataPanel->setEdits(m_project.dataEdits);
     loadTelemetry(path, false);
 }
@@ -760,6 +766,7 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
     statusBar()->showMessage(tr("Loading %1...").arg(QFileInfo(path).fileName()));
 
     const QVector<DataEdit> edits = m_project.dataEdits;
+    const QVector<DataSource> sources = m_project.moreData;
     const Terrain::Use elevation = m_project.elevation;
     const PowerEstimate::Rider rider = m_rider;
     const WeatherChoice weather = m_weather;
@@ -778,6 +785,13 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
             }
         m_terrainWaiting = result.waiting;
         m_weatherWaiting = result.weatherWaiting;
+        m_mainSession = result.main;
+        // the shifts the clocks gave; the files and the choices are those still in the project
+        // (another load follows any change of them)
+        if (result.session && result.sources.size() == m_project.moreData.size())
+            {
+                m_project.moreData = result.sources;
+            }
         telemetryImported(path, result.raw, result.session, result.error);
         if (m_terrainWaiting || m_weatherWaiting)
             {
@@ -794,10 +808,12 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync)
                 recomputeData();
             }
     });
-    watcher->setFuture(QtConcurrent::run([path, edits, elevation, rider, surfaces, weather, wind, drivetrain]()
+    watcher->setFuture(QtConcurrent::run([path, edits, sources, elevation, rider, surfaces, weather, wind, drivetrain]()
     {
         ImportResult result;
-        result.raw = TelemetryImporter::loadRecorded(path, &result.error);
+        result.main = TelemetryImporter::loadRecorded(path, &result.error);
+        result.sources = sources;
+        result.raw = DataSources::loadAndMerge(result.main, &result.sources);
         result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, drivetrain, &result.waiting,
                                    &result.weatherWaiting);
         return result;
@@ -838,6 +854,14 @@ void MainWindow::openProject(const QString &path)
                     file->clear();
                 }
         }
+    // added data that is not there stays, and is a warning of the data
+    for (const DataSource &source : project.moreData)
+        {
+            if (!QFileInfo::exists(source.path))
+                {
+                    missing << QDir::toNativeSeparators(source.path);
+                }
+        }
     // music that is not there stays in the list, shown as missing, and is left out of the export
     for (const MusicTrack &track : project.soundtrack.tracks)
         {
@@ -854,6 +878,8 @@ void MainWindow::openProject(const QString &path)
     m_session.reset();
     m_recordedSession.reset();
     m_rawSession.reset();
+    m_mainSession.reset();
+    m_dataSourcesAction->setEnabled(false);
     m_dataPanel->setSessions(nullptr, nullptr, m_units);
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSurfaces(m_project.surfaces);
@@ -1629,6 +1655,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
             return;
         }
     m_project.telemetryPath = path;
+    m_dataSourcesAction->setEnabled(true);
     m_heldTime = -1.0;
     m_rawSession = raw;
     m_recordedSession = session;
@@ -1774,6 +1801,11 @@ void MainWindow::updateSourcesInfo()
     else
         {
             lines << tr("Data: %1").arg(QFileInfo(m_project.telemetryPath).fileName());
+            for (const DataSource &source : std::as_const(m_project.moreData))
+                {
+                    lines << tr("  and %1, shifted by %2 s").arg(QFileInfo(source.path).fileName(),
+                                                               QLocale().toString(source.shift, 'f', 1));
+                }
             lines << m_session->sourceInfo();
             if (m_session->startUtc().isValid())
                 {
@@ -2090,6 +2122,35 @@ void MainWindow::setDataEdits(const QVector<DataEdit> &edits, const QString &des
         setModified(true);
         recomputeData();
         m_dataPanel->setEdits(m_project.dataEdits);
+    }));
+}
+
+void MainWindow::editDataSources()
+{
+    if (!m_mainSession)
+        {
+            return;
+        }
+    DataSourcesDialog dialog(m_project.telemetryPath, m_mainSession, m_project.moreData, m_units, this);
+    if (dialog.exec() == QDialog::Accepted)
+        {
+            setDataSources(dialog.sources(), tr("Change the data sources"));
+        }
+}
+
+void MainWindow::setDataSources(const QVector<DataSource> &sources, const QString &description)
+{
+    const QVector<DataSource> before = m_project.moreData;
+    if (before == sources)
+        {
+            return;
+        }
+    m_undoStack->push(new OverlayCommand(description, [this, before, sources](bool forward)
+    {
+        m_project.moreData = forward ? sources : before;
+        setModified(true);
+        // read again: the channels the gauges, the laps and the edits work on change
+        loadTelemetry(m_project.telemetryPath, true);
     }));
 }
 

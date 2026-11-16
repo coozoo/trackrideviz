@@ -32,6 +32,7 @@ today.
 - Open a video and get its telemetry automatically (embedded GoPro data, or a `.fit` / `.gpx` next to it)
 - Automatic sync by GPS time, manual fine-tuning against the video
 - Data from FIT, GPX, TCX, NMEA, VBO and any CSV logger through data profiles
+- Channels of several files in one project, such as a GPS plus a heart-rate strap, lined up by their clocks
 - Derived channels: G-force from GPS, distance, grade, gear, smoothing, math
 - Lap timing: start/finish line on the map, sectors, best / previous lap, delta to best
 - Themed gauges that are not tied to one metric; templates; built-in gauge editor

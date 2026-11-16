@@ -102,6 +102,8 @@ private:
     void telemetryImported(const QString &path, const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session,
                            const QString &error);
     void setDataEdits(const QVector<DataEdit> &edits, const QString &description);
+    void editDataSources();
+    void setDataSources(const QVector<DataSource> &sources, const QString &description);
     void loadVideo(const QString &path);
     // keepSync: the offset comes with the project and must survive the import
     void loadTelemetry(const QString &path, bool keepSync);
@@ -170,6 +172,7 @@ private:
     bool m_terrainWaiting{false};
     QTreeWidget *m_channelTree{nullptr};
     QAction *m_exportAction{nullptr};
+    QAction *m_dataSourcesAction{nullptr};
     GaugeLibraryPanel *m_libraryPanel{nullptr};
     LapsPanel *m_lapsPanel{nullptr};
     TimelinePanel *m_timelinePanel{nullptr};
@@ -211,7 +214,8 @@ private:
     QTimer *m_arrivalTimer{nullptr};
     QElapsedTimer m_sinceRecompute;
     TelemetrySessionPtr m_session;          // with the laps of the project's start/finish line
-    TelemetrySessionPtr m_rawSession;       // as the file gave it
+    TelemetrySessionPtr m_rawSession;       // as the files gave it: the main one with the channels added
+    TelemetrySessionPtr m_mainSession;      // the main file alone
     TelemetrySessionPtr m_recordedSession;  // as the file gave it (and what could be worked out)
     Units m_units;
     PowerEstimate::Rider m_rider;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../telemetry/datasources.h"
 #include "../telemetry/surfaces.h"
 #include "../weather/weather.h"
 #include "../maps/terrain.h"
@@ -21,6 +22,8 @@ struct Project
 {
     QString videoPath;        // absolute, or empty
     QString telemetryPath;    // absolute, or empty
+    // files whose channels are added to it, such as a heart-rate strap's
+    QVector<DataSource> moreData;
 
     // telemetry time = video time + syncOffset
     double syncOffset{0.0};

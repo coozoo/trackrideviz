@@ -263,6 +263,21 @@ private slots:
         QVERIFY(!QJsonDocument::fromJson(ProjectFile::toJson(Project(), "/tmp")).object().contains("music"));
     }
 
+    void addedDataIsKept()
+    {
+        Project project;
+        project.moreData = {{"/rides/2025/strap.fit", 3.5, true, {"heartRate"}},
+                            {"/power/meter.fit", -12.0, false, {"power", "cadence"}}};
+        const QByteArray json = ProjectFile::toJson(project, "/rides/2025");
+        const QJsonArray stored = QJsonDocument::fromJson(json).object().value("moreData").toArray();
+        QCOMPARE(stored.at(0).toObject().value("file").toString(), QString("strap.fit"));
+        QCOMPARE(stored.at(1).toObject().value("file").toString(), QString("/power/meter.fit"));
+        Project loaded;
+        QVERIFY(ProjectFile::fromJson(json, "/rides/2025", &loaded));
+        QVERIFY(loaded.moreData == project.moreData);
+        QVERIFY(!QJsonDocument::fromJson(ProjectFile::toJson(Project(), "/tmp")).object().contains("moreData"));
+    }
+
     void emptyProject()
     {
         Project loaded;

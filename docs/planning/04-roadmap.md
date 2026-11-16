@@ -227,7 +227,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   `gears` part of gauges)
 - ✅ TCX (2026-11-15, `TcxImporter`): track points of every lap with heart rate, cadence, speed and
   power; the file's laps when it has more than one
-- Multiple data sources per project
+- ✅ Multiple data sources per project (2026-11-16, `DataSources`, File > Add data from other files):
+  channels of other files (a chest strap, a power meter) added to the main data, lined up by the
+  clocks or shifted by hand; a channel both have taken from the added file only when chosen
 - ✅ Power estimated for rides without a power meter, shown as an estimate,
   never in place of a recorded power. In three steps:
   1. ✅ (2026-11-15, `PowerEstimate`, the Power page of the settings) The estimate itself: air drag, rolling resistance, gravity and acceleration from speed and

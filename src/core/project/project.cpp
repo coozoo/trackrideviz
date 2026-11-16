@@ -93,6 +93,21 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
         {"overlay", overlay},
         {"theme", project.theme.toJson()},
     };
+    if (!project.moreData.isEmpty())
+        {
+            QJsonArray sources;
+            for (const DataSource &source : project.moreData)
+                {
+                    sources.append(QJsonObject
+                    {
+                        {"file", toStored(source.path, dir)},
+                        {"shift", source.shift},
+                        {"shiftManual", source.shiftIsManual},
+                        {"channels", QJsonArray::fromStringList(source.channels)},
+                    });
+                }
+            root["moreData"] = sources;
+        }
     if (project.startFinish.isValid())
         {
             const StartFinishLine &l = project.startFinish;
@@ -215,6 +230,22 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
     Project loaded;
     loaded.videoPath = fromStored(root.value("video").toString(), dir);
     loaded.telemetryPath = fromStored(root.value("data").toString(), dir);
+    for (const QJsonValue &value : root.value("moreData").toArray())
+        {
+            const QJsonObject object = value.toObject();
+            DataSource source;
+            source.path = fromStored(object.value("file").toString(), dir);
+            source.shift = object.value("shift").toDouble();
+            source.shiftIsManual = object.value("shiftManual").toBool();
+            for (const QJsonValue &channel : object.value("channels").toArray())
+                {
+                    source.channels << channel.toString();
+                }
+            if (!source.path.isEmpty())
+                {
+                    loaded.moreData.append(source);
+                }
+        }
     const QJsonObject sync = root.value("sync").toObject();
     loaded.syncOffset = sync.value("offset").toDouble();
     loaded.syncIsManual = sync.value("manual").toBool();
