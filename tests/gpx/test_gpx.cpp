@@ -242,7 +242,7 @@ void TestGpx::tcxTrackWithLaps()
     const TelemetrySessionPtr session = TcxImporter::read(&buffer, &error);
     QVERIFY2(session, qPrintable(error));
     QCOMPARE(session->sourceInfo(), QString("TCX, Biking"));
-    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0), QTimeZone::UTC));
+    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0), QTimeZone::utc()));
     // a point without a position still gives its other values
     QCOMPARE(session->channel(ChannelId::PositionLat)->count(), 2);
     QCOMPARE(session->channel(ChannelId::Distance)->count(), 3);
@@ -336,7 +336,7 @@ void TestGpx::cameraPositions()
     QVERIFY(std::fabs(session->channel(ChannelId::Elevation)->valueAtIndex(3) - 202.5) < 1e-9);
     QVERIFY(std::fabs(session->channel(ChannelId::Speed)->valueAtIndex(3) - 12.5) < 1e-9);
     // the clock when the video began: a second before the first fix
-    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0, 0), QTimeZone::UTC));
+    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0, 0), QTimeZone::utc()));
     QVERIFY(!GpmfImporter::fromPayloads({{0.0, 1.0, positions(0, 2, 0, "260625095959.000")}}));
 }
 
@@ -403,7 +403,7 @@ void TestGpx::strayTimesAreLeftOut()
         {
             gpx += QString(R"(<trkpt lat="%1" lon="28.0"><time>%2</time></trkpt>)")
                    .arg(49.0 + i * 1e-5, 0, 'f', 6)
-                   .arg(QDateTime(QDate(2026, 6, 25), QTime(10, 0), QTimeZone::UTC).addSecs(i).toString(Qt::ISODate)).toUtf8();
+                   .arg(QDateTime(QDate(2026, 6, 25), QTime(10, 0), QTimeZone::utc()).addSecs(i).toString(Qt::ISODate)).toUtf8();
         }
     gpx += "</trkseg></trk></gpx>";
     QTemporaryDir dir;

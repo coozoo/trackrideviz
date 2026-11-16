@@ -322,7 +322,7 @@ QVector<Weather::Air> WeatherStore::parse(const QByteArray &json, qint64 firstHo
             for (int i = 0; i < speed.size(); ++i)
                 {
                     QDateTime when = QDateTime::fromString(times.at(i).toString(), "yyyy-MM-ddTHH:mm");
-                    when.setTimeZone(QTimeZone::UTC);
+                    when.setTimeZone(QTimeZone::utc());
                     // without times (older answers kept on disk): an hour each from the first
                     const qint64 at = when.isValid() ? when.toSecsSinceEpoch() : firstHour + 3600 * qint64(i);
                     keep(at, speed.at(i), 1.0, from.at(i), celsius.at(i), pressure.at(i));
@@ -401,7 +401,7 @@ Weather WeatherStore::along(const TelemetrySession &session, const WeatherChoice
     const QDateTime start = session.startUtc().toUTC();
     const QDate first = start.date();
     const QDate last = start.addSecs(qint64(distance->endTime())).date();
-    weather.firstHour = QDateTime(first, QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
+    weather.firstHour = QDateTime(first, QTime(0, 0), QTimeZone::utc()).toSecsSinceEpoch();
 
     // where the ride was after every `spacing`, and where it ended
     const double spacing = std::max(1.0, choice.spacingKm) * 1000.0;

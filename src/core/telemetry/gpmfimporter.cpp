@@ -252,7 +252,7 @@ void readRecords(const QByteArray &data, qint64 at, qint64 end, const GpmfImport
                     // "yymmddhhmmss.sss"
                     const QString text = QString::fromLatin1(data.constData() + body, 16);
                     QDateTime utc = QDateTime::fromString("20" + text.left(12), "yyyyMMddHHmmss");
-                    utc.setTimeZone(QTimeZone::UTC);
+                    utc.setTimeZone(QTimeZone::utc());
                     stream.utc = utc.isValid() ? utc.addMSecs(qint64(text.mid(13, 3).toInt())) : QDateTime();
                 }
             else if (key == fourcc("GPS5") && size == 20 && repeat > 0)
@@ -300,7 +300,7 @@ void readRecords(const QByteArray &data, qint64 at, qint64 end, const GpmfImport
                                     // days since 2000 and seconds of the day
                                     const double days = scaled(qFromBigEndian<qint32>(row + 20), stream.scale, 5);
                                     const double seconds = scaled(qFromBigEndian<qint32>(row + 24), stream.scale, 6);
-                                    reading->firstUtc = QDateTime(QDate(2000, 1, 1), QTime(0, 0), QTimeZone::UTC)
+                                    reading->firstUtc = QDateTime(QDate(2000, 1, 1), QTime(0, 0), QTimeZone::utc())
                                                         .addDays(qint64(days)).addMSecs(qint64(seconds * 1000.0));
                                     reading->firstUtcTime = fix.time;
                                 }

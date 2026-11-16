@@ -395,7 +395,7 @@ private slots:
     {
         // 8 m/s north on level ground on a day with 5 m/s from the north 10 m up
         auto recorded = ride(300.0, 1.0, [](double t) { return QPointF(8.0 * t, 0.0); });
-        recorded->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(6, 0), QTimeZone::UTC));
+        recorded->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(6, 0), QTimeZone::utc()));
         const TelemetrySessionPtr north = DerivedChannels::complete(recorded);
         PowerEstimate::Rider rider;
         rider.enabled = true;
@@ -403,7 +403,7 @@ private slots:
         air.windSpeed = 5.0;
         air.windFrom = 0.0;
         Weather weather;
-        weather.firstHour = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
+        weather.firstHour = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::utc()).toSecsSinceEpoch();
         weather.places.append({0.0, QVector<Weather::Air>(24, air)});
         const double calm = at(PowerEstimate::apply(north, rider), ChannelId::Power, 150.0);
         const double against = at(PowerEstimate::apply(WeatherChannels::add(north, weather, 60.0), rider), ChannelId::Power, 150.0);
@@ -487,7 +487,7 @@ private slots:
         const QByteArray answer = R"({"hourly":{"time":["2025-07-15T00:00","2025-07-15T01:00"],
             "temperature_2m":[10.0,20.0],"surface_pressure":[1000.0,990.0],
             "wind_speed_10m":[2.0,4.0],"wind_direction_10m":[350,10]}})";
-        const qint64 midnight = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::UTC).toSecsSinceEpoch();
+        const qint64 midnight = QDateTime(QDate(2025, 7, 15), QTime(0, 0), QTimeZone::utc()).toSecsSinceEpoch();
         const QVector<Weather::Air> hours = WeatherStore::parse(answer, midnight);
         QCOMPARE(hours.size(), 2);
         QCOMPARE(hours.at(1).windSpeed, 4.0);

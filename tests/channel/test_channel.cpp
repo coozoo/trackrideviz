@@ -172,7 +172,7 @@ TelemetrySessionPtr recording(const QDateTime &start, const QString &id, double 
     return session;
 }
 
-const QDateTime kNoon(QDate(2025, 6, 1), QTime(12, 0), Qt::UTC);
+const QDateTime kNoon(QDate(2025, 6, 1), QTime(12, 0), QTimeZone::utc());
 }
 
 void TestChannel::addedDataFollowsTheClocks()
