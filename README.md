@@ -97,7 +97,7 @@ debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 
 ## Support Ukraine
 
-🇺🇦 Ukraine is fighting for its independence against an empire: Russia's full-scale invasion, begun
+🇺🇦 Ukraine is fighting for its independence against an empire: russia's full-scale invasion, begun
 in 2022. If this program is useful to you, please consider helping Ukraine's defenders through
 [Come Back Alive](https://savelife.in.ua/en/donate-en/#donate-army-card-once), one of the
 largest and most trusted foundations supporting them.

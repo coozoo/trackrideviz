@@ -351,11 +351,40 @@ jobs:
           mkdir -p release/data
           cp -r data/gauges data/templates release/data/
           windeployqt6.exe release/${{ steps.buildwin.outputs.APP_NAME }}.exe
-          # MinGW runtime and Qt's own dependencies that windeployqt does not pick up
-          # (libcrypto and libssl: map tiles come over https)
-          for pattern in 'libgcc*' 'libwinpthread*' 'libstdc*' 'libdouble*' 'libicuin*' 'libicuuc*' 'libicudt*' 'libpcre*' 'libzstd*' 'libharfbuzz*' 'libgraphite*' 'libfreetype*' 'libbrotlidec*' 'libbrotlicommon*' 'libbz*' 'libpng*' 'libglib*' 'libintl*' 'libiconv*' 'libb2*' 'libmd4c*' 'zlib*' 'libcrypto*' 'libssl*'; do
-            cp $ROOTMSYS/bin/$pattern.dll release/ 2>/dev/null || echo "no dll matches $pattern"
+          # windeployqt brings Qt alone; the MinGW DLLs Qt, its plugins and FFmpeg load are named
+          # here. FFmpeg's codec libraries above all: without them the video plugin does not
+          # load and no video opens. libcrypto and libssl: map tiles come over https.
+          shopt -s nullglob
+          DLL_PATTERNS=(
+            "zlib*.dll" "libgcc*.dll" "libwinpthread*.dll" "libstdc*.dll"
+            "libdouble*.dll" "libicuin*.dll" "libicuuc*.dll" "libicudt*.dll"
+            "libpcre*.dll" "libzstd*.dll" "libharfbuzz*.dll" "libgraphite*.dll"
+            "libfreetype*.dll" "libb*.dll" "libpng*.dll" "libglib*.dll" "libintl*.dll"
+            "libiconv*.dll" "libcrypto*.dll" "libssl*.dll" "libmd4c*.dll"
+            "avcodec*.dll" "avformat*.dll" "avutil*.dll" "swscale*.dll" "swresample*.dll"
+            "libva.dll" "libva_win32.dll" "libvpl*.dll" "libsoxr.dll"
+            "libaom.dll" "libdav1d*.dll" "librav1e.dll" "libSvtAv1Enc*.dll" "libsvtav1enc*.dll"
+            "libx264*.dll" "libx265*.dll" "xvidcore.dll" "libvpx*.dll"
+            "libopus*.dll" "libvorbis*.dll" "libogg*.dll" "libtheora*.dll" "libmp3lame*.dll"
+            "libspeex*.dll" "libgsm.dll" "liblc3*.dll" "libopencore-amrnb*.dll" "libopencore-amrwb*.dll"
+            "libopenjp2*.dll" "libjxl*.dll" "libhwy.dll" "liblcms2*.dll"
+            "libwebp*.dll" "libsharpyuv*.dll" "libjpeg*.dll" "libtiff*.dll" "libdeflate.dll"
+            "libjbig*.dll" "libLerc.dll" "liblzma*.dll" "libjasper*.dll" "libmng*.dll"
+            "libzvbi*.dll" "libxml2*.dll" "libbluray*.dll" "libgme.dll" "libmodplug*.dll"
+            "librtmp*.dll" "libsrt.dll" "libssh.dll"
+            "libgnutls*.dll" "libgmp*.dll" "libhogweed*.dll" "libnettle*.dll" "libidn2*.dll"
+            "libp11-kit*.dll" "libtasn1*.dll" "libunistring*.dll"
+            "librsvg*.dll" "libcairo*.dll" "libpixman*.dll" "libfontconfig*.dll" "libexpat*.dll"
+            "libpango*.dll" "libfribidi*.dll" "libthai*.dll" "libdatrie*.dll"
+            "libgdk_pixbuf*.dll" "libgio*.dll" "libgobject*.dll" "libgmodule*.dll" "libffi*.dll"
+          )
+          for pattern in "${DLL_PATTERNS[@]}"; do
+            files=("$ROOTMSYS/bin"/$pattern)
+            if [ ${#files[@]} -gt 0 ]; then
+              cp -u "${files[@]}" release/
+            fi
           done
+          shopt -u nullglob
           mv release ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64; 7z -tzip a ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64/
           ls -l
         shell: msys2 {0}
