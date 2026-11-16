@@ -6,6 +6,8 @@
 #include "telemetry/channelids.h"
 #include "telemetry/gpmfimporter.h"
 #include "telemetry/gpximporter.h"
+#include "telemetry/nmeaimporter.h"
+#include "telemetry/vboimporter.h"
 #include "telemetry/tcximporter.h"
 #include "telemetry/telemetryimporter.h"
 #include "video/videojoin.h"
@@ -33,6 +35,8 @@ private slots:
     void cameraVideoFile();
     void cameraChapters();
     void cameraMotionSensors();
+    void nmeaLog();
+    void vboFile();
     void cameraNestingIsLimited();
     void strayTimesAreLeftOut();
 
@@ -500,6 +504,112 @@ void TestGpx::cameraMotionSensors()
     QVERIFY(std::fabs(session->channel(ChannelId::AccelZ)->valueAtIndex(0) + 0.5) < 1e-9);
     // degrees a second
     QVERIFY(std::fabs(session->channel(ChannelId::GyroY)->valueAtIndex(15) - 3.4995 * 57.29577951308232) < 0.01);
+}
+
+namespace
+{
+// "$body*hh" with the checksum the receiver would write
+QByteArray nmea(const QByteArray &body)
+{
+    quint8 sum = 0;
+    for (const char c : body)
+        {
+            sum ^= quint8(c);
+        }
+    return "$" + body + "*" + QByteArray::number(sum, 16).rightJustified(2, '0').toUpper() + "\r\n";
+}
+}
+
+void TestGpx::nmeaLog()
+{
+    // a minute before midnight to a second after, once a second; one moment without a fix,
+    // one line damaged on the way
+    QByteArray log = "Logger v1.2 started\r\n";
+    for (int i = 0; i < 4; ++i)
+        {
+            const int second = 58 + i;   // 23:59:58 .. 00:00:01
+            const QByteArray time = second < 60 ? QByteArray("2359") + QByteArray::number(second) + ".00"
+                                    : QByteArray("0000") + QByteArray::number(second - 60).rightJustified(2, '0') + ".00";
+            const QByteArray date = second < 60 ? "250626" : "260626";
+            const QByteArray minutes = QByteArray::number(30.0 + i * 0.01, 'f', 4);
+            log += nmea("GPRMC," + time + "," + (i == 2 ? "V" : "A") + ",49" + minutes + ",N,02800.0000,W,"
+                        + QByteArray::number(10.0 + i) + ",90.5," + date + ",,,A");
+            log += nmea("GNGGA," + time + ",49" + minutes + ",N,02800.0000,W,1,08,0.9," + QByteArray::number(100 + i)
+                        + ".0,M,40.0,M,,");
+        }
+    log += "$GPRMC,000002.00,A,4930.0500,N,02800.0000,W,14,90.5,260626,,,A*00\r\n";
+    QBuffer buffer(&log);
+    buffer.open(QIODevice::ReadOnly);
+    QString error;
+    const TelemetrySessionPtr session = NmeaImporter::read(&buffer, &error);
+    QVERIFY2(session, qPrintable(error));
+    const Channel *lat = session->channel(ChannelId::PositionLat);
+    // without the moment without a fix and the damaged line
+    QCOMPARE(lat->count(), 3);
+    QCOMPARE(lat->timeAt(2), 3.0);    // on over midnight
+    QVERIFY(std::fabs(lat->valueAtIndex(0) - 49.5) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::PositionLon)->valueAtIndex(0) + 28.0) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::Speed)->valueAtIndex(0) - 10.0 * 1852.0 / 3600.0) < 1e-9);
+    QCOMPARE(session->channel(ChannelId::Elevation)->valueAt(1.0), 101.0);
+    QCOMPARE(session->channel(ChannelId::Heading)->valueAt(0.0), 90.5);
+    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(23, 59, 58), QTimeZone::utc()));
+    QCOMPARE(session->warnings().size(), 1);
+
+    // .txt and .log are read as NMEA only when they are
+    QTemporaryDir dir;
+    QFile file(dir.filePath("ride.txt"));
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write(log);
+    file.close();
+    QVERIFY(NmeaImporter::looksLikeNmea(file.fileName()));
+    QVERIFY(TelemetryImporter::loadRecorded(file.fileName()));
+    QFile csv(dir.filePath("other.txt"));
+    QVERIFY(csv.open(QIODevice::WriteOnly));
+    csv.write("time,speed\n0,1\n");
+    csv.close();
+    QVERIFY(!NmeaImporter::looksLikeNmea(csv.fileName()));
+}
+
+void TestGpx::vboFile()
+{
+    QByteArray vbo =
+        "File created on 31/07/2026 at 09:34:57\r\n"
+        "\r\n"
+        "[header]\r\nsatellites\r\ntime\r\nlatitude\r\nlongitude\r\nvelocity kmh\r\nheading\r\nheight\r\nrpm\r\n"
+        "\r\n[channel units]\r\n\r\n\r\n\r\n\r\nkmh\r\ndeg\r\nm\r\nrpm\r\n"
+        "\r\n[comments]\r\nLog rate 10 Hz\r\n"
+        "\r\n[column names]\r\nsats time lat long velocity heading height rpm\r\n"
+        "\r\n[data]\r\n"
+        "008 093457.40 +03119.09616 +00058.49580 036.000 140.47 +00106.14 4500\r\n"
+        "008 093457.50 +03119.09700 +00058.49500 037.800 140.50 +00106.20 4600\r\n"
+        "000 093457.60 +00000.00000 +00000.00000 000.000 000.00 +00000.00 4700\r\n"
+        "008 093457\r\n";
+    QBuffer buffer(&vbo);
+    buffer.open(QIODevice::ReadOnly);
+    QString error;
+    const TelemetrySessionPtr session = VboImporter::read(&buffer, &error);
+    QVERIFY2(session, qPrintable(error));
+    const Channel *lat = session->channel(ChannelId::PositionLat);
+    // the row without a fix has no position
+    QCOMPARE(lat->count(), 2);
+    QVERIFY(std::fabs(lat->valueAtIndex(0) - 3119.09616 / 60.0) < 1e-9);
+    // minutes, positive to the west
+    QVERIFY(std::fabs(session->channel(ChannelId::PositionLon)->valueAtIndex(0) + 58.4958 / 60.0) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::Speed)->valueAtIndex(0) - 10.0) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::Speed)->timeAt(1) - 0.1) < 1e-9);
+    QCOMPARE(session->channel(ChannelId::Elevation)->valueAtIndex(1), 106.2);
+    // a column of its own, with its unit
+    QVERIFY(session->channel("rpm"));
+    QCOMPARE(session->channel("rpm")->count(), 3);
+    QCOMPARE(session->channel("rpm")->unit(), QString("rpm"));
+    QCOMPARE(session->startUtc(), QDateTime(QDate(2026, 7, 31), QTime(9, 34, 57, 400), QTimeZone::utc()));
+    QCOMPARE(session->warnings().size(), 1);
+
+    QByteArray junk("[data]\r\n1 2 3\r\n");
+    QBuffer none(&junk);
+    none.open(QIODevice::ReadOnly);
+    QVERIFY(!VboImporter::read(&none, &error));
+    QVERIFY(TelemetryImporter::suffixes().contains("vbo"));
 }
 
 void TestGpx::cameraNestingIsLimited()

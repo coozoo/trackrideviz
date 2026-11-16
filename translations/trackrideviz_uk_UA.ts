@@ -4524,6 +4524,28 @@ It appears among the templates in the library.</source>
     </message>
 </context>
 <context>
+    <name>NmeaImporter</name>
+    <message>
+        <location filename="../src/core/telemetry/nmeaimporter.cpp" line="120"/>
+        <source>Cannot open %1: %2</source>
+        <translation>Не вдалося відкрити %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/nmeaimporter.cpp" line="227"/>
+        <source>No positions with a fix in this NMEA file.</source>
+        <translation>У цьому файлі NMEA немає позицій із фіксацією.</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/core/telemetry/nmeaimporter.cpp" line="264"/>
+        <source>%n line(s) with a wrong checksum were left out.</source>
+        <translation>
+            <numerusform>%n рядок із хибною контрольною сумою пропущено.</numerusform>
+            <numerusform>%n рядки з хибною контрольною сумою пропущено.</numerusform>
+            <numerusform>%n рядків із хибною контрольною сумою пропущено.</numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>ProjectFile</name>
     <message>
         <location filename="../src/core/project/project.cpp" line="217"/>
@@ -5323,7 +5345,7 @@ It appears among the templates in the library.</source>
 <context>
     <name>TelemetryImporter</name>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="93"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="95"/>
         <source>%n sample(s) stamped a day or more away from the rest of the recording were left out.</source>
         <translation>
             <numerusform>%n точку з часом, що на день або більше відстоїть від решти запису, пропущено.</numerusform>
@@ -5332,12 +5354,12 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="118"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="121"/>
         <source>Telemetry files (%1);;All files (*)</source>
         <translation>Файли телеметрії (%1);;Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="156"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="167"/>
         <source>%1: unsupported file type. Supported: %2.</source>
         <translation>%1: непідтримуваний тип файлу. Підтримуються: %2.</translation>
     </message>
@@ -5536,6 +5558,33 @@ Shift+перетягування позначає частину; клацанн
         <location filename="../src/trackview.h" line="161"/>
         <source>No positions in the data</source>
         <translation>У даних немає координат</translation>
+    </message>
+</context>
+<context>
+    <name>VboImporter</name>
+    <message>
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="68"/>
+        <source>Cannot open %1: %2</source>
+        <translation>Не вдалося відкрити %1: %2</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="141"/>
+        <source>Not a VBO file, or one without data.</source>
+        <translation>Це не файл VBO, або в ньому немає даних.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="234"/>
+        <source>The VBO file holds no data that could be read.</source>
+        <translation>У файлі VBO немає даних, які можна прочитати.</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="242"/>
+        <source>%n line(s) of data could not be read.</source>
+        <translation>
+            <numerusform>%n рядок даних не вдалося прочитати.</numerusform>
+            <numerusform>%n рядки даних не вдалося прочитати.</numerusform>
+            <numerusform>%n рядків даних не вдалося прочитати.</numerusform>
+        </translation>
     </message>
 </context>
 <context>

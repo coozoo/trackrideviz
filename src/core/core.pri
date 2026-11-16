@@ -53,9 +53,11 @@ SOURCES += \
     $$PWD/telemetry/gears.cpp \
     $$PWD/telemetry/gpmfimporter.cpp \
     $$PWD/telemetry/gpximporter.cpp \
+    $$PWD/telemetry/nmeaimporter.cpp \
     $$PWD/telemetry/tcximporter.cpp \
     $$PWD/telemetry/telemetryimporter.cpp \
     $$PWD/telemetry/telemetrysession.cpp \
+    $$PWD/telemetry/vboimporter.cpp \
     $$PWD/units/units.cpp \
     $$PWD/util/gzip.cpp \
     $$PWD/weather/weather.cpp \
@@ -114,9 +116,11 @@ HEADERS += \
     $$PWD/telemetry/gears.h \
     $$PWD/telemetry/gpmfimporter.h \
     $$PWD/telemetry/gpximporter.h \
+    $$PWD/telemetry/nmeaimporter.h \
     $$PWD/telemetry/tcximporter.h \
     $$PWD/telemetry/telemetryimporter.h \
     $$PWD/telemetry/telemetrysession.h \
+    $$PWD/telemetry/vboimporter.h \
     $$PWD/units/units.h \
     $$PWD/util/gzip.h \
     $$PWD/weather/weather.h \

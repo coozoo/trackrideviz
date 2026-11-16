@@ -4496,6 +4496,27 @@ It appears among the templates in the library.</source>
     </message>
 </context>
 <context>
+    <name>NmeaImporter</name>
+    <message>
+        <location filename="../src/core/telemetry/nmeaimporter.cpp" line="120"/>
+        <source>Cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/nmeaimporter.cpp" line="227"/>
+        <source>No positions with a fix in this NMEA file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/core/telemetry/nmeaimporter.cpp" line="264"/>
+        <source>%n line(s) with a wrong checksum were left out.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+</context>
+<context>
     <name>ProjectFile</name>
     <message>
         <location filename="../src/core/project/project.cpp" line="217"/>
@@ -5295,7 +5316,7 @@ It appears among the templates in the library.</source>
 <context>
     <name>TelemetryImporter</name>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="93"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="95"/>
         <source>%n sample(s) stamped a day or more away from the rest of the recording were left out.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -5303,12 +5324,12 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="118"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="121"/>
         <source>Telemetry files (%1);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="156"/>
+        <location filename="../src/core/telemetry/telemetryimporter.cpp" line="167"/>
         <source>%1: unsupported file type. Supported: %2.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5505,6 +5526,32 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         <location filename="../src/trackview.h" line="161"/>
         <source>No positions in the data</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VboImporter</name>
+    <message>
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="68"/>
+        <source>Cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="141"/>
+        <source>Not a VBO file, or one without data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="234"/>
+        <source>The VBO file holds no data that could be read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/core/telemetry/vboimporter.cpp" line="242"/>
+        <source>%n line(s) of data could not be read.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>

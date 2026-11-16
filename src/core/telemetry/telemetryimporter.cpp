@@ -6,7 +6,9 @@
 #include "fit/fitimporter.h"
 #include "gpmfimporter.h"
 #include "gpximporter.h"
+#include "nmeaimporter.h"
 #include "tcximporter.h"
+#include "vboimporter.h"
 
 #include <QFileInfo>
 
@@ -100,7 +102,8 @@ QStringList TelemetryImporter::suffixes()
 {
     // CSV through the data profiles; loggers also write .txt and .log
     // mp4: the positions GoPro cameras write into their videos
-    return {"fit", "gpx", "tcx", "csv", "txt", "log", "mp4"};
+    // nmea, nma: GPS sentences; vbo: VBOX loggers
+    return {"fit", "gpx", "tcx", "csv", "txt", "log", "mp4", "nmea", "nma", "vbo"};
 }
 
 bool TelemetryImporter::canLoad(const QString &path)
@@ -146,6 +149,14 @@ TelemetrySessionPtr TelemetryImporter::loadFile(const QString &path, QString *er
     if (suffix == "tcx")
         {
             return TcxImporter::load(path, error);
+        }
+    if (suffix == "nmea" || suffix == "nma" || ((suffix == "txt" || suffix == "log") && NmeaImporter::looksLikeNmea(path)))
+        {
+            return NmeaImporter::load(path, error);
+        }
+    if (suffix == "vbo")
+        {
+            return VboImporter::load(path, error);
         }
     if (suffix == "csv" || suffix == "txt" || suffix == "log")
         {

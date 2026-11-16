@@ -225,7 +225,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   speed, right from the turns), in place of those worked out from GPS when they go with the ride; a camera
   that leans into the turns gives the lean angle from its gyroscope and has its readings turned back level
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
-- AiM and DriftBox CSV layouts; our own profiles for common loggers; NMEA, VBO
+- AiM and DriftBox CSV layouts; our own profiles for common loggers
+- ✅ NMEA and VBO (2026-11-16, `NmeaImporter`, `VboImporter`): RMC and GGA sentences, checksums checked,
+  .txt and .log read as NMEA when they are; VBOX files by their column names, other columns (rpm...) kept
 - ✅ Gears (2026-11-15, `Gears`, the Bike page of the settings, the "Gear" gauge): recorded by
   electronic shifting (FIT gear change events), or worked out from the speed and the cadence with the
   chainrings, the sprockets and the wheel entered once; the last gear held while coasting
