@@ -2239,16 +2239,16 @@ QString MainWindow::playersState() const
     auto describe = [](const QString &name, const QMediaPlayer *player, const QAudioOutput *output)
     {
         const QString file = QFileInfo(player->source().toLocalFile()).fileName();
-        return QString("%1: %2, %3, %4 / %5 s, rate %6%7 | sound %8 %%9%10, device %11")
+        const QString sound = QString("%1%2 %%3").arg(player->hasAudio() ? QString() : QStringLiteral("none, "))
+                              .arg(std::lround(output->volume() * 100.0))
+                              .arg(output->isMuted() ? QStringLiteral(" muted") : QString());
+        return QString("%1: %2, %3, %4 / %5 s, rate %6, %7%8 | sound %9, device %10")
                .arg(name, file.isEmpty() ? QStringLiteral("no file") : file, enumKey(player->playbackState()))
                .arg(player->position() / 1000.0, 0, 'f', 2).arg(player->duration() / 1000.0, 0, 'f', 1)
                .arg(player->playbackRate())
-               .arg(QString(", ") + enumKey(player->mediaStatus())
-                    + (player->error() != QMediaPlayer::NoError ? ", " + player->errorString() : QString()))
-               .arg(player->hasAudio() ? QString() : QStringLiteral("(none) "))
-               .arg(std::lround(output->volume() * 100.0))
-               .arg(output->isMuted() ? QStringLiteral(" muted") : QString())
-               .arg(output->device().description());
+               .arg(enumKey(player->mediaStatus()),
+                    player->error() != QMediaPlayer::NoError ? ", " + player->errorString() : QString(), sound,
+                    output->device().description());
     };
     return describe(QStringLiteral("Video"), m_player, m_audioOutput) + "\n"
            + describe(QStringLiteral("Music"), m_musicPlayer, m_musicOutput);
@@ -2270,10 +2270,12 @@ void MainWindow::syncMusic()
                                       ? soundtrack.at(soundtrack.musicTime(videoTime, m_project.cuts)) : Soundtrack::Moment();
     if (moment.track < 0)
         {
-            if (m_musicPlayer->playbackState() != QMediaPlayer::StoppedState)
+            // paused, not stopped: a stop takes the sound output down with it, and on Qt 6.2's
+            // GStreamer it did not always come back
+            if (m_musicPlayer->playbackState() == QMediaPlayer::PlayingState)
                 {
-                    DiagnosticLog::note("music sync", "no music here: stop");
-                    m_musicPlayer->stop();
+                    DiagnosticLog::note("music sync", "no music here: pause");
+                    m_musicPlayer->pause();
                 }
             m_musicTrack = -1;
             return;
@@ -2325,8 +2327,9 @@ void MainWindow::syncMusic()
     if (m_musicPlayer->playbackState() != QMediaPlayer::PlayingState)
         {
             DiagnosticLog::note("music sync", QString("play from %1 s").arg(wanted / 1000.0, 0, 'f', 1));
-            m_musicPlayer->setPosition(wanted);
+            // playing first: Qt 6.2 does not keep a position given to a stopped player
             m_musicPlayer->play();
+            m_musicPlayer->setPosition(wanted);
         }
     else if (jumped || std::abs(m_musicPlayer->position() - wanted) > 1000)
         {
