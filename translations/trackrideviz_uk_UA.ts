@@ -1288,7 +1288,7 @@ Worked out from the other data</source>
         <translation>Малий файл</translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportprofile.cpp" line="101"/>
+        <location filename="../src/core/video/exportprofile.cpp" line="102"/>
         <source>Like the video</source>
         <translation>Як у відео</translation>
     </message>
@@ -5594,62 +5594,87 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>VideoEncoders</name>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="38"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="57"/>
         <source>H.264 (software, x264)</source>
         <translation>H.264 (програмно, x264)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="41"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
         <source>H.265 / HEVC (software, x265)</source>
         <translation>H.265 / HEVC (програмно, x265)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="45"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="64"/>
+        <source>AV1 (software, SVT-AV1)</source>
+        <translation>AV1 (програмно, SVT-AV1)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videoencoders.cpp" line="68"/>
         <source>H.264 (graphics card, VA-API)</source>
         <translation>H.264 (відеокарта, VA-API)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="48"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
         <source>H.265 / HEVC (graphics card, VA-API)</source>
         <translation>H.265 / HEVC (відеокарта, VA-API)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="52"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
+        <source>AV1 (graphics card, VA-API)</source>
+        <translation>AV1 (відеокарта, VA-API)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videoencoders.cpp" line="78"/>
         <source>H.264 (graphics card, NVIDIA)</source>
         <translation>H.264 (відеокарта, NVIDIA)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="53"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="79"/>
         <source>H.265 / HEVC (graphics card, NVIDIA)</source>
         <translation>H.265 / HEVC (відеокарта, NVIDIA)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="54"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="80"/>
+        <source>AV1 (graphics card, NVIDIA)</source>
+        <translation>AV1 (відеокарта, NVIDIA)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
         <source>H.264 (graphics card, Intel Quick Sync)</source>
         <translation>H.264 (відеокарта, Intel Quick Sync)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="55"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
         <source>H.265 / HEVC (graphics card, Intel Quick Sync)</source>
         <translation>H.265 / HEVC (відеокарта, Intel Quick Sync)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="56"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
+        <source>AV1 (graphics card, Intel Quick Sync)</source>
+        <translation>AV1 (відеокарта, Intel Quick Sync)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
         <source>H.264 (graphics card, AMD)</source>
         <translation>H.264 (відеокарта, AMD)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="57"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
         <source>H.265 / HEVC (graphics card, AMD)</source>
         <translation>H.265 / HEVC (відеокарта, AMD)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
+        <source>AV1 (graphics card, AMD)</source>
+        <translation>AV1 (відеокарта, AMD)</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
         <source>H.264 (Apple VideoToolbox)</source>
         <translation>H.264 (Apple VideoToolbox)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="63"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
         <source>H.265 / HEVC (Apple VideoToolbox)</source>
         <translation>H.265 / HEVC (Apple VideoToolbox)</translation>
     </message>

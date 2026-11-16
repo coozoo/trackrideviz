@@ -88,7 +88,8 @@ QVector<ExportProfile> ExportProfiles::builtIn()
     ExportProfile small;
     small.id = "small";
     small.name = tr("Small file");
-    small.hevc = true;
+    // AV1 makes the smallest files; HEVC where this ffmpeg has none
+    small.codecs = {VideoEncoder::Av1, VideoEncoder::Hevc};
     small.rate = ExportProfile::SourceRate;
     small.sourcePercent = 40;
     small.speed = ExportSettings::Small;
@@ -146,18 +147,22 @@ ExportSettings ExportProfiles::apply(const ExportProfile &profile, const ExportS
     ExportSettings settings = current;
     if (profile.builtIn)
         {
-            // the kind of encoder chosen so far, when it has the codec
+            // the first codec there is an encoder for; the kind of encoder chosen so far, when it has it
             const bool hardware = VideoEncoders::byId(current.encoder).hardware;
             const VideoEncoder *pick = nullptr;
-            for (const VideoEncoder &encoder : available)
+            for (const VideoEncoder::Codec codec : profile.codecs)
                 {
-                    if (encoder.hevc != profile.hevc)
+                    for (const VideoEncoder &encoder : available)
                         {
-                            continue;
+                            if (encoder.codec == codec
+                                    && (!pick || (encoder.hardware == hardware && pick->hardware != hardware)))
+                                {
+                                    pick = &encoder;
+                                }
                         }
-                    if (!pick || (encoder.hardware == hardware && pick->hardware != hardware))
+                    if (pick)
                         {
-                            pick = &encoder;
+                            break;
                         }
                 }
             if (pick)

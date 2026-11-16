@@ -665,7 +665,7 @@ void ExportDialog::onEncodersDetected(const QVector<VideoEncoder> &encoders)
     int preferred = AppSettings::hasExportDefaults() ? m_encoderCombo->findData(AppSettings::exportDefaults().encoder) : -1;
     for (int i = 0; preferred < 0 && i < encoders.size(); ++i)
         {
-            if (encoders.at(i).hardware && !encoders.at(i).hevc)
+            if (encoders.at(i).hardware && encoders.at(i).codec == VideoEncoder::H264)
                 {
                     preferred = i;
                 }

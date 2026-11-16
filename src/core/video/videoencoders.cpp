@@ -4,17 +4,36 @@
 
 namespace
 {
-VideoEncoder make(const char *id, const QString &label, bool hardware, bool hevc)
+VideoEncoder make(const char *id, const QString &label, bool hardware, VideoEncoder::Codec codec)
 {
     VideoEncoder encoder;
     encoder.id = id;
     encoder.label = label;
     encoder.hardware = hardware;
-    encoder.hevc = hevc;
-    // roughly the same picture: HEVC needs a higher number than H.264, and the
-    // fixed-QP modes of graphics cards a higher one than x264's CRF
-    encoder.defaultQuality = (hevc ? 26 : 23) + (hardware ? 3 : 0);
+    encoder.codec = codec;
+    // roughly the same picture: HEVC needs a higher number than H.264, AV1's scale goes to
+    // 63, and the fixed-QP modes of graphics cards want a higher one than x264's CRF
+    encoder.defaultQuality = (codec == VideoEncoder::Av1 ? 32 : codec == VideoEncoder::Hevc ? 26 : 23) + (hardware ? 3 : 0);
+    if (hardware && codec == VideoEncoder::Av1)
+        {
+            // each card's own scale, not tried here: the bitrate means the same on all
+            encoder.hasQuality = false;
+        }
     return encoder;
+}
+
+// SVT-AV1 counts its speed from 0, the slowest, to 13
+const char *svtPreset(ExportSettings::Speed speed)
+{
+    switch (speed)
+        {
+        case ExportSettings::Fast:
+            return "10";
+        case ExportSettings::Small:
+            return "5";
+        default:
+            return "8";
+        }
 }
 
 const char *speedPreset(ExportSettings::Speed speed)
@@ -35,32 +54,42 @@ QVector<VideoEncoder> VideoEncoders::known()
 {
     QVector<VideoEncoder> list;
 
-    VideoEncoder x264 = make("libx264", tr("H.264 (software, x264)"), false, false);
+    VideoEncoder x264 = make("libx264", tr("H.264 (software, x264)"), false, VideoEncoder::H264);
     x264.hasSpeed = true;
     list.append(x264);
-    VideoEncoder x265 = make("libx265", tr("H.265 / HEVC (software, x265)"), false, true);
+    VideoEncoder x265 = make("libx265", tr("H.265 / HEVC (software, x265)"), false, VideoEncoder::Hevc);
     x265.hasSpeed = true;
     list.append(x265);
+    // the smallest files for the picture, and the slowest to make
+    VideoEncoder svt = make("libsvtav1", tr("AV1 (software, SVT-AV1)"), false, VideoEncoder::Av1);
+    svt.hasSpeed = true;
+    list.append(svt);
 
-    VideoEncoder h264Vaapi = make("h264_vaapi", tr("H.264 (graphics card, VA-API)"), true, false);
+    VideoEncoder h264Vaapi = make("h264_vaapi", tr("H.264 (graphics card, VA-API)"), true, VideoEncoder::H264);
     h264Vaapi.vaapi = true;
     list.append(h264Vaapi);
-    VideoEncoder hevcVaapi = make("hevc_vaapi", tr("H.265 / HEVC (graphics card, VA-API)"), true, true);
+    VideoEncoder hevcVaapi = make("hevc_vaapi", tr("H.265 / HEVC (graphics card, VA-API)"), true, VideoEncoder::Hevc);
     hevcVaapi.vaapi = true;
     list.append(hevcVaapi);
+    VideoEncoder av1Vaapi = make("av1_vaapi", tr("AV1 (graphics card, VA-API)"), true, VideoEncoder::Av1);
+    av1Vaapi.vaapi = true;
+    list.append(av1Vaapi);
 
-    list.append(make("h264_nvenc", tr("H.264 (graphics card, NVIDIA)"), true, false));
-    list.append(make("hevc_nvenc", tr("H.265 / HEVC (graphics card, NVIDIA)"), true, true));
-    list.append(make("h264_qsv", tr("H.264 (graphics card, Intel Quick Sync)"), true, false));
-    list.append(make("hevc_qsv", tr("H.265 / HEVC (graphics card, Intel Quick Sync)"), true, true));
-    list.append(make("h264_amf", tr("H.264 (graphics card, AMD)"), true, false));
-    list.append(make("hevc_amf", tr("H.265 / HEVC (graphics card, AMD)"), true, true));
+    list.append(make("h264_nvenc", tr("H.264 (graphics card, NVIDIA)"), true, VideoEncoder::H264));
+    list.append(make("hevc_nvenc", tr("H.265 / HEVC (graphics card, NVIDIA)"), true, VideoEncoder::Hevc));
+    list.append(make("av1_nvenc", tr("AV1 (graphics card, NVIDIA)"), true, VideoEncoder::Av1));
+    list.append(make("h264_qsv", tr("H.264 (graphics card, Intel Quick Sync)"), true, VideoEncoder::H264));
+    list.append(make("hevc_qsv", tr("H.265 / HEVC (graphics card, Intel Quick Sync)"), true, VideoEncoder::Hevc));
+    list.append(make("av1_qsv", tr("AV1 (graphics card, Intel Quick Sync)"), true, VideoEncoder::Av1));
+    list.append(make("h264_amf", tr("H.264 (graphics card, AMD)"), true, VideoEncoder::H264));
+    list.append(make("hevc_amf", tr("H.265 / HEVC (graphics card, AMD)"), true, VideoEncoder::Hevc));
+    list.append(make("av1_amf", tr("AV1 (graphics card, AMD)"), true, VideoEncoder::Av1));
 
     // VideoToolbox has constant quality only on some Macs; bitrate works on all
-    VideoEncoder h264Vt = make("h264_videotoolbox", tr("H.264 (Apple VideoToolbox)"), true, false);
+    VideoEncoder h264Vt = make("h264_videotoolbox", tr("H.264 (Apple VideoToolbox)"), true, VideoEncoder::H264);
     h264Vt.hasQuality = false;
     list.append(h264Vt);
-    VideoEncoder hevcVt = make("hevc_videotoolbox", tr("H.265 / HEVC (Apple VideoToolbox)"), true, true);
+    VideoEncoder hevcVt = make("hevc_videotoolbox", tr("H.265 / HEVC (Apple VideoToolbox)"), true, VideoEncoder::Hevc);
     hevcVt.hasQuality = false;
     list.append(hevcVt);
     return list;
@@ -140,7 +169,7 @@ QStringList VideoEncoders::arguments(const VideoEncoder &encoder, const ExportSe
 
     if (encoder.hasSpeed)
         {
-            args << "-preset" << speedPreset(settings.speed);
+            args << "-preset" << (encoder.codec == VideoEncoder::Av1 ? svtPreset(settings.speed) : speedPreset(settings.speed));
         }
     return args;
 }

@@ -23,7 +23,8 @@ struct ExportProfile
     QString id;                 // built-in: "youtube", "small", "source"; the user's own: their name
     QString name;
     bool builtIn{false};
-    bool hevc{false};           // built-in: the codec; the encoder is one of those found here
+    // built-in: the codecs, the one wanted first; the encoder is one of those found here
+    QVector<VideoEncoder::Codec> codecs{VideoEncoder::H264};
     QString encoder;            // the user's own: the exact encoder
     ExportSettings::RateControl rateControl{ExportSettings::Bitrate};
     int quality{23};

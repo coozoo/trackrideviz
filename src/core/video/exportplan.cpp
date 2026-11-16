@@ -315,7 +315,7 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             args << VideoEncoders::arguments(encoder, settings);
         }
     const bool mp4Family = ExportSettings::isMp4Family(suffix);
-    if (!gaugesOnly && encoder.hevc && mp4Family)
+    if (!gaugesOnly && encoder.codec == VideoEncoder::Hevc && mp4Family)
         {
             // without this tag Apple players refuse HEVC in MP4
             plan.muxerArguments << "-tag:v" << "hvc1";

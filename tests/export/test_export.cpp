@@ -639,6 +639,13 @@ private slots:
         // no HEVC here: whatever there is
         settings = ExportProfiles::apply(small, current, info, {VideoEncoders::byId("libx264")});
         QCOMPARE(settings.encoder, QString("libx264"));
+        // AV1 first, where there is an encoder for it
+        settings = ExportProfiles::apply(small, current, info, available + QVector<VideoEncoder>{VideoEncoders::byId("libsvtav1")});
+        QCOMPARE(settings.encoder, QString("libsvtav1"));
+        const QStringList args = VideoEncoders::arguments(VideoEncoders::byId("libsvtav1"), settings);
+        QVERIFY(hasPair(args, "-preset", "5"));
+        // a card's AV1 by the bitrate only: each has a scale of its own
+        QVERIFY(!VideoEncoders::byId("av1_nvenc").hasQuality);
     }
 
     void ownProfiles()
@@ -710,7 +717,8 @@ private slots:
                 QVERIFY2(!ids.contains(encoder.id), qPrintable(encoder.id));
                 ids.insert(encoder.id);
                 QVERIFY(!encoder.label.isEmpty());
-                QCOMPARE(encoder.hevc, encoder.id.contains("hevc") || encoder.id.contains("265"));
+                QCOMPARE(encoder.codec == VideoEncoder::Hevc, encoder.id.contains("hevc") || encoder.id.contains("265"));
+                QCOMPARE(encoder.codec == VideoEncoder::Av1, encoder.id.contains("av1"));
                 QVERIFY(!VideoEncoders::outputFilter(encoder).isEmpty());
                 QCOMPARE(VideoEncoders::arguments(encoder, ExportSettings()).value(1), encoder.id);
             }

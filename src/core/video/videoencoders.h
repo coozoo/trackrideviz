@@ -9,13 +9,15 @@
 // One way of compressing the picture that ffmpeg may offer.
 struct VideoEncoder
 {
+    enum Codec { H264, Hevc, Av1 };
+
     QString id;              // ffmpeg's name: "libx264", "h264_vaapi"
     QString label;           // for the user
     bool hardware{false};
     bool vaapi{false};       // frames have to be uploaded to a VA-API surface first
     bool hasQuality{true};   // has a constant-quality mode; otherwise bitrate only
     bool hasSpeed{false};    // understands -preset ultrafast..veryslow
-    bool hevc{false};
+    Codec codec{H264};
     int defaultQuality{23};  // a sensible start for the constant-quality mode
 };
 
