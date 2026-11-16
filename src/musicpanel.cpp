@@ -19,6 +19,7 @@
 #include <QSlider>
 #include <QStyle>
 #include <QTimeEdit>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
@@ -84,10 +85,18 @@ MusicPanel::MusicPanel(QWidget *parent)
     {
         moveSelected(1);
     });
+    // the settings of all tracks are set once and then mostly in the way: they fold away
+    m_settingsButton = new QToolButton(this);
+    m_settingsButton->setText(tr("All tracks"));
+    m_settingsButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_settingsButton->setCheckable(true);
+    m_settingsButton->setAutoRaise(true);
+    m_settingsButton->setToolTip(tr("Show or hide when the music begins, the fades and the volumes"));
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addWidget(m_addButton);
     buttons->addWidget(m_removeButton);
     buttons->addStretch(1);
+    buttons->addWidget(m_settingsButton);
     buttons->addWidget(m_upButton);
     buttons->addWidget(m_downButton);
 
@@ -192,6 +201,12 @@ MusicPanel::MusicPanel(QWidget *parent)
     QFormLayout *trackForm = new QFormLayout(m_trackBox);
     trackForm->addRow(tr("Play:"), trimRow);
     QGroupBox *allBox = new QGroupBox(tr("All tracks"), this);
+    connect(m_settingsButton, &QToolButton::toggled, this, [this, allBox](bool shown)
+    {
+        allBox->setVisible(shown);
+        m_settingsButton->setArrowType(shown ? Qt::DownArrow : Qt::RightArrow);
+        QSettings().setValue("music/settingsShown", shown);
+    });
     // some styles draw the frame faintly: the titles stand out by themselves
     for (QGroupBox *box : {m_trackBox, allBox})
         {
@@ -210,6 +225,13 @@ MusicPanel::MusicPanel(QWidget *parent)
     layout->addWidget(m_trackBox);
     layout->addWidget(allBox);
     layout->addWidget(m_summary);
+    // as it was left; shown the first time, where they are found
+    const bool shown = QSettings().value("music/settingsShown", true).toBool();
+    m_settingsButton->setChecked(shown);
+    allBox->setVisible(shown);
+    m_settingsButton->setArrowType(shown ? Qt::DownArrow : Qt::RightArrow);
+    // a short panel at the side: the list gives way first
+    m_list->setMinimumHeight(fontMetrics().height() * 4);
 
     setSoundtrack(Soundtrack());
 }

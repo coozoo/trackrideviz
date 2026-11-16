@@ -12,6 +12,7 @@ class QListWidget;
 class QPushButton;
 class QSlider;
 class QTimeEdit;
+class QToolButton;
 
 // Music under the video: files played one after another from a moment of
 // the video on, and how loud they and the video's own sound are.
@@ -73,6 +74,7 @@ private:
     QPushButton *m_removeButton{nullptr};
     QPushButton *m_upButton{nullptr};
     QPushButton *m_downButton{nullptr};
+    QToolButton *m_settingsButton{nullptr};
     QGroupBox *m_trackBox{nullptr};
     QTimeEdit *m_fromEdit{nullptr};
     QTimeEdit *m_toEdit{nullptr};

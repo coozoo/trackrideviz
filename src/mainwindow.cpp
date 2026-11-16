@@ -59,6 +59,7 @@
 #include <QSlider>
 #include <QStatusBar>
 #include <QStyle>
+#include <QTabBar>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -69,6 +70,10 @@
 
 namespace
 {
+// The arrangement of the docks a saved layout is for: an older one is not restored.
+// 2: Music beside Properties and Laps.
+const int kLayoutVersion = 2;
+
 // A line of text that never makes the window wider: what does not fit ends in "...", and the
 // whole of it is the tooltip.
 class ElidedLabel : public QLabel
@@ -311,12 +316,39 @@ MainWindow::MainWindow(QWidget *parent)
     updateWindowTitle();
 
     // the docks as the program places them, for View > Reset layout
-    m_defaultLayout = saveState();
+    m_defaultLayout = saveState(kLayoutVersion);
     if (AppSettings::saveWindowLayout())
         {
             QSettings settings;
             restoreGeometry(settings.value("mainwindow/geometry").toByteArray());
-            restoreState(settings.value("mainwindow/state").toByteArray());
+            // a layout of an older version keeps the docks added since where they do not belong
+            restoreState(settings.value("mainwindow/state").toByteArray(), kLayoutVersion);
+        }
+    // A dock put back into a group of tabs (dropped on one, or its floating title double-clicked)
+    // can come back drawn over the tab in front: each group's front tab is brought forward again.
+    for (QDockWidget *dock : findChildren<QDockWidget *>())
+        {
+            connect(dock, &QDockWidget::topLevelChanged, this, &MainWindow::settleDockTabs, Qt::QueuedConnection);
+            connect(dock, &QDockWidget::dockLocationChanged, this, &MainWindow::settleDockTabs, Qt::QueuedConnection);
+        }
+}
+
+void MainWindow::settleDockTabs()
+{
+    for (QDockWidget *dock : findChildren<QDockWidget *>())
+        {
+            if (dock->isFloating() || !dock->isVisible() || tabifiedDockWidgets(dock).isEmpty())
+                {
+                    continue;
+                }
+            // the one whose tab is current in its bar: the tab bars name them by title
+            for (QTabBar *bar : findChildren<QTabBar *>(QString(), Qt::FindDirectChildrenOnly))
+                {
+                    if (bar->isVisible() && bar->currentIndex() >= 0 && bar->tabText(bar->currentIndex()) == dock->windowTitle())
+                        {
+                            dock->raise();
+                        }
+                }
         }
 }
 
@@ -331,7 +363,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         {
             QSettings settings;
             settings.setValue("mainwindow/geometry", saveGeometry());
-            settings.setValue("mainwindow/state", saveState());
+            settings.setValue("mainwindow/state", saveState(kLayoutVersion));
         }
     QMainWindow::closeEvent(event);
 }
@@ -441,8 +473,11 @@ void MainWindow::createDocks()
     connect(m_timelinePanel, &TimelinePanel::smoothingChanged, m_comparePanel, &LapComparePanel::setSmoothing);
     connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_dataPanel, &DataPanel::setSmoothing);
     connect(m_comparePanel, &LapComparePanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
-    m_musicDock = addPlaceholderDock("musicDock", tr("Music"), Qt::BottomDockWidgetArea);
-    tabifyDockWidget(m_dataDock, m_musicDock);
+    // beside the properties and the laps: tall rather than wide, it would take a lot of the
+    // video's height at the bottom
+    m_musicDock = addPlaceholderDock("musicDock", tr("Music"), Qt::RightDockWidgetArea);
+    tabifyDockWidget(m_lapsDock, m_musicDock);
+    m_propertiesDock->raise();
     m_timelineDock->raise();
     m_musicPanel = new MusicPanel(m_musicDock);
     m_musicDock->setWidget(m_musicPanel);
@@ -670,7 +705,7 @@ void MainWindow::createMenus()
     viewMenu->addSeparator();
     viewMenu->addAction(tr("&Reset layout"), this, [this]()
     {
-        restoreState(m_defaultLayout);
+        restoreState(m_defaultLayout, kLayoutVersion);
         // a dock closed before is brought back with the rest
         for (QDockWidget *dock : findChildren<QDockWidget *>())
             {

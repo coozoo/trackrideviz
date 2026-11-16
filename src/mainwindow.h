@@ -105,6 +105,7 @@ private:
     void setDataEdits(const QVector<DataEdit> &edits, const QString &description);
     void editDataSources();
     void setDataSources(const QVector<DataSource> &sources, const QString &description);
+    void settleDockTabs();
     void loadVideo(const QString &path);
     // keepSync: the offset comes with the project and must survive the import
     void loadTelemetry(const QString &path, bool keepSync, bool quietly = false);
