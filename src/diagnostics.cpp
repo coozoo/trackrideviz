@@ -8,11 +8,13 @@
 #include <QDateTime>
 #include <QGuiApplication>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
 #include <QLibraryInfo>
 #include <QMutex>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScreen>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -145,7 +147,10 @@ QString DiagnosticsPanel::environment()
     lines << (appImage.isEmpty() ? tr("Not run from an AppImage") : tr("AppImage: %1").arg(QString::fromLocal8Bit(appImage)));
     // what decides where plugins and media come from
     for (const char *name : {"QT_PLUGIN_PATH", "QT_MEDIA_BACKEND", "GST_PLUGIN_PATH", "GST_PLUGIN_SYSTEM_PATH",
-                             "GST_PLUGIN_SCANNER", "GST_REGISTRY", "GST_REGISTRY_FORK", "LIBVA_DRIVER_NAME"})
+                             "GST_PLUGIN_SCANNER", "GST_REGISTRY", "GST_REGISTRY_FORK", "LIBVA_DRIVER_NAME",
+                             // and how text and icons look
+                             "QT_QPA_PLATFORMTHEME", "XDG_CURRENT_DESKTOP", "QT_SCALE_FACTOR", "QT_FONT_DPI",
+                             "FONTCONFIG_FILE"})
         {
             const QByteArray value = qgetenv(name);
             if (!value.isEmpty())
@@ -154,6 +159,18 @@ QString DiagnosticsPanel::environment()
                 }
         }
     lines << tr("Qt plugins: %1").arg(QLibraryInfo::path(QLibraryInfo::PluginsPath));
+    // the font asked for and the one fontconfig gave: a desktop theme Qt could not load shows here
+    const QFont font = QApplication::font();
+    const QFontInfo got(font);
+    const QScreen *screen = QGuiApplication::primaryScreen();
+    lines << tr("Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7")
+                 .arg(font.family())
+                 .arg(font.pointSizeF())
+                 .arg(got.family())
+                 .arg(got.pointSizeF())
+                 .arg(screen ? screen->logicalDotsPerInch() : 0.0)
+                 .arg(screen ? screen->devicePixelRatio() : 1.0)
+                 .arg(QIcon::themeName().isEmpty() ? tr("none") : QIcon::themeName());
     return lines.join('\n');
 }
 

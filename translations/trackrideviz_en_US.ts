@@ -842,38 +842,48 @@ Worked out from the other data</source>
 <context>
     <name>DiagnosticsPanel</name>
     <message>
-        <location filename="../src/diagnostics.cpp" line="111"/>
+        <location filename="../src/diagnostics.cpp" line="113"/>
         <source>Copy all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="112"/>
+        <location filename="../src/diagnostics.cpp" line="114"/>
         <source>The start-up details, the players&apos; state and the log, to paste into a report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="118"/>
+        <location filename="../src/diagnostics.cpp" line="120"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="142"/>
+        <location filename="../src/diagnostics.cpp" line="144"/>
         <source>Qt %1 (built with %2), display: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="145"/>
+        <location filename="../src/diagnostics.cpp" line="147"/>
         <source>Not run from an AppImage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="145"/>
+        <location filename="../src/diagnostics.cpp" line="147"/>
         <source>AppImage: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="156"/>
+        <location filename="../src/diagnostics.cpp" line="161"/>
         <source>Qt plugins: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="166"/>
+        <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="173"/>
+        <source>none</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
