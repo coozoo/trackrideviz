@@ -2,6 +2,7 @@
 
 #include "datapanel.h"
 #include "datasourcesdialog.h"
+#include "diagnostics.h"
 #include "dockhome.h"
 #include "joindialog.h"
 #include "video/videojoin.h"
@@ -61,6 +62,8 @@
 #include <QStatusBar>
 #include <QStyle>
 #include <QScreen>
+#include <QAudioDevice>
+#include <QMetaEnum>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -71,6 +74,14 @@
 
 namespace
 {
+// The name of a Qt enum value, for the log: "LoadedMedia".
+template <typename E>
+QString enumKey(E value)
+{
+    const char *key = QMetaEnum::fromType<E>().valueToKey(int(value));
+    return key ? QString::fromLatin1(key) : QString::number(int(value));
+}
+
 // The arrangement of the docks a saved layout is for: an older one is not restored.
 // 2: Music beside Properties and Laps.
 const int kLayoutVersion = 2;
@@ -285,6 +296,27 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_player, &QMediaPlayer::errorOccurred, this, &MainWindow::onPlayerError);
     // a track just opened is put at its place once it can be
     connect(m_musicPlayer, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::syncMusic);
+    // the players' changes, for the Diagnostics dock
+    for (QMediaPlayer *player : {m_player, m_musicPlayer})
+        {
+            const QString area = player == m_player ? QStringLiteral("video") : QStringLiteral("music");
+            connect(player, &QMediaPlayer::mediaStatusChanged, this, [area](QMediaPlayer::MediaStatus status)
+            {
+                DiagnosticLog::note(area, QString("media: %1").arg(enumKey(status)));
+            });
+            connect(player, &QMediaPlayer::playbackStateChanged, this, [area](QMediaPlayer::PlaybackState state)
+            {
+                DiagnosticLog::note(area, QString("playback: %1").arg(enumKey(state)));
+            });
+            connect(player, &QMediaPlayer::errorOccurred, this, [area](QMediaPlayer::Error error, const QString &message)
+            {
+                DiagnosticLog::note(area, QString("error %1: %2").arg(enumKey(error), message));
+            });
+            connect(player, &QMediaPlayer::sourceChanged, this, [area](const QUrl &source)
+            {
+                DiagnosticLog::note(area, QString("source: %1").arg(source.toLocalFile()));
+            });
+        }
     connect(m_musicPlayer, &QMediaPlayer::errorOccurred, this, [this](QMediaPlayer::Error error, const QString &message)
     {
         if (error != QMediaPlayer::NoError)
@@ -519,6 +551,13 @@ void MainWindow::createDocks()
     {
         m_player->setPosition(qint64(std::llround(seconds * 1000.0)));
     });
+    // what goes on underneath, for finding out why something does not work on a system: hidden
+    // until asked for
+    m_diagnosticsDock = addPlaceholderDock("diagnosticsDock", tr("Diagnostics"), Qt::BottomDockWidgetArea);
+    tabifyDockWidget(m_dataDock, m_diagnosticsDock);
+    m_diagnosticsDock->setWidget(new DiagnosticsPanel([this]() { return playersState(); }, m_diagnosticsDock));
+    m_diagnosticsDock->hide();
+    m_timelineDock->raise();
     m_lapsPanel = new LapsPanel(m_lapsDock);
     m_lapsDock->setWidget(m_lapsPanel);
     m_lapsPanel->setUnits(m_units);
@@ -742,6 +781,7 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_dataDock->toggleViewAction());
     viewMenu->addAction(m_lapsDock->toggleViewAction());
     viewMenu->addAction(m_musicDock->toggleViewAction());
+    viewMenu->addAction(m_diagnosticsDock->toggleViewAction());
     viewMenu->addSeparator();
     viewMenu->addAction(tr("&Reset layout"), this, [this]()
     {
@@ -2194,6 +2234,26 @@ void MainWindow::setSoundtrack(const Soundtrack &soundtrack, const QString &desc
     }));
 }
 
+QString MainWindow::playersState() const
+{
+    auto describe = [](const QString &name, const QMediaPlayer *player, const QAudioOutput *output)
+    {
+        const QString file = QFileInfo(player->source().toLocalFile()).fileName();
+        return QString("%1: %2, %3, %4 / %5 s, rate %6%7 | sound %8 %%9%10, device %11")
+               .arg(name, file.isEmpty() ? QStringLiteral("no file") : file, enumKey(player->playbackState()))
+               .arg(player->position() / 1000.0, 0, 'f', 2).arg(player->duration() / 1000.0, 0, 'f', 1)
+               .arg(player->playbackRate())
+               .arg(QString(", ") + enumKey(player->mediaStatus())
+                    + (player->error() != QMediaPlayer::NoError ? ", " + player->errorString() : QString()))
+               .arg(player->hasAudio() ? QString() : QStringLiteral("(none) "))
+               .arg(std::lround(output->volume() * 100.0))
+               .arg(output->isMuted() ? QStringLiteral(" muted") : QString())
+               .arg(output->device().description());
+    };
+    return describe(QStringLiteral("Video"), m_player, m_audioOutput) + "\n"
+           + describe(QStringLiteral("Music"), m_musicPlayer, m_musicOutput);
+}
+
 void MainWindow::syncMusic()
 {
     // the player tells of its state while it changes files: nothing is to be done then
@@ -2212,6 +2272,7 @@ void MainWindow::syncMusic()
         {
             if (m_musicPlayer->playbackState() != QMediaPlayer::StoppedState)
                 {
+                    DiagnosticLog::note("music sync", "no music here: stop");
                     m_musicPlayer->stop();
                 }
             m_musicTrack = -1;
@@ -2223,6 +2284,7 @@ void MainWindow::syncMusic()
             // The next track. Stopped first, and not asked to play while it changes files: a play()
             // given from the signals it sends meanwhile left it saying it played the new file
             // while it stood still at its start (the second track never began by itself).
+            DiagnosticLog::note("music sync", QString("track %1: %2").arg(moment.track + 1).arg(QFileInfo(path).fileName()));
             m_musicSource = path;
             m_musicSwitching = true;
             m_musicPlayer->stop();
@@ -2234,6 +2296,7 @@ void MainWindow::syncMusic()
         {
             if (m_musicPlayer->playbackState() == QMediaPlayer::PlayingState)
                 {
+                    DiagnosticLog::note("music sync", "video not playing: pause");
                     m_musicPlayer->pause();
                 }
             return;
@@ -2242,8 +2305,14 @@ void MainWindow::syncMusic()
     if (status == QMediaPlayer::EndOfMedia || status == QMediaPlayer::InvalidMedia || status == QMediaPlayer::LoadingMedia)
         {
             // a file shorter than it said, or one that cannot be played: silence, not again and again
+            if (status != m_musicWaitedFor)
+                {
+                    DiagnosticLog::note("music sync", QString("waiting, the track is %1").arg(enumKey(status)));
+                }
+            m_musicWaitedFor = status;
             return;
         }
+    m_musicWaitedFor = QMediaPlayer::NoMedia;
     const qint64 wanted = qint64(std::llround(moment.position * 1000.0));
     // Where the music should be by now if it ran on undisturbed since the last look: a seek of
     // the video moves it elsewhere, going over a cut does not (the music runs through cuts).
@@ -2255,6 +2324,7 @@ void MainWindow::syncMusic()
     m_musicClock.start();
     if (m_musicPlayer->playbackState() != QMediaPlayer::PlayingState)
         {
+            DiagnosticLog::note("music sync", QString("play from %1 s").arg(wanted / 1000.0, 0, 'f', 1));
             m_musicPlayer->setPosition(wanted);
             m_musicPlayer->play();
         }
@@ -2262,6 +2332,8 @@ void MainWindow::syncMusic()
         {
             // Put in step after a jump, or when the two have drifted clearly apart. Not for less:
             // both players tell where they are only roughly, and each seek is heard.
+            DiagnosticLog::note("music sync", QString("%1: at %2 s, to %3 s").arg(jumped ? "jump" : "drift")
+                                .arg(m_musicPlayer->position() / 1000.0, 0, 'f', 1).arg(wanted / 1000.0, 0, 'f', 1));
             m_musicPlayer->setPosition(wanted);
         }
 }

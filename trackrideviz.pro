@@ -36,6 +36,7 @@ SOURCES += main.cpp \
     src/musicpanel.cpp \
     src/datasourcesdialog.cpp \
     src/dockhome.cpp \
+    src/diagnostics.cpp \
     src/timelinepanel.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     src/musicpanel.h \
     src/datasourcesdialog.h \
     src/dockhome.h \
+    src/diagnostics.h \
     src/trackview.h \
     src/timelinepanel.h \
     src/mainwindow.h \

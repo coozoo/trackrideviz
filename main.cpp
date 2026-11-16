@@ -1,4 +1,5 @@
 #include "appearance.h"
+#include "diagnostics.h"
 #include "gauge/gaugefonts.h"
 #include "mainwindow.h"
 #include "project/project.h"
@@ -16,6 +17,8 @@ const QString APP_VERSION = "0.01";
 
 int main(int argc, char *argv[])
 {
+    // everything Qt says from the very start, for View > Diagnostics
+    DiagnosticLog::install();
     QApplication a(argc, argv);
     a.setApplicationName("trackrideviz");
     a.setApplicationDisplayName("Race Track Visualizer");

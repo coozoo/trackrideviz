@@ -163,7 +163,10 @@ private:
     QMediaPlayer *m_musicPlayer{nullptr};
     QAudioOutput *m_musicOutput{nullptr};
     QString m_musicSource;
-    bool m_musicSwitching{false};   // the music player is being given another file
+    bool m_musicSwitching{false};
+    QMediaPlayer::MediaStatus m_musicWaitedFor{QMediaPlayer::NoMedia};   // said once in the log
+    // The video and the music player now, for the Diagnostics dock.
+    QString playersState() const;   // the music player is being given another file
     // where the music was wanted at the last look, and how long ago that was
     int m_musicTrack{-1};
     qint64 m_musicWanted{0};
@@ -194,6 +197,7 @@ private:
     DataPanel *m_dataPanel{nullptr};
     QDockWidget *m_lapsDock{nullptr};
     QDockWidget *m_musicDock{nullptr};
+    QDockWidget *m_diagnosticsDock{nullptr};
     MusicPanel *m_musicPanel{nullptr};
     QComboBox *m_channelCombo{nullptr};
     // what the parts of the selected gauge with channels of their own show: rows made anew for each
