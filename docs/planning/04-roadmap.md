@@ -327,7 +327,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Editor, still to do: a part's second and later movements, the g-ball and the picture strip;
   markers of a graph's axes and a lap's start line; gradients; the points of a line with more
   than two; aligning several parts; turning a text's frame into a box
-- Path shapes; G-plot with a tail, lap table, sector bar
+- Path shapes; lap table, sector bar
+- ✅ G-plot with a tail and Lean angle (2026-11-16): `trailSeconds` of a two-value move draws the way
+  the part went over the last seconds, fading; a lean-angle gauge with a rider leaning under an arc
 
 ## Sound and export choices ✅ (2026-11-15)
 - ✅ Music dock: files played one after another from a moment of the video, each trimmed, with

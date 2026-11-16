@@ -1,0 +1,163 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Lean angle",
+    "size": [
+        400,
+        320
+    ],
+    "supportedTypes": [
+        "leanAngle"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                320
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                320
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 0.0,
+                    "maxAngle": 60,
+                    "pivot": [
+                        200,
+                        250
+                    ],
+                    "minValue": 0,
+                    "maxValue": 60
+                }
+            ]
+        },
+        {
+            "type": "image",
+            "image": "images/fill.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                320
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 0.0,
+                    "maxAngle": -60,
+                    "pivot": [
+                        200,
+                        250
+                    ],
+                    "minValue": 0,
+                    "maxValue": -60
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                20.75255811253726,
+                181.19335368730233
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "60"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                379.24744188746274,
+                181.19335368730233
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "60"
+        },
+        {
+            "type": "image",
+            "image": "images/rider.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                320
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": -60,
+                    "maxAngle": 60,
+                    "pivot": [
+                        200,
+                        250
+                    ],
+                    "minValue": -60,
+                    "maxValue": 60
+                }
+            ]
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                230,
+                290
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 44,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                232,
+                282
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center"
+        }
+    ]
+}

@@ -1,0 +1,83 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "G-plot",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "gForceLateral",
+        "gForceLongitudinal"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                285,
+                186
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "text": "0.5"
+        },
+        {
+            "type": "text",
+            "autoText": "fixed",
+            "frame": [
+                366,
+                186
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "right",
+            "valign": "center",
+            "text": "1 g"
+        },
+        {
+            "type": "image",
+            "image": "images/ball.svg",
+            "frame": [
+                184,
+                184,
+                32,
+                32
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "translate2d",
+                    "maxRadius": 170,
+                    "xChannel": "gForceLateral",
+                    "yChannel": "gForceLongitudinal",
+                    "minValue": -1.0,
+                    "maxValue": 1.0,
+                    "invertY": true,
+                    "trailSeconds": 3
+                }
+            ]
+        }
+    ]
+}

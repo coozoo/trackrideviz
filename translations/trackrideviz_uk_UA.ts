@@ -2409,42 +2409,42 @@ Worked out from the other data</source>
 <context>
     <name>GaugeFile</name>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="675"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="681"/>
         <source>This is not a gauge file: %1</source>
         <translation>Це не файл приладу: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="680"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="686"/>
         <source>This is not a Race Track Visualizer gauge file.</source>
         <translation>Це не файл приладу Race Track Visualizer.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="684"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="690"/>
         <source>The gauge was saved by a newer version of the program (file version %1).</source>
         <translation>Прилад збережено новішою версією програми (версія файлу %1).</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="702"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="708"/>
         <source>The gauge has no size.</source>
         <translation>Прилад не має розміру.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="716"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="722"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="763"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="769"/>
         <source>Cannot create the folder %1.</source>
         <translation>Не вдалося створити теку %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="803"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="809"/>
         <source>Cannot write %1.</source>
         <translation>Не вдалося записати %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="808"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="814"/>
         <source>Cannot write %1: %2</source>
         <translation>Не вдалося записати %1: %2</translation>
     </message>

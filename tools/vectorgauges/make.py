@@ -1232,6 +1232,62 @@ def g_rings(name):
     write(name, (400, 400), components, drawings, ["gForceLateral", "gForceLongitudinal"])
 
 
+def g_plot(name):
+    """The G-forces as a ball with the way it went over the last three seconds behind it, as a
+    fading line: a braking into a bend reads as a curve from the bottom round to the side. Rings
+    at half a g and one g, enough for a car or a motorcycle."""
+    face = (f"<circle cx='{C}' cy='{C}' r='186' fill='@background' fill-opacity='0.35'/>"
+            f"<circle cx='{C}' cy='{C}' r='170' {stroke('accent2', 3, 0.7)}/>"
+            f"<circle cx='{C}' cy='{C}' r='85' {stroke('accent2', 2, 0.5)}/>"
+            f"<path d='M{C - 170},{C} L{C + 170},{C} M{C},{C - 170} L{C},{C + 170}' {stroke('foreground', 1.5, 0.3)}/>")
+    ball = (f"<circle cx='16' cy='16' r='14' {theme('accent')}/>"
+            f"<circle cx='16' cy='16' r='14' fill='none' stroke='#000000' stroke-opacity='0.35' stroke-width='2'/>")
+    drawings = {"face.svg": svg(400, 400, face), "ball.svg": svg(32, 32, ball)}
+    components = [image("face.svg", (0, 0, 400, 400)),
+                  text("fixed", (C + 85, C - 14), 18, "accent2", italic=True, text="0.5"),
+                  text("fixed", (C + 166, C - 14), 18, "accent2", align="right", italic=True, text="1 g"),
+                  image("ball.svg", (C - 16, C - 16, 32, 32), manipulations=[
+                      {"type": "translate2d", "maxRadius": 170, "xChannel": "gForceLateral",
+                       "yChannel": "gForceLongitudinal", "minValue": -1.0, "maxValue": 1.0, "invertY": True,
+                       "trailSeconds": 3}])]
+    write(name, (400, 400), components, drawings, ["gForceLateral", "gForceLongitudinal"])
+
+
+def lean_angle(name):
+    """A motorcycle and its rider seen from behind, leaning as far as the ride does, under an arc
+    up to 60 degrees either way that fills from the middle; the angle in numbers below."""
+    w, h = 400, 320
+    cx, cy = 200, 250          # where the tire meets the road: what the bike leans about
+    r = 190
+    lo, hi = -60, 60
+    face = (f"<path d='{ring_path(cx, cy, r + 8, 0, lo - 4, hi + 4)}' fill='@background' fill-opacity='0.35'/>"
+            f"<path d='{ring_path(cx, cy, r, r - 16, lo, hi)}' fill='#ffffff' fill-opacity='0.08'/>"
+            + ticks(cx, cy, lo, hi, 13, r - 18, 14, 2.5, "foreground", opacity=0.8)
+            + f"<path d='M{cx - 150},{cy} L{cx + 150},{cy}' {stroke('foreground', 2, 0.4)}/>")
+    fill = f"<path d='{ring_path(cx, cy, r, r - 16, lo, hi)}' {theme('accent')}/>"
+    # from behind: the tire, the tail of the bike over it, the rider's back and shoulders over
+    # the tank, the helmet on top; well under the arc
+    rider = (f"<rect x='{cx - 9}' y='{cy - 52}' width='18' height='52' rx='8' fill='#1a1a1a'/>"
+             f"<path d='M{cx - 16},{cy - 40} L{cx + 16},{cy - 40} L{cx + 24},{cy - 66} L{cx - 24},{cy - 66} Z' {theme('accent2')}/>"
+             f"<path d='M{cx - 18},{cy - 64} C{cx - 30},{cy - 84} {cx - 34},{cy - 104} {cx - 30},{cy - 112} "
+             f"L{cx + 30},{cy - 112} C{cx + 34},{cy - 104} {cx + 30},{cy - 84} {cx + 18},{cy - 64} Z' {theme('foreground')}/>"
+             f"<path d='M{cx - 34},{cy - 106} L{cx - 44},{cy - 84} M{cx + 34},{cy - 106} L{cx + 44},{cy - 84}' "
+             f"{stroke('foreground', 9)} stroke-linecap='round'/>"
+             f"<circle cx='{cx}' cy='{cy - 128}' r='17' {theme('accent')}/>"
+             f"<path d='M{cx - 12},{cy - 130} L{cx + 12},{cy - 130}' {stroke('background', 5)} stroke-linecap='round'/>")
+    drawings = {"face.svg": svg(w, h, face), "fill.svg": svg(w, h, fill), "rider.svg": svg(w, h, rider)}
+    mid = (lo + hi) / 2
+    components = [image("face.svg", (0, 0, w, h)),
+                  image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(mid, hi, (cx, cy)) | {"minValue": 0, "maxValue": 60}]),
+                  image("fill.svg", (0, 0, w, h), manipulations=[radial_clip(mid, lo, (cx, cy)) | {"minValue": 0, "maxValue": -60}]),
+                  text("fixed", polar(cx, cy, r + 2, lo - 9), 20, "accent2", italic=True, text="60"),
+                  text("fixed", polar(cx, cy, r + 2, hi + 9), 20, "accent2", italic=True, text="60"),
+                  image("rider.svg", (0, 0, w, h), manipulations=[rotate(lo, hi, (cx, cy), minValue=-60, maxValue=60)]),
+                  text("value", (cx + 30, cy + 40), 44, bold=True, align="right", precision=0),
+                  text("unit", (cx + 32, cy + 32), 26, align="left")]
+    write(name, (w, h), components, drawings, ["leanAngle"])
+
+
 # --- batch 3: arcs, readouts, bars ----------------------------------------
 
 G_TOP = 0.5          # g at the ends of a scale with 0 in the middle: as much as a bicycle gets
@@ -2155,6 +2211,8 @@ def main():
     half_dial("Half dial right", "right")
     tape("Tape elevation")
     g_rings("G-force rings")
+    g_plot("G-plot")
+    lean_angle("Lean angle")
     side_arc("Side arc right", "right")
     side_arc("Side arc left", "left")
     crown_arc("Crown arc")

@@ -328,6 +328,28 @@ QPair<QString, QString> axesOf(const QString &channel)
 
 // The slice from `fromAngle` turning `sweep` degrees clockwise (0 = 12 o'clock),
 // as a polygon whose outer edge stays beyond `reach` from the pivot.
+// The way a moving part went over the last `seconds` before `time`, around `center`: a line
+// in its color, as wide as `width` at the present and thinner and fainter towards the past.
+void drawTrail(QPainter &painter, const QPointF &center, const QColor &color, double width, double seconds,
+               double time, const std::function<QPointF(double)> &offsetAt)
+{
+    // a step a twentieth of a second: smooth enough, and data comes no finer
+    const int steps = std::clamp(int(std::lround(seconds * 20.0)), 2, 600);
+    QPointF previous = center + offsetAt(time - seconds);
+    painter.save();
+    for (int k = 1; k <= steps; ++k)
+        {
+            const double share = double(k) / steps;     // 0 in the past, 1 now
+            const QPointF point = center + offsetAt(time - seconds * (1.0 - share));
+            QColor faded = color;
+            faded.setAlphaF(color.alphaF() * 0.75 * share);
+            painter.setPen(QPen(faded, std::max(1.0, width * (0.25 + 0.75 * share)), Qt::SolidLine, Qt::RoundCap));
+            painter.drawLine(previous, point);
+            previous = point;
+        }
+    painter.restore();
+}
+
 QPainterPath slice(const QPointF &pivot, double fromAngle, double sweep, double reach)
 {
     const int steps = std::max(1, int(std::ceil(std::fabs(sweep) / 10.0)));
@@ -1340,7 +1362,7 @@ void BoundGauge::draw(QPainter &painter, const Node &node, double time, const Co
                 case GaugeManipulation::Translate2D:
                 {
                     // each axis: -1..1 over the largest value either way, then held inside the circle
-                    auto axis = [&](int index)
+                    auto axis = [&](int index, double when)
                     {
                         if (index < 0 || !m_metrics.at(index).channel)
                             {
@@ -1348,20 +1370,31 @@ void BoundGauge::draw(QPainter &painter, const Node &node, double time, const Co
                             }
                         const Metric &axisMetric = m_metrics.at(index);
                         bool ok = false;
-                        const double v = axisMetric.display.convert(axisMetric.channel->valueAt(time, &ok));
+                        const double v = axisMetric.display.convert(axisMetric.channel->valueAt(when, &ok));
                         const double extent = m.hasValueRange ? std::max(std::fabs(m.minValue), std::fabs(m.maxValue))
                                               : std::max(std::fabs(axisMetric.range.min), std::fabs(axisMetric.range.max));
                         return ok && extent > 0.0 ? std::clamp(v / extent, -1.0, 1.0) : 0.0;
                     };
-                    double x = axis(node.axes.at(i).first) * (m.invertX ? -1.0 : 1.0);
-                    double y = -axis(node.axes.at(i).second) * (m.invertY ? -1.0 : 1.0);
-                    const double length = std::hypot(x, y);
-                    if (length > 1.0)
+                    auto offset = [&](double when)
+                    {
+                        double x = axis(node.axes.at(i).first, when) * (m.invertX ? -1.0 : 1.0);
+                        double y = -axis(node.axes.at(i).second, when) * (m.invertY ? -1.0 : 1.0);
+                        const double length = std::hypot(x, y);
+                        if (length > 1.0)
+                            {
+                                x /= length;
+                                y /= length;
+                            }
+                        return QPointF(x * m.maxRadius, y * m.maxRadius);
+                    };
+                    if (m.trailSeconds > 0.0)
                         {
-                            x /= length;
-                            y /= length;
+                            // a drawing in its own colors leaves an accent trail
+                            const QColor color = component.color.role == GaugeColor::Original ? m_theme.accent : node.color;
+                            drawTrail(painter, component.frame.center(), color, component.frame.width() * 0.3,
+                                      m.trailSeconds, time, offset);
                         }
-                    painter.translate(x * m.maxRadius, y * m.maxRadius);
+                    painter.translate(offset(time));
                     break;
                 }
                 case GaugeManipulation::AnimationStrip:

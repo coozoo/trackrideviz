@@ -839,6 +839,17 @@ private slots:
 
         gauge.components[0].manipulations[0].invertY = true;
         QVERIFY(painted(draw(gauge, 20.0, "gForceLatLon", session), 50, 10));
+
+        // with a trail: the way from the right edge up to the top in the last 12 s, behind the
+        // ball; nothing of where it was before that
+        gauge.components[0].manipulations[0].trailSeconds = 12.0;
+        const QImage trail = draw(gauge, 20.0, "gForceLatLon", session);
+        QVERIFY(painted(trail, 50, 10));
+        QVERIFY(painted(trail, 70, 30));
+        QVERIFY(painted(trail, 60, 20));
+        QVERIFY(!painted(trail, 50, 89));
+        gauge.components[0].manipulations[0].trailSeconds = 0.0;
+        QVERIFY(!painted(draw(gauge, 20.0, "gForceLatLon", session), 70, 30));
     }
 
     void animationPicksPicturesFasterForHigherValues()
@@ -1401,6 +1412,7 @@ private slots:
         ball.invertY = true;
         ball.xChannel = "a";
         ball.yChannel = "b";
+        ball.trailSeconds = 3.0;
         GaugeManipulation mask;
         mask.type = GaugeManipulation::StaticRadialClip;
         mask.pivot = QPointF(200, 200);
@@ -1441,6 +1453,7 @@ private slots:
         QVERIFY(m[1].invertY && !m[1].invertX);
         QCOMPARE(m[1].xChannel, QString("a"));
         QCOMPARE(m[1].yChannel, QString("b"));
+        QCOMPARE(m[1].trailSeconds, 3.0);
         QCOMPARE(m[2].type, GaugeManipulation::StaticRadialClip);
         QCOMPARE(m[2].pivot, QPointF(200, 200));
         QCOMPARE(m[2].maxAngle, 150.0);

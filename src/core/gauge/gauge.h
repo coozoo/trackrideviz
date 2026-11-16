@@ -94,6 +94,9 @@ struct GaugeManipulation
     bool invertY{false};
     QString xChannel;
     QString yChannel;
+    // Translate2D: the way the part went over the last this many seconds, drawn behind it
+    // in its color, fading towards the past; 0 = none
+    double trailSeconds{0.0};
 
     // AnimationStrip: the component's image holds `frames` pictures side by
     // side (or one above the other); frameRect is where one of them shows.

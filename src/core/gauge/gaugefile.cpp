@@ -236,6 +236,10 @@ QJsonObject manipulationToJson(const GaugeManipulation &m)
                 {
                     object["yChannel"] = m.yChannel;
                 }
+            if (m.trailSeconds > 0.0)
+                {
+                    object["trailSeconds"] = m.trailSeconds;
+                }
             break;
         case GaugeManipulation::AnimationStrip:
             object["frames"] = m.frames;
@@ -305,6 +309,8 @@ GaugeManipulation manipulationFromJson(const QJsonObject &object)
     m.invertY = object.value("invertY").toBool();
     m.xChannel = object.value("xChannel").toString();
     m.yChannel = object.value("yChannel").toString();
+    // a trail of minutes would be a scribble, and a slow one to draw
+    m.trailSeconds = std::clamp(object.value("trailSeconds").toDouble(), 0.0, 30.0);
     m.frames = object.value("frames").toInt(1);
     m.minFps = object.value("minFps").toDouble(1.0);
     m.maxFps = object.value("maxFps").toDouble(1.0);

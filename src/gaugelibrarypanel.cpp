@@ -139,7 +139,7 @@ QString groupOfChannel(const QString &channel)
         {
             return "laps";
         }
-    if (has({"gforce", "acceleration", "braking"}))
+    if (has({"gforce", "acceleration", "braking", "lean"}))
         {
             return "g";
         }
