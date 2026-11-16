@@ -114,6 +114,73 @@ void AppSettings::setLanguage(const QString &language)
     QSettings().setValue(kLanguage, language);
 }
 
+namespace
+{
+const char *recentKey(AppSettings::RecentKind kind)
+{
+    switch (kind)
+        {
+        case AppSettings::RecentVideos:
+            return "recent/videos";
+        case AppSettings::RecentData:
+            return "recent/data";
+        case AppSettings::RecentProjects:
+            return "recent/projects";
+        }
+    return "recent/videos";
+}
+}
+
+QStringList AppSettings::recentFiles(RecentKind kind)
+{
+    return QSettings().value(recentKey(kind)).toStringList().mid(0, recentFileCount());
+}
+
+void AppSettings::addRecentFile(RecentKind kind, const QString &path)
+{
+    if (path.isEmpty() || recentFileCount() == 0)
+        {
+            return;
+        }
+    const QString absolute = QFileInfo(path).absoluteFilePath();
+    QStringList files = QSettings().value(recentKey(kind)).toStringList();
+    // once, at the top; the same file under another spelling of its path too
+    files.erase(std::remove_if(files.begin(), files.end(), [&](const QString &file)
+    {
+        // QFileInfo counts any two files that are not there as the same
+        const QFileInfo info(file);
+        return info.exists() ? info == QFileInfo(absolute) : info.absoluteFilePath() == absolute;
+    }), files.end());
+    files.prepend(absolute);
+    QSettings().setValue(recentKey(kind), files.mid(0, recentFileCount()));
+}
+
+void AppSettings::clearRecentFiles(RecentKind kind)
+{
+    QSettings().remove(recentKey(kind));
+}
+
+int AppSettings::recentFileCount()
+{
+    return std::clamp(QSettings().value("recent/count", 10).toInt(), 0, kMaxRecentFiles);
+}
+
+void AppSettings::setRecentFileCount(int count)
+{
+    count = std::clamp(count, 0, kMaxRecentFiles);
+    QSettings settings;
+    settings.setValue("recent/count", count);
+    // the lists no longer than that at once
+    for (const RecentKind kind : {RecentVideos, RecentData, RecentProjects})
+        {
+            const QStringList files = settings.value(recentKey(kind)).toStringList();
+            if (files.size() > count)
+                {
+                    settings.setValue(recentKey(kind), files.mid(0, count));
+                }
+        }
+}
+
 bool AppSettings::saveWindowLayout()
 {
     return QSettings().value(kSaveWindowLayout, true).toBool();

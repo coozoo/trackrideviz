@@ -1,6 +1,7 @@
 #pragma once
 
 #include "project/project.h"
+#include "settings/appsettings.h"
 #include "telemetry/gears.h"
 #include "telemetry/powerestimate.h"
 #include "weather/weather.h"
@@ -11,6 +12,8 @@
 #include <QMainWindow>
 #include <QMediaPlayer>
 
+#include <functional>
+
 class QAction;
 class QAudioOutput;
 class QCheckBox;
@@ -18,6 +21,7 @@ class QComboBox;
 class QDockWidget;
 class QDoubleSpinBox;
 class QLabel;
+class QMenu;
 class QSlider;
 class QTimer;
 class QToolButton;
@@ -58,6 +62,8 @@ private slots:
     void chooseVideo();
     // paths: the videos the dialog starts with
     void joinVideos(const QStringList &paths = {});
+    // A video picked by the user: the chapters of a camera recording offered as one.
+    void openChosenVideo(const QString &path);
     void chooseTelemetry();
     void chooseProject();
     // Both return false when the user backed out or writing failed.
@@ -95,6 +101,9 @@ private slots:
     void showAbout();
 
 private:
+    // A File submenu of the files of `kind` opened lately; `open` opens one.
+    QMenu *addRecentMenu(QMenu *parent, const QString &title, AppSettings::RecentKind kind,
+                         const std::function<void(const QString &)> &open);
     QWidget *createCentralWidget();
     void createDocks();
     void createMenus();
@@ -212,6 +221,7 @@ private:
     // Import in progress; a result for any other path is stale and dropped.
     QString m_pendingTelemetryPath;
     bool m_pendingKeepsSync{false};
+    bool m_pendingRecentData{false};  // the data being read goes among the recent ones
     bool m_pendingQuietly{false};   // the video's own data, tried: no message when it has none
     quint64 m_importGeneration{0};   // the load whose result is wanted
     // terrain or weather arriving: the data is worked out again when they stop coming

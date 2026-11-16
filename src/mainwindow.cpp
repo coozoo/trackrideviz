@@ -199,7 +199,8 @@ QString formatTime(qint64 ms)
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    resize(1280, 800);
+    // the first time, before a layout is saved: as much as a laptop has, never past the screen
+    resize(QSize(1280, 800).boundedTo(screen()->availableGeometry().size() * 0.92));
 
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
@@ -685,14 +686,26 @@ void MainWindow::createMenus()
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QAction *openVideoAction = fileMenu->addAction(tr("Open &video..."), this, &MainWindow::chooseVideo);
     openVideoAction->setShortcut(QKeySequence::Open);
+    addRecentMenu(fileMenu, tr("&Recent videos"), AppSettings::RecentVideos, [this](const QString &path)
+    {
+        openChosenVideo(path);
+    });
     QAction *openDataAction = fileMenu->addAction(tr("Open &data..."), this, &MainWindow::chooseTelemetry);
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+    addRecentMenu(fileMenu, tr("Recent &data"), AppSettings::RecentData, [this](const QString &path)
+    {
+        openTelemetry(path);
+    });
     m_dataSourcesAction = fileMenu->addAction(tr("Add data from other &files..."), this, &MainWindow::editDataSources);
     m_dataSourcesAction->setEnabled(false);
     fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
     fileMenu->addSeparator();
     QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
     openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
+    addRecentMenu(fileMenu, tr("Recent pro&jects"), AppSettings::RecentProjects, [this](const QString &path)
+    {
+        openProject(path);
+    });
     QAction *saveAction = fileMenu->addAction(tr("&Save project"), this, &MainWindow::saveProject);
     saveAction->setShortcut(QKeySequence::Save);
     QAction *saveAsAction = fileMenu->addAction(tr("Save project &as..."), this, &MainWindow::saveProjectAs);
@@ -754,19 +767,65 @@ void MainWindow::chooseVideo()
     if (!path.isEmpty())
         {
             settings.setValue("paths/video", QFileInfo(path).absolutePath());
-            // a camera splits a long recording into chapters: offered as the one video it is
-            const QStringList chapters = VideoJoin::chaptersFrom(path);
-            if (chapters.size() > 1 && QFileInfo(chapters.first()) == QFileInfo(path)
-                    && QMessageBox::question(this, tr("Open video"),
-                                             tr("%1 is the first of %n parts of one recording. Join them into one video?",
-                                                nullptr, int(chapters.size())).arg(QFileInfo(path).fileName()))
-                    == QMessageBox::Yes)
-                {
-                    joinVideos(chapters);
-                    return;
-                }
-            openVideo(path);
+            openChosenVideo(path);
         }
+}
+
+void MainWindow::openChosenVideo(const QString &path)
+{
+    // a camera splits a long recording into chapters: offered as the one video it is
+    const QStringList chapters = VideoJoin::chaptersFrom(path);
+    if (chapters.size() > 1 && QFileInfo(chapters.first()) == QFileInfo(path)
+            && QMessageBox::question(this, tr("Open video"),
+                                     tr("%1 is the first of %n parts of one recording. Join them into one video?",
+                                        nullptr, int(chapters.size())).arg(QFileInfo(path).fileName()))
+            == QMessageBox::Yes)
+        {
+            joinVideos(chapters);
+            return;
+        }
+    openVideo(path);
+}
+
+QMenu *MainWindow::addRecentMenu(QMenu *parent, const QString &title, AppSettings::RecentKind kind,
+                                 const std::function<void(const QString &)> &open)
+{
+    QMenu *menu = parent->addMenu(title);
+    menu->setToolTipsVisible(true);
+    // filled each time it opens: other windows and the settings change the lists
+    connect(menu, &QMenu::aboutToShow, this, [this, menu, kind, open]()
+    {
+        menu->clear();
+        int number = 0;
+        for (const QString &path : AppSettings::recentFiles(kind))
+            {
+                // a file moved or deleted since is left out
+                if (!QFileInfo::exists(path))
+                    {
+                        continue;
+                    }
+                ++number;
+                // the first nine reachable by their digit
+                const QString name = QFileInfo(path).fileName().replace('&', "&&");
+                QAction *action = menu->addAction(number <= 9 ? QString("&%1  %2").arg(number).arg(name) : name);
+                action->setToolTip(QDir::toNativeSeparators(path));
+                connect(action, &QAction::triggered, this, [open, path]()
+                {
+                    open(path);
+                });
+            }
+        if (number == 0)
+            {
+                menu->addAction(tr("None"))->setEnabled(false);
+                return;
+            }
+        menu->addSeparator();
+        menu->addAction(tr("Clear the list"), this, [kind]()
+        {
+            AppSettings::clearRecentFiles(kind);
+        });
+    });
+    return menu;
 }
 
 void MainWindow::chooseTelemetry()
@@ -791,6 +850,7 @@ void MainWindow::openVideo(const QString &path, const QVector<TimeShift> &shifts
     m_timelinePanel->setCuts(m_project.cuts);
     m_musicPanel->setCuts(m_project.cuts);
     loadVideo(path);
+    AppSettings::addRecentFile(AppSettings::RecentVideos, path);
     // a GoPro's video holds its positions: they are the data, unless some is open already
     if (m_project.telemetryPath.isEmpty() && m_pendingTelemetryPath.isEmpty()
             && QFileInfo(path).suffix().compare("mp4", Qt::CaseInsensitive) == 0)
@@ -835,11 +895,14 @@ void MainWindow::openTelemetry(const QString &path)
     m_project.moreData.clear();
     m_dataPanel->setEdits(m_project.dataEdits);
     loadTelemetry(path, false);
+    // kept among the recent ones once it is read
+    m_pendingRecentData = true;
 }
 
 void MainWindow::loadTelemetry(const QString &path, bool keepSync, bool quietly)
 {
     m_pendingQuietly = quietly;
+    m_pendingRecentData = false;
     m_pendingTelemetryPath = path;
     m_pendingKeepsSync = keepSync;
     // only the last load counts, also when the same file is loaded again before the first is done
@@ -954,6 +1017,7 @@ void MainWindow::openProject(const QString &path)
 
     m_project = project;
     m_projectPath = path;
+    AppSettings::addRecentFile(AppSettings::RecentProjects, path);
     m_undoStack->clear();
     setModified(false);
     m_session.reset();
@@ -1048,6 +1112,7 @@ bool MainWindow::saveProjectAs()
             return false;
         }
     updateWindowTitle();
+    AppSettings::addRecentFile(AppSettings::RecentProjects, path);
     return true;
 }
 
@@ -1742,6 +1807,11 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
         }
     m_project.telemetryPath = path;
     m_dataSourcesAction->setEnabled(true);
+    if (m_pendingRecentData)
+        {
+            m_pendingRecentData = false;
+            AppSettings::addRecentFile(AppSettings::RecentData, path);
+        }
     m_heldTime = -1.0;
     m_rawSession = raw;
     m_recordedSession = session;

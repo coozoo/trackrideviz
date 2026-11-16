@@ -10,6 +10,9 @@ class QLabel;
 class QLineEdit;
 class QListWidget;
 class QPushButton;
+class QDialogButtonBox;
+class QHBoxLayout;
+class QSpinBox;
 class QStackedWidget;
 class QTableWidget;
 struct SurfaceType;
@@ -26,6 +29,9 @@ public:
 
 public slots:
     void accept() override;
+
+protected:
+    void showEvent(QShowEvent *event) override;
 
 private:
     void addPage(const QString &title, QWidget *page);
@@ -55,6 +61,10 @@ private:
     QComboBox *m_colorSchemeCombo{nullptr};
     QComboBox *m_languageCombo{nullptr};
     QCheckBox *m_saveLayoutCheck{nullptr};
+    QSpinBox *m_recentCountSpin{nullptr};
+    QDialogButtonBox *m_buttons{nullptr};
+    QHBoxLayout *m_body{nullptr};
+    bool m_fitted{false};   // sized to the pages, the first time it was shown
 
     QCheckBox *m_hardwareDecodingCheck{nullptr};
     QComboBox *m_decoderCombo{nullptr};

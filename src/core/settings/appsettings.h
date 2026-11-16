@@ -37,6 +37,16 @@ public:
     static bool saveWindowLayout();
     static void setSaveWindowLayout(bool enabled);
 
+    // Files opened lately, the last first, for the File menu; as many as recentFileCount().
+    enum RecentKind { RecentVideos, RecentData, RecentProjects };
+    static QStringList recentFiles(RecentKind kind);
+    static void addRecentFile(RecentKind kind, const QString &path);
+    static void clearRecentFiles(RecentKind kind);
+    // how many each list keeps: 10 unless set; 0 keeps none
+    static int recentFileCount();
+    static void setRecentFileCount(int count);
+    static constexpr int kMaxRecentFiles = 30;
+
     // --- Preview ----------------------------------------------------------
     enum Decoder { AutoDecoder, VaApi, Cuda, Qsv, Vdpau };
 

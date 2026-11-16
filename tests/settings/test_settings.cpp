@@ -177,6 +177,38 @@ private slots:
         QCOMPARE(ChannelFormat::displayFor(ChannelId::Temperature, "C", units).convert(20.0), 20.0);
     }
 
+    void recentFiles()
+    {
+        QCOMPARE(AppSettings::recentFileCount(), 10);
+        QVERIFY(AppSettings::recentFiles(AppSettings::RecentVideos).isEmpty());
+        for (int i = 0; i < 12; ++i)
+            {
+                AppSettings::addRecentFile(AppSettings::RecentVideos, QString("/rides/%1.mp4").arg(i));
+            }
+        QStringList videos = AppSettings::recentFiles(AppSettings::RecentVideos);
+        // the last first, ten of them
+        QCOMPARE(videos.size(), 10);
+        QCOMPARE(videos.first(), QString("/rides/11.mp4"));
+        // opened again: to the top, once
+        AppSettings::addRecentFile(AppSettings::RecentVideos, "/rides/5.mp4");
+        videos = AppSettings::recentFiles(AppSettings::RecentVideos);
+        QCOMPARE(videos.first(), QString("/rides/5.mp4"));
+        QCOMPARE(videos.count("/rides/5.mp4"), 1);
+        // each kind its own list
+        AppSettings::addRecentFile(AppSettings::RecentProjects, "/rides/day.rtvproj");
+        QCOMPARE(AppSettings::recentFiles(AppSettings::RecentProjects), QStringList{"/rides/day.rtvproj"});
+        QVERIFY(AppSettings::recentFiles(AppSettings::RecentData).isEmpty());
+        // fewer kept: the lists shorten at once; none: nothing is added
+        AppSettings::setRecentFileCount(3);
+        QCOMPARE(AppSettings::recentFiles(AppSettings::RecentVideos).size(), 3);
+        AppSettings::setRecentFileCount(0);
+        AppSettings::addRecentFile(AppSettings::RecentData, "/rides/a.fit");
+        QVERIFY(AppSettings::recentFiles(AppSettings::RecentData).isEmpty());
+        AppSettings::setRecentFileCount(10);
+        AppSettings::clearRecentFiles(AppSettings::RecentVideos);
+        QVERIFY(AppSettings::recentFiles(AppSettings::RecentVideos).isEmpty());
+    }
+
     void paceReadsAsMinutesAndSeconds()
     {
         const Units metric;

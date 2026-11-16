@@ -28,6 +28,9 @@
 #include <QSignalBlocker>
 #include <QTableWidget>
 #include <QStackedWidget>
+#include <QStyle>
+#include <QSpinBox>
+#include <QScreen>
 #include <QStyleFactory>
 #include <QVBoxLayout>
 
@@ -59,7 +62,6 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     setWindowTitle(tr("Settings"));
 
     m_pageList = new QListWidget(this);
-    m_pageList->setFixedWidth(150);
     m_pages = new QStackedWidget(this);
     connect(m_pageList, &QListWidget::currentRowChanged, m_pages, &QStackedWidget::setCurrentIndex);
 
@@ -84,9 +86,47 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addLayout(body, 1);
     layout->addWidget(buttons);
-    resize(620, 360);
+
+    m_buttons = buttons;
+    m_body = body;
+    resize(560, 360);
 
     load();
+}
+
+void SettingsDialog::showEvent(QShowEvent *event)
+{
+    QDialog::showEvent(event);
+    if (m_fitted)
+        {
+            return;
+        }
+    // only now are the pages styled and their sizes true
+    m_fitted = true;
+    QLayout *layout = this->layout();
+    QHBoxLayout *body = m_body;
+    QDialogButtonBox *buttons = m_buttons;
+    // the list as wide as its longest name, in any language
+    m_pageList->setFixedWidth(m_pageList->sizeHintForColumn(0) + 2 * m_pageList->frameWidth() + 24);
+    // as large as the largest page needs, as far as the screen allows; what still does not
+    // fit scrolls
+    QSize largest;
+    for (int i = 0; i < m_pages->count(); ++i)
+        {
+            // the pages not shown yet too: styled before they are measured
+            QWidget *page = static_cast<QScrollArea *>(m_pages->widget(i))->widget();
+            page->ensurePolished();
+            largest = largest.expandedTo(page->sizeHint());
+        }
+    const int scrollBar = style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+    const QMargins margins = layout->contentsMargins();
+    QSize wanted(m_pageList->width() + body->spacing() + largest.width() + scrollBar + margins.left() + margins.right(),
+                 largest.height() + layout->spacing() + buttons->sizeHint().height() + margins.top() + margins.bottom());
+    const QSize room = screen()->availableGeometry().size() * 0.9;
+    resize(wanted.boundedTo(room).expandedTo(QSize(560, 360)));
+    // still on the screen when it grew
+    move(pos().x() - std::max(0, frameGeometry().right() - screen()->availableGeometry().right()),
+         pos().y() - std::max(0, frameGeometry().bottom() - screen()->availableGeometry().bottom()));
 }
 
 void SettingsDialog::addPage(const QString &title, QWidget *page)
@@ -95,7 +135,8 @@ void SettingsDialog::addPage(const QString &title, QWidget *page)
     // a page taller than the dialog scrolls rather than squeezing its rows
     QScrollArea *scroll = new QScrollArea(this);
     scroll->setWidgetResizable(true);
-    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // and one too wide, in a small window or a long language, scrolls sideways
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scroll->setFrameShape(QFrame::NoFrame);
     scroll->setWidget(page);
     m_pages->addWidget(scroll);
@@ -124,6 +165,10 @@ QWidget *SettingsDialog::createAppearancePage()
     m_languageCombo->addItem(QString::fromUtf8("Українська"), "uk_UA");
 
     m_saveLayoutCheck = new QCheckBox(tr("Save and restore the window layout"), page);
+    m_recentCountSpin = new QSpinBox(page);
+    m_recentCountSpin->setRange(0, AppSettings::kMaxRecentFiles);
+    m_recentCountSpin->setSpecialValueText(tr("None"));
+    m_recentCountSpin->setToolTip(tr("How many of the videos, data files and projects opened lately the File menu lists"));
 
     QFormLayout *form = new QFormLayout(page);
     form->addRow(tr("Style:"), m_styleCombo);
@@ -133,6 +178,7 @@ QWidget *SettingsDialog::createAppearancePage()
     form->addRow(tr("Language:"), m_languageCombo);
     form->addRow(QString(), note(tr("The language changes after a restart."), page));
     form->addRow(QString(), m_saveLayoutCheck);
+    form->addRow(tr("Recent files:"), m_recentCountSpin);
     return page;
 }
 
@@ -674,6 +720,7 @@ void SettingsDialog::load()
     select(m_colorSchemeCombo, AppSettings::colorScheme());
     select(m_languageCombo, AppSettings::language());
     m_saveLayoutCheck->setChecked(AppSettings::saveWindowLayout());
+    m_recentCountSpin->setValue(AppSettings::recentFileCount());
 
     m_hardwareDecodingCheck->setChecked(AppSettings::hardwareDecoding());
     select(m_decoderCombo, AppSettings::preferredDecoder());
@@ -775,6 +822,7 @@ void SettingsDialog::accept()
     AppSettings::setColorScheme(AppSettings::ColorScheme(m_colorSchemeCombo->currentData().toInt()));
     AppSettings::setLanguage(language);
     AppSettings::setSaveWindowLayout(m_saveLayoutCheck->isChecked());
+    AppSettings::setRecentFileCount(m_recentCountSpin->value());
     AppSettings::setHardwareDecoding(hardwareDecoding);
     AppSettings::setPreferredDecoder(decoder);
 
