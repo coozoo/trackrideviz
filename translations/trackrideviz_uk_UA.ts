@@ -4,512 +4,517 @@
 <context>
     <name>ChannelFormat</name>
     <message>
-        <location filename="../src/core/units/units.cpp" line="47"/>
+        <location filename="../src/core/units/units.cpp" line="49"/>
         <source>mph</source>
         <translation>миль/год</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="47"/>
+        <location filename="../src/core/units/units.cpp" line="49"/>
         <source>km/h</source>
         <translation>км/год</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="60"/>
+        <location filename="../src/core/units/units.cpp" line="72"/>
         <source>Latitude</source>
         <translation>Широта</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="64"/>
+        <location filename="../src/core/units/units.cpp" line="76"/>
         <source>Longitude</source>
         <translation>Довгота</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="68"/>
-        <location filename="../src/core/units/units.cpp" line="69"/>
+        <location filename="../src/core/units/units.cpp" line="80"/>
+        <location filename="../src/core/units/units.cpp" line="81"/>
         <source>Elevation</source>
         <translation>Висота</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="68"/>
-        <location filename="../src/core/units/units.cpp" line="199"/>
-        <location filename="../src/core/units/units.cpp" line="220"/>
+        <location filename="../src/core/units/units.cpp" line="80"/>
+        <location filename="../src/core/units/units.cpp" line="212"/>
+        <location filename="../src/core/units/units.cpp" line="236"/>
         <source>ft</source>
         <translation>фут</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="69"/>
-        <location filename="../src/core/units/units.cpp" line="199"/>
-        <location filename="../src/core/units/units.cpp" line="220"/>
+        <location filename="../src/core/units/units.cpp" line="81"/>
+        <location filename="../src/core/units/units.cpp" line="212"/>
+        <location filename="../src/core/units/units.cpp" line="236"/>
         <source>m</source>
         <translation>м</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="73"/>
+        <location filename="../src/core/units/units.cpp" line="85"/>
         <source>Speed</source>
         <translation>Швидкість</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="77"/>
-        <location filename="../src/core/units/units.cpp" line="78"/>
+        <location filename="../src/core/units/units.cpp" line="89"/>
+        <location filename="../src/core/units/units.cpp" line="90"/>
         <source>Distance</source>
         <translation>Відстань</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="77"/>
-        <location filename="../src/core/units/units.cpp" line="224"/>
+        <location filename="../src/core/units/units.cpp" line="89"/>
+        <location filename="../src/core/units/units.cpp" line="240"/>
         <source>mi</source>
         <translation>миль</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="78"/>
-        <location filename="../src/core/units/units.cpp" line="225"/>
+        <location filename="../src/core/units/units.cpp" line="90"/>
+        <location filename="../src/core/units/units.cpp" line="241"/>
         <source>km</source>
         <translation>км</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="82"/>
+        <location filename="../src/core/units/units.cpp" line="94"/>
         <source>Chainring</source>
         <translation>Зірка</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="82"/>
+        <location filename="../src/core/units/units.cpp" line="94"/>
         <source>Sprocket</source>
         <translation>Зірочка касети</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="82"/>
+        <location filename="../src/core/units/units.cpp" line="94"/>
         <source>T</source>
         <translation>з</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="86"/>
+        <location filename="../src/core/units/units.cpp" line="98"/>
         <source>Front gear</source>
         <translation>Передня передача</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="86"/>
+        <location filename="../src/core/units/units.cpp" line="98"/>
         <source>Gear</source>
         <translation>Передача</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="90"/>
+        <location filename="../src/core/units/units.cpp" line="102"/>
         <source>Gear ratio</source>
         <translation>Передаточне число</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="94"/>
+        <location filename="../src/core/units/units.cpp" line="106"/>
         <source>Wind speed</source>
         <translation>Швидкість вітру</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="94"/>
+        <location filename="../src/core/units/units.cpp" line="106"/>
         <source>Headwind</source>
         <translation>Зустрічний вітер</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="99"/>
+        <location filename="../src/core/units/units.cpp" line="111"/>
         <source>Wind direction</source>
         <translation>Напрямок вітру</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="99"/>
+        <location filename="../src/core/units/units.cpp" line="111"/>
         <source>Wind as the rider meets it</source>
         <translation>Вітер відносно райдера</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="103"/>
+        <location filename="../src/core/units/units.cpp" line="115"/>
         <source>Air density</source>
         <translation>Густина повітря</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="103"/>
+        <location filename="../src/core/units/units.cpp" line="115"/>
         <source>kg/m³</source>
         <translation>кг/м³</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="107"/>
+        <location filename="../src/core/units/units.cpp" line="119"/>
         <source>Heading</source>
         <translation>Курс</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="111"/>
+        <location filename="../src/core/units/units.cpp" line="123"/>
         <source>Grade</source>
         <translation>Ухил</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="115"/>
+        <location filename="../src/core/units/units.cpp" line="127"/>
         <source>Heart rate</source>
         <translation>Пульс</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="115"/>
+        <location filename="../src/core/units/units.cpp" line="127"/>
         <source>bpm</source>
         <translation>уд/хв</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="119"/>
+        <location filename="../src/core/units/units.cpp" line="132"/>
         <source>Cadence</source>
         <translation>Каденс</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="119"/>
+        <location filename="../src/core/units/units.cpp" line="132"/>
         <source>rpm</source>
         <translation>об/хв</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="123"/>
+        <location filename="../src/core/units/units.cpp" line="132"/>
+        <source>spm</source>
+        <translation>кр/хв</translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="136"/>
         <source>Power</source>
         <translation>Потужність</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="123"/>
-        <location filename="../src/core/units/units.cpp" line="215"/>
-        <location filename="../src/core/units/units.cpp" line="267"/>
-        <location filename="../src/core/units/units.cpp" line="268"/>
+        <location filename="../src/core/units/units.cpp" line="136"/>
+        <location filename="../src/core/units/units.cpp" line="231"/>
+        <location filename="../src/core/units/units.cpp" line="283"/>
+        <location filename="../src/core/units/units.cpp" line="284"/>
         <source>W</source>
         <translation>Вт</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="128"/>
-        <location filename="../src/core/units/units.cpp" line="129"/>
+        <location filename="../src/core/units/units.cpp" line="141"/>
+        <location filename="../src/core/units/units.cpp" line="142"/>
         <source>Temperature</source>
         <translation>Температура</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="133"/>
+        <location filename="../src/core/units/units.cpp" line="146"/>
         <source>Lateral G</source>
         <translation>Бічне прискорення</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="137"/>
+        <location filename="../src/core/units/units.cpp" line="150"/>
         <source>Longitudinal G</source>
         <translation>Поздовжнє прискорення</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="141"/>
+        <location filename="../src/core/units/units.cpp" line="154"/>
         <source>Vertical G</source>
         <translation>Вертикальне прискорення</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="145"/>
+        <location filename="../src/core/units/units.cpp" line="158"/>
         <source>Lean angle</source>
         <translation>Кут нахилу</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="150"/>
+        <location filename="../src/core/units/units.cpp" line="163"/>
         <source>Camera acceleration %1</source>
         <translation>Прискорення камери %1</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="150"/>
+        <location filename="../src/core/units/units.cpp" line="163"/>
         <source>m/s²</source>
         <translation>м/с²</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="155"/>
+        <location filename="../src/core/units/units.cpp" line="168"/>
         <source>Camera rotation %1</source>
         <translation>Обертання камери %1</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="155"/>
+        <location filename="../src/core/units/units.cpp" line="168"/>
         <source>°/s</source>
         <translation>°/с</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="159"/>
+        <location filename="../src/core/units/units.cpp" line="172"/>
         <source>Lap</source>
         <translation>Коло</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="163"/>
+        <location filename="../src/core/units/units.cpp" line="176"/>
         <source>Laps</source>
         <translation>Кола</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="167"/>
+        <location filename="../src/core/units/units.cpp" line="180"/>
         <source>Lap time</source>
         <translation>Час кола</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="168"/>
+        <location filename="../src/core/units/units.cpp" line="181"/>
         <source>Previous lap</source>
         <translation>Попереднє коло</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="168"/>
+        <location filename="../src/core/units/units.cpp" line="181"/>
         <source>Best lap</source>
         <translation>Найкраще коло</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="169"/>
-        <location filename="../src/core/units/units.cpp" line="173"/>
-        <location filename="../src/core/units/units.cpp" line="181"/>
-        <location filename="../src/core/units/units.cpp" line="185"/>
-        <location filename="../src/core/units/units.cpp" line="203"/>
+        <location filename="../src/core/units/units.cpp" line="182"/>
+        <location filename="../src/core/units/units.cpp" line="186"/>
+        <location filename="../src/core/units/units.cpp" line="194"/>
+        <location filename="../src/core/units/units.cpp" line="198"/>
+        <location filename="../src/core/units/units.cpp" line="216"/>
         <source>s</source>
         <translation>с</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="173"/>
+        <location filename="../src/core/units/units.cpp" line="186"/>
         <source>Delta to best lap</source>
         <translation>Різниця з найкращим колом</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="177"/>
+        <location filename="../src/core/units/units.cpp" line="190"/>
         <source>Sector</source>
         <translation>Сектор</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="181"/>
+        <location filename="../src/core/units/units.cpp" line="194"/>
         <source>Sector time</source>
         <translation>Час сектора</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="181"/>
+        <location filename="../src/core/units/units.cpp" line="194"/>
         <source>Previous sector</source>
         <translation>Попередній сектор</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="185"/>
+        <location filename="../src/core/units/units.cpp" line="198"/>
         <source>Sector against best</source>
         <translation>Сектор проти найкращого</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="189"/>
+        <location filename="../src/core/units/units.cpp" line="202"/>
         <source>Grade angle</source>
         <translation>Кут нахилу</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="193"/>
-        <location filename="../src/core/units/units.cpp" line="194"/>
+        <location filename="../src/core/units/units.cpp" line="206"/>
+        <location filename="../src/core/units/units.cpp" line="207"/>
         <source>Vertical speed</source>
         <translation>Вертикальна швидкість</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="193"/>
+        <location filename="../src/core/units/units.cpp" line="206"/>
         <source>ft/min</source>
         <translation>фут/хв</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="194"/>
+        <location filename="../src/core/units/units.cpp" line="207"/>
         <source>m/s</source>
         <translation>м/с</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="198"/>
+        <location filename="../src/core/units/units.cpp" line="211"/>
         <source>Total ascent</source>
         <translation>Загальний підйом</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="198"/>
+        <location filename="../src/core/units/units.cpp" line="211"/>
         <source>Total descent</source>
         <translation>Загальний спуск</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="203"/>
+        <location filename="../src/core/units/units.cpp" line="216"/>
         <source>Running time</source>
         <translation>Час запису</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="207"/>
-        <location filename="../src/core/units/units.cpp" line="208"/>
+        <location filename="../src/core/units/units.cpp" line="221"/>
+        <location filename="../src/core/units/units.cpp" line="222"/>
         <source>Pace</source>
         <translation>Темп</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="207"/>
-        <source>min/mi</source>
-        <translation>хв/милю</translation>
+        <location filename="../src/core/units/units.cpp" line="221"/>
+        <source>/mi</source>
+        <translation>/миля</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="208"/>
-        <source>min/km</source>
-        <translation>хв/км</translation>
+        <location filename="../src/core/units/units.cpp" line="222"/>
+        <source>/km</source>
+        <translation>/км</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="213"/>
+        <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Power, 3 s</source>
         <translation>Потужність, 3 с</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="213"/>
+        <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Power, 30 s</source>
         <translation>Потужність, 30 с</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="214"/>
+        <location filename="../src/core/units/units.cpp" line="230"/>
         <source>Lap average power</source>
         <translation>Середня потужність кола</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="214"/>
+        <location filename="../src/core/units/units.cpp" line="230"/>
         <source>Power (est.)</source>
         <translation>Потужність (оц.)</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="219"/>
+        <location filename="../src/core/units/units.cpp" line="235"/>
         <source>Highest point</source>
         <translation>Найвища точка</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="219"/>
+        <location filename="../src/core/units/units.cpp" line="235"/>
         <source>Lowest point</source>
         <translation>Найнижча точка</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="224"/>
-        <location filename="../src/core/units/units.cpp" line="225"/>
+        <location filename="../src/core/units/units.cpp" line="240"/>
+        <location filename="../src/core/units/units.cpp" line="241"/>
         <source>Whole distance</source>
         <translation>Уся відстань</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="229"/>
+        <location filename="../src/core/units/units.cpp" line="245"/>
         <source>Lap top speed</source>
         <translation>Найбільша швидкість кола</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="229"/>
+        <location filename="../src/core/units/units.cpp" line="245"/>
         <source>Lap average speed</source>
         <translation>Середня швидкість кола</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="234"/>
+        <location filename="../src/core/units/units.cpp" line="250"/>
         <source>Falling speed</source>
         <translation>Швидкість падіння</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="238"/>
+        <location filename="../src/core/units/units.cpp" line="254"/>
         <source>Braking</source>
         <translation>Гальмування</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="242"/>
+        <location filename="../src/core/units/units.cpp" line="258"/>
         <source>Glide ratio</source>
         <translation>Аеродинамічна якість</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="246"/>
+        <location filename="../src/core/units/units.cpp" line="262"/>
         <source>Best lap number</source>
         <translation>Номер найкращого кола</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="250"/>
+        <location filename="../src/core/units/units.cpp" line="266"/>
         <source>Time of day</source>
         <translation>Час доби</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="250"/>
+        <location filename="../src/core/units/units.cpp" line="266"/>
         <source>Date</source>
         <translation>Дата</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="250"/>
+        <location filename="../src/core/units/units.cpp" line="266"/>
         <source>Date and time</source>
         <translation>Дата й час</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="255"/>
+        <location filename="../src/core/units/units.cpp" line="271"/>
         <source>G-force</source>
         <translation>Перевантаження</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="265"/>
+        <location filename="../src/core/units/units.cpp" line="281"/>
         <source>Left/right balance</source>
         <translation>Баланс лівої/правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="266"/>
+        <location filename="../src/core/units/units.cpp" line="282"/>
         <source>Right/left balance</source>
         <translation>Баланс правої/лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="267"/>
+        <location filename="../src/core/units/units.cpp" line="283"/>
         <source>Left power</source>
         <translation>Потужність лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="268"/>
+        <location filename="../src/core/units/units.cpp" line="284"/>
         <source>Right power</source>
         <translation>Потужність правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="269"/>
+        <location filename="../src/core/units/units.cpp" line="285"/>
         <source>Left torque effectiveness</source>
         <translation>Ефективність крутного моменту лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="270"/>
+        <location filename="../src/core/units/units.cpp" line="286"/>
         <source>Right torque effectiveness</source>
         <translation>Ефективність крутного моменту правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="271"/>
+        <location filename="../src/core/units/units.cpp" line="287"/>
         <source>Left pedal smoothness</source>
         <translation>Плавність педалювання лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="272"/>
+        <location filename="../src/core/units/units.cpp" line="288"/>
         <source>Right pedal smoothness</source>
         <translation>Плавність педалювання правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="273"/>
+        <location filename="../src/core/units/units.cpp" line="289"/>
         <source>Pedal smoothness</source>
         <translation>Плавність педалювання</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="274"/>
+        <location filename="../src/core/units/units.cpp" line="290"/>
         <source>Left platform offset</source>
         <translation>Зміщення на педалі лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="274"/>
-        <location filename="../src/core/units/units.cpp" line="275"/>
+        <location filename="../src/core/units/units.cpp" line="290"/>
+        <location filename="../src/core/units/units.cpp" line="291"/>
         <source>mm</source>
         <translation>мм</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="275"/>
+        <location filename="../src/core/units/units.cpp" line="291"/>
         <source>Right platform offset</source>
         <translation>Зміщення на педалі правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="276"/>
+        <location filename="../src/core/units/units.cpp" line="292"/>
         <source>Left power phase start</source>
         <translation>Початок фази потужності лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="277"/>
+        <location filename="../src/core/units/units.cpp" line="293"/>
         <source>Left power phase</source>
         <translation>Фаза потужності лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="278"/>
+        <location filename="../src/core/units/units.cpp" line="294"/>
         <source>Left peak phase start</source>
         <translation>Початок пікової фази лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="279"/>
+        <location filename="../src/core/units/units.cpp" line="295"/>
         <source>Left peak phase</source>
         <translation>Пікова фаза лівої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="280"/>
+        <location filename="../src/core/units/units.cpp" line="296"/>
         <source>Right power phase start</source>
         <translation>Початок фази потужності правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="281"/>
+        <location filename="../src/core/units/units.cpp" line="297"/>
         <source>Right power phase</source>
         <translation>Фаза потужності правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="282"/>
+        <location filename="../src/core/units/units.cpp" line="298"/>
         <source>Right peak phase start</source>
         <translation>Початок пікової фази правої</translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="283"/>
+        <location filename="../src/core/units/units.cpp" line="299"/>
         <source>Right peak phase</source>
         <translation>Пікова фаза правої</translation>
     </message>
@@ -622,71 +627,71 @@
         <translation>Відкрийте дані й позначте канали, щоб їх побачити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="625"/>
+        <location filename="../src/datapanel.cpp" line="629"/>
         <source>Tick the channels to chart</source>
         <translation>Позначте канали для графіків</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="641"/>
+        <location filename="../src/datapanel.cpp" line="645"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Shift+drag over a channel picks samples to take out.</source>
         <translation>Клацання — перейти туди, коліщатко — масштаб (Shift+коліщатко — зсув).
 Shift+перетягування над каналом вибирає зразки, щоб їх вилучити.</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="654"/>
+        <location filename="../src/datapanel.cpp" line="658"/>
         <source>Double-click a sample to go there; select samples to take them out</source>
         <translation>Двічі клацніть зразок, щоб перейти до нього; виберіть зразки, щоб їх вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="680"/>
+        <location filename="../src/datapanel.cpp" line="684"/>
         <source>Take out</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="680"/>
+        <location filename="../src/datapanel.cpp" line="684"/>
         <source>Leave the picked samples out; the channel is read across the gap</source>
         <translation>Не враховувати вибрані зразки; канал читається через проміжок</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="682"/>
+        <location filename="../src/datapanel.cpp" line="686"/>
         <source>Put back</source>
         <translation>Повернути</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="682"/>
+        <location filename="../src/datapanel.cpp" line="686"/>
         <source>Put back samples taken out in the picked stretch</source>
         <translation>Повернути вилучені зразки у вибраному відрізку</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="692"/>
+        <location filename="../src/datapanel.cpp" line="696"/>
         <source>Table</source>
         <translation>Таблиця</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="692"/>
+        <location filename="../src/datapanel.cpp" line="696"/>
         <source>Show the samples of the channel last clicked</source>
         <translation>Показати зразки каналу, клацнутого останнім</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="795"/>
+        <location filename="../src/datapanel.cpp" line="799"/>
         <source>%1
 Worked out from the other data</source>
         <translation>%1
 Обчислено з інших даних</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="865"/>
+        <location filename="../src/datapanel.cpp" line="869"/>
         <source>Color of the line</source>
         <translation>Колір лінії</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="1002"/>
+        <location filename="../src/datapanel.cpp" line="1006"/>
         <source>Take out samples</source>
         <translation>Вилучити зразки</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="1016"/>
+        <location filename="../src/datapanel.cpp" line="1020"/>
         <source>Put back samples</source>
         <translation>Повернути зразки</translation>
     </message>
@@ -1335,22 +1340,22 @@ Worked out from the other data</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="389"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="404"/>
         <source>The FIT file contains no timed records. It may be a settings, course or workout file, not an activity.</source>
         <translation>Файл FIT не містить записів із часом. Можливо, це файл налаштувань, маршруту чи тренування, а не запис активності.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="400"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="415"/>
         <source>%1 records without a timestamp were skipped.</source>
         <translation>Пропущено записів без позначки часу: %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="404"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="419"/>
         <source>%1 records with a timestamp that does not fit the rest of the recording were skipped.</source>
         <translation>Пропущено записів, час яких не узгоджується з рештою запису: %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="413"/>
+        <location filename="../src/core/telemetry/fit/fitimporter.cpp" line="428"/>
         <source>The file has no absolute time; it has to be synchronized with the video manually.</source>
         <translation>У файлі немає абсолютного часу; його потрібно синхронізувати з відео вручну.</translation>
     </message>
@@ -3080,32 +3085,32 @@ Comes with the program; it cannot be deleted.</source>
         <translation>Відставання від найшвидшого, с</translation>
     </message>
     <message>
-        <location filename="../src/lapcomparepanel.cpp" line="302"/>
+        <location filename="../src/lapcomparepanel.cpp" line="303"/>
         <source>The measurement compared</source>
         <translation>Вимірювання, що порівнюється</translation>
     </message>
     <message>
-        <location filename="../src/lapcomparepanel.cpp" line="312"/>
+        <location filename="../src/lapcomparepanel.cpp" line="313"/>
         <source>Select laps in the Laps panel with Ctrl+click or Shift+click</source>
         <translation>Виберіть кола на панелі «Кола» через Ctrl+клацання або Shift+клацання</translation>
     </message>
     <message>
-        <location filename="../src/lapcomparepanel.cpp" line="319"/>
+        <location filename="../src/lapcomparepanel.cpp" line="320"/>
         <source>Show:</source>
         <translation>Показувати:</translation>
     </message>
     <message>
-        <location filename="../src/lapcomparepanel.cpp" line="389"/>
+        <location filename="../src/lapcomparepanel.cpp" line="390"/>
         <source>Select two or more laps in the Laps panel to compare them.</source>
         <translation>Виберіть два або більше кіл на панелі «Кола», щоб їх порівняти.</translation>
     </message>
     <message>
-        <location filename="../src/lapcomparepanel.cpp" line="392"/>
+        <location filename="../src/lapcomparepanel.cpp" line="393"/>
         <source>Laps are compared by distance, and the data has none.</source>
         <translation>Кола порівнюються за відстанню, а в даних її немає.</translation>
     </message>
     <message>
-        <location filename="../src/lapcomparepanel.cpp" line="432"/>
+        <location filename="../src/lapcomparepanel.cpp" line="433"/>
         <source>Lap %1 (%2)</source>
         <translation>Коло %1 (%2)</translation>
     </message>
@@ -5423,102 +5428,102 @@ It appears among the templates in the library.</source>
         <translation>Відкрийте відео або дані</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="216"/>
+        <location filename="../src/timelinepanel.cpp" line="218"/>
         <source>Keep this part again</source>
         <translation>Залишити цю частину знову</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="535"/>
+        <location filename="../src/timelinepanel.cpp" line="537"/>
         <source>Lap %1  %2</source>
         <translation>Коло %1  %2</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="597"/>
+        <location filename="../src/timelinepanel.cpp" line="599"/>
         <source>The measurement drawn along the timeline</source>
         <translation>Вимірювання, що малюється вздовж шкали часу</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="613"/>
+        <location filename="../src/timelinepanel.cpp" line="615"/>
         <source>Click to go there, wheel to zoom, Ctrl+drag to slide the data against the video.
 Shift+drag marks a part; right-click a cut part to keep it again.</source>
         <translation>Клацання — перейти туди, коліщатко — масштаб, Ctrl+перетягування — зсунути дані відносно відео.
 Shift+перетягування позначає частину; клацання правою кнопкою на вирізаній частині повертає її.</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="618"/>
-        <location filename="../src/timelinepanel.cpp" line="657"/>
+        <location filename="../src/timelinepanel.cpp" line="620"/>
+        <location filename="../src/timelinepanel.cpp" line="659"/>
         <source>Keep part again</source>
         <translation>Повернути частину</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="629"/>
+        <location filename="../src/timelinepanel.cpp" line="631"/>
         <source>A</source>
         <translation>A</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="629"/>
+        <location filename="../src/timelinepanel.cpp" line="631"/>
         <source>Mark the start of a part here ([)</source>
         <translation>Позначити тут початок частини ([)</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="630"/>
+        <location filename="../src/timelinepanel.cpp" line="632"/>
         <source>B</source>
         <translation>B</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="630"/>
+        <location filename="../src/timelinepanel.cpp" line="632"/>
         <source>Mark the end of a part here (])</source>
         <translation>Позначити тут кінець частини (])</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="638"/>
+        <location filename="../src/timelinepanel.cpp" line="640"/>
         <source>Cut A–B</source>
         <translation>Вирізати A–B</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="638"/>
+        <location filename="../src/timelinepanel.cpp" line="640"/>
         <source>Leave the part between A and B out of the export (Delete)</source>
         <translation>Не включати в експорт частину між A і B (Delete)</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="644"/>
+        <location filename="../src/timelinepanel.cpp" line="646"/>
         <source>Cut part</source>
         <translation>Вирізати частину</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="651"/>
+        <location filename="../src/timelinepanel.cpp" line="653"/>
         <source>Keep A–B</source>
         <translation>Залишити A–B</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="651"/>
+        <location filename="../src/timelinepanel.cpp" line="653"/>
         <source>Put the part between A and B back</source>
         <translation>Повернути частину між A і B</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="660"/>
-        <location filename="../src/timelinepanel.cpp" line="786"/>
+        <location filename="../src/timelinepanel.cpp" line="662"/>
+        <location filename="../src/timelinepanel.cpp" line="788"/>
         <source>Cut stops</source>
         <translation>Вирізати зупинки</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="660"/>
+        <location filename="../src/timelinepanel.cpp" line="662"/>
         <source>Leave out every stop of 10 s or more, keeping 2 s at each end</source>
         <translation>Вирізати кожну зупинку від 10 с, залишивши по 2 с з кожного боку</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="662"/>
+        <location filename="../src/timelinepanel.cpp" line="664"/>
         <source>Keep all</source>
         <translation>Залишити все</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="662"/>
-        <location filename="../src/timelinepanel.cpp" line="663"/>
+        <location filename="../src/timelinepanel.cpp" line="664"/>
+        <location filename="../src/timelinepanel.cpp" line="665"/>
         <source>Remove all cuts</source>
         <translation>Прибрати всі вирізання</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/timelinepanel.cpp" line="765"/>
+        <location filename="../src/timelinepanel.cpp" line="767"/>
         <source>%n part(s) cut, %1 of %2 kept</source>
         <translation>
             <numerusform>%n частину вирізано, залишено %1 з %2</numerusform>
@@ -5527,12 +5532,12 @@ Shift+перетягування позначає частину; клацанн
         </translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="778"/>
+        <location filename="../src/timelinepanel.cpp" line="780"/>
         <source>No stops of 10 s or more in the video.</source>
         <translation>У відео немає зупинок від 10 с.</translation>
     </message>
     <message>
-        <location filename="../src/timelinepanel.cpp" line="670"/>
+        <location filename="../src/timelinepanel.cpp" line="672"/>
         <source>Show:</source>
         <translation>Показувати:</translation>
     </message>

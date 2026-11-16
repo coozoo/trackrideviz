@@ -225,6 +225,7 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
     double manufacturer = std::nan("");
     double product = std::nan("");
     QString productName;
+    double sport = std::nan("");    // 1 running, 2 cycling, 11 walking...
 
     auto onRecord = [&](const FitMessage &message)
     {
@@ -368,6 +369,20 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
                     }
                 break;
             }
+            case Fit::Session:
+                // 5 sport; the first session's, for a file of one activity
+                if (std::isnan(sport))
+                    {
+                        sport = message.value(5);
+                    }
+                break;
+            case 12:
+                // sport: 0 sport
+                if (std::isnan(sport))
+                    {
+                        sport = message.value(0);
+                    }
+                break;
             case Fit::FileId:
                 // 1 manufacturer, 2 product, 8 product_name
                 manufacturer = message.value(1);
@@ -458,6 +473,28 @@ TelemetrySessionPtr FitImporter::read(const QByteArray &data, QString *error)
             put(ChannelId::RearGear, "T", part(1));
             put(ChannelId::FrontGearNumber, "", part(2));
             put(ChannelId::FrontGear, "T", part(3));
+        }
+
+    // A run's cadence is written in strides a minute, one leg's, with the fraction apart (53,
+    // 1/128): runners count steps, both legs'.
+    const bool onFoot = sport == 1.0 || sport == 11.0;
+    const Channel *fraction = session->channel("fit.record.53");
+    if (onFoot && session->hasChannel(ChannelId::Cadence))
+        {
+            const Channel strides = *session->channel(ChannelId::Cadence);
+            session->removeChannel(ChannelId::Cadence);
+            Channel &steps = session->channelForWriting(ChannelId::Cadence, "spm");
+            for (int i = 0; i < strides.count(); ++i)
+                {
+                    const double t = strides.timeAt(i);
+                    bool ok = false;
+                    const double part = fraction ? fraction->valueAt(t, &ok) / 128.0 : 0.0;
+                    steps.append(t, 2.0 * (strides.valueAtIndex(i) + (ok ? part : 0.0)));
+                }
+        }
+    if (onFoot)
+        {
+            session->removeChannel("fit.record.53");
         }
 
     QString source = "FIT";

@@ -177,6 +177,25 @@ private slots:
         QCOMPARE(ChannelFormat::displayFor(ChannelId::Temperature, "C", units).convert(20.0), 20.0);
     }
 
+    void paceReadsAsMinutesAndSeconds()
+    {
+        const Units metric;
+        const ChannelDisplay pace = ChannelFormat::displayFor(ChannelId::Pace, "s/km", metric);
+        QVERIFY(pace.minutesSeconds);
+        QCOMPARE(pace.unit, QString("/km"));
+        QCOMPARE(pace.text(pace.convert(318.4)), QString("5:18"));
+        QCOMPARE(pace.text(pace.convert(59.6)), QString("1:00"));
+        Units imperial;
+        imperial.length = Units::Imperial;
+        const ChannelDisplay perMile = ChannelFormat::displayFor(ChannelId::Pace, "s/km", imperial);
+        QCOMPARE(perMile.unit, QString("/mi"));
+        QCOMPARE(perMile.text(perMile.convert(300.0)), QString("8:03"));
+        // anything else as a number
+        QCOMPARE(ChannelFormat::displayFor(ChannelId::HeartRate, "bpm", metric).text(141.0), QLocale().toString(141.0, 'f', 0));
+        // a run's cadence in steps
+        QCOMPARE(ChannelFormat::displayFor(ChannelId::Cadence, "spm", metric).unit, QString("spm"));
+    }
+
     void imperialDisplay()
     {
         Units units;

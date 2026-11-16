@@ -154,6 +154,7 @@ private slots:
     void enhancedFieldsWin();
     void pedalDynamics();
     void lapsAndSource();
+    void runningCadenceInSteps();
     void pausesAndUtcOffset();
     void gearChanges();
     void chainedFiles();
@@ -449,6 +450,42 @@ void TestFit::pedalDynamics()
     for (int raw : {30, 43, 67, 69, 72})
         {
             QVERIFY(!session->hasChannel(QString("fit.record.%1").arg(raw)));
+        }
+}
+
+void TestFit::runningCadenceInSteps()
+{
+    // a run: 85 strides a minute and a half; then the same as a ride
+    for (const int sport : {1, 2})
+        {
+            FitBuilder b;
+            b.define(0, Fit::Record, {{253, 4, kUInt32}, {4, 1, kUInt8}, {53, 1, kUInt8}});
+            for (int i = 0; i < 3; ++i)
+                {
+                    b.data(0);
+                    b.number(kT0 + i, 4);
+                    b.number(85, 1);
+                    b.number(64, 1);
+                }
+            b.define(1, Fit::Session, {{253, 4, kUInt32}, {5, 1, kUInt8}});
+            b.data(1);
+            b.number(kT0 + 3, 4);
+            b.number(sport, 1);
+            const TelemetrySessionPtr session = FitImporter::read(b.file());
+            QVERIFY(session);
+            const Channel *cadence = session->channel(ChannelId::Cadence);
+            QVERIFY(cadence);
+            if (sport == 1)
+                {
+                    QCOMPARE(cadence->valueAtIndex(0), 171.0);
+                    QCOMPARE(cadence->unit(), QString("spm"));
+                    QVERIFY(!session->hasChannel("fit.record.53"));
+                }
+            else
+                {
+                    QCOMPARE(cadence->valueAtIndex(0), 85.0);
+                    QCOMPARE(cadence->unit(), QString("rpm"));
+                }
         }
 }
 

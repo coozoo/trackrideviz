@@ -3,8 +3,10 @@
 #include "../telemetry/channel.h"
 #include "../telemetry/channelids.h"
 
+#include <QLocale>
 #include <QRegularExpression>
 
+#include <cmath>
 #include <iterator>
 
 namespace
@@ -45,6 +47,16 @@ double Units::speedScale() const
 QString Units::speedLabel() const
 {
     return speed == MilesPerHour ? ChannelFormat::tr("mph") : ChannelFormat::tr("km/h");
+}
+
+QString ChannelDisplay::text(double shown) const
+{
+    if (!minutesSeconds || !std::isfinite(shown))
+        {
+            return QLocale().toString(shown, 'f', decimals);
+        }
+    const qint64 seconds = qint64(std::llround(std::fabs(shown)));
+    return QString("%1%2:%3").arg(shown < 0.0 ? "-" : "").arg(seconds / 60).arg(seconds % 60, 2, 10, QChar('0'));
 }
 
 ChannelDisplay ChannelFormat::displayFor(const Channel &channel, const Units &units)
@@ -116,7 +128,8 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         }
     if (id == ChannelId::Cadence)
         {
-            return {tr("Cadence"), tr("rpm"), 1.0, 0.0, 0};
+            // steps a minute for a run, turns of the cranks for a ride
+            return {tr("Cadence"), storedUnit == QLatin1String("spm") ? tr("spm") : tr("rpm"), 1.0, 0.0, 0};
         }
     if (id == ChannelId::Power)
         {
@@ -204,8 +217,11 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         }
     if (id == ChannelId::Pace)
         {
-            return imperial ? ChannelDisplay{tr("Pace"), tr("min/mi"), 1.609344 / 60.0, 0.0, 1}
-                   : ChannelDisplay{tr("Pace"), tr("min/km"), 1.0 / 60.0, 0.0, 1};
+            // as runners read it: 5:18 a kilometer
+            ChannelDisplay pace = imperial ? ChannelDisplay{tr("Pace"), tr("/mi"), 1.609344, 0.0, 0}
+                                  : ChannelDisplay{tr("Pace"), tr("/km"), 1.0, 0.0, 0};
+            pace.minutesSeconds = true;
+            return pace;
         }
     if (id == ChannelId::Power3s || id == ChannelId::Power30s || id == ChannelId::PowerLapAvg
             || id == ChannelId::PowerEstimated)

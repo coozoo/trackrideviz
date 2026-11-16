@@ -189,8 +189,10 @@ protected:
                 const Channel *channel = m_session->channel(m_traceId);
                 bool ok = false;
                 const double value = channel ? channel->valueAt(m_sync.telemetryTime(m_position), &ok) : 0.0;
-                const QString text = ok ? QString("%1 %2").arg(m_display.convert(value), 0, 'f', m_display.decimals)
-                                     .arg(m_display.unit).trimmed() : QStringLiteral("--");
+                const double shown = m_display.convert(value);
+                const QString number = m_display.minutesSeconds ? m_display.text(shown)
+                                       : QString::number(shown, 'f', m_display.decimals);
+                const QString text = ok ? QString("%1 %2").arg(number, m_display.unit).trimmed() : QStringLiteral("--");
                 painter.setPen(palette().color(QPalette::Text));
                 const int w = fontMetrics().horizontalAdvance(text) + 8;
                 const bool left = x + w > width();
@@ -458,9 +460,9 @@ private:
         painter.drawPath(m_traceLine);
         painter.setPen(palette().color(QPalette::PlaceholderText));
         painter.drawText(area.adjusted(4, 0, -4, 0), Qt::AlignTop | Qt::AlignLeft,
-                         QString::number(high, 'f', m_display.decimals));
+                         m_display.minutesSeconds ? m_display.text(high) : QString::number(high, 'f', m_display.decimals));
         painter.drawText(area.adjusted(4, 0, -4, 0), Qt::AlignBottom | Qt::AlignLeft,
-                         QString::number(low, 'f', m_display.decimals));
+                         m_display.minutesSeconds ? m_display.text(low) : QString::number(low, 'f', m_display.decimals));
     }
 
     QPainterPath traceLine(const Channel *channel, const QRect &area, double low, double high) const

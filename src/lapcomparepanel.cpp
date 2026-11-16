@@ -259,7 +259,8 @@ private:
                 const double value = valueAtDistance(s.values, meters, &ok);
                 const double behind = valueAtDistance(s.delta, meters, &deltaOk);
                 lines << QString("%1: %2  %3").arg(s.label.section(' ', 0, 1),
-                                                   ok ? QString::number(value, 'f', m_value.decimals) : QStringLiteral("--"),
+                                                   ok ? (m_value.minutesSeconds ? m_value.text(value) : QString::number(value, 'f', m_value.decimals))
+                                                   : QStringLiteral("--"),
                                                    deltaOk ? QString("%1%2").arg(behind >= 0.0 ? "+" : "").arg(behind, 0, 'f', 2)
                                                    : QString());
             }

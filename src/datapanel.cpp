@@ -536,9 +536,11 @@ private:
         painter.drawText(area.adjusted(4, 1, -4, -1), Qt::AlignLeft | Qt::AlignTop, title);
         painter.setPen(palette().color(QPalette::PlaceholderText));
         painter.drawText(area.adjusted(4, 1, -4, -1), Qt::AlignRight | Qt::AlignTop,
-                         QString::number(lane.high, 'f', lane.display.decimals));
+                         lane.display.minutesSeconds ? lane.display.text(lane.high)
+                         : QString::number(lane.high, 'f', lane.display.decimals));
         painter.drawText(area.adjusted(4, 1, -4, -1), Qt::AlignRight | Qt::AlignBottom,
-                         QString::number(lane.low, 'f', lane.display.decimals));
+                         lane.display.minutesSeconds ? lane.display.text(lane.low)
+                         : QString::number(lane.low, 'f', lane.display.decimals));
     }
 
     void drawHover(QPainter &painter)
@@ -552,7 +554,9 @@ private:
                 bool ok = false;
                 const double v = lane.actual ? lane.actual->valueAt(t, &ok) : 0.0;
                 const QString text = QString("%1  %2").arg(clock(t, true),
-                                                           ok ? QString::number(lane.display.convert(v), 'f', lane.display.decimals) : QStringLiteral("--"));
+                                                           ok ? (lane.display.minutesSeconds ? lane.display.text(lane.display.convert(v))
+                                                                  : QString::number(lane.display.convert(v), 'f', lane.display.decimals))
+                                                           : QStringLiteral("--"));
                 const QRect area = laneRect(i);
                 const int w = fontMetrics().horizontalAdvance(text) + 8;
                 QRect box(m_hoverX + 6, area.top() + area.height() / 2 - 8, w, 16);

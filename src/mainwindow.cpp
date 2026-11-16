@@ -1881,8 +1881,8 @@ void MainWindow::updateSourcesInfo()
                             tip += "\n" + tr("Not recorded: worked out from the other measurements");
                         }
                     item->setToolTip(NameColumn, tip);
-                    item->setText(MinColumn, QLocale().toString(display.convert(channel->minValue()), 'f', display.decimals));
-                    item->setText(MaxColumn, QLocale().toString(display.convert(channel->maxValue()), 'f', display.decimals));
+                    item->setText(MinColumn, display.text(display.convert(channel->minValue())));
+                    item->setText(MaxColumn, display.text(display.convert(channel->maxValue())));
                     item->setText(UnitColumn, display.unit);
                     for (int column : {NowColumn, MinColumn, MaxColumn})
                         {
@@ -2239,7 +2239,7 @@ void MainWindow::updateChannelValues()
             const double value = channel ? channel->valueAt(time, &ok) : 0.0;
             const ChannelDisplay display = channel ? ChannelFormat::displayFor(*channel, m_units) : ChannelDisplay();
             // outside the recording there is no value, not the last one
-            const QString text = ok ? QLocale().toString(display.convert(value), 'f', display.decimals) : QString("--");
+            const QString text = ok ? display.text(display.convert(value)) : QString("--");
             if (item->text(NowColumn) != text)
                 {
                     item->setText(NowColumn, text);

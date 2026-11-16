@@ -1792,7 +1792,9 @@ void BoundGauge::drawText(QPainter &painter, const Node &node, const Metric &met
                     number = degreesText(value, decimals);
                     break;
                 default:
-                    number = sign + QString::number(value, 'f', decimals);
+                    // a pace reads as minutes and whole seconds, whatever places the gauge was made for
+                    number = metric.display.minutesSeconds ? durationText(value, 0, sign)
+                             : sign + QString::number(value, 'f', decimals);
                     break;
                 }
         }

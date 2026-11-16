@@ -36,8 +36,12 @@ struct ChannelDisplay
     double scale{1.0};
     double offset{0.0};
     int decimals{1};
+    // shown as minutes and seconds, the shown value being seconds: a pace of 5:18
+    bool minutesSeconds{false};
 
     double convert(double stored) const { return stored * scale + offset; }
+    // A shown value as text: with `decimals` places, or as minutes:seconds.
+    QString text(double shown) const;
 };
 
 class ChannelFormat
