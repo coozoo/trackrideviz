@@ -77,15 +77,15 @@ jobs:
       - name: Create release
         if: github.ref == 'refs/heads/main'
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           body_path: release_notes.md
           tag_name: ${{ steps.build.outputs.VER_TAG_NAME }}_${{ github.ref }}
           name: Release CI ${{ steps.build.outputs.VER_TAG_NAME }} ${{ github.ref }}
+          # published at once: the other jobs upload their files into it afterwards
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set build flags from PR tags or commit message
         id: set_flags
         env:
@@ -195,21 +195,22 @@ jobs:
           cp *.desktop appdir/usr/share/applications/
           mkdir -p appdir/usr/share/${{ steps.build.outputs.APP_NAME }}
           cp -r data/gauges data/templates appdir/usr/share/${{ steps.build.outputs.APP_NAME }}/
-          # go-appimage: everything bundled (-s), glibc, Qt and GStreamer with its plugins too, so
-          # nothing of the system's own, newer or older, is mixed in
+          # go-appimage: Qt, and GStreamer with its plugins. Plain deploy, not -s: what the
+          # AppImage exclude list names (glibc, libGL and GLX, X11) comes from the system, where it
+          # fits the graphics driver; bundled, the GLX of the build machine could not open the
+          # display (go-appimage issue #301)
           wget -c -nv https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
           chmod +x appimagetool-*.AppImage
           # the folder holding Qt's plugins/; not whatever QTDIR the machine has
-          QTDIR=/usr/lib/x86_64-linux-gnu/qt6 ./appimagetool-*.AppImage -s deploy appdir/usr/share/applications/*.desktop
+          QTDIR=/usr/lib/x86_64-linux-gnu/qt6 ./appimagetool-*.AppImage deploy appdir/usr/share/applications/*.desktop
           # the preview plays through GStreamer: an AppImage without its plugins crashes at start
           plugins=$(find appdir -path '*gstreamer-1.0*' -name '*.so' | wc -l)
           echo "GStreamer plugins bundled: $plugins"
           find appdir -maxdepth 6 -type d -name plugins -exec ls {} \;
           if [ "$plugins" -eq 0 ]; then echo "::error::No GStreamer plugins in the AppImage"; exit 1; fi
-          # Plugins that load modules of the system, built for its own libraries, crash the
-          # bundled GStreamer as it looks them over (LADSPA did, then waited forever): effects
-          # and synthesizers, and the bridges to the graphics card's decoders. Pictures are
-          # decoded by the bundled FFmpeg (libav) instead.
+          # Plugins that load modules of the system crash the bundled GStreamer as it looks them
+          # over (LADSPA did, then waited forever): effects and synthesizers, and the bridges to
+          # the graphics card's decoders. Pictures are decoded by the bundled FFmpeg (libav).
           for name in ladspa lv2 frei0r opencv fluidsynthmidi va vaapi nvcodec msdk qsv v4l2codecs; do
             find appdir -path '*gstreamer-1.0*' -name "libgst${name}.so" -print -delete
           done
