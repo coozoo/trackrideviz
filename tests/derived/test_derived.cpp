@@ -9,6 +9,7 @@
 
 #include <QtTest>
 
+#include <array>
 #include <cmath>
 
 class TestDerived : public QObject
@@ -47,7 +48,140 @@ private:
         return c ? c->valueAt(t) : NAN;
     }
 
+    // A ride with speeding up, slowing down and turns both ways, sampled as a GoPro does:
+    // positions and speed 18 times a second, its motion sensors in axes of its own.
+    // `axes`: the vehicle's forward, right and up as the camera's x, y and z see them.
+    struct Truth
+    {
+        QVector<double> t, forwards, sideways, lean;
+    };
+    // `leans`: on a motorcycle, leaning into the turns with it.
+    static std::shared_ptr<TelemetrySession> cameraRide(const std::array<std::array<double, 3>, 3> &axes, Truth *truth,
+                                                        bool leans, bool sensorsOfAnotherRide = false)
+    {
+        const double g = 9.80665;
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+        Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+        Channel *accel[3] = {&session->channelForWriting(ChannelId::AccelX, "m/s2"),
+                             &session->channelForWriting(ChannelId::AccelY, "m/s2"),
+                             &session->channelForWriting(ChannelId::AccelZ, "m/s2")};
+        Channel *gyro[3] = {&session->channelForWriting(ChannelId::GyroX, "deg/s"),
+                            &session->channelForWriting(ChannelId::GyroY, "deg/s"),
+                            &session->channelForWriting(ChannelId::GyroZ, "deg/s")};
+        const double dt = 1.0 / 18.0;
+        double north = 0.0, east = 0.0, heading = 0.0, previousLean = 0.0;
+        for (int i = 0; i * dt <= 180.0; ++i)
+            {
+                const double t = i * dt;
+                const double v = 12.0 + 4.0 * std::sin(0.25 * t);
+                const double dv = 1.0 * std::cos(0.25 * t);
+                const double turn = 0.2 * std::sin(0.11 * t);         // rad/s, + clockwise: to the right
+                north += v * std::cos(heading) * dt;
+                east += v * std::sin(heading) * dt;
+                heading += turn * dt;
+                lat.append(t, 49.0 + north / kMetersPerDegree);
+                lon.append(t, 28.0 + east / (kMetersPerDegree * std::cos(49.0 * kPi / 180.0)));
+                speed.append(t, v);
+                const double lean = std::atan(v * turn / g) * 180.0 / kPi;
+                truth->t << t;
+                truth->forwards << dv / g;
+                truth->sideways << v * turn / g;
+                truth->lean << lean;
+                // what moves the sensors, in level axes: forward, right, up
+                double felt[3] = {dv, v * turn, g};
+                const double rollRate = leans ? (lean - previousLean) / dt : 0.0;
+                const double rotation[3] = {rollRate, 0.0, -turn * 180.0 / kPi};
+                previousLean = lean;
+                if (sensorsOfAnotherRide)
+                    {
+                        felt[0] = 1.5 * std::sin(1.7 * t);
+                        felt[1] = 1.5 * std::cos(0.9 * t);
+                    }
+                // the camera's forward, right and up in level axes: leaning, its right dips and its
+                // up tilts towards the turn
+                const double phi = leans ? lean * kPi / 180.0 : 0.0;
+                const double basis[3][3] = {{1, 0, 0}, {0, std::cos(phi), -std::sin(phi)}, {0, std::sin(phi), std::cos(phi)}};
+                for (int axis = 0; axis < 3; ++axis)
+                    {
+                        double a = 0.0, w = 0.0;
+                        for (int k = 0; k < 3; ++k)
+                            {
+                                for (int c = 0; c < 3; ++c)
+                                    {
+                                        a += axes[axis][k] * basis[k][c] * felt[c];
+                                        w += axes[axis][k] * basis[k][c] * rotation[c];
+                                    }
+                            }
+                        // and the shaking of the road
+                        accel[axis]->append(t, a + 2.0 * std::sin(97.0 * t + axis));
+                        gyro[axis]->append(t, w);
+                    }
+            }
+        return session;
+    }
+
+    // The root mean square of what a channel says against the truth, after the first 10 s.
+    static double error(const TelemetrySessionPtr &s, const char *id, const Truth &truth, const QVector<double> &want)
+    {
+        double sum = 0.0;
+        int n = 0;
+        for (int i = 0; i < truth.t.size(); ++i)
+            {
+                if (truth.t.at(i) > 10.0 && truth.t.at(i) < 175.0)
+                    {
+                        const double d = at(s, id, truth.t.at(i)) - want.at(i);
+                        sum += d * d;
+                        ++n;
+                    }
+            }
+        return std::sqrt(sum / n);
+    }
+
 private slots:
+    void gForcesFromACamerasSensors_data()
+    {
+        QTest::addColumn<bool>("mirrored");
+        QTest::addColumn<bool>("leans");
+        QTest::newRow("car") << false << false;
+        QTest::newRow("car, mirrored axes") << true << false;
+        QTest::newRow("motorcycle") << false << true;
+        QTest::newRow("motorcycle, mirrored axes") << true << true;
+    }
+
+    void gForcesFromACamerasSensors()
+    {
+        QFETCH(bool, mirrored);
+        QFETCH(bool, leans);
+        // mounted on its side: its x points up, its y backwards, its z to the right (or left)
+        const double side = mirrored ? -1.0 : 1.0;
+        const std::array<std::array<double, 3>, 3> axes{{{0, 0, 1}, {-1, 0, 0}, {0, side, 0}}};
+        Truth truth;
+        const TelemetrySessionPtr session = DerivedChannels::complete(cameraRide(axes, &truth, leans));
+        const double forwards = error(session, ChannelId::GForceLongitudinal, truth, truth.forwards);
+        const double sideways = error(session, ChannelId::GForceLateral, truth, truth.sideways);
+        QVERIFY2(forwards < 0.03, qPrintable(QString::number(forwards)));
+        QVERIFY2(sideways < 0.03, qPrintable(QString::number(sideways)));
+        QVERIFY(std::fabs(at(session, ChannelId::GForceVertical, 60.0) - 1.0) < 0.05);
+        // a lean only from a camera that leans
+        QCOMPARE(session->hasChannel(ChannelId::LeanAngle), leans);
+        if (leans)
+            {
+                const double lean = error(session, ChannelId::LeanAngle, truth, truth.lean);
+                QVERIFY2(lean < 2.0, qPrintable(QString::number(lean)));
+                // the right way round: to the right in a right turn
+                QVERIFY(at(session, ChannelId::LeanAngle, 14.0) > 5.0);
+            }
+
+        // sensors that have nothing to do with the ride: the G-forces of the GPS stay
+        Truth other;
+        const TelemetrySessionPtr unmatched = DerivedChannels::complete(cameraRide(axes, &other, leans, true));
+        QVERIFY(!unmatched->hasChannel(ChannelId::LeanAngle));
+        QVERIFY(!unmatched->hasChannel(ChannelId::GForceVertical));
+        QVERIFY(error(unmatched, ChannelId::GForceLongitudinal, other, other.forwards) < 0.05);
+    }
+
     void editTakesOutAGlitch()
     {
         // north at 10 m/s, with one position 300 m off to the east at 50 s

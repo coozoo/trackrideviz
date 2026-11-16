@@ -174,6 +174,251 @@ bool has(const TelemetrySession &session, const char *id)
     return channel && !channel->isEmpty();
 }
 
+// --- a camera's motion sensors ---------------------------------------------------------
+
+struct Vec3
+{
+    double x{0.0};
+    double y{0.0};
+    double z{0.0};
+
+    Vec3 operator+(const Vec3 &o) const { return {x + o.x, y + o.y, z + o.z}; }
+    Vec3 operator-(const Vec3 &o) const { return {x - o.x, y - o.y, z - o.z}; }
+    Vec3 operator*(double k) const { return {x * k, y * k, z * k}; }
+    double dot(const Vec3 &o) const { return x * o.x + y * o.y + z * o.z; }
+    Vec3 cross(const Vec3 &o) const { return {y * o.z - z * o.y, z * o.x - x * o.z, x * o.y - y * o.x}; }
+    double length() const { return std::sqrt(dot(*this)); }
+    bool finite() const { return std::isfinite(x) && std::isfinite(y) && std::isfinite(z); }
+};
+
+QVector<Vec3> sample3(const TelemetrySession &session, const char *x, const char *y, const char *z, const Grid &grid,
+                      int half)
+{
+    const QVector<double> xs = smooth(sample(session.channel(x), grid), half);
+    const QVector<double> ys = smooth(sample(session.channel(y), grid), half);
+    const QVector<double> zs = smooth(sample(session.channel(z), grid), half);
+    QVector<Vec3> values(grid.count());
+    for (int i = 0; i < grid.count(); ++i)
+        {
+            values[i] = {xs.at(i), ys.at(i), zs.at(i)};
+        }
+    return values;
+}
+
+// How closely two series go together, -1..1; 0 for too few points.
+double correlation(const QVector<double> &a, const QVector<double> &b)
+{
+    double sa = 0.0, sb = 0.0, saa = 0.0, sbb = 0.0, sab = 0.0;
+    int n = 0;
+    for (int i = 0; i < a.size(); ++i)
+        {
+            if (std::isfinite(a.at(i)) && std::isfinite(b.at(i)))
+                {
+                    sa += a.at(i);
+                    sb += b.at(i);
+                    saa += a.at(i) * a.at(i);
+                    sbb += b.at(i) * b.at(i);
+                    sab += a.at(i) * b.at(i);
+                    ++n;
+                }
+        }
+    if (n < 20)
+        {
+            return 0.0;
+        }
+    const double cov = sab - sa * sb / n;
+    const double va = saa - sa * sa / n;
+    const double vb = sbb - sb * sb / n;
+    return va > 0.0 && vb > 0.0 ? cov / std::sqrt(va * vb) : 0.0;
+}
+
+struct Motion
+{
+    QVector<double> forwards;   // g
+    QVector<double> sideways;   // g, + to the right
+    QVector<double> vertical;   // g, 1 standing still
+    QVector<double> lean;       // degrees, + to the right; empty without a gyroscope
+};
+
+// The G-forces of a camera's accelerometer, turned from the camera's axes to those of the
+// vehicle; false when they cannot be lined up with the movement the GPS saw.
+//
+// The camera may be mounted any way, and camera models write the axes in different orders.
+// Up is where gravity pulls from, on average over the ride. Forwards is the level direction
+// whose acceleration goes best with the changes of speed; right is then across the two,
+// and turned round when it goes against the turns.
+//
+// On a motorcycle or a bicycle the camera leans into the turns with the rider, and then
+// feels hardly anything sideways: the pull of the turn and gravity add up along the leaning
+// rider. A gyroscope tells: when the camera rolls as the turns ask for, the lean is its roll
+// rate added up, drawn slowly towards the turn's lean so it does not drift, and the readings
+// are turned back level by it.
+bool fromMotionSensors(const TelemetrySession &session, const Grid &grid, const QVector<double> &gpsForwards,
+                       const QVector<double> &gpsSideways, Motion *motion)
+{
+    if (!has(session, ChannelId::AccelX) || !has(session, ChannelId::AccelY) || !has(session, ChannelId::AccelZ))
+        {
+            return false;
+        }
+    const int n = grid.count();
+    // the shaking of the road evened out over a quarter of a second; over a second like the
+    // GPS's own for lining the two up
+    const QVector<Vec3> accel = sample3(session, ChannelId::AccelX, ChannelId::AccelY, ChannelId::AccelZ, grid,
+                                        grid.span(0.25));
+    const QVector<Vec3> slow = sample3(session, ChannelId::AccelX, ChannelId::AccelY, ChannelId::AccelZ, grid,
+                                       grid.span(1.0));
+    Vec3 gravity;
+    int count = 0;
+    for (const Vec3 &a : accel)
+        {
+            if (a.finite())
+                {
+                    gravity = gravity + a;
+                    ++count;
+                }
+        }
+    if (count < 20)
+        {
+            return false;
+        }
+    gravity = gravity * (1.0 / count);
+    // a sensor that does not feel the earth's pull is no accelerometer in m/s2
+    if (std::fabs(gravity.length() - kGravity) > 0.3 * kGravity)
+        {
+            return false;
+        }
+    const Vec3 up = gravity * (1.0 / gravity.length());
+    auto level = [&up](const Vec3 &a)
+    {
+        return a - up * a.dot(up);
+    };
+    Vec3 ahead;
+    for (int i = 0; i < n; ++i)
+        {
+            if (slow.at(i).finite() && std::isfinite(gpsForwards.at(i)))
+                {
+                    ahead = ahead + level(slow.at(i)) * gpsForwards.at(i);
+                }
+        }
+    if (ahead.length() <= 0.0)
+        {
+            return false;
+        }
+    ahead = ahead * (1.0 / ahead.length());
+    QVector<double> along(n, kNaN);
+    for (int i = 0; i < n; ++i)
+        {
+            if (slow.at(i).finite())
+                {
+                    along[i] = slow.at(i).dot(ahead);
+                }
+        }
+    // too little going on, or nothing to do with the ride
+    if (correlation(along, gpsForwards) < 0.5)
+        {
+            return false;
+        }
+
+    // the lean the turns ask for, and whether the camera takes it
+    QVector<double> asked(n, kNaN);
+    for (int i = 0; i < n; ++i)
+        {
+            if (std::isfinite(gpsSideways.at(i)))
+                {
+                    asked[i] = std::atan(gpsSideways.at(i)) * 180.0 / kPi;
+                }
+        }
+    QVector<double> lean;
+    if (has(session, ChannelId::GyroX) && has(session, ChannelId::GyroY) && has(session, ChannelId::GyroZ))
+        {
+            // turning about the way ahead lifts up towards the right. A projection: true
+            // whatever order and mirroring the camera's axes have
+            const QVector<Vec3> gyro = sample3(session, ChannelId::GyroX, ChannelId::GyroY, ChannelId::GyroZ, grid, 0);
+            QVector<double> roll(n, kNaN);
+            for (int i = 0; i < n; ++i)
+                {
+                    if (gyro.at(i).finite())
+                        {
+                            roll[i] = gyro.at(i).dot(ahead);
+                        }
+                }
+            const int k = grid.span(0.5);
+            QVector<double> askedRate(n, kNaN);
+            for (int i = 0; i < n; ++i)
+                {
+                    askedRate[i] = slope(asked, grid, i, k);
+                }
+            if (correlation(smooth(roll, k), askedRate) > 0.5)
+                {
+                    constexpr double kSettle = 2.0;  // s: how slowly the lean is drawn to the turn's
+                    const double keep = kSettle / (kSettle + grid.step);
+                    lean = QVector<double>(n, kNaN);
+                    double angle = kNaN;
+                    for (int i = 0; i < n; ++i)
+                        {
+                            if (!std::isfinite(roll.at(i)) || !grid.valid.at(i))
+                                {
+                                    angle = asked.at(i);
+                                    continue;
+                                }
+                            if (!std::isfinite(angle))
+                                {
+                                    angle = std::isfinite(asked.at(i)) ? asked.at(i) : 0.0;
+                                }
+                            angle += roll.at(i) * grid.step;
+                            if (std::isfinite(asked.at(i)))
+                                {
+                                    angle = keep * angle + (1.0 - keep) * asked.at(i);
+                                }
+                            angle = std::clamp(angle, -80.0, 80.0);
+                            lean[i] = angle;
+                        }
+                }
+        }
+
+    // sideways and up in level axes: a leaning camera's readings turned back by its lean
+    Vec3 right = ahead.cross(up);
+    auto levelled = [&](const Vec3 &a, int i, double *sideways, double *upwards)
+    {
+        const double r = a.dot(right);
+        const double u = a.dot(up);
+        const double phi = lean.isEmpty() || !std::isfinite(lean.at(i)) ? 0.0 : lean.at(i) * kPi / 180.0;
+        *sideways = r * std::cos(phi) + u * std::sin(phi);
+        *upwards = u * std::cos(phi) - r * std::sin(phi);
+    };
+    QVector<double> across(n, kNaN);
+    for (int i = 0; i < n; ++i)
+        {
+            double upwards = 0.0;
+            if (slow.at(i).finite())
+                {
+                    levelled(slow.at(i), i, &across[i], &upwards);
+                }
+        }
+    // the axes the camera writes may be mirrored: the turns say which side is right
+    if (correlation(across, gpsSideways) < 0.0)
+        {
+            right = right * -1.0;
+        }
+    motion->forwards = QVector<double>(n, kNaN);
+    motion->sideways = QVector<double>(n, kNaN);
+    motion->vertical = QVector<double>(n, kNaN);
+    for (int i = 0; i < n; ++i)
+        {
+            if (accel.at(i).finite() && grid.valid.at(i))
+                {
+                    double sideways = 0.0;
+                    double upwards = 0.0;
+                    levelled(accel.at(i), i, &sideways, &upwards);
+                    motion->forwards[i] = std::clamp(accel.at(i).dot(ahead) / kGravity, -5.0, 5.0);
+                    motion->sideways[i] = std::clamp(sideways / kGravity, -5.0, 5.0);
+                    motion->vertical[i] = std::clamp(upwards / kGravity, -5.0, 5.0);
+                }
+        }
+    motion->lean = lean;
+    return true;
+}
+
 // Clockwise from north, 0..360.
 double bearing(double lat1, double lon1, double lat2, double lon2)
 {
@@ -403,8 +648,25 @@ TelemetrySessionPtr DerivedChannels::complete(const TelemetrySessionPtr &origina
                     sideways[i] = smoothSpeed.at(i) < kMoving || !std::isfinite(rate)
                                   ? 0.0 : std::clamp(smoothSpeed.at(i) * rate / kGravity, -3.0, 3.0);
                 }
-            store(*session, ChannelId::GForceLongitudinal, "g", grid, forwards);
-            store(*session, ChannelId::GForceLateral, "g", grid, sideways);
+            Motion motion;
+            if (fromMotionSensors(*session, grid, forwards, sideways, &motion))
+                {
+                    store(*session, ChannelId::GForceLongitudinal, "g", grid, motion.forwards);
+                    store(*session, ChannelId::GForceLateral, "g", grid, motion.sideways);
+                    if (!has(*session, ChannelId::GForceVertical))
+                        {
+                            store(*session, ChannelId::GForceVertical, "g", grid, motion.vertical);
+                        }
+                    if (!motion.lean.isEmpty() && !has(*session, ChannelId::LeanAngle))
+                        {
+                            store(*session, ChannelId::LeanAngle, "deg", grid, motion.lean);
+                        }
+                }
+            else
+                {
+                    store(*session, ChannelId::GForceLongitudinal, "g", grid, forwards);
+                    store(*session, ChannelId::GForceLateral, "g", grid, sideways);
+                }
         }
 
     // the small sums

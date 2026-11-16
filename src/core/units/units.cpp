@@ -140,6 +140,20 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("Vertical G"), "g", 1.0, 0.0, 2};
         }
+    if (id == ChannelId::LeanAngle)
+        {
+            return {tr("Lean angle"), "°", 1.0, 0.0, 0};
+        }
+    if (id == ChannelId::AccelX || id == ChannelId::AccelY || id == ChannelId::AccelZ)
+        {
+            const QString axis = id == ChannelId::AccelX ? "X" : id == ChannelId::AccelY ? "Y" : "Z";
+            return {tr("Camera acceleration %1").arg(axis), tr("m/s²"), 1.0, 0.0, 2};
+        }
+    if (id == ChannelId::GyroX || id == ChannelId::GyroY || id == ChannelId::GyroZ)
+        {
+            const QString axis = id == ChannelId::GyroX ? "X" : id == ChannelId::GyroY ? "Y" : "Z";
+            return {tr("Camera rotation %1").arg(axis), tr("°/s"), 1.0, 0.0, 0};
+        }
     if (id == ChannelId::Lap)
         {
             return {tr("Lap"), QString(), 1.0, 0.0, 0};

@@ -10,6 +10,7 @@
 #include <QtEndian>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace
@@ -185,9 +186,20 @@ struct Fix
     double speed{0.0};  // over the ground, m/s
 };
 
+// One reading of a three-axis sensor, in the camera's own axes.
+struct Motion
+{
+    double time{0.0};
+    double x{0.0};
+    double y{0.0};
+    double z{0.0};
+};
+
 struct Reading
 {
     QVector<Fix> fixes;
+    QVector<Motion> accel;      // m/s2, ACCL
+    QVector<Motion> gyro;       // rad/s, GYRO
     QDateTime firstUtc;         // the clock at ...
     double firstUtcTime{0.0};   // ... this moment of the video
 };
@@ -280,6 +292,20 @@ void readRecords(const QByteArray &data, qint64 at, qint64 end, const GpmfImport
                                 }
                         }
                 }
+            else if ((key == fourcc("ACCL") || key == fourcc("GYRO")) && type == 's' && size == 6 && repeat > 0)
+                {
+                    // three axes in the order the camera model writes them: which way is which
+                    // is found later, from gravity and from the way the camera moves
+                    QVector<Motion> &into = key == fourcc("ACCL") ? reading->accel : reading->gyro;
+                    for (int i = 0; i < repeat; ++i)
+                        {
+                            const char *row = data.constData() + body + 6 * qint64(i);
+                            into.append({payload.start + payload.duration * i / repeat,
+                                         scaled(qFromBigEndian<qint16>(row), stream.scale, 0),
+                                         scaled(qFromBigEndian<qint16>(row + 2), stream.scale, 1),
+                                         scaled(qFromBigEndian<qint16>(row + 4), stream.scale, 2)});
+                        }
+                }
             else if (key == fourcc("GPS9") && size == 32 && repeat > 0)
                 {
                     for (int i = 0; i < repeat; ++i)
@@ -310,6 +336,48 @@ void readRecords(const QByteArray &data, qint64 at, qint64 end, const GpmfImport
                 }
             // records are padded to whole words
             at = body + ((length + 3) & ~qint64(3));
+        }
+}
+}
+
+namespace
+{
+// A sensor's readings, a few hundred a second, as the mean of each twentieth of a second:
+// enough for any gauge, and the shaking of the road partly evened out.
+void addMotion(TelemetrySession &session, QVector<Motion> readings, const std::array<const char *, 3> &ids,
+               const QString &unit, double factor)
+{
+    if (readings.size() < 2)
+        {
+            return;
+        }
+    std::stable_sort(readings.begin(), readings.end(), [](const Motion &a, const Motion &b)
+    {
+        return a.time < b.time;
+    });
+    constexpr double kBin = 0.05;
+    Channel &x = session.channelForWriting(ids[0], unit);
+    Channel &y = session.channelForWriting(ids[1], unit);
+    Channel &z = session.channelForWriting(ids[2], unit);
+    int i = 0;
+    while (i < readings.size())
+        {
+            const qint64 bin = qint64(std::floor(readings.at(i).time / kBin));
+            Motion sum;
+            int count = 0;
+            for (; i < readings.size() && qint64(std::floor(readings.at(i).time / kBin)) == bin; ++i)
+                {
+                    sum.x += readings.at(i).x;
+                    sum.y += readings.at(i).y;
+                    sum.z += readings.at(i).z;
+                    ++count;
+                }
+            const double time = (bin + 0.5) * kBin;
+            if (x.append(time, sum.x / count * factor))
+                {
+                    y.append(time, sum.y / count * factor);
+                    z.append(time, sum.z / count * factor);
+                }
         }
 }
 }
@@ -354,6 +422,9 @@ TelemetrySessionPtr GpmfImporter::fromPayloads(const QVector<Payload> &payloads)
         {
             return nullptr;
         }
+    addMotion(*session, reading.accel, {ChannelId::AccelX, ChannelId::AccelY, ChannelId::AccelZ}, "m/s2", 1.0);
+    // radians to degrees
+    addMotion(*session, reading.gyro, {ChannelId::GyroX, ChannelId::GyroY, ChannelId::GyroZ}, "deg/s", 57.29577951308232);
     return session;
 }
 

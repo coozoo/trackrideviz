@@ -220,7 +220,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ GoPro chapters (2026-11-16, `VideoJoin::chaptersFrom`): opening the first chapter offers to join the
   recording; the data is read on through the chapters after it, also for a video joined from them;
   a GoPro video opened without data gives its own
-- GoPro: accelerometer and gyroscope
+- ✅ GoPro accelerometer and gyroscope (2026-11-16, `GpmfImporter`, `DerivedChannels`): the G-forces
+  measured, turned from the camera's axes to the vehicle's (up from gravity, forwards from the changes of
+  speed, right from the turns), in place of those worked out from GPS when they go with the ride; a camera
+  that leans into the turns gives the lean angle from its gyroscope and has its readings turned back level
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; NMEA, VBO
 - ✅ Gears (2026-11-15, `Gears`, the Bike page of the settings, the "Gear" gauge): recorded by

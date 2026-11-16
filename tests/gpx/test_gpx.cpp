@@ -32,6 +32,7 @@ private slots:
     void cameraPositions();
     void cameraVideoFile();
     void cameraChapters();
+    void cameraMotionSensors();
     void cameraNestingIsLimited();
     void strayTimesAreLeftOut();
 
@@ -463,6 +464,42 @@ void TestGpx::cameraChapters()
     write(dir.filePath("GP010007.MP4"), cameraFile(2, 2, "260625100002.000"));
     QCOMPARE(VideoJoin::chaptersFrom(dir.filePath("GOPR0007.MP4")),
              QStringList({dir.filePath("GOPR0007.MP4"), dir.filePath("GP010007.MP4")}));
+}
+
+void TestGpx::cameraMotionSensors()
+{
+    // a second of positions with 400 readings of each sensor beside them, scaled as cameras do
+    QByteArray accel;
+    QByteArray gyro;
+    auto be16 = [](qint16 v)
+    {
+        QByteArray b(2, '\0');
+        qToBigEndian<qint16>(v, b.data());
+        return b;
+    };
+    for (int i = 0; i < 400; ++i)
+        {
+            accel += be16(4180) + be16(i < 200 ? 0 : 418) + be16(-209);    // 10, 0 or 1, -0.5 m/s2
+            gyro += be16(0) + be16(i < 200 ? 0 : 3755) + be16(0);           // 0 or 3.5 rad/s
+        }
+    const QByteArray sensors = nested("DEVC", nested("STRM", record("SCAL", 's', 2, 1, be16(418))
+                                                     + record("ACCL", 's', 6, 400, accel))
+                                      + nested("STRM", record("SCAL", 's', 2, 1, be16(1073))
+                                               + record("GYRO", 's', 6, 400, gyro)));
+    const TelemetrySessionPtr session
+        = GpmfImporter::fromPayloads({{0.0, 1.0, positions(0, 2, 3, "260625100000.000") + sensors}});
+    QVERIFY(session);
+    const Channel *x = session->channel(ChannelId::AccelX);
+    const Channel *y = session->channel(ChannelId::AccelY);
+    QVERIFY(x && y && session->channel(ChannelId::AccelZ) && session->channel(ChannelId::GyroY));
+    // twenty to the second, each the mean of its readings
+    QCOMPARE(x->count(), 20);
+    QVERIFY(std::fabs(x->valueAtIndex(0) - 10.0) < 1e-9);
+    QVERIFY(std::fabs(y->valueAtIndex(2)) < 1e-9);
+    QVERIFY(std::fabs(y->valueAtIndex(15) - 1.0) < 1e-9);
+    QVERIFY(std::fabs(session->channel(ChannelId::AccelZ)->valueAtIndex(0) + 0.5) < 1e-9);
+    // degrees a second
+    QVERIFY(std::fabs(session->channel(ChannelId::GyroY)->valueAtIndex(15) - 3.4995 * 57.29577951308232) < 0.01);
 }
 
 void TestGpx::cameraNestingIsLimited()

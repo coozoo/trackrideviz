@@ -70,6 +70,14 @@ inline constexpr char PowerLapAvg[] = "powerLapAvg";       // W
 inline constexpr char GForceLateral[] = "gForceLateral";           // + to the right
 inline constexpr char GForceLongitudinal[] = "gForceLongitudinal"; // + forwards
 inline constexpr char GForceVertical[] = "gForceVertical";         // + up
+inline constexpr char LeanAngle[] = "leanAngle";                   // degrees, + leaning to the right
+// a camera's motion sensors in its own axes, which way they point depending on how it is mounted
+inline constexpr char AccelX[] = "accelX";   // m/s2
+inline constexpr char AccelY[] = "accelY";
+inline constexpr char AccelZ[] = "accelZ";
+inline constexpr char GyroX[] = "gyroX";     // degrees per second
+inline constexpr char GyroY[] = "gyroY";
+inline constexpr char GyroZ[] = "gyroZ";
 // Pedaling, from a power meter that measures each leg (FIT pedal dynamics).
 inline constexpr char PowerBalanceLeft[] = "powerBalanceLeft";   // % of the power from the left leg
 inline constexpr char PowerBalanceRight[] = "powerBalanceRight"; // % from the right leg, 100 - the left's

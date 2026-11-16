@@ -31,15 +31,15 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="68"/>
-        <location filename="../src/core/units/units.cpp" line="185"/>
-        <location filename="../src/core/units/units.cpp" line="206"/>
+        <location filename="../src/core/units/units.cpp" line="199"/>
+        <location filename="../src/core/units/units.cpp" line="220"/>
         <source>ft</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="69"/>
-        <location filename="../src/core/units/units.cpp" line="185"/>
-        <location filename="../src/core/units/units.cpp" line="206"/>
+        <location filename="../src/core/units/units.cpp" line="199"/>
+        <location filename="../src/core/units/units.cpp" line="220"/>
         <source>m</source>
         <translation type="unfinished"></translation>
     </message>
@@ -56,13 +56,13 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="77"/>
-        <location filename="../src/core/units/units.cpp" line="210"/>
+        <location filename="../src/core/units/units.cpp" line="224"/>
         <source>mi</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="78"/>
-        <location filename="../src/core/units/units.cpp" line="211"/>
+        <location filename="../src/core/units/units.cpp" line="225"/>
         <source>km</source>
         <translation type="unfinished"></translation>
     </message>
@@ -163,9 +163,9 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="123"/>
-        <location filename="../src/core/units/units.cpp" line="201"/>
-        <location filename="../src/core/units/units.cpp" line="253"/>
-        <location filename="../src/core/units/units.cpp" line="254"/>
+        <location filename="../src/core/units/units.cpp" line="215"/>
+        <location filename="../src/core/units/units.cpp" line="267"/>
+        <location filename="../src/core/units/units.cpp" line="268"/>
         <source>W</source>
         <translation type="unfinished"></translation>
     </message>
@@ -192,299 +192,324 @@
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="145"/>
-        <source>Lap</source>
+        <source>Lean angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="149"/>
-        <source>Laps</source>
+        <location filename="../src/core/units/units.cpp" line="150"/>
+        <source>Camera acceleration %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="153"/>
-        <source>Lap time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="154"/>
-        <source>Previous lap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/units/units.cpp" line="154"/>
-        <source>Best lap</source>
+        <location filename="../src/core/units/units.cpp" line="150"/>
+        <source>m/s²</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="155"/>
-        <location filename="../src/core/units/units.cpp" line="159"/>
-        <location filename="../src/core/units/units.cpp" line="167"/>
-        <location filename="../src/core/units/units.cpp" line="171"/>
-        <location filename="../src/core/units/units.cpp" line="189"/>
-        <source>s</source>
+        <source>Camera rotation %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="155"/>
+        <source>°/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="159"/>
-        <source>Delta to best lap</source>
+        <source>Lap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="163"/>
+        <source>Laps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="167"/>
+        <source>Lap time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="168"/>
+        <source>Previous lap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="168"/>
+        <source>Best lap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="169"/>
+        <location filename="../src/core/units/units.cpp" line="173"/>
+        <location filename="../src/core/units/units.cpp" line="181"/>
+        <location filename="../src/core/units/units.cpp" line="185"/>
+        <location filename="../src/core/units/units.cpp" line="203"/>
+        <source>s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="173"/>
+        <source>Delta to best lap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/units/units.cpp" line="177"/>
         <source>Sector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="167"/>
+        <location filename="../src/core/units/units.cpp" line="181"/>
         <source>Sector time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="167"/>
+        <location filename="../src/core/units/units.cpp" line="181"/>
         <source>Previous sector</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="171"/>
+        <location filename="../src/core/units/units.cpp" line="185"/>
         <source>Sector against best</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="175"/>
+        <location filename="../src/core/units/units.cpp" line="189"/>
         <source>Grade angle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="179"/>
-        <location filename="../src/core/units/units.cpp" line="180"/>
+        <location filename="../src/core/units/units.cpp" line="193"/>
+        <location filename="../src/core/units/units.cpp" line="194"/>
         <source>Vertical speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="179"/>
+        <location filename="../src/core/units/units.cpp" line="193"/>
         <source>ft/min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="180"/>
+        <location filename="../src/core/units/units.cpp" line="194"/>
         <source>m/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="184"/>
+        <location filename="../src/core/units/units.cpp" line="198"/>
         <source>Total ascent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="184"/>
+        <location filename="../src/core/units/units.cpp" line="198"/>
         <source>Total descent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="189"/>
+        <location filename="../src/core/units/units.cpp" line="203"/>
         <source>Running time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="193"/>
-        <location filename="../src/core/units/units.cpp" line="194"/>
+        <location filename="../src/core/units/units.cpp" line="207"/>
+        <location filename="../src/core/units/units.cpp" line="208"/>
         <source>Pace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="193"/>
+        <location filename="../src/core/units/units.cpp" line="207"/>
         <source>min/mi</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="194"/>
+        <location filename="../src/core/units/units.cpp" line="208"/>
         <source>min/km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="199"/>
+        <location filename="../src/core/units/units.cpp" line="213"/>
         <source>Power, 3 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="199"/>
+        <location filename="../src/core/units/units.cpp" line="213"/>
         <source>Power, 30 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="200"/>
+        <location filename="../src/core/units/units.cpp" line="214"/>
         <source>Lap average power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="200"/>
+        <location filename="../src/core/units/units.cpp" line="214"/>
         <source>Power (est.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="205"/>
+        <location filename="../src/core/units/units.cpp" line="219"/>
         <source>Highest point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="205"/>
+        <location filename="../src/core/units/units.cpp" line="219"/>
         <source>Lowest point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="210"/>
-        <location filename="../src/core/units/units.cpp" line="211"/>
+        <location filename="../src/core/units/units.cpp" line="224"/>
+        <location filename="../src/core/units/units.cpp" line="225"/>
         <source>Whole distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="215"/>
+        <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Lap top speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="215"/>
+        <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Lap average speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="220"/>
+        <location filename="../src/core/units/units.cpp" line="234"/>
         <source>Falling speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="224"/>
+        <location filename="../src/core/units/units.cpp" line="238"/>
         <source>Braking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="228"/>
+        <location filename="../src/core/units/units.cpp" line="242"/>
         <source>Glide ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="232"/>
+        <location filename="../src/core/units/units.cpp" line="246"/>
         <source>Best lap number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="236"/>
+        <location filename="../src/core/units/units.cpp" line="250"/>
         <source>Time of day</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="236"/>
+        <location filename="../src/core/units/units.cpp" line="250"/>
         <source>Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="236"/>
+        <location filename="../src/core/units/units.cpp" line="250"/>
         <source>Date and time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="241"/>
+        <location filename="../src/core/units/units.cpp" line="255"/>
         <source>G-force</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="251"/>
+        <location filename="../src/core/units/units.cpp" line="265"/>
         <source>Left/right balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="252"/>
+        <location filename="../src/core/units/units.cpp" line="266"/>
         <source>Right/left balance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="253"/>
+        <location filename="../src/core/units/units.cpp" line="267"/>
         <source>Left power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="254"/>
+        <location filename="../src/core/units/units.cpp" line="268"/>
         <source>Right power</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="255"/>
+        <location filename="../src/core/units/units.cpp" line="269"/>
         <source>Left torque effectiveness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="256"/>
+        <location filename="../src/core/units/units.cpp" line="270"/>
         <source>Right torque effectiveness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="257"/>
+        <location filename="../src/core/units/units.cpp" line="271"/>
         <source>Left pedal smoothness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="258"/>
+        <location filename="../src/core/units/units.cpp" line="272"/>
         <source>Right pedal smoothness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="259"/>
+        <location filename="../src/core/units/units.cpp" line="273"/>
         <source>Pedal smoothness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="260"/>
+        <location filename="../src/core/units/units.cpp" line="274"/>
         <source>Left platform offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="260"/>
-        <location filename="../src/core/units/units.cpp" line="261"/>
+        <location filename="../src/core/units/units.cpp" line="274"/>
+        <location filename="../src/core/units/units.cpp" line="275"/>
         <source>mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="261"/>
+        <location filename="../src/core/units/units.cpp" line="275"/>
         <source>Right platform offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="262"/>
+        <location filename="../src/core/units/units.cpp" line="276"/>
         <source>Left power phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="263"/>
+        <location filename="../src/core/units/units.cpp" line="277"/>
         <source>Left power phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="264"/>
+        <location filename="../src/core/units/units.cpp" line="278"/>
         <source>Left peak phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="265"/>
+        <location filename="../src/core/units/units.cpp" line="279"/>
         <source>Left peak phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="266"/>
+        <location filename="../src/core/units/units.cpp" line="280"/>
         <source>Right power phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="267"/>
+        <location filename="../src/core/units/units.cpp" line="281"/>
         <source>Right power phase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="268"/>
+        <location filename="../src/core/units/units.cpp" line="282"/>
         <source>Right peak phase start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/units/units.cpp" line="269"/>
+        <location filename="../src/core/units/units.cpp" line="283"/>
         <source>Right peak phase</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2857,27 +2882,27 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>GpmfImporter</name>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="445"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="516"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="419"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="490"/>
         <source>Not a video file this program can read data from.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="426"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="497"/>
         <source>The video holds no data of its own. Only GoPro cameras write positions into their videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="456"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="527"/>
         <source>The camera had no satellite fix while this video was recorded: there are no positions in it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="515"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="586"/>
         <source>GoPro, %n chapter(s) from %1</source>
         <translation type="unfinished">
             <numerusform></numerusform>
