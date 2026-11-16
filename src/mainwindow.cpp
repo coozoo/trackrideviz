@@ -2543,7 +2543,7 @@ void MainWindow::showAbout()
     QMessageBox::about(this, tr("About"),
                        tr("<b>%1</b><br>Version %2<br><br>"
                           "Telemetry overlays for action camera video.<br><br>"
-                          "Author: Yuriy Kuzin<br>"
+                          "Author: coozoo<br>"
                           "<a href=\"%3\">%3</a><br>"
                           "Licensed under the GNU GPL v3.<br><br>"
                           "<a href=\"%4\">Support Ukraine</a> in its fight for independence against the empire.")

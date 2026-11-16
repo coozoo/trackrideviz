@@ -4137,8 +4137,8 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="2544"/>
-        <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: Yuriy Kuzin&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
-        <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;&lt;br&gt;Автор: Юрій Кузін&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Ліцензія GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;a href=&quot;%4&quot;&gt;Підтримайте Україну&lt;/a&gt; у боротьбі за незалежність проти імперії.</translation>
+        <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
+        <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;&lt;br&gt;Автор: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Ліцензія GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;a href=&quot;%4&quot;&gt;Підтримайте Україну&lt;/a&gt; у боротьбі за незалежність проти імперії.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1104"/>

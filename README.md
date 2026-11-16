@@ -111,7 +111,7 @@ can be checked.
 
 ## Author
 
-Yuriy Kuzin ([coozoo](https://github.com/coozoo)).
+[coozoo](https://github.com/coozoo)
 
 ## License
 

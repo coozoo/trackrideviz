@@ -4111,7 +4111,7 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="2544"/>
-        <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: Yuriy Kuzin&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
+        <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
