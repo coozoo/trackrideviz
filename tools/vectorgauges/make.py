@@ -752,6 +752,164 @@ def moving_rider(rider, name, size=(400, 400)):
                                image(f"{name}-body.svg", (0, 0, w, h))]
 
 
+class Runner:
+    """A runner seen from the side, running to the right. (x, y) is the ground under the hip,
+    k the size (1 = about 100 tall). `stride(phase)` draws the whole figure at a moment of a
+    stride of two steps, 0..1: the near leg in front at 0."""
+
+    HIP = (0, -52)
+    THIGH, SHIN = 25, 25
+    SHOULDER = (7, -83)
+    UPPER_ARM, FOREARM = 16, 14
+
+    def __init__(self, x, y, k=1.0, color="foreground"):
+        self.x, self.y, self.k, self.color = x, y, k, color
+
+    def p(self, point, lift=0.0):
+        return f"{fmt(self.x + point[0] * self.k)},{fmt(self.y + (point[1] - lift) * self.k)}"
+
+    def paint(self, width, opacity=None):
+        return (stroke(self.color, width * self.k, opacity)
+                + " stroke-linecap='round' stroke-linejoin='round'")
+
+    @staticmethod
+    def limb(start, length, angle):
+        """From `start`, `length` long, `angle` degrees from straight down, forwards positive."""
+        a = math.radians(angle)
+        return start[0] + length * math.sin(a), start[1] + length * math.cos(a)
+
+    def leg(self, phase, lift, opacity=None):
+        turn = 2 * math.pi * phase
+        thigh = 32 * math.sin(turn)
+        # the knee folds as the leg swings forward, and is near straight on the ground
+        fold = 12 + 78 * max(0.0, math.cos(turn)) ** 1.5
+        knee = self.limb(self.HIP, self.THIGH, thigh)
+        foot = self.limb(knee, self.SHIN, thigh - fold)
+        toe = (foot[0] + 7, foot[1] + 1)
+        return (f"<path d='M{self.p(self.HIP, lift)} L{self.p(knee, lift)}' {self.paint(10, opacity)}/>"
+                f"<path d='M{self.p(knee, lift)} L{self.p(foot, lift)} L{self.p(toe, lift)}' {self.paint(7, opacity)}/>")
+
+    def arm(self, phase, lift, opacity=None):
+        swing = -28 * math.sin(2 * math.pi * phase)
+        elbow = self.limb(self.SHOULDER, self.UPPER_ARM, swing)
+        hand = self.limb(elbow, self.FOREARM, swing + 95)
+        return f"<path d='M{self.p(self.SHOULDER, lift)} L{self.p(elbow, lift)} L{self.p(hand, lift)}' {self.paint(5.5, opacity)}/>"
+
+    def stride(self, phase):
+        # up off the ground between the steps, twice a stride
+        lift = 2.5 * abs(math.sin(2 * math.pi * phase))
+        hx, hy = self.HIP
+        head = (11, -95)
+        return (self.leg(phase + 0.5, lift, 0.8) + self.arm(phase + 0.5, lift, 0.8)
+                + f"<path d='M{self.p(self.HIP, lift)} L{self.p(self.SHOULDER, lift)}' {self.paint(13)}/>"
+                + f"<circle cx='{fmt(self.x + head[0] * self.k)}' cy='{fmt(self.y + (head[1] - lift) * self.k)}' "
+                  f"r='{fmt(8 * self.k)}' {theme(self.color)}/>"
+                + self.leg(phase, lift) + self.arm(phase, lift))
+
+    def box(self):
+        """What a stride reaches, (x, y, w, h): the foot 35 behind and 29 ahead, the head 106 up,
+        and half the width of the limbs round that."""
+        x0, y0 = self.x - 44 * self.k, self.y - 110 * self.k
+        return (math.floor(x0), math.floor(y0), math.ceil(88 * self.k), math.ceil(116 * self.k))
+
+
+RUN_STEPS = 16       # pictures of a stride, two steps
+TOP_STEPS = 240      # steps a minute at the strip's fastest
+
+
+def running_figure(runner, name):
+    """The runner as an animation strip whose strides follow the cadence at the real rate."""
+    drawn, frame, rect = strip_of(runner.box(), RUN_STEPS, lambda i: runner.stride(i / RUN_STEPS))
+    # a stride is two steps
+    fps = TOP_STEPS / 120 * RUN_STEPS
+    return {f"{name}.svg": drawn}, [strip_component(f"{name}.svg", frame, rect, RUN_STEPS, fps, TOP_STEPS, "cadence")]
+
+
+def shoe_icon(gx, gy):
+    """A small running shoe."""
+    return (f"<path d='M{fmt(gx - 13)},{fmt(gy + 6)} L{fmt(gx - 12)},{fmt(gy - 7)} L{fmt(gx - 4)},{fmt(gy - 7)} "
+            f"Q{fmt(gx - 2)},{fmt(gy - 1)} {fmt(gx + 6)},{fmt(gy)} Q{fmt(gx + 14)},{fmt(gy + 1)} {fmt(gx + 14)},{fmt(gy + 6)} Z' "
+            f"{theme('foreground')}/>"
+            f"<path d='M{fmt(gx - 13)},{fmt(gy + 8)} L{fmt(gx + 14)},{fmt(gy + 8)}' {stroke('foreground', 2.5)}/>")
+
+
+def run_cluster(name):
+    """The ride cluster for a run: the heading on a strip of compass at the top, elevation and
+    grade, a runner who leans with the slope and strides with the cadence, the pace large, the
+    heart rate under it, cadence and elevation as arcs on the sides, the distance at the bottom."""
+    defs = ("<radialGradient id='well' cx='0.5' cy='0.4' r='0.6'>"
+            "<stop offset='0' stop-color='#000000' stop-opacity='0.45'/>"
+            "<stop offset='1' stop-color='#000000' stop-opacity='0.7'/></radialGradient>")
+    body = (f"<circle cx='{C}' cy='{C}' r='196' fill='@background' fill-opacity='0.55'/>"
+            f"<circle cx='{C}' cy='{C}' r='196' fill='none' stroke='#000000' stroke-opacity='0.4' stroke-width='3'/>"
+            f"<path d='{ring_path(C, C, 176, 146, -50, 50)}' fill='#000000' fill-opacity='0.35'/>"
+            f"<path d='{ring_path(C, C, 176, 150, 205, 305)}' fill='#ffffff' fill-opacity='0.07'/>"
+            f"<path d='{ring_path(C, C, 176, 150, 55, 155)}' fill='#ffffff' fill-opacity='0.07'/>"
+            f"<path d='{ring_path(C, C, 192, 136, 160, 200)}' fill='#ffffff' fill-opacity='0.05'/>"
+            f"<circle cx='{C}' cy='{C}' r='136' fill='url(#well)'/>"
+            f"<circle cx='{C}' cy='{C}' r='136' fill='none' stroke='#ffffff' stroke-opacity='0.1' stroke-width='2'/>")
+    # a shoe by the cadence arc, a mountain by the elevation arc
+    icons = shoe_icon(*polar(C, C, 163, 214))
+    mx, my = polar(C, C, 163, 146)
+    icons += (f"<path d='M{fmt(mx - 12)},{fmt(my + 8)} L{fmt(mx - 3)},{fmt(my - 8)} L{fmt(mx + 2)},{fmt(my)} "
+              f"L{fmt(mx + 6)},{fmt(my - 5)} L{fmt(mx + 13)},{fmt(my + 8)} Z' fill='#ffffff' "
+              "stroke='#000000' stroke-opacity='0.55' stroke-width='1.5' stroke-linejoin='round'/>")
+    drawings = {"face.svg": svg(400, 400, body, defs), "icons.svg": svg(400, 400, icons)}
+
+    strip = ticks(C, C, 0, 360, 73, 174, 7, 1.4, "foreground", opacity=0.5)
+    for label, angle in (("N", 0), ("NE", 45), ("E", 90), ("SE", 135), ("S", 180), ("SW", 225), ("W", 270), ("NW", 315)):
+        x, y = polar(C, C, 157, angle)
+        strip += (f"<text x='{fmt(x)}' y='{fmt(y + 6)}' font-family='{FONT}' font-size='18' font-weight='bold' "
+                  f"text-anchor='middle' transform='rotate({angle} {fmt(x)} {fmt(y)})' "
+                  f"{theme('accent' if label == 'N' else 'foreground')}>{label}</text>")
+    drawings["strip.svg"] = svg(400, 400, strip)
+    drawings["mark.svg"] = svg(400, 400, f"<path d='M{C},{C - 142} L{C - 8},{C - 132} L{C + 8},{C - 132} Z' {theme('accent')}/>")
+    drawings["cadence.svg"] = svg(400, 400, f"<path d='{ring_path(C, C, 176, 150, 205, 305)}' {theme('accent')}/>")
+    drawings["climb.svg"] = svg(400, 400, f"<path d='{ring_path(C, C, 176, 150, 55, 155)}' {theme('accent2')}/>")
+
+    # the runner and the road under him lean with the grade
+    drawings["road.svg"] = svg(400, 400, f"<path d='M{C - 70},{C + 32} L{C + 70},{C + 32}' {stroke('foreground', 3, 0.6)}/>")
+    runner_drawings, runner_parts = running_figure(Runner(C - 4, C + 31, 0.62), "runner")
+    drawings.update(runner_drawings)
+
+    components = [image("face.svg", (0, 0, 400, 400)),
+                  dict(image("strip.svg", (0, 0, 400, 400), manipulations=[
+                      {"type": "staticRadialClip", "minAngle": -52, "maxAngle": 52, "pivot": [C, C]},
+                      rotate(0, -360, (C, C), minValue=0, maxValue=360, wrap=True)]), channel="heading"),
+                  image("mark.svg", (0, 0, 400, 400)),
+                  text("valueAndUnit", (C, 15), 20, bold=True, precision=0, channel="heading"),
+                  dict(image("cadence.svg", (0, 0, 400, 400), manipulations=[radial_clip(205, 305, (C, C))]),
+                       channel="cadence"),
+                  dict(image("climb.svg", (0, 0, 400, 400), manipulations=[radial_clip(155, 55, (C, C))]),
+                       channel="elevation"),
+                  image("icons.svg", (0, 0, 400, 400)),
+                  text("valueAndUnit", (C, 92), 30, bold=True, upperCase=True, precision=0, channel="elevation"),
+                  text("labelValueUnit", (C, 120), 18, "accent2", upperCase=True, precision=0, channel="grade"),
+                  dict(group([image("road.svg", (0, 0, 400, 400))] + runner_parts, [
+                      rotate(12, -12, (C, C + 32), minValue=-15, maxValue=15)]), channel="grade"),
+                  text("valueAndUnit", (C, 268), 42, "accent", bold=True, precision=0),
+                  text("valueAndUnit", (C, 306), 20, upperCase=True, precision=0, channel="heartRate",
+                       hideWhenUnknown=True),
+                  text("valueAndUnit", (C, 362), 28, bold=True, upperCase=True, precision=2, channel="distance")]
+    write(name, (400, 400), components, drawings, ["pace"])
+
+
+def pace_readout(name):
+    """The pace large, its name above it and a runner striding with the cadence beside it."""
+    w, h = 420, 200
+    body = (f"<rect x='4' y='4' width='{w - 8}' height='{h - 8}' rx='26' fill='@background' fill-opacity='0.6'/>"
+            f"<rect x='4' y='4' width='{w - 8}' height='{h - 8}' rx='26' {stroke('accent2', 3, 0.6)}/>"
+            f"<path d='M136,36 L136,{h - 36}' {stroke('foreground', 2, 0.25)}/>")
+    drawings = {"face.svg": svg(w, h, body)}
+    runner_drawings, runner_parts = running_figure(Runner(66, 166, 1.2), "runner")
+    drawings.update(runner_drawings)
+    components = [image("face.svg", (0, 0, w, h))] + runner_parts + [
+        text("label", (156, 52), 26, "accent2", align="left", upperCase=True),
+        text("value", (156, 124), 84, bold=True, align="left", precision=0),
+        text("unit", (w - 24, 150), 28, align="right")]
+    write(name, (w, h), components, drawings, ["pace"])
+
+
 def ride_cluster(name):
     """A round cluster for a ride: the heading on a strip of compass at the top, elevation and grade,
     a rider who leans with the slope, the speed, cadence and elevation as arcs on the sides, power
@@ -2213,6 +2371,8 @@ def main():
     g_rings("G-force rings")
     g_plot("G-plot")
     lean_angle("Lean angle")
+    run_cluster("Run cluster")
+    pace_readout("Pace")
     side_arc("Side arc right", "right")
     side_arc("Side arc left", "left")
     crown_arc("Crown arc")

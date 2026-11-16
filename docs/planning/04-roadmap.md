@@ -330,6 +330,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Path shapes; lap table, sector bar
 - ✅ G-plot with a tail and Lean angle (2026-11-16): `trailSeconds` of a two-value move draws the way
   the part went over the last seconds, fading; a lean-angle gauge with a rider leaning under an arc
+- ✅ For runners (2026-11-16): pace as minutes and seconds (5:18 /km) everywhere; the cadence of FIT runs
+  and walks in steps a minute; "Run cluster" (the ride cluster with a runner striding at the cadence,
+  the pace, heart rate, cadence and elevation arcs) and "Pace" (the pace large beside a running figure)
 
 ## Sound and export choices ✅ (2026-11-15)
 - ✅ Music dock: files played one after another from a moment of the video, each trimmed, with

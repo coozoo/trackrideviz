@@ -1,0 +1,296 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Run cluster",
+    "size": [
+        400,
+        400
+    ],
+    "supportedTypes": [
+        "pace"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/strip.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "staticRadialClip",
+                    "minAngle": -52,
+                    "maxAngle": 52,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                },
+                {
+                    "type": "rotate",
+                    "minAngle": 0,
+                    "maxAngle": -360,
+                    "pivot": [
+                        200,
+                        200
+                    ],
+                    "minValue": 0,
+                    "maxValue": 360,
+                    "wrap": true
+                }
+            ],
+            "channel": "heading"
+        },
+        {
+            "type": "image",
+            "image": "images/mark.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                15
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "precision": 0,
+            "channel": "heading"
+        },
+        {
+            "type": "image",
+            "image": "images/cadence.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 205,
+                    "maxAngle": 305,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "cadence"
+        },
+        {
+            "type": "image",
+            "image": "images/climb.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "radialClip",
+                    "minAngle": 155,
+                    "maxAngle": 55,
+                    "pivot": [
+                        200,
+                        200
+                    ]
+                }
+            ],
+            "channel": "elevation"
+        },
+        {
+            "type": "image",
+            "image": "images/icons.svg",
+            "frame": [
+                0,
+                0,
+                400,
+                400
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                92
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 30,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "elevation"
+        },
+        {
+            "type": "text",
+            "autoText": "labelValueUnit",
+            "frame": [
+                200,
+                120
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 18
+            },
+            "color": "accent2",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "grade"
+        },
+        {
+            "type": "group",
+            "components": [
+                {
+                    "type": "image",
+                    "image": "images/road.svg",
+                    "frame": [
+                        0,
+                        0,
+                        400,
+                        400
+                    ],
+                    "color": "original"
+                },
+                {
+                    "type": "image",
+                    "image": "images/runner.svg",
+                    "frame": [
+                        168,
+                        162,
+                        880,
+                        72
+                    ],
+                    "color": "original",
+                    "manipulations": [
+                        {
+                            "type": "animationStrip",
+                            "frames": 16,
+                            "minFps": 0,
+                            "maxFps": 32.0,
+                            "frameRect": [
+                                168,
+                                162,
+                                55,
+                                72
+                            ],
+                            "minValue": 0,
+                            "maxValue": 240
+                        }
+                    ],
+                    "channel": "cadence"
+                }
+            ],
+            "manipulations": [
+                {
+                    "type": "rotate",
+                    "minAngle": 12,
+                    "maxAngle": -12,
+                    "pivot": [
+                        200,
+                        232
+                    ],
+                    "minValue": -15,
+                    "maxValue": 15
+                }
+            ],
+            "channel": "grade"
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                268
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 42,
+                "bold": true
+            },
+            "color": "accent",
+            "align": "center",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                306
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 20
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 0,
+            "channel": "heartRate",
+            "hideWhenUnknown": true
+        },
+        {
+            "type": "text",
+            "autoText": "valueAndUnit",
+            "frame": [
+                200,
+                362
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "center",
+            "valign": "center",
+            "upperCase": true,
+            "precision": 2,
+            "channel": "distance"
+        }
+    ]
+}
