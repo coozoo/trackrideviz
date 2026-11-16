@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QFutureWatcher>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
@@ -110,7 +111,7 @@ MusicPanel::MusicPanel(QWidget *parent)
     m_startEdit = new QTimeEdit(this);
     m_startEdit->setDisplayFormat("H:mm:ss");
     m_startEdit->setKeyboardTracking(false);
-    m_startEdit->setToolTip(tr("The moment of the video the first track begins at"));
+    m_startEdit->setToolTip(tr("The moment of the video the first track begins at; the others follow it"));
     connect(m_startEdit, &QTimeEdit::timeChanged, this, [this]()
     {
         edit(shown(), tr("Move the music"));
@@ -175,17 +176,22 @@ MusicPanel::MusicPanel(QWidget *parent)
     m_summary->setWordWrap(true);
     m_summary->setEnabled(false); // grayed: information, not a control
 
-    QFormLayout *form = new QFormLayout;
-    form->addRow(tr("Play:"), trimRow);
-    form->addRow(tr("Begins at:"), startRow);
-    form->addRow(tr("Fade:"), m_fadeSpin);
-    form->addRow(tr("Video sound:"), videoRow);
-    form->addRow(tr("Music:"), musicRow);
+    // the trim belongs to one file, the rest to all of them: said by the frames around them
+    QGroupBox *trackBox = new QGroupBox(tr("Selected track"), this);
+    QFormLayout *trackForm = new QFormLayout(trackBox);
+    trackForm->addRow(tr("Play:"), trimRow);
+    QGroupBox *allBox = new QGroupBox(tr("All tracks"), this);
+    QFormLayout *allForm = new QFormLayout(allBox);
+    allForm->addRow(tr("Begins at:"), startRow);
+    allForm->addRow(tr("Fade:"), m_fadeSpin);
+    allForm->addRow(tr("Video sound:"), videoRow);
+    allForm->addRow(tr("Music:"), musicRow);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_list, 1);
     layout->addLayout(buttons);
-    layout->addLayout(form);
+    layout->addWidget(trackBox);
+    layout->addWidget(allBox);
     layout->addWidget(m_summary);
 
     setSoundtrack(Soundtrack());

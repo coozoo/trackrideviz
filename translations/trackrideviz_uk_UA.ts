@@ -1104,28 +1104,28 @@ Worked out from the other data</source>
         <translation>Дані для локального типу повідомлення %1 зустрілися раніше за його визначення; решту файлу пропущено.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="350"/>
-        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="415"/>
+        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="352"/>
+        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="417"/>
         <source>This is not a FIT file.</source>
         <translation>Це не файл FIT.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="353"/>
+        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="355"/>
         <source>Unrecognized data after the end of the FIT file was ignored.</source>
         <translation>Нерозпізнані дані після кінця файлу FIT проігноровано.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="363"/>
+        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="365"/>
         <source>The file header checksum is wrong.</source>
         <translation>Неправильна контрольна сума заголовка файлу.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="408"/>
+        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="410"/>
         <source>The file checksum is wrong; the data may be damaged.</source>
         <translation>Неправильна контрольна сума файлу; дані можуть бути пошкоджені.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="420"/>
+        <location filename="../src/core/telemetry/fit/fitdecoder.cpp" line="422"/>
         <source>The file is incomplete; everything recorded before the cut was read.</source>
         <translation>Файл неповний; прочитано все, що було записано до обриву.</translation>
     </message>
@@ -4040,12 +4040,12 @@ It appears among the templates in the library.</source>
         <translation>Позначити покриття</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2211"/>
+        <location filename="../src/mainwindow.cpp" line="2232"/>
         <source>About</source>
         <translation>Про програму</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2212"/>
+        <location filename="../src/mainwindow.cpp" line="2233"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;Ліцензія GNU GPL v3.</translation>
     </message>
@@ -4081,151 +4081,161 @@ It appears among the templates in the library.</source>
 <context>
     <name>MusicPanel</name>
     <message>
-        <location filename="../src/musicpanel.cpp" line="53"/>
+        <location filename="../src/musicpanel.cpp" line="54"/>
         <source>Played one after another. Drag to change the order.</source>
         <translation>Грають одна за одною. Перетягніть, щоб змінити порядок.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="69"/>
+        <location filename="../src/musicpanel.cpp" line="70"/>
         <source>Add...</source>
         <translation>Додати...</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="70"/>
+        <location filename="../src/musicpanel.cpp" line="71"/>
         <source>Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A</source>
         <translation>Додати музичні файли: MP3, Ogg, Opus, FLAC, WAV, M4A</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="72"/>
+        <location filename="../src/musicpanel.cpp" line="73"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="75"/>
+        <location filename="../src/musicpanel.cpp" line="76"/>
         <source>Play earlier</source>
         <translation>Грати раніше</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="81"/>
+        <location filename="../src/musicpanel.cpp" line="82"/>
         <source>Play later</source>
         <translation>Грати пізніше</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="102"/>
+        <location filename="../src/musicpanel.cpp" line="103"/>
         <source>Where in the selected file the music begins</source>
         <translation>Звідки у вибраному файлі починається музика</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="103"/>
+        <location filename="../src/musicpanel.cpp" line="104"/>
         <source>Where in the selected file the music ends</source>
         <translation>Де у вибраному файлі музика закінчується</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="113"/>
-        <source>The moment of the video the first track begins at</source>
-        <translation>Момент відео, з якого починається перший трек</translation>
+        <location filename="../src/musicpanel.cpp" line="114"/>
+        <source>The moment of the video the first track begins at; the others follow it</source>
+        <translation>Момент відео, з якого починається перший трек; решта йдуть за ним</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="116"/>
-        <location filename="../src/musicpanel.cpp" line="124"/>
+        <location filename="../src/musicpanel.cpp" line="117"/>
+        <location filename="../src/musicpanel.cpp" line="125"/>
         <source>Move the music</source>
         <translation>Пересунути музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="118"/>
+        <location filename="../src/musicpanel.cpp" line="119"/>
         <source>Here</source>
         <translation>Тут</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="119"/>
+        <location filename="../src/musicpanel.cpp" line="120"/>
         <source>Begin the music where the video stands</source>
         <translation>Почати музику там, де зараз відео</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="126"/>
+        <location filename="../src/musicpanel.cpp" line="127"/>
         <source>Go</source>
         <translation>Перейти</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="127"/>
+        <location filename="../src/musicpanel.cpp" line="128"/>
         <source>Show the moment the music begins</source>
         <translation>Показати момент, коли починається музика</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="142"/>
+        <location filename="../src/musicpanel.cpp" line="143"/>
         <source> s</source>
         <translation> с</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="144"/>
+        <location filename="../src/musicpanel.cpp" line="145"/>
         <source>Each track fades in at its beginning and out at its end</source>
         <translation>Кожен трек плавно наростає на початку й затихає в кінці</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="147"/>
+        <location filename="../src/musicpanel.cpp" line="148"/>
         <source>Change the fades</source>
         <translation>Змінити наростання й затихання</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="157"/>
+        <location filename="../src/musicpanel.cpp" line="158"/>
         <source>Off</source>
         <translation>Вимк.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="162"/>
-        <location filename="../src/musicpanel.cpp" line="553"/>
-        <location filename="../src/musicpanel.cpp" line="558"/>
+        <location filename="../src/musicpanel.cpp" line="163"/>
+        <location filename="../src/musicpanel.cpp" line="559"/>
+        <location filename="../src/musicpanel.cpp" line="564"/>
         <source>Change the volume</source>
         <translation>Змінити гучність</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="172"/>
+        <location filename="../src/musicpanel.cpp" line="173"/>
         <source>The sound the camera recorded</source>
         <translation>Звук, записаний камерою</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="179"/>
+        <location filename="../src/musicpanel.cpp" line="180"/>
+        <source>Selected track</source>
+        <translation>Вибраний трек</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="182"/>
         <source>Play:</source>
         <translation>Грати:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="180"/>
+        <location filename="../src/musicpanel.cpp" line="183"/>
+        <source>All tracks</source>
+        <translation>Усі треки</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="185"/>
         <source>Begins at:</source>
         <translation>Починається о:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="181"/>
+        <location filename="../src/musicpanel.cpp" line="186"/>
         <source>Fade:</source>
         <translation>Наростання/затихання:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="182"/>
+        <location filename="../src/musicpanel.cpp" line="187"/>
         <source>Video sound:</source>
         <translation>Звук відео:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="183"/>
+        <location filename="../src/musicpanel.cpp" line="188"/>
         <source>Music:</source>
         <translation>Музика:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="288"/>
+        <location filename="../src/musicpanel.cpp" line="294"/>
         <source>(missing)</source>
         <translation>(немає)</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="317"/>
-        <location filename="../src/musicpanel.cpp" line="332"/>
+        <location filename="../src/musicpanel.cpp" line="323"/>
+        <location filename="../src/musicpanel.cpp" line="338"/>
         <source>Reading the music...</source>
         <translation>Читання музики...</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="318"/>
+        <location filename="../src/musicpanel.cpp" line="324"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation>Музики немає. Додайте файли, щоб вони грали під відео один за одним.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="321"/>
+        <location filename="../src/musicpanel.cpp" line="327"/>
         <source>%n track(s), %1 of music.</source>
         <translation>
             <numerusform>%n трек, %1 музики.</numerusform>
@@ -4234,29 +4244,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="328"/>
+        <location filename="../src/musicpanel.cpp" line="334"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation>Від початку музики у відео ще %1.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="340"/>
-        <location filename="../src/musicpanel.cpp" line="368"/>
+        <location filename="../src/musicpanel.cpp" line="346"/>
+        <location filename="../src/musicpanel.cpp" line="374"/>
         <source>Add music</source>
         <translation>Додати музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="403"/>
+        <location filename="../src/musicpanel.cpp" line="409"/>
         <source>Remove music</source>
         <translation>Вилучити музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="428"/>
-        <location filename="../src/musicpanel.cpp" line="476"/>
+        <location filename="../src/musicpanel.cpp" line="434"/>
+        <location filename="../src/musicpanel.cpp" line="482"/>
         <source>Reorder music</source>
         <translation>Змінити порядок музики</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="537"/>
+        <location filename="../src/musicpanel.cpp" line="543"/>
         <source>Trim music</source>
         <translation>Обрізати музику</translation>
     </message>
