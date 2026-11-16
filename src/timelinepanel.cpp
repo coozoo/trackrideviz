@@ -1,6 +1,7 @@
 #include "timelinepanel.h"
 
 #include "chartsmoothing.h"
+#include "icons.h"
 #include "telemetry/channelids.h"
 #include "telemetry/smoothing.h"
 
@@ -626,6 +627,8 @@ TimelinePanel::TimelinePanel(QWidget *parent)
         b->setText(text);
         b->setToolTip(tip);
         b->setAutoRaise(true);
+        // the text stays when an icon is given
+        b->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         return b;
     };
     QToolButton *markA = button(tr("A"), tr("Mark the start of a part here ([)"));
@@ -638,6 +641,7 @@ TimelinePanel::TimelinePanel(QWidget *parent)
             connect(shortcut, &QShortcut::activated, this, [this, b]() { m_strip->setMark(b, m_strip->position()); });
         }
     m_cutButton = button(tr("Cut A–B"), tr("Leave the part between A and B out of the export (Delete)"));
+    m_cutButton->setIcon(Icons::named("edit-cut"));
     connect(m_cutButton, &QToolButton::clicked, this, [this]()
     {
         const TimeRange part = m_strip->marked();
@@ -651,6 +655,7 @@ TimelinePanel::TimelinePanel(QWidget *parent)
     QShortcut *cutShortcut = new QShortcut(QKeySequence::Delete, this, nullptr, nullptr, Qt::WidgetWithChildrenShortcut);
     connect(cutShortcut, &QShortcut::activated, m_cutButton, &QToolButton::click);
     m_keepButton = button(tr("Keep A–B"), tr("Put the part between A and B back"));
+    m_keepButton->setIcon(Icons::named("edit-undo"));
     connect(m_keepButton, &QToolButton::clicked, this, [this]()
     {
         const TimeRange part = m_strip->marked();
@@ -662,6 +667,7 @@ TimelinePanel::TimelinePanel(QWidget *parent)
     m_stopsButton = button(tr("Cut stops"), tr("Leave out every stop of 10 s or more, keeping 2 s at each end"));
     connect(m_stopsButton, &QToolButton::clicked, this, &TimelinePanel::findStops);
     m_clearButton = button(tr("Keep all"), tr("Remove all cuts"));
+    m_clearButton->setIcon(Icons::named("edit-clear"));
     connect(m_clearButton, &QToolButton::clicked, this, [this]() { emit cutsChanged({}, tr("Remove all cuts")); });
     m_keptLabel = new QLabel(this);
     // a long text is cut rather than widening the window

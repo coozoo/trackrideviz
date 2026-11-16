@@ -1,5 +1,6 @@
 #include "lapspanel.h"
 
+#include "icons.h"
 #include "maps/tilestore.h"
 #include "settings/appsettings.h"
 #include "trackview.h"
@@ -77,14 +78,14 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_placeButton->setCheckable(true);
     m_placeButton->setToolTip(tr("Then click on the map where laps begin: the line is put across the route there"));
     connect(m_placeButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_placeButton, checked); });
-    m_removeButton = new QPushButton(tr("Remove"), this);
+    m_removeButton = new QPushButton(Icons::named("list-remove"), tr("Remove"), this);
     m_removeButton->setToolTip(tr("Use the laps the device recorded instead"));
     connect(m_removeButton, &QPushButton::clicked, this, &LapsPanel::removeLineRequested);
-    m_sectorButton = new QPushButton(tr("Add sector"), this);
+    m_sectorButton = new QPushButton(Icons::named("list-add"), tr("Add sector"), this);
     m_sectorButton->setCheckable(true);
     m_sectorButton->setToolTip(tr("Then click on the map where a sector ends: each line splits the lap once more"));
     connect(m_sectorButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_sectorButton, checked); });
-    m_clearSectorsButton = new QPushButton(tr("Clear sectors"), this);
+    m_clearSectorsButton = new QPushButton(Icons::named("edit-clear"), tr("Clear sectors"), this);
     connect(m_clearSectorsButton, &QPushButton::clicked, this, &LapsPanel::removeSectorsRequested);
 
     m_surfaceButton = new QPushButton(tr("Mark surface"), this);
@@ -92,9 +93,9 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_surfaceButton->setToolTip(tr("Then click on the map where a stretch begins and where it ends, and choose what it is "
                                    "ridden on: the power estimate counts it in"));
     connect(m_surfaceButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_surfaceButton, checked); });
-    m_clearSurfacesButton = new QPushButton(tr("Clear all"), this);
+    m_clearSurfacesButton = new QPushButton(Icons::named("edit-clear"), tr("Clear all"), this);
     connect(m_clearSurfacesButton, &QPushButton::clicked, this, &LapsPanel::removeSurfacesRequested);
-    m_removeSurfaceButton = new QPushButton(tr("Remove"), this);
+    m_removeSurfaceButton = new QPushButton(Icons::named("list-remove"), tr("Remove"), this);
     m_removeSurfaceButton->setToolTip(tr("Takes the surface picked in the table off the route"));
     connect(m_removeSurfaceButton, &QPushButton::clicked, this, [this]()
     {

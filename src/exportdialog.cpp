@@ -1,5 +1,6 @@
 #include "exportdialog.h"
 
+#include "icons.h"
 #include "settings/appsettings.h"
 #include "video/exportplan.h"
 #include "video/ffmpegtools.h"
@@ -115,10 +116,10 @@ void ExportDialog::createWidgets()
     m_profileCombo->setToolTip(tr("Fills in the choices below; the bitrate of the built-in ones follows the video. "
                                   "Changing a choice afterwards makes it your own."));
     connect(m_profileCombo, QOverload<int>::of(&QComboBox::activated), this, &ExportDialog::onProfileChosen);
-    m_saveProfileButton = new QPushButton(tr("Save as..."), m_options);
+    m_saveProfileButton = new QPushButton(Icons::named("document-save-as"), tr("Save as..."), m_options);
     m_saveProfileButton->setToolTip(tr("Keep the choices below under a name"));
     connect(m_saveProfileButton, &QPushButton::clicked, this, &ExportDialog::saveProfile);
-    m_deleteProfileButton = new QPushButton(tr("Delete"), m_options);
+    m_deleteProfileButton = new QPushButton(Icons::named("edit-delete"), tr("Delete"), m_options);
     connect(m_deleteProfileButton, &QPushButton::clicked, this, &ExportDialog::deleteProfile);
     QHBoxLayout *profileRow = new QHBoxLayout;
     profileRow->addWidget(m_profileCombo, 1);
@@ -126,7 +127,7 @@ void ExportDialog::createWidgets()
     profileRow->addWidget(m_deleteProfileButton);
 
     m_outputEdit = new QLineEdit(suggestedOutput(), m_options);
-    m_browseButton = new QPushButton(tr("Browse..."), m_options);
+    m_browseButton = new QPushButton(Icons::named("folder-open"), tr("Browse..."), m_options);
     connect(m_browseButton, &QPushButton::clicked, this, &ExportDialog::browseOutput);
     // the file type is the name's extension; picking one here changes it, typing one shows it here
     m_containerCombo = new QComboBox(m_options);
@@ -248,10 +249,10 @@ void ExportDialog::createWidgets()
     m_statusLabel = new QLabel(this);
     m_statusLabel->setWordWrap(true);
 
-    m_exportButton = new QPushButton(tr("Export"), this);
+    m_exportButton = new QPushButton(Icons::named("document-export", "media-record"), tr("Export"), this);
     m_exportButton->setDefault(true);
     connect(m_exportButton, &QPushButton::clicked, this, &ExportDialog::startExport);
-    m_closeButton = new QPushButton(tr("Close"), this);
+    m_closeButton = new QPushButton(Icons::named("window-close"), tr("Close"), this);
     connect(m_closeButton, &QPushButton::clicked, this, &ExportDialog::reject);
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addStretch(1);

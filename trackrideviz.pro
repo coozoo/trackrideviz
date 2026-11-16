@@ -38,6 +38,7 @@ SOURCES += main.cpp \
     src/dockhome.cpp \
     src/diagnostics.cpp \
     src/gstreamerworkaround.cpp \
+    src/icons.cpp \
     src/timelinepanel.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     src/dockhome.h \
     src/diagnostics.h \
     src/gstreamerworkaround.h \
+    src/icons.h \
     src/trackview.h \
     src/timelinepanel.h \
     src/mainwindow.h \

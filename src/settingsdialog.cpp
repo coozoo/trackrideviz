@@ -1,5 +1,6 @@
 #include "settingsdialog.h"
 
+#include "icons.h"
 #include "maps/tilestore.h"
 #include "settings/appsettings.h"
 #include "telemetry/gears.h"
@@ -246,7 +247,7 @@ QWidget *SettingsDialog::createExportPage()
     m_ffmpegEdit = new QLineEdit(page);
     m_ffmpegEdit->setPlaceholderText(tr("Found automatically"));
     m_ffmpegEdit->setClearButtonEnabled(true);
-    QPushButton *browseFfmpeg = new QPushButton(tr("Browse..."), page);
+    QPushButton *browseFfmpeg = new QPushButton(Icons::named("folder-open"), tr("Browse..."), page);
     connect(browseFfmpeg, &QPushButton::clicked, this, [this]()
     {
         const QString path = QFileDialog::getOpenFileName(this, tr("Locate ffmpeg"), m_ffmpegEdit->text());
@@ -268,7 +269,7 @@ QWidget *SettingsDialog::createExportPage()
     m_exportFolderEdit = new QLineEdit(page);
     m_exportFolderEdit->setPlaceholderText(tr("Next to the source video"));
     m_exportFolderEdit->setClearButtonEnabled(true);
-    QPushButton *browseFolder = new QPushButton(tr("Browse..."), page);
+    QPushButton *browseFolder = new QPushButton(Icons::named("folder-open"), tr("Browse..."), page);
     connect(browseFolder, &QPushButton::clicked, this, [this]()
     {
         const QString folder = QFileDialog::getExistingDirectory(this, tr("Folder for exported videos"), m_exportFolderEdit->text());
@@ -321,7 +322,7 @@ QWidget *SettingsDialog::createMapsPage()
     form->addRow(tr("Tile server:"), m_mapUrlEdit);
     form->addRow(note(tr("An address with {z}, {x} and {y} in it."), page));
     form->addRow(tr("Its credit:"), m_mapAttributionEdit);
-    m_mapClearButton = new QPushButton(page);
+    m_mapClearButton = new QPushButton(Icons::named("edit-clear"), QString(), page);
     m_mapClearButton->setToolTip(tr("Deletes the map pieces and terrain heights kept on this computer. "
                                     "They are fetched again when a gauge needs them."));
     connect(m_mapClearButton, &QPushButton::clicked, this, [this]()
@@ -542,7 +543,7 @@ QWidget *SettingsDialog::createSurfacesPage()
     m_surfaceTable->setSelectionMode(QAbstractItemView::SingleSelection);
     m_surfaceTable->setMinimumHeight(220);
 
-    QPushButton *add = new QPushButton(tr("Add"), page);
+    QPushButton *add = new QPushButton(Icons::named("list-add"), tr("Add"), page);
     connect(add, &QPushButton::clicked, this, [this]()
     {
         const int row = m_surfaceTable->rowCount();
@@ -552,7 +553,7 @@ QWidget *SettingsDialog::createSurfacesPage()
         m_surfaceTable->setCurrentCell(row, 0);
         m_surfaceTable->editItem(m_surfaceTable->item(row, 0));
     });
-    QPushButton *remove = new QPushButton(tr("Remove"), page);
+    QPushButton *remove = new QPushButton(Icons::named("list-remove"), tr("Remove"), page);
     connect(remove, &QPushButton::clicked, this, [this]()
     {
         if (m_surfaceTable->currentRow() >= 0)
@@ -560,7 +561,7 @@ QWidget *SettingsDialog::createSurfacesPage()
                 m_surfaceTable->removeRow(m_surfaceTable->currentRow());
             }
     });
-    QPushButton *usual = new QPushButton(tr("Restore the usual ones"), page);
+    QPushButton *usual = new QPushButton(Icons::named("view-refresh"), tr("Restore the usual ones"), page);
     connect(usual, &QPushButton::clicked, this, [this]() { showSurfaces(Surfaces::usual()); });
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addWidget(add);
@@ -647,7 +648,7 @@ QWidget *SettingsDialog::createWeatherPage()
     form->addRow(note(tr("The wind's speed and direction, the wind against the rider and the air's density are then "
                          "measurements of the ride like any other: for gauges, for the data viewer, and counted in "
                          "by the power estimate. Kept on disk: a ride asked about once needs no connection again."), page));
-    m_weatherClearButton = new QPushButton(page);
+    m_weatherClearButton = new QPushButton(Icons::named("edit-clear"), QString(), page);
     m_weatherClearButton->setToolTip(tr("Deletes the weather of rides kept on this computer. It is fetched again when a ride asks for it."));
     connect(m_weatherClearButton, &QPushButton::clicked, this, [this]()
     {

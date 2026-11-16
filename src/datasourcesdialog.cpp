@@ -1,5 +1,6 @@
 #include "datasourcesdialog.h"
 
+#include "icons.h"
 #include "telemetry/telemetryimporter.h"
 
 #include <QApplication>
@@ -39,9 +40,9 @@ DataSourcesDialog::DataSourcesDialog(const QString &mainPath, const TelemetrySes
 
     m_list = new QListWidget(this);
     connect(m_list, &QListWidget::currentRowChanged, this, &DataSourcesDialog::showSelected);
-    QPushButton *addButton = new QPushButton(tr("Add..."), this);
+    QPushButton *addButton = new QPushButton(Icons::named("list-add"), tr("Add..."), this);
     connect(addButton, &QPushButton::clicked, this, &DataSourcesDialog::addFiles);
-    m_removeButton = new QPushButton(tr("Remove"), this);
+    m_removeButton = new QPushButton(Icons::named("list-remove"), tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &DataSourcesDialog::removeSelected);
     QVBoxLayout *side = new QVBoxLayout;
     side->addWidget(addButton);

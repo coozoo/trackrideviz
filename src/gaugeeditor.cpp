@@ -4,6 +4,7 @@
 #include "gauge/gaugefonts.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/gaugetheme.h"
+#include "icons.h"
 #include "laps/lapengine.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
@@ -601,10 +602,10 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     top->addWidget(m_heightSpin);
     top->addWidget(new QLabel(tr("Made for:"), this));
     top->addWidget(m_channelCombo);
-    m_undoButton = new QPushButton(tr("Undo"), this);
+    m_undoButton = new QPushButton(Icons::named("edit-undo"), tr("Undo"), this);
     m_undoButton->setToolTip(QKeySequence(QKeySequence::Undo).toString(QKeySequence::NativeText));
     connect(m_undoButton, &QPushButton::clicked, this, [this]() { stepHistory(-1); });
-    m_redoButton = new QPushButton(tr("Redo"), this);
+    m_redoButton = new QPushButton(Icons::named("edit-redo"), tr("Redo"), this);
     m_redoButton->setToolTip(QKeySequence(QKeySequence::Redo).toString(QKeySequence::NativeText));
     connect(m_redoButton, &QPushButton::clicked, this, [this]() { stepHistory(1); });
     connect(new QShortcut(QKeySequence::Undo, this), &QShortcut::activated, this, [this]() { stepHistory(-1); });
@@ -654,18 +655,24 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
             addMenu->addAction(kind.first, this, [this, which]() { addPart(which); });
         }
     addButton->setMenu(addMenu);
-    auto button = [this](const QString &text, const QString &tip, const std::function<void()> &pressed)
+    auto button = [this](const QString &text, const QString &tip, const std::function<void()> &pressed,
+                         const QString &icon = QString())
     {
         QToolButton *made = new QToolButton(this);
         made->setText(text);
+        if (!icon.isEmpty())
+            {
+                made->setIcon(Icons::named(icon));
+                made->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+            }
         made->setToolTip(tip);
         connect(made, &QToolButton::clicked, this, pressed);
         return made;
     };
     QHBoxLayout *treeButtons = new QHBoxLayout;
     treeButtons->addWidget(addButton);
-    treeButtons->addWidget(button(tr("Copy"), tr("Another part like the one picked"), [this]() { duplicatePart(); }));
-    treeButtons->addWidget(button(tr("Delete"), tr("Takes the picked part out of the gauge"), [this]() { removePart(); }));
+    treeButtons->addWidget(button(tr("Copy"), tr("Another part like the one picked"), [this]() { duplicatePart(); }, "edit-copy"));
+    treeButtons->addWidget(button(tr("Delete"), tr("Takes the picked part out of the gauge"), [this]() { removePart(); }, "edit-delete"));
     treeButtons->addWidget(button(QStringLiteral("↑"), tr("Further back: drawn earlier"), [this]() { movePart(-1); }));
     treeButtons->addWidget(button(QStringLiteral("↓"), tr("Further to the front: drawn later"), [this]() { movePart(1); }));
     treeButtons->addStretch(1);

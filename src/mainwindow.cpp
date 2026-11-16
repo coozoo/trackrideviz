@@ -4,6 +4,7 @@
 #include "datasourcesdialog.h"
 #include "diagnostics.h"
 #include "dockhome.h"
+#include "icons.h"
 #include "joindialog.h"
 #include "video/videojoin.h"
 #include "lapcomparepanel.h"
@@ -434,7 +435,7 @@ QWidget *MainWindow::createCentralWidget()
     m_canvas = new VideoCanvas(central);
 
     m_playButton = new QToolButton(central);
-    m_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    m_playButton->setIcon(Icons::named("media-playback-start"));
     m_playButton->setToolTip(tr("Play / pause (Space)"));
     m_playButton->setEnabled(false);
     connect(m_playButton, &QToolButton::clicked, this, &MainWindow::togglePlayback);
@@ -725,51 +726,62 @@ void MainWindow::createMenus()
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QAction *openVideoAction = fileMenu->addAction(tr("Open &video..."), this, &MainWindow::chooseVideo);
     openVideoAction->setShortcut(QKeySequence::Open);
+    openVideoAction->setIcon(Icons::named("video-x-generic"));
     addRecentMenu(fileMenu, tr("&Recent videos"), AppSettings::RecentVideos, [this](const QString &path)
     {
         openChosenVideo(path);
     });
     QAction *openDataAction = fileMenu->addAction(tr("Open &data..."), this, &MainWindow::chooseTelemetry);
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+    openDataAction->setIcon(Icons::named("x-office-spreadsheet"));
     addRecentMenu(fileMenu, tr("Recent &data"), AppSettings::RecentData, [this](const QString &path)
     {
         openTelemetry(path);
     });
     m_dataSourcesAction = fileMenu->addAction(tr("Add data from other &files..."), this, &MainWindow::editDataSources);
     m_dataSourcesAction->setEnabled(false);
+    m_dataSourcesAction->setIcon(Icons::named("list-add"));
     fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
     fileMenu->addSeparator();
     QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
     openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
+    openProjectAction->setIcon(Icons::named("document-open"));
     addRecentMenu(fileMenu, tr("Recent pro&jects"), AppSettings::RecentProjects, [this](const QString &path)
     {
         openProject(path);
     });
     QAction *saveAction = fileMenu->addAction(tr("&Save project"), this, &MainWindow::saveProject);
     saveAction->setShortcut(QKeySequence::Save);
+    saveAction->setIcon(Icons::named("document-save"));
     QAction *saveAsAction = fileMenu->addAction(tr("Save project &as..."), this, &MainWindow::saveProjectAs);
     saveAsAction->setShortcut(QKeySequence::SaveAs);
+    saveAsAction->setIcon(Icons::named("document-save-as"));
     fileMenu->addSeparator();
     m_exportAction = fileMenu->addAction(tr("&Export video..."), this, &MainWindow::exportVideo);
     m_exportAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+    m_exportAction->setIcon(Icons::named("document-export", "media-record"));
     m_exportAction->setEnabled(false);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("Save the &gauges as a template..."), this, &MainWindow::saveAsTemplate);
     fileMenu->addSeparator();
     QAction *settingsAction = fileMenu->addAction(tr("&Settings..."), this, &MainWindow::showSettings);
     settingsAction->setShortcut(QKeySequence::Preferences);
+    settingsAction->setIcon(Icons::named("preferences-system"));
     // macOS moves it to the application menu, where it is expected there
     settingsAction->setMenuRole(QAction::PreferencesRole);
     fileMenu->addSeparator();
     QAction *quitAction = fileMenu->addAction(tr("&Quit"), this, &QWidget::close);
     quitAction->setShortcut(QKeySequence::Quit);
+    quitAction->setIcon(Icons::named("application-exit"));
 
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
     QAction *undoAction = m_undoStack->createUndoAction(this, tr("&Undo"));
     undoAction->setShortcut(QKeySequence::Undo);
+    undoAction->setIcon(Icons::named("edit-undo"));
     editMenu->addAction(undoAction);
     QAction *redoAction = m_undoStack->createRedoAction(this, tr("&Redo"));
     redoAction->setShortcut(QKeySequence::Redo);
+    redoAction->setIcon(Icons::named("edit-redo"));
     editMenu->addAction(redoAction);
 
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
@@ -783,7 +795,7 @@ void MainWindow::createMenus()
     viewMenu->addAction(m_musicDock->toggleViewAction());
     viewMenu->addAction(m_diagnosticsDock->toggleViewAction());
     viewMenu->addSeparator();
-    viewMenu->addAction(tr("&Reset layout"), this, [this]()
+    viewMenu->addAction(Icons::named("view-refresh"), tr("&Reset layout"), this, [this]()
     {
         restoreState(m_defaultLayout, kLayoutVersion);
         // a dock closed before is brought back with the rest
@@ -795,7 +807,7 @@ void MainWindow::createMenus()
     });
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), this, &MainWindow::showAbout);
+    helpMenu->addAction(Icons::named("help-about"), tr("&About"), this, &MainWindow::showAbout);
     helpMenu->addAction(tr("About &Qt"), qApp, &QApplication::aboutQt);
 }
 
@@ -830,7 +842,7 @@ void MainWindow::openChosenVideo(const QString &path)
 QMenu *MainWindow::addRecentMenu(QMenu *parent, const QString &title, AppSettings::RecentKind kind,
                                  const std::function<void(const QString &)> &open)
 {
-    QMenu *menu = parent->addMenu(title);
+    QMenu *menu = parent->addMenu(Icons::named("document-open-recent", "document-open"), title);
     menu->setToolTipsVisible(true);
     // filled each time it opens: other windows and the settings change the lists
     connect(menu, &QMenu::aboutToShow, this, [this, menu, kind, open]()
@@ -860,7 +872,7 @@ QMenu *MainWindow::addRecentMenu(QMenu *parent, const QString &title, AppSetting
                 return;
             }
         menu->addSeparator();
-        menu->addAction(tr("Clear the list"), this, [kind]()
+        menu->addAction(Icons::named("edit-clear"), tr("Clear the list"), this, [kind]()
         {
             AppSettings::clearRecentFiles(kind);
         });
@@ -1553,7 +1565,7 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             });
         }
     menu.addSeparator();
-    menu.addAction(tr("Remove"), this, [this, index]()
+    menu.addAction(Icons::named("list-remove"), tr("Remove"), this, [this, index]()
     {
         removeGauge(index);
     });
@@ -1586,7 +1598,7 @@ QWidget *MainWindow::createPropertiesPanel()
     {
         setGaugeChannel(m_canvas->selectedItem(), m_channelCombo->itemData(row).toString());
     });
-    m_removeGaugeButton = new QPushButton(tr("Remove gauge"), panel);
+    m_removeGaugeButton = new QPushButton(Icons::named("list-remove"), tr("Remove gauge"), panel);
     connect(m_removeGaugeButton, &QPushButton::clicked, this, [this]()
     {
         removeGauge(m_canvas->selectedItem());
@@ -1888,8 +1900,8 @@ void MainWindow::togglePlayback()
 
 void MainWindow::onPlaybackStateChanged(QMediaPlayer::PlaybackState state)
 {
-    m_playButton->setIcon(style()->standardIcon(state == QMediaPlayer::PlayingState
-                          ? QStyle::SP_MediaPause : QStyle::SP_MediaPlay));
+    m_playButton->setIcon(Icons::named(state == QMediaPlayer::PlayingState ? "media-playback-pause"
+                                                                           : "media-playback-start"));
     syncMusic();
 }
 

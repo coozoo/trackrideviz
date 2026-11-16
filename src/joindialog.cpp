@@ -1,5 +1,6 @@
 #include "joindialog.h"
 
+#include "icons.h"
 #include "video/ffmpegtools.h"
 #include "video/videojoin.h"
 
@@ -67,6 +68,8 @@ JoinDialog::JoinDialog(const QStringList &paths, QWidget *parent)
     connect(m_outputEdit, &QLineEdit::textEdited, this, [this]() { m_outputEdited = true; });
     QToolButton *browse = new QToolButton(m_editors);
     browse->setText(tr("..."));
+    browse->setIcon(Icons::named("folder-open"));
+    browse->setToolTip(tr("Choose where the joined video goes"));
     connect(browse, &QToolButton::clicked, this, &JoinDialog::browseOutput);
     QHBoxLayout *outputRow = new QHBoxLayout;
     outputRow->addWidget(m_outputEdit, 1);

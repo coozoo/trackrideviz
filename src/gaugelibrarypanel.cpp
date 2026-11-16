@@ -5,6 +5,7 @@
 #include "gauge/gaugelibrary.h"
 #include "gauge/gaugerenderer.h"
 #include "gauge/xmlgaugeimporter.h"
+#include "icons.h"
 #include "overlay/xmltemplateimporter.h"
 #include "telemetry/csv/dataprofilelibrary.h"
 #include "telemetry/csv/xmldataprofileimporter.h"
@@ -383,7 +384,7 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
 
     m_useButton = new QPushButton(this);
     connect(m_useButton, &QPushButton::clicked, this, &GaugeLibraryPanel::useSelected);
-    m_importButton = new QPushButton(tr("Import..."), this);
+    m_importButton = new QPushButton(Icons::named("document-open"), tr("Import..."), this);
     m_importButton->setToolTip(tr("Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a "
                                   "gauge.xml or project.cdp) and XML data profiles. Choose the folder that holds them, "
                                   "or a folder with Widgets and Templates or with Gauges, Templates and DataProfiles in it."));
@@ -391,15 +392,15 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     importMenu->addAction(tr("Gauge or template files (.rtvgauge, .rtvtemplate)..."), this, &GaugeLibraryPanel::importPackages);
     importMenu->addAction(tr("A folder of gauges, templates or data profiles..."), this, &GaugeLibraryPanel::importFiles);
     m_importButton->setMenu(importMenu);
-    m_exportButton = new QPushButton(tr("Export..."), this);
+    m_exportButton = new QPushButton(Icons::named("document-save-as"), tr("Export..."), this);
     connect(m_exportButton, &QPushButton::clicked, this, &GaugeLibraryPanel::exportSelected);
-    m_removeButton = new QPushButton(tr("Remove"), this);
+    m_removeButton = new QPushButton(Icons::named("list-remove"), tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &GaugeLibraryPanel::removeSelected);
 
-    m_newButton = new QPushButton(tr("New gauge..."), this);
+    m_newButton = new QPushButton(Icons::named("document-new"), tr("New gauge..."), this);
     m_newButton->setToolTip(tr("Opens the gauge editor with an empty gauge"));
     connect(m_newButton, &QPushButton::clicked, this, [this]() { editGauge(true); });
-    m_editButton = new QPushButton(tr("Edit..."), this);
+    m_editButton = new QPushButton(Icons::named("document-properties"), tr("Edit..."), this);
     connect(m_editButton, &QPushButton::clicked, this, [this]() { editGauge(false); });
 
     // rows of two: one row would make the dock, and so the window, too wide for small screens

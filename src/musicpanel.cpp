@@ -1,5 +1,6 @@
 #include "musicpanel.h"
 
+#include "icons.h"
 #include "video/ffmpegtools.h"
 
 #include <QAbstractItemModel>
@@ -68,18 +69,18 @@ MusicPanel::MusicPanel(QWidget *parent)
             }
     });
 
-    m_addButton = new QPushButton(tr("Add..."), this);
+    m_addButton = new QPushButton(Icons::named("list-add"), tr("Add..."), this);
     m_addButton->setToolTip(tr("Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A"));
     connect(m_addButton, &QPushButton::clicked, this, &MusicPanel::addFiles);
-    m_removeButton = new QPushButton(tr("Remove"), this);
+    m_removeButton = new QPushButton(Icons::named("list-remove"), tr("Remove"), this);
     connect(m_removeButton, &QPushButton::clicked, this, &MusicPanel::removeSelected);
-    m_upButton = new QPushButton(style()->standardIcon(QStyle::SP_ArrowUp), QString(), this);
+    m_upButton = new QPushButton(Icons::named("go-up"), QString(), this);
     m_upButton->setToolTip(tr("Play earlier"));
     connect(m_upButton, &QPushButton::clicked, this, [this]()
     {
         moveSelected(-1);
     });
-    m_downButton = new QPushButton(style()->standardIcon(QStyle::SP_ArrowDown), QString(), this);
+    m_downButton = new QPushButton(Icons::named("go-down"), QString(), this);
     m_downButton->setToolTip(tr("Play later"));
     connect(m_downButton, &QPushButton::clicked, this, [this]()
     {
@@ -133,7 +134,7 @@ MusicPanel::MusicPanel(QWidget *parent)
         soundtrack.start = m_position;
         edit(soundtrack, tr("Move the music"));
     });
-    QPushButton *goButton = new QPushButton(tr("Go"), this);
+    QPushButton *goButton = new QPushButton(Icons::named("go-jump"), tr("Go"), this);
     goButton->setToolTip(tr("Show the moment the music begins"));
     connect(goButton, &QPushButton::clicked, this, [this]()
     {

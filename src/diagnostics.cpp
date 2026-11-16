@@ -1,5 +1,7 @@
 #include "diagnostics.h"
 
+#include "icons.h"
+
 #include <QApplication>
 #include <QClipboard>
 #include <QFontDatabase>
@@ -106,14 +108,14 @@ DiagnosticsPanel::DiagnosticsPanel(std::function<QString()> state, QWidget *pare
     m_log->setLineWrapMode(QPlainTextEdit::NoWrap);
     m_log->setMaximumBlockCount(int(kKeptLines));
     m_log->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    QPushButton *copy = new QPushButton(tr("Copy all"), this);
+    QPushButton *copy = new QPushButton(Icons::named("edit-copy"), tr("Copy all"), this);
     copy->setToolTip(tr("The start-up details, the players' state and the log, to paste into a report"));
     connect(copy, &QPushButton::clicked, this, [this]()
     {
         QApplication::clipboard()->setText(m_environment->text() + "\n\n" + m_stateLabel->text() + "\n\n"
                                            + m_log->toPlainText());
     });
-    QPushButton *clearButton = new QPushButton(tr("Clear"), this);
+    QPushButton *clearButton = new QPushButton(Icons::named("edit-clear"), tr("Clear"), this);
     connect(clearButton, &QPushButton::clicked, this, [this]()
     {
         DiagnosticLog::clear();

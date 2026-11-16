@@ -1,4 +1,5 @@
 #include "datapanel.h"
+#include "icons.h"
 #include "settings/appsettings.h"
 
 #include "chartsmoothing.h"
@@ -679,11 +680,15 @@ DataPanel::DataPanel(QWidget *parent)
         b->setText(text);
         b->setToolTip(tip);
         b->setAutoRaise(true);
+        // the text stays when an icon is given
+        b->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         return b;
     };
     m_removeButton = button(tr("Take out"), tr("Leave the picked samples out; the channel is read across the gap"));
+    m_removeButton->setIcon(Icons::named("edit-cut"));
     connect(m_removeButton, &QToolButton::clicked, this, &DataPanel::removeSelected);
     m_restoreButton = button(tr("Put back"), tr("Put back samples taken out in the picked stretch"));
+    m_restoreButton->setIcon(Icons::named("edit-undo"));
     connect(m_restoreButton, &QToolButton::clicked, this, &DataPanel::restoreSelected);
     m_smoothingCombo = ChartSmoothing::makeCombo(this);
     m_smoothing = ChartSmoothing::saved();
