@@ -206,6 +206,14 @@ jobs:
           echo "GStreamer plugins bundled: $plugins"
           find appdir -maxdepth 6 -type d -name plugins -exec ls {} \;
           if [ "$plugins" -eq 0 ]; then echo "::error::No GStreamer plugins in the AppImage"; exit 1; fi
+          # Plugins that load modules of the system, built for its own libraries, crash the
+          # bundled GStreamer as it looks them over (LADSPA did, then waited forever): effects
+          # and synthesizers, and the bridges to the graphics card's decoders. Pictures are
+          # decoded by the bundled FFmpeg (libav) instead.
+          for name in ladspa lv2 frei0r opencv fluidsynthmidi va vaapi nvcodec msdk qsv v4l2codecs; do
+            find appdir -path '*gstreamer-1.0*' -name "libgst${name}.so" -print -delete
+          done
+          python3 tools/appimage/patch-apprun.py appdir/AppRun
           VERSION=${{ steps.build.outputs.VER_TAG_NAME }} ./appimagetool-*.AppImage ./appdir
           mv Race_Track_Visualizer-*-x86_64.AppImage ./Race_Track_Visualizer-x86_64.AppImage
           ls -l
