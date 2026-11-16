@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adds what the bundled GStreamer needs to the AppRun go-appimage writes.
+"""Adds what the bundled Qt and GStreamer need to the AppRun go-appimage writes.
 
     python3 tools/appimage/patch-apprun.py appdir/AppRun
 
@@ -13,8 +13,17 @@ ANCHOR = "# Run experimental bundle that bundles everything"
 
 ADDED = """\
 ############################################################################################
-# Race Track Visualizer: the bundled GStreamer on its own
+# Race Track Visualizer: the bundled Qt and GStreamer on their own
 ############################################################################################
+
+# Qt's plugins (the display's first): go-appimage says where they are only when it bundles
+# everything, and Qt looks for them where the build machine had them
+if [ -z "$QT_PLUGIN_PATH" ] ; then
+  PLATFORMS=$(find "${HERE}" -type d -path '*/plugins/platforms' | head -n 1)
+  if [ -n "$PLATFORMS" ] ; then
+    export QT_PLUGIN_PATH="$(dirname "$PLATFORMS")"
+  fi
+fi
 
 if [ -n "$GST_PLUGIN_PATH" ] ; then
   # the plugins are checked in the program: the helper cannot be started in this bundle
@@ -40,4 +49,4 @@ if at is None or at == 0 or not lines[at - 1].startswith("####"):
 lines[at - 1:at - 1] = ADDED.split("\n")
 with open(path, "w", encoding="utf-8") as f:
     f.write("\n".join(lines))
-print(f"{path}: GStreamer settings added")
+print(f"{path}: Qt and GStreamer settings added")
