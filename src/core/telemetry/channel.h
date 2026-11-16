@@ -35,6 +35,9 @@ public:
     // Smallest and largest sample; 0 for an empty channel. Scans all samples.
     double minValue() const;
     double maxValue() const;
+    // The highest value held for `seconds`: one wrong reading, such as a GPS position that
+    // jumped, does not count. maxValue() for a channel too short to say.
+    double steadyMax(double seconds) const;
 
     // timeSec is seconds from the session start. Samples that are not later
     // than the previous one are dropped (returns false) - loggers do repeat

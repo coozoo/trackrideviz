@@ -48,6 +48,7 @@ private slots:
     void outOfRangeClampsAndReportsNotOk();
     void rejectsNonIncreasingTime();
     void irregularSampleRate();
+    void steadyMaxLeavesOutSpikes();
     void sessionChannelReferencesStayValid();
     void addedDataFollowsTheClocks();
     void addedDataIsMerged();
@@ -138,6 +139,32 @@ void TestChannel::irregularSampleRate()
     QCOMPARE(c.maxValue(), 200.0);
     QCOMPARE(Channel().minValue(), 0.0);
     QCOMPARE(Channel().maxValue(), 0.0);
+}
+
+void TestChannel::steadyMaxLeavesOutSpikes()
+{
+    // 10 times a second: up to 30, a reading of 90 and a third of a second at 70
+    Channel speed("speed", "m/s");
+    for (int i = 0; i <= 600; ++i)
+        {
+            const double t = i / 10.0;
+            const double value = i == 100 ? 90.0 : (i >= 200 && i < 203) ? 70.0 : 30.0 * std::sin(t / 20.0);
+            speed.append(t, value);
+        }
+    QCOMPARE(speed.maxValue(), 90.0);
+    const double steady = speed.steadyMax(1.0);
+    QVERIFY2(steady > 29.0 && steady < 30.0, qPrintable(QString::number(steady)));
+    // once a second: a lone reading is not held either
+    Channel sparse("speed", "m/s");
+    for (int t = 0; t < 10; ++t)
+        {
+            sparse.append(t, t == 5 ? 80.0 : 20.0);
+        }
+    QCOMPARE(sparse.steadyMax(1.0), 20.0);
+    // too short to say
+    Channel one("speed", "m/s");
+    one.append(0.0, 12.0);
+    QCOMPARE(one.steadyMax(1.0), 12.0);
 }
 
 // Importers keep references to several channels while creating more.

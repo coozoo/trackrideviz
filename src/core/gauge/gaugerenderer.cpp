@@ -534,7 +534,8 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
     if (m_scaleEnd <= 0.0 && !m_metrics.isEmpty() && m_metrics.first().channel && !m_metrics.first().channel->isEmpty())
         {
             const Metric &bound = m_metrics.first();
-            const double highest = bound.display.convert(bound.channel->maxValue());
+            // a GPS spike would stretch the dial for one wrong reading
+            const double highest = bound.display.convert(bound.channel->steadyMax(1.0));
             std::function<const GaugeScale *(const QVector<Node> &)> dialOf = [&](const QVector<Node> &nodes)
             {
                 for (const Node &node : nodes)

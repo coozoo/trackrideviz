@@ -1,6 +1,7 @@
 #include "channel.h"
 
 #include <algorithm>
+#include <limits>
 #include <cmath>
 
 Channel::Channel(const QString &id, const QString &unit, Interpolation interpolation)
@@ -21,6 +22,29 @@ double Channel::endTime() const
 double Channel::minValue() const
 {
     return m_values.isEmpty() ? 0.0 : *std::min_element(m_values.cbegin(), m_values.cend());
+}
+
+double Channel::steadyMax(double seconds) const
+{
+    // the lowest value over each stretch of `seconds`, and the highest of those
+    double best = -std::numeric_limits<double>::infinity();
+    for (int i = 0; i < m_times.size(); ++i)
+        {
+            double lowest = m_values.at(i);
+            int j = i + 1;
+            for (; j < m_times.size() && m_times.at(j) <= m_times.at(i) + seconds; ++j)
+                {
+                    lowest = std::min(lowest, m_values.at(j));
+                }
+            // a stretch reaches the next reading at least: a lone one is not held; the last
+            // has none after it
+            if (j == i + 1 && j < m_times.size())
+                {
+                    lowest = std::min(lowest, m_values.at(j));
+                }
+            best = std::max(best, lowest);
+        }
+    return std::isfinite(best) ? best : maxValue();
 }
 
 double Channel::maxValue() const
