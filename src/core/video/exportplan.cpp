@@ -242,6 +242,9 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                 }
             videoAudio = cutOut;
         }
+    // made louder than recorded: the peaks held under full scale rather than cut off
+    const bool boosted = soundtrack.videoGain() > 1.0 || (music && soundtrack.musicGain() > 1.0);
+    const QString mixOut = boosted ? "[am]" : "[a]";
     if (mixed)
         {
             // what the music needs at the start of the export: when it is still to come, how
@@ -251,16 +254,20 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             if (videoSound)
                 {
                     graph += QString(";%1volume=%2,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo%3")
-                             .arg(videoAudio).arg(soundtrack.videoGain(), 0, 'f', 3).arg(musicGraph.isEmpty() ? "[a]" : "[vs]");
+                             .arg(videoAudio).arg(soundtrack.videoGain(), 0, 'f', 3).arg(musicGraph.isEmpty() ? mixOut : "[vs]");
                     if (!musicGraph.isEmpty())
                         {
                             // as long as the video's sound; both at the volume set, not halved
-                            graph += ";" + musicGraph + ";[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]";
+                            graph += ";" + musicGraph + ";[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0" + mixOut;
                         }
                 }
             else
                 {
-                    graph += ";" + QString(musicGraph).replace("[mus]", "[a]");
+                    graph += ";" + QString(musicGraph).replace("[mus]", mixOut);
+                }
+            if (boosted)
+                {
+                    graph += ";[am]alimiter=limit=0.97:level=0[a]";
                 }
         }
     args << "-filter_complex" << graph << "-map" << "[v]";

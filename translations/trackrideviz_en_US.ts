@@ -4239,17 +4239,17 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2161"/>
+        <location filename="../src/mainwindow.cpp" line="2162"/>
         <source>Change the data sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2317"/>
+        <location filename="../src/mainwindow.cpp" line="2318"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2318"/>
+        <location filename="../src/mainwindow.cpp" line="2319"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;Licensed under the GNU GPL v3.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4371,80 +4371,85 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="158"/>
+        <location filename="../src/musicpanel.cpp" line="159"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="163"/>
-        <location filename="../src/musicpanel.cpp" line="566"/>
-        <location filename="../src/musicpanel.cpp" line="571"/>
+        <location filename="../src/musicpanel.cpp" line="164"/>
+        <location filename="../src/musicpanel.cpp" line="569"/>
+        <location filename="../src/musicpanel.cpp" line="574"/>
         <source>Change the volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="173"/>
-        <source>The sound the camera recorded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/musicpanel.cpp" line="510"/>
+        <location filename="../src/musicpanel.cpp" line="513"/>
         <source>Selected track: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="511"/>
+        <location filename="../src/musicpanel.cpp" line="514"/>
         <source>Selected track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="182"/>
+        <location filename="../src/musicpanel.cpp" line="185"/>
         <source>Play:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="183"/>
+        <location filename="../src/musicpanel.cpp" line="174"/>
+        <source>The sound the camera recorded. Above 100 % it is louder in the export; the preview plays it at full volume.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="176"/>
+        <source>Above 100 % the music is louder in the export; the preview plays it at full volume.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="186"/>
         <source>All tracks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="190"/>
+        <location filename="../src/musicpanel.cpp" line="193"/>
         <source>Begins at:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="191"/>
+        <location filename="../src/musicpanel.cpp" line="194"/>
         <source>Fade:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="192"/>
+        <location filename="../src/musicpanel.cpp" line="195"/>
         <source>Video sound:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="193"/>
+        <location filename="../src/musicpanel.cpp" line="196"/>
         <source>Music:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="299"/>
+        <location filename="../src/musicpanel.cpp" line="302"/>
         <source>(missing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="328"/>
-        <location filename="../src/musicpanel.cpp" line="343"/>
+        <location filename="../src/musicpanel.cpp" line="331"/>
+        <location filename="../src/musicpanel.cpp" line="346"/>
         <source>Reading the music...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="329"/>
+        <location filename="../src/musicpanel.cpp" line="332"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="332"/>
+        <location filename="../src/musicpanel.cpp" line="335"/>
         <source>%n track(s), %1 of music.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -4452,29 +4457,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="339"/>
+        <location filename="../src/musicpanel.cpp" line="342"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="351"/>
-        <location filename="../src/musicpanel.cpp" line="379"/>
+        <location filename="../src/musicpanel.cpp" line="354"/>
+        <location filename="../src/musicpanel.cpp" line="382"/>
         <source>Add music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="414"/>
+        <location filename="../src/musicpanel.cpp" line="417"/>
         <source>Remove music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="439"/>
-        <location filename="../src/musicpanel.cpp" line="487"/>
+        <location filename="../src/musicpanel.cpp" line="442"/>
+        <location filename="../src/musicpanel.cpp" line="490"/>
         <source>Reorder music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="550"/>
+        <location filename="../src/musicpanel.cpp" line="553"/>
         <source>Trim music</source>
         <translation type="unfinished"></translation>
     </message>

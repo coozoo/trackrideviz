@@ -496,6 +496,14 @@ private slots:
         QVERIFY2(graph.contains("[0:a]volume=0.500,"), qPrintable(graph));
         QVERIFY2(graph.contains("[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]"), qPrintable(graph));
 
+        // louder than recorded: held under full scale by a limiter at the end
+        soundtrack.videoVolume = 150;
+        graph = valueOf(ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, soundtrack).arguments,
+                        "-filter_complex");
+        QVERIFY2(graph.contains("[0:a]volume=1.500,"), qPrintable(graph));
+        QVERIFY2(graph.endsWith("normalize=0[am];[am]alimiter=limit=0.97:level=0[a]"), qPrintable(graph));
+        soundtrack.videoVolume = 50;
+
         // an export from 8 s: three seconds of the music are gone already
         settings.start = 8.0;
         settings.duration = 10.0;

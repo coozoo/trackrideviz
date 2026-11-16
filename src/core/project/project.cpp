@@ -302,8 +302,8 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                 }
             soundtrack.start = std::max(0.0, music.value("start").toDouble());
             soundtrack.fade = std::clamp(music.value("fade").toDouble(soundtrack.fade), 0.0, 30.0);
-            soundtrack.videoVolume = std::clamp(music.value("videoVolume").toInt(100), 0, 100);
-            soundtrack.musicVolume = std::clamp(music.value("musicVolume").toInt(100), 0, 100);
+            soundtrack.videoVolume = std::clamp(music.value("videoVolume").toInt(100), 0, Soundtrack::kMaxVolume);
+            soundtrack.musicVolume = std::clamp(music.value("musicVolume").toInt(100), 0, Soundtrack::kMaxVolume);
             soundtrack.videoMuted = music.value("videoMuted").toBool();
             soundtrack.musicMuted = music.value("musicMuted").toBool();
         }

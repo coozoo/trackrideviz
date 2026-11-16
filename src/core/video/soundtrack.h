@@ -49,6 +49,7 @@ struct Soundtrack
         return !musicMuted && musicVolume > 0
                && std::any_of(tracks.cbegin(), tracks.cend(), [](const MusicTrack &track) { return track.plays(); });
     }
+    static constexpr int kMaxVolume = 200;   // %
     double videoGain() const { return videoMuted ? 0.0 : videoVolume / 100.0; }
     double musicGain() const { return hasMusic() ? musicVolume / 100.0 : 0.0; }
     // Whether the sound of an export differs from the video's own (and cannot be copied).

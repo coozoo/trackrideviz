@@ -151,10 +151,11 @@ MusicPanel::MusicPanel(QWidget *parent)
     auto volumeRow = [this](QSlider **slider, QCheckBox **mute, QLabel **label)
     {
         *slider = new QSlider(Qt::Horizontal, this);
-        (*slider)->setRange(0, 100);
+        // up to twice as loud: a quiet camera or a quiet song
+        (*slider)->setRange(0, Soundtrack::kMaxVolume);
         (*slider)->setPageStep(10);
         *label = new QLabel(this);
-        (*label)->setMinimumWidth(fontMetrics().horizontalAdvance("100 %"));
+        (*label)->setMinimumWidth(fontMetrics().horizontalAdvance("200 %"));
         *mute = new QCheckBox(tr("Off"), this);
         connect(*slider, &QSlider::valueChanged, this, &MusicPanel::onVolumeMoved);
         connect(*slider, &QSlider::sliderReleased, this, &MusicPanel::onVolumeReleased);
@@ -170,7 +171,9 @@ MusicPanel::MusicPanel(QWidget *parent)
     };
     QHBoxLayout *videoRow = volumeRow(&m_videoSlider, &m_videoMute, &m_videoLabel);
     QHBoxLayout *musicRow = volumeRow(&m_musicSlider, &m_musicMute, &m_musicLabel);
-    m_videoSlider->setToolTip(tr("The sound the camera recorded"));
+    m_videoSlider->setToolTip(tr("The sound the camera recorded. Above 100 % it is louder in the export; "
+                                 "the preview plays it at full volume."));
+    m_musicSlider->setToolTip(tr("Above 100 % the music is louder in the export; the preview plays it at full volume."));
 
     m_summary = new QLabel(this);
     m_summary->setWordWrap(true);

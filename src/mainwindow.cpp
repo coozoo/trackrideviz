@@ -2070,7 +2070,8 @@ void MainWindow::syncMusic()
             return;
         }
     const Soundtrack &soundtrack = m_heardSoundtrack;
-    m_audioOutput->setVolume(float(soundtrack.videoGain()));
+    // a player plays no louder than the file: a boost is heard in the export only
+    m_audioOutput->setVolume(float(std::min(1.0, soundtrack.videoGain())));
     const double videoTime = m_player->position() / 1000.0;
     const bool video = !m_player->source().isEmpty();
     const Soundtrack::Moment moment = video && soundtrack.hasMusic()
@@ -2096,7 +2097,7 @@ void MainWindow::syncMusic()
             m_musicPlayer->setSource(QUrl::fromLocalFile(path));
             m_musicSwitching = false;
         }
-    m_musicOutput->setVolume(float(moment.gain * soundtrack.musicGain()));
+    m_musicOutput->setVolume(float(std::min(1.0, moment.gain * soundtrack.musicGain())));
     if (m_player->playbackState() != QMediaPlayer::PlayingState)
         {
             if (m_musicPlayer->playbackState() == QMediaPlayer::PlayingState)
