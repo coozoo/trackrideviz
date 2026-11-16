@@ -1,8 +1,10 @@
 #include "gaugefile.h"
 
+#include <QColorSpace>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -745,7 +747,7 @@ bool GaugeFile::load(const QString &folder, Gauge *gauge, QString *error)
             }
         else
             {
-                c.image = QImage(dir.filePath(c.imagePath));
+                c.image = readImage(dir.filePath(c.imagePath));
             }
         return true;
     });
@@ -792,7 +794,7 @@ bool GaugeFile::save(const QString &folder, const Gauge &gauge, QString *error)
         {
             if (!drawing)
                 {
-                    return c.image.save(target);
+                    return plainImage(c.image).save(target);
                 }
             QSaveFile file(target);
             return file.open(QIODevice::WriteOnly) && file.write(c.svg) == c.svg.size() && file.commit();
@@ -814,4 +816,50 @@ bool GaugeFile::save(const QString &folder, const Gauge &gauge, QString *error)
             return fail(tr("Cannot write %1: %2").arg(file.fileName(), file.errorString()));
         }
     return true;
+}
+
+namespace
+{
+// The PNG without its iCCP chunk; anything not a PNG as it is.
+QByteArray withoutColorProfile(const QByteArray &data)
+{
+    static const QByteArray signature("\x89PNG\r\n\x1a\n", 8);
+    if (!data.startsWith(signature))
+        return data;
+    QByteArray out = signature;
+    qsizetype at = signature.size();
+    // a chunk: length (4, big-endian), type (4), data, CRC (4)
+    while (at + 12 <= data.size())
+        {
+            const quint32 length = (quint32(quint8(data[at])) << 24) | (quint32(quint8(data[at + 1])) << 16)
+                                   | (quint32(quint8(data[at + 2])) << 8) | quint32(quint8(data[at + 3]));
+            const qint64 size = 12 + qint64(length);
+            if (at + size > data.size())
+                return data;   // cut short: let the decoder say what it makes of it
+            if (data.mid(at + 4, 4) != "iCCP")
+                out.append(data.constData() + at, size);
+            at += size;
+        }
+    out.append(data.mid(at));
+    return out;
+}
+}
+
+QImage GaugeFile::readImage(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        return QImage();
+    QImage image;
+    image.loadFromData(withoutColorProfile(file.readAll()));
+    return image;
+}
+
+QImage GaugeFile::plainImage(const QImage &image)
+{
+    if (!image.colorSpace().isValid())
+        return image;
+    QImage plain = image.colorSpace() == QColorSpace::SRgb ? image : image.convertedToColorSpace(QColorSpace::SRgb);
+    plain.setColorSpace(QColorSpace());
+    return plain;
 }

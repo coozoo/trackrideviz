@@ -11,6 +11,7 @@
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 
+#include <QColorSpace>
 #include <QJsonObject>
 #include <QPainter>
 #include <QTemporaryDir>
@@ -1508,6 +1509,42 @@ private slots:
         QCOMPARE(draw(loaded, 4.0, ChannelId::Speed, makeSession(), 400), draw(gauge, 4.0, ChannelId::Speed, makeSession(), 400));
 
         QVERIFY(!GaugeFile::load(m_dir.filePath("no such folder"), &loaded, &error));
+    }
+
+    void picturesAreKeptWithoutColorProfiles()
+    {
+        // a picture of a gauge pack, with an ICC profile in it
+        QImage profiled = filled(Qt::red, 8);
+        profiled.setColorSpace(QColorSpace::DisplayP3);
+        const QString packed = m_dir.filePath("profiled.png");
+        QVERIFY(profiled.save(packed));
+        auto hasProfile = [](const QString &path)
+        {
+            QFile file(path);
+            return file.open(QIODevice::ReadOnly) && file.readAll().contains("iCCP");
+        };
+        QVERIFY(hasProfile(packed));
+
+        const QImage read = GaugeFile::readImage(packed);
+        QCOMPARE(read.size(), QSize(8, 8));
+        QVERIFY(!read.colorSpace().isValid());
+
+        GaugeComponent picture;
+        picture.type = GaugeComponent::Image;
+        picture.image = profiled;
+        picture.frame = QRectF(0, 0, 8, 8);
+        Gauge gauge;
+        gauge.size = QSizeF(8, 8);
+        gauge.components.append(picture);
+        const QString folder = m_dir.filePath("profiled gauge");
+        QString error;
+        QVERIFY2(GaugeFile::save(folder, gauge, &error), qPrintable(error));
+        Gauge loaded;
+        QVERIFY2(GaugeFile::load(folder, &loaded, &error), qPrintable(error));
+        QVERIFY(!hasProfile(folder + "/" + loaded.components[0].imagePath));
+        QCOMPARE(loaded.components[0].image.pixelColor(0, 0).red(), 255);
+
+        QVERIFY(GaugeFile::readImage(m_dir.filePath("no such picture.png")).isNull());
     }
 
     void imagePathsCannotLeaveTheFolder()

@@ -22,4 +22,11 @@ public:
     // The description alone. Images are neither written nor loaded.
     static QByteArray toJson(const Gauge &gauge);
     static bool fromJson(const QByteArray &json, Gauge *gauge, QString *error = nullptr);
+
+    // A picture of a gauge. A PNG is read without its color profile: the ones
+    // gauge packs come with are mostly broken sRGB ones, which libpng warns of
+    // on every load.
+    static QImage readImage(const QString &path);
+    // How a picture is kept: in sRGB, without a profile.
+    static QImage plainImage(const QImage &image);
 };

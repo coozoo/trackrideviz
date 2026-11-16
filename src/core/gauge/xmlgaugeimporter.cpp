@@ -1,5 +1,7 @@
 #include "xmlgaugeimporter.h"
 
+#include "gaugefile.h"
+
 #include "../telemetry/channelids.h"
 #include "../telemetry/datatypes.h"
 
@@ -358,7 +360,7 @@ private:
                 return c;
             }
         const QString path = findFile(m_imageFolder, src);
-        QImage loaded = path.isEmpty() ? QImage() : QImage(path);
+        QImage loaded = path.isEmpty() ? QImage() : GaugeFile::readImage(path);
         if (loaded.isNull())
             {
                 warn(XmlGaugeImporter::tr("image %1 not found").arg(src));

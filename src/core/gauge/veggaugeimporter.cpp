@@ -1,5 +1,7 @@
 #include "veggaugeimporter.h"
 
+#include "gaugefile.h"
+
 #include "../telemetry/channelids.h"
 #include "../telemetry/datatypes.h"
 
@@ -291,7 +293,7 @@ bool convert(const QJsonObject &source, Context &context, GaugeComponent *compon
             if (!context.imageFolder.isEmpty())
                 {
                     const QString file = findIgnoringCase(context.imageFolder, component->imagePath);
-                    if (file.isEmpty() || !component->image.load(file))
+                    if (file.isEmpty() || (component->image = GaugeFile::readImage(file)).isNull())
                         {
                             context.missingImages << component->imagePath;
                             return false;

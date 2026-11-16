@@ -1040,7 +1040,7 @@ void GaugeEditor::addPart(int kind)
                 }
             else
                 {
-                    part.image = QImage(file);
+                    part.image = GaugeFile::readImage(file);
                     size = part.image.size();
                 }
             if (size.isEmpty())
