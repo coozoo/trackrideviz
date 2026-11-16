@@ -79,9 +79,12 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     const qint64 estimated = std::max<qint64>(1, qint64(std::floor(outputLength * info.fps() + 1e-6)));
     plan.frameCount = !piped ? 0 : wholeVideo && info.frameCount > 0 ? info.frameCount : estimated;
     plan.outputPath = settings.outputPath;
+    // the gauges alone: no camera picture and no sound, the gauges on nothing
+    const bool gaugesOnly = settings.picture == ExportSettings::GaugesOnly;
+    plan.transparent = gaugesOnly;
     // the video's own sound, unless turned all the way down, and the music
-    const bool videoSound = info.hasAudio && soundtrack.videoGain() > 0.0;
-    const bool music = soundtrack.hasMusic() && settings.audio != ExportSettings::NoAudio;
+    const bool videoSound = !gaugesOnly && info.hasAudio && soundtrack.videoGain() > 0.0;
+    const bool music = !gaugesOnly && soundtrack.hasMusic() && settings.audio != ExportSettings::NoAudio;
     plan.hasAudio = settings.audio != ExportSettings::NoAudio && (videoSound || music);
     // made anew from the sound and the music, at their volumes
     const bool mixed = plan.hasAudio && soundtrack.changesSound();
@@ -89,20 +92,22 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     const VideoEncoder encoder = VideoEncoders::byId(settings.encoder);
     QStringList &args = plan.arguments;
     args << "-hide_banner" << "-loglevel" << "error" << "-y";
-    args << VideoEncoders::globalArguments(encoder);
-
-    // input 0: the video, cut on the input side so nothing outside the range is decoded
-    if (plan.startTime > 0.0)
+    if (!gaugesOnly)
         {
-            args << "-ss" << QString::number(plan.startTime, 'f', 3);
+            args << VideoEncoders::globalArguments(encoder);
+            // input 0: the video, cut on the input side so nothing outside the range is decoded
+            if (plan.startTime > 0.0)
+                {
+                    args << "-ss" << QString::number(plan.startTime, 'f', 3);
+                }
+            if (settings.duration > 0.0)
+                {
+                    args << "-t" << QString::number(length, 'f', 3);
+                }
+            args << "-i" << videoPath;
         }
-    if (settings.duration > 0.0)
-        {
-            args << "-t" << QString::number(length, 'f', 3);
-        }
-    args << "-i" << videoPath;
 
-    // input 1: the gauges from the application
+    // input 1 (0 for the gauges alone): the gauges from the application
     if (piped)
         {
             // QImage::Format_ARGB32 is 0xAARRGGBB per pixel: B, G, R, A in memory on
@@ -146,14 +151,25 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     QString graph;
     if (piped)
         {
-            // QPainter produces premultiplied alpha; the output ends when the pictures do
-            auto overlayAt = [](const QRect &region)
+            // QPainter produces premultiplied alpha; the output ends when the pictures do.
+            // Over nothing, overlay keeps the colors right only from straight alpha, which
+            // the job then sends: premultiplied, it darkens every edge that is see-through.
+            const QString alpha = gaugesOnly ? "straight:format=auto" : "premultiplied";
+            auto overlayAt = [&alpha](const QRect &region)
             {
-                return QString("overlay=%1:%2:alpha=premultiplied:eof_action=endall").arg(region.x()).arg(region.y());
+                return QString("overlay=%1:%2:alpha=%3:eof_action=endall").arg(region.x()).arg(region.y()).arg(alpha);
             };
+            const QString gauges = gaugesOnly ? "[0:v]" : "[1:v]";
+            const QString finish = gaugesOnly ? QString() : "," + VideoEncoders::outputFilter(encoder);
             QStringList parts;
             QString video = "[0:v]";
-            if (!chain.isEmpty())
+            if (gaugesOnly)
+                {
+                    parts << QString("color=c=black@0:s=%1x%2:r=%3/%4,format=rgba[base]")
+                          .arg(plan.outputSize.width()).arg(plan.outputSize.height()).arg(plan.fpsNum).arg(plan.fpsDen);
+                    video = "[base]";
+                }
+            else if (!chain.isEmpty())
                 {
                     parts << QString("[0:v]%1[base]").arg(chain.join(','));
                     video = "[base]";
@@ -161,12 +177,12 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             const int count = int(plan.regions.size());
             if (count == 1)
                 {
-                    parts << QString("%1[1:v]%2,%3[v]").arg(video, overlayAt(plan.regions.first()), VideoEncoders::outputFilter(encoder));
+                    parts << QString("%1%2%3%4[v]").arg(video, gauges, overlayAt(plan.regions.first()), finish);
                 }
             else
                 {
                     // cut the stacked picture back into its regions
-                    QString split = QString("[1:v]split=%1").arg(count);
+                    QString split = QString("%1split=%2").arg(gauges).arg(count);
                     for (int i = 0; i < count; ++i)
                         {
                             split += QString("[s%1]").arg(i);
@@ -179,8 +195,7 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                         }
                     for (int i = 0; i < count; ++i)
                         {
-                            const QString out = i == count - 1 ? QString(",%1[v]").arg(VideoEncoders::outputFilter(encoder))
-                                                : QString("[o%1]").arg(i);
+                            const QString out = i == count - 1 ? finish + "[v]" : QString("[o%1]").arg(i);
                             parts << QString("%1[g%2]%3%4").arg(video).arg(i).arg(overlayAt(plan.regions.at(i)), out);
                             video = QString("[o%1]").arg(i);
                         }
@@ -274,10 +289,26 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             break;
         }
 
-    args << VideoEncoders::arguments(encoder, settings);
     const QString suffix = QFileInfo(settings.outputPath).suffix().toLower();
+    if (gaugesOnly && ExportSettings::isVp9Alpha(suffix))
+        {
+            // constant quality: mostly empty pictures take little whatever the size
+            args << "-c:v" << "libvpx-vp9" << "-pix_fmt" << "yuva420p" << "-crf" << "30" << "-b:v" << "0"
+                 << "-row-mt" << "1" << "-deadline" << "good" << "-cpu-used" << "4"
+                 // libvpx loses the transparency with alternate reference frames
+                 << "-auto-alt-ref" << "0";
+        }
+    else if (gaugesOnly)
+        {
+            // what video editors take with transparency; big, but exact
+            args << "-c:v" << "prores_ks" << "-profile:v" << "4444" << "-pix_fmt" << "yuva444p10le";
+        }
+    else
+        {
+            args << VideoEncoders::arguments(encoder, settings);
+        }
     const bool mp4Family = ExportSettings::isMp4Family(suffix);
-    if (encoder.hevc && mp4Family)
+    if (!gaugesOnly && encoder.hevc && mp4Family)
         {
             // without this tag Apple players refuse HEVC in MP4
             plan.muxerArguments << "-tag:v" << "hvc1";

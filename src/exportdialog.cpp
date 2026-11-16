@@ -105,6 +105,12 @@ void ExportDialog::createWidgets()
 
     m_options = new QWidget(this);
 
+    m_pictureCombo = new QComboBox(m_options);
+    m_pictureCombo->addItem(tr("Video with gauges"), ExportSettings::VideoWithGauges);
+    m_pictureCombo->addItem(tr("Only the gauges, on transparent"), ExportSettings::GaugesOnly);
+    m_pictureCombo->setToolTip(tr("Only the gauges: a video with a see-through background, to lay over "
+                                  "the camera's video in another editor. It has no sound."));
+
     m_profileCombo = new QComboBox(m_options);
     m_profileCombo->setToolTip(tr("Fills in the choices below; the bitrate of the built-in ones follows the video. "
                                   "Changing a choice afterwards makes it your own."));
@@ -124,14 +130,11 @@ void ExportDialog::createWidgets()
     connect(m_browseButton, &QPushButton::clicked, this, &ExportDialog::browseOutput);
     // the file type is the name's extension; picking one here changes it, typing one shows it here
     m_containerCombo = new QComboBox(m_options);
-    m_containerCombo->addItem(tr("MP4"), "mp4");
-    m_containerCombo->addItem(tr("MKV (Matroska)"), "mkv");
-    m_containerCombo->addItem(tr("MOV (QuickTime)"), "mov");
-    m_containerCombo->setToolTip(tr("MP4 plays everywhere and is what most sites want. "
-                                    "MKV holds any sound, Opus and Vorbis too."));
+    // the entries change with the picture chosen
+    m_containerCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    fillContainers();
     connect(m_containerCombo, QOverload<int>::of(&QComboBox::activated), this, &ExportDialog::onContainerChosen);
     connect(m_outputEdit, &QLineEdit::textChanged, this, &ExportDialog::showContainer);
-    showContainer();
     QHBoxLayout *outputRow = new QHBoxLayout;
     outputRow->addWidget(m_outputEdit, 1);
     outputRow->addWidget(m_containerCombo);
@@ -230,6 +233,7 @@ void ExportDialog::createWidgets()
 
     QFormLayout *form = new QFormLayout(m_options);
     form->setContentsMargins(0, 0, 0, 0);
+    form->addRow(tr("Picture:"), m_pictureCombo);
     form->addRow(tr("Profile:"), profileRow);
     form->addRow(tr("Save as:"), outputRow);
     form->addRow(tr("Encoder:"), m_encoderCombo);
@@ -274,6 +278,71 @@ void ExportDialog::createWidgets()
     connect(m_qualitySpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &ExportDialog::onChoiceChanged);
     connect(m_bitrateSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ExportDialog::onChoiceChanged);
     connect(m_outputEdit, &QLineEdit::textChanged, this, &ExportDialog::onChoiceChanged);
+    // connected last: it changes the file name, which is no choice of a profile
+    connect(m_pictureCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExportDialog::onPictureChanged);
+}
+
+bool ExportDialog::gaugesOnly() const
+{
+    return m_pictureCombo->currentData().toInt() == ExportSettings::GaugesOnly;
+}
+
+void ExportDialog::fillContainers()
+{
+    m_containerCombo->clear();
+    if (gaugesOnly())
+        {
+            m_containerCombo->addItem(tr("MOV (ProRes 4444)"), "mov");
+            m_containerCombo->addItem(tr("WebM (VP9)"), "webm");
+            m_containerCombo->setToolTip(tr("ProRes is what most editors take with transparency; its files are big. "
+                                            "WebM is small, and read by Kdenlive, Shotcut and browsers."));
+        }
+    else
+        {
+            m_containerCombo->addItem(tr("MP4"), "mp4");
+            m_containerCombo->addItem(tr("MKV (Matroska)"), "mkv");
+            m_containerCombo->addItem(tr("MOV (QuickTime)"), "mov");
+            m_containerCombo->setToolTip(tr("MP4 plays everywhere and is what most sites want. "
+                                            "MKV holds any sound, Opus and Vorbis too."));
+        }
+    showContainer();
+}
+
+void ExportDialog::onPictureChanged()
+{
+    const bool gauges = gaugesOnly();
+    fillContainers();
+    // the file type follows: a video type for the gauges alone would lose the transparency
+    const QString path = m_outputEdit->text().trimmed();
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    if (gauges)
+        {
+            // and back again when the video is chosen once more
+            m_videoSuffix = suffix;
+            if (suffix != QLatin1String("mov") && !ExportSettings::isVp9Alpha(suffix))
+                {
+                    m_outputEdit->setText(ExportSettings::withSuffix(path, "mov"));
+                }
+        }
+    else if (!m_videoSuffix.isEmpty())
+        {
+            m_outputEdit->setText(ExportSettings::withSuffix(path, m_videoSuffix));
+        }
+    // nothing of these is used for the gauges alone
+    for (QWidget *widget : std::initializer_list<QWidget *> {m_profileCombo, m_saveProfileButton, m_deleteProfileButton,
+                                                             m_rateCombo, m_qualitySpin, m_bitrateSpin, m_speedCombo,
+                                                             m_audioCombo, m_audioBitrateCombo})
+        {
+            widget->setEnabled(!gauges);
+        }
+    m_encoderCombo->setEnabled(!gauges && m_encodersKnown);
+    if (!gauges)
+        {
+            m_deleteProfileButton->setEnabled(m_profileCombo->currentData().toString().startsWith(kOwnProfile));
+            updateRateControls();
+            updateAudioControls();
+        }
+    updateEstimate();
 }
 
 void ExportDialog::fillProfiles(const QString &selected)
@@ -364,7 +433,7 @@ void ExportDialog::showSettings(const ExportSettings &settings)
 
 void ExportDialog::onChoiceChanged()
 {
-    if (m_showing || !m_profileShown || m_profileCombo->currentIndex() <= 0)
+    if (m_showing || !m_profileShown || m_profileCombo->currentIndex() <= 0 || gaugesOnly())
         {
             return;
         }
@@ -433,7 +502,7 @@ void ExportDialog::deleteProfile()
 void ExportDialog::updateAudioControls()
 {
     const auto audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
-    m_audioBitrateCombo->setEnabled(audio != ExportSettings::NoAudio
+    m_audioBitrateCombo->setEnabled(!gaugesOnly() && audio != ExportSettings::NoAudio
                                     && (audio != ExportSettings::CopyAudio || m_soundtrack.changesSound()));
 }
 
@@ -602,7 +671,7 @@ void ExportDialog::onEncodersDetected(const QVector<VideoEncoder> &encoders)
                 }
         }
     m_encoderCombo->setCurrentIndex(qMax(0, preferred));
-    m_encoderCombo->setEnabled(true);
+    m_encoderCombo->setEnabled(!gaugesOnly());
     onEncoderChanged();
     updateReadiness();
     applyProfile();
@@ -612,11 +681,11 @@ void ExportDialog::updateRateControls()
 {
     const VideoEncoder encoder = VideoEncoders::byId(m_encoderCombo->currentData().toString());
     // an encoder without a quality mode leaves only the bitrate
-    m_rateCombo->setEnabled(encoder.hasQuality);
+    m_rateCombo->setEnabled(encoder.hasQuality && !gaugesOnly());
     const bool quality = encoder.hasQuality && m_rateCombo->currentData().toInt() == ExportSettings::Quality;
     m_qualitySpin->setVisible(quality);
     m_bitrateSpin->setVisible(!quality);
-    m_speedCombo->setEnabled(encoder.hasSpeed);
+    m_speedCombo->setEnabled(encoder.hasSpeed && !gaugesOnly());
     updateEstimate();
 }
 
@@ -636,7 +705,7 @@ void ExportDialog::onEncoderChanged()
 
 void ExportDialog::updateEstimate()
 {
-    if (!m_probed || !m_bitrateSpin->isVisible())
+    if (!m_probed || !m_bitrateSpin->isVisible() || gaugesOnly())
         {
             m_rateNote->clear();
             return;
@@ -660,7 +729,8 @@ void ExportDialog::updateReadiness()
 
 void ExportDialog::browseOutput()
 {
-    const QStringList filters = {tr("MP4 video (*.mp4)"), tr("Matroska video (*.mkv)"), tr("QuickTime video (*.mov)")};
+    const QStringList filters = gaugesOnly() ? QStringList{tr("QuickTime video (*.mov)"), tr("WebM video (*.webm)")}
+                                : QStringList{tr("MP4 video (*.mp4)"), tr("Matroska video (*.mkv)"), tr("QuickTime video (*.mov)")};
     // the type chosen so far comes first in the dialog
     QString filter = filters.value(m_containerCombo->currentIndex(), filters.first());
     const QString path = QFileDialog::getSaveFileName(this, tr("Export video"), m_outputEdit->text(), filters.join(";;"),
@@ -675,9 +745,11 @@ ExportSettings ExportDialog::currentSettings() const
 {
     ExportSettings settings;
     settings.outputPath = QDir::fromNativeSeparators(m_outputEdit->text().trimmed());
+    settings.picture = ExportSettings::Picture(m_pictureCombo->currentData().toInt());
     if (QFileInfo(settings.outputPath).suffix().isEmpty())
         {
-            settings.outputPath += ExportSettings::needsMatroska(ExportSettings::Audio(m_audioCombo->currentData().toInt()))
+            settings.outputPath += settings.picture == ExportSettings::GaugesOnly ? ".mov"
+                                   : ExportSettings::needsMatroska(ExportSettings::Audio(m_audioCombo->currentData().toInt()))
                                    ? ".mkv" : ".mp4";
         }
     settings.encoder = m_encoderCombo->currentData().toString();
@@ -720,7 +792,19 @@ void ExportDialog::startExport()
                     return;
                 }
         }
-    if (ExportSettings::needsMatroska(settings.audio) && ExportSettings::isMp4Family(output.suffix()))
+    const bool gauges = settings.picture == ExportSettings::GaugesOnly;
+    if (gauges && output.suffix().compare("mov", Qt::CaseInsensitive) != 0 && !ExportSettings::isVp9Alpha(output.suffix()))
+        {
+            QMessageBox::warning(this, windowTitle(), tr("A .%1 file cannot hold a see-through picture. Save the gauges "
+                                 "as .mov or .webm.").arg(output.suffix()));
+            return;
+        }
+    if (gauges && m_overlay.regions(ExportPlan::outputSizeFor(m_info.size, settings.height)).isEmpty())
+        {
+            QMessageBox::warning(this, windowTitle(), tr("There are no gauges on the video to export."));
+            return;
+        }
+    if (!gauges && ExportSettings::needsMatroska(settings.audio) && ExportSettings::isMp4Family(output.suffix()))
         {
             QMessageBox::warning(this, windowTitle(), tr("A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, "
                                  "or convert the sound to AAC.").arg(output.suffix()));
@@ -737,10 +821,13 @@ void ExportDialog::startExport()
         {
             return;
         }
-    AppSettings::setExportDefaults(settings);
-    AppSettings::setExportProfile(m_profileCombo->currentData().toString());
-
     const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts, m_soundtrack);
+    // the choices of a video: those of the gauges alone would be what the next video starts with
+    if (!gauges)
+        {
+            AppSettings::setExportDefaults(settings);
+            AppSettings::setExportProfile(m_profileCombo->currentData().toString());
+        }
     ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync);
     m_thread = new QThread(this);
     job->moveToThread(m_thread);

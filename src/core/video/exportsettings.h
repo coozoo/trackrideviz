@@ -12,6 +12,9 @@ struct ExportSettings
     enum Speed { Fast, Balanced, Small };          // encoding speed against file size
     // Opus and Vorbis are kept in Matroska: MP4 and MOV cannot hold Vorbis, and most players no Opus there.
     enum Audio { CopyAudio, AacAudio, NoAudio, OpusAudio, VorbisAudio };
+    // The gauges alone, on a transparent background, are for laying over the video in
+    // another editor: ProRes 4444 in .mov, VP9 with transparency in .webm (or .mkv). No sound.
+    enum Picture { VideoWithGauges, GaugesOnly };
 
     QString outputPath;                 // the container follows from the suffix (.mp4, .mkv, .mov)
     QString encoder{QStringLiteral("libx264")}; // ffmpeg encoder name, see VideoEncoders
@@ -25,6 +28,7 @@ struct ExportSettings
     int height{0};                      // output height; 0 = same as the source
     Audio audio{CopyAudio};
     int audioKbps{192};                 // when the sound is encoded again
+    Picture picture{VideoWithGauges};   // not remembered: every export starts with the video
 
     static bool needsMatroska(Audio audio) { return audio == OpusAudio || audio == VorbisAudio; }
     // MP4 and its kin, which cannot hold Opus or Vorbis.
@@ -32,6 +36,12 @@ struct ExportSettings
     {
         const QString lower = suffix.toLower();
         return lower == QLatin1String("mp4") || lower == QLatin1String("mov") || lower == QLatin1String("m4v");
+    }
+    // The file types of the gauges alone; ProRes for any other.
+    static bool isVp9Alpha(const QString &suffix)
+    {
+        const QString lower = suffix.toLower();
+        return lower == QLatin1String("webm") || lower == QLatin1String("mkv");
     }
     // `path` with its extension, which ffmpeg picks the container by, made `suffix`.
     static QString withSuffix(const QString &path, const QString &suffix)

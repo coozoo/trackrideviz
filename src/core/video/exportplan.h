@@ -41,6 +41,8 @@ struct ExportPlan
     QVector<TimeRange> kept;
     QString outputPath;
     bool hasAudio{false};       // the output gets a sound track
+    // The gauges alone over nothing: the pictures are sent with straight alpha.
+    bool transparent{false};
     QStringList muxerArguments; // container options, needed again if the file is rewritten
 
     // Video time of picture `index`.

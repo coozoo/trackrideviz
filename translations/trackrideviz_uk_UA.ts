@@ -696,7 +696,7 @@ Worked out from the other data</source>
     <name>ExportDialog</name>
     <message>
         <location filename="../src/exportdialog.cpp" line="83"/>
-        <location filename="../src/exportdialog.cpp" line="666"/>
+        <location filename="../src/exportdialog.cpp" line="736"/>
         <source>Export video</source>
         <translation>Експорт відео</translation>
     </message>
@@ -706,350 +706,401 @@ Worked out from the other data</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="109"/>
+        <location filename="../src/exportdialog.cpp" line="115"/>
         <source>Fills in the choices below; the bitrate of the built-in ones follows the video. Changing a choice afterwards makes it your own.</source>
         <translation>Заповнює налаштування нижче; бітрейт вбудованих профілів залежить від відео. Зміна будь-якого налаштування після цього робить його вашим власним.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="112"/>
+        <location filename="../src/exportdialog.cpp" line="118"/>
         <source>Save as...</source>
         <translation>Зберегти як...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="113"/>
+        <location filename="../src/exportdialog.cpp" line="119"/>
         <source>Keep the choices below under a name</source>
         <translation>Зберегти налаштування нижче під назвою</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="115"/>
+        <location filename="../src/exportdialog.cpp" line="121"/>
         <source>Delete</source>
         <translation>Видалити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="123"/>
+        <location filename="../src/exportdialog.cpp" line="129"/>
         <source>Browse...</source>
         <translation>Огляд...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="127"/>
+        <location filename="../src/exportdialog.cpp" line="302"/>
         <source>MP4</source>
         <translation>MP4</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="128"/>
+        <location filename="../src/exportdialog.cpp" line="303"/>
         <source>MKV (Matroska)</source>
         <translation>MKV (Matroska)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="129"/>
+        <location filename="../src/exportdialog.cpp" line="304"/>
         <source>MOV (QuickTime)</source>
         <translation>MOV (QuickTime)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="130"/>
+        <location filename="../src/exportdialog.cpp" line="305"/>
         <source>MP4 plays everywhere and is what most sites want. MKV holds any sound, Opus and Vorbis too.</source>
         <translation>MP4 відтворюється всюди, і його хоче більшість сайтів. MKV вміщує будь-який звук, зокрема Opus і Vorbis.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="141"/>
+        <location filename="../src/exportdialog.cpp" line="144"/>
         <source>Looking for encoders...</source>
         <translation>Пошук кодувальників...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="146"/>
+        <location filename="../src/exportdialog.cpp" line="109"/>
+        <source>Video with gauges</source>
+        <translation>Відео з приладами</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="110"/>
+        <source>Only the gauges, on transparent</source>
+        <translation>Лише прилади, на прозорому</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="111"/>
+        <source>Only the gauges: a video with a see-through background, to lay over the camera&apos;s video in another editor. It has no sound.</source>
+        <translation>Лише прилади: відео з прозорим тлом, щоб накласти його на відео з камери в іншому редакторі. Без звуку.</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="149"/>
         <source>Constant quality</source>
         <translation>Стала якість</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="147"/>
+        <location filename="../src/exportdialog.cpp" line="150"/>
         <source>Bitrate</source>
         <translation>Бітрейт</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="154"/>
+        <location filename="../src/exportdialog.cpp" line="157"/>
         <source>Lower is better and bigger. 18-23 is hard to tell from the original; each step of 6 roughly halves or doubles the file.</source>
         <translation>Менше значення — краща якість і більший файл. 18–23 важко відрізнити від оригіналу; кожен крок на 6 приблизно вдвічі зменшує або збільшує файл.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="160"/>
+        <location filename="../src/exportdialog.cpp" line="163"/>
         <source> Mbit/s</source>
         <translation> Мбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="173"/>
+        <location filename="../src/exportdialog.cpp" line="176"/>
         <source>Fast, bigger file</source>
         <translation>Швидко, більший файл</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="174"/>
+        <location filename="../src/exportdialog.cpp" line="177"/>
         <source>Balanced</source>
         <translation>Збалансовано</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="175"/>
+        <location filename="../src/exportdialog.cpp" line="178"/>
         <source>Slow, smaller file</source>
         <translation>Повільно, менший файл</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="179"/>
+        <location filename="../src/exportdialog.cpp" line="182"/>
         <source>Same as the video</source>
         <translation>Як у відео</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="189"/>
+        <location filename="../src/exportdialog.cpp" line="192"/>
         <source>Keep the original sound</source>
         <translation>Залишити оригінальний звук</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="189"/>
+        <location filename="../src/exportdialog.cpp" line="192"/>
         <source>Mix with the music, as AAC</source>
         <translation>Змішати з музикою, як AAC</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="191"/>
+        <location filename="../src/exportdialog.cpp" line="194"/>
         <source>Convert to AAC</source>
         <translation>Перетворити на AAC</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="192"/>
+        <location filename="../src/exportdialog.cpp" line="195"/>
         <source>Convert to Opus (MKV)</source>
         <translation>Перетворити на Opus (MKV)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="193"/>
+        <location filename="../src/exportdialog.cpp" line="196"/>
         <source>Convert to Vorbis (MKV)</source>
         <translation>Перетворити на Vorbis (MKV)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="194"/>
+        <location filename="../src/exportdialog.cpp" line="197"/>
         <source>No sound</source>
         <translation>Без звуку</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="211"/>
+        <location filename="../src/exportdialog.cpp" line="214"/>
         <source>Only a part:</source>
         <translation>Лише частину:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="233"/>
+        <location filename="../src/exportdialog.cpp" line="236"/>
+        <source>Picture:</source>
+        <translation>Зображення:</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="237"/>
         <source>Profile:</source>
         <translation>Профіль:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="234"/>
+        <location filename="../src/exportdialog.cpp" line="238"/>
         <source>Save as:</source>
         <translation>Зберегти як:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="235"/>
+        <location filename="../src/exportdialog.cpp" line="239"/>
         <source>Encoder:</source>
         <translation>Кодувальник:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="236"/>
+        <location filename="../src/exportdialog.cpp" line="240"/>
         <source>Quality:</source>
         <translation>Якість:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="237"/>
+        <location filename="../src/exportdialog.cpp" line="241"/>
         <source>Speed:</source>
         <translation>Швидкість:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="238"/>
+        <location filename="../src/exportdialog.cpp" line="242"/>
         <source>Size:</source>
         <translation>Розмір:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="239"/>
+        <location filename="../src/exportdialog.cpp" line="243"/>
         <source>Sound:</source>
         <translation>Звук:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="240"/>
+        <location filename="../src/exportdialog.cpp" line="244"/>
         <source>Range:</source>
         <translation>Діапазон:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="247"/>
+        <location filename="../src/exportdialog.cpp" line="251"/>
         <source>Export</source>
         <translation>Експорт</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="250"/>
-        <location filename="../src/exportdialog.cpp" line="764"/>
+        <location filename="../src/exportdialog.cpp" line="254"/>
+        <location filename="../src/exportdialog.cpp" line="851"/>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="282"/>
+        <location filename="../src/exportdialog.cpp" line="295"/>
+        <source>MOV (ProRes 4444)</source>
+        <translation>MOV (ProRes 4444)</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="296"/>
+        <source>WebM (VP9)</source>
+        <translation>WebM (VP9)</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="297"/>
+        <source>ProRes is what most editors take with transparency; its files are big. WebM is small, and read by Kdenlive, Shotcut and browsers.</source>
+        <translation>ProRes з прозорістю приймає більшість редакторів; файли великі. WebM малий, його читають Kdenlive, Shotcut і браузери.</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="351"/>
         <source>Custom</source>
         <translation>Власні</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="384"/>
+        <location filename="../src/exportdialog.cpp" line="453"/>
         <source>Save profile</source>
         <translation>Збереження профілю</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="384"/>
+        <location filename="../src/exportdialog.cpp" line="453"/>
         <source>Name:</source>
         <translation>Назва:</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="398"/>
+        <location filename="../src/exportdialog.cpp" line="467"/>
         <source>A profile called %1 is there already. Replace it?</source>
         <translation>Профіль із назвою %1 уже є. Замінити його?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="419"/>
+        <location filename="../src/exportdialog.cpp" line="488"/>
         <source>Delete the profile %1?</source>
         <translation>Видалити профіль %1?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="544"/>
+        <location filename="../src/exportdialog.cpp" line="613"/>
         <source>%1: %2 x %3, %4 fps, %5</source>
         <translation>%1: %2 x %3, %4 кадр/с, %5</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="584"/>
+        <location filename="../src/exportdialog.cpp" line="653"/>
         <source>None found</source>
         <translation>Нічого не знайдено</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="585"/>
+        <location filename="../src/exportdialog.cpp" line="654"/>
         <source>ffmpeg could not be run (%1). Install it, or set its location in the settings.</source>
         <translation>Не вдалося запустити ffmpeg (%1). Встановіть його або вкажіть розташування в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="649"/>
+        <location filename="../src/exportdialog.cpp" line="718"/>
         <source>about %1 GB</source>
         <translation>близько %1 ГБ</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="650"/>
+        <location filename="../src/exportdialog.cpp" line="719"/>
         <source>about %1 MB</source>
         <translation>близько %1 МБ</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="652"/>
+        <location filename="../src/exportdialog.cpp" line="721"/>
         <source>%1; the video itself is %2 Mbit/s</source>
         <translation>%1; саме відео — %2 Мбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="705"/>
+        <location filename="../src/exportdialog.cpp" line="732"/>
+        <source>WebM video (*.webm)</source>
+        <translation>Відео WebM (*.webm)</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="777"/>
         <source>The folder to save into does not exist.</source>
         <translation>Тека для збереження не існує.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="725"/>
+        <location filename="../src/exportdialog.cpp" line="798"/>
+        <source>A .%1 file cannot hold a see-through picture. Save the gauges as .mov or .webm.</source>
+        <translation>Файл .%1 не може містити прозоре зображення. Збережіть прилади як .mov або .webm.</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="804"/>
+        <source>There are no gauges on the video to export.</source>
+        <translation>На відео немає приладів для експорту.</translation>
+    </message>
+    <message>
+        <location filename="../src/exportdialog.cpp" line="809"/>
         <source>A .%1 file cannot hold Opus or Vorbis sound. Save it as .mkv, or convert the sound to AAC.</source>
         <translation>Файл .%1 не може містити звук Opus чи Vorbis. Збережіть його як .mkv або перетворіть звук на AAC.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="731"/>
+        <location filename="../src/exportdialog.cpp" line="815"/>
         <source>The end of the range has to be after its start.</source>
         <translation>Кінець діапазону має бути після його початку.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="735"/>
+        <location filename="../src/exportdialog.cpp" line="819"/>
         <source>%1 already exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="755"/>
+        <location filename="../src/exportdialog.cpp" line="842"/>
         <source>Starting...</source>
         <translation>Запуск...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="764"/>
+        <location filename="../src/exportdialog.cpp" line="851"/>
         <source>Stop</source>
         <translation>Зупинити</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="815"/>
+        <location filename="../src/exportdialog.cpp" line="902"/>
         <source>Stopped. The part exported so far was saved as %1</source>
         <translation>Зупинено. Експортовану частину збережено як %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="819"/>
+        <location filename="../src/exportdialog.cpp" line="906"/>
         <source>Stopped before anything could be saved.</source>
         <translation>Зупинено до того, як вдалося щось зберегти.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="835"/>
+        <location filename="../src/exportdialog.cpp" line="922"/>
         <source>Stop the export? The part done so far is kept as a playable video.</source>
         <translation>Зупинити експорт? Уже зроблена частина залишиться як відео, яке можна відтворити.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="838"/>
+        <location filename="../src/exportdialog.cpp" line="925"/>
         <source>Stopping: finishing the file...</source>
         <translation>Зупинка: завершення файлу...</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="776"/>
+        <location filename="../src/exportdialog.cpp" line="863"/>
         <source>Frame %1 of %2, %3 frames per second</source>
         <translation>Кадр %1 з %2, %3 кадрів за секунду</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="196"/>
+        <location filename="../src/exportdialog.cpp" line="199"/>
         <source>Keeping the sound is exact and instant. Convert it if the export fails because the chosen file type cannot hold the camera&apos;s sound format. Opus sounds best for its size; the sound is only a small part of a video file, though.</source>
         <translation>Збереження звуку точне й миттєве. Перетворіть його, якщо експорт не вдається, бо обраний тип файлу не може містити звуковий формат камери. Opus звучить найкраще для свого розміру, хоча звук — лише невелика частина відеофайлу.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="202"/>
+        <location filename="../src/exportdialog.cpp" line="205"/>
         <source>%1 kbit/s</source>
         <translation>%1 кбіт/с</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="663"/>
+        <location filename="../src/exportdialog.cpp" line="733"/>
         <source>MP4 video (*.mp4)</source>
         <translation>Відео MP4 (*.mp4)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="663"/>
+        <location filename="../src/exportdialog.cpp" line="733"/>
         <source>Matroska video (*.mkv)</source>
         <translation>Відео Matroska (*.mkv)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="663"/>
+        <location filename="../src/exportdialog.cpp" line="732"/>
+        <location filename="../src/exportdialog.cpp" line="733"/>
         <source>QuickTime video (*.mov)</source>
         <translation>Відео QuickTime (*.mov)</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="718"/>
+        <location filename="../src/exportdialog.cpp" line="790"/>
         <source>The export cannot replace a file it is made from (%1). Choose another name.</source>
         <translation>Експорт не може замінити файл, з якого його зроблено (%1). Виберіть іншу назву.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="780"/>
+        <location filename="../src/exportdialog.cpp" line="867"/>
         <source>, about %1 left</source>
         <translation>, залишилося близько %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="800"/>
+        <location filename="../src/exportdialog.cpp" line="887"/>
         <source>Saved %1</source>
         <translation>Збережено %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="802"/>
+        <location filename="../src/exportdialog.cpp" line="889"/>
         <source>The video was exported to
 %1</source>
         <translation>Відео експортовано до
 %1</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="804"/>
+        <location filename="../src/exportdialog.cpp" line="891"/>
         <source>Open folder</source>
         <translation>Відкрити теку</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="822"/>
+        <location filename="../src/exportdialog.cpp" line="909"/>
         <source>The export failed.</source>
         <translation>Експорт не вдався.</translation>
     </message>
     <message>
-        <location filename="../src/exportdialog.cpp" line="823"/>
+        <location filename="../src/exportdialog.cpp" line="910"/>
         <source>The export failed.
 
 %1</source>
@@ -1061,19 +1112,19 @@ Worked out from the other data</source>
 <context>
     <name>ExportJob</name>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="254"/>
+        <location filename="../src/core/video/exportjob.cpp" line="263"/>
         <source>ffmpeg stopped with an error and gave no explanation.</source>
         <translation>ffmpeg завершився з помилкою без пояснень.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="255"/>
+        <location filename="../src/core/video/exportjob.cpp" line="264"/>
         <source>ffmpeg reported:
 %1</source>
         <translation>ffmpeg повідомив:
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="321"/>
+        <location filename="../src/core/video/exportjob.cpp" line="330"/>
         <source>ffmpeg could not be started (%1). Install it, or set its location in the settings.</source>
         <translation>Не вдалося запустити ffmpeg (%1). Встановіть його або вкажіть розташування в налаштуваннях.</translation>
     </message>

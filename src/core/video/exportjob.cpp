@@ -196,7 +196,16 @@ void ExportJob::pump()
     while (m_nextFrame < m_plan.frameCount && m_process->bytesToWrite() < kFramesAhead * frameBytes)
         {
             renderFrame(m_nextFrame);
-            m_process->write(reinterpret_cast<const char *>(m_frame.constBits()), frameBytes);
+            if (m_plan.transparent)
+                {
+                    // the same bytes per pixel, the colors no longer multiplied by their alpha
+                    const QImage straight = m_frame.convertToFormat(QImage::Format_ARGB32);
+                    m_process->write(reinterpret_cast<const char *>(straight.constBits()), frameBytes);
+                }
+            else
+                {
+                    m_process->write(reinterpret_cast<const char *>(m_frame.constBits()), frameBytes);
+                }
             ++m_nextFrame;
         }
     if (m_nextFrame >= m_plan.frameCount && !m_inputClosed)

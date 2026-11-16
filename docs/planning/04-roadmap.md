@@ -329,7 +329,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 Not done: lowering the music while the camera is loud (ducking); AV1 encoders; volumes above 100 %.
 
 ## M7 — Polish and distribution
-- Export backend B (in-process libav) if/when needed; overlay-only alpha export; export queue
+- Export backend B (in-process libav) if/when needed; export queue (done: the gauges alone with transparency)
 - AppImage + Flatpak, Windows installer, macOS bundle
 - Translations (uk, en), user manual
 - Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;

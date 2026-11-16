@@ -14,6 +14,7 @@
 #include <QDir>
 #include <QHash>
 #include <QImage>
+#include <QPainter>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QtTest>
@@ -337,6 +338,44 @@ private slots:
                          "[o0][g1]overlay=1440:810:alpha=premultiplied:eof_action=endall,format=yuv420p[v]"));
         // the whole frame is no longer sent
         QCOMPARE(plan.overlayRect, QRect(0, 0, 1710, 1080));
+    }
+
+    void planGaugesOnly()
+    {
+        OverlayItem topLeft;
+        topLeft.gaugeId = BuiltinGauges::DialId;
+        topLeft.height = 0.25;
+        OverlayItem bottomRight = topLeft;
+        bottomRight.x = 0.75;
+        bottomRight.y = 0.75;
+        const Overlay overlay({topLeft, bottomRight}, steadySession(), Units(), GaugeTheme());
+        ExportSettings settings = settingsFor("gauges.mov");
+        settings.picture = ExportSettings::GaugesOnly;
+        settings.height = 720;
+        Soundtrack music;
+        music.tracks = {{"song.mp3", 60.0, 0.0, 0.0}};
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settings, overlay, {}, music);
+        QVERIFY(plan.transparent);
+        QVERIFY(!plan.hasAudio);
+        // nothing of the video is read: the gauges are the only input
+        QVERIFY(!plan.arguments.contains("in.mp4"));
+        QVERIFY(!plan.arguments.contains("song.mp3"));
+        QCOMPARE(valueOf(plan.arguments, "-i"), QString("pipe:0"));
+        QCOMPARE(valueOf(plan.arguments, "-filter_complex"),
+                 QString("color=c=black@0:s=1280x720:r=60/1,format=rgba[base];"
+                         "[0:v]split=2[s0][s1];[s0]crop=180:180:0:0[g0];[s1]crop=180:180:0:180[g1];"
+                         "[base][g0]overlay=0:0:alpha=straight:format=auto:eof_action=endall[o0];"
+                         "[o0][g1]overlay=960:540:alpha=straight:format=auto:eof_action=endall[v]"));
+        QVERIFY(hasPair(plan.arguments, "-c:v", "prores_ks"));
+        QVERIFY(hasPair(plan.arguments, "-pix_fmt", "yuva444p10le"));
+        QVERIFY(plan.arguments.contains("-an"));
+        QCOMPARE(plan.frameCount, qint64(6000));
+
+        settings.outputPath = "gauges.webm";
+        const ExportPlan webm = ExportPlan::make("in.mp4", fullHd60(), settings, overlay);
+        QVERIFY(hasPair(webm.arguments, "-c:v", "libvpx-vp9"));
+        QVERIFY(hasPair(webm.arguments, "-pix_fmt", "yuva420p"));
+        QVERIFY(!webm.arguments.contains("-movflags"));
     }
 
     void planWithoutAFrameRateCountsNoTime()
@@ -871,6 +910,90 @@ private slots:
         QVERIFY(difference(before, after, 270, 210) > 60);    // center of the bottom right one
         QVERIFY(difference(before, after, 160, 120) < 20);    // between them: untouched
         QVERIFY(difference(before, after, 280, 30) < 20);
+    }
+
+    void exportGaugesOnly_data()
+    {
+        QTest::addColumn<QString>("suffix");
+        QTest::addColumn<QString>("decoder");
+        QTest::newRow("prores") << "mov" << QString();
+        // ffmpeg's own VP9 decoder drops the transparency; libvpx keeps it
+        QTest::newRow("vp9") << "webm" << "libvpx-vp9";
+    }
+
+    void exportGaugesOnly()
+    {
+        QFETCH(QString, suffix);
+        QFETCH(QString, decoder);
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        const Overlay overlay = oneGauge();
+        const QString output = m_dir.filePath("gauges." + suffix);
+        ExportSettings settings = settingsFor(output);
+        settings.picture = ExportSettings::GaugesOnly;
+        const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
+        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(finished.first().at(1).toString()));
+        QVERIFY(!streamDurations(output).contains("audio"));
+        QCOMPARE(countFrames(output), countFrames(m_sourceVideo));
+
+        const QString png = m_dir.filePath("gauges-frame.png");
+        QFile::remove(png);
+        QStringList args{"-hide_banner", "-loglevel", "error", "-y"};
+        if (!decoder.isEmpty())
+            {
+                args << "-c:v" << decoder;
+            }
+        args << "-ss" << "1" << "-i" << output << "-frames:v" << "1" << "-pix_fmt" << "rgba" << png;
+        QCOMPARE(FfmpegTools::run("ffmpeg", args).exitCode, 0);
+        const QImage frame = QImage(png).convertToFormat(QImage::Format_ARGB32);
+        QCOMPARE(frame.size(), info.size);
+        // nothing where there is no gauge; the dial itself solid, in its own colors
+        QCOMPARE(qAlpha(frame.pixel(10, 10)), 0);
+        QCOMPARE(qAlpha(frame.pixel(frame.width() / 4, frame.height() * 3 / 4)), 0);
+        const QRect dial = plan.regions.first();
+        const QRgb center = frame.pixel(dial.center());
+        QVERIFY2(qAlpha(center) > 240, qPrintable(QString::number(qAlpha(center))));
+        // as Qt draws it: see-through parts keep their colors, not darkened towards black
+        QImage drawn(info.size, QImage::Format_ARGB32_Premultiplied);
+        drawn.fill(Qt::transparent);
+        {
+            QPainter painter(&drawn);
+            overlay.render(painter, QRectF(QPointF(0, 0), QSizeF(info.size)), 1.0, dial);
+        }
+        drawn = drawn.convertToFormat(QImage::Format_ARGB32);
+        double colorError = 0.0;
+        double alphaError = 0.0;
+        int compared = 0;
+        for (int x = dial.left(); x <= dial.right(); ++x)
+            {
+                for (int y = dial.top(); y <= dial.bottom(); ++y)
+                    {
+                        const QRgb want = drawn.pixel(x, y);
+                        const QRgb got = frame.pixel(x, y);
+                        alphaError += qAbs(qAlpha(want) - qAlpha(got));
+                        // the see-through parts, where multiplied colors would show
+                        if (qAlpha(want) > 60 && qAlpha(want) < 200)
+                            {
+                                colorError += qAbs(qRed(want) - qRed(got)) + qAbs(qGreen(want) - qGreen(got))
+                                              + qAbs(qBlue(want) - qBlue(got));
+                                ++compared;
+                            }
+                    }
+            }
+        const int pixels = dial.width() * dial.height();
+        QVERIFY2(compared > 100, qPrintable(QString::number(compared)));
+        QVERIFY2(alphaError / pixels < 4.0, qPrintable(QString::number(alphaError / pixels)));
+        // multiplied colors are off by about 9 here
+        QVERIFY2(colorError / compared < 5.0, qPrintable(QString::number(colorError / compared)));
     }
 
     void exportRangeAndSmallerSize()

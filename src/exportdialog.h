@@ -54,6 +54,7 @@ private slots:
     void updateEstimate();
     void onAudioChanged();
     void onContainerChosen();
+    void onPictureChanged();
     void showContainer();
     void onProfileChosen();
     void onChoiceChanged();
@@ -68,6 +69,8 @@ private:
     void updateReadiness();
     void updateAudioControls();
     void fillProfiles(const QString &selected);
+    void fillContainers();
+    bool gaugesOnly() const;
     // The profile chosen; false for none ("Custom").
     bool chosenProfile(ExportProfile *profile) const;
     // Fills the controls from the chosen profile once the video and the encoders are known.
@@ -94,9 +97,11 @@ private:
     bool m_profileShown{false};
     bool m_showing{false};
     bool m_running{false};
+    QString m_videoSuffix;      // the file type the video had before the gauges alone were chosen
     QThread *m_thread{nullptr};
 
     QLabel *m_sourceLabel{nullptr};
+    QComboBox *m_pictureCombo{nullptr};
     QComboBox *m_profileCombo{nullptr};
     QPushButton *m_saveProfileButton{nullptr};
     QPushButton *m_deleteProfileButton{nullptr};
