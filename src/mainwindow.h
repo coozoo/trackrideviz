@@ -56,7 +56,8 @@ protected:
 
 private slots:
     void chooseVideo();
-    void joinVideos();
+    // paths: the videos the dialog starts with
+    void joinVideos(const QStringList &paths = {});
     void chooseTelemetry();
     void chooseProject();
     // Both return false when the user backed out or writing failed.
@@ -106,7 +107,7 @@ private:
     void setDataSources(const QVector<DataSource> &sources, const QString &description);
     void loadVideo(const QString &path);
     // keepSync: the offset comes with the project and must survive the import
-    void loadTelemetry(const QString &path, bool keepSync);
+    void loadTelemetry(const QString &path, bool keepSync, bool quietly = false);
     void rebuildOverlay();
     QWidget *createPropertiesPanel();
     // The part of the project the undo stack covers.
@@ -209,6 +210,7 @@ private:
     // Import in progress; a result for any other path is stale and dropped.
     QString m_pendingTelemetryPath;
     bool m_pendingKeepsSync{false};
+    bool m_pendingQuietly{false};   // the video's own data, tried: no message when it has none
     quint64 m_importGeneration{0};   // the load whose result is wanted
     // terrain or weather arriving: the data is worked out again when they stop coming
     QTimer *m_arrivalTimer{nullptr};

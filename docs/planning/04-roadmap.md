@@ -217,7 +217,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ GoPro embedded telemetry (2026-11-15, `GpmfImporter`): "Open data" on the camera's own .mp4
   reads its positions, elevation and speed (GPS5 and GPS9), on the video's clock, so nothing is
   to be synchronized. Checked with made-up files only: no camera file was at hand
-- GoPro: chapters joined by themselves; accelerometer and gyroscope
+- ✅ GoPro chapters (2026-11-16, `VideoJoin::chaptersFrom`): opening the first chapter offers to join the
+  recording; the data is read on through the chapters after it, also for a video joined from them;
+  a GoPro video opened without data gives its own
+- GoPro: accelerometer and gyroscope
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
 - AiM and DriftBox CSV layouts; our own profiles for common loggers; NMEA, VBO
 - ✅ Gears (2026-11-15, `Gears`, the Bike page of the settings, the "Gear" gauge): recorded by

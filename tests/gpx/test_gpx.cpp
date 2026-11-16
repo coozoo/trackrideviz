@@ -8,6 +8,7 @@
 #include "telemetry/gpximporter.h"
 #include "telemetry/tcximporter.h"
 #include "telemetry/telemetryimporter.h"
+#include "video/videojoin.h"
 
 #include <QTemporaryDir>
 
@@ -30,6 +31,7 @@ private slots:
     void tcxErrors();
     void cameraPositions();
     void cameraVideoFile();
+    void cameraChapters();
     void cameraNestingIsLimited();
     void strayTimesAreLeftOut();
 
@@ -376,6 +378,91 @@ void TestGpx::cameraVideoFile()
     QBuffer none(&junk);
     none.open(QIODevice::ReadOnly);
     QVERIFY(!GpmfImporter::read(&none, &error));
+}
+
+namespace
+{
+// A video file `seconds` long holding one data sample a second, `first` the first position.
+QByteArray cameraFile(int first, int seconds, const char *utc)
+{
+    QVector<QByteArray> samples;
+    for (int i = 0; i < seconds; ++i)
+        {
+            samples << positions(first + i, 1, 3, utc);
+        }
+    const QByteArray ftyp = box("ftyp", QByteArray("mp41", 4) + be32(0));
+    QByteArray data;
+    QByteArray sizes;
+    for (const QByteArray &sample : std::as_const(samples))
+        {
+            data += sample;
+            sizes += be32(quint32(sample.size()));
+        }
+    const quint32 dataAt = quint32(ftyp.size() + 8);
+    const QByteArray stbl = box("stbl",
+                                box("stsd", be32(0) + be32(1) + be32(16) + QByteArray("gpmd", 4) + be32(0) + be32(1))
+                                + box("stts", be32(0) + be32(1) + be32(quint32(seconds)) + be32(1000))
+                                + box("stsc", be32(0) + be32(1) + be32(1) + be32(quint32(seconds)) + be32(1))
+                                + box("stsz", be32(0) + be32(0) + be32(quint32(seconds)) + sizes)
+                                + box("stco", be32(0) + be32(1) + be32(dataAt)));
+    const QByteArray mdhd = box("mdhd", be32(0) + be32(0) + be32(0) + be32(1000) + be32(quint32(seconds * 1000)) + be32(0));
+    // the video's length, version 0: times, the scale, the length, then what does not matter here
+    const QByteArray mvhd = box("mvhd", be32(0) + be32(0) + be32(0) + be32(1000) + be32(quint32(seconds * 1000))
+                                + QByteArray(80, '\0'));
+    return ftyp + box("mdat", data) + box("moov", mvhd + box("trak", box("mdia", mdhd + box("minf", stbl))));
+}
+
+void write(const QString &path, const QByteArray &data)
+{
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write(data);
+}
+}
+
+void TestGpx::cameraChapters()
+{
+    QTemporaryDir dir;
+    // chapters 1 and 2 of recording 0042, 4 and 3 s; a chapter 4 after a missing 3; another
+    // recording, and the same number from the other codec
+    write(dir.filePath("GX010042.MP4"), cameraFile(0, 4, "260625100000.000"));
+    write(dir.filePath("GX020042.MP4"), cameraFile(10, 3, "260625100004.000"));
+    write(dir.filePath("GX040042.MP4"), cameraFile(20, 3, "260625100010.000"));
+    write(dir.filePath("GX010043.MP4"), cameraFile(30, 3, "260625110000.000"));
+    write(dir.filePath("GH010042.MP4"), cameraFile(40, 3, "260625120000.000"));
+    // a video joined from the chapters, without their data
+    write(dir.filePath("GX010042_joined.MP4"), box("ftyp", QByteArray("mp41", 4) + be32(0)) + box("moov", QByteArray()));
+
+    QCOMPARE(VideoJoin::chaptersFrom(dir.filePath("GX010042.MP4")),
+             QStringList({dir.filePath("GX010042.MP4"), dir.filePath("GX020042.MP4")}));
+    QCOMPARE(VideoJoin::chaptersFrom(dir.filePath("GX020042.MP4")), QStringList{dir.filePath("GX020042.MP4")});
+    QCOMPARE(VideoJoin::chaptersFrom(dir.filePath("GX010042_joined.MP4")).size(), 2);
+    QVERIFY(VideoJoin::chaptersFrom(dir.filePath("ride.mp4")).isEmpty());
+
+    // from the first chapter: the whole recording, the second where the first ends
+    QString error;
+    const TelemetrySessionPtr whole = GpmfImporter::load(dir.filePath("GX010042.MP4"), &error);
+    QVERIFY2(whole, qPrintable(error));
+    const Channel *lat = whole->channel(ChannelId::PositionLat);
+    QCOMPARE(lat->count(), 7);
+    QCOMPARE(lat->timeAt(4), 4.0);
+    QVERIFY(std::fabs(lat->valueAtIndex(4) - 49.0010) < 1e-9);
+    QCOMPARE(whole->startUtc(), QDateTime(QDate(2026, 6, 25), QTime(10, 0, 0), QTimeZone::utc()));
+    QVERIFY(whole->sourceInfo().contains("2"));
+    // from the second: that one on its own clock
+    const TelemetrySessionPtr second = GpmfImporter::load(dir.filePath("GX020042.MP4"), &error);
+    QCOMPARE(second->channel(ChannelId::PositionLat)->count(), 3);
+    QCOMPARE(second->channel(ChannelId::PositionLat)->timeAt(0), 0.0);
+    // the joined video: from the chapters beside it
+    const TelemetrySessionPtr joined = GpmfImporter::load(dir.filePath("GX010042_joined.MP4"), &error);
+    QVERIFY2(joined, qPrintable(error));
+    QCOMPARE(joined->channel(ChannelId::PositionLat)->count(), 7);
+
+    // the older naming: GOPR0007, then GP010007
+    write(dir.filePath("GOPR0007.MP4"), cameraFile(0, 2, "260625100000.000"));
+    write(dir.filePath("GP010007.MP4"), cameraFile(2, 2, "260625100002.000"));
+    QCOMPARE(VideoJoin::chaptersFrom(dir.filePath("GOPR0007.MP4")),
+             QStringList({dir.filePath("GOPR0007.MP4"), dir.filePath("GP010007.MP4")}));
 }
 
 void TestGpx::cameraNestingIsLimited()

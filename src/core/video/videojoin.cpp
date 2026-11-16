@@ -2,7 +2,9 @@
 
 #include "../sync/videosync.h"
 
+#include <QDir>
 #include <QFileInfo>
+#include <QMap>
 #include <QRegularExpression>
 
 #include <algorithm>
@@ -28,6 +30,30 @@ bool chapterKey(const QString &fileName, QString *recording, int *chapter)
         {
             *recording = match.captured(2);
             *chapter = match.captured(1).toInt();
+            return true;
+        }
+    return false;
+}
+
+// The same for a name that only starts with a chapter's, such as that of a joined video.
+// `recording` holds the letter of the camera's naming too: GH and GX recordings are not one.
+bool chapterPrefix(const QString &fileName, QString *recording, int *chapter)
+{
+    static const QRegularExpression modern("^G([HXP])(\\d{2})(\\d{4})(?=[._])", QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression old("^GOPR(\\d{4})(?=[._])", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match = old.match(fileName);
+    if (match.hasMatch())
+        {
+            // the older cameras' first chapter; the others are GP01, GP02... (chapters 1, 2...)
+            *recording = "P" + match.captured(1);
+            *chapter = 0;
+            return true;
+        }
+    match = modern.match(fileName);
+    if (match.hasMatch())
+        {
+            *recording = match.captured(1).toUpper() + match.captured(3);
+            *chapter = match.captured(2).toInt();
             return true;
         }
     return false;
@@ -186,6 +212,36 @@ QByteArray VideoJoin::listFile(const QStringList &paths)
             list += "file '" + quoted.toUtf8() + "'\n";
         }
     return list;
+}
+
+QStringList VideoJoin::chaptersFrom(const QString &path)
+{
+    const QFileInfo info(path);
+    QString recording;
+    int first = 0;
+    if (!chapterPrefix(info.fileName(), &recording, &first))
+        {
+            return {};
+        }
+    QMap<int, QString> chapters;
+    for (const QFileInfo &file : info.absoluteDir().entryInfoList(QDir::Files))
+        {
+            QString other;
+            int chapter = 0;
+            // the chapters themselves: their name is no more than the chapter's
+            if (file.suffix().compare("mp4", Qt::CaseInsensitive) == 0 && file.completeBaseName().size() == 8
+                    && chapterPrefix(file.fileName(), &other, &chapter) && other == recording && chapter >= first)
+                {
+                    chapters.insert(chapter, file.absoluteFilePath());
+                }
+        }
+    // one after another: a missing chapter ends the recording here
+    QStringList ordered;
+    for (int chapter = first; chapters.contains(chapter); ++chapter)
+        {
+            ordered << chapters.value(chapter);
+        }
+    return ordered;
 }
 
 QStringList VideoJoin::arguments(const QString &listFile, const QString &output)

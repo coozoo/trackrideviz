@@ -1,9 +1,11 @@
 #include "gpmfimporter.h"
 
 #include "channelids.h"
+#include "../video/videojoin.h"
 
 #include <QCoreApplication>
 #include <QFile>
+#include <QFileInfo>
 #include <QTimeZone>
 #include <QtEndian>
 
@@ -355,30 +357,30 @@ TelemetrySessionPtr GpmfImporter::fromPayloads(const QVector<Payload> &payloads)
     return session;
 }
 
-TelemetrySessionPtr GpmfImporter::load(const QString &path, QString *error)
+namespace
 {
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly))
+// The length of the video the `moov` box describes, in seconds; 0 when it does not say.
+double movieLength(const QByteArray &moov)
+{
+    Box mvhd;
+    if (!find(moov, Box{0, 0, moov.size()}, "mvhd", &mvhd) || mvhd.size < 32)
         {
-            if (error)
-                {
-                    *error = QCoreApplication::translate("GpmfImporter", "Cannot open %1: %2").arg(path, file.errorString());
-                }
-            return nullptr;
+            return 0.0;
         }
-    return read(&file, error);
+    const bool wide = quint8(moov.at(mvhd.start)) == 1;
+    if (wide && mvhd.size < 32 + 12)
+        {
+            return 0.0;
+        }
+    const double timescale = u32(moov, mvhd.start + (wide ? 20 : 12));
+    const double duration = wide ? double(u64(moov, mvhd.start + 24)) : double(u32(moov, mvhd.start + 16));
+    return timescale > 0.0 ? duration / timescale : 0.0;
 }
 
-TelemetrySessionPtr GpmfImporter::read(QIODevice *device, QString *error)
+// The data samples of an MP4 and the length of its video. False, with *error, when it is
+// no MP4 or holds no data track.
+bool readPayloads(QIODevice *device, QVector<GpmfImporter::Payload> *payloads, double *length, QString *error)
 {
-    const auto fail = [error](const QString &message) -> TelemetrySessionPtr
-    {
-        if (error)
-            {
-                *error = message;
-            }
-        return nullptr;
-    };
     // the index of the file: among its outermost boxes, wherever the camera put it
     QByteArray moov;
     qint64 at = 0;
@@ -414,28 +416,119 @@ TelemetrySessionPtr GpmfImporter::read(QIODevice *device, QString *error)
         }
     if (moov.isEmpty())
         {
-            return fail(QCoreApplication::translate("GpmfImporter", "Not a video file this program can read data from."));
+            *error = QCoreApplication::translate("GpmfImporter", "Not a video file this program can read data from.");
+            return false;
         }
+    *length = movieLength(moov);
     const QVector<Sample> samples = dataSamples(moov);
     if (samples.isEmpty())
         {
-            return fail(QCoreApplication::translate("GpmfImporter",
-                        "The video holds no data of its own. Only GoPro cameras write positions into their videos."));
+            *error = QCoreApplication::translate("GpmfImporter", "The video holds no data of its own. Only GoPro cameras write positions into their videos.");
+            return false;
         }
-    QVector<Payload> payloads;
     for (const Sample &sample : samples)
         {
             if (sample.size <= 0 || sample.size > (1 << 24) || !device->seek(sample.offset))
                 {
                     continue;
                 }
-            payloads.append({sample.start, sample.duration, device->read(sample.size)});
+            payloads->append({sample.start, sample.duration, device->read(sample.size)});
         }
-    const TelemetrySessionPtr session = fromPayloads(payloads);
-    if (!session)
+    return true;
+}
+
+bool readFile(const QString &path, QVector<GpmfImporter::Payload> *payloads, double *length, QString *error)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
         {
-            return fail(QCoreApplication::translate("GpmfImporter",
-                        "The camera had no satellite fix while this video was recorded: there are no positions in it."));
+            *error = QCoreApplication::translate("GpmfImporter", "Cannot open %1: %2").arg(path, file.errorString());
+            return false;
+        }
+    return readPayloads(&file, payloads, length, error);
+}
+
+TelemetrySessionPtr sessionOf(const QVector<GpmfImporter::Payload> &payloads, QString *error)
+{
+    const TelemetrySessionPtr session = GpmfImporter::fromPayloads(payloads);
+    if (!session && error)
+        {
+            *error = QCoreApplication::translate("GpmfImporter", "The camera had no satellite fix while this video was recorded: there are no positions in it.");
         }
     return session;
+}
+}
+
+TelemetrySessionPtr GpmfImporter::load(const QString &path, QString *error)
+{
+    QVector<Payload> payloads;
+    double length = 0.0;
+    QString problem;
+    const bool readable = readFile(path, &payloads, &length, &problem);
+    // A long recording is split into chapters of about 4 GB. Its data goes on in the next
+    // ones, and a video joined from them has none of its own.
+    const QStringList chapters = VideoJoin::chaptersFrom(path);
+    const bool chapter = !chapters.isEmpty() && QFileInfo(chapters.first()) == QFileInfo(path);
+    const bool fromChapters = chapter ? chapters.size() > 1 : !chapters.isEmpty() && !readable;
+    if (!fromChapters)
+        {
+            if (!readable)
+                {
+                    if (error)
+                        {
+                            *error = problem;
+                        }
+                    return nullptr;
+                }
+            return sessionOf(payloads, error);
+        }
+    // each chapter where the one before ends
+    QVector<Payload> all;
+    double offset = 0.0;
+    for (const QString &file : chapters)
+        {
+            QVector<Payload> part;
+            double partLength = 0.0;
+            if (!readFile(file, &part, &partLength, &problem))
+                {
+                    if (error)
+                        {
+                            *error = QString("%1: %2").arg(QFileInfo(file).fileName(), problem);
+                        }
+                    return nullptr;
+                }
+            for (Payload &payload : part)
+                {
+                    payload.start += offset;
+                    all.append(payload);
+                }
+            // a file that does not say its length: its data ends with it
+            offset += partLength > 0.0 ? partLength
+                      : part.isEmpty() ? 0.0 : part.last().start + part.last().duration - offset;
+        }
+    const TelemetrySessionPtr read = sessionOf(all, error);
+    if (!read)
+        {
+            return nullptr;
+        }
+    auto session = std::make_shared<TelemetrySession>(*read);
+    session->setSourceInfo(QCoreApplication::translate("GpmfImporter", "GoPro, %n chapter(s) from %1", nullptr, int(chapters.size()))
+                           .arg(QFileInfo(chapters.first()).fileName()));
+    return session;
+}
+
+TelemetrySessionPtr GpmfImporter::read(QIODevice *device, QString *error)
+{
+    QVector<Payload> payloads;
+    double length = 0.0;
+    QString problem;
+    if (!readPayloads(device, &payloads, &length, &problem))
+        {
+            if (error)
+                {
+                    *error = problem;
+                }
+            return nullptr;
+        }
+    return sessionOf(payloads, error);
 }

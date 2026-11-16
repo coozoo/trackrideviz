@@ -3,6 +3,7 @@
 #include "datapanel.h"
 #include "datasourcesdialog.h"
 #include "joindialog.h"
+#include "video/videojoin.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
 #include "musicpanel.h"
@@ -626,7 +627,7 @@ void MainWindow::createMenus()
     openDataAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
     m_dataSourcesAction = fileMenu->addAction(tr("Add data from other &files..."), this, &MainWindow::editDataSources);
     m_dataSourcesAction->setEnabled(false);
-    fileMenu->addAction(tr("&Join videos..."), this, &MainWindow::joinVideos);
+    fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
     fileMenu->addSeparator();
     QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
     openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
@@ -691,6 +692,17 @@ void MainWindow::chooseVideo()
     if (!path.isEmpty())
         {
             settings.setValue("paths/video", QFileInfo(path).absolutePath());
+            // a camera splits a long recording into chapters: offered as the one video it is
+            const QStringList chapters = VideoJoin::chaptersFrom(path);
+            if (chapters.size() > 1 && QFileInfo(chapters.first()) == QFileInfo(path)
+                    && QMessageBox::question(this, tr("Open video"),
+                                             tr("%1 is the first of %n parts of one recording. Join them into one video?",
+                                                nullptr, int(chapters.size())).arg(QFileInfo(path).fileName()))
+                    == QMessageBox::Yes)
+                {
+                    joinVideos(chapters);
+                    return;
+                }
             openVideo(path);
         }
 }
@@ -717,11 +729,17 @@ void MainWindow::openVideo(const QString &path, const QVector<TimeShift> &shifts
     m_timelinePanel->setCuts(m_project.cuts);
     m_musicPanel->setCuts(m_project.cuts);
     loadVideo(path);
+    // a GoPro's video holds its positions: they are the data, unless some is open already
+    if (m_project.telemetryPath.isEmpty() && m_pendingTelemetryPath.isEmpty()
+            && QFileInfo(path).suffix().compare("mp4", Qt::CaseInsensitive) == 0)
+        {
+            loadTelemetry(path, false, true);
+        }
 }
 
-void MainWindow::joinVideos()
+void MainWindow::joinVideos(const QStringList &paths)
 {
-    JoinDialog dialog(QStringList(), this);
+    JoinDialog dialog(paths, this);
     if (dialog.exec() != QDialog::Accepted)
         {
             return;
@@ -757,8 +775,9 @@ void MainWindow::openTelemetry(const QString &path)
     loadTelemetry(path, false);
 }
 
-void MainWindow::loadTelemetry(const QString &path, bool keepSync)
+void MainWindow::loadTelemetry(const QString &path, bool keepSync, bool quietly)
 {
+    m_pendingQuietly = quietly;
     m_pendingTelemetryPath = path;
     m_pendingKeepsSync = keepSync;
     // only the last load counts, also when the same file is loaded again before the first is done
@@ -1649,9 +1668,14 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
         }
     m_pendingTelemetryPath.clear();
     statusBar()->clearMessage();
+    const bool quietly = m_pendingQuietly;
+    m_pendingQuietly = false;
     if (!session)
         {
-            QMessageBox::warning(this, tr("Open data"), error);
+            if (!quietly)
+                {
+                    QMessageBox::warning(this, tr("Open data"), error);
+                }
             return;
         }
     m_project.telemetryPath = path;
