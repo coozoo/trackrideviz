@@ -177,10 +177,15 @@ MusicPanel::MusicPanel(QWidget *parent)
     m_summary->setEnabled(false); // grayed: information, not a control
 
     // the trim belongs to one file, the rest to all of them: said by the frames around them
-    QGroupBox *trackBox = new QGroupBox(tr("Selected track"), this);
-    QFormLayout *trackForm = new QFormLayout(trackBox);
+    m_trackBox = new QGroupBox(this);
+    QFormLayout *trackForm = new QFormLayout(m_trackBox);
     trackForm->addRow(tr("Play:"), trimRow);
     QGroupBox *allBox = new QGroupBox(tr("All tracks"), this);
+    // some styles draw the frame faintly: the titles stand out by themselves
+    for (QGroupBox *box : {m_trackBox, allBox})
+        {
+            box->setStyleSheet("QGroupBox { font-weight: bold; }");
+        }
     QFormLayout *allForm = new QFormLayout(allBox);
     allForm->addRow(tr("Begins at:"), startRow);
     allForm->addRow(tr("Fade:"), m_fadeSpin);
@@ -190,7 +195,7 @@ MusicPanel::MusicPanel(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_list, 1);
     layout->addLayout(buttons);
-    layout->addWidget(trackBox);
+    layout->addWidget(m_trackBox);
     layout->addWidget(allBox);
     layout->addWidget(m_summary);
 
@@ -502,6 +507,8 @@ void MusicPanel::onSelectionChanged()
     const bool trimmable = row >= 0 && m_soundtrack.tracks.at(row).duration > 0.0;
     m_fromEdit->setEnabled(trimmable);
     m_toEdit->setEnabled(trimmable);
+    m_trackBox->setTitle(row >= 0 ? tr("Selected track: %1").arg(QFileInfo(m_soundtrack.tracks.at(row).path).completeBaseName())
+                                  : tr("Selected track"));
     const bool updating = m_updating;
     m_updating = true;
     if (trimmable)

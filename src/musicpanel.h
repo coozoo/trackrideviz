@@ -6,6 +6,7 @@
 
 class QCheckBox;
 class QDoubleSpinBox;
+class QGroupBox;
 class QLabel;
 class QListWidget;
 class QPushButton;
@@ -72,6 +73,7 @@ private:
     QPushButton *m_removeButton{nullptr};
     QPushButton *m_upButton{nullptr};
     QPushButton *m_downButton{nullptr};
+    QGroupBox *m_trackBox{nullptr};
     QTimeEdit *m_fromEdit{nullptr};
     QTimeEdit *m_toEdit{nullptr};
     QTimeEdit *m_startEdit{nullptr};

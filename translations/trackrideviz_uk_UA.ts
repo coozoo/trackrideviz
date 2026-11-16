@@ -4173,8 +4173,8 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/musicpanel.cpp" line="163"/>
-        <location filename="../src/musicpanel.cpp" line="559"/>
-        <location filename="../src/musicpanel.cpp" line="564"/>
+        <location filename="../src/musicpanel.cpp" line="566"/>
+        <location filename="../src/musicpanel.cpp" line="571"/>
         <source>Change the volume</source>
         <translation>Змінити гучність</translation>
     </message>
@@ -4184,7 +4184,12 @@ It appears among the templates in the library.</source>
         <translation>Звук, записаний камерою</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="180"/>
+        <location filename="../src/musicpanel.cpp" line="510"/>
+        <source>Selected track: %1</source>
+        <translation>Вибраний трек: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="511"/>
         <source>Selected track</source>
         <translation>Вибраний трек</translation>
     </message>
@@ -4199,43 +4204,43 @@ It appears among the templates in the library.</source>
         <translation>Усі треки</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="185"/>
+        <location filename="../src/musicpanel.cpp" line="190"/>
         <source>Begins at:</source>
         <translation>Починається о:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="186"/>
+        <location filename="../src/musicpanel.cpp" line="191"/>
         <source>Fade:</source>
         <translation>Наростання/затихання:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="187"/>
+        <location filename="../src/musicpanel.cpp" line="192"/>
         <source>Video sound:</source>
         <translation>Звук відео:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="188"/>
+        <location filename="../src/musicpanel.cpp" line="193"/>
         <source>Music:</source>
         <translation>Музика:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="294"/>
+        <location filename="../src/musicpanel.cpp" line="299"/>
         <source>(missing)</source>
         <translation>(немає)</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="323"/>
-        <location filename="../src/musicpanel.cpp" line="338"/>
+        <location filename="../src/musicpanel.cpp" line="328"/>
+        <location filename="../src/musicpanel.cpp" line="343"/>
         <source>Reading the music...</source>
         <translation>Читання музики...</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="324"/>
+        <location filename="../src/musicpanel.cpp" line="329"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation>Музики немає. Додайте файли, щоб вони грали під відео один за одним.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="327"/>
+        <location filename="../src/musicpanel.cpp" line="332"/>
         <source>%n track(s), %1 of music.</source>
         <translation>
             <numerusform>%n трек, %1 музики.</numerusform>
@@ -4244,29 +4249,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="334"/>
+        <location filename="../src/musicpanel.cpp" line="339"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation>Від початку музики у відео ще %1.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="346"/>
-        <location filename="../src/musicpanel.cpp" line="374"/>
+        <location filename="../src/musicpanel.cpp" line="351"/>
+        <location filename="../src/musicpanel.cpp" line="379"/>
         <source>Add music</source>
         <translation>Додати музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="409"/>
+        <location filename="../src/musicpanel.cpp" line="414"/>
         <source>Remove music</source>
         <translation>Вилучити музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="434"/>
-        <location filename="../src/musicpanel.cpp" line="482"/>
+        <location filename="../src/musicpanel.cpp" line="439"/>
+        <location filename="../src/musicpanel.cpp" line="487"/>
         <source>Reorder music</source>
         <translation>Змінити порядок музики</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="543"/>
+        <location filename="../src/musicpanel.cpp" line="550"/>
         <source>Trim music</source>
         <translation>Обрізати музику</translation>
     </message>
