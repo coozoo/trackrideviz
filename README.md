@@ -98,12 +98,9 @@ debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 ## Support Ukraine
 
 Ukraine is fighting for its independence against an empire: Russia's full-scale invasion, begun
-in 2022. If this program is useful to you, please consider helping Ukraine through a verified
-fund:
-
-- [UNITED24](https://u24.gov.ua/), the official fundraising platform of Ukraine
-- [Come Back Alive](https://savelife.in.ua/en/), one of the largest foundations supporting
-  Ukraine's defenders
+in 2022. If this program is useful to you, please consider helping Ukraine's defenders through
+[Come Back Alive](https://savelife.in.ua/en/donate-en/#donate-army-card-once), one of the
+largest and most trusted foundations supporting them.
 
 The program links to this section rather than to a fund directly: a link inside a binary can
 be swapped for a fake one by whoever repackages it, while this page is public and its history
