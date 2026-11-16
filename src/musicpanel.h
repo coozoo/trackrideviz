@@ -84,6 +84,7 @@ private:
     QLabel *m_videoLabel{nullptr};
     QSlider *m_musicSlider{nullptr};
     QCheckBox *m_musicMute{nullptr};
+    QCheckBox *m_duckingCheck{nullptr};
     QLabel *m_musicLabel{nullptr};
     QLabel *m_summary{nullptr};
 };

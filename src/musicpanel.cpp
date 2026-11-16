@@ -175,6 +175,14 @@ MusicPanel::MusicPanel(QWidget *parent)
                                  "the preview plays it at full volume."));
     m_musicSlider->setToolTip(tr("Above 100 % the music is louder in the export; the preview plays it at full volume."));
 
+    m_duckingCheck = new QCheckBox(tr("Quieter while the camera is loud"), this);
+    m_duckingCheck->setToolTip(tr("The music gives way to talk or an engine the camera recorded. "
+                                  "Heard in the export; the preview plays the music as it is."));
+    connect(m_duckingCheck, &QCheckBox::toggled, this, [this]()
+    {
+        edit(shown(), tr("Change the volume"));
+    });
+
     m_summary = new QLabel(this);
     m_summary->setWordWrap(true);
     m_summary->setEnabled(false); // grayed: information, not a control
@@ -194,6 +202,7 @@ MusicPanel::MusicPanel(QWidget *parent)
     allForm->addRow(tr("Fade:"), m_fadeSpin);
     allForm->addRow(tr("Video sound:"), videoRow);
     allForm->addRow(tr("Music:"), musicRow);
+    allForm->addRow(QString(), m_duckingCheck);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_list, 1);
@@ -229,6 +238,7 @@ void MusicPanel::setSoundtrack(const Soundtrack &soundtrack)
     m_videoMute->setChecked(soundtrack.videoMuted);
     m_musicSlider->setValue(soundtrack.musicVolume);
     m_musicMute->setChecked(soundtrack.musicMuted);
+    m_duckingCheck->setChecked(soundtrack.ducking);
     m_updating = false;
     refreshList();
     // only the numbers beside the sliders: showing a soundtrack edits nothing
@@ -268,6 +278,7 @@ Soundtrack MusicPanel::shown() const
     soundtrack.videoMuted = m_videoMute->isChecked();
     soundtrack.musicVolume = m_musicSlider->value();
     soundtrack.musicMuted = m_musicMute->isChecked();
+    soundtrack.ducking = m_duckingCheck->isChecked();
     return soundtrack;
 }
 

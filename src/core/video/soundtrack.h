@@ -42,6 +42,8 @@ struct Soundtrack
     int musicVolume{100};   // %
     bool videoMuted{false};
     bool musicMuted{false};
+    // the music lowered while the camera's sound is loud: talk, an engine
+    bool ducking{false};
 
     // Something of the music is heard: a track with something left to play, not turned down.
     bool hasMusic() const
@@ -72,7 +74,8 @@ struct Soundtrack
     bool operator==(const Soundtrack &other) const
     {
         return tracks == other.tracks && start == other.start && fade == other.fade && videoVolume == other.videoVolume
-               && musicVolume == other.musicVolume && videoMuted == other.videoMuted && musicMuted == other.musicMuted;
+               && musicVolume == other.musicVolume && videoMuted == other.videoMuted && musicMuted == other.musicMuted
+               && ducking == other.ducking;
     }
     bool operator!=(const Soundtrack &other) const { return !(*this == other); }
 };

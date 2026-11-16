@@ -255,7 +255,16 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                 {
                     graph += QString(";%1volume=%2,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo%3")
                              .arg(videoAudio).arg(soundtrack.videoGain(), 0, 'f', 3).arg(musicGraph.isEmpty() ? mixOut : "[vs]");
-                    if (!musicGraph.isEmpty())
+                    if (!musicGraph.isEmpty() && soundtrack.ducking)
+                        {
+                            // the camera's sound, as loud as it is set, presses the music down
+                            // while it is loud (about 10 dB at a usual level; a quiet camera not
+                            // at all) and lets it back up within a second
+                            graph += ";[vs]asplit=2[vsm][vsk];" + musicGraph
+                                     + ";[mus][vsk]sidechaincompress=threshold=0.02:ratio=6:attack=50:release=800[mud]"
+                                     ";[vsm][mud]amix=inputs=2:duration=first:dropout_transition=0:normalize=0" + mixOut;
+                        }
+                    else if (!musicGraph.isEmpty())
                         {
                             // as long as the video's sound; both at the volume set, not halved
                             graph += ";" + musicGraph + ";[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0" + mixOut;

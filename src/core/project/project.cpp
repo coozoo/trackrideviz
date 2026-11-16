@@ -170,6 +170,7 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {"musicVolume", soundtrack.musicVolume},
                 {"videoMuted", soundtrack.videoMuted},
                 {"musicMuted", soundtrack.musicMuted},
+                {"ducking", soundtrack.ducking},
             };
         }
     if (!project.sectors.isEmpty())
@@ -306,6 +307,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             soundtrack.musicVolume = std::clamp(music.value("musicVolume").toInt(100), 0, Soundtrack::kMaxVolume);
             soundtrack.videoMuted = music.value("videoMuted").toBool();
             soundtrack.musicMuted = music.value("musicMuted").toBool();
+            soundtrack.ducking = music.value("ducking").toBool();
         }
     if (root.contains("wind"))
         {

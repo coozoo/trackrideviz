@@ -334,7 +334,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Opus and Vorbis sound (in MKV), and its bitrate
 - ✅ Export profiles: YouTube upload, small file (HEVC + Opus in MKV), like the video, and one's own
 
-Not done: lowering the music while the camera is loud (ducking); AV1 encoders; volumes above 100 %.
+Since (2026-11-16): the music lowered while the camera is loud (ducking, in the export); AV1
+encoders, preferred by the Small file profile; volumes up to 200 %, held under full scale by a limiter;
+the automatic end of a fixed dial following the highest value held for a second, not a GPS spike.
 
 ## M7 — Polish and distribution
 - Export backend B (in-process libav) if/when needed; export queue (done: the gauges alone with transparency)

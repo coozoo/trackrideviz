@@ -4377,23 +4377,34 @@ It appears among the templates in the library.</source>
     </message>
     <message>
         <location filename="../src/musicpanel.cpp" line="164"/>
-        <location filename="../src/musicpanel.cpp" line="569"/>
-        <location filename="../src/musicpanel.cpp" line="574"/>
+        <location filename="../src/musicpanel.cpp" line="183"/>
+        <location filename="../src/musicpanel.cpp" line="580"/>
+        <location filename="../src/musicpanel.cpp" line="585"/>
         <source>Change the volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="513"/>
+        <location filename="../src/musicpanel.cpp" line="178"/>
+        <source>Quieter while the camera is loud</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="179"/>
+        <source>The music gives way to talk or an engine the camera recorded. Heard in the export; the preview plays the music as it is.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/musicpanel.cpp" line="524"/>
         <source>Selected track: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="514"/>
+        <location filename="../src/musicpanel.cpp" line="525"/>
         <source>Selected track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="185"/>
+        <location filename="../src/musicpanel.cpp" line="193"/>
         <source>Play:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4408,48 +4419,48 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="186"/>
+        <location filename="../src/musicpanel.cpp" line="194"/>
         <source>All tracks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="193"/>
+        <location filename="../src/musicpanel.cpp" line="201"/>
         <source>Begins at:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="194"/>
+        <location filename="../src/musicpanel.cpp" line="202"/>
         <source>Fade:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="195"/>
+        <location filename="../src/musicpanel.cpp" line="203"/>
         <source>Video sound:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="196"/>
+        <location filename="../src/musicpanel.cpp" line="204"/>
         <source>Music:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="302"/>
+        <location filename="../src/musicpanel.cpp" line="313"/>
         <source>(missing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="331"/>
-        <location filename="../src/musicpanel.cpp" line="346"/>
+        <location filename="../src/musicpanel.cpp" line="342"/>
+        <location filename="../src/musicpanel.cpp" line="357"/>
         <source>Reading the music...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="332"/>
+        <location filename="../src/musicpanel.cpp" line="343"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="335"/>
+        <location filename="../src/musicpanel.cpp" line="346"/>
         <source>%n track(s), %1 of music.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -4457,29 +4468,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="342"/>
+        <location filename="../src/musicpanel.cpp" line="353"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="354"/>
-        <location filename="../src/musicpanel.cpp" line="382"/>
+        <location filename="../src/musicpanel.cpp" line="365"/>
+        <location filename="../src/musicpanel.cpp" line="393"/>
         <source>Add music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="417"/>
+        <location filename="../src/musicpanel.cpp" line="428"/>
         <source>Remove music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="442"/>
-        <location filename="../src/musicpanel.cpp" line="490"/>
+        <location filename="../src/musicpanel.cpp" line="453"/>
+        <location filename="../src/musicpanel.cpp" line="501"/>
         <source>Reorder music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="553"/>
+        <location filename="../src/musicpanel.cpp" line="564"/>
         <source>Trim music</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4487,27 +4498,27 @@ It appears among the templates in the library.</source>
 <context>
     <name>ProjectFile</name>
     <message>
-        <location filename="../src/core/project/project.cpp" line="216"/>
+        <location filename="../src/core/project/project.cpp" line="217"/>
         <source>This is not a project file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="221"/>
+        <location filename="../src/core/project/project.cpp" line="222"/>
         <source>This is not a Race Track Visualizer project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="225"/>
+        <location filename="../src/core/project/project.cpp" line="226"/>
         <source>The project was saved by a newer version of the program (file version %1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="373"/>
+        <location filename="../src/core/project/project.cpp" line="375"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="387"/>
+        <location filename="../src/core/project/project.cpp" line="389"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>

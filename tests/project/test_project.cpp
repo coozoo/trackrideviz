@@ -252,6 +252,7 @@ private slots:
         project.soundtrack.videoVolume = 40;
         project.soundtrack.musicVolume = 180;
         project.soundtrack.musicMuted = true;
+        project.soundtrack.ducking = true;
         const QByteArray json = ProjectFile::toJson(project, "/rides/2025");
         const QJsonObject music = QJsonDocument::fromJson(json).object().value("music").toObject();
         // inside the project's folder: relative; elsewhere: as it is

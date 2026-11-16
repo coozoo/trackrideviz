@@ -504,6 +504,15 @@ private slots:
         QVERIFY2(graph.endsWith("normalize=0[am];[am]alimiter=limit=0.97:level=0[a]"), qPrintable(graph));
         soundtrack.videoVolume = 50;
 
+        // the music giving way to the camera's sound, which is heard as it is
+        soundtrack.ducking = true;
+        graph = valueOf(ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {}, soundtrack).arguments,
+                        "-filter_complex");
+        QVERIFY2(graph.contains(";[vs]asplit=2[vsm][vsk];"), qPrintable(graph));
+        QVERIFY2(graph.contains("[mus][vsk]sidechaincompress="), qPrintable(graph));
+        QVERIFY2(graph.endsWith("[vsm][mud]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]"), qPrintable(graph));
+        soundtrack.ducking = false;
+
         // an export from 8 s: three seconds of the music are gone already
         settings.start = 8.0;
         settings.duration = 10.0;
