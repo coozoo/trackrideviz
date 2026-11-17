@@ -22,6 +22,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QFormLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
@@ -32,6 +33,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSet>
 #include <QSettings>
 #include <QShortcut>
 #include <QSignalBlocker>
@@ -47,6 +49,11 @@
 
 namespace
 {
+enum AlignHow
+{
+    AlignLefts, AlignCenters, AlignRights, AlignTops, AlignMiddles, AlignBottoms, SpreadAcross, SpreadDown
+};
+
 enum PartKind
 {
     ValueText, LabelText, FixedTextPart, Picture, RectanglePart, EllipsePart, ArcPart, LinePart,
@@ -295,8 +302,11 @@ public:
     double time{0.0};
     // the part picked, when the frame around it can be drawn (its place is in the gauge's units)
     std::function<GaugeComponent *()> framed;
-    // picks the part under a point of the gauge; false when there is none
-    std::function<bool(const QPointF &)> pick;
+    // the other parts picked with it, framed too and moved along with it
+    std::function<QVector<GaugeComponent *>()> alsoFramed;
+    // picks the part under a point of the gauge (`add`: to those picked, or taken off them);
+    // false when there is none
+    std::function<bool(const QPointF &, bool add)> pick;
     std::function<void()> edited;     // while dragging
     std::function<void()> finished;   // the drag is over, or a key moved the part
     // the edges and middles a part being moved is drawn to: those of the other parts and of the gauge
@@ -340,6 +350,12 @@ protected:
                         painter.setPen(Qt::black);
                         painter.drawRect(handleOf(bounds));
                     }
+                painter.setBrush(Qt::NoBrush);
+                painter.setPen(QPen(QColor(90, 200, 255), 1, Qt::DashLine));
+                for (const GaugeComponent *other : alsoFramed ? alsoFramed() : QVector<GaugeComponent *>())
+                    {
+                        painter.drawRect(toWidget(boundsOf(*other)));
+                    }
             }
         // what the part being moved is held by
         painter.setPen(QPen(QColor(255, 90, 200), 1, Qt::DashLine));
@@ -368,7 +384,7 @@ protected:
             {
                 m_drag = Size;
             }
-        else if (pick && pick(at))
+        else if (pick && pick(at, event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier)))
             {
                 m_drag = Move;
             }
@@ -418,6 +434,7 @@ protected:
         if (m_drag == Move)
             {
                 moveBy(*part, delta);
+                moveOthers(delta);
             }
         else
             {
@@ -468,6 +485,7 @@ protected:
         if (part)
             {
                 moveBy(*part, delta);
+                moveOthers(delta);
                 if (finished)
                     {
                         finished();
@@ -477,6 +495,14 @@ protected:
 
 private:
     enum Drag { None, Move, Size };
+
+    void moveOthers(const QPointF &delta)
+    {
+        for (GaugeComponent *other : alsoFramed ? alsoFramed() : QVector<GaugeComponent *>())
+            {
+                moveBy(*other, delta);
+            }
+    }
 
     static bool sizable(const GaugeComponent &part)
     {
@@ -653,15 +679,19 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     // the parts
     m_tree = new QTreeWidget(this);
     m_tree->setHeaderHidden(true);
-    m_tree->setToolTip(tr("The gauge's parts, drawn from the first to the last: what is lower in the list lies on top"));
-    connect(m_tree, &QTreeWidget::currentItemChanged, this, [this]()
+    m_tree->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_tree->setToolTip(tr("The gauge's parts, drawn from the first to the last: what is lower in the list lies on top. "
+                          "Ctrl or Shift picks several, to line them up."));
+    const auto pickChanged = [this]()
     {
         if (!m_filling)
             {
                 fillProperties();
                 m_canvas->update();
             }
-    });
+    };
+    connect(m_tree, &QTreeWidget::currentItemChanged, this, pickChanged);
+    connect(m_tree, &QTreeWidget::itemSelectionChanged, this, pickChanged);
     QToolButton *addButton = new QToolButton(this);
     addButton->setText(tr("Add"));
     addButton->setPopupMode(QToolButton::InstantPopup);
@@ -740,7 +770,16 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
             }
         return selected();
     };
-    m_canvas->pick = [this](const QPointF &at)
+    m_canvas->alsoFramed = [this]()
+    {
+        QVector<GaugeComponent *> parts = pickedParts();
+        if (!parts.isEmpty())
+            {
+                parts.removeFirst();
+            }
+        return parts;
+    };
+    m_canvas->pick = [this](const QPointF &at, bool add)
     {
         // the one in front first
         for (int i = int(m_gauge.components.size()) - 1; i >= 0; --i)
@@ -748,6 +787,7 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
                 const GaugeComponent &part = m_gauge.components.at(i);
                 if (boundsOf(part).adjusted(-2, -2, 2, 2).contains(at))
                     {
+                        Path path{i};
                         // a second click on a group picked already goes into it
                         const Path now = selectedPath();
                         if (part.type == GaugeComponent::Group && !now.isEmpty() && now.first() == i)
@@ -756,12 +796,26 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
                                     {
                                         if (boundsOf(part.children.at(c)).adjusted(-2, -2, 2, 2).contains(at))
                                             {
-                                                select({i, c});
-                                                return true;
+                                                path = {i, c};
+                                                break;
                                             }
                                     }
                             }
-                        select({i});
+                        if (!add || !m_tree->currentItem())
+                            {
+                                select(path);
+                                return true;
+                            }
+                        // with Ctrl or Shift: one more picked, or one taken off those picked
+                        QTreeWidgetItem *item = nullptr;
+                        for (const int index : path)
+                            {
+                                item = item ? item->child(index) : m_tree->topLevelItem(index);
+                            }
+                        if (item && item != m_tree->currentItem())
+                            {
+                                item->setSelected(!item->isSelected());
+                            }
                         return true;
                     }
             }
@@ -770,10 +824,16 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     m_canvas->others = [this]()
     {
         QVector<QRectF> targets{QRectF(QPointF(0, 0), m_gauge.size)};
-        const Path now = selectedPath();
+        // not those being moved: the part picked and the others picked with it
+        QSet<int> moving;
+        for (const QTreeWidgetItem *item : m_tree->selectedItems())
+            {
+                moving.insert(pathOf(item).value(0, -1));
+            }
+        moving.insert(selectedPath().value(0, -1));
         for (int i = 0; i < m_gauge.components.size(); ++i)
             {
-                if (now.isEmpty() || now.first() != i)
+                if (!moving.contains(i))
                     {
                         targets.append(boundsOf(m_gauge.components.at(i)));
                     }
@@ -803,7 +863,8 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     middleLayout->addWidget(m_timeSlider);
     QLabel *hint = new QLabel(tr("Click a part to pick it (again to pick inside a group), drag it to move it, drag its "
                                  "corner to size it. A part being moved is drawn to the edges and middles of the others; "
-                                 "hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten."), middle);
+                                 "hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten. Ctrl+click picks "
+                                 "several, to move them together or line them up."), middle);
     hint->setWordWrap(true);
     middleLayout->addWidget(hint);
 
@@ -974,13 +1035,113 @@ GaugeComponent *GaugeEditor::componentAt(const Path &path)
 
 GaugeEditor::Path GaugeEditor::selectedPath() const
 {
+    return pathOf(m_tree->currentItem());
+}
+
+GaugeEditor::Path GaugeEditor::pathOf(const QTreeWidgetItem *item) const
+{
     Path path;
-    for (const QTreeWidgetItem *item = m_tree->currentItem(); item; item = item->parent())
+    for (; item; item = item->parent())
         {
             path.prepend(item->parent() ? item->parent()->indexOfChild(const_cast<QTreeWidgetItem *>(item))
                          : m_tree->indexOfTopLevelItem(const_cast<QTreeWidgetItem *>(item)));
         }
     return path;
+}
+
+QVector<GaugeComponent *> GaugeEditor::pickedParts()
+{
+    QVector<Path> paths;
+    QList<QTreeWidgetItem *> items = m_tree->selectedItems();
+    if (QTreeWidgetItem *current = m_tree->currentItem(); current && current->isSelected())
+        {
+            items.removeAll(current);
+            items.prepend(current);
+        }
+    for (const QTreeWidgetItem *item : std::as_const(items))
+        {
+            paths.append(pathOf(item));
+        }
+    QVector<GaugeComponent *> parts;
+    for (const Path &path : std::as_const(paths))
+        {
+            // in the gauge's units: nothing but groups above it, none of them picked as well
+            bool placed = componentAt(path) != nullptr;
+            for (Path up = path; placed && up.size() > 1;)
+                {
+                    up.removeLast();
+                    const GaugeComponent *parent = componentAt(up);
+                    placed = parent && parent->type == GaugeComponent::Group && !paths.contains(up);
+                }
+            if (placed)
+                {
+                    parts.append(componentAt(path));
+                }
+        }
+    return parts;
+}
+
+void GaugeEditor::align(int how)
+{
+    const QVector<GaugeComponent *> parts = pickedParts();
+    if (parts.size() < 2)
+        {
+            return;
+        }
+    QRectF all;
+    for (const GaugeComponent *part : parts)
+        {
+            all = all.isNull() ? boundsOf(*part) : all.united(boundsOf(*part));
+        }
+    // spread: the first and the last stay, the middles of the others evenly between theirs
+    QVector<GaugeComponent *> order = parts;
+    const bool across = how == SpreadAcross;
+    if (how == SpreadAcross || how == SpreadDown)
+        {
+            std::sort(order.begin(), order.end(), [across](const GaugeComponent *a, const GaugeComponent *b)
+            {
+                return across ? boundsOf(*a).center().x() < boundsOf(*b).center().x()
+                       : boundsOf(*a).center().y() < boundsOf(*b).center().y();
+            });
+        }
+    const QPointF first = boundsOf(*order.first()).center();
+    const QPointF last = boundsOf(*order.last()).center();
+    for (int i = 0; i < order.size(); ++i)
+        {
+            GaugeComponent *part = order.at(i);
+            const QRectF b = boundsOf(*part);
+            QPointF delta;
+            switch (how)
+                {
+                case AlignLefts:
+                    delta.setX(all.left() - b.left());
+                    break;
+                case AlignCenters:
+                    delta.setX(all.center().x() - b.center().x());
+                    break;
+                case AlignRights:
+                    delta.setX(all.right() - b.right());
+                    break;
+                case AlignTops:
+                    delta.setY(all.top() - b.top());
+                    break;
+                case AlignMiddles:
+                    delta.setY(all.center().y() - b.center().y());
+                    break;
+                case AlignBottoms:
+                    delta.setY(all.bottom() - b.bottom());
+                    break;
+                case SpreadAcross:
+                    delta.setX(first.x() + (last.x() - first.x()) * i / (order.size() - 1) - b.center().x());
+                    break;
+                case SpreadDown:
+                    delta.setY(first.y() + (last.y() - first.y()) * i / (order.size() - 1) - b.center().y());
+                    break;
+                }
+            // whole units: gauges are drawn on a grid of them
+            moveBy(*part, QPointF(std::round(delta.x()), std::round(delta.y())));
+        }
+    changed();
 }
 
 GaugeComponent *GaugeEditor::selected()
@@ -1827,6 +1988,34 @@ void GaugeEditor::fillProperties()
                         }
                 }
             delete item;
+        }
+    const QVector<GaugeComponent *> several = pickedParts();
+    if (several.size() >= 2)
+        {
+            QLabel *heading = new QLabel(QString("<b>%1</b>").arg(tr("%n parts picked", nullptr, int(several.size()))),
+                                         m_properties);
+            m_propertiesLayout->addWidget(heading);
+            QGridLayout *grid = new QGridLayout;
+            const QVector<QPair<QString, int>> ways
+            {
+                {tr("Left edges"), AlignLefts}, {tr("Centers"), AlignCenters}, {tr("Right edges"), AlignRights},
+                {tr("Tops"), AlignTops}, {tr("Middles"), AlignMiddles}, {tr("Bottoms"), AlignBottoms},
+                {tr("Spread across"), SpreadAcross}, {tr("Spread down"), SpreadDown},
+            };
+            for (int i = 0; i < ways.size(); ++i)
+                {
+                    QPushButton *button = new QPushButton(ways.at(i).first, m_properties);
+                    const int how = ways.at(i).second;
+                    connect(button, &QPushButton::clicked, this, [this, how]() { align(how); });
+                    grid->addWidget(button, i / 3, i % 3);
+                }
+            m_propertiesLayout->addLayout(grid);
+            QLabel *hint = new QLabel(tr("Lined up with the ones furthest out; spread: the first and the last stay where they "
+                                         "are, the others go evenly between them. Dragging one moves them all."), m_properties);
+            hint->setWordWrap(true);
+            m_propertiesLayout->addWidget(hint);
+            m_propertiesLayout->addStretch(1);
+            return;
         }
     const Part *picked = selected();
     if (!picked)

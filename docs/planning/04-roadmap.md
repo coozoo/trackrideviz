@@ -351,7 +351,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   closed and filled as polygons ("filled" on a line in gauge.json); a text in a box, wrapped at its width
 - ✅ Editor (2026-11-17): a graph's markers on its top and left edges and a lap map's start line, each a list
   under a heading of its own below the part (what is drawn at the current point under a third)
-- Editor, still to do: aligning several parts
+- ✅ Editor (2026-11-17): several parts picked (Ctrl or Shift, in the list or on the picture), moved together
+  and lined up: left edges, centers, right edges, tops, middles, bottoms, spread evenly across or down
 - Path shapes
 - ✅ Lap table and sector bar (2026-11-17, gauge parts `lapTable` and `sectorBar`; gauges Lap table and
   Sector bar; in the editor). The table: the last laps finished and the one under way, number, time and
