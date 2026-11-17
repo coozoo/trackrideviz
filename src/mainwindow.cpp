@@ -1286,9 +1286,13 @@ void MainWindow::addGauge(const QString &gaugeId)
     item.channel = GaugeLibrary::defaultChannel(gauge, m_session ? m_session->channelIds() : QStringList());
     // near the middle, each new one a little further down right so they do not hide each other
     const double step = 0.03 * (m_project.overlay.size() % 8);
-    item.height = 0.25;
-    item.x = 0.35 + step;
-    item.y = 0.3 + step;
+    // a quarter of the picture's height, a wide gauge (a sector bar) no wider than about half of it
+    const double picture = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
+    const double shape = gauge.size.width() / gauge.size.height();
+    item.height = std::min(0.25, 0.45 * picture / shape);
+    const double width = item.height * shape / picture;
+    item.x = std::min(0.35 + step, 1.0 - width);
+    item.y = std::min(0.3 + step, 1.0 - item.height);
 
     OverlayState after{m_project.overlay, m_project.theme};
     after.items.append(item);
