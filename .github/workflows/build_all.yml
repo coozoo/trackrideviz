@@ -244,7 +244,7 @@ jobs:
           asset_content_type: application/octet-stream
       - name: Archive Linux AppImage
         if: matrix.config.os == 'ubuntu-22.04' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_lin == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: Race_Track_Visualizer-x86_64.AppImage
           path: ./Race_Track_Visualizer-x86_64.AppImage
@@ -297,14 +297,14 @@ jobs:
           asset_content_type: application/zip
       - name: Archive macOS zip
         if: matrix.config.os == 'macos-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_mac_zip == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildosx.outputs.APP_NAME }}_${{ steps.buildosx.outputs.VER_TAG_NAME }}.zip
           path: ./${{ steps.bundleosx.outputs.MAC_ZIP_NAME }}
           overwrite: true
       - name: Archive macOS dmg
         if: matrix.config.os == 'macos-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_mac_dmg == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildosx.outputs.APP_NAME }}_${{ steps.buildosx.outputs.VER_TAG_NAME }}.dmg
           path: ./${{ steps.bundleosx.outputs.MAC_DMG_NAME }}
@@ -401,7 +401,7 @@ jobs:
           asset_content_type: application/zip
       - name: Archive Win64 zip
         if: matrix.config.os == 'windows-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_win == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip

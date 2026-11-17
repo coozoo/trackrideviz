@@ -27,6 +27,17 @@ today.
 > others), whole or close up around the rider, and a missing or poor elevation taken from a terrain
 > model. See the [roadmap](docs/planning/04-roadmap.md).
 
+## Support Ukraine
+
+🇺🇦 Ukraine is fighting for its independence against an empire: russia's full-scale invasion, begun
+in 2022. If this program is useful to you, please consider helping Ukraine's defenders through
+[Come Back Alive](https://savelife.in.ua/en/donate-en/#donate-army-card-once), one of the
+largest and most trusted foundations supporting them.
+
+The program links to this section rather than to a fund directly: a link inside a binary can
+be swapped for a fake one by whoever repackages it, while this page is public and its history
+can be checked.
+
 ## Planned features
 
 - Open a video and get its telemetry automatically (embedded GoPro data, or a `.fit` / `.gpx` next to it)
@@ -95,16 +106,87 @@ docs/planning/               design documents and roadmap
 debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 ```
 
-## Support Ukraine
+## Contributing
 
-🇺🇦 Ukraine is fighting for its independence against an empire: russia's full-scale invasion, begun
-in 2022. If this program is useful to you, please consider helping Ukraine's defenders through
-[Come Back Alive](https://savelife.in.ua/en/donate-en/#donate-army-card-once), one of the
-largest and most trusted foundations supporting them.
+Patches are welcome. A few rules of this project that are easy to miss.
 
-The program links to this section rather than to a fund directly: a link inside a binary can
-be swapped for a fake one by whoever repackages it, while this page is public and its history
-can be checked.
+### Send pull requests to `slave`, not `main`
+
+`slave` is the integration branch: work is collected there and `main` only ever receives merges
+from it. Every push to `main` builds a release, so nothing lands there untested. Branch off
+`slave`:
+
+```bash
+git remote add upstream https://github.com/coozoo/trackrideviz.git
+git fetch upstream
+git switch -c my-fix upstream/slave
+```
+
+If you already branched off `main`, rebase instead of only switching the base in the GitHub UI,
+which would drag `main`'s merge commits into `slave`:
+
+```bash
+git rebase --onto upstream/slave upstream/main my-fix
+git push --force-with-lease
+```
+
+Set the base to `slave` *before* you push. Changing the base afterwards fires a `pull_request`
+event of type `edited`, which does not start the build; push once more to start it.
+
+### Build tags
+
+A push to `slave` or a pull request against it builds every platform, kept as workflow artifacts
+rather than a release. Tags in the last commit message (or in the PR title or description) build
+only some:
+
+| Tag | Builds |
+|---|---|
+| `[build linux]` | Linux: the AppImage (the .deb is built too, but kept only in a release) |
+| `[build win]` | the Windows zip |
+| `[build mac]` | the macOS .dmg (same as `[build mac dmg]`) |
+| `[build mac zip]` | the macOS .zip |
+| `[skip ci]` | nothing |
+
+### It has to build with Qt 6.2
+
+The Linux packages are built on Ubuntu 22.04 with its own Qt 6.2, so that they run on every
+system still in use and on all newer ones. Use nothing newer than Qt 6.2's API, and keep in
+mind that Qt 6.2 plays video through GStreamer, Qt 6.4 and later through FFmpeg.
+
+### One concern per pull request
+
+Please don't bundle build-configuration changes with a fix. In particular leave the release
+logging default alone:
+
+```qmake
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+```
+
+For `qDebug()` output while working on something, build in debug mode instead
+(`qmake6 CONFIG+=debug`).
+
+### Text and translations
+
+Text in the program and the repository is in American English. New strings go through `tr()`;
+update the `.ts` files with Qt 6's lupdate (see [Translations](#translations)). The Ukrainian
+translation is kept complete: translate your strings, or say in the PR that you could not.
+
+### Run the tests before submitting
+
+CI does not run them, so please do (see [Build](#build)), and say in the PR on which platforms
+you tried the change.
+
+### Keep the PR description in sync
+
+GitHub does not rewrite a pull request's description when you force-push. If you drop or change
+part of your work, edit the description too.
+
+### If you are contributing from a fork
+
+- The first pull request of a new contributor waits for a maintainer to approve its workflow
+  run. This is normal.
+- Pull requests from forks get no repository secrets, so steps that publish can fail for reasons
+  that have nothing to do with your patch.
 
 ## Author
 
