@@ -407,11 +407,13 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     LibraryList *list = new LibraryList(this);
     list->showingTemplates = [this]() { return showingTemplates(); };
     m_list = list;
-    m_list->setDragEnabled(true);
-    m_list->setDragDropMode(QAbstractItemView::DragOnly);
     m_list->setViewMode(QListView::IconMode);
     m_list->setResizeMode(QListView::Adjust);
     m_list->setMovement(QListView::Static);
+    // after the movement, which switches dragging off when static; copied out, never moved away
+    m_list->setDragEnabled(true);
+    m_list->setDragDropMode(QAbstractItemView::DragOnly);
+    m_list->setDefaultDropAction(Qt::CopyAction);
     m_list->setWordWrap(true);
     connect(m_list, &QListWidget::itemDoubleClicked, this, &GaugeLibraryPanel::useSelected);
     connect(m_list, &QListWidget::itemSelectionChanged, this, &GaugeLibraryPanel::updateButtons);

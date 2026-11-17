@@ -727,13 +727,16 @@ void VideoCanvas::dragEnterEvent(QDragEnterEvent *event)
     const QMimeData *data = event->mimeData();
     if (data->hasFormat(LibraryDrag::GaugeMime) || data->hasFormat(LibraryDrag::TemplateMime))
         {
-            event->acceptProposedAction();
+            // a copy: the library keeps what was dragged out of it
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
         }
 }
 
 void VideoCanvas::dragMoveEvent(QDragMoveEvent *event)
 {
-    event->acceptProposedAction();
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
 }
 
 void VideoCanvas::dropEvent(QDropEvent *event)
@@ -756,6 +759,7 @@ void VideoCanvas::dropEvent(QDropEvent *event)
         {
             return;
         }
-    event->acceptProposedAction();
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
     setFocus();
 }
