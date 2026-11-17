@@ -2370,6 +2370,129 @@ private slots:
 
     // --- XML gauges -----------------------------------------------------------
 
+    // Three laps of 60, 50 and 70 s from 10 s, then a fourth under way to the end at 300 s.
+    // With sectors: 20, 20, 20 s; 18, 22, 10 s; 25, 25, 20 s, and 15 s of the fourth's first.
+    static TelemetrySessionPtr lapSession(bool sectors)
+    {
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+        speed.append(0.0, 10.0);
+        speed.append(300.0, 10.0);
+        session->setLaps({{10.0, 70.0, sectors ? QVector<double>{30.0, 50.0} : QVector<double>{}},
+                          {70.0, 120.0, sectors ? QVector<double>{88.0, 110.0} : QVector<double>{}},
+                          {120.0, 190.0, sectors ? QVector<double>{145.0, 170.0} : QVector<double>{}}});
+        Channel &lap = session->channelForWriting(ChannelId::Lap, QString(), Channel::Step);
+        for (const double start : {10.0, 70.0, 120.0, 190.0})
+            {
+                lap.append(start, lap.count() + 1);
+            }
+        if (sectors)
+            {
+                Channel &sector = session->channelForWriting(ChannelId::Sector, QString(), Channel::Step);
+                sector.append(190.0, 1);
+                sector.append(205.0, 2);
+            }
+        return session;
+    }
+
+    static bool hasColor(const QImage &image, const QRect &area, QRgb color)
+    {
+        for (int y = area.top(); y <= area.bottom(); ++y)
+            {
+                for (int x = area.left(); x <= area.right(); ++x)
+                    {
+                        const QRgb p = image.pixel(x, y);
+                        if (qAlpha(p) > 128 && std::abs(qRed(p) - qRed(color)) < 60 && std::abs(qBlue(p) - qBlue(color)) < 60)
+                            {
+                                return true;
+                            }
+                    }
+            }
+        return false;
+    }
+
+    void lapTableShowsTheLapsSoFar()
+    {
+        GaugeComponent table;
+        table.type = GaugeComponent::LapTable;
+        table.frame = QRectF(0, 0, 100, 90);
+        table.rows = 3;
+        table.fontSize = 14;
+        table.color = GaugeColor{GaugeColor::Custom, Qt::red};
+        table.activeColor = GaugeColor{GaugeColor::Custom, Qt::blue};
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(table);
+        const TelemetrySessionPtr session = lapSession(false);
+        const QRect first(0, 0, 100, 30), second(0, 30, 100, 30), third(0, 60, 100, 30);
+
+        // the first lap under way, alone
+        QImage image = draw(gauge, 40.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, first, qRgb(255, 0, 0)));
+        QCOMPARE(paintedPixels(image.copy(second)) + paintedPixels(image.copy(third)), 0);
+
+        // two finished, the second the best, and the third under way
+        image = draw(gauge, 130.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, first, qRgb(255, 0, 0)));
+        QVERIFY(!hasColor(image, first, qRgb(0, 0, 255)));
+        QVERIFY(hasColor(image, second, qRgb(0, 0, 255)));
+        QVERIFY(!hasColor(image, second, qRgb(255, 0, 0)));
+        QVERIFY(hasColor(image, third, qRgb(255, 0, 0)));
+
+        // four laps, three lines: the first scrolled away, the lap under way at the bottom
+        image = draw(gauge, 250.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, first, qRgb(0, 0, 255)));
+        QVERIFY(hasColor(image, second, qRgb(255, 0, 0)));
+        QVERIFY(hasColor(image, third, qRgb(255, 0, 0)));
+
+        // kept in the file
+        Gauge back;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &back));
+        QCOMPARE(back.components.first().type, GaugeComponent::LapTable);
+        QCOMPARE(back.components.first().rows, 3);
+        QCOMPARE(back.components.first().activeColor, table.activeColor);
+    }
+
+    void sectorBarComparesWithTheBest()
+    {
+        GaugeComponent bar;
+        bar.type = GaugeComponent::SectorBar;
+        bar.frame = QRectF(0, 0, 90, 30);
+        bar.color = GaugeColor{GaugeColor::Custom, Qt::red};
+        bar.activeColor = GaugeColor{GaugeColor::Custom, Qt::blue};
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(bar);
+        const TelemetrySessionPtr session = lapSession(true);
+        const auto alphaAt = [](const QImage &image, int x) { return qAlpha(image.pixel(x, 15)); };
+
+        // the first lap's first sector: nothing to beat, so the best
+        QImage image = draw(gauge, 40.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(0, 0, 255)));
+        // the second sector being driven, with no best to fill up against
+        QVERIFY(alphaAt(image, 45) < 100);
+
+        // the second lap: 18 s beat 20 s; the second sector 12 s into the best 20 s of it
+        image = draw(gauge, 100.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(0, 0, 255)));
+        QVERIFY(alphaAt(image, 40) > 128);
+        QVERIFY(alphaAt(image, 55) < 100);
+        QVERIFY(alphaAt(image, 75) < 100);
+
+        // the third lap: 25 s against 18 s, 25 s against 20 s, slower both
+        image = draw(gauge, 175.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(255, 0, 0)));
+        QVERIFY(hasColor(image, QRect(45, 15, 1, 1), qRgb(255, 0, 0)));
+
+        // the lap under way: its first sector of 15 s the best
+        image = draw(gauge, 210.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(0, 0, 255)));
+
+        // without sector lines: empty segments
+        image = draw(gauge, 100.0, ChannelId::Speed, lapSession(false));
+        QVERIFY(alphaAt(image, 15) > 0 && alphaAt(image, 15) < 100);
+    }
+
     void xmlChannels()
     {
         QString unit;

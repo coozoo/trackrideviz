@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <limits>
 #include <unordered_map>
 
 namespace
@@ -547,6 +548,7 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
         }
     metricFor(QString(), units); // index 0: the bound channel
     m_nodes = bindAll(gauge.components, units, theme);
+    prepareLaps();
     // scales can be set only now that every marking has been counted
     // Where the scale of the bound channel ends: where the user chose, or, for a dial that draws
     // numbers fixed when it was made (an imported 0-160 speedometer), a round number above the
@@ -860,7 +862,8 @@ BoundGauge::Node BoundGauge::bind(const GaugeComponent &component, const Units &
                     node.gradient = themeColor(component.gradientColor, theme);
                 }
         }
-    if (component.type == GaugeComponent::Gears)
+    if (component.type == GaugeComponent::Gears || component.type == GaugeComponent::LapTable
+            || component.type == GaugeComponent::SectorBar)
         {
             node.markerColor = themeColor(component.activeColor, theme);
         }
@@ -1446,6 +1449,12 @@ void BoundGauge::draw(QPainter &painter, const Node &node, double time, const Co
             break;
         case GaugeComponent::Gears:
             drawGears(painter, node, time);
+            break;
+        case GaugeComponent::LapTable:
+            drawLapTable(painter, node, time);
+            break;
+        case GaugeComponent::SectorBar:
+            drawSectorBar(painter, node, time);
             break;
         case GaugeComponent::Group:
             for (const Node &child : node.children)
@@ -2193,5 +2202,174 @@ void BoundGauge::drawTape(QPainter &painter, const Node &node, bool known, doubl
                     painter.drawLine(QPointF(origin.x(), origin.y() + middle), QPointF(origin.x() + s.markerLength, origin.y() + middle));
                     break;
                 }
+        }
+}
+
+void BoundGauge::prepareLaps()
+{
+    if (!m_session)
+        {
+            return;
+        }
+    QVector<TelemetrySession::Lap> laps = m_session->laps();
+    std::sort(laps.begin(), laps.end(), [](const TelemetrySession::Lap &a, const TelemetrySession::Lap &b)
+    {
+        return a.startTime < b.startTime;
+    });
+    for (const TelemetrySession::Lap &lap : std::as_const(laps))
+        {
+            if (lap.endTime > lap.startTime)
+                {
+                    m_laps.append({int(m_laps.size()) + 1, lap.startTime, lap.endTime, true, lap.splits});
+                }
+        }
+    // the lap under way at the end has a number but is not among the finished ones
+    const Channel *number = m_session->channel(ChannelId::Lap);
+    if (number && !number->isEmpty() && int(number->valueAtIndex(number->count() - 1)) == m_laps.size() + 1)
+        {
+            LapSpan open{int(m_laps.size()) + 1, number->timeAt(number->count() - 1), m_session->duration(), false, {}};
+            // its sectors so far: where the sector number went up
+            if (const Channel *sector = m_session->channel(ChannelId::Sector))
+                {
+                    for (int i = 0; i < sector->count(); ++i)
+                        {
+                            if (sector->timeAt(i) > open.start && sector->valueAtIndex(i) > 1.0)
+                                {
+                                    open.splits.append(sector->timeAt(i));
+                                }
+                        }
+                }
+            if (open.end > open.start)
+                {
+                    m_laps.append(open);
+                }
+        }
+    for (const LapSpan &lap : std::as_const(m_laps))
+        {
+            if (lap.finished && !lap.splits.isEmpty())
+                {
+                    m_sectors = std::max(m_sectors, int(lap.splits.size()) + 1);
+                }
+        }
+}
+
+void BoundGauge::drawLapTable(QPainter &painter, const Node &node, double time) const
+{
+    const GaugeComponent &component = node.component;
+    // the laps there are by `time`: those finished, the fastest of them, and the one under way
+    QVector<int> shown;
+    int best = -1;
+    for (int i = 0; i < m_laps.size() && m_laps.at(i).start <= time; ++i)
+        {
+            const LapSpan &lap = m_laps.at(i);
+            const bool done = lap.finished && lap.end <= time;
+            if (done && (best < 0 || lap.end - lap.start < m_laps.at(best).end - m_laps.at(best).start))
+                {
+                    best = i;
+                }
+            if (done || time < lap.end)
+                {
+                    shown.append(i);
+                }
+        }
+    const int rows = std::max(1, component.rows);
+    if (shown.size() > rows)
+        {
+            shown.remove(0, shown.size() - rows);
+        }
+    const int decimals = component.precision >= 0 ? component.precision : 2;
+    const QRectF frame = component.frame;
+    const double rowHeight = frame.height() / rows;
+    painter.setFont(fontOf(painter, component, m_theme));
+    for (int row = 0; row < shown.size(); ++row)
+        {
+            const LapSpan &lap = m_laps.at(shown.at(row));
+            const bool done = lap.finished && lap.end <= time;
+            const double duration = (done ? lap.end : time) - lap.start;
+            const double middle = frame.top() + rowHeight * (row + 0.5);
+            painter.setPen(shown.at(row) == best ? node.markerColor : node.color);
+            drawAnchored(painter, QString::number(lap.number), QPointF(frame.left(), middle), Qt::AlignLeft | Qt::AlignVCenter);
+            drawAnchored(painter, durationText(duration, done ? decimals : std::min(decimals, 1)),
+                         QPointF(frame.left() + frame.width() * 0.62, middle), Qt::AlignRight | Qt::AlignVCenter);
+            if (done && best >= 0 && shown.at(row) != best)
+                {
+                    const double behind = duration - (m_laps.at(best).end - m_laps.at(best).start);
+                    drawAnchored(painter, '+' + QString::number(behind, 'f', decimals), QPointF(frame.right(), middle),
+                                 Qt::AlignRight | Qt::AlignVCenter);
+                }
+        }
+}
+
+void BoundGauge::drawSectorBar(QPainter &painter, const Node &node, double time) const
+{
+    const GaugeComponent &component = node.component;
+    // without sector lines the bar waits, empty, for them
+    const int count = m_sectors > 0 ? m_sectors : 3;
+    const QRectF frame = component.frame;
+    const double gap = std::clamp(component.padding, 0.0, frame.width() / count);
+    const double width = (frame.width() - gap * (count - 1)) / count;
+    const auto segment = [&](int k, double fraction)
+    {
+        return QRectF(frame.left() + k * (width + gap), frame.top(), width * fraction, frame.height());
+    };
+    QColor idle = node.color;
+    idle.setAlphaF(idle.alphaF() * 0.25);
+    painter.setPen(Qt::NoPen);
+    const double corner = std::min(component.cornerRadius, std::min(width, frame.height()) / 2.0);
+    const auto fill = [&](const QRectF &rect, const QColor &color)
+    {
+        painter.setBrush(color);
+        painter.drawRoundedRect(rect, corner, corner);
+    };
+    for (int k = 0; k < count; ++k)
+        {
+            fill(segment(k, 1.0), idle);
+        }
+    // the lap under way at `time`, when it has its sectors
+    int current = -1;
+    for (int i = 0; i < m_laps.size(); ++i)
+        {
+            if (m_laps.at(i).start <= time && time < m_laps.at(i).end)
+                {
+                    current = i;
+                }
+        }
+    if (current < 0 || m_sectors == 0 || (m_laps.at(current).finished && m_laps.at(current).splits.isEmpty()))
+        {
+            return;
+        }
+    const LapSpan &lap = m_laps.at(current);
+    const QVector<double> bounds = QVector<double>{lap.start} + lap.splits + QVector<double>{lap.end};
+    // the best of sector k in the finished laps before this one
+    const auto bestBefore = [&](int k)
+    {
+        double best = std::numeric_limits<double>::max();
+        for (int i = 0; i < current; ++i)
+            {
+                const LapSpan &earlier = m_laps.at(i);
+                if (earlier.splits.size() + 1 == m_sectors)
+                    {
+                        const QVector<double> b = QVector<double>{earlier.start} + earlier.splits + QVector<double>{earlier.end};
+                        best = std::min(best, b.at(k + 1) - b.at(k));
+                    }
+            }
+        return best;
+    };
+    for (int k = 0; k < count && k + 1 < bounds.size(); ++k)
+        {
+            const double best = bestBefore(k);
+            if (bounds.at(k + 1) <= time)
+                {
+                    fill(segment(k, 1.0), bounds.at(k + 1) - bounds.at(k) <= best ? node.markerColor : node.color);
+                    continue;
+                }
+            // the sector being driven, against the best of it; the first time round it stays empty
+            if (best < std::numeric_limits<double>::max())
+                {
+                    QColor running = node.color;
+                    running.setAlphaF(running.alphaF() * 0.5);
+                    fill(segment(k, std::clamp((time - bounds.at(k)) / best, 0.0, 1.0)), running);
+                }
+            break;
         }
 }

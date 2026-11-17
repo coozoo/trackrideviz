@@ -168,6 +168,9 @@ private:
     QString clockText(const GaugeComponent &component, double time) const;
     void drawShape(QPainter &painter, const Node &node) const;
     void drawGears(QPainter &painter, const Node &node, double time) const;
+    void prepareLaps();
+    void drawLapTable(QPainter &painter, const Node &node, double time) const;
+    void drawSectorBar(QPainter &painter, const Node &node, double time) const;
     void drawSvg(QPainter &painter, const Node &node) const;
     void drawDial(QPainter &painter, const Node &node) const;
     void drawTape(QPainter &painter, const Node &node, bool known, double value) const;
@@ -212,5 +215,17 @@ private:
     GaugeTheme m_theme;                   // its font, for texts
     QVector<Metric> m_metrics;
     QHash<QString, int> m_metricIndex;
+    // The laps as lap tables and sector bars show them, in order: the finished ones and the
+    // one under way at the end
+    struct LapSpan
+    {
+        int number{0};
+        double start{0.0};
+        double end{0.0};
+        bool finished{false};
+        QVector<double> splits;           // where it crossed the sector lines; empty: no sectors
+    };
+    QVector<LapSpan> m_laps;
+    int m_sectors{0};                     // a lap's sectors; 0 = none
     QVector<Node> m_nodes;
 };

@@ -10,13 +10,15 @@
 #include <QJsonObject>
 #include <QSaveFile>
 
+#include <algorithm>
+
 namespace
 {
 const char kFormat[] = "rtvgauge";
 const int kVersion = 1;
 
 const char *const kComponentTypes[] = {"image", "text", "group", "graph", "trackMap", "lapMap", "shape", "dial", "tape",
-                                       "gears"};
+                                       "gears", "lapTable", "sectorBar"};
 const char *const kAutoTexts[] = {"fixed", "value", "unit", "valueAndUnit", "label", "labelValueUnit", "intervalMarking"};
 const char *const kShapeKinds[] = {"rectangle", "ellipse", "arc", "pie", "line"};
 const char *const kValueFormats[] = {"number", "wholeNumber", "duration", "degreesMinutesSeconds", "clock"};
@@ -461,6 +463,23 @@ QJsonObject componentToJson(const GaugeComponent &c)
             object["activeColor"] = colorToJson(c.activeColor);
             object["lineWidth"] = c.lineWidth;
             break;
+        case GaugeComponent::LapTable:
+            object["activeColor"] = colorToJson(c.activeColor);
+            object["rows"] = c.rows;
+            object["font"] = fontToJson(c);
+            if (c.precision >= 0)
+                {
+                    object["precision"] = c.precision;
+                }
+            break;
+        case GaugeComponent::SectorBar:
+            object["activeColor"] = colorToJson(c.activeColor);
+            object["padding"] = c.padding;
+            if (c.cornerRadius > 0.0)
+                {
+                    object["cornerRadius"] = c.cornerRadius;
+                }
+            break;
         case GaugeComponent::Dial:
         case GaugeComponent::Tape:
             object["scale"] = scaleToJson(c.scale, c.type);
@@ -596,6 +615,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.windowAfter = window.at(1).toDouble();
     c.lineWidth = object.value("lineWidth").toDouble(c.lineWidth);
     c.padding = object.value("padding").toDouble();
+    c.rows = std::max(1, object.value("rows").toInt(c.rows));
     c.tiles = object.value("tiles").toBool();
     c.tileOpacity = object.value("tileOpacity").toDouble(1.0);
     c.span = object.value("span").toDouble();

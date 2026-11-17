@@ -50,7 +50,8 @@ namespace
 enum PartKind
 {
     ValueText, LabelText, FixedTextPart, Picture, RectanglePart, EllipsePart, ArcPart, LinePart,
-    NeedlePart, BarPart, ArcFillPart, DialPart, TapePart, GraphPart, RoutePart, LapRoutePart, GearsPart, GroupPart
+    NeedlePart, BarPart, ArcFillPart, DialPart, TapePart, GraphPart, RoutePart, LapRoutePart, GearsPart, LapTablePart,
+    SectorBarPart, GroupPart
 };
 
 // The parts a part holds that are shown in the list under it: a group's, or what a graph
@@ -195,6 +196,10 @@ QString describe(const GaugeComponent &part)
             return GaugeEditor::tr("Route of the lap");
         case GaugeComponent::Gears:
             return GaugeEditor::tr("Gears");
+        case GaugeComponent::LapTable:
+            return GaugeEditor::tr("Lap table");
+        case GaugeComponent::SectorBar:
+            return GaugeEditor::tr("Sector bar");
         case GaugeComponent::Dial:
             return GaugeEditor::tr("Round scale");
         case GaugeComponent::Tape:
@@ -549,7 +554,8 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     Drivetrain sample;
     sample.chainrings = {34, 50};
     sample.cassette = {11, 12, 13, 14, 15, 17, 19, 21, 24, 28, 32};
-    m_session = LapEngine::apply(Gears::apply(ride, sample), LapEngine::lineAt(*ride, 20.0));
+    m_session = LapEngine::apply(Gears::apply(ride, sample), LapEngine::lineAt(*ride, 20.0),
+                                 {LapEngine::lineAt(*ride, 110.0), LapEngine::lineAt(*ride, 210.0)});
 
     m_nameEdit = new QLineEdit(m_gauge.name, this);
     m_nameEdit->setPlaceholderText(tr("Name of the gauge"));
@@ -641,6 +647,7 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
         {QString(), -1},
         {tr("Graph"), GraphPart}, {tr("Route"), RoutePart}, {tr("Route of the lap"), LapRoutePart},
         {tr("Gears (chainrings and sprockets)"), GearsPart},
+        {tr("Lap table"), LapTablePart}, {tr("Sector bar"), SectorBarPart},
         {QString(), -1},
         {tr("Group"), GroupPart},
     };
@@ -1199,6 +1206,21 @@ void GaugeEditor::addPart(int kind)
             part.color.role = GaugeColor::Foreground;
             part.activeColor.role = GaugeColor::Accent;
             part.lineWidth = std::max(2.0, std::round(unit * 0.01));
+            break;
+        case LapTablePart:
+            part.type = GaugeComponent::LapTable;
+            part.frame = QRectF(w * 0.08, h * 0.1, w * 0.84, h * 0.8);
+            part.color.role = GaugeColor::Foreground;
+            part.activeColor.role = GaugeColor::Accent;
+            part.fontSize = std::round(part.frame.height() / part.rows * 0.6);
+            break;
+        case SectorBarPart:
+            part.type = GaugeComponent::SectorBar;
+            part.frame = QRectF(w * 0.05, h * 0.4, w * 0.9, h * 0.2);
+            part.color.role = GaugeColor::Foreground;
+            part.activeColor.role = GaugeColor::Accent;
+            part.padding = std::round(unit * 0.02);
+            part.cornerRadius = std::round(unit * 0.02);
             break;
         case GroupPart:
             part.type = GaugeComponent::Group;
@@ -1835,6 +1857,27 @@ void GaugeEditor::fillProperties()
             QFormLayout *form = section(tr("Gears"));
             addColor(form, tr("In use:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
             addNumber(form, tr("Width of the chain:"), part.lineWidth, 0.1, 1000, 1, [](Part &p, double v) { p.lineWidth = v; });
+        }
+    if (part.type == GaugeComponent::LapTable)
+        {
+            QFormLayout *form = section(tr("Lap table"));
+            addNumber(form, tr("Lines:"), part.rows, 1, 50, 0, [](Part &p, double v) { p.rows = int(v); },
+                      tr("The laps finished last, and the one under way at the bottom"));
+            addColor(form, tr("Best lap:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
+            addFont(form, part);
+            addNumber(form, tr("Size:"), part.fontSize, 1, 2000, 0, [](Part &p, double v) { p.fontSize = v; },
+                      tr("Height of the letters, in the gauge's units"));
+            addCheck(form, tr("Bold"), part.bold, [](Part &p, bool on) { p.bold = on; });
+            addCheck(form, tr("Italic"), part.italic, [](Part &p, bool on) { p.italic = on; });
+            addNumber(form, tr("Decimals:"), part.precision, -1, 3, 0, [](Part &p, double v) { p.precision = int(v); },
+                      tr("Of a second; -1: two"));
+        }
+    if (part.type == GaugeComponent::SectorBar)
+        {
+            QFormLayout *form = section(tr("Sector bar"));
+            addColor(form, tr("Faster than the best:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
+            addNumber(form, tr("Gap between sectors:"), part.padding, 0, far, 1, [](Part &p, double v) { p.padding = v; });
+            addNumber(form, tr("Corners rounded by:"), part.cornerRadius, 0, far, 1, [](Part &p, double v) { p.cornerRadius = v; });
         }
     if (part.type == GaugeComponent::Graph || route)
         {

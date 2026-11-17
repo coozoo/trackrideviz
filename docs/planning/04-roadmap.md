@@ -342,7 +342,12 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - Editor, still to do: a part's second and later movements, the g-ball and the picture strip;
   markers of a graph's axes and a lap's start line; gradients; the points of a line with more
   than two; aligning several parts; turning a text's frame into a box
-- Path shapes; lap table, sector bar
+- Path shapes
+- ✅ Lap table and sector bar (2026-11-17, gauge parts `lapTable` and `sectorBar`; gauges Lap table and
+  Sector bar; in the editor). The table: the last laps finished and the one under way, number, time and
+  how far behind the best so far, the best lit. The bar: the sectors of the lap under way, each finished
+  one lit when it beat the best of it in the laps before, the one being driven filling up against that
+  best; empty segments without sector lines
 - ✅ G-plot with a tail and Lean angle (2026-11-16): `trailSeconds` of a two-value move draws the way
   the part went over the last seconds, fading; a lean-angle gauge with a rider leaning under an arc
 - ✅ For runners (2026-11-16): pace as minutes and seconds (5:18 /km) everywhere; the cadence of FIT runs
