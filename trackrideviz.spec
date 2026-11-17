@@ -24,7 +24,10 @@ BuildRequires: zlib-devel
 BuildRequires: qt6-linguist >= 6.2
 BuildRequires: desktop-file-utils
 Requires:      desktop-file-utils
-Requires:      ffmpeg
+# the programs, not a package name: Fedora's own ffmpeg-free has them, as RPM Fusion's ffmpeg
+# (with more encoders) does; "ffmpeg" alone exists only outside Fedora
+Requires:      /usr/bin/ffmpeg
+Requires:      /usr/bin/ffprobe
 %endif
 %if 0%{?suse_version} || 0%{?sle_version}
 Group:          Development/Tools/Other
