@@ -379,8 +379,11 @@ jobs:
             "libgdk_pixbuf*.dll" "libgio*.dll" "libgobject*.dll" "libgmodule*.dll" "libffi*.dll"
             # and what ffmpeg.exe and ffprobe.exe load besides: devices and filters
             "avdevice*.dll" "avfilter*.dll" "libcaca*.dll" "libopenal*.dll"
+            # not vulkan-1.dll: Windows has its own with the graphics driver, and one next to the
+            # program is loaded by the graphics stack too (under Wine it then recursed until the
+            # stack overflowed)
             "libplacebo*.dll" "libdovi.dll" "libshaderc_shared.dll" "libspirv-cross-c-shared.dll"
-            "vulkan-1.dll" "libass*.dll" "libunibreak*.dll" "libvidstab.dll" "libzimg*.dll"
+            "libass*.dll" "libunibreak*.dll" "libvidstab.dll" "libzimg*.dll"
             "libz-1.dll" "libwhisper*.dll" "ggml*.dll"
           )
           for pattern in "${DLL_PATTERNS[@]}"; do
