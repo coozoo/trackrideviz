@@ -3049,113 +3049,132 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>JoinDialog</name>
     <message>
-        <location filename="../src/joindialog.cpp" line="42"/>
+        <location filename="../src/joindialog.cpp" line="43"/>
         <source>Join videos</source>
         <translation>Об’єднання відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="47"/>
+        <location filename="../src/joindialog.cpp" line="48"/>
         <source>Joined in this order; drag to change it</source>
         <translation>Об’єднуються в цьому порядку; перетягніть, щоб змінити</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="58"/>
+        <location filename="../src/joindialog.cpp" line="59"/>
         <source>Add...</source>
         <translation>Додати...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="59"/>
+        <location filename="../src/joindialog.cpp" line="60"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="60"/>
+        <location filename="../src/joindialog.cpp" line="61"/>
         <source>Up</source>
         <translation>Вгору</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="61"/>
+        <location filename="../src/joindialog.cpp" line="62"/>
         <source>Down</source>
         <translation>Вниз</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="70"/>
+        <location filename="../src/joindialog.cpp" line="71"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="72"/>
+        <location filename="../src/joindialog.cpp" line="73"/>
         <source>Choose where the joined video goes</source>
         <translation>Вибрати, куди зберегти об’єднане відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="78"/>
+        <location filename="../src/joindialog.cpp" line="79"/>
         <source>Save as:</source>
         <translation>Зберегти як:</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="80"/>
-        <source>The pictures and the sound are copied, not encoded again: joining is quick and loses nothing, but the videos must be of the same kind, such as the chapters a camera splits a long recording into.</source>
-        <translation>Зображення і звук копіюються без повторного кодування: об’єднання швидке і без втрат, але відео мають бути однакового виду, як-от частини, на які камера ділить довгий запис.</translation>
+        <location filename="../src/joindialog.cpp" line="81"/>
+        <source>Videos of the same kind, such as the chapters a camera splits a long recording into, are copied: joining is quick and loses nothing. Others are encoded again, which takes longer.</source>
+        <translation>Відео одного виду, як-от частини, на які камера ділить довгий запис, копіюються: об’єднання швидке й без втрат. Інші кодуються заново, а це довше.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="96"/>
+        <location filename="../src/joindialog.cpp" line="97"/>
         <source>Join</source>
         <translation>Об’єднати</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="171"/>
+        <location filename="../src/joindialog.cpp" line="172"/>
         <source>Add videos</source>
         <translation>Додати відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="173"/>
-        <location filename="../src/joindialog.cpp" line="224"/>
+        <location filename="../src/joindialog.cpp" line="174"/>
+        <location filename="../src/joindialog.cpp" line="225"/>
         <source>Videos (%1)</source>
         <translation>Відео (%1)</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="223"/>
+        <location filename="../src/joindialog.cpp" line="224"/>
         <source>Save joined video</source>
         <translation>Зберегти об’єднане відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="252"/>
+        <location filename="../src/joindialog.cpp" line="253"/>
         <source>Choose two or more videos.</source>
         <translation>Виберіть два або більше відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="262"/>
+        <location filename="../src/joindialog.cpp" line="263"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation>Виберіть новий файл для об’єднаного відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="266"/>
+        <location filename="../src/joindialog.cpp" line="267"/>
         <source>%1 exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="272"/>
+        <location filename="../src/joindialog.cpp" line="273"/>
         <source>Reading the videos...</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="293"/>
+        <location filename="../src/joindialog.cpp" line="323"/>
         <source>A temporary file could not be written.</source>
         <translation>Не вдалося записати тимчасовий файл.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="298"/>
+        <location filename="../src/joindialog.cpp" line="328"/>
         <source>Joining...</source>
         <translation>Об’єднання...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="305"/>
+        <location filename="../src/joindialog.cpp" line="336"/>
+        <source>%1
+
+They can be joined by encoding them again. That takes a while; the joined video gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the others scaled into it. Encode them?</source>
+        <translation>%1
+
+Їх можна об’єднати, закодувавши заново. Це займе певний час; об’єднане відео отримає розмір і частоту кадрів першого (%2×%3, %4 кадрів за секунду), інші буде вписано в нього. Кодувати?</translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="342"/>
+        <source>The camera&apos;s data in the videos does not come along: open it from the videos themselves.</source>
+        <translation>Дані камери з цих відео не переносяться: відкрийте їх із самих відео.</translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="362"/>
+        <source>Encoding...</source>
+        <translation>Кодування...</translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="387"/>
         <source>ffmpeg could not be started; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffmpeg; його розташування можна вказати в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="342"/>
+        <location filename="../src/joindialog.cpp" line="406"/>
         <source>Joining failed: %1</source>
         <translation>Об’єднати не вдалося: %1</translation>
     </message>
@@ -5892,18 +5911,18 @@ Shift+перетягування позначає частину; клацанн
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="156"/>
-        <source>%1 is %2 %3×%4, the first video %5 %6×%7: only videos of the same kind can be joined.</source>
-        <translation>%1 — це %2 %3×%4, а перше відео — %5 %6×%7: об’єднати можна лише відео однакового виду.</translation>
+        <source>%1 is %2 %3×%4, the first video %5 %6×%7.</source>
+        <translation>%1 — це %2 %3×%4, а перше відео — %5 %6×%7.</translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="162"/>
-        <source>%1 has %2 frames per second, the first video %3: only videos of the same kind can be joined.</source>
-        <translation>%1 має %2 кадрів на секунду, а перше відео — %3: об’єднати можна лише відео однакового виду.</translation>
+        <source>%1 has %2 frames per second, the first video %3.</source>
+        <translation>%1 має %2 кадрів за секунду, а перше відео — %3.</translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
-        <source>The sound of %1 differs from that of the first video: only videos of the same kind can be joined.</source>
-        <translation>Звук у %1 відрізняється від звуку першого відео: об’єднати можна лише відео однакового виду.</translation>
+        <source>The sound of %1 differs from that of the first video.</source>
+        <translation>Звук %1 відрізняється від звуку першого відео.</translation>
     </message>
 </context>
 <context>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sync/syncmap.h"
+#include "video/videojoin.h"
 
 #include <QDialog>
 
@@ -12,7 +13,7 @@ class QProcess;
 class QProgressBar;
 class QTemporaryDir;
 
-// Joins several videos into one file by copying their streams, and works out
+// Joins several videos into one file, by copying their streams or encoding them again, and works out
 // the breaks between them so the data stays in step after each.
 class JoinDialog : public QDialog
 {
@@ -36,6 +37,12 @@ private:
     void browseOutput();
     void suggestOutput();
     void join();
+    // by copying the streams, for videos of one kind
+    void copyParts(const QVector<VideoJoin::Part> &parts);
+    // by encoding them again, once asked; `why` they cannot be copied
+    void encodeParts(const QVector<VideoJoin::Part> &parts, const QString &why);
+    // `showProgress`: ffmpeg tells how far it got on its standard output (encoding)
+    void startFfmpeg(const QStringList &arguments, bool showProgress);
     void onJoined();
     void setBusy(bool busy);
     QStringList paths() const;
@@ -49,6 +56,7 @@ private:
     QProcess *m_process{nullptr};
     QTemporaryDir *m_listDir{nullptr};
     bool m_outputEdited{false};
+    double m_encodedLength{0.0};   // s, of all the parts: what the progress is counted against
     QString m_outputPath;
     QVector<TimeShift> m_shifts;
 };

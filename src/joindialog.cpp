@@ -2,6 +2,7 @@
 
 #include "icons.h"
 #include "video/ffmpegtools.h"
+#include "settings/appsettings.h"
 #include "video/videojoin.h"
 
 #include <QDialogButtonBox>
@@ -77,9 +78,9 @@ JoinDialog::JoinDialog(const QStringList &paths, QWidget *parent)
     QFormLayout *form = new QFormLayout;
     form->addRow(tr("Save as:"), outputRow);
 
-    QLabel *about = new QLabel(tr("The pictures and the sound are copied, not encoded again: joining is quick "
-                                  "and loses nothing, but the videos must be of the same kind, such as the "
-                                  "chapters a camera splits a long recording into."), m_editors);
+    QLabel *about = new QLabel(tr("Videos of the same kind, such as the chapters a camera splits a long recording "
+                                  "into, are copied: joining is quick and loses nothing. Others are encoded again, "
+                                  "which takes longer."), m_editors);
     about->setWordWrap(true);
     QVBoxLayout *editors = new QVBoxLayout(m_editors);
     editors->setContentsMargins(0, 0, 0, 0);
@@ -276,41 +277,22 @@ void JoinDialog::join()
     {
         const Probed probed = watcher->result();
         watcher->deleteLater();
-        const QString why = probed.error.isEmpty() ? VideoJoin::whyNot(probed.parts) : probed.error;
-        if (!why.isEmpty())
+        if (!probed.error.isEmpty())
             {
-                m_status->setText(why);
+                m_status->setText(probed.error);
                 setBusy(false);
                 return;
             }
         m_shifts = VideoJoin::shifts(probed.parts);
-        delete m_listDir;
-        m_listDir = new QTemporaryDir;
-        const QString list = m_listDir->filePath("join.ffconcat");
-        QFile file(list);
-        if (!file.open(QIODevice::WriteOnly) || file.write(VideoJoin::listFile(paths())) < 0)
+        const QString why = VideoJoin::whyNot(probed.parts);
+        if (why.isEmpty())
             {
-                m_status->setText(tr("A temporary file could not be written."));
-                setBusy(false);
-                return;
+                copyParts(probed.parts);
             }
-        file.close();
-        m_status->setText(tr("Joining..."));
-        m_process = new QProcess(this);
-        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &JoinDialog::onJoined);
-        connect(m_process, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error)
-        {
-            if (error == QProcess::FailedToStart)
-                {
-                    m_status->setText(tr("ffmpeg could not be started; its location can be set in the settings."));
-                    setBusy(false);
-                    // no finished() follows a process that never ran: let it go now
-                    m_process->deleteLater();
-                    m_process = nullptr;
-                }
-        });
-        m_process->start(FfmpegTools::ffmpegProgram(),
-                         VideoJoin::arguments(list, m_outputPath, VideoJoin::keepsCameraData(probed.parts, m_outputPath)));
+        else
+            {
+                encodeParts(probed.parts, why);
+            }
     });
     watcher->setFuture(QtConcurrent::run([ffprobe, files]()
     {
@@ -328,6 +310,88 @@ void JoinDialog::join()
             }
         return probed;
     }));
+}
+
+void JoinDialog::copyParts(const QVector<VideoJoin::Part> &parts)
+{
+    delete m_listDir;
+    m_listDir = new QTemporaryDir;
+    const QString list = m_listDir->filePath("join.ffconcat");
+    QFile file(list);
+    if (!file.open(QIODevice::WriteOnly) || file.write(VideoJoin::listFile(paths())) < 0)
+        {
+            m_status->setText(tr("A temporary file could not be written."));
+            setBusy(false);
+            return;
+        }
+    file.close();
+    m_status->setText(tr("Joining..."));
+    m_progress->setRange(0, 0);
+    startFfmpeg(VideoJoin::arguments(list, m_outputPath, VideoJoin::keepsCameraData(parts, m_outputPath)), false);
+}
+
+void JoinDialog::encodeParts(const QVector<VideoJoin::Part> &parts, const QString &why)
+{
+    const MediaInfo &first = parts.first().info;
+    QString question = tr("%1\n\nThey can be joined by encoding them again. That takes a while; the joined video "
+                          "gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the "
+                          "others scaled into it. Encode them?")
+                       .arg(why).arg(first.size.width()).arg(first.size.height()).arg(first.fps(), 0, 'f', 2);
+    if (std::any_of(parts.cbegin(), parts.cend(), [](const VideoJoin::Part &part) { return part.info.hasCameraData; }))
+        {
+            question += "\n\n" + tr("The camera's data in the videos does not come along: open it from the videos "
+                                     "themselves.");
+        }
+    if (QMessageBox::question(this, windowTitle(), question) != QMessageBox::Yes)
+        {
+            m_status->setText(why);
+            setBusy(false);
+            return;
+        }
+    // the encoder and rate of the last export, at the first video's bitrate
+    ExportSettings settings = AppSettings::hasExportDefaults() ? AppSettings::exportDefaults() : ExportSettings();
+    if (first.bitrateKbps > 0)
+        {
+            settings.bitrateKbps = first.bitrateKbps;
+        }
+    m_encodedLength = 0.0;
+    for (const VideoJoin::Part &part : parts)
+        {
+            m_encodedLength += part.info.duration;
+        }
+    m_status->setText(tr("Encoding..."));
+    m_progress->setRange(0, 1000);
+    m_progress->setValue(0);
+    startFfmpeg(VideoJoin::encodeArguments(parts, m_outputPath, VideoEncoders::byId(settings.encoder), settings), true);
+}
+
+void JoinDialog::startFfmpeg(const QStringList &arguments, bool showProgress)
+{
+    m_process = new QProcess(this);
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &JoinDialog::onJoined);
+    if (showProgress)
+        {
+            connect(m_process, &QProcess::readyReadStandardOutput, this, [this]()
+            {
+                const double done = VideoJoin::progressSeconds(m_process->readAllStandardOutput());
+                if (done >= 0.0 && m_encodedLength > 0.0)
+                    {
+                        m_progress->setValue(int(std::clamp(done / m_encodedLength, 0.0, 1.0) * 1000.0));
+                    }
+            });
+        }
+    connect(m_process, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error)
+    {
+        if (error == QProcess::FailedToStart)
+            {
+                m_status->setText(tr("ffmpeg could not be started; its location can be set in the settings."));
+                setBusy(false);
+                // no finished() follows a process that never ran: let it go now
+                m_process->deleteLater();
+                m_process = nullptr;
+            }
+    });
+    m_process->start(FfmpegTools::ffmpegProgram(), arguments);
 }
 
 void JoinDialog::onJoined()

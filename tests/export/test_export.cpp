@@ -1237,6 +1237,45 @@ private slots:
         QCOMPARE(countFrames(output), 120);
     }
 
+    void joinOfDifferentKindsEncodes()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        // another camera: wider, 25 frames a second and no sound
+        const QString other = m_dir.filePath("other-kind.mp4");
+        const FfmpegTools::RunResult made = FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                                                             "color=c=red:s=480x200:r=25:d=1", "-c:v", "libx264", "-pix_fmt",
+                                                             "yuv420p", other}, 60000);
+        QVERIFY(made.started && made.exitCode == 0);
+        VideoJoin::Part a{m_sourceVideo, MediaInfo()};
+        VideoJoin::Part b{other, MediaInfo()};
+        QVERIFY(MediaProbe::probe("ffprobe", a.path, &a.info));
+        QVERIFY(MediaProbe::probe("ffprobe", b.path, &b.info));
+        QVERIFY(!VideoJoin::whyNot({a, b}).isEmpty());
+        ExportSettings settings;
+        settings.encoder = "libx264";
+        settings.rateControl = ExportSettings::Quality;
+        settings.speed = ExportSettings::Fast;
+        const QString output = m_dir.filePath("encoded-join.mp4");
+        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::encodeArguments({a, b}, output,
+                                                            VideoEncoders::byId("libx264"), settings), 120000);
+        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        // the progress came on the standard output
+        QVERIFY(VideoJoin::progressSeconds(run.output) > 2.5);
+        MediaInfo joined;
+        QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
+        // the first one's size and rate throughout; sound all the way, silence for the second
+        QCOMPARE(joined.size, a.info.size);
+        QCOMPARE(joined.fps(), 30.0);
+        QVERIFY(joined.hasAudio);
+        QVERIFY2(std::fabs(joined.duration - 3.0) < 0.15, qPrintable(QString::number(joined.duration)));
+        QCOMPARE(countFrames(output), 90);
+        QCOMPARE(VideoJoin::progressSeconds("frame=1\nout_time_us=1500000\nprogress=continue\nout_time_us=2500000\n"), 2.5);
+        QCOMPARE(VideoJoin::progressSeconds("nothing"), -1.0);
+    }
+
     void cameraDataIsKeptWhenEveryPartHasIt()
     {
         MediaInfo plain;

@@ -3034,113 +3034,130 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>JoinDialog</name>
     <message>
-        <location filename="../src/joindialog.cpp" line="42"/>
+        <location filename="../src/joindialog.cpp" line="43"/>
         <source>Join videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="47"/>
+        <location filename="../src/joindialog.cpp" line="48"/>
         <source>Joined in this order; drag to change it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="58"/>
+        <location filename="../src/joindialog.cpp" line="59"/>
         <source>Add...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="59"/>
+        <location filename="../src/joindialog.cpp" line="60"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="60"/>
+        <location filename="../src/joindialog.cpp" line="61"/>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="61"/>
+        <location filename="../src/joindialog.cpp" line="62"/>
         <source>Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="70"/>
+        <location filename="../src/joindialog.cpp" line="71"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="72"/>
+        <location filename="../src/joindialog.cpp" line="73"/>
         <source>Choose where the joined video goes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="78"/>
+        <location filename="../src/joindialog.cpp" line="79"/>
         <source>Save as:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="80"/>
-        <source>The pictures and the sound are copied, not encoded again: joining is quick and loses nothing, but the videos must be of the same kind, such as the chapters a camera splits a long recording into.</source>
+        <location filename="../src/joindialog.cpp" line="81"/>
+        <source>Videos of the same kind, such as the chapters a camera splits a long recording into, are copied: joining is quick and loses nothing. Others are encoded again, which takes longer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="96"/>
+        <location filename="../src/joindialog.cpp" line="97"/>
         <source>Join</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="171"/>
+        <location filename="../src/joindialog.cpp" line="172"/>
         <source>Add videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="173"/>
-        <location filename="../src/joindialog.cpp" line="224"/>
+        <location filename="../src/joindialog.cpp" line="174"/>
+        <location filename="../src/joindialog.cpp" line="225"/>
         <source>Videos (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="223"/>
+        <location filename="../src/joindialog.cpp" line="224"/>
         <source>Save joined video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="252"/>
+        <location filename="../src/joindialog.cpp" line="253"/>
         <source>Choose two or more videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="262"/>
+        <location filename="../src/joindialog.cpp" line="263"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="266"/>
+        <location filename="../src/joindialog.cpp" line="267"/>
         <source>%1 exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="272"/>
+        <location filename="../src/joindialog.cpp" line="273"/>
         <source>Reading the videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="293"/>
+        <location filename="../src/joindialog.cpp" line="323"/>
         <source>A temporary file could not be written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="298"/>
+        <location filename="../src/joindialog.cpp" line="328"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="305"/>
-        <source>ffmpeg could not be started; its location can be set in the settings.</source>
+        <location filename="../src/joindialog.cpp" line="336"/>
+        <source>%1
+
+They can be joined by encoding them again. That takes a while; the joined video gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the others scaled into it. Encode them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/joindialog.cpp" line="342"/>
+        <source>The camera&apos;s data in the videos does not come along: open it from the videos themselves.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="362"/>
+        <source>Encoding...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="387"/>
+        <source>ffmpeg could not be started; its location can be set in the settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="406"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5859,17 +5876,17 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="156"/>
-        <source>%1 is %2 %3×%4, the first video %5 %6×%7: only videos of the same kind can be joined.</source>
+        <source>%1 is %2 %3×%4, the first video %5 %6×%7.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="162"/>
-        <source>%1 has %2 frames per second, the first video %3: only videos of the same kind can be joined.</source>
+        <source>%1 has %2 frames per second, the first video %3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
-        <source>The sound of %1 differs from that of the first video: only videos of the same kind can be joined.</source>
+        <source>The sound of %1 differs from that of the first video.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

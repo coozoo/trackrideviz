@@ -153,18 +153,18 @@ QString VideoJoin::whyNot(const QVector<Part> &parts)
             const QString name = QFileInfo(part.path).fileName();
             if (info.videoCodec != first.videoCodec || info.size != first.size)
                 {
-                    return tr("%1 is %2 %3×%4, the first video %5 %6×%7: only videos of the same kind can be joined.")
+                    return tr("%1 is %2 %3×%4, the first video %5 %6×%7.")
                            .arg(name, info.videoCodec, QString::number(info.size.width()), QString::number(info.size.height()),
                                 first.videoCodec, QString::number(first.size.width()), QString::number(first.size.height()));
                 }
             if (std::fabs(info.fps() - first.fps()) > 0.01)
                 {
-                    return tr("%1 has %2 frames per second, the first video %3: only videos of the same kind can be joined.")
+                    return tr("%1 has %2 frames per second, the first video %3.")
                            .arg(name, QString::number(info.fps(), 'f', 2), QString::number(first.fps(), 'f', 2));
                 }
             if (info.hasAudio != first.hasAudio || info.audioCodec != first.audioCodec)
                 {
-                    return tr("The sound of %1 differs from that of the first video: only videos of the same kind can be joined.")
+                    return tr("The sound of %1 differs from that of the first video.")
                            .arg(name);
                 }
         }
@@ -270,4 +270,86 @@ QStringList VideoJoin::arguments(const QString &listFile, const QString &output,
         }
     args << output;
     return args;
+}
+
+QStringList VideoJoin::encodeArguments(const QVector<Part> &parts, const QString &output, const VideoEncoder &encoder,
+                                       const ExportSettings &settings)
+{
+    QStringList args = {"-hide_banner", "-loglevel", "error", "-nostats", "-progress", "pipe:1", "-y"};
+    args << VideoEncoders::globalArguments(encoder);
+    for (const Part &part : parts)
+        {
+            args << "-i" << part.path;
+        }
+    const MediaInfo &first = parts.first().info;
+    // even sizes: every encoder takes those
+    const int width = first.size.width() / 2 * 2;
+    const int height = first.size.height() / 2 * 2;
+    const QString fps = QString("%1/%2").arg(first.fpsNum).arg(first.fpsDen);
+    const bool sound = std::any_of(parts.cbegin(), parts.cend(), [](const Part &part) { return part.info.hasAudio; });
+    QStringList chains;
+    QString inputs;
+    for (int i = 0; i < parts.size(); ++i)
+        {
+            // the sound exactly as long as the picture: the concat filter waits for the longer
+            // one, and AAC's few extra milliseconds would leave a frame missing at each seam
+            const MediaInfo &info = parts.at(i).info;
+            const double picture = info.frameCount > 0 && info.fps() > 0.0 ? info.frameCount / info.fps() : info.duration;
+            chains << QString("[%1:v:0]scale=%2:%3:force_original_aspect_ratio=decrease,"
+                              "pad=%2:%3:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=%4,format=yuv420p[v%1]")
+                      .arg(i).arg(width).arg(height).arg(fps);
+            inputs += QString("[v%1]").arg(i);
+            if (!sound)
+                {
+                    continue;
+                }
+            if (parts.at(i).info.hasAudio)
+                {
+                    chains << QString("[%1:a:0]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,"
+                                      "apad,atrim=duration=%2[a%1]").arg(i).arg(picture, 0, 'f', 6);
+                }
+            else
+                {
+                    chains << QString("anullsrc=r=48000:cl=stereo,atrim=duration=%2[a%1]").arg(i).arg(picture, 0, 'f', 6);
+                }
+            inputs += QString("[a%1]").arg(i);
+        }
+    chains << QString("%1concat=n=%2:v=1:a=%3[joined]%4").arg(inputs).arg(parts.size()).arg(sound ? 1 : 0)
+              .arg(sound ? QStringLiteral("[a]") : QString())
+           << QString("[joined]%1[v]").arg(VideoEncoders::outputFilter(encoder));
+    args << "-filter_complex" << chains.join(';') << "-map" << "[v]";
+    if (sound)
+        {
+            args << "-map" << "[a]";
+        }
+    args << VideoEncoders::arguments(encoder, settings);
+    if (sound)
+        {
+            args << "-c:a" << "aac" << "-b:a" << QString("%1k").arg(settings.audioKbps);
+        }
+    if (ExportSettings::isMp4Family(QFileInfo(output).suffix()))
+        {
+            args << "-movflags" << "+faststart";
+        }
+    args << output;
+    return args;
+}
+
+double VideoJoin::progressSeconds(const QByteArray &progressOutput)
+{
+    // "out_time_us=12345678" lines, the last one counts
+    double seconds = -1.0;
+    for (const QByteArray &line : progressOutput.split('\n'))
+        {
+            if (line.startsWith("out_time_us="))
+                {
+                    bool ok = false;
+                    const qint64 us = line.mid(12).trimmed().toLongLong(&ok);
+                    if (ok && us >= 0)
+                        {
+                            seconds = us / 1e6;
+                        }
+                }
+        }
+    return seconds;
 }

@@ -183,7 +183,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   gyroscope feels, ahead across the two and the way that brakes harder. Checked with made-up rides
   (both ways of mirrored axes; a leaning camera gets none); GoPro's samples load (HERO7, HERO8,
   Karma), but are handheld and walked, so they do not tell how good it is on a vehicle
-- Joining videos of different kinds (re-encoding)
+- ✅ Joining videos of different kinds (2026-11-17, `VideoJoin::encodeArguments`): when they cannot be
+  copied, the dialog says why and offers to encode them again: the first one's size (the others
+  scaled in, black bars where the shape differs) and frame rate, 48 kHz stereo AAC with silence for
+  parts without sound, each part's sound cut to its picture so no frame goes missing at a seam;
+  the last export's encoder at the first video's bitrate; a progress bar from ffmpeg's -progress
 
 ## Maps
 - ✅ Street maps under route and lap gauges (2026-11-14, `TileStore`): a map part of a gauge may ask
