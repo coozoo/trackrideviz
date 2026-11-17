@@ -152,6 +152,10 @@ void moveBy(GaugeComponent &part, const QPointF &delta)
                 {
                     m.clipRect.translate(delta);
                 }
+            if (!m.frameRect.isNull())
+                {
+                    m.frameRect.translate(delta);
+                }
         }
     for (GaugeComponent &child : part.children)
         {
@@ -225,24 +229,45 @@ QString describe(const GaugeComponent &part)
 
 QString movementOf(const GaugeComponent &part)
 {
-    if (part.manipulations.isEmpty())
+    QStringList words;
+    for (const GaugeManipulation &m : part.manipulations)
         {
-            return QString();
+            QString word;
+            switch (m.type)
+                {
+                case GaugeManipulation::Rotate:
+                    word = GaugeEditor::tr("turns");
+                    break;
+                case GaugeManipulation::RadialClip:
+                case GaugeManipulation::WidthClip:
+                case GaugeManipulation::HeightClip:
+                    word = GaugeEditor::tr("fills");
+                    break;
+                case GaugeManipulation::Translate:
+                case GaugeManipulation::Translate2D:
+                    word = GaugeEditor::tr("slides");
+                    break;
+                case GaugeManipulation::AnimationStrip:
+                    word = GaugeEditor::tr("plays");
+                    break;
+                default:
+                    word = GaugeEditor::tr("moves");
+                    break;
+                }
+            if (!words.contains(word))
+                {
+                    words << word;
+                }
         }
-    switch (part.manipulations.first().type)
-        {
-        case GaugeManipulation::Rotate:
-            return GaugeEditor::tr("turns");
-        case GaugeManipulation::RadialClip:
-        case GaugeManipulation::WidthClip:
-        case GaugeManipulation::HeightClip:
-            return GaugeEditor::tr("fills");
-        case GaugeManipulation::Translate:
-        case GaugeManipulation::Translate2D:
-            return GaugeEditor::tr("slides");
-        default:
-            return GaugeEditor::tr("moves");
-        }
+    return words.join(QStringLiteral(", "));
+}
+
+// Where one picture of a strip of `frames` shows: the first of them, along the longer side.
+QRectF stripCell(const QRectF &frame, int frames)
+{
+    const int n = std::max(1, frames);
+    return frame.width() >= frame.height() ? QRectF(frame.topLeft(), QSizeF(frame.width() / n, frame.height()))
+           : QRectF(frame.topLeft(), QSizeF(frame.width(), frame.height() / n));
 }
 }
 
@@ -1523,30 +1548,38 @@ void GaugeEditor::addChannel(QFormLayout *form, const QString &label, const QStr
     form->addRow(label, combo);
 }
 
-void GaugeEditor::addMovement(QFormLayout *form, const Part &part)
+void GaugeEditor::addMovement(QFormLayout *form, const Part &part, int index)
 {
-    // one movement is edited here; gauges brought in from elsewhere may have more, which stay as they are
-    const bool has = !part.manipulations.isEmpty();
-    const GaugeManipulation m = has ? part.manipulations.first() : GaugeManipulation();
+    // movement `index` of the part's, applied in their order; the first one is where a part gets one
+    const bool has = index < part.manipulations.size();
+    const GaugeManipulation m = has ? part.manipulations.at(index) : GaugeManipulation();
     const double far = 10000.0;
     addChoice(form, tr("With the value it:"),
     {
-        {tr("stays as it is"), -1}, {tr("turns (a needle)"), int(GaugeManipulation::Rotate)},
+        {index == 0 ? tr("stays as it is") : tr("(no more: remove this movement)"), -1},
+        {tr("turns (a needle)"), int(GaugeManipulation::Rotate)},
         {tr("fills round (an arc)"), int(GaugeManipulation::RadialClip)},
         {tr("fills sideways (a bar)"), int(GaugeManipulation::WidthClip)},
         {tr("fills upwards (a column)"), int(GaugeManipulation::HeightClip)},
         {tr("slides"), int(GaugeManipulation::Translate)},
-    }, has ? int(m.type) : -1, [this](Part &p, int type)
+        {tr("moves by two values (a g-force ball)"), int(GaugeManipulation::Translate2D)},
+        {tr("plays a picture strip (a beating heart)"), int(GaugeManipulation::AnimationStrip)},
+    }, has ? int(m.type) : -1, [this, index](Part &p, int type)
     {
+        const bool fresh = index >= p.manipulations.size();
         if (type < 0)
             {
-                p.manipulations.clear();
+                if (!fresh)
+                    {
+                        p.manipulations.removeAt(index);
+                    }
                 return;
             }
-        GaugeManipulation made = p.manipulations.isEmpty() ? GaugeManipulation() : p.manipulations.first();
-        const bool fresh = p.manipulations.isEmpty();
+        GaugeManipulation made = fresh ? GaugeManipulation() : p.manipulations.at(index);
+        const bool changedType = fresh || made.type != GaugeManipulation::Type(type);
         made.type = GaugeManipulation::Type(type);
         const QRectF bounds = boundsOf(p);
+        const double unit = std::min(m_gauge.size.width(), m_gauge.size.height());
         // sensible ends to start from
         if (fresh || (made.minAngle == 0.0 && made.maxAngle == 0.0))
             {
@@ -1571,54 +1604,107 @@ void GaugeEditor::addMovement(QFormLayout *form, const Part &part)
                 made.minY = 0.0;
                 made.maxY = 0.0;
             }
-        p.manipulations = {made};
+        else if (type == int(GaugeManipulation::Translate2D) && changedType)
+            {
+                // as the G-plot has it: sideways to the right, braking upwards, one g at the edge
+                made.maxRadius = std::round(unit * 0.4);
+                made.xChannel = ChannelId::GForceLateral;
+                made.yChannel = ChannelId::GForceLongitudinal;
+                made.invertY = true;
+                made.hasValueRange = true;
+                made.minValue = -1.0;
+                made.maxValue = 1.0;
+            }
+        else if (type == int(GaugeManipulation::AnimationStrip) && changedType)
+            {
+                made.frames = std::max(made.frames, 4);
+                made.minFps = 1.0;
+                made.maxFps = 4.0;
+                made.frameRect = stripCell(p.frame, made.frames);
+            }
+        if (fresh)
+            {
+                p.manipulations.append(made);
+            }
+        else
+            {
+                p.manipulations[index] = made;
+            }
     }, true);
     if (!has)
         {
             return;
         }
-    auto first = [](Part &p) -> GaugeManipulation & { return p.manipulations.first(); };
+    auto at = [index](Part &p) -> GaugeManipulation & { return p.manipulations[index]; };
     switch (m.type)
         {
         case GaugeManipulation::Rotate:
         case GaugeManipulation::RadialClip:
-            addNumber(form, tr("Around X:"), m.pivot.x(), -far, far, 1, [first](Part &p, double v) { first(p).pivot.setX(v); },
+            addNumber(form, tr("Around X:"), m.pivot.x(), -far, far, 1, [at](Part &p, double v) { at(p).pivot.setX(v); },
                       tr("The point it turns around, in the gauge's units"));
-            addNumber(form, tr("Around Y:"), m.pivot.y(), -far, far, 1, [first](Part &p, double v) { first(p).pivot.setY(v); });
-            addNumber(form, tr("Angle at the lowest:"), m.minAngle, -720, 720, 1, [first](Part &p, double v) { first(p).minAngle = v; },
+            addNumber(form, tr("Around Y:"), m.pivot.y(), -far, far, 1, [at](Part &p, double v) { at(p).pivot.setY(v); });
+            addNumber(form, tr("Angle at the lowest:"), m.minAngle, -720, 720, 1, [at](Part &p, double v) { at(p).minAngle = v; },
                       tr("Degrees clockwise, 0 = straight up. A needle is drawn pointing up and turned by this."));
-            addNumber(form, tr("Angle at the highest:"), m.maxAngle, -720, 720, 1, [first](Part &p, double v) { first(p).maxAngle = v; });
+            addNumber(form, tr("Angle at the highest:"), m.maxAngle, -720, 720, 1, [at](Part &p, double v) { at(p).maxAngle = v; });
             break;
         case GaugeManipulation::WidthClip:
-            addNumber(form, tr("Empty at X:"), m.minX, -far, far, 1, [first](Part &p, double v) { first(p).minX = v; },
+            addNumber(form, tr("Empty at X:"), m.minX, -far, far, 1, [at](Part &p, double v) { at(p).minX = v; },
                       tr("Where the fill starts, and how far it has come at the highest value"));
-            addNumber(form, tr("Full at X:"), m.maxX, -far, far, 1, [first](Part &p, double v) { first(p).maxX = v; });
-            addNumber(form, tr("Slant of the edge:"), m.clipAngle, -80, 80, 1, [first](Part &p, double v) { first(p).clipAngle = v; });
+            addNumber(form, tr("Full at X:"), m.maxX, -far, far, 1, [at](Part &p, double v) { at(p).maxX = v; });
+            addNumber(form, tr("Slant of the edge:"), m.clipAngle, -80, 80, 1, [at](Part &p, double v) { at(p).clipAngle = v; });
             break;
         case GaugeManipulation::HeightClip:
-            addNumber(form, tr("Empty at Y:"), m.minY, -far, far, 1, [first](Part &p, double v) { first(p).minY = v; },
+            addNumber(form, tr("Empty at Y:"), m.minY, -far, far, 1, [at](Part &p, double v) { at(p).minY = v; },
                       tr("Where the fill starts (the bottom, for one that rises), and how far it has come at the highest value"));
-            addNumber(form, tr("Full at Y:"), m.maxY, -far, far, 1, [first](Part &p, double v) { first(p).maxY = v; });
+            addNumber(form, tr("Full at Y:"), m.maxY, -far, far, 1, [at](Part &p, double v) { at(p).maxY = v; });
             break;
         case GaugeManipulation::Translate:
-            addNumber(form, tr("Moved in X, lowest:"), m.minX, -far, far, 1, [first](Part &p, double v) { first(p).minX = v; });
-            addNumber(form, tr("Moved in X, highest:"), m.maxX, -far, far, 1, [first](Part &p, double v) { first(p).maxX = v; });
-            addNumber(form, tr("Moved in Y, lowest:"), m.minY, -far, far, 1, [first](Part &p, double v) { first(p).minY = v; });
-            addNumber(form, tr("Moved in Y, highest:"), m.maxY, -far, far, 1, [first](Part &p, double v) { first(p).maxY = v; });
+            addNumber(form, tr("Moved in X, lowest:"), m.minX, -far, far, 1, [at](Part &p, double v) { at(p).minX = v; });
+            addNumber(form, tr("Moved in X, highest:"), m.maxX, -far, far, 1, [at](Part &p, double v) { at(p).maxX = v; });
+            addNumber(form, tr("Moved in Y, lowest:"), m.minY, -far, far, 1, [at](Part &p, double v) { at(p).minY = v; });
+            addNumber(form, tr("Moved in Y, highest:"), m.maxY, -far, far, 1, [at](Part &p, double v) { at(p).maxY = v; });
             break;
+        case GaugeManipulation::Translate2D:
+            addChannel(form, tr("Sideways it follows:"), m.xChannel, [at](Part &p, const QString &id) { at(p).xChannel = id; });
+            addChannel(form, tr("Up and down it follows:"), m.yChannel, [at](Part &p, const QString &id) { at(p).yChannel = id; });
+            addNumber(form, tr("Reaches as far as:"), m.maxRadius, 0, far, 1, [at](Part &p, double v) { at(p).maxRadius = v; },
+                      tr("From where it is drawn, in the gauge's units, at the largest value"));
+            addCheck(form, tr("Sideways the other way"), m.invertX, [at](Part &p, bool on) { at(p).invertX = on; });
+            addCheck(form, tr("Up and down the other way"), m.invertY, [at](Part &p, bool on) { at(p).invertY = on; });
+            addNumber(form, tr("Trail, seconds:"), m.trailSeconds, 0, 60, 1, [at](Part &p, double v) { at(p).trailSeconds = v; },
+                      tr("The way it went over the last seconds, drawn behind it, fading; 0: none"));
+            break;
+        case GaugeManipulation::AnimationStrip:
+        {
+            QLabel *note = new QLabel(tr("The picture holds the strip's pictures side by side (or one above the other); "
+                                         "one shows at a time, played faster the higher the value."), m_properties);
+            note->setWordWrap(true);
+            form->addRow(note);
+            addNumber(form, tr("Pictures in the strip:"), m.frames, 1, 500, 0, [at](Part &p, double v)
+            {
+                at(p).frames = int(v);
+                at(p).frameRect = stripCell(p.frame, int(v));
+            });
+            addNumber(form, tr("Pictures a second, lowest:"), m.minFps, 0, 240, 1, [at](Part &p, double v) { at(p).minFps = v; });
+            addNumber(form, tr("Pictures a second, highest:"), m.maxFps, 0, 240, 1, [at](Part &p, double v) { at(p).maxFps = v; });
+            break;
+        }
         default:
             form->addRow(new QLabel(tr("A movement this editor does not change; it is kept as it is."), m_properties));
             return;
         }
-    addCheck(form, tr("A scale of its own"), m.hasValueRange, [first](Part &p, bool on) { first(p).hasValueRange = on; },
+    addCheck(form, tr("A scale of its own"), m.hasValueRange, [at](Part &p, bool on) { at(p).hasValueRange = on; },
              tr("Off: from the lowest to the highest the measurement usually has, whatever it is. On: between the two "
                 "values below - give a needle the same ends as the round scale it points at."), true);
     if (m.hasValueRange)
         {
-            addNumber(form, tr("Lowest value:"), m.minValue, -1e6, 1e6, 2, [first](Part &p, double v) { first(p).minValue = v; });
-            addNumber(form, tr("Highest value:"), m.maxValue, -1e6, 1e6, 2, [first](Part &p, double v) { first(p).maxValue = v; });
+            addNumber(form, tr("Lowest value:"), m.minValue, -1e6, 1e6, 2, [at](Part &p, double v) { at(p).minValue = v; });
+            addNumber(form, tr("Highest value:"), m.maxValue, -1e6, 1e6, 2, [at](Part &p, double v) { at(p).maxValue = v; });
         }
-    addCheck(form, tr("Past the end it starts over (a compass)"), m.wrapValue, [first](Part &p, bool on) { first(p).wrapValue = on; });
+    if (m.type != GaugeManipulation::Translate2D && m.type != GaugeManipulation::AnimationStrip)
+        {
+            addCheck(form, tr("Past the end it starts over (a compass)"), m.wrapValue, [at](Part &p, bool on) { at(p).wrapValue = on; });
+        }
 }
 
 void GaugeEditor::addScale(QFormLayout *form, const Part &part)
@@ -1913,7 +1999,35 @@ void GaugeEditor::fillProperties()
         }
     if (part.type != GaugeComponent::Dial && part.type != GaugeComponent::Tape && part.type != GaugeComponent::Graph && !route)
         {
-            addMovement(section(tr("Movement")), part);
+            // in their order: a needle that turns and is also cut to an arc
+            const int count = std::max(1, int(part.manipulations.size()));
+            QFormLayout *last = nullptr;
+            for (int i = 0; i < count; ++i)
+                {
+                    last = section(count > 1 ? tr("Movement %1").arg(i + 1) : tr("Movement"));
+                    addMovement(last, part, i);
+                }
+            if (!part.manipulations.isEmpty())
+                {
+                    QPushButton *another = new QPushButton(tr("Add another movement"), m_properties);
+                    another->setToolTip(tr("Applied after the ones above: a needle that turns and slides, an arc that fills "
+                                           "and turns with the heading"));
+                    connect(another, &QPushButton::clicked, this, [this]()
+                    {
+                        if (Part *p = selected())
+                            {
+                                GaugeManipulation added;
+                                added.type = GaugeManipulation::Rotate;
+                                added.pivot = QPointF(m_gauge.size.width() / 2.0, m_gauge.size.height() / 2.0);
+                                added.minAngle = -135.0;
+                                added.maxAngle = 135.0;
+                                p->manipulations.append(added);
+                                changed();
+                                QMetaObject::invokeMethod(this, [this]() { fillProperties(); }, Qt::QueuedConnection);
+                            }
+                    });
+                    last->addRow(another);
+                }
         }
     m_propertiesLayout->addStretch(1);
 }

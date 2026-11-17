@@ -344,8 +344,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   One movement per part (turn, fill, slide). Gauges that come with the program open as a copy
 - ✅ Editor (2026-11-15): undo and redo; a part being moved is drawn to the edges and middles of
   the others and of the gauge; fonts by name; a second click picks inside a group
-- Editor, still to do: a part's second and later movements, the g-ball and the picture strip;
-  markers of a graph's axes and a lap's start line; gradients; the points of a line with more
+- ✅ Editor (2026-11-17): a part's second and later movements, applied in their order ("Movement 1",
+  "Movement 2", Add another movement); a ball moved by two values (g-forces: the measurement each way, how far,
+  either way reversed, the trail) and a picture strip (how many pictures, how fast at the ends)
+- Editor, still to do: markers of a graph's axes and a lap's start line; gradients; the points of a line with more
   than two; aligning several parts; turning a text's frame into a box
 - Path shapes
 - ✅ Lap table and sector bar (2026-11-17, gauge parts `lapTable` and `sectorBar`; gauges Lap table and

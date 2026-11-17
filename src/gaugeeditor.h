@@ -78,7 +78,7 @@ private:
     void addFont(QFormLayout *form, const Part &part);
     void addChannel(QFormLayout *form, const QString &label, const QString &value,
                     const std::function<void(Part &, const QString &)> &set);
-    void addMovement(QFormLayout *form, const Part &part);
+    void addMovement(QFormLayout *form, const Part &part, int index);
     void addScale(QFormLayout *form, const Part &part);
 
     Gauge m_gauge;
