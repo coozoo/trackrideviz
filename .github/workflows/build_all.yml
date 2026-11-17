@@ -385,7 +385,7 @@ jobs:
             # stack overflowed)
             "libplacebo*.dll" "libdovi.dll" "libshaderc_shared.dll" "libspirv-cross-c-shared.dll"
             "libass*.dll" "libunibreak*.dll" "libvidstab.dll" "libzimg*.dll"
-            "libz-1.dll" "libwhisper*.dll" "ggml*.dll"
+            "libz-1*.dll" "libwhisper*.dll" "ggml*.dll"
           )
           for pattern in "${DLL_PATTERNS[@]}"; do
             files=("$ROOTMSYS/bin"/$pattern)
