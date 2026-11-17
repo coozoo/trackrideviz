@@ -2,13 +2,27 @@
 
 #include "../settings/appsettings.h"
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QProcess>
 
 QString FfmpegTools::ffmpegProgram()
 {
     const QString configured = AppSettings::ffmpegPath();
-    return configured.isEmpty() ? QStringLiteral("ffmpeg") : configured;
+    if (!configured.isEmpty())
+        return configured;
+    // the program's own folder is known only once the application exists (not in every test)
+    if (QCoreApplication::instance())
+        {
+#ifdef Q_OS_WIN
+            const QString bundled = QCoreApplication::applicationDirPath() + "/ffmpeg.exe";
+#else
+            const QString bundled = QCoreApplication::applicationDirPath() + "/ffmpeg";
+#endif
+            if (QFileInfo(bundled).isExecutable())
+                return bundled;
+        }
+    return QStringLiteral("ffmpeg");
 }
 
 QString FfmpegTools::ffprobeFor(const QString &ffmpegProgram)

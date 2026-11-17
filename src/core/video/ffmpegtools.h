@@ -7,7 +7,8 @@
 // Finding and running the external ffmpeg / ffprobe programs.
 namespace FfmpegTools
 {
-// From the settings, or plain "ffmpeg" to be found on the PATH.
+// From the settings; else the one that comes with the program (next to it, as in the
+// Windows package); else plain "ffmpeg", to be found on the PATH.
 QString ffmpegProgram();
 // ffprobe lives next to ffmpeg.
 QString ffprobeProgram();

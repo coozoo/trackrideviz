@@ -385,6 +385,9 @@ jobs:
             fi
           done
           shopt -u nullglob
+          # export and the music's lengths run ffmpeg and ffprobe; the program uses the ones
+          # next to it, which need the DLLs above
+          cp $ROOTMSYS/bin/ffmpeg.exe $ROOTMSYS/bin/ffprobe.exe release/
           mv release ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64; 7z -tzip a ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64/
           ls -l
         shell: msys2 {0}

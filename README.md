@@ -56,7 +56,9 @@ can be checked.
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools), zlib and a C++17 compiler.
-`ffmpeg` (with `ffprobe`) is needed at run time for export; its location can be set in the settings.
+`ffmpeg` (with `ffprobe`) is needed at run time for export and for the music's lengths; the Windows
+package comes with them. Otherwise the ones next to the program, then on the PATH, are used, and
+their location can be set in the settings.
 
 ```bash
 qmake6
