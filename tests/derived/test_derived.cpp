@@ -3,6 +3,7 @@
 #include "maps/terrain.h"
 #include "maps/tilestore.h"
 #include "telemetry/derivedchannels.h"
+#include "telemetry/gpmfimporter.h"
 #include "telemetry/gears.h"
 #include "telemetry/powerestimate.h"
 #include "weather/weather.h"
@@ -180,6 +181,94 @@ private slots:
         QVERIFY(!unmatched->hasChannel(ChannelId::LeanAngle));
         QVERIFY(!unmatched->hasChannel(ChannelId::GForceVertical));
         QVERIFY(error(unmatched, ChannelId::GForceLongitudinal, other, other.forwards) < 0.05);
+    }
+
+    // A camera that had no satellite fix: its sensors alone, the GPS gone
+    void gForcesWithoutAFix_data()
+    {
+        QTest::addColumn<bool>("mirrored");
+        QTest::addColumn<bool>("leans");
+        QTest::newRow("car") << false << false;
+        QTest::newRow("car, mirrored axes") << true << false;
+        QTest::newRow("motorcycle") << false << true;
+    }
+
+    void gForcesWithoutAFix()
+    {
+        QFETCH(bool, mirrored);
+        QFETCH(bool, leans);
+        const double side = mirrored ? -1.0 : 1.0;
+        const std::array<std::array<double, 3>, 3> axes{{{0, 0, 1}, {-1, 0, 0}, {0, side, 0}}};
+        Truth truth;
+        auto ride = cameraRide(axes, &truth, leans);
+        for (const char *id : {ChannelId::PositionLat, ChannelId::PositionLon, ChannelId::Speed})
+            {
+                ride->removeChannel(id);
+            }
+        const TelemetrySessionPtr session = DerivedChannels::complete(ride);
+        if (leans)
+            {
+                // leaning into the turns it hardly feels them: nothing to line the axes up with
+                QVERIFY(!session->hasChannel(ChannelId::GForceLateral));
+                return;
+            }
+        const double sideways = error(session, ChannelId::GForceLateral, truth, truth.sideways);
+        QVERIFY2(sideways < 0.03, qPrintable(QString::number(sideways)));
+        QVERIFY(std::fabs(at(session, ChannelId::GForceVertical, 60.0) - 1.0) < 0.05);
+        // this ride speeds up as hard as it brakes, so which way is ahead is a guess here
+        QVector<double> backwards;
+        for (const double f : std::as_const(truth.forwards))
+            {
+                backwards << -f;
+            }
+        const double forwards = std::min(error(session, ChannelId::GForceLongitudinal, truth, truth.forwards),
+                                         error(session, ChannelId::GForceLongitudinal, truth, backwards));
+        QVERIFY2(forwards < 0.03, qPrintable(QString::number(forwards)));
+    }
+
+    // Optional: RTV_GOPRO_SAMPLE=/path/to/gopro.mp4 (one with a satellite fix): the G-forces
+    // worked out without the GPS against those with it.
+    void gForcesWithoutAFixAgainstTheGps()
+    {
+        const QString sample = qEnvironmentVariable("RTV_GOPRO_SAMPLE");
+        if (sample.isEmpty())
+            {
+                QSKIP("RTV_GOPRO_SAMPLE is not set");
+            }
+        QString error;
+        const TelemetrySessionPtr recorded = GpmfImporter::load(sample, &error);
+        QVERIFY2(recorded, qPrintable(error));
+        const TelemetrySessionPtr withGps = DerivedChannels::complete(recorded);
+        auto stripped = std::make_shared<TelemetrySession>(*recorded);
+        for (const char *id : {ChannelId::PositionLat, ChannelId::PositionLon, ChannelId::Speed, ChannelId::Elevation})
+            {
+                stripped->removeChannel(id);
+            }
+        const TelemetrySessionPtr alone = DerivedChannels::complete(stripped);
+        for (const char *id : {ChannelId::GForceLateral, ChannelId::GForceLongitudinal})
+            {
+                const Channel *a = withGps->channel(id);
+                const Channel *b = alone->channel(id);
+                QVERIFY2(a, id);
+                if (!b)
+                    {
+                        qInfo() << id << "not worked out without the GPS";
+                        continue;
+                    }
+                double sab = 0, saa = 0, sbb = 0, sa = 0, sb = 0;
+                int n = 0;
+                for (double t = a->startTime() + 2.0; t < a->endTime() - 2.0; t += 0.1)
+                    {
+                        const double x = a->valueAt(t);
+                        const double y = b->valueAt(t);
+                        if (std::isfinite(x) && std::isfinite(y))
+                            {
+                                sab += x * y; saa += x * x; sbb += y * y; sa += x; sb += y; ++n;
+                            }
+                    }
+                const double r = (sab - sa * sb / n) / std::sqrt((saa - sa * sa / n) * (sbb - sb * sb / n));
+                qInfo() << id << "correlation with the GPS's" << r;
+            }
     }
 
     void editTakesOutAGlitch()

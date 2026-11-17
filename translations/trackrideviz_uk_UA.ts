@@ -2974,27 +2974,32 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>GpmfImporter</name>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="516"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="523"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="490"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="497"/>
         <source>Not a video file this program can read data from.</source>
         <translation>Це не відеофайл, з якого програма може прочитати дані.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="497"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="429"/>
+        <source>The camera had no satellite fix while this video was recorded: there are no positions in it, only its G-forces.</source>
+        <translation>Під час запису цього відео камера не мала супутникового сигналу: координат у ньому немає, лише перевантаження.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="504"/>
         <source>The video holds no data of its own. Only GoPro cameras write positions into their videos.</source>
         <translation>У відео немає власних даних. Координати у свої відео записують лише камери GoPro.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="527"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="534"/>
         <source>The camera had no satellite fix while this video was recorded: there are no positions in it.</source>
         <translation>Під час запису цього відео камера не мала сигналу супутників: координат у ньому немає.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="586"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="593"/>
         <source>GoPro, %n chapter(s) from %1</source>
         <translation>
             <numerusform>GoPro, %n частина від %1</numerusform>

@@ -419,6 +419,116 @@ bool fromMotionSensors(const TelemetrySession &session, const Grid &grid, const 
     return true;
 }
 
+// The same without a GPS to line the axes up with, for a camera that had no satellite fix. Up
+// is still where gravity pulls from. Right is the level direction whose acceleration follows
+// the turns the gyroscope feels: the pull of a turn is to its inside, whatever way the camera
+// writes its axes. Ahead is across the two; as mirrored axes would turn it round, it is the
+// way that brakes harder than it speeds up. False without a gyroscope, without turns, or for
+// a camera that leans into them (it then hardly feels them).
+bool fromMotionSensorsAlone(const TelemetrySession &session, const Grid &grid, Motion *motion)
+{
+    if (!has(session, ChannelId::AccelX) || !has(session, ChannelId::AccelY) || !has(session, ChannelId::AccelZ)
+            || !has(session, ChannelId::GyroX) || !has(session, ChannelId::GyroY) || !has(session, ChannelId::GyroZ))
+        {
+            return false;
+        }
+    const int n = grid.count();
+    const QVector<Vec3> accel = sample3(session, ChannelId::AccelX, ChannelId::AccelY, ChannelId::AccelZ, grid,
+                                        grid.span(0.25));
+    const QVector<Vec3> slow = sample3(session, ChannelId::AccelX, ChannelId::AccelY, ChannelId::AccelZ, grid,
+                                       grid.span(1.0));
+    const QVector<Vec3> gyro = sample3(session, ChannelId::GyroX, ChannelId::GyroY, ChannelId::GyroZ, grid,
+                                       grid.span(1.0));
+    Vec3 gravity;
+    int count = 0;
+    for (const Vec3 &a : accel)
+        {
+            if (a.finite())
+                {
+                    gravity = gravity + a;
+                    ++count;
+                }
+        }
+    if (count < 20)
+        {
+            return false;
+        }
+    gravity = gravity * (1.0 / count);
+    if (std::fabs(gravity.length() - kGravity) > 0.3 * kGravity)
+        {
+            return false;
+        }
+    const Vec3 up = gravity * (1.0 / gravity.length());
+    auto level = [&up](const Vec3 &a)
+    {
+        return a - up * a.dot(up);
+    };
+    // turning left, about up, pulls to the left
+    QVector<double> leftwards(n, kNaN);
+    Vec3 right;
+    for (int i = 0; i < n; ++i)
+        {
+            if (slow.at(i).finite() && gyro.at(i).finite())
+                {
+                    leftwards[i] = gyro.at(i).dot(up);
+                    right = right + level(slow.at(i)) * -leftwards.at(i);
+                }
+        }
+    if (right.length() <= 0.0)
+        {
+            return false;
+        }
+    right = right * (1.0 / right.length());
+    QVector<double> across(n, kNaN);
+    QVector<double> turning(n, kNaN);
+    for (int i = 0; i < n; ++i)
+        {
+            if (std::isfinite(leftwards.at(i)))
+                {
+                    across[i] = slow.at(i).dot(right);
+                    turning[i] = -leftwards.at(i);
+                }
+        }
+    if (correlation(across, turning) < 0.5)
+        {
+            return false;
+        }
+    Vec3 ahead = up.cross(right);
+    ahead = ahead * (1.0 / ahead.length());
+    QVector<double> along;
+    for (int i = 0; i < n; ++i)
+        {
+            if (slow.at(i).finite() && grid.valid.at(i))
+                {
+                    along.append(level(slow.at(i)).dot(ahead));
+                }
+        }
+    if (along.size() < 20)
+        {
+            return false;
+        }
+    std::sort(along.begin(), along.end());
+    const double braking = -along.at(int(along.size()) / 50);
+    const double speedingUp = along.at(int(along.size()) - 1 - int(along.size()) / 50);
+    if (speedingUp > braking)
+        {
+            ahead = ahead * -1.0;
+        }
+    motion->forwards = QVector<double>(n, kNaN);
+    motion->sideways = QVector<double>(n, kNaN);
+    motion->vertical = QVector<double>(n, kNaN);
+    for (int i = 0; i < n; ++i)
+        {
+            if (accel.at(i).finite() && grid.valid.at(i))
+                {
+                    motion->forwards[i] = std::clamp(accel.at(i).dot(ahead) / kGravity, -5.0, 5.0);
+                    motion->sideways[i] = std::clamp(accel.at(i).dot(right) / kGravity, -5.0, 5.0);
+                    motion->vertical[i] = std::clamp(accel.at(i).dot(up) / kGravity, -5.0, 5.0);
+                }
+        }
+    return true;
+}
+
 // Clockwise from north, 0..360.
 double bearing(double lat1, double lon1, double lat2, double lon2)
 {
@@ -473,6 +583,11 @@ TelemetrySessionPtr DerivedChannels::complete(const TelemetrySessionPtr &origina
     if (!base || base->count() < 2)
         {
             base = session->channel(ChannelId::Elevation);
+        }
+    if (!base || base->count() < 2)
+        {
+            // a camera without a satellite fix: its motion sensors alone
+            base = session->channel(ChannelId::AccelX);
         }
     if (!base || base->count() < 2)
         {
@@ -666,6 +781,19 @@ TelemetrySessionPtr DerivedChannels::complete(const TelemetrySessionPtr &origina
                 {
                     store(*session, ChannelId::GForceLongitudinal, "g", grid, forwards);
                     store(*session, ChannelId::GForceLateral, "g", grid, sideways);
+                }
+        }
+
+    // G-force of a camera that had no satellite fix: its sensors alone
+    if (!has(*session, ChannelId::GForceLateral) && !has(*session, ChannelId::GForceLongitudinal)
+            && !has(*session, ChannelId::Speed))
+        {
+            Motion motion;
+            if (fromMotionSensorsAlone(*session, grid, &motion))
+                {
+                    store(*session, ChannelId::GForceLongitudinal, "g", grid, motion.forwards);
+                    store(*session, ChannelId::GForceLateral, "g", grid, motion.sideways);
+                    store(*session, ChannelId::GForceVertical, "g", grid, motion.vertical);
                 }
         }
 

@@ -178,6 +178,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   track and the output is .mp4/.mov, it is joined with the picture and sound, so the joined video
   carries its own data. Checked with GoPro's sample files (HERO5, HERO6 joined with themselves:
   twice the positions, twice as long)
+- ✅ GoPro videos without a satellite fix (2026-11-17, `fromMotionSensorsAlone`): read for their
+  motion sensors. Up from gravity, right as the level direction that follows the turns the
+  gyroscope feels, ahead across the two and the way that brakes harder. Checked with made-up rides
+  (both ways of mirrored axes; a leaning camera gets none); GoPro's samples load (HERO7, HERO8,
+  Karma), but are handheld and walked, so they do not tell how good it is on a vehicle
 - Joining videos of different kinds (re-encoding)
 
 ## Maps
