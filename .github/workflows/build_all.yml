@@ -404,6 +404,13 @@ jobs:
           # export and the music's lengths run ffmpeg and ffprobe; the program uses the ones
           # next to it, which need the DLLs above
           cp $ROOTMSYS/bin/ffmpeg.exe $ROOTMSYS/bin/ffprobe.exe release/
+          # OpenGL in software, Qt's own build of Mesa llvmpipe: where the graphics driver offers
+          # none worth having (Microsoft Basic Render Driver in a virtual machine, remote
+          # desktops, old drivers) Qt loads it by itself; without it the window stays empty
+          curl -fsSL -o opengl32sw.7z https://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64-mesa_11_2_2-signed_sha256.7z
+          echo "c61f801c1760aa24b02c7a8354323cddf368b86f8f5c34b50b3b224f7d728afd  opengl32sw.7z" | sha256sum -c -
+          7z x -y -orelease opengl32sw.7z opengl32sw.dll
+          rm opengl32sw.7z
           mv release ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64; 7z -tzip a ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64/
           # the same folder as an installer, for those who would rather install than unpack
           MAKENSIS=$ROOTMSYS/bin/makensis.exe windows/make-installer.sh \
