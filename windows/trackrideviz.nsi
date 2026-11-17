@@ -145,7 +145,7 @@ Section "!$(SectionProgram)" SecProgram
     ExecWait '"$INSTDIR\uninstall.exe" /S /$MultiUser.InstallMode _?=$INSTDIR'
     Delete "$INSTDIR\uninstall.exe"
   SetOutPath "$INSTDIR"
-  File /r "${SOURCE}/*.*"
+  File /r "${SOURCE}\*.*"
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
   CreateShortcut "$SMPROGRAMS\${APPNAME}.lnk" "$INSTDIR\${EXENAME}"
