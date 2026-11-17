@@ -157,8 +157,14 @@ hypotenuse, trigonometry, inverse; with a constant or a second column), gap fill
 removal, time-window averages (plain or of angles), deltas, last value. Left out and noted:
 calculators that derive measurements (lap statistics, ascent/descent, heading and distance from
 positions, G from speed, speed from distance; for every source alike in M4), positions projected
-to feet or meters. Refused: AiM and DriftBox layouts (header found by blank lines / sections), and
-profiles without line matchers. Of a full installation's 54: 49 import.
+to feet or meters. Refused: profiles without line matchers. Of a full installation's 54: 51 import.
+
+AiM and Racelogic (DriftBox, PerformanceBox) files carry a header block of their own, so their
+profiles name a `layout` instead of line numbers. `aim`: the column names 4 lines above the last
+blank line among the first 100, the data after it; "Time" starts again at 0 with each lap, so
+"Total Time" is added from the "Beacon Markers" line; the start from the "Date" and "Time" lines,
+in local time. `racelogic`: the names on the line after "[column names]", the data two lines on;
+"time" counted in rows at the "Log Rate (Hz)" given.
 
 ### Files to pass on: `.rtvgauge`, `.rtvtemplate` (`LibraryPackage`)
 The library keeps gauges as folders and templates as JSON files. To pass one on, it is exported

@@ -170,13 +170,17 @@ XmlDataProfileImporter::Result XmlDataProfileImporter::parse(const QByteArray &x
             result.error = tr("This is not an XML data profile.");
             return result;
         }
-    if (root.flag("isAimData") || root.flag("isDriftBoxData"))
-        {
-            result.error = tr("Files of this logger are laid out in a way that is not supported yet.");
-            return result;
-        }
     DataProfile &p = result.profile;
     p.name = name;
+    // these loggers' header blocks are found by what is in them, not by line numbers
+    if (root.flag("isAimData"))
+        {
+            p.layout = DataProfile::AimSections;
+        }
+    else if (root.flag("isDriftBoxData"))
+        {
+            p.layout = DataProfile::RacelogicSections;
+        }
     p.headerLines.clear();
     for (const QString &line : root.texts("HeaderLines"))
         {

@@ -13,6 +13,7 @@ const int kVersion = 1;
 
 const char *const kCalculatorTypes[] = {"convert", "math", "angle", "fill", "average", "delta", "previous"};
 const char *const kRoles[] = {"value", "runningTime", "timeOfDay", "date", "lap"};
+const char *const kLayouts[] = {"fixed", "aim", "racelogic"};
 
 template <int N>
 int indexOf(const char *const (&words)[N], const QString &word, int fallback = 0)
@@ -197,6 +198,7 @@ QByteArray DataProfileFile::toJson(const DataProfile &profile)
         {"version", kVersion},
         {"name", profile.name},
         {"matchers", matchers},
+        {"layout", kLayouts[profile.layout]},
         {"headerLines", headers},
         {"dataStart", profile.dataStart},
         {"separators", profile.separators},
@@ -242,6 +244,7 @@ bool DataProfileFile::fromJson(const QByteArray &json, DataProfile *profile, QSt
             loaded.headerLines.append(value.toInt());
         }
     loaded.dataStart = root.value("dataStart").toInt(1);
+    loaded.layout = DataProfile::Layout(indexOf(kLayouts, root.value("layout").toString()));
     loaded.separators = root.value("separators").toString(",");
     loaded.decimalComma = root.value("decimalComma").toBool();
     for (const QJsonValue &value : root.value("calculators").toArray())

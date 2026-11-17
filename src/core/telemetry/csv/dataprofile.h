@@ -80,8 +80,22 @@ struct DataProfile
         }
     };
 
+    // Where the column names and the data are.
+    enum Layout
+    {
+        FixedLines,    // headerLines and dataStart
+        // AiM: the names 4 lines above the last blank line among the first 100, the data after
+        // it. "Time" starts again at 0 with each lap; "Total Time" runs on, from the beacon
+        // markers. The recording's start from the "Date" and "Time" lines, in local time.
+        AimSections,
+        // Racelogic (DriftBox, PerformanceBox): the names on the line after "[column names]", the
+        // data two lines further on; "time" counted in rows at the "Log Rate (Hz)" given.
+        RacelogicSections,
+    };
+
     QString name;
     QVector<LineMatcher> matchers;
+    Layout layout{FixedLines};
     QVector<int> headerLines{0};   // several: their names joined with " - "
     int dataStart{1};
     QString separators{","};

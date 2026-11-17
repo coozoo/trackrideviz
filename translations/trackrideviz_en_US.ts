@@ -550,17 +550,17 @@
 <context>
     <name>CsvImporter</name>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="481"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="654"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="492"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="665"/>
         <source>%1: there are no data profiles to read CSV files with. Import some first (Library, Import).</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="494"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="667"/>
         <source>%1: none of the %n data profile(s) recognizes this file.</source>
         <translation>
             <numerusform>%1: none of the %n data profile recognises this file.</numerusform>
@@ -568,42 +568,57 @@
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="521"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="696"/>
+        <source>The AiM file has no blank line ending its header.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="704"/>
+        <source>The Racelogic file has no &quot;[column names]&quot; line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="708"/>
+        <source>The Racelogic file has no &quot;Log Rate (Hz)&quot; line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="724"/>
         <source>The file has no line %1 for the column names.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="528"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="731"/>
         <source>Line %1 does not hold column names.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="541"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
         <source>The column name lines differ in length.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="565"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="768"/>
         <source>The file has no data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="681"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="910"/>
         <source>The file has no time column the profile knows.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="696"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="925"/>
         <source>The time column is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="700"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="929"/>
         <source>CSV, data profile &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="764"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="993"/>
         <source>None of the columns this data profile names are in the file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -696,17 +711,17 @@ Worked out from the other data</source>
 <context>
     <name>DataProfileFile</name>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="225"/>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="227"/>
         <source>This is not a data profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="229"/>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="231"/>
         <source>The data profile was saved by a newer version of the program.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="265"/>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="268"/>
         <source>The data profile is incomplete.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5922,23 +5937,18 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="175"/>
-        <source>Files of this logger are laid out in a way that is not supported yet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="235"/>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="273"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="239"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="277"/>
         <source>unknown units %1, %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="259"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="263"/>
         <source>unknown operation %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="308"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="312"/>
         <source>RPM is worked out for %n cylinder(s)</source>
         <translation>
             <numerusform>RPM is worked out for %n cylinder</numerusform>
@@ -5946,22 +5956,22 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="324"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="328"/>
         <source>%1 is not supported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="384"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="388"/>
         <source>The data profile has no time column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="389"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="393"/>
         <source>The data profile does not say how to recognize its files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="394"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="398"/>
         <source>worked out later: %1</source>
         <translation type="unfinished"></translation>
     </message>
