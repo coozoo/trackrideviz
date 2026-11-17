@@ -11,6 +11,9 @@ MAKENSIS="${MAKENSIS:-makensis}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 [ -f "$SOURCE/trackrideviz.exe" ] || { echo "no trackrideviz.exe in $SOURCE" >&2; exit 1; }
+# whole paths before anything changes the folder: makensis runs from the one of this script
+SOURCE="$(cd "$SOURCE" && pwd)"
+OUTFILE="$(cd "$(dirname "$OUTFILE")" && pwd)/$(basename "$OUTFILE")"
 
 # Windows wants four numbers for the file's version: 0.01 -> 0.1.0.0
 IFS=. read -r major minor _ <<< "$VERSION."
@@ -36,12 +39,11 @@ to_native() {
     if command -v cygpath > /dev/null; then cygpath -w "$1"; else echo "$1"; fi
 }
 
-OUTDIR="$(cd "$(dirname "$OUTFILE")" && pwd)"
 cd "$HERE"
 "$MAKENSIS" -V2 \
     -DVERSION="$VERSION" -DFILEVERSION="$FILEVERSION" \
-    -DSOURCE="$(to_native "$(cd "$SOURCE" && pwd)")" \
+    -DSOURCE="$(to_native "$SOURCE")" \
     -DUNINSTALL_LIST="$(to_native "$LIST")" \
-    -DOUTFILE="$(to_native "$OUTDIR/$(basename "$OUTFILE")")" \
+    -DOUTFILE="$(to_native "$OUTFILE")" \
     trackrideviz.nsi
 echo "made $OUTFILE"
