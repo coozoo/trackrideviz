@@ -186,7 +186,7 @@ the same name is added as "<name> (2)", and a template of an existing name gets 
 | GPX (+ Garmin TrackPointExtension: hr, cad, temp, power) | everything | `QXmlStreamReader`; start from Overseer's `GpxTrack` and widen it | 1 |
 | FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK license terms) or the official C++ SDK — see decisions §5 | 1 |
 | GoPro GPMF (embedded in MP4) | GoPro Hero 5+ | Demux the `gpmd` data stream via libavformat/ffprobe, parse KLV ourselves (GPS5/GPS9, ACCL, GYRO) | 2 |
-| CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own profiles to ship later | 2 |
+| CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own ones come with the program (`csv/profiles/`: TrackAddict) | 2 |
 | TCX | older Garmin, Strava export | XML | 2 |
 | NMEA 0183 | raw GPS loggers, dashcams | line parser (RMC/GGA/VTG) | 3 |
 | VBO | Racelogic VBOX, RaceChrono export | text, header-described columns | 3 |

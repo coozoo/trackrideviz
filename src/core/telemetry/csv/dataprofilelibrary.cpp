@@ -55,6 +55,34 @@ void DataProfileLibrary::setUserFolder(const QString &folder)
     folderOverride() = folder;
 }
 
+// By hand, for when the core is linked as a static library (the tests).
+// The macro has to stand in a plain function outside any namespace.
+static void initProfileResources()
+{
+    Q_INIT_RESOURCE(dataprofiles);
+}
+
+QVector<DataProfile> DataProfileLibrary::builtinProfiles()
+{
+    static const QVector<DataProfile> builtin = []()
+    {
+        initProfileResources();
+        QVector<DataProfile> result;
+        const QDir dir(":/dataprofiles");
+        for (const QString &name : dir.entryList({"*.json"}, QDir::Files, QDir::Name | QDir::IgnoreCase))
+            {
+                QFile file(dir.filePath(name));
+                DataProfile profile;
+                if (file.open(QIODevice::ReadOnly) && DataProfileFile::fromJson(file.readAll(), &profile))
+                    {
+                        result.append(profile);
+                    }
+            }
+        return result;
+    }();
+    return builtin;
+}
+
 QVector<DataProfile> DataProfileLibrary::profiles()
 {
     QVector<DataProfile> result;
@@ -64,6 +92,17 @@ QVector<DataProfile> DataProfileLibrary::profiles()
             QFile file(dir.filePath(name));
             DataProfile profile;
             if (file.open(QIODevice::ReadOnly) && DataProfileFile::fromJson(file.readAll(), &profile))
+                {
+                    result.append(profile);
+                }
+        }
+    for (const DataProfile &profile : builtinProfiles())
+        {
+            const bool replaced = std::any_of(result.cbegin(), result.cend(), [&profile](const DataProfile &own)
+            {
+                return own.name.compare(profile.name, Qt::CaseInsensitive) == 0;
+            });
+            if (!replaced)
                 {
                     result.append(profile);
                 }

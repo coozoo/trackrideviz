@@ -664,7 +664,8 @@ TelemetrySessionPtr CsvImporter::load(const QString &path, const QVector<DataPro
                     *error = profiles.isEmpty()
                              ? tr("%1: there are no data profiles to read CSV files with. Import some first (Library, Import).")
                              .arg(QFileInfo(path).fileName())
-                             : tr("%1: none of the %n data profile(s) recognizes this file.", nullptr, int(profiles.size()))
+                             : tr("%1: none of the %n data profile(s) recognizes this file. Profiles for other "
+                                  "loggers can be imported (Library, Import).", nullptr, int(profiles.size()))
                              .arg(QFileInfo(path).fileName());
                 }
             return nullptr;
@@ -712,6 +713,25 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
         {
             headerLines = {logger.namesLine};
             dataStart = logger.dataStart;
+        }
+    else if (!headerLines.isEmpty())
+        {
+            // a logger that writes more "# ..." lines in front than when the profile was made
+            // (TrackAddict: one, later five to nine): names and data move down as far
+            int shift = 0;
+            const int first = headerLines.first();
+            while (first >= 0 && first + shift < text.size() && text.at(first + shift).trimmed().startsWith('#'))
+                {
+                    ++shift;
+                }
+            if (first + shift < text.size())
+                {
+                    for (int &line : headerLines)
+                        {
+                            line += shift;
+                        }
+                    dataStart += shift;
+                }
         }
 
     // column names: one header line, or several joined

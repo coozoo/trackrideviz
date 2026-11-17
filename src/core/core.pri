@@ -136,6 +136,8 @@ HEADERS += \
     $$PWD/video/videojoin.h
 
 RESOURCES += $$PWD/gauge/fonts/fonts.qrc
+# the data profiles that come with the program
+RESOURCES += $$PWD/telemetry/csv/profiles/dataprofiles.qrc
 
 # gzip for the library's own files (Gzip); zlib is there wherever Qt is
 LIBS += -lz

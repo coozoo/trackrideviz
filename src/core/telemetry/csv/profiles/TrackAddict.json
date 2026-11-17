@@ -1,0 +1,154 @@
+{
+    "format": "rtvdataprofile",
+    "version": 1,
+    "name": "TrackAddict",
+    "matchers": [
+        {
+            "line": 0,
+            "text": "TrackAddict",
+            "ignoreCase": true
+        }
+    ],
+    "layout": "fixed",
+    "headerLines": [
+        1
+    ],
+    "dataStart": 2,
+    "separators": ",",
+    "decimalComma": false,
+    "calculators": [],
+    "mappings": [
+        {
+            "column": "Time",
+            "role": "runningTime",
+            "ignoreCase": true
+        },
+        {
+            "column": "Lap",
+            "role": "lap",
+            "ignoreCase": true
+        },
+        {
+            "column": "Latitude",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "positionLat"
+        },
+        {
+            "column": "Longitude",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "positionLon"
+        },
+        {
+            "column": "Altitude (m)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "elevation",
+            "unit": "m"
+        },
+        {
+            "column": "Altitude (ft)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "elevation",
+            "unit": "ft"
+        },
+        {
+            "column": "Speed (Km/h)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "speed",
+            "unit": "km/h"
+        },
+        {
+            "column": "Speed (KPH)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "speed",
+            "unit": "km/h"
+        },
+        {
+            "column": "Speed (MPH)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "speed",
+            "unit": "mph"
+        },
+        {
+            "column": "Heading",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "heading"
+        },
+        {
+            "column": "Accel X",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "accelX",
+            "unit": "g"
+        },
+        {
+            "column": "Accel Y",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "accelY",
+            "unit": "g"
+        },
+        {
+            "column": "Accel Z",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "accelZ",
+            "unit": "g"
+        },
+        {
+            "column": "Engine Speed (RPM)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "engineRpm",
+            "contains": true,
+            "unit": "rpm"
+        },
+        {
+            "column": "Throttle Position (%)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "throttlePosition",
+            "contains": true,
+            "unit": "%"
+        },
+        {
+            "column": "Engine Coolant Temp (F)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "engineCoolantTemperature",
+            "contains": true,
+            "unit": "°F"
+        },
+        {
+            "column": "Engine Coolant Temp (C)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "engineCoolantTemperature",
+            "contains": true,
+            "unit": "°C"
+        },
+        {
+            "column": "Intake Air Temp (F)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "intakeAirTemperature",
+            "contains": true,
+            "unit": "°F"
+        },
+        {
+            "column": "Intake Air Temp (C)",
+            "role": "value",
+            "ignoreCase": true,
+            "channel": "intakeAirTemperature",
+            "contains": true,
+            "unit": "°C"
+        }
+    ]
+}

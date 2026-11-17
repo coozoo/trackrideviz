@@ -561,65 +561,65 @@
     </message>
     <message numerus="yes">
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="667"/>
-        <source>%1: none of the %n data profile(s) recognizes this file.</source>
+        <source>%1: none of the %n data profile(s) recognizes this file. Profiles for other loggers can be imported (Library, Import).</source>
         <translation>
-            <numerusform>%1: жоден із %n профілю даних не розпізнає цей файл.</numerusform>
-            <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл.</numerusform>
-            <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл.</numerusform>
+            <numerusform>%1: жоден із %n профілю даних не розпізнає цей файл. Профілі для інших реєстраторів можна імпортувати (Бібліотека, Імпорт).</numerusform>
+            <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл. Профілі для інших реєстраторів можна імпортувати (Бібліотека, Імпорт).</numerusform>
+            <numerusform>%1: жоден із %n профілів даних не розпізнає цей файл. Профілі для інших реєстраторів можна імпортувати (Бібліотека, Імпорт).</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="696"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="697"/>
         <source>The AiM file has no blank line ending its header.</source>
         <translation>У файлі AiM немає порожнього рядка, яким закінчується заголовок.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="704"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="705"/>
         <source>The Racelogic file has no &quot;[column names]&quot; line.</source>
         <translation>У файлі Racelogic немає рядка «[column names]».</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="708"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="709"/>
         <source>The Racelogic file has no &quot;Log Rate (Hz)&quot; line.</source>
         <translation>У файлі Racelogic немає рядка «Log Rate (Hz)».</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="724"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
         <source>The file has no line %1 for the column names.</source>
         <translation>У файлі немає рядка %1 з назвами стовпців.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="731"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="751"/>
         <source>Line %1 does not hold column names.</source>
         <translation>Рядок %1 не містить назв стовпців.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="764"/>
         <source>The column name lines differ in length.</source>
         <translation>Рядки з назвами стовпців мають різну довжину.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="768"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="788"/>
         <source>The file has no data.</source>
         <translation>У файлі немає даних.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="910"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="930"/>
         <source>The file has no time column the profile knows.</source>
         <translation>У файлі немає стовпця часу, відомого профілю.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="925"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="945"/>
         <source>The time column is empty.</source>
         <translation>Стовпець часу порожній.</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="929"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="949"/>
         <source>CSV, data profile &quot;%1&quot;</source>
         <translation>CSV, профіль даних «%1»</translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="993"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="1013"/>
         <source>None of the columns this data profile names are in the file.</source>
         <translation>У файлі немає жодного стовпця, названого в цьому профілі даних.</translation>
     </message>
@@ -732,7 +732,7 @@ Worked out from the other data</source>
 <context>
     <name>DataProfileLibrary</name>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="83"/>
+        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="122"/>
         <source>Cannot write %1: %2</source>
         <translation>Не вдалося записати %1: %2</translation>
     </message>

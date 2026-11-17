@@ -8,6 +8,8 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
+#include <algorithm>
+
 #include <cmath>
 
 // A moment in UTC, built the same way on every Qt version.
@@ -557,6 +559,31 @@ private slots:
         QCOMPARE(xml.profile.layout, DataProfile::AimSections);
     }
 
+    void trackAddictComesWithTheProgram()
+    {
+        const QVector<DataProfile> builtin = DataProfileLibrary::builtinProfiles();
+        const auto found = std::find_if(builtin.cbegin(), builtin.cend(), [](const DataProfile &p) { return p.name == "TrackAddict"; });
+        QVERIFY(found != builtin.cend());
+        // as the logger writes it: more "#" lines in front than the profile's line numbers allow for
+        const QByteArray log = "# Data: TrackAddict 4.8.0 on iOS 15.5 (Mode: 0)\n"
+                               "# Vehicle: some car\n"
+                               "# End Point: 50.857952, -0.752617  @ -1.00 deg\n"
+                               "# GPS: iOS; Type: 1\n"
+                               "\"Time\",\"UTC Time\",\"Lap\",\"Latitude\",\"Longitude\",\"Altitude (m)\",\"Speed (Km/h)\","
+                               "\"Heading\",\"Accel X\",\"Engine Speed (RPM) *OBD\",\"Engine Coolant Temp (F) *OBD\"\n"
+                               "0.000,1653983971.000,0,50.8590633,-0.7529619,29.5,36.0,165.1,0.01,1155.5,212\n"
+                               "1.000,1653983972.000,1,50.8590700,-0.7529600,29.6,72.0,165.0,0.02,2000.0,212\n"
+                               "2.000,1653983973.000,2,50.8590800,-0.7529500,29.7,72.0,164.0,0.03,2500.0,212\n"
+                               "# Session End\n";
+        const TelemetrySessionPtr s = read(log, *found);
+        QVERIFY(s);
+        QCOMPARE(s->channel("speed")->valueAtIndex(1), 20.0);
+        QCOMPARE(s->channel("engineRpm")->valueAtIndex(2), 2500.0);
+        QVERIFY(qAbs(s->channel("engineCoolantTemperature")->valueAtIndex(0) - 100.0) < 1e-9);
+        QCOMPARE(s->channel("accelX")->valueAtIndex(2), 0.03);
+        QCOMPARE(s->laps().size(), 1);
+    }
+
     void xmlProfilesRefused()
     {
         QVERIFY(!XmlDataProfileImporter::parse("<Gauge/>", "x").ok);
@@ -584,7 +611,8 @@ private slots:
         const DataProfileLibrary::ImportSummary summary = DataProfileLibrary::importXml({xml, bad});
         QCOMPARE(summary.imported, 1);
         QCOMPARE(summary.failed.size(), 1);
-        QCOMPARE(DataProfileLibrary::profiles().size(), 1);
+        // the user's own first, then those that come with the program
+        QCOMPARE(DataProfileLibrary::profiles().size(), 1 + DataProfileLibrary::builtinProfiles().size());
         QCOMPARE(DataProfileLibrary::profiles().first().name, QString("Logger Y"));
 
         // a .csv opens like any data file
@@ -600,7 +628,7 @@ private slots:
         QVERIFY(error.contains("other.csv"));
 
         QVERIFY(DataProfileLibrary::remove("Logger Y"));
-        QVERIFY(DataProfileLibrary::profiles().isEmpty());
+        QCOMPARE(DataProfileLibrary::profiles().size(), DataProfileLibrary::builtinProfiles().size());
         QVERIFY(!TelemetryImporter::load(csv, &error));
         QVERIFY(error.contains("Import"));
     }

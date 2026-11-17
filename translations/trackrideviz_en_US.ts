@@ -561,64 +561,64 @@
     </message>
     <message numerus="yes">
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="667"/>
-        <source>%1: none of the %n data profile(s) recognizes this file.</source>
-        <translation>
-            <numerusform>%1: none of the %n data profile recognises this file.</numerusform>
-            <numerusform>%1: none of the %n data profiles recognises this file.</numerusform>
+        <source>%1: none of the %n data profile(s) recognizes this file. Profiles for other loggers can be imported (Library, Import).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="696"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="697"/>
         <source>The AiM file has no blank line ending its header.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="704"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="705"/>
         <source>The Racelogic file has no &quot;[column names]&quot; line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="708"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="709"/>
         <source>The Racelogic file has no &quot;Log Rate (Hz)&quot; line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="724"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
         <source>The file has no line %1 for the column names.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="731"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="751"/>
         <source>Line %1 does not hold column names.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="764"/>
         <source>The column name lines differ in length.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="768"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="788"/>
         <source>The file has no data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="910"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="930"/>
         <source>The file has no time column the profile knows.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="925"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="945"/>
         <source>The time column is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="929"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="949"/>
         <source>CSV, data profile &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="993"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="1013"/>
         <source>None of the columns this data profile names are in the file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -729,7 +729,7 @@ Worked out from the other data</source>
 <context>
     <name>DataProfileLibrary</name>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="83"/>
+        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="122"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
