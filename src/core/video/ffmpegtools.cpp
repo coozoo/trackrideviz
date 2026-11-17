@@ -15,12 +15,17 @@ QString FfmpegTools::ffmpegProgram()
     if (QCoreApplication::instance())
         {
 #ifdef Q_OS_WIN
-            const QString bundled = QCoreApplication::applicationDirPath() + "/ffmpeg.exe";
+            // in a folder of its own with the Vulkan loader it needs (see main.cpp)
+            const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg/ffmpeg.exe",
+                                      QCoreApplication::applicationDirPath() + "/ffmpeg.exe"};
 #else
-            const QString bundled = QCoreApplication::applicationDirPath() + "/ffmpeg";
+            const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg"};
 #endif
-            if (QFileInfo(bundled).isExecutable())
-                return bundled;
+            for (const QString &program : bundled)
+                {
+                    if (QFileInfo(program).isExecutable())
+                        return program;
+                }
         }
     return QStringLiteral("ffmpeg");
 }

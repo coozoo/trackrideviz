@@ -387,9 +387,8 @@ jobs:
             "libgdk_pixbuf*.dll" "libgio*.dll" "libgobject*.dll" "libgmodule*.dll" "libffi*.dll"
             # and what ffmpeg.exe and ffprobe.exe load besides: devices and filters
             "avdevice*.dll" "avfilter*.dll" "libcaca*.dll" "libopenal*.dll"
-            # not vulkan-1.dll: Windows has its own with the graphics driver, and one next to the
-            # program is loaded by the graphics stack too (under Wine it then recursed until the
-            # stack overflowed)
+            # not vulkan-1.dll here: one next to the program is loaded by the graphics stack too
+            # (under Wine it then recursed until the stack overflowed); ffmpeg gets it in ffmpeg/
             "libplacebo*.dll" "libdovi.dll" "libshaderc_shared.dll" "libspirv-cross-c-shared.dll"
             "libass*.dll" "libunibreak*.dll" "libvidstab.dll" "libzimg*.dll"
             "libz-1*.dll" "libwhisper*.dll" "ggml*.dll"
@@ -401,9 +400,12 @@ jobs:
             fi
           done
           shopt -u nullglob
-          # export and the music's lengths run ffmpeg and ffprobe; the program uses the ones
-          # next to it, which need the DLLs above
-          cp $ROOTMSYS/bin/ffmpeg.exe $ROOTMSYS/bin/ffprobe.exe release/
+          # export and the music's lengths run ffmpeg and ffprobe: in ffmpeg/ with vulkan-1.dll,
+          # which their filters (libplacebo) import and Windows without a graphics driver lacks;
+          # the other DLLs above they find in the program's folder, which the program puts on
+          # their PATH. Not beside the program: Wine's graphics would load it there and recurse
+          mkdir -p release/ffmpeg
+          cp $ROOTMSYS/bin/ffmpeg.exe $ROOTMSYS/bin/ffprobe.exe $ROOTMSYS/bin/vulkan-1.dll release/ffmpeg/
           # OpenGL in software, Qt's own build of Mesa llvmpipe: where the graphics driver offers
           # none worth having (Microsoft Basic Render Driver in a virtual machine, remote
           # desktops, old drivers) Qt loads it by itself; without it the window stays empty

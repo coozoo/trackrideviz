@@ -6,6 +6,7 @@
 #include "settings/appsettings.h"
 
 #include <QApplication>
+#include <QDir>
 #include <QIcon>
 #include <QLocale>
 #include <QTranslator>
@@ -22,6 +23,13 @@ int main(int argc, char *argv[])
     a.setApplicationDisplayName("Race Track Visualizer");
     a.setApplicationVersion(APP_VERSION);
     a.setOrganizationName("trackrideviz");
+#ifdef Q_OS_WIN
+    // ffmpeg.exe and ffprobe.exe are in ffmpeg\ beside the program, with the Vulkan loader only
+    // they need (their filters import it; Windows without a graphics driver has none). The rest
+    // of their DLLs are the program's own, found through the PATH they inherit. The loader is
+    // kept out of the program's folder: there Wine's graphics would load it too, and recurse.
+    qputenv("PATH", QDir::toNativeSeparators(a.applicationDirPath()).toLocal8Bit() + ";" + qgetenv("PATH"));
+#endif
     // before anything draws gauges in another thread (library pictures, export)
     GaugeFonts::load();
 
