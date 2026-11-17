@@ -32,6 +32,7 @@ SOURCES += \
     $$PWD/overlay/templatelibrary.cpp \
     $$PWD/overlay/xmltemplateimporter.cpp \
     $$PWD/project/project.cpp \
+    $$PWD/project/projectdata.cpp \
     $$PWD/settings/appsettings.cpp \
     $$PWD/update/releasecheck.cpp \
     $$PWD/settings/bundleddata.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     $$PWD/overlay/templatelibrary.h \
     $$PWD/overlay/xmltemplateimporter.h \
     $$PWD/project/project.h \
+    $$PWD/project/projectdata.h \
     $$PWD/settings/appsettings.h \
     $$PWD/update/releasecheck.h \
     $$PWD/settings/bundleddata.h \

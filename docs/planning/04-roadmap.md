@@ -387,7 +387,13 @@ encoders, preferred by the Small file profile; volumes up to 200 %, held under f
 the automatic end of a fixed dial following the highest value held for a second, not a GPS spike.
 
 ## M7 — Polish and distribution
-- Export backend B (in-process libav) if/when needed; export queue (done: the gauges alone with transparency)
+- Export backend B (in-process libav) if/when needed (an export queue dropped: several projects are exported one
+  after another by the command line)
+- ✅ Command line (2026-11-17, `CommandLine`, `ProjectData`): --render a project, or a video, data and a template
+  (synced by the clocks or --offset); --profile, --encoder / --hardware / --software and each choice of the export
+  dialog by hand; --gauges-only; --list-encoders, --list-profiles, --list-templates; progress in a terminal, a line
+  every tenth into a file; Ctrl+C keeps a playable file. Waits for the terrain, the weather and the street maps.
+  Linux checked; Windows (its console taken from cmd) not yet
 - AppImage + Flatpak, macOS bundle
 - ✅ Windows installer (2026-11-17, `windows/trackrideviz.nsi`, NSIS, built by CI next to the zip): for the user
   alone or for everyone, Start menu and desktop shortcuts, .rtvproj / .rtvgauge / .rtvtemplate opened by a

@@ -414,6 +414,10 @@ private slots:
         plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
         QVERIFY(hasPair(plan.arguments, "-c:a", "libopus"));
         QVERIFY(hasPair(plan.arguments, "-b:a", "128k"));
+        // no more than Opus takes for a channel: the 384 of a YouTube upload would stop it on mono sound
+        settings.audioKbps = 384;
+        plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        QVERIFY(hasPair(plan.arguments, "-b:a", "256k"));
 
         settings.audio = ExportSettings::VorbisAudio;
         plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());

@@ -22,6 +22,7 @@
 #include "overlay/gaugetemplate.h"
 #include "overlay/librarypackage.h"
 #include "overlay/templatelibrary.h"
+#include "project/projectdata.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
 #include "sync/videosync.h"
@@ -164,27 +165,6 @@ struct ImportResult
     bool weatherWaiting{false};    // for the weather of the ride
     QString error;
 };
-
-// What gauges read: the file's data corrected, with the terrain's heights where the project
-// asks for them, and everything that can be worked out from that.
-TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
-                              const PowerEstimate::Rider &rider, const QVector<SurfaceStretch> &surfaces,
-                              const WeatherChoice &weatherChoice, const HandWind &handWind, const Drivetrain &drivetrain,
-                              bool *waiting, bool *weatherWaiting)
-{
-    // the gears want the speed and the cadence only
-    const TelemetrySessionPtr complete = Gears::apply(DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits),
-                                         elevation, waiting)), drivetrain);
-    *weatherWaiting = false;
-    // a wind entered by hand stands in for the weather history's
-    const Weather weather = complete && weatherChoice.enabled && !handWind.used
-                            ? WeatherStore::instance()->along(*complete, weatherChoice, weatherWaiting) : Weather();
-    const TelemetrySessionPtr windy = handWind.used ? WeatherChannels::addWind(complete, handWind, weatherChoice.windShare)
-                                      : WeatherChannels::add(complete, weather, weatherChoice.windShare);
-    // the estimate wants the speed, the grade and the wind; what is worked out from a power wants the estimate
-    const TelemetrySessionPtr powered = PowerEstimate::apply(windy, rider, surfaces);
-    return powered == complete ? complete : DerivedChannels::complete(powered);
-}
 
 // One change of the overlay. Whole states are kept rather than differences:
 // they are a handful of numbers, and "set it to exactly this" cannot go wrong.
@@ -1180,7 +1160,7 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync, bool quietly)
         result.main = TelemetryImporter::loadRecorded(path, &result.error);
         result.sources = sources;
         result.raw = DataSources::loadAndMerge(result.main, &result.sources);
-        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, drivetrain, &result.waiting,
+        result.session = ProjectData::workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, drivetrain, &result.waiting,
                                    &result.weatherWaiting);
         return result;
     }));
@@ -2741,7 +2721,7 @@ void MainWindow::recomputeData()
             return;
         }
     m_sinceRecompute.start();
-    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
+    m_recordedSession = ProjectData::workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
                                   m_project.wind, m_drivetrain,
                                   &m_terrainWaiting, &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
@@ -2845,22 +2825,7 @@ void MainWindow::applyMapSettings()
 {
     TileStore *maps = TileStore::instance();
     const QString before = maps->urlTemplate() + maps->attribution();
-    QString address = AppSettings::mapTileUrl();
-    QString credit = AppSettings::mapAttribution();
-    int maxZoom = 19;
-    if (AppSettings::mapProvider() != QLatin1String(AppSettings::OwnMapServer))
-        {
-            const TileStore::Provider provider = TileStore::provider(AppSettings::mapProvider());
-            address = provider.urlTemplate;
-            address.replace("{apikey}", AppSettings::mapApiKey());
-            credit = provider.attribution;
-            maxZoom = provider.maxZoom;
-        }
-    maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
-    maps->setDownloads(AppSettings::mapDownloads());
-    // gauges with a map of their own
-    TileStore::setMapOptions(AppSettings::mapDownloads(), AppSettings::mapCreditShown(), AppSettings::mapApiKey());
-    TileStore::terrain()->setDownloads(AppSettings::mapDownloads());
+    AppSettings::applyMapSources();
     // asked for only when the Weather page of the settings says so
     WeatherStore::instance()->setDownloads(true);
     m_lapsPanel->refreshMapChoice();

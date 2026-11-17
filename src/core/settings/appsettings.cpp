@@ -606,3 +606,23 @@ void AppSettings::setUnits(const Units &units)
     settings.setValue(kLengthUnit, kLengthWords[units.length]);
     settings.setValue(kTemperatureUnit, kTemperatureWords[units.temperature]);
 }
+
+void AppSettings::applyMapSources()
+{
+    QString address = mapTileUrl();
+    QString credit = mapAttribution();
+    int maxZoom = 19;
+    if (mapProvider() != QLatin1String(OwnMapServer))
+        {
+            const TileStore::Provider provider = TileStore::provider(mapProvider());
+            address = provider.urlTemplate;
+            address.replace("{apikey}", mapApiKey());
+            credit = provider.attribution;
+            maxZoom = provider.maxZoom;
+        }
+    TileStore::instance()->setSource(address, mapCreditShown() ? credit : QString(), maxZoom);
+    TileStore::instance()->setDownloads(mapDownloads());
+    // gauges with a map of their own
+    TileStore::setMapOptions(mapDownloads(), mapCreditShown(), mapApiKey());
+    TileStore::terrain()->setDownloads(mapDownloads());
+}

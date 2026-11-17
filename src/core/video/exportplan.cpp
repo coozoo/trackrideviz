@@ -19,7 +19,8 @@ QStringList audioEncoding(const ExportSettings &settings)
     switch (settings.audio)
         {
         case ExportSettings::OpusAudio:
-            return {"-c:a", "libopus", "-b:a", bitrate};
+            // Opus takes no more than 256 kbit/s a channel: mono sound refuses the 384 of a YouTube upload
+            return {"-c:a", "libopus", "-b:a", QString("%1k").arg(std::min(settings.audioKbps, 256))};
         case ExportSettings::VorbisAudio:
             return {"-c:a", "libvorbis", "-b:a", bitrate};
         case ExportSettings::AacAudio:

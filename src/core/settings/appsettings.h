@@ -106,6 +106,8 @@ public:
     static QString mapApiKey();
     static void setMapApiKey(const QString &key);
     // The user's own server: its address with {z}, {x}, {y}, and the credit line it asks for.
+    // The tile stores (maps, the terrain) set as these settings say.
+    static void applyMapSources();
     static QString mapTileUrl();
     static void setMapTileUrl(const QString &url);
     static QString mapAttribution();

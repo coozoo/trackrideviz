@@ -72,6 +72,25 @@ xattr -dr com.apple.quarantine /Applications/trackrideviz.app
 codesign --force --deep --sign - /Applications/trackrideviz.app
 ```
 
+## Command line
+
+The program exports without its window too, for scripts and for many videos in a row:
+
+```bash
+trackrideviz --render ride.rtvproj                       # as the project was saved
+trackrideviz --render ride.rtvproj -o ride.mp4 --profile youtube --hardware
+trackrideviz --render --video GX010042.MP4 --data ride.fit --template "Track day"
+trackrideviz --render ride.rtvproj --gauges-only -o gauges.mov
+trackrideviz --list-encoders                             # what this computer can encode with
+trackrideviz --help                                      # everything else
+```
+
+A project is exported as it was saved. Without one, the video and the data are put in step by
+their clocks, as when they are opened in the window, or by `--offset`. The export profile and
+the kind of encoder (graphics card or processor) are those the export dialog used last unless
+`--profile`, `--encoder`, `--hardware` or `--software` say otherwise. Ctrl+C stops and keeps a
+playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.
+
 ## Build
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist

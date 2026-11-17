@@ -1,4 +1,5 @@
 #include "appearance.h"
+#include "commandline.h"
 #include "diagnostics.h"
 #include "gauge/gaugefonts.h"
 #include "gstreamerworkaround.h"
@@ -12,13 +13,26 @@
 #include <QTranslator>
 #include <QtDebug>
 
+#include <memory>
+
 const QString APP_VERSION = "0.01";
 
 int main(int argc, char *argv[])
 {
     // everything Qt says from the very start, for View > Diagnostics
     DiagnosticLog::install();
-    QApplication a(argc, argv);
+    // exporting from a terminal or a script: no window, nothing of the desktop needed
+    const bool commandLine = CommandLine::wanted(argc, argv);
+    if (commandLine)
+        {
+            CommandLine::attachConsole();
+            if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
+                {
+                    qputenv("QT_QPA_PLATFORM", "offscreen");
+                }
+        }
+    const std::unique_ptr<QGuiApplication> application(commandLine ? new QGuiApplication(argc, argv) : new QApplication(argc, argv));
+    QGuiApplication &a = *application;
     a.setApplicationName("trackrideviz");
     a.setApplicationDisplayName("Race Track Visualizer");
     a.setApplicationVersion(APP_VERSION);
@@ -59,6 +73,10 @@ int main(int argc, char *argv[])
 #endif
     a.setProperty("appversion", APP_VERSION + platform + " (QTbuild:" + QString(QT_VERSION_STR) + ")");
     a.setProperty("appname", "Race Track Visualizer");
+    if (commandLine)
+        {
+            return CommandLine::run();
+        }
 
 #ifdef Q_OS_LINUX
     a.setWindowIcon(QIcon(":/images/trackrideviz.png"));
