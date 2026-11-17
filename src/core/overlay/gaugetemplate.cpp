@@ -51,6 +51,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.channels = item.channels;
             placed.scaleMax = item.scaleMax;
             placed.aspect = item.aspect;
+            placed.map = item.map;
             placed.ownTheme = item.ownTheme;
             placed.theme = item.theme;
             placed.textScale = item.textScale;
@@ -90,6 +91,7 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.channels = placed.channels;
             item.scaleMax = placed.scaleMax;
             item.aspect = placed.aspect;
+            item.map = placed.map;
             item.ownTheme = placed.ownTheme;
             item.theme = placed.theme;
             item.textScale = placed.textScale;
@@ -134,6 +136,7 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             choices.channels = item.channels;
             choices.scaleMax = item.scaleMax;
             choices.aspect = item.aspect;
+            choices.map = item.map;
             choices.ownTheme = item.ownTheme;
             choices.theme = item.theme;
             choices.textScale = item.textScale;
@@ -213,6 +216,7 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
             item.channels = choices.channels;
             item.scaleMax = choices.scaleMax;
             item.aspect = choices.aspect;
+            item.map = choices.map;
             item.ownTheme = choices.ownTheme;
             item.theme = choices.theme;
             item.textScale = choices.textScale;

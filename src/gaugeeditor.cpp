@@ -6,6 +6,7 @@
 #include "gauge/gaugetheme.h"
 #include "icons.h"
 #include "laps/lapengine.h"
+#include "maps/tilestore.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 #include "telemetry/derivedchannels.h"
@@ -2283,6 +2284,19 @@ void GaugeEditor::fillProperties()
                     if (part.tiles)
                         {
                             addNumber(form, tr("Strength of the map:"), part.tileOpacity, 0.05, 1, 2, [](Part &p, double v) { p.tileOpacity = v; });
+                            // a map of its own, or the one chosen in the settings
+                            const QVector<TileStore::Provider> providers = TileStore::providers();
+                            QVector<QPair<QString, int>> maps{{tr("as in the settings"), -1}};
+                            int current = -1;
+                            for (int i = 0; i < providers.size(); ++i)
+                                {
+                                    maps.append({providers.at(i).name, i});
+                                    current = providers.at(i).id == part.mapProvider ? i : current;
+                                }
+                            addChoice(form, tr("Map:"), maps, current, [providers](Part &p, int i)
+                            {
+                                p.mapProvider = i >= 0 && i < providers.size() ? providers.at(i).id : QString();
+                            });
                         }
                     addNumber(form, tr("Close-up, meters across:"), part.span, 0, 100000, 0, [](Part &p, double v) { p.span = v; },
                               tr("0: the whole route. Otherwise this much around the rider, the map moving under them."));

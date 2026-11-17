@@ -51,6 +51,67 @@ TileStore *TileStore::terrain()
     return store;
 }
 
+namespace
+{
+struct MapOptions
+{
+    bool downloads{false};
+    bool credit{true};
+    QString apiKey;
+};
+
+QMutex mapsMutex;
+QHash<QString, TileStore *> maps;   // forMap()'s, by provider id
+MapOptions mapOptions;
+}
+
+TileStore *TileStore::forMap(const QString &providerId)
+{
+    if (providerId.isEmpty())
+        {
+            return instance();
+        }
+    const QMutexLocker lock(&mapsMutex);
+    if (TileStore *store = maps.value(providerId))
+        {
+            return store;
+        }
+    TileStore *made = new TileStore;
+    const Provider provider = TileStore::provider(providerId);
+    QString address = provider.urlTemplate;
+    address.replace("{apikey}", mapOptions.apiKey);
+    made->setSource(address, mapOptions.credit ? provider.attribution : QString(), provider.maxZoom);
+    made->setDownloads(mapOptions.downloads);
+    connect(made, &TileStore::arrived, instance(), &TileStore::arrived);
+    maps.insert(providerId, made);
+    return made;
+}
+
+void TileStore::setMapOptions(bool downloads, bool credit, const QString &apiKey)
+{
+    const QMutexLocker lock(&mapsMutex);
+    mapOptions = {downloads, credit, apiKey};
+    for (auto it = maps.cbegin(); it != maps.cend(); ++it)
+        {
+            const Provider provider = TileStore::provider(it.key());
+            QString address = provider.urlTemplate;
+            address.replace("{apikey}", apiKey);
+            it.value()->setSource(address, credit ? provider.attribution : QString(), provider.maxZoom);
+            it.value()->setDownloads(downloads);
+        }
+}
+
+int TileStore::pendingOfAllMaps()
+{
+    int pending = instance()->pending();
+    const QMutexLocker lock(&mapsMutex);
+    for (const TileStore *store : std::as_const(maps))
+        {
+            pending += store->pending();
+        }
+    return pending;
+}
+
 QImage TileStore::tile(int zoom, int x, int y)
 {
     const QMutexLocker lock(&m_mutex);

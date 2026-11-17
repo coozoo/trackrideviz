@@ -39,6 +39,15 @@ public:
     // A second store, for the tiles of the terrain model (terrain.h): its own
     // server and folder, the same switch for downloads.
     static TileStore *terrain();
+    // The store of one of providers() by id, for a gauge with a map of its own: made on first
+    // use (from the GUI thread, as gauges are bound there), its tiles kept beside the others;
+    // what comes for it is told by instance()'s arrived(). An empty id: instance().
+    static TileStore *forMap(const QString &providerId);
+    // What every store of forMap() follows of the settings: downloads, the credit drawn, the key
+    // of servers that want one.
+    static void setMapOptions(bool downloads, bool credit, const QString &apiKey);
+    // pending() of instance() and of every store of forMap().
+    static int pendingOfAllMaps();
 
     // Mercator latitude in degrees (see above); latitudes past the poles of web maps are held there.
     static double mercatorLatitude(double latitude);

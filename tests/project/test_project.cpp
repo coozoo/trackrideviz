@@ -228,6 +228,7 @@ private slots:
         project.overlay[0].theme.font = "DejaVu Sans";
         project.overlay[0].textScale = 1.5;
         project.overlay[0].opacity = 0.5;
+        project.overlay[1].map = "satellite";
         project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);

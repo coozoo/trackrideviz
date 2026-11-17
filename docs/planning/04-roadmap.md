@@ -210,7 +210,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   (`"streets"`). The credit on the map can be switched off for videos that name the map's makers
   elsewhere. Packages: the Windows one now carries libssl / libcrypto and the AppImage Qt's `tls`
   plugins - to be confirmed on the first packages built with them
-- A map of its own per gauge
+- ✅ A map of its own per gauge (2026-11-17, `TileStore::forMap`): "Map" in a route gauge's menu on the video
+  and in the editor, as in the settings or one of the maps the program knows; each map has a store of its own,
+  following the settings' downloads, credit and key. Kept in gauges ("map"), projects and templates
 - ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
   of map under it - the same choice as in the settings, so the gauges follow it
 - ✅ The route map of the Laps panel zooms (wheel, + and -) and moves (drag); what is picked in the

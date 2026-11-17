@@ -1034,6 +1034,33 @@ private slots:
                 QCOMPARE(TileStore::provider(provider.id).name, provider.name);
             }
         QCOMPARE(TileStore::provider("no such map").id, providers.first().id);
+
+        // a gauge's map of its own: one store per map, its server and credit, the settings' key
+        TileStore::setMapOptions(false, true, "secret");
+        QCOMPARE(TileStore::forMap(QString()), TileStore::instance());
+        TileStore *satellite = TileStore::forMap("satellite");
+        QVERIFY(satellite != TileStore::instance());
+        QCOMPARE(TileStore::forMap("satellite"), satellite);
+        QCOMPARE(satellite->urlTemplate(), TileStore::provider("satellite").urlTemplate);
+        QCOMPARE(satellite->attribution(), TileStore::provider("satellite").attribution);
+        QVERIFY(TileStore::forMap("opencyclemap")->urlTemplate().contains("apikey=secret"));
+        // without the credit drawn
+        TileStore::setMapOptions(false, false, "secret");
+        QVERIFY(satellite->attribution().isEmpty());
+        QCOMPARE(TileStore::pendingOfAllMaps(), 0);
+
+        // kept in the gauge's file
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 100, 100);
+        map.tiles = true;
+        map.mapProvider = "opentopomap";
+        gauge.components.append(map);
+        Gauge back;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &back));
+        QCOMPARE(back.components.first().mapProvider, QString("opentopomap"));
     }
 
     void trackMapOverStreetTiles()

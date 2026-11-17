@@ -516,6 +516,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["tiles"] = true;
                     object["tileOpacity"] = c.tileOpacity;
+                    if (!c.mapProvider.isEmpty())
+                        {
+                            object["map"] = c.mapProvider;
+                        }
                     object["cornerRadius"] = c.cornerRadius;
                 }
             if (c.fillAlpha >= 0)
@@ -623,6 +627,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.rows = std::max(1, object.value("rows").toInt(c.rows));
     c.tiles = object.value("tiles").toBool();
     c.tileOpacity = object.value("tileOpacity").toDouble(1.0);
+    c.mapProvider = object.value("map").toString();
     c.span = object.value("span").toDouble();
     c.headingUp = object.value("headingUp").toBool();
     c.fillAlpha = object.value("fillAlpha").toInt(-1);

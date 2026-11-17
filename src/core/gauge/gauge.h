@@ -270,6 +270,8 @@ struct GaugeComponent
     // with its corners rounded by cornerRadius
     bool tiles{false};
     double tileOpacity{1.0};
+    // ... of its own: the id of one of TileStore::providers(); empty = the one of the settings
+    QString mapProvider;
     // TrackMap, LapMap: meters across the frame's shorter side, the map moving under
     // the current position kept in the middle; 0 = the whole route, standing still
     double span{0.0};

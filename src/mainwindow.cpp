@@ -1295,7 +1295,7 @@ void MainWindow::exportVideo()
                                      tr("Open the data for this video first: without it there is nothing to draw."));
             return;
         }
-    const int pending = TileStore::instance()->pending();
+    const int pending = TileStore::pendingOfAllMaps();
     if (pending > 0 || m_terrainWaiting || m_weatherWaiting)
         {
             // what is drawn before they come stays as it is in the exported file
@@ -1658,6 +1658,39 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             {
                 setGaugeStreets(index, shown);
             });
+            // a map of its own: satellite pictures under one gauge, streets under another
+            QMenu *mapMenu = menu.addMenu(tr("Map"));
+            const QString ownMap = m_project.overlay.at(index).map;
+            QVector<QPair<QString, QString>> maps{{tr("As in the settings"), QString()}};
+            for (const TileStore::Provider &provider : TileStore::providers())
+                {
+                    maps.append({provider.name, provider.id});
+                }
+            for (const auto &map : maps)
+                {
+                    QAction *action = mapMenu->addAction(map.first);
+                    action->setCheckable(true);
+                    action->setChecked(map.second == ownMap);
+                    const QString id = map.second;
+                    connect(action, &QAction::triggered, this, [this, index, id]()
+                    {
+                        if (index < m_project.overlay.size())
+                            {
+                                OverlayState after{m_project.overlay, m_project.theme};
+                                after.items[index].map = id;
+                                // a map chosen is a map shown
+                                if (!id.isEmpty())
+                                    {
+                                        after.items[index].streets = OverlayItem::Shown;
+                                    }
+                                changeOverlay(tr("Choose a gauge's map"), after);
+                            }
+                    });
+                    if (id.isEmpty())
+                        {
+                            mapMenu->addSeparator();
+                        }
+                }
             // the whole route, or this much of it around the rider
             QMenu *closeUp = menu.addMenu(tr("Close-up"));
             const double current = overlay.closeUp(index);
@@ -2770,6 +2803,8 @@ void MainWindow::applyMapSettings()
         }
     maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
     maps->setDownloads(AppSettings::mapDownloads());
+    // gauges with a map of their own
+    TileStore::setMapOptions(AppSettings::mapDownloads(), AppSettings::mapCreditShown(), AppSettings::mapApiKey());
     TileStore::terrain()->setDownloads(AppSettings::mapDownloads());
     // asked for only when the Weather page of the settings says so
     WeatherStore::instance()->setDownloads(true);

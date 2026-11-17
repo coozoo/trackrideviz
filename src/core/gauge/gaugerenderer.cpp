@@ -1099,7 +1099,7 @@ void BoundGauge::prepareRoutes(Node &node) const
                                             last = p;
                                         }
                                 }
-                            TileStore::instance()->want(areas, followPixels(node.component));
+                            TileStore::forMap(node.component.mapProvider)->want(areas, followPixels(node.component));
                         }
                 }
             else
@@ -1109,7 +1109,8 @@ void BoundGauge::prepareRoutes(Node &node) const
             if (node.component.tiles && !follows)
                 {
                     // what the frame shows, back on the map
-                    const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(node.component.frame));
+                    const TileStore::Picture map = TileStore::forMap(node.component.mapProvider)
+                                                   ->picture(route.toFrame.inverted().mapRect(node.component.frame));
                     route.map = map.image;
                     route.mapRect = route.toFrame.mapRect(map.bounds);
                 }
@@ -1610,7 +1611,8 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
     bool streets = false;
     if (node.component.tiles)
         {
-            const TileStore::Picture map = TileStore::instance()->picture(route.toFrame.inverted().mapRect(shown), followPixels(node.component));
+            const TileStore::Picture map = TileStore::forMap(node.component.mapProvider)
+                                           ->picture(route.toFrame.inverted().mapRect(shown), followPixels(node.component));
             if (!map.image.isNull())
                 {
                     painter.save();
@@ -1653,7 +1655,7 @@ void BoundGauge::drawCredit(QPainter &painter, const Node &node) const
 {
     const QRectF frame = node.component.frame;
     // the credit the map's makers ask for, small in the corner
-    const QString credit = TileStore::instance()->attribution();
+    const QString credit = TileStore::forMap(node.component.mapProvider)->attribution();
     if (credit.isEmpty())
         {
             return;

@@ -35,6 +35,8 @@ struct OverlayItem
     // A street map under the gauge's route: as the gauge was drawn, or the user's choice.
     enum Streets { AsDesigned, Shown, Hidden };
     Streets streets{AsDesigned};
+    // That map of its own (an id of TileStore::providers()); empty = as the gauge was drawn.
+    QString map;
     // Its route close up, the map moving under the rider: meters across;
     // 0 = the whole route, negative = as the gauge was drawn.
     double closeUp{-1.0};
@@ -69,7 +71,7 @@ struct OverlayItem
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
-               && x == other.x && y == other.y && height == other.height && aspect == other.aspect && ownTheme == other.ownTheme
+               && x == other.x && y == other.y && height == other.height && map == other.map && aspect == other.aspect && ownTheme == other.ownTheme
                && (!ownTheme || theme == other.theme) && textScale == other.textScale && opacity == other.opacity && streets == other.streets
                && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;

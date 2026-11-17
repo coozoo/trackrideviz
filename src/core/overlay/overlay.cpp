@@ -29,6 +29,10 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                         {
                             component.headingUp = item.headingUp > 0;
                         }
+                    if (!item.map.isEmpty())
+                        {
+                            component.mapProvider = item.map;
+                        }
                     *closeUp = component.span;
                     *headingUp = component.headingUp;
                     if (choice == OverlayItem::Shown && !component.tiles)
@@ -286,6 +290,10 @@ void OverlayItem::writeChoices(QJsonObject &object) const
         {
             object.insert("aspect", aspect);
         }
+    if (!map.isEmpty())
+        {
+            object.insert("map", map);
+        }
     if (ownTheme)
         {
             object.insert("ownTheme", theme.toJson());
@@ -314,6 +322,7 @@ void OverlayItem::readChoices(const QJsonObject &object)
         }
     scaleMax = std::max(0.0, object.value("scaleMax").toDouble());
     aspect = std::max(0.0, object.value("aspect").toDouble());
+    map = object.value("map").toString();
     ownTheme = object.value("ownTheme").isObject();
     theme = ownTheme ? GaugeTheme::fromJson(object.value("ownTheme").toObject()) : GaugeTheme();
     textScale = std::clamp(object.value("textScale").toDouble(1.0), 0.2, 5.0);
