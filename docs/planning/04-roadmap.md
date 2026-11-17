@@ -301,7 +301,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Barlow Semi Condensed (OFL) bundled for gauge texts
 - ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
   with its gauges on; Export and Import in the library panel. Built-in gauges and templates marked
-  with a padlock. Next: file associations (MIME types) so a double click imports
+  with a padlock. File associations: in the Windows installer (2026-11-17); Linux MIME types still to do
 - ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
   theme colors, kept in projects and templates; Barlow Semi Condensed bundled in all weights
 - ✅ Per gauge on the video (2026-11-17, `OverlayItem::ownTheme`, `textScale`, `opacity`): text size and opacity
@@ -388,7 +388,11 @@ the automatic end of a fixed dial following the highest value held for a second,
 
 ## M7 — Polish and distribution
 - Export backend B (in-process libav) if/when needed; export queue (done: the gauges alone with transparency)
-- AppImage + Flatpak, Windows installer, macOS bundle
+- AppImage + Flatpak, macOS bundle
+- ✅ Windows installer (2026-11-17, `windows/trackrideviz.nsi`, NSIS, built by CI next to the zip): for the user
+  alone or for everyone, Start menu and desktop shortcuts, .rtvproj / .rtvgauge / .rtvtemplate opened by a
+  double click; the uninstaller takes away only what was installed (an update first runs the old one).
+  English and Ukrainian. Checked under Wine: install, update over it, uninstall
 - Translations (uk, en), user manual
 - Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;
   decide which tests run on every push and which only before a release

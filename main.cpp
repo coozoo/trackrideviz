@@ -3,12 +3,9 @@
 #include "gauge/gaugefonts.h"
 #include "gstreamerworkaround.h"
 #include "mainwindow.h"
-#include "project/project.h"
 #include "settings/appsettings.h"
-#include "telemetry/telemetryimporter.h"
 
 #include <QApplication>
-#include <QFileInfo>
 #include <QIcon>
 #include <QLocale>
 #include <QTranslator>
@@ -78,22 +75,12 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    // Files given on the command line: a project, or data files by their suffix; anything else is the video.
+    // Files given on the command line (a double click on one, too) are taken as if dropped on the
+    // window: a project, a video, data, gauges and templates for the library.
     const QStringList files = a.arguments().mid(1);
-    for (const QString &file : files)
+    if (!files.isEmpty())
         {
-            if (QFileInfo(file).suffix().compare(ProjectFile::Suffix, Qt::CaseInsensitive) == 0)
-                {
-                    w.openProject(file);
-                }
-            else if (TelemetryImporter::canLoad(file))
-                {
-                    w.openTelemetry(file);
-                }
-            else
-                {
-                    w.openVideo(file);
-                }
+            w.openDropped(files);
         }
 
     return a.exec();

@@ -327,6 +327,7 @@ jobs:
             mingw-w64-x86_64-qt6-svg
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-qt6-tools
+            mingw-w64-x86_64-nsis
             tar
       - name: get app version
         if: matrix.config.os == 'windows-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_win == '1')
@@ -398,6 +399,11 @@ jobs:
           # next to it, which need the DLLs above
           cp $ROOTMSYS/bin/ffmpeg.exe $ROOTMSYS/bin/ffprobe.exe release/
           mv release ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64; 7z -tzip a ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64/
+          # the same folder as an installer, for those who would rather install than unpack
+          MAKENSIS=$ROOTMSYS/bin/makensis.exe windows/make-installer.sh \
+            ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64 \
+            "$(cat main.cpp | grep 'const QString APP_VERSION' | awk -F\" '{print $2;}')" \
+            ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
           ls -l
         shell: msys2 {0}
       - name: Upload Release Asset Win64
@@ -411,10 +417,27 @@ jobs:
           asset_path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           asset_name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           asset_content_type: application/zip
+      - name: Upload Release Asset Win64 installer
+        if: matrix.config.os == 'windows-latest' && github.ref == 'refs/heads/main'
+        uses: shogo82148/actions-upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          asset_name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
       - name: Archive Win64 zip
         if: matrix.config.os == 'windows-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_win == '1'
         uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
+          overwrite: true
+      - name: Archive Win64 installer
+        if: matrix.config.os == 'windows-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_win == '1'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
           overwrite: true

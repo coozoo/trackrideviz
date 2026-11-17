@@ -54,8 +54,15 @@ can be checked.
 
 ## Installation
 
-Packages for Linux (AppImage, .deb) and Windows (zip) are on the
+Packages for Linux (AppImage, .deb) and Windows are on the
 [releases page](https://github.com/coozoo/trackrideviz/releases).
+
+On Windows, take whichever you prefer:
+
+- `..._WIN64_setup.exe` installs it, for you alone (no administrator needed) or for everyone, with
+  a Start menu entry, and opens projects, gauges and templates with it by a double click. It is
+  uninstalled from Windows' list of apps.
+- `..._WIN64.zip` is the same program to unpack anywhere and run from there; nothing is installed.
 
 On macOS the downloaded app has to be allowed to run first:
 
@@ -128,7 +135,7 @@ src/                         Qt Widgets user interface
 tests/                       unit tests (QtTest)
 translations/                .ts files
 docs/planning/               design documents and roadmap
-debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
+debian/, *.spec, windows/, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 ```
 
 ## Contributing
@@ -167,7 +174,7 @@ only some:
 | Tag | Builds |
 |---|---|
 | `[build linux]` | Linux: the AppImage (the .deb is built too, but kept only in a release) |
-| `[build win]` | the Windows zip |
+| `[build win]` | Windows: the zip and the installer |
 | `[build mac]` | the macOS .dmg (same as `[build mac dmg]`) |
 | `[build mac zip]` | the macOS .zip |
 | `[skip ci]` | nothing |
