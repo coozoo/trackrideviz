@@ -25,6 +25,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMenu>
+#include <QMimeData>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
@@ -34,6 +35,8 @@
 #include <QTabBar>
 #include <QVBoxLayout>
 #include <QtConcurrent>
+
+#include <functional>
 
 struct GaugeLibraryPanel::ImportFolders
 {
@@ -94,6 +97,33 @@ struct Thumbnail
 const int kIdRole = Qt::UserRole;
 const int kBuiltinRole = Qt::UserRole + 1;
 const int kGroupsRole = Qt::UserRole + 2;
+
+// The library's pictures, each to be dragged onto the video: a gauge is placed where it is
+// let go, a template applied.
+class LibraryList : public QListWidget
+{
+public:
+    using QListWidget::QListWidget;
+    std::function<bool()> showingTemplates;
+
+protected:
+    QStringList mimeTypes() const override
+    {
+        const bool templates = showingTemplates && showingTemplates();
+        return {QString::fromLatin1(templates ? LibraryDrag::TemplateMime : LibraryDrag::GaugeMime)};
+    }
+
+    QMimeData *mimeData(const QList<QListWidgetItem *> &items) const override
+    {
+        if (items.isEmpty())
+            {
+                return nullptr;
+            }
+        QMimeData *data = new QMimeData;
+        data->setData(mimeTypes().first(), items.first()->data(kIdRole).toString().toUtf8());
+        return data;
+    }
+};
 
 // Groups every entry is in one of: where it comes from.
 const char kBuiltinGroup[] = "@builtin";
@@ -374,7 +404,11 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     m_groups = new QComboBox(this);
     connect(m_groups, &QComboBox::activated, this, &GaugeLibraryPanel::applyFilter);
 
-    m_list = new QListWidget(this);
+    LibraryList *list = new LibraryList(this);
+    list->showingTemplates = [this]() { return showingTemplates(); };
+    m_list = list;
+    m_list->setDragEnabled(true);
+    m_list->setDragDropMode(QAbstractItemView::DragOnly);
     m_list->setViewMode(QListView::IconMode);
     m_list->setResizeMode(QListView::Adjust);
     m_list->setMovement(QListView::Static);
@@ -470,8 +504,10 @@ void GaugeLibraryPanel::reload()
     m_list->setIconSize(iconSize);
     m_list->setGridSize(iconSize + QSize(24, 40));
     m_useButton->setText(templates ? tr("Apply to video") : tr("Add to video"));
-    m_useButton->setToolTip(templates ? tr("Replaces the gauges on the video with this template. A double click does the same.")
-                            : tr("Puts the selected gauge on the video. A double click does the same."));
+    m_useButton->setToolTip(templates ? tr("Replaces the gauges on the video with this template. A double click, or dragging it "
+                                           "onto the video, does the same.")
+                            : tr("Puts the selected gauge on the video. A double click does the same; dragging it onto the "
+                                 "video puts it where it is let go."));
 
     // something of the right size until the picture is drawn, so the list does not jump
     QPixmap blank(iconSize);

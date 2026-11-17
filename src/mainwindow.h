@@ -72,6 +72,8 @@ private slots:
     void exportVideo();
     // Editing what is on the video. Every one of these is one undo step.
     void addGauge(const QString &gaugeId);
+    // ... centered at `center` (fractions of the frame), kept on the picture; below 0: where addGauge puts it
+    void addGaugeAt(const QString &gaugeId, const QPointF &center);
     void applyTemplate(const QString &templateId);
     void removeGauge(int index);
     void onItemGeometryEdited(int index, double x, double y, double height, double aspect);

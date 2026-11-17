@@ -53,6 +53,10 @@ signals:
     void itemGeometryEdited(int index, double x, double y, double height, double aspect);
     void itemDeleteRequested(int index);
     void itemMenuRequested(int index, const QPoint &globalPosition);
+    // A gauge dragged out of the library was let go here: `center` is where, in fractions of
+    // the frame (both -1 when there is no picture yet).
+    void gaugeDropped(const QString &gaugeId, const QPointF &center);
+    void templateDropped(const QString &templateId);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -60,6 +64,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
     void initializeGL() override;
     void paintGL() override;
 

@@ -8,6 +8,13 @@ class QListWidget;
 class QPushButton;
 class QTabBar;
 
+// What a gauge or a template dragged out of the library carries: its id.
+namespace LibraryDrag
+{
+inline constexpr char GaugeMime[] = "application/x-trackrideviz-gauge";
+inline constexpr char TemplateMime[] = "application/x-trackrideviz-template";
+}
+
 // The library dock: the gauges and templates on this computer with small
 // pictures, how they get in (import) and how they get onto the video.
 class GaugeLibraryPanel : public QWidget

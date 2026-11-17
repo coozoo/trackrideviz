@@ -289,6 +289,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_canvas, &VideoCanvas::itemMenuRequested, this, &MainWindow::showItemMenu);
     connect(m_canvas, &VideoCanvas::selectedItemChanged, this, &MainWindow::updateProperties);
     connect(m_libraryPanel, &GaugeLibraryPanel::addRequested, this, &MainWindow::addGauge);
+    connect(m_canvas, &VideoCanvas::gaugeDropped, this, &MainWindow::addGaugeAt);
+    connect(m_canvas, &VideoCanvas::templateDropped, this, &MainWindow::applyTemplate);
     connect(m_libraryPanel, &GaugeLibraryPanel::applyTemplateRequested, this, &MainWindow::applyTemplate);
     connect(m_libraryPanel, &GaugeLibraryPanel::libraryChanged, this, &MainWindow::rebuildOverlay);
     updateProperties();
@@ -1276,6 +1278,11 @@ void MainWindow::changeOverlay(const QString &description, const OverlayState &a
 
 void MainWindow::addGauge(const QString &gaugeId)
 {
+    addGaugeAt(gaugeId, QPointF(-1.0, -1.0));
+}
+
+void MainWindow::addGaugeAt(const QString &gaugeId, const QPointF &center)
+{
     const Gauge gauge = GaugeLibrary::gauge(gaugeId);
     if (gauge.isEmpty())
         {
@@ -1293,6 +1300,12 @@ void MainWindow::addGauge(const QString &gaugeId)
     const double width = item.height * shape / picture;
     item.x = std::min(0.35 + step, 1.0 - width);
     item.y = std::min(0.3 + step, 1.0 - item.height);
+    if (center.x() >= 0.0 && center.y() >= 0.0)
+        {
+            // where it was dropped, the whole of it on the picture
+            item.x = std::clamp(center.x() - width / 2.0, 0.0, std::max(0.0, 1.0 - width));
+            item.y = std::clamp(center.y() - item.height / 2.0, 0.0, std::max(0.0, 1.0 - item.height));
+        }
 
     OverlayState after{m_project.overlay, m_project.theme};
     after.items.append(item);

@@ -1,9 +1,13 @@
 #include "videocanvas.h"
 
+#include "gaugelibrarypanel.h"
+
 
 #include <QOpenGLContext>
 #include <QOpenGLShaderProgram>
 #include <QContextMenuEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
@@ -164,6 +168,7 @@ VideoCanvas::VideoCanvas(QWidget *parent)
 {
     setMinimumSize(320, 180);
     setMouseTracking(true);          // for the cursor that says what a drag would do
+    setAcceptDrops(true);            // gauges and templates out of the library
     setFocusPolicy(Qt::ClickFocus);  // Delete acts on the selected gauge
 }
 
@@ -715,4 +720,42 @@ void VideoCanvas::paintGL()
                     painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, tr("This gauge is not in the library"));
                 }
         }
+}
+
+void VideoCanvas::dragEnterEvent(QDragEnterEvent *event)
+{
+    const QMimeData *data = event->mimeData();
+    if (data->hasFormat(LibraryDrag::GaugeMime) || data->hasFormat(LibraryDrag::TemplateMime))
+        {
+            event->acceptProposedAction();
+        }
+}
+
+void VideoCanvas::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void VideoCanvas::dropEvent(QDropEvent *event)
+{
+    const QMimeData *data = event->mimeData();
+    if (data->hasFormat(LibraryDrag::TemplateMime))
+        {
+            emit templateDropped(QString::fromUtf8(data->data(LibraryDrag::TemplateMime)));
+        }
+    else if (data->hasFormat(LibraryDrag::GaugeMime))
+        {
+            const QRectF frame = videoRect();
+            const QPointF at = event->position();
+            const QPointF center = m_hasPicture && !frame.isEmpty()
+                                   ? QPointF((at.x() - frame.left()) / frame.width(), (at.y() - frame.top()) / frame.height())
+                                   : QPointF(-1.0, -1.0);
+            emit gaugeDropped(QString::fromUtf8(data->data(LibraryDrag::GaugeMime)), center);
+        }
+    else
+        {
+            return;
+        }
+    event->acceptProposedAction();
+    setFocus();
 }
