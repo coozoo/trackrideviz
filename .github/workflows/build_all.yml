@@ -362,7 +362,7 @@ jobs:
             "libfreetype*.dll" "libb*.dll" "libpng*.dll" "libglib*.dll" "libintl*.dll"
             "libiconv*.dll" "libcrypto*.dll" "libssl*.dll" "libmd4c*.dll"
             "avcodec*.dll" "avformat*.dll" "avutil*.dll" "swscale*.dll" "swresample*.dll"
-            "libva.dll" "libva_win32.dll" "libvpl*.dll" "libsoxr.dll"
+            "libva.dll" "libva_win32.dll" "libvpl*.dll" "libsoxr.dll" "libgomp*.dll"
             "libaom.dll" "libdav1d*.dll" "librav1e.dll" "libSvtAv1Enc*.dll" "libsvtav1enc*.dll"
             "libx264*.dll" "libx265*.dll" "xvidcore.dll" "libvpx*.dll"
             "libopus*.dll" "libvorbis*.dll" "libogg*.dll" "libtheora*.dll" "libmp3lame*.dll"
@@ -374,7 +374,7 @@ jobs:
             "librtmp*.dll" "libsrt.dll" "libssh.dll"
             "libgnutls*.dll" "libgmp*.dll" "libhogweed*.dll" "libnettle*.dll" "libidn2*.dll"
             "libp11-kit*.dll" "libtasn1*.dll" "libunistring*.dll"
-            "librsvg*.dll" "libcairo*.dll" "libpixman*.dll" "libfontconfig*.dll" "libexpat*.dll"
+            "librsvg*.dll" "libcairo*.dll" "liblzo2*.dll" "libpixman*.dll" "libfontconfig*.dll" "libexpat*.dll"
             "libpango*.dll" "libfribidi*.dll" "libthai*.dll" "libdatrie*.dll"
             "libgdk_pixbuf*.dll" "libgio*.dll" "libgobject*.dll" "libgmodule*.dll" "libffi*.dll"
           )
