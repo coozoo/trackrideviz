@@ -2267,7 +2267,7 @@ QString MainWindow::playersState() const
                .arg(player->playbackRate())
                .arg(enumKey(player->mediaStatus()),
                     player->error() != QMediaPlayer::NoError ? ", " + player->errorString() : QString(), sound,
-                    output->device().description());
+                    output->device().isNull() ? QStringLiteral("none") : output->device().description());
     };
     return describe(QStringLiteral("Video"), m_player, m_audioOutput) + "\n"
            + describe(QStringLiteral("Music"), m_musicPlayer, m_musicOutput);

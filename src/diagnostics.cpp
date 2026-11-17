@@ -3,6 +3,7 @@
 #include "icons.h"
 
 #include <QApplication>
+#include <QAudioDevice>
 #include <QClipboard>
 #include <QFontDatabase>
 #include <QDateTime>
@@ -11,6 +12,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QLibraryInfo>
+#include <QMediaDevices>
 #include <QMutex>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -159,6 +161,11 @@ QString DiagnosticsPanel::environment()
                 }
         }
     lines << tr("Qt plugins: %1").arg(QLibraryInfo::path(QLibraryInfo::PluginsPath));
+    // where sound can go: none found means silence, whatever the players say
+    QStringList outputs;
+    for (const QAudioDevice &device : QMediaDevices::audioOutputs())
+        outputs << device.description();
+    lines << (outputs.isEmpty() ? tr("Sound devices: none found") : tr("Sound devices: %1").arg(outputs.join(", ")));
     // the font asked for and the one fontconfig gave: a desktop theme Qt could not load shows here
     const QFont font = QApplication::font();
     const QFontInfo got(font);

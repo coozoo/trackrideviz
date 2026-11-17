@@ -846,47 +846,57 @@ Worked out from the other data</source>
 <context>
     <name>DiagnosticsPanel</name>
     <message>
-        <location filename="../src/diagnostics.cpp" line="113"/>
+        <location filename="../src/diagnostics.cpp" line="115"/>
         <source>Copy all</source>
         <translation>Копіювати все</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="114"/>
+        <location filename="../src/diagnostics.cpp" line="116"/>
         <source>The start-up details, the players&apos; state and the log, to paste into a report</source>
         <translation>Відомості про запуск, стан програвачів і журнал, щоб вставити у звіт</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="120"/>
+        <location filename="../src/diagnostics.cpp" line="122"/>
         <source>Clear</source>
         <translation>Очистити</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="144"/>
+        <location filename="../src/diagnostics.cpp" line="146"/>
         <source>Qt %1 (built with %2), display: %3</source>
         <translation>Qt %1 (зібрано з %2), дисплей: %3</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="147"/>
+        <location filename="../src/diagnostics.cpp" line="149"/>
         <source>Not run from an AppImage</source>
         <translation>Запущено не з AppImage</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="147"/>
+        <location filename="../src/diagnostics.cpp" line="149"/>
         <source>AppImage: %1</source>
         <translation>AppImage: %1</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="161"/>
+        <location filename="../src/diagnostics.cpp" line="163"/>
         <source>Qt plugins: %1</source>
         <translation>Плагіни Qt: %1</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="166"/>
+        <location filename="../src/diagnostics.cpp" line="168"/>
+        <source>Sound devices: none found</source>
+        <translation>Звукові пристрої: не знайдено</translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="168"/>
+        <source>Sound devices: %1</source>
+        <translation>Звукові пристрої: %1</translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="173"/>
         <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
         <translation>Шрифт: %1 %2 пт, відображається як %3 %4 пт; %5 dpi, масштаб %6; тема значків: %7</translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="173"/>
+        <location filename="../src/diagnostics.cpp" line="180"/>
         <source>none</source>
         <translation>немає</translation>
     </message>
@@ -5768,87 +5778,87 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>VideoEncoders</name>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="57"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
         <source>H.264 (software, x264)</source>
         <translation>H.264 (програмно, x264)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="63"/>
         <source>H.265 / HEVC (software, x265)</source>
         <translation>H.265 / HEVC (програмно, x265)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="64"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="67"/>
         <source>AV1 (software, SVT-AV1)</source>
         <translation>AV1 (програмно, SVT-AV1)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="68"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
         <source>H.264 (graphics card, VA-API)</source>
         <translation>H.264 (відеокарта, VA-API)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
         <source>H.265 / HEVC (graphics card, VA-API)</source>
         <translation>H.265 / HEVC (відеокарта, VA-API)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="77"/>
         <source>AV1 (graphics card, VA-API)</source>
         <translation>AV1 (відеокарта, VA-API)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="78"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
         <source>H.264 (graphics card, NVIDIA)</source>
         <translation>H.264 (відеокарта, NVIDIA)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="79"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
         <source>H.265 / HEVC (graphics card, NVIDIA)</source>
         <translation>H.265 / HEVC (відеокарта, NVIDIA)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="80"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
         <source>AV1 (graphics card, NVIDIA)</source>
         <translation>AV1 (відеокарта, NVIDIA)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
         <source>H.264 (graphics card, Intel Quick Sync)</source>
         <translation>H.264 (відеокарта, Intel Quick Sync)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
         <source>H.265 / HEVC (graphics card, Intel Quick Sync)</source>
         <translation>H.265 / HEVC (відеокарта, Intel Quick Sync)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
         <source>AV1 (graphics card, Intel Quick Sync)</source>
         <translation>AV1 (відеокарта, Intel Quick Sync)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="87"/>
         <source>H.264 (graphics card, AMD)</source>
         <translation>H.264 (відеокарта, AMD)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="88"/>
         <source>H.265 / HEVC (graphics card, AMD)</source>
         <translation>H.265 / HEVC (відеокарта, AMD)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
         <source>AV1 (graphics card, AMD)</source>
         <translation>AV1 (відеокарта, AMD)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
         <source>H.264 (Apple VideoToolbox)</source>
         <translation>H.264 (Apple VideoToolbox)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="95"/>
         <source>H.265 / HEVC (Apple VideoToolbox)</source>
         <translation>H.265 / HEVC (Apple VideoToolbox)</translation>
     </message>

@@ -842,47 +842,57 @@ Worked out from the other data</source>
 <context>
     <name>DiagnosticsPanel</name>
     <message>
-        <location filename="../src/diagnostics.cpp" line="113"/>
+        <location filename="../src/diagnostics.cpp" line="115"/>
         <source>Copy all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="114"/>
+        <location filename="../src/diagnostics.cpp" line="116"/>
         <source>The start-up details, the players&apos; state and the log, to paste into a report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="120"/>
+        <location filename="../src/diagnostics.cpp" line="122"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="144"/>
+        <location filename="../src/diagnostics.cpp" line="146"/>
         <source>Qt %1 (built with %2), display: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="147"/>
+        <location filename="../src/diagnostics.cpp" line="149"/>
         <source>Not run from an AppImage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="147"/>
+        <location filename="../src/diagnostics.cpp" line="149"/>
         <source>AppImage: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="161"/>
+        <location filename="../src/diagnostics.cpp" line="163"/>
         <source>Qt plugins: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="166"/>
-        <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
+        <location filename="../src/diagnostics.cpp" line="168"/>
+        <source>Sound devices: none found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="168"/>
+        <source>Sound devices: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/diagnostics.cpp" line="173"/>
+        <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="180"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5735,87 +5745,87 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VideoEncoders</name>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="57"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
         <source>H.264 (software, x264)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="63"/>
         <source>H.265 / HEVC (software, x265)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="64"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="67"/>
         <source>AV1 (software, SVT-AV1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="68"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
         <source>H.264 (graphics card, VA-API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
         <source>H.265 / HEVC (graphics card, VA-API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="77"/>
         <source>AV1 (graphics card, VA-API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="78"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
         <source>H.264 (graphics card, NVIDIA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="79"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
         <source>H.265 / HEVC (graphics card, NVIDIA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="80"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
         <source>AV1 (graphics card, NVIDIA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
         <source>H.264 (graphics card, Intel Quick Sync)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
         <source>H.265 / HEVC (graphics card, Intel Quick Sync)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
         <source>AV1 (graphics card, Intel Quick Sync)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="87"/>
         <source>H.264 (graphics card, AMD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="88"/>
         <source>H.265 / HEVC (graphics card, AMD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
         <source>AV1 (graphics card, AMD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
         <source>H.264 (Apple VideoToolbox)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="95"/>
         <source>H.265 / HEVC (Apple VideoToolbox)</source>
         <translation type="unfinished"></translation>
     </message>
