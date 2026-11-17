@@ -177,7 +177,7 @@ struct GaugeComponent
         Ellipse,     // inside `frame`
         Arc,         // of the ellipse inside `frame`, from startAngle turning sweepAngle
         Pie,         // the same, filled to the middle
-        Line         // through `points`; filled: closed, a polygon
+        Line         // through `points`; filled: closed, a polygon; smooth: curved through them
     };
     enum ValueFormat
     {
@@ -249,6 +249,7 @@ struct GaugeComponent
     double startAngle{0.0};
     double sweepAngle{0.0};
     QVector<QPointF> points;
+    bool smooth{false};            // Line: a curve through the points instead of straight pieces
     GaugeColor gradientColor;      // Original = no gradient
     QLineF gradientLine;
 

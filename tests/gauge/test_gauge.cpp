@@ -2383,6 +2383,29 @@ private slots:
         QCOMPARE(c[8].points, polygon.points);
         QCOMPARE(c[8].gradientColor, polygon.gradientColor);
         QCOMPARE(c[8].gradientLine, polygon.gradientLine);
+
+        // curved through the points: the curve passes each of them and bulges between them
+        GaugeComponent wave = line;
+        wave.smooth = true;
+        wave.points = {QPointF(0, 50), QPointF(25, 0), QPointF(50, 50), QPointF(75, 0), QPointF(100, 50)};
+        Gauge waves;
+        waves.size = QSizeF(100, 60);
+        waves.components = {wave};
+        Gauge waveBack;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(waves), &waveBack));
+        QVERIFY(waveBack.components.first().smooth);
+        QImage straightImage(100, 60, QImage::Format_ARGB32_Premultiplied);
+        QImage curvedImage = straightImage;
+        for (const bool curved : {false, true})
+            {
+                Gauge g = waves;
+                g.components.first().smooth = curved;
+                QImage &image = curved ? curvedImage : straightImage;
+                image.fill(Qt::transparent);
+                QPainter painter(&image);
+                BoundGauge(g, ChannelId::Speed, nullptr, Units(), GaugeTheme()).render(painter, QRectF(0, 0, 100, 60), 0.0);
+            }
+        QVERIFY(curvedImage != straightImage);
         QCOMPARE(c[4].type, GaugeComponent::Dial);
         QCOMPARE(c[4].scale.endAngle, 135.0);
         QCOMPARE(c[4].scale.radius, 48.0);

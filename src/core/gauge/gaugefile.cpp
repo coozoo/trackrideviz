@@ -447,6 +447,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["filled"] = true;   // closed: a polygon
                 }
+            if (c.smooth && c.shape == GaugeComponent::Line)
+                {
+                    object["smooth"] = true;
+                }
             if (c.cornerRadius > 0.0)
                 {
                     object["cornerRadius"] = c.cornerRadius;
@@ -628,6 +632,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.tiles = object.value("tiles").toBool();
     c.tileOpacity = object.value("tileOpacity").toDouble(1.0);
     c.mapProvider = object.value("map").toString();
+    c.smooth = object.value("smooth").toBool();
     c.span = object.value("span").toDouble();
     c.headingUp = object.value("headingUp").toBool();
     c.fillAlpha = object.value("fillAlpha").toInt(-1);

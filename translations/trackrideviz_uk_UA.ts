@@ -1527,14 +1527,14 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="210"/>
         <location filename="../src/gaugeeditor.cpp" line="710"/>
-        <location filename="../src/gaugeeditor.cpp" line="2274"/>
+        <location filename="../src/gaugeeditor.cpp" line="2277"/>
         <source>Graph</source>
         <translation>Графік</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="212"/>
         <location filename="../src/gaugeeditor.cpp" line="710"/>
-        <location filename="../src/gaugeeditor.cpp" line="2274"/>
+        <location filename="../src/gaugeeditor.cpp" line="2277"/>
         <source>Route</source>
         <translation>Маршрут</translation>
     </message>
@@ -1546,21 +1546,21 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="216"/>
-        <location filename="../src/gaugeeditor.cpp" line="2247"/>
+        <location filename="../src/gaugeeditor.cpp" line="2250"/>
         <source>Gears</source>
         <translation>Передачі</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="218"/>
         <location filename="../src/gaugeeditor.cpp" line="712"/>
-        <location filename="../src/gaugeeditor.cpp" line="2253"/>
+        <location filename="../src/gaugeeditor.cpp" line="2256"/>
         <source>Lap table</source>
         <translation>Таблиця кіл</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="220"/>
         <location filename="../src/gaugeeditor.cpp" line="712"/>
-        <location filename="../src/gaugeeditor.cpp" line="2267"/>
+        <location filename="../src/gaugeeditor.cpp" line="2270"/>
         <source>Sector bar</source>
         <translation>Смуга секторів</translation>
     </message>
@@ -1669,7 +1669,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="663"/>
         <location filename="../src/gaugeeditor.cpp" line="2126"/>
-        <location filename="../src/gaugeeditor.cpp" line="2258"/>
+        <location filename="../src/gaugeeditor.cpp" line="2261"/>
         <source>Size:</source>
         <translation>Розмір:</translation>
     </message>
@@ -2111,13 +2111,13 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1920"/>
-        <location filename="../src/gaugeeditor.cpp" line="2236"/>
+        <location filename="../src/gaugeeditor.cpp" line="2239"/>
         <source>Starts at angle:</source>
         <translation>Починається з кута:</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1921"/>
-        <location filename="../src/gaugeeditor.cpp" line="2237"/>
+        <location filename="../src/gaugeeditor.cpp" line="2240"/>
         <source>Degrees clockwise, 0 = straight up</source>
         <translation>Градуси за годинниковою стрілкою, 0 = прямо вгору</translation>
     </message>
@@ -2453,7 +2453,7 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2127"/>
-        <location filename="../src/gaugeeditor.cpp" line="2259"/>
+        <location filename="../src/gaugeeditor.cpp" line="2262"/>
         <source>Height of the letters, in the gauge&apos;s units</source>
         <translation>Висота літер, в одиницях приладу</translation>
     </message>
@@ -2479,13 +2479,13 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2134"/>
-        <location filename="../src/gaugeeditor.cpp" line="2260"/>
+        <location filename="../src/gaugeeditor.cpp" line="2263"/>
         <source>Bold</source>
         <translation>Жирний</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2135"/>
-        <location filename="../src/gaugeeditor.cpp" line="2261"/>
+        <location filename="../src/gaugeeditor.cpp" line="2264"/>
         <source>Italic</source>
         <translation>Курсив</translation>
     </message>
@@ -2536,7 +2536,7 @@ Worked out from the other data</source>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2156"/>
-        <location filename="../src/gaugeeditor.cpp" line="2262"/>
+        <location filename="../src/gaugeeditor.cpp" line="2265"/>
         <source>Decimals:</source>
         <translation>Десяткових знаків:</translation>
     </message>
@@ -2611,185 +2611,195 @@ Worked out from the other data</source>
         <translation>Від останньої точки назад до першої, з заповненою серединою</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2205"/>
+        <location filename="../src/gaugeeditor.cpp" line="2200"/>
+        <source>Curved through the points</source>
+        <translation>Вигнута через точки</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2201"/>
+        <source>A smooth curve through every point instead of straight pieces: a wave, a swoosh, a round outline; at least three points</source>
+        <translation>Плавна крива через кожну точку замість прямих відрізків: хвиля, змах, округлий контур; щонайменше три точки</translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2208"/>
         <source>Fades to another color</source>
         <translation>Переходить в інший колір</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2216"/>
+        <location filename="../src/gaugeeditor.cpp" line="2219"/>
         <source>A gradient from the color above, at the start of a line, to this one at its end</source>
         <translation>Градієнт від кольору вище на початку лінії до цього на її кінці</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2219"/>
+        <location filename="../src/gaugeeditor.cpp" line="2222"/>
         <source>Fades to:</source>
         <translation>Переходить у:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2220"/>
+        <location filename="../src/gaugeeditor.cpp" line="2223"/>
         <source>Fade from X:</source>
         <translation>Перехід від X:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2221"/>
+        <location filename="../src/gaugeeditor.cpp" line="2224"/>
         <source>Fade from Y:</source>
         <translation>Перехід від Y:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2222"/>
+        <location filename="../src/gaugeeditor.cpp" line="2225"/>
         <source>Fade to X:</source>
         <translation>Перехід до X:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2223"/>
+        <location filename="../src/gaugeeditor.cpp" line="2226"/>
         <source>Fade to Y:</source>
         <translation>Перехід до Y:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2228"/>
-        <location filename="../src/gaugeeditor.cpp" line="2275"/>
+        <location filename="../src/gaugeeditor.cpp" line="2231"/>
+        <location filename="../src/gaugeeditor.cpp" line="2278"/>
         <source>Width of the line:</source>
         <translation>Ширина лінії:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2232"/>
-        <location filename="../src/gaugeeditor.cpp" line="2270"/>
-        <location filename="../src/gaugeeditor.cpp" line="2304"/>
+        <location filename="../src/gaugeeditor.cpp" line="2235"/>
+        <location filename="../src/gaugeeditor.cpp" line="2273"/>
+        <location filename="../src/gaugeeditor.cpp" line="2307"/>
         <source>Corners rounded by:</source>
         <translation>Заокруглення кутів:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2238"/>
+        <location filename="../src/gaugeeditor.cpp" line="2241"/>
         <source>Turns through:</source>
         <translation>Повертає на:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2243"/>
+        <location filename="../src/gaugeeditor.cpp" line="2246"/>
         <source>Scale</source>
         <translation>Шкала</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2248"/>
+        <location filename="../src/gaugeeditor.cpp" line="2251"/>
         <source>In use:</source>
         <translation>Увімкнена:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2249"/>
+        <location filename="../src/gaugeeditor.cpp" line="2252"/>
         <source>Width of the chain:</source>
         <translation>Товщина ланцюга:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2254"/>
+        <location filename="../src/gaugeeditor.cpp" line="2257"/>
         <source>Lines:</source>
         <translation>Рядків:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2255"/>
+        <location filename="../src/gaugeeditor.cpp" line="2258"/>
         <source>The laps finished last, and the one under way at the bottom</source>
         <translation>Останні завершені кола, а внизу те, що триває</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2256"/>
+        <location filename="../src/gaugeeditor.cpp" line="2259"/>
         <source>Best lap:</source>
         <translation>Найкраще коло:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2263"/>
+        <location filename="../src/gaugeeditor.cpp" line="2266"/>
         <source>Of a second; -1: two</source>
         <translation>Частки секунди; -1: дві</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2268"/>
+        <location filename="../src/gaugeeditor.cpp" line="2271"/>
         <source>Faster than the best:</source>
         <translation>Швидше за найкраще:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2269"/>
+        <location filename="../src/gaugeeditor.cpp" line="2272"/>
         <source>Gap between sectors:</source>
         <translation>Проміжок між секторами:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2276"/>
+        <location filename="../src/gaugeeditor.cpp" line="2279"/>
         <source>Kept free inside:</source>
         <translation>Вільне поле всередині:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2279"/>
+        <location filename="../src/gaugeeditor.cpp" line="2282"/>
         <source>On a street map</source>
         <translation>На карті вулиць</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2286"/>
+        <location filename="../src/gaugeeditor.cpp" line="2289"/>
         <source>Strength of the map:</source>
         <translation>Насиченість карти:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2289"/>
+        <location filename="../src/gaugeeditor.cpp" line="2292"/>
         <source>as in the settings</source>
         <translation>як у налаштуваннях</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2296"/>
+        <location filename="../src/gaugeeditor.cpp" line="2299"/>
         <source>Map:</source>
         <translation>Карта:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2301"/>
+        <location filename="../src/gaugeeditor.cpp" line="2304"/>
         <source>Close-up, meters across:</source>
         <translation>Крупний план, метрів упоперек:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2302"/>
+        <location filename="../src/gaugeeditor.cpp" line="2305"/>
         <source>0: the whole route. Otherwise this much around the rider, the map moving under them.</source>
         <translation>0: весь маршрут. Інакше стільки навколо їздця, а карта рухається під ним.</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2303"/>
+        <location filename="../src/gaugeeditor.cpp" line="2306"/>
         <source>The way ahead up (close-up)</source>
         <translation>Напрямок руху вгору (крупний план)</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2308"/>
+        <location filename="../src/gaugeeditor.cpp" line="2311"/>
         <source>Seconds before now:</source>
         <translation>Секунд до поточного моменту:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2309"/>
+        <location filename="../src/gaugeeditor.cpp" line="2312"/>
         <source>Both 0: the whole recording</source>
         <translation>Обидва 0: увесь запис</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2310"/>
+        <location filename="../src/gaugeeditor.cpp" line="2313"/>
         <source>Seconds after now:</source>
         <translation>Секунд після поточного моменту:</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2313"/>
+        <location filename="../src/gaugeeditor.cpp" line="2316"/>
         <source>The parts under it in the list are drawn at the current point, their place counted from it: X 0, Y 0 is the point itself.</source>
         <translation>Частини під нею у списку малюються в поточній точці, їхнє місце відлічується від неї: X 0, Y 0 — сама точка.</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2315"/>
+        <location filename="../src/gaugeeditor.cpp" line="2318"/>
         <source>The parts under its headings in the list are drawn where these say, their place counted from there: X 0, Y 0 is the point itself.</source>
         <translation>Частини під її заголовками у списку малюються там, де кажуть заголовки, а їхнє місце відлічується звідти: X 0, Y 0 — сама точка.</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2327"/>
+        <location filename="../src/gaugeeditor.cpp" line="2330"/>
         <source>Movement</source>
         <translation>Рух</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2327"/>
+        <location filename="../src/gaugeeditor.cpp" line="2330"/>
         <source>Movement %1</source>
         <translation>Рух %1</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2332"/>
+        <location filename="../src/gaugeeditor.cpp" line="2335"/>
         <source>Add another movement</source>
         <translation>Додати ще один рух</translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2333"/>
+        <location filename="../src/gaugeeditor.cpp" line="2336"/>
         <source>Applied after the ones above: a needle that turns and slides, an arc that fills and turns with the heading</source>
         <translation>Застосовується після тих, що вище: стрілка, що обертається й зсувається, дуга, що заповнюється й обертається за курсом</translation>
     </message>
@@ -2797,42 +2807,42 @@ Worked out from the other data</source>
 <context>
     <name>GaugeFile</name>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="713"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="718"/>
         <source>This is not a gauge file: %1</source>
         <translation>Це не файл приладу: %1</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="718"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="723"/>
         <source>This is not a Race Track Visualizer gauge file.</source>
         <translation>Це не файл приладу Race Track Visualizer.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="722"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="727"/>
         <source>The gauge was saved by a newer version of the program (file version %1).</source>
         <translation>Прилад збережено новішою версією програми (версія файлу %1).</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="740"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="745"/>
         <source>The gauge has no size.</source>
         <translation>Прилад не має розміру.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="754"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="759"/>
         <source>Cannot open %1: %2</source>
         <translation>Не вдалося відкрити %1: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="801"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="806"/>
         <source>Cannot create the folder %1.</source>
         <translation>Не вдалося створити теку %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="841"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="846"/>
         <source>Cannot write %1.</source>
         <translation>Не вдалося записати %1.</translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="846"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="851"/>
         <source>Cannot write %1: %2</source>
         <translation>Не вдалося записати %1: %2</translation>
     </message>

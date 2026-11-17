@@ -2197,6 +2197,9 @@ void GaugeEditor::fillProperties()
                 {
                     addCheck(form, tr("Closed and filled (a polygon)"), part.filled, [](Part &p, bool on) { p.filled = on; },
                              tr("From the last point back to the first, the inside filled"), true);
+                    addCheck(form, tr("Curved through the points"), part.smooth, [](Part &p, bool on) { p.smooth = on; },
+                             tr("A smooth curve through every point instead of straight pieces: a wave, a swoosh, a round "
+                                "outline; at least three points"));
                 }
             if (part.filled)
                 {

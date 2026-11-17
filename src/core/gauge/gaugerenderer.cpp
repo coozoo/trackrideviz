@@ -436,7 +436,23 @@ QPainterPath shapePath(const GaugeComponent &c)
             path.closeSubpath();
             break;
         case GaugeComponent::Line:
-            if (!c.points.isEmpty())
+            if (c.smooth && c.points.size() >= 3)
+                {
+                    // through every point, each piece leaving it the way its neighbors lie
+                    // (Catmull-Rom); a closed one also round from the last point to the first
+                    const QVector<QPointF> &p = c.points;
+                    const int n = int(p.size());
+                    const auto at = [&](int i)
+                    {
+                        return c.filled ? p.at((i % n + n) % n) : p.at(std::clamp(i, 0, n - 1));
+                    };
+                    path.moveTo(p.first());
+                    for (int i = 0; i < (c.filled ? n : n - 1); ++i)
+                        {
+                            path.cubicTo(at(i) + (at(i + 1) - at(i - 1)) / 6.0, at(i + 1) - (at(i + 2) - at(i)) / 6.0, at(i + 1));
+                        }
+                }
+            else if (!c.points.isEmpty())
                 {
                     path.moveTo(c.points.first());
                     for (int i = 1; i < c.points.size(); ++i)

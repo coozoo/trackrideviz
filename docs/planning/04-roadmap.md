@@ -363,7 +363,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   under a heading of its own below the part (what is drawn at the current point under a third)
 - ✅ Editor (2026-11-17): several parts picked (Ctrl or Shift, in the list or on the picture), moved together
   and lined up: left edges, centers, right edges, tops, middles, bottoms, spread evenly across or down
-- Path shapes
+- ✅ Path shapes (2026-11-17): polygons, and lines and polygons curved smoothly through their points ("smooth")
 - ✅ Lap table and sector bar (2026-11-17, gauge parts `lapTable` and `sectorBar`; gauges Lap table and
   Sector bar; in the editor). The table: the last laps finished and the one under way, number, time and
   how far behind the best so far, the best lit. The bar: the sectors of the lap under way, each finished
