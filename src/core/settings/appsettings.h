@@ -9,6 +9,7 @@
 #include "../video/exportsettings.h"
 
 #include <QByteArray>
+#include <QDateTime>
 #include <QString>
 
 // Application-wide preferences, stored with QSettings.
@@ -45,6 +46,15 @@ public:
     // how many each list keeps: 10 unless set; 0 keeps none
     static int recentFileCount();
     static void setRecentFileCount(int count);
+
+    // Whether a newer release is looked for (once a day, quietly); when it was last; a release the
+    // user chose to skip, not shown again.
+    static bool checkForUpdates();
+    static void setCheckForUpdates(bool check);
+    static QDateTime lastUpdateCheck();
+    static void setLastUpdateCheck(const QDateTime &when);
+    static QString skippedRelease();
+    static void setSkippedRelease(const QString &tag);
     static constexpr int kMaxRecentFiles = 30;
 
     // --- Preview ----------------------------------------------------------

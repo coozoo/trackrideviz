@@ -33,6 +33,7 @@ SOURCES += \
     $$PWD/overlay/xmltemplateimporter.cpp \
     $$PWD/project/project.cpp \
     $$PWD/settings/appsettings.cpp \
+    $$PWD/update/releasecheck.cpp \
     $$PWD/settings/bundleddata.cpp \
     $$PWD/sync/syncmap.cpp \
     $$PWD/sync/videosync.cpp \
@@ -95,6 +96,7 @@ HEADERS += \
     $$PWD/overlay/xmltemplateimporter.h \
     $$PWD/project/project.h \
     $$PWD/settings/appsettings.h \
+    $$PWD/update/releasecheck.h \
     $$PWD/settings/bundleddata.h \
     $$PWD/sync/syncmap.h \
     $$PWD/sync/videosync.h \

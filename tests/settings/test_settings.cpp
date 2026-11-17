@@ -1,6 +1,10 @@
 #include "settings/appsettings.h"
 #include "telemetry/channelids.h"
+#include "update/releasecheck.h"
 
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QtTest>
@@ -268,6 +272,67 @@ private slots:
         QCOMPARE(display.name, QString("fit.record.87"));
         QCOMPARE(display.unit, QString("raw"));
         QCOMPARE(display.convert(12.5), 12.5);
+    }
+
+    void releaseTags()
+    {
+        QVersionNumber version;
+        QString built;
+        QVERIFY(ReleaseCheck::parseTag("0.01-202611171234_refs/heads/main", &version, &built));
+        QCOMPARE(version, QVersionNumber(0, 1));
+        QCOMPARE(built, QString("202611171234"));
+        QVERIFY(!ReleaseCheck::parseTag("nightly", &version, &built));
+        // built later, or a later version, is newer; an earlier one, a foreign tag, the same one are not
+        QVERIFY(ReleaseCheck::isNewer("0.01-202611181000_refs/heads/main", "0.01-202611171234_refs/heads/main"));
+        QVERIFY(ReleaseCheck::isNewer("0.2-202601010000", "0.01-202611171234"));
+        QVERIFY(!ReleaseCheck::isNewer("0.01-202611101234", "0.01-202611171234"));
+        QVERIFY(!ReleaseCheck::isNewer("0.01-202611171234_refs/heads/main", "0.01-202611171234_refs/heads/main"));
+        QVERIFY(!ReleaseCheck::isNewer("latest", "0.01-202611171234"));
+        // a build that is no release never takes one for newer
+        QVERIFY(!ReleaseCheck::isNewer("0.01-202611181000", QString()));
+    }
+
+    void releaseFromGitHub()
+    {
+        const auto asset = [](const QString &name, int size, const QString &digest = QString())
+        {
+            QJsonObject file{{"name", name}, {"size", size}, {"browser_download_url", "https://example.org/" + name}};
+            if (!digest.isEmpty())
+                {
+                    file.insert("digest", digest);
+                }
+            return file;
+        };
+        const QJsonObject answer
+        {
+            {"tag_name", "0.02-202612011200_refs/heads/main"},
+            {"name", "Release CI 0.02-202612011200 refs/heads/main"},
+            {"html_url", "https://github.com/coozoo/trackrideviz/releases/tag/x"},
+            {"draft", false},
+            {"body", "* Lap table (abc1234)"},
+            {"assets", QJsonArray{asset("trackrideviz_0.02-202612011205_WIN64_setup.exe", 123, "sha256:ABCDEF"),
+                                  asset("trackrideviz_0.02-202612011205_WIN64.zip", 456),
+                                  asset("Race_Track_Visualizer-x86_64.AppImage", 789)}},
+        };
+        const QByteArray json = QJsonDocument(answer).toJson();
+        const ReleaseCheck::Release release = ReleaseCheck::parse(json);
+        QVERIFY(release.isValid());
+        QCOMPARE(release.version, QString("0.2"));
+        QCOMPARE(release.built, QString("202612011200"));
+        QCOMPARE(release.notes, QString("* Lap table (abc1234)"));
+        QCOMPARE(release.assets.size(), 3);
+        // the files told apart by how their names end
+        const ReleaseCheck::Asset *setup = release.assetEndingWith("_WIN64_setup.exe");
+        QVERIFY(setup);
+        QCOMPARE(setup->sha256, QByteArray("abcdef"));
+        QCOMPARE(release.assetEndingWith("_WIN64.zip")->size, qint64(456));
+        QVERIFY(release.assetEndingWith("-x86_64.AppImage"));
+        QVERIFY(!release.assetEndingWith(".dmg"));
+        // a draft, or an answer that is no release, is none
+        QJsonObject draft = answer;
+        draft.insert("draft", true);
+        QVERIFY(!ReleaseCheck::parse(QJsonDocument(draft).toJson()).isValid());
+        QVERIFY(!ReleaseCheck::parse("{\"message\": \"Not Found\"}").isValid());
     }
 };
 

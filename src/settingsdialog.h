@@ -62,6 +62,7 @@ private:
     QComboBox *m_languageCombo{nullptr};
     QCheckBox *m_saveLayoutCheck{nullptr};
     QSpinBox *m_recentCountSpin{nullptr};
+    QCheckBox *m_checkUpdatesCheck{nullptr};
     QDialogButtonBox *m_buttons{nullptr};
     QHBoxLayout *m_body{nullptr};
     bool m_fitted{false};   // sized to the pages, the first time it was shown

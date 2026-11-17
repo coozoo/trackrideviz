@@ -28,6 +28,9 @@ const char kMapApiKey[] = "maps/apiKey";
 const char kMapCreditShown[] = "maps/creditShown";
 const char kLapsMapShown[] = "maps/lapsPanel";
 const char kExportEncoder[] = "export/encoder";
+const char kCheckForUpdates[] = "updates/check";
+const char kLastUpdateCheck[] = "updates/lastCheck";
+const char kSkippedRelease[] = "updates/skipped";
 const char kExportRateControl[] = "export/rateControl";
 const char kExportQuality[] = "export/quality";
 const char kExportSpeed[] = "export/speed";
@@ -158,6 +161,36 @@ void AppSettings::addRecentFile(RecentKind kind, const QString &path)
 void AppSettings::clearRecentFiles(RecentKind kind)
 {
     QSettings().remove(recentKey(kind));
+}
+
+bool AppSettings::checkForUpdates()
+{
+    return QSettings().value(kCheckForUpdates, true).toBool();
+}
+
+void AppSettings::setCheckForUpdates(bool check)
+{
+    QSettings().setValue(kCheckForUpdates, check);
+}
+
+QDateTime AppSettings::lastUpdateCheck()
+{
+    return QSettings().value(kLastUpdateCheck).toDateTime();
+}
+
+void AppSettings::setLastUpdateCheck(const QDateTime &when)
+{
+    QSettings().setValue(kLastUpdateCheck, when);
+}
+
+QString AppSettings::skippedRelease()
+{
+    return QSettings().value(kSkippedRelease).toString();
+}
+
+void AppSettings::setSkippedRelease(const QString &tag)
+{
+    QSettings().setValue(kSkippedRelease, tag);
 }
 
 int AppSettings::recentFileCount()

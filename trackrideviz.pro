@@ -73,6 +73,10 @@ unix:!macx:packagesExist(gstreamer-1.0) {
     DEFINES += HAVE_GSTREAMER
 }
 
+# A build for a release knows which it is (CI sets it), so it can tell when there is a newer one
+RELEASE_TAG = $$(RTV_RELEASE_TAG)
+!isEmpty(RELEASE_TAG): DEFINES += RTV_RELEASE_TAG=\\\"$$RELEASE_TAG\\\"
+
 win32:RC_FILE = trackrideviz.rc
 macx:ICON = trackrideviz.icns
 

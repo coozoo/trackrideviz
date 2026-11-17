@@ -7,6 +7,7 @@
 #include "weather/weather.h"
 #include "telemetry/telemetrysession.h"
 #include "units/units.h"
+#include "update/releasecheck.h"
 
 #include <QElapsedTimer>
 #include <QMainWindow>
@@ -115,6 +116,9 @@ private slots:
     void applySettings();
     void applyMapSettings();
     void showAbout();
+    // Newer releases: looked for quietly once a day, or at once from the Help menu.
+    void checkForUpdates(bool asked);
+    void showNewRelease();
 
 private:
     // A File submenu of the files of `kind` opened lately; `open` opens one.
@@ -233,6 +237,11 @@ private:
     QComboBox *m_fontWeightCombo{nullptr};
     QCheckBox *m_fontEverywhereCheck{nullptr};
     QUndoStack *m_undoStack{nullptr};
+    ReleaseCheck *m_releaseCheck{nullptr};
+    ReleaseCheck::Release m_newRelease;     // a newer one found; invalid when none
+    bool m_updateAsked{false};              // the check under way was asked for: its answer is told
+    QLabel *m_updateLabel{nullptr};         // in the status bar while there is a newer one
+    QAction *m_updateAction{nullptr};
     // The project differs from what is on disk in a way worth asking about.
     bool m_modified{false};
 

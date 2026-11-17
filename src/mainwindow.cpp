@@ -71,12 +71,14 @@
 #include <QDropEvent>
 #include <QMetaEnum>
 #include <QMimeData>
+#include <QTextBrowser>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QUndoStack>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QVersionNumber>
 #include <QVideoSink>
 #include <QtConcurrent>
 
@@ -298,6 +300,54 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_canvas, &VideoCanvas::templateDropped, this, &MainWindow::applyTemplate);
     // files dropped anywhere on the window
     setAcceptDrops(true);
+
+    // a newer release: a link in the status bar and an entry in Help, nothing that pops up
+    m_releaseCheck = new ReleaseCheck(this);
+    connect(m_releaseCheck, &ReleaseCheck::newer, this, [this](const ReleaseCheck::Release &release)
+    {
+        m_newRelease = release;
+        const bool skipped = release.tag == AppSettings::skippedRelease();
+        if (!skipped || m_updateAsked)
+            {
+                m_updateLabel->setText(QString("<a href=\"#\">%1</a>").arg(tr("Version %1 is available").arg(release.version)));
+                m_updateLabel->show();
+                m_updateAction->setText(tr("Update to version %1...").arg(release.version));
+                m_updateAction->setVisible(true);
+            }
+        if (m_updateAsked)
+            {
+                showNewRelease();
+            }
+    });
+    connect(m_releaseCheck, &ReleaseCheck::upToDate, this, [this]()
+    {
+        if (m_updateAsked)
+            {
+                QMessageBox::information(this, tr("Check for updates"),
+                                         tr("This is the latest version, %1.").arg(qApp->applicationVersion()));
+            }
+    });
+    connect(m_releaseCheck, &ReleaseCheck::failed, this, [this](const QString &why)
+    {
+        DiagnosticLog::note("updates", why);
+        if (m_updateAsked)
+            {
+                QMessageBox::warning(this, tr("Check for updates"), tr("Could not find out about newer versions: %1").arg(why));
+            }
+    });
+    m_updateLabel = new QLabel(this);
+    m_updateLabel->setTextFormat(Qt::RichText);
+    m_updateLabel->setToolTip(tr("What is new, and how to get it"));
+    m_updateLabel->hide();
+    connect(m_updateLabel, &QLabel::linkActivated, this, &MainWindow::showNewRelease);
+    statusBar()->addPermanentWidget(m_updateLabel);
+    // once a day, a while after the start: the window first
+    const QDateTime lastCheck = AppSettings::lastUpdateCheck();
+    if (!ReleaseCheck::currentTag().isEmpty() && AppSettings::checkForUpdates()
+            && (!lastCheck.isValid() || lastCheck.secsTo(QDateTime::currentDateTime()) > 20 * 3600))
+        {
+            QTimer::singleShot(8000, this, [this]() { checkForUpdates(false); });
+        }
     // told from inside the canvas's painting: the gauges are placed again after it
     connect(m_canvas, &VideoCanvas::pictureAspectChanged, this, &MainWindow::fitLayoutTo, Qt::QueuedConnection);
     connect(m_libraryPanel, &GaugeLibraryPanel::applyTemplateRequested, this, &MainWindow::applyTemplate);
@@ -920,6 +970,9 @@ void MainWindow::createMenus()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(Icons::named("help-about"), tr("&About"), this, &MainWindow::showAbout);
+    helpMenu->addAction(Icons::named("view-refresh"), tr("Check for &updates..."), this, [this]() { checkForUpdates(true); });
+    m_updateAction = helpMenu->addAction(Icons::named("go-next"), QString(), this, &MainWindow::showNewRelease);
+    m_updateAction->setVisible(false);
     // to the README, which anyone can check, not to a fund: a link in the program could be swapped
     helpMenu->addAction(QIcon(":/images/icons/flag-ukraine.svg"), tr("Support &Ukraine"), this,
                         []() { QDesktopServices::openUrl(QUrl(kSupportUkraine)); });
@@ -2813,6 +2866,72 @@ void MainWindow::applyMapSettings()
         {
             rebuildOverlay();
         }
+}
+
+void MainWindow::checkForUpdates(bool asked)
+{
+    if (ReleaseCheck::currentTag().isEmpty())
+        {
+            if (asked)
+                {
+                    QMessageBox::information(this, tr("Check for updates"),
+                                             tr("This copy was not built for a release (it is a development build or a "
+                                                "distribution's package), so it cannot tell how new it is. The releases are "
+                                                "<a href=\"%1\">here</a>.").arg(ReleaseCheck::releasesPage().toString()));
+                }
+            return;
+        }
+    m_updateAsked = asked;
+    AppSettings::setLastUpdateCheck(QDateTime::currentDateTime());
+    m_releaseCheck->check();
+}
+
+void MainWindow::showNewRelease()
+{
+    if (!m_newRelease.isValid())
+        {
+            return;
+        }
+    const ReleaseCheck::Release release = m_newRelease;
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Version %1").arg(release.version));
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QVersionNumber ours;
+    QString ourBuild;
+    ReleaseCheck::parseTag(ReleaseCheck::currentTag(), &ours, &ourBuild);
+    const auto day = [](const QString &built) { return QDateTime::fromString(built, "yyyyMMddHHmm").date(); };
+    QLabel *intro = new QLabel(tr("Version %1 of %2 is out, made on %3. This one is %4, of %5.")
+                               .arg(release.version, qApp->applicationDisplayName(),
+                                    QLocale().toString(day(release.built), QLocale::ShortFormat), ours.toString(),
+                                    QLocale().toString(day(ourBuild), QLocale::ShortFormat)), &dialog);
+    intro->setWordWrap(true);
+    layout->addWidget(intro);
+    QTextBrowser *notes = new QTextBrowser(&dialog);
+    notes->setOpenExternalLinks(true);
+    notes->setMarkdown(release.notes.isEmpty() ? tr("No notes came with it.") : release.notes);
+    layout->addWidget(notes, 1);
+    QDialogButtonBox *buttons = new QDialogButtonBox(&dialog);
+    QPushButton *page = buttons->addButton(tr("Open the release page"), QDialogButtonBox::AcceptRole);
+    page->setIcon(Icons::named("go-next"));
+    QPushButton *skip = buttons->addButton(tr("Skip this version"), QDialogButtonBox::DestructiveRole);
+    buttons->addButton(tr("Later"), QDialogButtonBox::RejectRole);
+    connect(page, &QPushButton::clicked, &dialog, [&dialog, release]()
+    {
+        QDesktopServices::openUrl(release.page.isValid() ? release.page : ReleaseCheck::releasesPage());
+        dialog.accept();
+    });
+    connect(skip, &QPushButton::clicked, &dialog, [this, &dialog, release]()
+    {
+        // not shown again until a newer one comes
+        AppSettings::setSkippedRelease(release.tag);
+        m_updateLabel->hide();
+        m_updateAction->setVisible(false);
+        dialog.reject();
+    });
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    dialog.resize(560, 440);
+    dialog.exec();
 }
 
 void MainWindow::showAbout()

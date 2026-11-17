@@ -47,6 +47,8 @@ jobs:
       build_mac_zip: ${{ steps.set_flags.outputs.build_mac_zip }}
       build_win: ${{ steps.set_flags.outputs.build_win }}
       build_lin: ${{ steps.set_flags.outputs.build_lin }}
+      # the release's tag as GitHub names it, for the program to know which release it is
+      release_tag: ${{ steps.build.outputs.VER_TAG_NAME }}_${{ github.ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -126,6 +128,10 @@ jobs:
     name: Build release
     needs: create_release
     runs-on: ${{ matrix.config.os }}
+    env:
+      # built into the program (see trackrideviz.pro): a release then tells when a newer one is
+      # out; artifacts of other branches are no releases and never ask
+      RTV_RELEASE_TAG: ${{ github.ref == 'refs/heads/main' && needs.create_release.outputs.release_tag || '' }}
     strategy:
       fail-fast: false
       matrix:

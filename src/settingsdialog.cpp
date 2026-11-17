@@ -180,6 +180,10 @@ QWidget *SettingsDialog::createAppearancePage()
     form->addRow(QString(), note(tr("The language changes after a restart."), page));
     form->addRow(QString(), m_saveLayoutCheck);
     form->addRow(tr("Recent files:"), m_recentCountSpin);
+    m_checkUpdatesCheck = new QCheckBox(tr("Look for a newer version once a day"), page);
+    m_checkUpdatesCheck->setToolTip(tr("Asks the project's page on GitHub, quietly; a newer version is shown in the status "
+                                       "bar, nothing pops up. Help > Check for updates asks at once."));
+    form->addRow(QString(), m_checkUpdatesCheck);
     return page;
 }
 
@@ -722,6 +726,7 @@ void SettingsDialog::load()
     select(m_languageCombo, AppSettings::language());
     m_saveLayoutCheck->setChecked(AppSettings::saveWindowLayout());
     m_recentCountSpin->setValue(AppSettings::recentFileCount());
+    m_checkUpdatesCheck->setChecked(AppSettings::checkForUpdates());
 
     m_hardwareDecodingCheck->setChecked(AppSettings::hardwareDecoding());
     select(m_decoderCombo, AppSettings::preferredDecoder());
@@ -824,6 +829,7 @@ void SettingsDialog::accept()
     AppSettings::setLanguage(language);
     AppSettings::setSaveWindowLayout(m_saveLayoutCheck->isChecked());
     AppSettings::setRecentFileCount(m_recentCountSpin->value());
+    AppSettings::setCheckForUpdates(m_checkUpdatesCheck->isChecked());
     AppSettings::setHardwareDecoding(hardwareDecoding);
     AppSettings::setPreferredDecoder(decoder);
 
