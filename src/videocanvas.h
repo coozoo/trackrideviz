@@ -50,9 +50,15 @@ public slots:
 signals:
     void selectedItemChanged(int index);
     // The user finished moving or resizing a gauge. Fractions of the frame, as in OverlayItem.
-    void itemGeometryEdited(int index, double x, double y, double height);
+    void itemGeometryEdited(int index, double x, double y, double height, double aspect);
     void itemDeleteRequested(int index);
     void itemMenuRequested(int index, const QPoint &globalPosition);
+    // A gauge dragged out of the library was let go here: `center` is where, in fractions of
+    // the frame (both -1 when there is no picture yet).
+    void gaugeDropped(const QString &gaugeId, const QPointF &center);
+    void templateDropped(const QString &templateId);
+    // The picture shown has another shape than the one before (width / height, turned as shown).
+    void pictureAspectChanged(double aspect);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -60,6 +66,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
     void initializeGL() override;
     void paintGL() override;
 
@@ -83,6 +92,7 @@ private:
 
     QVideoFrame m_pendingFrame;     // not uploaded yet
     bool m_hasPicture{false};       // textures hold something to show
+    double m_announcedAspect{0.0};  // the shape pictureAspectChanged last told
     QSize m_pictureSize;            // as stored, before rotation
     int m_rotation{0};              // degrees clockwise: 0, 90, 180, 270
     Layout m_layout{Rgba};
@@ -101,13 +111,18 @@ private:
     double m_positionTime{0.0};
     SyncMap m_sync;
     QRectF resizeHandle(const QRectF &itemRect) const;
+    // A gauge whose shape is not kept has handles on its right and bottom edges too.
+    QRectF widthHandle(const QRectF &itemRect) const;
+    QRectF heightHandle(const QRectF &itemRect) const;
     void updateCursor(const QPointF &position);
 
     Overlay m_overlay;
     int m_selected{-1};
     // A gauge being moved or resized with the mouse. The overlay shows it
     // where the mouse has it; the project hears about it on release.
-    enum Drag { NoDrag, Moving, Resizing };
+    enum Drag { NoDrag, Moving, Resizing, ResizingWidth, ResizingHeight };
+    // Which handle of the selected gauge is under `position`: one of the Resizing kinds, or NoDrag.
+    Drag handleAt(const QPointF &position) const;
     Drag m_drag{NoDrag};
     QPointF m_dragStart;
     QRectF m_dragStartRect;

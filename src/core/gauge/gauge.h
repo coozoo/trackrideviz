@@ -163,8 +163,13 @@ struct GaugeComponent
         Shape,   // a rectangle, ellipse, arc, pie slice or line drawn with a pen or filled
         Dial,    // a round scale: arc, ticks and numbers (`scale`)
         Tape,    // a sliding straight scale (`scale`)
-        Gears    // the bike's chainrings and sprockets as bars (TelemetrySession::cassette()), those in use
+        Gears,   // the bike's chainrings and sprockets as bars (TelemetrySession::cassette()), those in use
                  // in `activeColor`, the chain between them; the others in `color`
+        LapTable,// the last `rows` laps finished and the one under way: number, time, behind the best;
+                 // the best in `activeColor`. Text as a text's
+        SectorBar// the sectors of the lap under way side by side, `padding` apart: each finished one in
+                 // `activeColor` when it beat the best of it so far, else in `color`; the one being
+                 // driven filling up against that best
     };
     enum ShapeKind
     {
@@ -172,7 +177,7 @@ struct GaugeComponent
         Ellipse,     // inside `frame`
         Arc,         // of the ellipse inside `frame`, from startAngle turning sweepAngle
         Pie,         // the same, filled to the middle
-        Line         // through `points`
+        Line         // through `points`; filled: closed, a polygon; smooth: curved through them
     };
     enum ValueFormat
     {
@@ -244,11 +249,15 @@ struct GaugeComponent
     double startAngle{0.0};
     double sweepAngle{0.0};
     QVector<QPointF> points;
+    bool smooth{false};            // Line: a curve through the points instead of straight pieces
     GaugeColor gradientColor;      // Original = no gradient
     QLineF gradientLine;
 
-    // Gears: the chainring and the sprocket in use, and the chain.
+    // Gears: the chainring and the sprocket in use, and the chain. LapTable: the best lap.
+    // SectorBar: a sector faster than the best of it so far.
     GaugeColor activeColor{GaugeColor::Accent, QColor()};
+    // LapTable: lines, the lap under way the last of them
+    int rows{5};
 
     // Dial, Tape. Numbers in the text font, alignment and color above.
     GaugeScale scale;
@@ -262,6 +271,8 @@ struct GaugeComponent
     // with its corners rounded by cornerRadius
     bool tiles{false};
     double tileOpacity{1.0};
+    // ... of its own: the id of one of TileStore::providers(); empty = the one of the settings
+    QString mapProvider;
     // TrackMap, LapMap: meters across the frame's shorter side, the map moving under
     // the current position kept in the middle; 0 = the whole route, standing still
     double span{0.0};

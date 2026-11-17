@@ -47,7 +47,14 @@ private:
     GaugeComponent *componentAt(const Path &path);
     GaugeComponent *selected();
     Path selectedPath() const;
+    Path pathOf(const QTreeWidgetItem *item) const;
     void select(const Path &path);
+    // Every part picked in the list (Ctrl or Shift held for more), the current one first: those
+    // placed in the gauge's own units only, not what is drawn at a graph's or a map's current
+    // point, and not the parts of a group picked too.
+    QVector<GaugeComponent *> pickedParts();
+    // Lines the picked parts up: edges, middles, or spread evenly (AlignHow)
+    void align(int how);
 
     void fillTree();
     void fillProperties();
@@ -78,7 +85,7 @@ private:
     void addFont(QFormLayout *form, const Part &part);
     void addChannel(QFormLayout *form, const QString &label, const QString &value,
                     const std::function<void(Part &, const QString &)> &set);
-    void addMovement(QFormLayout *form, const Part &part);
+    void addMovement(QFormLayout *form, const Part &part, int index);
     void addScale(QFormLayout *form, const Part &part);
 
     Gauge m_gauge;

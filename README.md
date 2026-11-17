@@ -1,6 +1,8 @@
 # Race Track Visualizer
 
 [![Release_Version](https://github.com/coozoo/trackrideviz/actions/workflows/build_all.yml/badge.svg)](https://github.com/coozoo/trackrideviz/actions/workflows/build_all.yml)
+[![Tests](https://github.com/coozoo/trackrideviz/actions/workflows/tests.yml/badge.svg)](https://github.com/coozoo/trackrideviz/actions/workflows/tests.yml)
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/yura/trackrideviz/package/trackrideviz/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/yura/trackrideviz/package/trackrideviz/)
 
 Telemetry overlays for action camera video: speed, lap times, G-force, track map, heart rate,
 power, OBD data and more, drawn as gauges on top of your footage and exported as a new video.
@@ -27,6 +29,17 @@ today.
 > others), whole or close up around the rider, and a missing or poor elevation taken from a terrain
 > model. See the [roadmap](docs/planning/04-roadmap.md).
 
+## Support Ukraine
+
+🇺🇦 Ukraine is fighting for its independence against an empire: russia's full-scale invasion, begun
+in 2022. If this program is useful to you, please consider helping Ukraine's defenders through
+[Come Back Alive](https://savelife.in.ua/en/donate-en/#donate-army-card-once), one of the
+largest and most trusted foundations supporting them.
+
+The program links to this section rather than to a fund directly: a link inside a binary can
+be swapped for a fake one by whoever repackages it, while this page is public and its history
+can be checked.
+
 ## Planned features
 
 - Open a video and get its telemetry automatically (embedded GoPro data, or a `.fit` / `.gpx` next to it)
@@ -41,17 +54,84 @@ today.
   the gauges alone on a transparent background (ProRes 4444 or VP9 WebM), to lay over the video in another editor
 - Music under the video: a playlist of files, with fades and the volumes of the video and the music
 
+## Installation
+
+Packages for Linux (AppImage, .deb) and Windows are on the
+[releases page](https://github.com/coozoo/trackrideviz/releases).
+
+Fedora, from [Copr](https://copr.fedorainfracloud.org/coprs/yura/trackrideviz/):
+
+```bash
+sudo dnf copr enable yura/trackrideviz
+sudo dnf install trackrideviz
+```
+
+Ubuntu, from the [PPA](https://launchpad.net/~coozoo/+archive/ubuntu/trackrideviz):
+
+```bash
+sudo add-apt-repository ppa:coozoo/trackrideviz
+sudo apt install trackrideviz
+```
+
+Both are updated by the package manager with the rest of the system.
+
+On Windows, take whichever you prefer:
+
+- `..._WIN64_setup.exe` installs it, for you alone (no administrator needed) or for everyone, with
+  a Start menu entry, and opens projects, gauges and templates with it by a double click. It is
+  uninstalled from Windows' list of apps.
+- `..._WIN64.zip` is the same program to unpack anywhere and run from there; nothing is installed.
+
+On macOS the downloaded app has to be allowed to run first:
+
+```bash
+# adjust the location to where the app is
+xattr -dr com.apple.quarantine /Applications/trackrideviz.app
+codesign --force --deep --sign - /Applications/trackrideviz.app
+```
+
+## Command line
+
+The program exports without its window too, for scripts and for many videos in a row:
+
+```bash
+trackrideviz --render ride.rtvproj                       # as the project was saved
+trackrideviz --render ride.rtvproj -o ride.mp4 --profile youtube --hardware
+trackrideviz --render --video GX010042.MP4 --data ride.fit --template "Track day"
+trackrideviz --render ride.rtvproj --gauges-only -o gauges.mov
+trackrideviz --list-encoders                             # what this computer can encode with
+trackrideviz --help                                      # everything else
+```
+
+A project is exported as it was saved. Without one, the video and the data are put in step by
+their clocks, as when they are opened in the window, or by `--offset`. The export profile and
+the kind of encoder (graphics card or processor) are those the export dialog used last unless
+`--profile`, `--encoder`, `--hardware` or `--software` say otherwise. Ctrl+C stops and keeps a
+playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.
+
 ## Build
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools), zlib and a C++17 compiler.
-`ffmpeg` (with `ffprobe`) is needed at run time for export; its location can be set in the settings.
+`ffmpeg` (with `ffprobe`) is needed at run time for export and for the music's lengths; the Windows
+package comes with them. Otherwise the ones next to the program, then on the PATH, are used, and
+their location can be set in the settings.
 
 ```bash
 qmake6
 make -j$(nproc)
 ./trackrideviz                                  # then File > Open video / Open data
 ./trackrideviz 20250715_074932A.mp4 ride.fit    # or name the files directly
+```
+
+**Windows build under Wine:** export has software encoders only. Qt finds no sound device unless
+each output device has a container ID, which Wine does not store; add one per device:
+
+```bash
+for k in $(grep -o 'MMDevices\\\\Audio\\\\Render\\\\{[^}]*}\\\\Properties' ~/.wine/system.reg | sed 's/\\\\\\\\/\\\\/g' | sort -u); do
+  wine reg add "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\$k" /v "{8C7ED206-3F8A-4827-B3AB-AE9E1FAEFC6C},2" \
+    /t REG_SZ /d "$(echo "$k" | grep -o '{[^}]*}')" /f
+done
 ```
 
 Tests:
@@ -92,19 +172,92 @@ src/                         Qt Widgets user interface
 tests/                       unit tests (QtTest)
 translations/                .ts files
 docs/planning/               design documents and roadmap
-debian/, *.spec, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
+debian/, *.spec, windows/, MAC_build_RELEASE.sh, .github/workflows/   packaging and CI
 ```
 
-## Support Ukraine
+## Contributing
 
-🇺🇦 Ukraine is fighting for its independence against an empire: russia's full-scale invasion, begun
-in 2022. If this program is useful to you, please consider helping Ukraine's defenders through
-[Come Back Alive](https://savelife.in.ua/en/donate-en/#donate-army-card-once), one of the
-largest and most trusted foundations supporting them.
+Patches are welcome. A few rules of this project that are easy to miss.
 
-The program links to this section rather than to a fund directly: a link inside a binary can
-be swapped for a fake one by whoever repackages it, while this page is public and its history
-can be checked.
+### Send pull requests to `slave`, not `main`
+
+`slave` is the integration branch: work is collected there and `main` only ever receives merges
+from it. Every push to `main` builds a release, so nothing lands there untested. Branch off
+`slave`:
+
+```bash
+git remote add upstream https://github.com/coozoo/trackrideviz.git
+git fetch upstream
+git switch -c my-fix upstream/slave
+```
+
+If you already branched off `main`, rebase instead of only switching the base in the GitHub UI,
+which would drag `main`'s merge commits into `slave`:
+
+```bash
+git rebase --onto upstream/slave upstream/main my-fix
+git push --force-with-lease
+```
+
+Set the base to `slave` *before* you push. Changing the base afterwards fires a `pull_request`
+event of type `edited`, which does not start the build; push once more to start it.
+
+### Build tags
+
+A push to `slave` or a pull request against it builds every platform, kept as workflow artifacts
+rather than a release. Tags in the last commit message (or in the PR title or description) build
+only some:
+
+| Tag | Builds |
+|---|---|
+| `[build linux]` | Linux: the AppImage (the .deb is built too, but kept only in a release) |
+| `[build win]` | Windows: the zip and the installer |
+| `[build mac]` | the macOS .dmg (same as `[build mac dmg]`) |
+| `[build mac zip]` | the macOS .zip |
+| `[skip ci]` | nothing |
+
+macOS is left out of the build matrix until the final stage; the tags for it do nothing until then.
+
+### It has to build with Qt 6.2
+
+The Linux packages are built on Ubuntu 22.04 with its own Qt 6.2, so that they run on every
+system still in use and on all newer ones. Use nothing newer than Qt 6.2's API, and keep in
+mind that Qt 6.2 plays video through GStreamer, Qt 6.4 and later through FFmpeg.
+
+### One concern per pull request
+
+Please don't bundle build-configuration changes with a fix. In particular leave the release
+logging default alone:
+
+```qmake
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+```
+
+For `qDebug()` output while working on something, build in debug mode instead
+(`qmake6 CONFIG+=debug`).
+
+### Text and translations
+
+Text in the program and the repository is in American English. New strings go through `tr()`;
+update the `.ts` files with Qt 6's lupdate (see [Translations](#translations)). The Ukrainian
+translation is kept complete: translate your strings, or say in the PR that you could not.
+
+### Run the tests before submitting
+
+CI does not run them, so please do (see [Build](#build)), and say in the PR on which platforms
+you tried the change.
+
+### Keep the PR description in sync
+
+GitHub does not rewrite a pull request's description when you force-push. If you drop or change
+part of your work, edit the description too.
+
+### If you are contributing from a fork
+
+- The first pull request of a new contributor waits for a maintainer to approve its workflow
+  run. This is normal.
+- Pull requests from forks get no repository secrets, so steps that publish can fail for reasons
+  that have nothing to do with your patch.
 
 ## Author
 

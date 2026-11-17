@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/dataprofiles">
+        <file>TrackAddict.json</file>
+    </qresource>
+</RCC>

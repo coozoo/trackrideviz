@@ -8,6 +8,8 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
+#include <algorithm>
+
 #include <cmath>
 
 // A moment in UTC, built the same way on every Qt version.
@@ -470,10 +472,121 @@ private slots:
         QVERIFY(p.matches(CsvImporter::lines("logger x v2\nFormat,1\n")));
     }
 
+    void aimLayout()
+    {
+        DataProfile p;
+        p.name = "AiM";
+        p.matchers = {{0, "AIM CSV File", true, false}};
+        p.layout = DataProfile::AimSections;
+        p.separators = ",";
+        DataProfile::Mapping total;
+        total.column = "Total Time";
+        total.role = DataProfile::Mapping::RunningTime;
+        p.mappings = {total, value("GPS Speed", "speed", "km/h")};
+        // a header block of its own; the names 4 lines above its last blank line
+        const QByteArray csv = "\"Format\",\"AIM CSV File\"\n"
+                               "\"Venue\",\"Some Track\"\n"
+                               "\"Date\",\"Saturday, June 1, 2019\"\n"
+                               "\"Time\",\"10:20:30\"\n"
+                               "\"Beacon Markers\",\"0.3\"\n"
+                               "\n"
+                               "\"Time\",\"GPS Speed\"\n"
+                               "\"Time\",\"GPS Speed\"\n"
+                               "\"sec\",\"km/h\"\n"
+                               "\"\",\"\"\n"
+                               "\n"
+                               "\"0.0\",\"36\"\n\"0.1\",\"36\"\n\"0.2\",\"36\"\n"
+                               // the second lap: "Time" from 0 again, from the beacon on
+                               "\"0.0\",\"72\"\n\"0.1\",\"72\"\n";
+        TelemetrySessionPtr s = read(csv, p);
+        QVERIFY(s);
+        const Channel *speed = s->channel("speed");
+        QVERIFY(speed);
+        QCOMPARE(speed->count(), 5);
+        QCOMPARE(speed->timeAt(3), 0.3);
+        QCOMPARE(speed->timeAt(4), 0.4);
+        QCOMPARE(speed->valueAtIndex(4), 20.0);
+        QCOMPARE(s->startUtc(), QDateTime(QDate(2019, 6, 1), QTime(10, 20, 30)).toUTC());
+        // without a marker the lap starts a row on from the last
+        QByteArray unmarked = csv;
+        unmarked.replace("\"Beacon Markers\",\"0.3\"", "\"Comment\",\"\"");
+        s = read(unmarked, p);
+        QCOMPARE(s->channel("speed")->timeAt(3), 0.3);
+        QString error;
+        QVERIFY(!CsvImporter::parse("\"Format\",\"AIM CSV File\"\n1,2\n", p, &error));
+        QVERIFY(error.contains("blank"));
+    }
+
+    void racelogicLayout()
+    {
+        DataProfile p;
+        p.name = "Racelogic";
+        p.matchers = {{0, "File created on", true, true}};
+        p.layout = DataProfile::RacelogicSections;
+        p.separators = " ";
+        DataProfile::Mapping time;
+        time.column = "time";
+        time.role = DataProfile::Mapping::RunningTime;
+        p.mappings = {time, value("velocity", "speed", "mph")};
+        const QByteArray file = "File created on 01/06/2019\n"
+                                "Log Rate (Hz) : 20\n"
+                                "[column names]\n"
+                                "sats time velocity\n"
+                                "[data]\n"
+                                "8 999 10\n8 999 20\n8 999 30\n";
+        TelemetrySessionPtr s = read(file, p);
+        QVERIFY(s);
+        const Channel *speed = s->channel("speed");
+        QCOMPARE(speed->count(), 3);
+        // the logger's own time column is replaced: rows at its rate
+        QCOMPARE(speed->timeAt(2), 0.1);
+        QVERIFY(qAbs(speed->valueAtIndex(0) - 10 * 0.44704) < 1e-9);
+        QString error;
+        QByteArray noRate = file;
+        noRate.replace("Log Rate (Hz) : 20\n", "");
+        QVERIFY(!CsvImporter::parse(noRate, p, &error));
+        QVERIFY(error.contains("Log Rate"));
+        // the layout survives a save
+        DataProfile loaded;
+        QVERIFY(DataProfileFile::fromJson(DataProfileFile::toJson(p), &loaded));
+        QCOMPARE(loaded.layout, DataProfile::RacelogicSections);
+        // and comes from an XML profile
+        const XmlDataProfileImporter::Result xml = XmlDataProfileImporter::parse(
+                    "<DataProfile isAimData=\"True\"><FileLineMatchers><FileLineMatcher dataLineIndex=\"0\" "
+                    "matchText=\"AIM CSV File\"/></FileLineMatchers><ColumnMappings><ColumnMapping inputColumnText=\"Total Time\" "
+                    "dataType=\"Data Running Time, Seconds\"/></ColumnMappings></DataProfile>", "x");
+        QVERIFY(xml.ok);
+        QCOMPARE(xml.profile.layout, DataProfile::AimSections);
+    }
+
+    void trackAddictComesWithTheProgram()
+    {
+        const QVector<DataProfile> builtin = DataProfileLibrary::builtinProfiles();
+        const auto found = std::find_if(builtin.cbegin(), builtin.cend(), [](const DataProfile &p) { return p.name == "TrackAddict"; });
+        QVERIFY(found != builtin.cend());
+        // as the logger writes it: more "#" lines in front than the profile's line numbers allow for
+        const QByteArray log = "# Data: TrackAddict 4.8.0 on iOS 15.5 (Mode: 0)\n"
+                               "# Vehicle: some car\n"
+                               "# End Point: 50.857952, -0.752617  @ -1.00 deg\n"
+                               "# GPS: iOS; Type: 1\n"
+                               "\"Time\",\"UTC Time\",\"Lap\",\"Latitude\",\"Longitude\",\"Altitude (m)\",\"Speed (Km/h)\","
+                               "\"Heading\",\"Accel X\",\"Engine Speed (RPM) *OBD\",\"Engine Coolant Temp (F) *OBD\"\n"
+                               "0.000,1653983971.000,0,50.8590633,-0.7529619,29.5,36.0,165.1,0.01,1155.5,212\n"
+                               "1.000,1653983972.000,1,50.8590700,-0.7529600,29.6,72.0,165.0,0.02,2000.0,212\n"
+                               "2.000,1653983973.000,2,50.8590800,-0.7529500,29.7,72.0,164.0,0.03,2500.0,212\n"
+                               "# Session End\n";
+        const TelemetrySessionPtr s = read(log, *found);
+        QVERIFY(s);
+        QCOMPARE(s->channel("speed")->valueAtIndex(1), 20.0);
+        QCOMPARE(s->channel("engineRpm")->valueAtIndex(2), 2500.0);
+        QVERIFY(qAbs(s->channel("engineCoolantTemperature")->valueAtIndex(0) - 100.0) < 1e-9);
+        QCOMPARE(s->channel("accelX")->valueAtIndex(2), 0.03);
+        QCOMPARE(s->laps().size(), 1);
+    }
+
     void xmlProfilesRefused()
     {
         QVERIFY(!XmlDataProfileImporter::parse("<Gauge/>", "x").ok);
-        QVERIFY(!XmlDataProfileImporter::parse("<DataProfile isAimData=\"True\"/>", "x").ok);
         // no time column
         QVERIFY(!XmlDataProfileImporter::parse("<DataProfile><FileLineMatchers><FileLineMatcher dataLineIndex=\"0\" matchText=\"a\"/>"
                                                "</FileLineMatchers><ColumnMappings/></DataProfile>", "x").ok);
@@ -498,7 +611,8 @@ private slots:
         const DataProfileLibrary::ImportSummary summary = DataProfileLibrary::importXml({xml, bad});
         QCOMPARE(summary.imported, 1);
         QCOMPARE(summary.failed.size(), 1);
-        QCOMPARE(DataProfileLibrary::profiles().size(), 1);
+        // the user's own first, then those that come with the program
+        QCOMPARE(DataProfileLibrary::profiles().size(), 1 + DataProfileLibrary::builtinProfiles().size());
         QCOMPARE(DataProfileLibrary::profiles().first().name, QString("Logger Y"));
 
         // a .csv opens like any data file
@@ -514,7 +628,7 @@ private slots:
         QVERIFY(error.contains("other.csv"));
 
         QVERIFY(DataProfileLibrary::remove("Logger Y"));
-        QVERIFY(DataProfileLibrary::profiles().isEmpty());
+        QCOMPARE(DataProfileLibrary::profiles().size(), DataProfileLibrary::builtinProfiles().size());
         QVERIFY(!TelemetryImporter::load(csv, &error));
         QVERIFY(error.contains("Import"));
     }

@@ -157,8 +157,14 @@ hypotenuse, trigonometry, inverse; with a constant or a second column), gap fill
 removal, time-window averages (plain or of angles), deltas, last value. Left out and noted:
 calculators that derive measurements (lap statistics, ascent/descent, heading and distance from
 positions, G from speed, speed from distance; for every source alike in M4), positions projected
-to feet or meters. Refused: AiM and DriftBox layouts (header found by blank lines / sections), and
-profiles without line matchers. Of a full installation's 54: 49 import.
+to feet or meters. Refused: profiles without line matchers. Of a full installation's 54: 51 import.
+
+AiM and Racelogic (DriftBox, PerformanceBox) files carry a header block of their own, so their
+profiles name a `layout` instead of line numbers. `aim`: the column names 4 lines above the last
+blank line among the first 100, the data after it; "Time" starts again at 0 with each lap, so
+"Total Time" is added from the "Beacon Markers" line; the start from the "Date" and "Time" lines,
+in local time. `racelogic`: the names on the line after "[column names]", the data two lines on;
+"time" counted in rows at the "Log Rate (Hz)" given.
 
 ### Files to pass on: `.rtvgauge`, `.rtvtemplate` (`LibraryPackage`)
 The library keeps gauges as folders and templates as JSON files. To pass one on, it is exported
@@ -180,7 +186,7 @@ the same name is added as "<name> (2)", and a template of an existing name gets 
 | GPX (+ Garmin TrackPointExtension: hr, cad, temp, power) | everything | `QXmlStreamReader`; start from Overseer's `GpxTrack` and widen it | 1 |
 | FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK license terms) or the official C++ SDK — see decisions §5 | 1 |
 | GoPro GPMF (embedded in MP4) | GoPro Hero 5+ | Demux the `gpmd` data stream via libavformat/ffprobe, parse KLV ourselves (GPS5/GPS9, ACCL, GYRO) | 2 |
-| CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own profiles to ship later | 2 |
+| CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own ones come with the program (`csv/profiles/`: TrackAddict) | 2 |
 | TCX | older Garmin, Strava export | XML | 2 |
 | NMEA 0183 | raw GPS loggers, dashcams | line parser (RMC/GGA/VTG) | 3 |
 | VBO | Racelogic VBOX, RaceChrono export | text, header-described columns | 3 |

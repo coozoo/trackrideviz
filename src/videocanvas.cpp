@@ -1,9 +1,13 @@
 #include "videocanvas.h"
 
+#include "gaugelibrarypanel.h"
+
 
 #include <QOpenGLContext>
 #include <QOpenGLShaderProgram>
 #include <QContextMenuEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
@@ -164,6 +168,7 @@ VideoCanvas::VideoCanvas(QWidget *parent)
 {
     setMinimumSize(320, 180);
     setMouseTracking(true);          // for the cursor that says what a drag would do
+    setAcceptDrops(true);            // gauges and templates out of the library
     setFocusPolicy(Qt::ClickFocus);  // Delete acts on the selected gauge
 }
 
@@ -202,6 +207,41 @@ QRectF VideoCanvas::resizeHandle(const QRectF &itemRect) const
     return QRectF(itemRect.right() - kHandleSize, itemRect.bottom() - kHandleSize, kHandleSize, kHandleSize);
 }
 
+QRectF VideoCanvas::widthHandle(const QRectF &itemRect) const
+{
+    return QRectF(itemRect.right() - kHandleSize, itemRect.center().y() - kHandleSize / 2.0, kHandleSize, kHandleSize);
+}
+
+QRectF VideoCanvas::heightHandle(const QRectF &itemRect) const
+{
+    return QRectF(itemRect.center().x() - kHandleSize / 2.0, itemRect.bottom() - kHandleSize, kHandleSize, kHandleSize);
+}
+
+VideoCanvas::Drag VideoCanvas::handleAt(const QPointF &position) const
+{
+    if (m_selected < 0 || m_selected >= m_overlay.count())
+        {
+            return NoDrag;
+        }
+    const QRectF rect = m_overlay.itemRect(m_selected, videoRect());
+    if (resizeHandle(rect).contains(position))
+        {
+            return Resizing;
+        }
+    if (m_overlay.item(m_selected).aspect > 0.0)
+        {
+            if (widthHandle(rect).contains(position))
+                {
+                    return ResizingWidth;
+                }
+            if (heightHandle(rect).contains(position))
+                {
+                    return ResizingHeight;
+                }
+        }
+    return NoDrag;
+}
+
 void VideoCanvas::updateCursor(const QPointF &position)
 {
     if (!m_hasPicture)
@@ -210,9 +250,11 @@ void VideoCanvas::updateCursor(const QPointF &position)
             return;
         }
     const QRectF frame = videoRect();
-    if (m_selected >= 0 && resizeHandle(m_overlay.itemRect(m_selected, frame)).contains(position))
+    const Drag handle = handleAt(position);
+    if (handle != NoDrag)
         {
-            setCursor(Qt::SizeFDiagCursor);
+            setCursor(handle == ResizingWidth ? Qt::SizeHorCursor : handle == ResizingHeight ? Qt::SizeVerCursor
+                      : Qt::SizeFDiagCursor);
         }
     else if (m_overlay.itemAt(position, frame) >= 0)
         {
@@ -233,12 +275,9 @@ void VideoCanvas::mousePressEvent(QMouseEvent *event)
         }
     const QPointF position = event->position();
     const QRectF frame = videoRect();
-    // the handle belongs to the selected gauge even where another gauge lies under it
-    if (m_selected >= 0 && resizeHandle(m_overlay.itemRect(m_selected, frame)).contains(position))
-        {
-            m_drag = Resizing;
-        }
-    else
+    // the handles belong to the selected gauge even where another gauge lies under them
+    m_drag = handleAt(position);
+    if (m_drag == NoDrag)
         {
             setSelectedItem(m_overlay.itemAt(position, frame));
             m_drag = m_selected >= 0 ? Moving : NoDrag;
@@ -270,17 +309,27 @@ void VideoCanvas::mouseMoveEvent(QMouseEvent *event)
             rect.moveLeft(qBound(frame.left() - rect.width() + keep, rect.left(), frame.right() - keep));
             rect.moveTop(qBound(frame.top() - rect.height() + keep, rect.top(), frame.bottom() - keep));
         }
-    else
+    else if (m_drag == Resizing)
         {
-            // the shape is fixed: the height follows whichever direction the mouse went further
+            // the shape is kept: the height follows whichever direction the mouse went further
             const double aspect = m_dragStartRect.width() / m_dragStartRect.height();
             const double height = qMax(m_dragStartRect.height() + delta.y(), (m_dragStartRect.width() + delta.x()) / aspect);
             rect.setHeight(qBound(kMinItemHeight * frame.height(), height, 2.0 * frame.height()));
             rect.setWidth(rect.height() * aspect);
         }
+    else if (m_drag == ResizingWidth)
+        {
+            rect.setWidth(qBound(kMinItemHeight * frame.height(), m_dragStartRect.width() + delta.x(), 2.0 * frame.width()));
+        }
+    else
+        {
+            rect.setHeight(qBound(kMinItemHeight * frame.height(), m_dragStartRect.height() + delta.y(), 2.0 * frame.height()));
+        }
     m_dragMoved = true;
+    // a gauge of its own shape keeps it; one set free gets the shape it was dragged to
+    const double aspect = m_overlay.item(m_selected).aspect > 0.0 ? rect.width() / rect.height() : 0.0;
     m_overlay = m_overlay.withGeometry(m_selected, (rect.left() - frame.left()) / frame.width(),
-                                       (rect.top() - frame.top()) / frame.height(), rect.height() / frame.height());
+                                       (rect.top() - frame.top()) / frame.height(), rect.height() / frame.height(), aspect);
     update();
 }
 
@@ -293,7 +342,7 @@ void VideoCanvas::mouseReleaseEvent(QMouseEvent *event)
             if (edited)
                 {
                     const OverlayItem &item = m_overlay.item(m_selected);
-                    emit itemGeometryEdited(m_selected, item.x, item.y, item.height);
+                    emit itemGeometryEdited(m_selected, item.x, item.y, item.height, item.aspect);
                 }
         }
     updateCursor(event->position());
@@ -358,6 +407,7 @@ void VideoCanvas::clear()
 {
     m_pendingFrame = QVideoFrame();
     m_hasPicture = false;
+    m_announcedAspect = 0.0;   // the next video tells its shape, whatever it is
     m_videoTime = 0.0;
     m_positionTime = 0.0;
     update();
@@ -534,6 +584,12 @@ void VideoCanvas::uploadPendingFrame()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     m_hasPicture = !m_pictureSize.isEmpty();
+    const double aspect = pictureAspect();
+    if (aspect > 0.0 && std::abs(aspect - m_announcedAspect) > 0.005)
+        {
+            m_announcedAspect = aspect;
+            emit pictureAspectChanged(aspect);
+        }
 }
 
 double VideoCanvas::pictureAspect() const
@@ -660,10 +716,61 @@ void VideoCanvas::paintGL()
             painter.setPen(QPen(Qt::black, 1));
             painter.setBrush(Qt::white);
             painter.drawRect(resizeHandle(rect));
+            if (m_overlay.item(m_selected).aspect > 0.0)
+                {
+                    painter.drawRect(widthHandle(rect));
+                    painter.drawRect(heightHandle(rect));
+                }
             if (!m_overlay.hasGauge(m_selected))
                 {
                     painter.setPen(Qt::white);
                     painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, tr("This gauge is not in the library"));
                 }
         }
+}
+
+void VideoCanvas::dragEnterEvent(QDragEnterEvent *event)
+{
+    const QMimeData *data = event->mimeData();
+    if (data->hasFormat(LibraryDrag::GaugeMime) || data->hasFormat(LibraryDrag::TemplateMime))
+        {
+            // a copy: the library keeps what was dragged out of it
+            event->setDropAction(Qt::CopyAction);
+            event->accept();
+        }
+    else
+        {
+            event->ignore();   // files: the window takes them
+        }
+}
+
+void VideoCanvas::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+}
+
+void VideoCanvas::dropEvent(QDropEvent *event)
+{
+    const QMimeData *data = event->mimeData();
+    if (data->hasFormat(LibraryDrag::TemplateMime))
+        {
+            emit templateDropped(QString::fromUtf8(data->data(LibraryDrag::TemplateMime)));
+        }
+    else if (data->hasFormat(LibraryDrag::GaugeMime))
+        {
+            const QRectF frame = videoRect();
+            const QPointF at = event->position();
+            const QPointF center = m_hasPicture && !frame.isEmpty()
+                                   ? QPointF((at.x() - frame.left()) / frame.width(), (at.y() - frame.top()) / frame.height())
+                                   : QPointF(-1.0, -1.0);
+            emit gaugeDropped(QString::fromUtf8(data->data(LibraryDrag::GaugeMime)), center);
+        }
+    else
+        {
+            return;
+        }
+    event->setDropAction(Qt::CopyAction);
+    event->accept();
+    setFocus();
 }

@@ -40,8 +40,9 @@ const double kMoments[] = {60.0, DemoSession::ShowcaseTime, 420.0};
 TelemetrySessionPtr sampleRide()
 {
     const TelemetrySessionPtr ride = DerivedChannels::complete(DemoSession::create());
-    // laps too, for lap gauges
-    return LapEngine::apply(ride, LapEngine::lineAt(*ride, 20.0));
+    // laps and sectors too, for lap gauges
+    return LapEngine::apply(ride, LapEngine::lineAt(*ride, 20.0),
+                            {LapEngine::lineAt(*ride, 110.0), LapEngine::lineAt(*ride, 210.0)});
 }
 
 // The first channel the gauge was made for that the sample ride has.

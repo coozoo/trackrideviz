@@ -6,6 +6,7 @@
 #include "gauge/gaugetheme.h"
 #include "icons.h"
 #include "laps/lapengine.h"
+#include "maps/tilestore.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 #include "telemetry/derivedchannels.h"
@@ -22,6 +23,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QFormLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
@@ -32,6 +34,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSet>
 #include <QSettings>
 #include <QShortcut>
 #include <QSignalBlocker>
@@ -47,26 +50,38 @@
 
 namespace
 {
+enum AlignHow
+{
+    AlignLefts, AlignCenters, AlignRights, AlignTops, AlignMiddles, AlignBottoms, SpreadAcross, SpreadDown
+};
+
 enum PartKind
 {
     ValueText, LabelText, FixedTextPart, Picture, RectanglePart, EllipsePart, ArcPart, LinePart,
-    NeedlePart, BarPart, ArcFillPart, DialPart, TapePart, GraphPart, RoutePart, LapRoutePart, GearsPart, GroupPart
+    NeedlePart, BarPart, ArcFillPart, DialPart, TapePart, GraphPart, RoutePart, LapRoutePart, GearsPart, LapTablePart,
+    SectorBarPart, GroupPart
 };
 
-// The parts a part holds that are shown in the list under it: a group's, or what a graph
-// or a map draws at the current point.
-QVector<GaugeComponent> *partsIn(GaugeComponent &part)
+// The lists of parts a part holds, shown under it: a group's parts, or what a route map draws
+// at the current point. A graph and a lap map hold more than one, each under a heading of its
+// own in the list: what is drawn at the current point, on the graph's edges, at the start line.
+QVector<QPair<QString, QVector<GaugeComponent> *>> listsIn(GaugeComponent &part)
 {
     switch (part.type)
         {
         case GaugeComponent::Group:
-            return &part.children;
-        case GaugeComponent::Graph:
+            return {{QString(), &part.children}};
         case GaugeComponent::TrackMap:
+            return {{QString(), &part.knob}};
+        case GaugeComponent::Graph:
+            return {{GaugeEditor::tr("At the current point"), &part.knob},
+                {GaugeEditor::tr("On the top edge, at the current time"), &part.xMarker},
+                {GaugeEditor::tr("On the left edge, at the current value"), &part.yMarker}};
         case GaugeComponent::LapMap:
-            return &part.knob;
+            return {{GaugeEditor::tr("At the current point"), &part.knob},
+                {GaugeEditor::tr("At the start line, turned across the way"), &part.startLine}};
         default:
-            return nullptr;
+            return {};
         }
 }
 
@@ -151,6 +166,10 @@ void moveBy(GaugeComponent &part, const QPointF &delta)
                 {
                     m.clipRect.translate(delta);
                 }
+            if (!m.frameRect.isNull())
+                {
+                    m.frameRect.translate(delta);
+                }
         }
     for (GaugeComponent &child : part.children)
         {
@@ -195,6 +214,10 @@ QString describe(const GaugeComponent &part)
             return GaugeEditor::tr("Route of the lap");
         case GaugeComponent::Gears:
             return GaugeEditor::tr("Gears");
+        case GaugeComponent::LapTable:
+            return GaugeEditor::tr("Lap table");
+        case GaugeComponent::SectorBar:
+            return GaugeEditor::tr("Sector bar");
         case GaugeComponent::Dial:
             return GaugeEditor::tr("Round scale");
         case GaugeComponent::Tape:
@@ -211,7 +234,7 @@ QString describe(const GaugeComponent &part)
                 case GaugeComponent::Pie:
                     return GaugeEditor::tr("Pie slice");
                 case GaugeComponent::Line:
-                    return GaugeEditor::tr("Line");
+                    return part.filled ? GaugeEditor::tr("Polygon") : GaugeEditor::tr("Line");
                 }
             break;
         }
@@ -220,24 +243,45 @@ QString describe(const GaugeComponent &part)
 
 QString movementOf(const GaugeComponent &part)
 {
-    if (part.manipulations.isEmpty())
+    QStringList words;
+    for (const GaugeManipulation &m : part.manipulations)
         {
-            return QString();
+            QString word;
+            switch (m.type)
+                {
+                case GaugeManipulation::Rotate:
+                    word = GaugeEditor::tr("turns");
+                    break;
+                case GaugeManipulation::RadialClip:
+                case GaugeManipulation::WidthClip:
+                case GaugeManipulation::HeightClip:
+                    word = GaugeEditor::tr("fills");
+                    break;
+                case GaugeManipulation::Translate:
+                case GaugeManipulation::Translate2D:
+                    word = GaugeEditor::tr("slides");
+                    break;
+                case GaugeManipulation::AnimationStrip:
+                    word = GaugeEditor::tr("plays");
+                    break;
+                default:
+                    word = GaugeEditor::tr("moves");
+                    break;
+                }
+            if (!words.contains(word))
+                {
+                    words << word;
+                }
         }
-    switch (part.manipulations.first().type)
-        {
-        case GaugeManipulation::Rotate:
-            return GaugeEditor::tr("turns");
-        case GaugeManipulation::RadialClip:
-        case GaugeManipulation::WidthClip:
-        case GaugeManipulation::HeightClip:
-            return GaugeEditor::tr("fills");
-        case GaugeManipulation::Translate:
-        case GaugeManipulation::Translate2D:
-            return GaugeEditor::tr("slides");
-        default:
-            return GaugeEditor::tr("moves");
-        }
+    return words.join(QStringLiteral(", "));
+}
+
+// Where one picture of a strip of `frames` shows: the first of them, along the longer side.
+QRectF stripCell(const QRectF &frame, int frames)
+{
+    const int n = std::max(1, frames);
+    return frame.width() >= frame.height() ? QRectF(frame.topLeft(), QSizeF(frame.width() / n, frame.height()))
+           : QRectF(frame.topLeft(), QSizeF(frame.width(), frame.height() / n));
 }
 }
 
@@ -259,8 +303,11 @@ public:
     double time{0.0};
     // the part picked, when the frame around it can be drawn (its place is in the gauge's units)
     std::function<GaugeComponent *()> framed;
-    // picks the part under a point of the gauge; false when there is none
-    std::function<bool(const QPointF &)> pick;
+    // the other parts picked with it, framed too and moved along with it
+    std::function<QVector<GaugeComponent *>()> alsoFramed;
+    // picks the part under a point of the gauge (`add`: to those picked, or taken off them);
+    // false when there is none
+    std::function<bool(const QPointF &, bool add)> pick;
     std::function<void()> edited;     // while dragging
     std::function<void()> finished;   // the drag is over, or a key moved the part
     // the edges and middles a part being moved is drawn to: those of the other parts and of the gauge
@@ -304,6 +351,12 @@ protected:
                         painter.setPen(Qt::black);
                         painter.drawRect(handleOf(bounds));
                     }
+                painter.setBrush(Qt::NoBrush);
+                painter.setPen(QPen(QColor(90, 200, 255), 1, Qt::DashLine));
+                for (const GaugeComponent *other : alsoFramed ? alsoFramed() : QVector<GaugeComponent *>())
+                    {
+                        painter.drawRect(toWidget(boundsOf(*other)));
+                    }
             }
         // what the part being moved is held by
         painter.setPen(QPen(QColor(255, 90, 200), 1, Qt::DashLine));
@@ -332,7 +385,7 @@ protected:
             {
                 m_drag = Size;
             }
-        else if (pick && pick(at))
+        else if (pick && pick(at, event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier)))
             {
                 m_drag = Move;
             }
@@ -382,6 +435,7 @@ protected:
         if (m_drag == Move)
             {
                 moveBy(*part, delta);
+                moveOthers(delta);
             }
         else
             {
@@ -432,6 +486,7 @@ protected:
         if (part)
             {
                 moveBy(*part, delta);
+                moveOthers(delta);
                 if (finished)
                     {
                         finished();
@@ -441,6 +496,14 @@ protected:
 
 private:
     enum Drag { None, Move, Size };
+
+    void moveOthers(const QPointF &delta)
+    {
+        for (GaugeComponent *other : alsoFramed ? alsoFramed() : QVector<GaugeComponent *>())
+            {
+                moveBy(*other, delta);
+            }
+    }
 
     static bool sizable(const GaugeComponent &part)
     {
@@ -549,7 +612,8 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     Drivetrain sample;
     sample.chainrings = {34, 50};
     sample.cassette = {11, 12, 13, 14, 15, 17, 19, 21, 24, 28, 32};
-    m_session = LapEngine::apply(Gears::apply(ride, sample), LapEngine::lineAt(*ride, 20.0));
+    m_session = LapEngine::apply(Gears::apply(ride, sample), LapEngine::lineAt(*ride, 20.0),
+                                 {LapEngine::lineAt(*ride, 110.0), LapEngine::lineAt(*ride, 210.0)});
 
     m_nameEdit = new QLineEdit(m_gauge.name, this);
     m_nameEdit->setPlaceholderText(tr("Name of the gauge"));
@@ -616,15 +680,19 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     // the parts
     m_tree = new QTreeWidget(this);
     m_tree->setHeaderHidden(true);
-    m_tree->setToolTip(tr("The gauge's parts, drawn from the first to the last: what is lower in the list lies on top"));
-    connect(m_tree, &QTreeWidget::currentItemChanged, this, [this]()
+    m_tree->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_tree->setToolTip(tr("The gauge's parts, drawn from the first to the last: what is lower in the list lies on top. "
+                          "Ctrl or Shift picks several, to line them up."));
+    const auto pickChanged = [this]()
     {
         if (!m_filling)
             {
                 fillProperties();
                 m_canvas->update();
             }
-    });
+    };
+    connect(m_tree, &QTreeWidget::currentItemChanged, this, pickChanged);
+    connect(m_tree, &QTreeWidget::itemSelectionChanged, this, pickChanged);
     QToolButton *addButton = new QToolButton(this);
     addButton->setText(tr("Add"));
     addButton->setPopupMode(QToolButton::InstantPopup);
@@ -641,6 +709,7 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
         {QString(), -1},
         {tr("Graph"), GraphPart}, {tr("Route"), RoutePart}, {tr("Route of the lap"), LapRoutePart},
         {tr("Gears (chainrings and sprockets)"), GearsPart},
+        {tr("Lap table"), LapTablePart}, {tr("Sector bar"), SectorBarPart},
         {QString(), -1},
         {tr("Group"), GroupPart},
     };
@@ -702,7 +771,16 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
             }
         return selected();
     };
-    m_canvas->pick = [this](const QPointF &at)
+    m_canvas->alsoFramed = [this]()
+    {
+        QVector<GaugeComponent *> parts = pickedParts();
+        if (!parts.isEmpty())
+            {
+                parts.removeFirst();
+            }
+        return parts;
+    };
+    m_canvas->pick = [this](const QPointF &at, bool add)
     {
         // the one in front first
         for (int i = int(m_gauge.components.size()) - 1; i >= 0; --i)
@@ -710,6 +788,7 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
                 const GaugeComponent &part = m_gauge.components.at(i);
                 if (boundsOf(part).adjusted(-2, -2, 2, 2).contains(at))
                     {
+                        Path path{i};
                         // a second click on a group picked already goes into it
                         const Path now = selectedPath();
                         if (part.type == GaugeComponent::Group && !now.isEmpty() && now.first() == i)
@@ -718,12 +797,26 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
                                     {
                                         if (boundsOf(part.children.at(c)).adjusted(-2, -2, 2, 2).contains(at))
                                             {
-                                                select({i, c});
-                                                return true;
+                                                path = {i, c};
+                                                break;
                                             }
                                     }
                             }
-                        select({i});
+                        if (!add || !m_tree->currentItem())
+                            {
+                                select(path);
+                                return true;
+                            }
+                        // with Ctrl or Shift: one more picked, or one taken off those picked
+                        QTreeWidgetItem *item = nullptr;
+                        for (const int index : path)
+                            {
+                                item = item ? item->child(index) : m_tree->topLevelItem(index);
+                            }
+                        if (item && item != m_tree->currentItem())
+                            {
+                                item->setSelected(!item->isSelected());
+                            }
                         return true;
                     }
             }
@@ -732,10 +825,16 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     m_canvas->others = [this]()
     {
         QVector<QRectF> targets{QRectF(QPointF(0, 0), m_gauge.size)};
-        const Path now = selectedPath();
+        // not those being moved: the part picked and the others picked with it
+        QSet<int> moving;
+        for (const QTreeWidgetItem *item : m_tree->selectedItems())
+            {
+                moving.insert(pathOf(item).value(0, -1));
+            }
+        moving.insert(selectedPath().value(0, -1));
         for (int i = 0; i < m_gauge.components.size(); ++i)
             {
-                if (now.isEmpty() || now.first() != i)
+                if (!moving.contains(i))
                     {
                         targets.append(boundsOf(m_gauge.components.at(i)));
                     }
@@ -765,7 +864,8 @@ GaugeEditor::GaugeEditor(const Gauge &gauge, const QStringList &takenNames, QWid
     middleLayout->addWidget(m_timeSlider);
     QLabel *hint = new QLabel(tr("Click a part to pick it (again to pick inside a group), drag it to move it, drag its "
                                  "corner to size it. A part being moved is drawn to the edges and middles of the others; "
-                                 "hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten."), middle);
+                                 "hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten. Ctrl+click picks "
+                                 "several, to move them together or line them up."), middle);
     hint->setWordWrap(true);
     middleLayout->addWidget(hint);
 
@@ -901,13 +1001,25 @@ void GaugeEditor::accept()
 QVector<GaugeComponent> *GaugeEditor::listAt(const Path &parent)
 {
     QVector<GaugeComponent> *list = &m_gauge.components;
-    for (const int index : parent)
+    for (int i = 0; i < parent.size(); ++i)
         {
+            const int index = parent.at(i);
             if (!list || index < 0 || index >= list->size())
                 {
                     return nullptr;
                 }
-            list = partsIn((*list)[index]);
+            const auto lists = listsIn((*list)[index]);
+            if (lists.size() == 1)
+                {
+                    list = lists.first().second;
+                    continue;
+                }
+            // under headings: the next step of the path is the heading
+            if (lists.isEmpty() || ++i >= parent.size() || parent.at(i) < 0 || parent.at(i) >= lists.size())
+                {
+                    return nullptr;
+                }
+            list = lists.at(parent.at(i)).second;
         }
     return list;
 }
@@ -924,13 +1036,113 @@ GaugeComponent *GaugeEditor::componentAt(const Path &path)
 
 GaugeEditor::Path GaugeEditor::selectedPath() const
 {
+    return pathOf(m_tree->currentItem());
+}
+
+GaugeEditor::Path GaugeEditor::pathOf(const QTreeWidgetItem *item) const
+{
     Path path;
-    for (const QTreeWidgetItem *item = m_tree->currentItem(); item; item = item->parent())
+    for (; item; item = item->parent())
         {
             path.prepend(item->parent() ? item->parent()->indexOfChild(const_cast<QTreeWidgetItem *>(item))
                          : m_tree->indexOfTopLevelItem(const_cast<QTreeWidgetItem *>(item)));
         }
     return path;
+}
+
+QVector<GaugeComponent *> GaugeEditor::pickedParts()
+{
+    QVector<Path> paths;
+    QList<QTreeWidgetItem *> items = m_tree->selectedItems();
+    if (QTreeWidgetItem *current = m_tree->currentItem(); current && current->isSelected())
+        {
+            items.removeAll(current);
+            items.prepend(current);
+        }
+    for (const QTreeWidgetItem *item : std::as_const(items))
+        {
+            paths.append(pathOf(item));
+        }
+    QVector<GaugeComponent *> parts;
+    for (const Path &path : std::as_const(paths))
+        {
+            // in the gauge's units: nothing but groups above it, none of them picked as well
+            bool placed = componentAt(path) != nullptr;
+            for (Path up = path; placed && up.size() > 1;)
+                {
+                    up.removeLast();
+                    const GaugeComponent *parent = componentAt(up);
+                    placed = parent && parent->type == GaugeComponent::Group && !paths.contains(up);
+                }
+            if (placed)
+                {
+                    parts.append(componentAt(path));
+                }
+        }
+    return parts;
+}
+
+void GaugeEditor::align(int how)
+{
+    const QVector<GaugeComponent *> parts = pickedParts();
+    if (parts.size() < 2)
+        {
+            return;
+        }
+    QRectF all;
+    for (const GaugeComponent *part : parts)
+        {
+            all = all.isNull() ? boundsOf(*part) : all.united(boundsOf(*part));
+        }
+    // spread: the first and the last stay, the middles of the others evenly between theirs
+    QVector<GaugeComponent *> order = parts;
+    const bool across = how == SpreadAcross;
+    if (how == SpreadAcross || how == SpreadDown)
+        {
+            std::sort(order.begin(), order.end(), [across](const GaugeComponent *a, const GaugeComponent *b)
+            {
+                return across ? boundsOf(*a).center().x() < boundsOf(*b).center().x()
+                       : boundsOf(*a).center().y() < boundsOf(*b).center().y();
+            });
+        }
+    const QPointF first = boundsOf(*order.first()).center();
+    const QPointF last = boundsOf(*order.last()).center();
+    for (int i = 0; i < order.size(); ++i)
+        {
+            GaugeComponent *part = order.at(i);
+            const QRectF b = boundsOf(*part);
+            QPointF delta;
+            switch (how)
+                {
+                case AlignLefts:
+                    delta.setX(all.left() - b.left());
+                    break;
+                case AlignCenters:
+                    delta.setX(all.center().x() - b.center().x());
+                    break;
+                case AlignRights:
+                    delta.setX(all.right() - b.right());
+                    break;
+                case AlignTops:
+                    delta.setY(all.top() - b.top());
+                    break;
+                case AlignMiddles:
+                    delta.setY(all.center().y() - b.center().y());
+                    break;
+                case AlignBottoms:
+                    delta.setY(all.bottom() - b.bottom());
+                    break;
+                case SpreadAcross:
+                    delta.setX(first.x() + (last.x() - first.x()) * i / (order.size() - 1) - b.center().x());
+                    break;
+                case SpreadDown:
+                    delta.setY(first.y() + (last.y() - first.y()) * i / (order.size() - 1) - b.center().y());
+                    break;
+                }
+            // whole units: gauges are drawn on a grid of them
+            moveBy(*part, QPointF(std::round(delta.x()), std::round(delta.y())));
+        }
+    changed();
 }
 
 GaugeComponent *GaugeEditor::selected()
@@ -964,9 +1176,23 @@ void GaugeEditor::fillTree()
                 QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent) : new QTreeWidgetItem(m_tree);
                 const QString movement = movementOf(part);
                 item->setText(0, movement.isEmpty() ? describe(part) : tr("%1 (%2)").arg(describe(part), movement));
-                if (QVector<GaugeComponent> *inside = partsIn(part))
+                const auto lists = listsIn(part);
+                if (lists.size() == 1)
                     {
-                        fill(item, *inside);
+                        fill(item, *lists.first().second);
+                    }
+                else
+                    {
+                        for (const auto &list : lists)
+                            {
+                                QTreeWidgetItem *heading = new QTreeWidgetItem(item);
+                                heading->setText(0, list.first);
+                                QFont font = heading->font(0);
+                                font.setItalic(true);
+                                heading->setFont(0, font);
+                                heading->setToolTip(0, tr("Pick this and add a part to put one here"));
+                                fill(heading, *list.second);
+                            }
                     }
             }
     };
@@ -1200,6 +1426,21 @@ void GaugeEditor::addPart(int kind)
             part.activeColor.role = GaugeColor::Accent;
             part.lineWidth = std::max(2.0, std::round(unit * 0.01));
             break;
+        case LapTablePart:
+            part.type = GaugeComponent::LapTable;
+            part.frame = QRectF(w * 0.08, h * 0.1, w * 0.84, h * 0.8);
+            part.color.role = GaugeColor::Foreground;
+            part.activeColor.role = GaugeColor::Accent;
+            part.fontSize = std::round(part.frame.height() / part.rows * 0.6);
+            break;
+        case SectorBarPart:
+            part.type = GaugeComponent::SectorBar;
+            part.frame = QRectF(w * 0.05, h * 0.4, w * 0.9, h * 0.2);
+            part.color.role = GaugeColor::Foreground;
+            part.activeColor.role = GaugeColor::Accent;
+            part.padding = std::round(unit * 0.02);
+            part.cornerRadius = std::round(unit * 0.02);
+            break;
         case GroupPart:
             part.type = GaugeComponent::Group;
             break;
@@ -1224,6 +1465,13 @@ void GaugeEditor::addPart(int kind)
                     at = path.last() + 1;
                     path.last() = at;
                 }
+        }
+    else if (QVector<GaugeComponent> *heading = path.isEmpty() ? nullptr : listAt(path))
+        {
+            // a heading under a graph or a lap map: at the end of its list
+            list = heading;
+            at = int(list->size());
+            path.append(at);
         }
     else
         {
@@ -1501,30 +1749,38 @@ void GaugeEditor::addChannel(QFormLayout *form, const QString &label, const QStr
     form->addRow(label, combo);
 }
 
-void GaugeEditor::addMovement(QFormLayout *form, const Part &part)
+void GaugeEditor::addMovement(QFormLayout *form, const Part &part, int index)
 {
-    // one movement is edited here; gauges brought in from elsewhere may have more, which stay as they are
-    const bool has = !part.manipulations.isEmpty();
-    const GaugeManipulation m = has ? part.manipulations.first() : GaugeManipulation();
+    // movement `index` of the part's, applied in their order; the first one is where a part gets one
+    const bool has = index < part.manipulations.size();
+    const GaugeManipulation m = has ? part.manipulations.at(index) : GaugeManipulation();
     const double far = 10000.0;
     addChoice(form, tr("With the value it:"),
     {
-        {tr("stays as it is"), -1}, {tr("turns (a needle)"), int(GaugeManipulation::Rotate)},
+        {index == 0 ? tr("stays as it is") : tr("(no more: remove this movement)"), -1},
+        {tr("turns (a needle)"), int(GaugeManipulation::Rotate)},
         {tr("fills round (an arc)"), int(GaugeManipulation::RadialClip)},
         {tr("fills sideways (a bar)"), int(GaugeManipulation::WidthClip)},
         {tr("fills upwards (a column)"), int(GaugeManipulation::HeightClip)},
         {tr("slides"), int(GaugeManipulation::Translate)},
-    }, has ? int(m.type) : -1, [this](Part &p, int type)
+        {tr("moves by two values (a g-force ball)"), int(GaugeManipulation::Translate2D)},
+        {tr("plays a picture strip (a beating heart)"), int(GaugeManipulation::AnimationStrip)},
+    }, has ? int(m.type) : -1, [this, index](Part &p, int type)
     {
+        const bool fresh = index >= p.manipulations.size();
         if (type < 0)
             {
-                p.manipulations.clear();
+                if (!fresh)
+                    {
+                        p.manipulations.removeAt(index);
+                    }
                 return;
             }
-        GaugeManipulation made = p.manipulations.isEmpty() ? GaugeManipulation() : p.manipulations.first();
-        const bool fresh = p.manipulations.isEmpty();
+        GaugeManipulation made = fresh ? GaugeManipulation() : p.manipulations.at(index);
+        const bool changedType = fresh || made.type != GaugeManipulation::Type(type);
         made.type = GaugeManipulation::Type(type);
         const QRectF bounds = boundsOf(p);
+        const double unit = std::min(m_gauge.size.width(), m_gauge.size.height());
         // sensible ends to start from
         if (fresh || (made.minAngle == 0.0 && made.maxAngle == 0.0))
             {
@@ -1549,54 +1805,107 @@ void GaugeEditor::addMovement(QFormLayout *form, const Part &part)
                 made.minY = 0.0;
                 made.maxY = 0.0;
             }
-        p.manipulations = {made};
+        else if (type == int(GaugeManipulation::Translate2D) && changedType)
+            {
+                // as the G-plot has it: sideways to the right, braking upwards, one g at the edge
+                made.maxRadius = std::round(unit * 0.4);
+                made.xChannel = ChannelId::GForceLateral;
+                made.yChannel = ChannelId::GForceLongitudinal;
+                made.invertY = true;
+                made.hasValueRange = true;
+                made.minValue = -1.0;
+                made.maxValue = 1.0;
+            }
+        else if (type == int(GaugeManipulation::AnimationStrip) && changedType)
+            {
+                made.frames = std::max(made.frames, 4);
+                made.minFps = 1.0;
+                made.maxFps = 4.0;
+                made.frameRect = stripCell(p.frame, made.frames);
+            }
+        if (fresh)
+            {
+                p.manipulations.append(made);
+            }
+        else
+            {
+                p.manipulations[index] = made;
+            }
     }, true);
     if (!has)
         {
             return;
         }
-    auto first = [](Part &p) -> GaugeManipulation & { return p.manipulations.first(); };
+    auto at = [index](Part &p) -> GaugeManipulation & { return p.manipulations[index]; };
     switch (m.type)
         {
         case GaugeManipulation::Rotate:
         case GaugeManipulation::RadialClip:
-            addNumber(form, tr("Around X:"), m.pivot.x(), -far, far, 1, [first](Part &p, double v) { first(p).pivot.setX(v); },
+            addNumber(form, tr("Around X:"), m.pivot.x(), -far, far, 1, [at](Part &p, double v) { at(p).pivot.setX(v); },
                       tr("The point it turns around, in the gauge's units"));
-            addNumber(form, tr("Around Y:"), m.pivot.y(), -far, far, 1, [first](Part &p, double v) { first(p).pivot.setY(v); });
-            addNumber(form, tr("Angle at the lowest:"), m.minAngle, -720, 720, 1, [first](Part &p, double v) { first(p).minAngle = v; },
+            addNumber(form, tr("Around Y:"), m.pivot.y(), -far, far, 1, [at](Part &p, double v) { at(p).pivot.setY(v); });
+            addNumber(form, tr("Angle at the lowest:"), m.minAngle, -720, 720, 1, [at](Part &p, double v) { at(p).minAngle = v; },
                       tr("Degrees clockwise, 0 = straight up. A needle is drawn pointing up and turned by this."));
-            addNumber(form, tr("Angle at the highest:"), m.maxAngle, -720, 720, 1, [first](Part &p, double v) { first(p).maxAngle = v; });
+            addNumber(form, tr("Angle at the highest:"), m.maxAngle, -720, 720, 1, [at](Part &p, double v) { at(p).maxAngle = v; });
             break;
         case GaugeManipulation::WidthClip:
-            addNumber(form, tr("Empty at X:"), m.minX, -far, far, 1, [first](Part &p, double v) { first(p).minX = v; },
+            addNumber(form, tr("Empty at X:"), m.minX, -far, far, 1, [at](Part &p, double v) { at(p).minX = v; },
                       tr("Where the fill starts, and how far it has come at the highest value"));
-            addNumber(form, tr("Full at X:"), m.maxX, -far, far, 1, [first](Part &p, double v) { first(p).maxX = v; });
-            addNumber(form, tr("Slant of the edge:"), m.clipAngle, -80, 80, 1, [first](Part &p, double v) { first(p).clipAngle = v; });
+            addNumber(form, tr("Full at X:"), m.maxX, -far, far, 1, [at](Part &p, double v) { at(p).maxX = v; });
+            addNumber(form, tr("Slant of the edge:"), m.clipAngle, -80, 80, 1, [at](Part &p, double v) { at(p).clipAngle = v; });
             break;
         case GaugeManipulation::HeightClip:
-            addNumber(form, tr("Empty at Y:"), m.minY, -far, far, 1, [first](Part &p, double v) { first(p).minY = v; },
+            addNumber(form, tr("Empty at Y:"), m.minY, -far, far, 1, [at](Part &p, double v) { at(p).minY = v; },
                       tr("Where the fill starts (the bottom, for one that rises), and how far it has come at the highest value"));
-            addNumber(form, tr("Full at Y:"), m.maxY, -far, far, 1, [first](Part &p, double v) { first(p).maxY = v; });
+            addNumber(form, tr("Full at Y:"), m.maxY, -far, far, 1, [at](Part &p, double v) { at(p).maxY = v; });
             break;
         case GaugeManipulation::Translate:
-            addNumber(form, tr("Moved in X, lowest:"), m.minX, -far, far, 1, [first](Part &p, double v) { first(p).minX = v; });
-            addNumber(form, tr("Moved in X, highest:"), m.maxX, -far, far, 1, [first](Part &p, double v) { first(p).maxX = v; });
-            addNumber(form, tr("Moved in Y, lowest:"), m.minY, -far, far, 1, [first](Part &p, double v) { first(p).minY = v; });
-            addNumber(form, tr("Moved in Y, highest:"), m.maxY, -far, far, 1, [first](Part &p, double v) { first(p).maxY = v; });
+            addNumber(form, tr("Moved in X, lowest:"), m.minX, -far, far, 1, [at](Part &p, double v) { at(p).minX = v; });
+            addNumber(form, tr("Moved in X, highest:"), m.maxX, -far, far, 1, [at](Part &p, double v) { at(p).maxX = v; });
+            addNumber(form, tr("Moved in Y, lowest:"), m.minY, -far, far, 1, [at](Part &p, double v) { at(p).minY = v; });
+            addNumber(form, tr("Moved in Y, highest:"), m.maxY, -far, far, 1, [at](Part &p, double v) { at(p).maxY = v; });
             break;
+        case GaugeManipulation::Translate2D:
+            addChannel(form, tr("Sideways it follows:"), m.xChannel, [at](Part &p, const QString &id) { at(p).xChannel = id; });
+            addChannel(form, tr("Up and down it follows:"), m.yChannel, [at](Part &p, const QString &id) { at(p).yChannel = id; });
+            addNumber(form, tr("Reaches as far as:"), m.maxRadius, 0, far, 1, [at](Part &p, double v) { at(p).maxRadius = v; },
+                      tr("From where it is drawn, in the gauge's units, at the largest value"));
+            addCheck(form, tr("Sideways the other way"), m.invertX, [at](Part &p, bool on) { at(p).invertX = on; });
+            addCheck(form, tr("Up and down the other way"), m.invertY, [at](Part &p, bool on) { at(p).invertY = on; });
+            addNumber(form, tr("Trail, seconds:"), m.trailSeconds, 0, 60, 1, [at](Part &p, double v) { at(p).trailSeconds = v; },
+                      tr("The way it went over the last seconds, drawn behind it, fading; 0: none"));
+            break;
+        case GaugeManipulation::AnimationStrip:
+        {
+            QLabel *note = new QLabel(tr("The picture holds the strip's pictures side by side (or one above the other); "
+                                         "one shows at a time, played faster the higher the value."), m_properties);
+            note->setWordWrap(true);
+            form->addRow(note);
+            addNumber(form, tr("Pictures in the strip:"), m.frames, 1, 500, 0, [at](Part &p, double v)
+            {
+                at(p).frames = int(v);
+                at(p).frameRect = stripCell(p.frame, int(v));
+            });
+            addNumber(form, tr("Pictures a second, lowest:"), m.minFps, 0, 240, 1, [at](Part &p, double v) { at(p).minFps = v; });
+            addNumber(form, tr("Pictures a second, highest:"), m.maxFps, 0, 240, 1, [at](Part &p, double v) { at(p).maxFps = v; });
+            break;
+        }
         default:
             form->addRow(new QLabel(tr("A movement this editor does not change; it is kept as it is."), m_properties));
             return;
         }
-    addCheck(form, tr("A scale of its own"), m.hasValueRange, [first](Part &p, bool on) { first(p).hasValueRange = on; },
+    addCheck(form, tr("A scale of its own"), m.hasValueRange, [at](Part &p, bool on) { at(p).hasValueRange = on; },
              tr("Off: from the lowest to the highest the measurement usually has, whatever it is. On: between the two "
                 "values below - give a needle the same ends as the round scale it points at."), true);
     if (m.hasValueRange)
         {
-            addNumber(form, tr("Lowest value:"), m.minValue, -1e6, 1e6, 2, [first](Part &p, double v) { first(p).minValue = v; });
-            addNumber(form, tr("Highest value:"), m.maxValue, -1e6, 1e6, 2, [first](Part &p, double v) { first(p).maxValue = v; });
+            addNumber(form, tr("Lowest value:"), m.minValue, -1e6, 1e6, 2, [at](Part &p, double v) { at(p).minValue = v; });
+            addNumber(form, tr("Highest value:"), m.maxValue, -1e6, 1e6, 2, [at](Part &p, double v) { at(p).maxValue = v; });
         }
-    addCheck(form, tr("Past the end it starts over (a compass)"), m.wrapValue, [first](Part &p, bool on) { first(p).wrapValue = on; });
+    if (m.type != GaugeManipulation::Translate2D && m.type != GaugeManipulation::AnimationStrip)
+        {
+            addCheck(form, tr("Past the end it starts over (a compass)"), m.wrapValue, [at](Part &p, bool on) { at(p).wrapValue = on; });
+        }
 }
 
 void GaugeEditor::addScale(QFormLayout *form, const Part &part)
@@ -1681,10 +1990,43 @@ void GaugeEditor::fillProperties()
                 }
             delete item;
         }
+    const QVector<GaugeComponent *> several = pickedParts();
+    if (several.size() >= 2)
+        {
+            QLabel *heading = new QLabel(QString("<b>%1</b>").arg(tr("%n parts picked", nullptr, int(several.size()))),
+                                         m_properties);
+            m_propertiesLayout->addWidget(heading);
+            QGridLayout *grid = new QGridLayout;
+            const QVector<QPair<QString, int>> ways
+            {
+                {tr("Left edges"), AlignLefts}, {tr("Centers"), AlignCenters}, {tr("Right edges"), AlignRights},
+                {tr("Tops"), AlignTops}, {tr("Middles"), AlignMiddles}, {tr("Bottoms"), AlignBottoms},
+                {tr("Spread across"), SpreadAcross}, {tr("Spread down"), SpreadDown},
+            };
+            for (int i = 0; i < ways.size(); ++i)
+                {
+                    QPushButton *button = new QPushButton(ways.at(i).first, m_properties);
+                    const int how = ways.at(i).second;
+                    connect(button, &QPushButton::clicked, this, [this, how]() { align(how); });
+                    grid->addWidget(button, i / 3, i % 3);
+                }
+            m_propertiesLayout->addLayout(grid);
+            QLabel *hint = new QLabel(tr("Lined up with the ones furthest out; spread: the first and the last stay where they "
+                                         "are, the others go evenly between them. Dragging one moves them all."), m_properties);
+            hint->setWordWrap(true);
+            m_propertiesLayout->addWidget(hint);
+            m_propertiesLayout->addStretch(1);
+            return;
+        }
     const Part *picked = selected();
     if (!picked)
         {
-            QLabel *hint = new QLabel(tr("Pick a part in the list or in the picture, or add one with \"Add\"."), m_properties);
+            // a heading under a graph or a lap map: what goes there
+            const Path path = selectedPath();
+            const bool heading = !path.isEmpty() && listAt(path);
+            QLabel *hint = new QLabel(heading ? tr("Parts added with \"Add\" while this is picked go here. Their place is "
+                                                   "counted from the point they are drawn at: X 0, Y 0 is the point itself.")
+                                      : tr("Pick a part in the list or in the picture, or add one with \"Add\"."), m_properties);
             hint->setWordWrap(true);
             m_propertiesLayout->addWidget(hint);
             m_propertiesLayout->addStretch(1);
@@ -1710,10 +2052,41 @@ void GaugeEditor::fillProperties()
     QFormLayout *place = section(describe(part));
     if (line && part.points.size() >= 2)
         {
-            addNumber(place, tr("From X:"), part.points.first().x(), -far, far, 1, [](Part &p, double v) { p.points.first().setX(v); });
-            addNumber(place, tr("From Y:"), part.points.first().y(), -far, far, 1, [](Part &p, double v) { p.points.first().setY(v); });
-            addNumber(place, tr("To X:"), part.points.last().x(), -far, far, 1, [](Part &p, double v) { p.points.last().setX(v); });
-            addNumber(place, tr("To Y:"), part.points.last().y(), -far, far, 1, [](Part &p, double v) { p.points.last().setY(v); });
+            for (int i = 0; i < part.points.size(); ++i)
+                {
+                    addNumber(place, tr("Point %1, X:").arg(i + 1), part.points.at(i).x(), -far, far, 1,
+                              [i](Part &p, double v) { if (i < p.points.size()) p.points[i].setX(v); });
+                    addNumber(place, tr("Point %1, Y:").arg(i + 1), part.points.at(i).y(), -far, far, 1,
+                              [i](Part &p, double v) { if (i < p.points.size()) p.points[i].setY(v); });
+                }
+            QPushButton *more = new QPushButton(tr("Add a point"), m_properties);
+            more->setToolTip(tr("After the last one, as far on again as the last step"));
+            QPushButton *fewer = new QPushButton(tr("Remove the last point"), m_properties);
+            fewer->setEnabled(part.points.size() > 2);
+            const auto points = [this](bool add)
+            {
+                if (Part *p = selected())
+                    {
+                        if (add)
+                            {
+                                const QPointF last = p->points.last();
+                                const QPointF step = last - p->points.at(p->points.size() - 2);
+                                p->points.append(last + (step.isNull() ? QPointF(10, 0) : step));
+                            }
+                        else if (p->points.size() > 2)
+                            {
+                                p->points.removeLast();
+                            }
+                        changed();
+                        QMetaObject::invokeMethod(this, [this]() { fillProperties(); }, Qt::QueuedConnection);
+                    }
+            };
+            connect(more, &QPushButton::clicked, this, [points]() { points(true); });
+            connect(fewer, &QPushButton::clicked, this, [points]() { points(false); });
+            QHBoxLayout *buttons = new QHBoxLayout;
+            buttons->addWidget(more);
+            buttons->addWidget(fewer);
+            place->addRow(buttons);
         }
     else if (part.type != GaugeComponent::Group)
         {
@@ -1761,6 +2134,15 @@ void GaugeEditor::fillProperties()
             addCheck(form, tr("Bold"), part.bold, [](Part &p, bool on) { p.bold = on; });
             addCheck(form, tr("Italic"), part.italic, [](Part &p, bool on) { p.italic = on; });
             addCheck(form, tr("CAPITALS"), part.upperCase, [](Part &p, bool on) { p.upperCase = on; });
+            addCheck(form, tr("In a box, wrapped at its width"), part.boxed, [this](Part &p, bool on)
+            {
+                p.boxed = on;
+                // a box to start from, a few lines high, from the point the text was set against
+                if (on && (p.frame.width() <= 0.0 || p.frame.height() <= 0.0))
+                    {
+                        p.frame.setSize(QSizeF(std::round(m_gauge.size.width() * 0.6), std::round(p.fontSize * 2.5)));
+                    }
+            }, tr("The text inside the frame below, aligned in it and broken into lines where it is too long"), true);
             if (part.autoText != GaugeComponent::FixedText && part.autoText != GaugeComponent::Unit
                     && part.autoText != GaugeComponent::Label)
                 {
@@ -1811,7 +2193,40 @@ void GaugeEditor::fillProperties()
                             addCheck(form, tr("Filled"), part.filled, [](Part &p, bool on) { p.filled = on; }, QString(), true);
                         }
                 }
-            if (line || !part.filled || part.shape == GaugeComponent::Arc)
+            else
+                {
+                    addCheck(form, tr("Closed and filled (a polygon)"), part.filled, [](Part &p, bool on) { p.filled = on; },
+                             tr("From the last point back to the first, the inside filled"), true);
+                    addCheck(form, tr("Curved through the points"), part.smooth, [](Part &p, bool on) { p.smooth = on; },
+                             tr("A smooth curve through every point instead of straight pieces: a wave, a swoosh, a round "
+                                "outline; at least three points"));
+                }
+            if (part.filled)
+                {
+                    // from the color above to this one, along a line
+                    const bool fades = part.gradientColor.role != GaugeColor::Original;
+                    addCheck(form, tr("Fades to another color"), fades, [this](Part &p, bool on)
+                    {
+                        if (!on)
+                            {
+                                p.gradientColor = GaugeColor();
+                                return;
+                            }
+                        // top to bottom of the shape, to the background
+                        const QRectF bounds = boundsOf(p);
+                        p.gradientColor.role = GaugeColor::Background;
+                        p.gradientLine = QLineF(bounds.center().x(), bounds.top(), bounds.center().x(), bounds.bottom());
+                    }, tr("A gradient from the color above, at the start of a line, to this one at its end"), true);
+                    if (fades)
+                        {
+                            addColor(form, tr("Fades to:"), part.gradientColor, [](Part &p, const GaugeColor &c) { p.gradientColor = c; });
+                            addNumber(form, tr("Fade from X:"), part.gradientLine.x1(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP1(QPointF(v, p.gradientLine.y1())); });
+                            addNumber(form, tr("Fade from Y:"), part.gradientLine.y1(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP1(QPointF(p.gradientLine.x1(), v)); });
+                            addNumber(form, tr("Fade to X:"), part.gradientLine.x2(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP2(QPointF(v, p.gradientLine.y2())); });
+                            addNumber(form, tr("Fade to Y:"), part.gradientLine.y2(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP2(QPointF(p.gradientLine.x2(), v)); });
+                        }
+                }
+            if (!part.filled || part.shape == GaugeComponent::Arc)
                 {
                     addNumber(form, tr("Width of the line:"), part.lineWidth, 0.1, 1000, 1, [](Part &p, double v) { p.lineWidth = v; });
                 }
@@ -1836,6 +2251,27 @@ void GaugeEditor::fillProperties()
             addColor(form, tr("In use:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
             addNumber(form, tr("Width of the chain:"), part.lineWidth, 0.1, 1000, 1, [](Part &p, double v) { p.lineWidth = v; });
         }
+    if (part.type == GaugeComponent::LapTable)
+        {
+            QFormLayout *form = section(tr("Lap table"));
+            addNumber(form, tr("Lines:"), part.rows, 1, 50, 0, [](Part &p, double v) { p.rows = int(v); },
+                      tr("The laps finished last, and the one under way at the bottom"));
+            addColor(form, tr("Best lap:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
+            addFont(form, part);
+            addNumber(form, tr("Size:"), part.fontSize, 1, 2000, 0, [](Part &p, double v) { p.fontSize = v; },
+                      tr("Height of the letters, in the gauge's units"));
+            addCheck(form, tr("Bold"), part.bold, [](Part &p, bool on) { p.bold = on; });
+            addCheck(form, tr("Italic"), part.italic, [](Part &p, bool on) { p.italic = on; });
+            addNumber(form, tr("Decimals:"), part.precision, -1, 3, 0, [](Part &p, double v) { p.precision = int(v); },
+                      tr("Of a second; -1: two"));
+        }
+    if (part.type == GaugeComponent::SectorBar)
+        {
+            QFormLayout *form = section(tr("Sector bar"));
+            addColor(form, tr("Faster than the best:"), part.activeColor, [](Part &p, const GaugeColor &c) { p.activeColor = c; });
+            addNumber(form, tr("Gap between sectors:"), part.padding, 0, far, 1, [](Part &p, double v) { p.padding = v; });
+            addNumber(form, tr("Corners rounded by:"), part.cornerRadius, 0, far, 1, [](Part &p, double v) { p.cornerRadius = v; });
+        }
     if (part.type == GaugeComponent::Graph || route)
         {
             QFormLayout *form = section(route ? tr("Route") : tr("Graph"));
@@ -1851,6 +2287,19 @@ void GaugeEditor::fillProperties()
                     if (part.tiles)
                         {
                             addNumber(form, tr("Strength of the map:"), part.tileOpacity, 0.05, 1, 2, [](Part &p, double v) { p.tileOpacity = v; });
+                            // a map of its own, or the one chosen in the settings
+                            const QVector<TileStore::Provider> providers = TileStore::providers();
+                            QVector<QPair<QString, int>> maps{{tr("as in the settings"), -1}};
+                            int current = -1;
+                            for (int i = 0; i < providers.size(); ++i)
+                                {
+                                    maps.append({providers.at(i).name, i});
+                                    current = providers.at(i).id == part.mapProvider ? i : current;
+                                }
+                            addChoice(form, tr("Map:"), maps, current, [providers](Part &p, int i)
+                            {
+                                p.mapProvider = i >= 0 && i < providers.size() ? providers.at(i).id : QString();
+                            });
                         }
                     addNumber(form, tr("Close-up, meters across:"), part.span, 0, 100000, 0, [](Part &p, double v) { p.span = v; },
                               tr("0: the whole route. Otherwise this much around the rider, the map moving under them."));
@@ -1863,14 +2312,45 @@ void GaugeEditor::fillProperties()
                               tr("Both 0: the whole recording"));
                     addNumber(form, tr("Seconds after now:"), part.windowAfter, 0, 86400, 0, [](Part &p, double v) { p.windowAfter = v; });
                 }
-            QLabel *note = new QLabel(tr("The parts under it in the list are drawn at the current point, their place counted "
-                                         "from it: X 0, Y 0 is the point itself."), m_properties);
+            QLabel *note = new QLabel(part.type == GaugeComponent::TrackMap
+                                      ? tr("The parts under it in the list are drawn at the current point, their place counted "
+                                           "from it: X 0, Y 0 is the point itself.")
+                                      : tr("The parts under its headings in the list are drawn where these say, their place "
+                                           "counted from there: X 0, Y 0 is the point itself."), m_properties);
             note->setWordWrap(true);
             form->addRow(note);
         }
     if (part.type != GaugeComponent::Dial && part.type != GaugeComponent::Tape && part.type != GaugeComponent::Graph && !route)
         {
-            addMovement(section(tr("Movement")), part);
+            // in their order: a needle that turns and is also cut to an arc
+            const int count = std::max(1, int(part.manipulations.size()));
+            QFormLayout *last = nullptr;
+            for (int i = 0; i < count; ++i)
+                {
+                    last = section(count > 1 ? tr("Movement %1").arg(i + 1) : tr("Movement"));
+                    addMovement(last, part, i);
+                }
+            if (!part.manipulations.isEmpty())
+                {
+                    QPushButton *another = new QPushButton(tr("Add another movement"), m_properties);
+                    another->setToolTip(tr("Applied after the ones above: a needle that turns and slides, an arc that fills "
+                                           "and turns with the heading"));
+                    connect(another, &QPushButton::clicked, this, [this]()
+                    {
+                        if (Part *p = selected())
+                            {
+                                GaugeManipulation added;
+                                added.type = GaugeManipulation::Rotate;
+                                added.pivot = QPointF(m_gauge.size.width() / 2.0, m_gauge.size.height() / 2.0);
+                                added.minAngle = -135.0;
+                                added.maxAngle = 135.0;
+                                p->manipulations.append(added);
+                                changed();
+                                QMetaObject::invokeMethod(this, [this]() { fillProperties(); }, Qt::QueuedConnection);
+                            }
+                    });
+                    last->addRow(another);
+                }
         }
     m_propertiesLayout->addStretch(1);
 }

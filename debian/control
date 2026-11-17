@@ -8,7 +8,9 @@ Homepage: https://github.com/coozoo/trackrideviz
 
 Package: trackrideviz
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ffmpeg
+Depends: ${shlibs:Depends}, ${misc:Depends}, ffmpeg, qt6-qpa-plugins,
+ gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-libav, gstreamer1.0-gl
+Recommends: gstreamer1.0-plugins-bad, qt6-wayland
 Description: Race Track Visualizer - telemetry overlays for action camera video.
  Puts speed, lap times, G-force, track map, heart rate, power and other
  gauges from GPS and datalogger files on top of video and exports the result.

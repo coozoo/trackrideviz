@@ -2,13 +2,32 @@
 
 #include "../settings/appsettings.h"
 
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QProcess>
 
 QString FfmpegTools::ffmpegProgram()
 {
     const QString configured = AppSettings::ffmpegPath();
-    return configured.isEmpty() ? QStringLiteral("ffmpeg") : configured;
+    if (!configured.isEmpty())
+        return configured;
+    // the program's own folder is known only once the application exists (not in every test)
+    if (QCoreApplication::instance())
+        {
+#ifdef Q_OS_WIN
+            // in a folder of its own with the Vulkan loader it needs (see main.cpp)
+            const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg/ffmpeg.exe",
+                                      QCoreApplication::applicationDirPath() + "/ffmpeg.exe"};
+#else
+            const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg"};
+#endif
+            for (const QString &program : bundled)
+                {
+                    if (QFileInfo(program).isExecutable())
+                        return program;
+                }
+        }
+    return QStringLiteral("ffmpeg");
 }
 
 QString FfmpegTools::ffprobeFor(const QString &ffmpegProgram)

@@ -1,0 +1,61 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Lap table",
+    "size": [
+        300,
+        250
+    ],
+    "supportedTypes": [
+        "lap",
+        "lapTime",
+        "bestLapTime"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                300,
+                250
+            ],
+            "color": "original"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                18,
+                26
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 22,
+                "italic": true
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "lapTable",
+            "frame": [
+                18,
+                46,
+                264,
+                190
+            ],
+            "color": "foreground",
+            "activeColor": "accent",
+            "rows": 5,
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26,
+                "bold": true
+            }
+        }
+    ]
+}

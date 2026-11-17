@@ -124,10 +124,16 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ G-force comes from GPS now (M4); without data a part rests at 0, not at its scale's start
 - Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
 - A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
-- Templates are placed for the video open when applied; a later video of another shape keeps
-  the fractions, not the edge anchors
+- ✅ Gauges follow the video's shape (2026-11-17, `Project::layoutAspect`): the project keeps the shape its
+  gauges were placed on; a video of another shape (a vertical one after 16:9) gets each placed again from
+  its nearest edges, as a template places them, as one step that can be undone
 - ✅ Saving the gauges on the video as a template (2026-11-14, File menu): each measured from
   the edge it is nearest to, with a name and a category
+- ✅ A gauge's own shape on the video (2026-11-17, `GaugeShape`, `OverlayItem::aspect`): "Keep the gauge's
+  shape" off in its menu gives handles on the right and bottom edges; the gauge is laid out again for the
+  new width (frames, points, pivots, tape travel spread over it; letters and markers at the current point
+  as they were), so a profile or a graph can run across the picture; round parts become oval. Kept in
+  projects and templates
 - ✅ Units a single gauge shows (2026-11-15): "Units" in a gauge's menu on the video - as in the settings,
   metric or imperial; kept in the project and in templates
 
@@ -174,7 +180,20 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   creation_time) and kept in the project as shifts: telemetry time = video time + offset + the
   part's shift, so the data stays in step after each break and one offset still tunes it all.
   Checked on four camera files: three chapters followed on, a 36:37 break before the fourth
-- Joining videos of different kinds (re-encoding), keeping camera data streams (GPMF) in the join
+- ✅ GoPro data kept in a join (2026-11-17, `VideoJoin::keepsCameraData`): when every part has a GPMF
+  track and the output is .mp4/.mov, it is joined with the picture and sound, so the joined video
+  carries its own data. Checked with GoPro's sample files (HERO5, HERO6 joined with themselves:
+  twice the positions, twice as long)
+- ✅ GoPro videos without a satellite fix (2026-11-17, `fromMotionSensorsAlone`): read for their
+  motion sensors. Up from gravity, right as the level direction that follows the turns the
+  gyroscope feels, ahead across the two and the way that brakes harder. Checked with made-up rides
+  (both ways of mirrored axes; a leaning camera gets none); GoPro's samples load (HERO7, HERO8,
+  Karma), but are handheld and walked, so they do not tell how good it is on a vehicle
+- ✅ Joining videos of different kinds (2026-11-17, `VideoJoin::encodeArguments`): when they cannot be
+  copied, the dialog says why and offers to encode them again: the first one's size (the others
+  scaled in, black bars where the shape differs) and frame rate, 48 kHz stereo AAC with silence for
+  parts without sound, each part's sound cut to its picture so no frame goes missing at a seam;
+  the last export's encoder at the first video's bitrate; a progress bar from ffmpeg's -progress
 
 ## Maps
 - ✅ Street maps under route and lap gauges (2026-11-14, `TileStore`): a map part of a gauge may ask
@@ -191,7 +210,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   (`"streets"`). The credit on the map can be switched off for videos that name the map's makers
   elsewhere. Packages: the Windows one now carries libssl / libcrypto and the AppImage Qt's `tls`
   plugins - to be confirmed on the first packages built with them
-- A map of its own per gauge
+- ✅ A map of its own per gauge (2026-11-17, `TileStore::forMap`): "Map" in a route gauge's menu on the video
+  and in the editor, as in the settings or one of the maps the program knows; each map has a store of its own,
+  following the settings' downloads, credit and key. Kept in gauges ("map"), projects and templates
 - ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
   of map under it - the same choice as in the settings, so the gauges follow it
 - ✅ The route map of the Laps panel zooms (wheel, + and -) and moves (drag); what is picked in the
@@ -207,6 +228,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Gauges Route map close-up and Route map streets close-up; any gauge with a route is switched
   between the whole route and 300 m to 5 km around the rider from its menu on the video
   ("Close-up", kept in projects and templates as `"closeUp"`)
+- ✅ Files dropped on the window (2026-11-17): a project opens; a video opens (chapters offered to be joined);
+  data is read; gauges, templates and folders of them are imported into the library
+- ✅ Gauges and templates dragged from the library onto the video (2026-11-17): a gauge is placed centered where
+  it is let go, kept on the picture; a template is applied
 - ✅ The library panel finds gauges and templates by name and by group (2026-11-14): where they
   come from, what a gauge shows (maps, speed, laps, ...), a template's category
 - ✅ The close-up turned so that the way ahead points up (`"headingUp"`, in the same menu); a
@@ -225,7 +250,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   speed, right from the turns), in place of those worked out from GPS when they go with the ride; a camera
   that leans into the turns gives the lean angle from its gyroscope and has its readings turned back level
 - ✅ CSV with data profiles; XML data profile import (2026-11-13)
-- AiM and DriftBox CSV layouts; our own profiles for common loggers
+- ✅ AiM and Racelogic (DriftBox, PerformanceBox) CSV layouts (2026-11-17, `DataProfile::Layout`)
+- our own data profiles for common loggers: ✅ TrackAddict (2026-11-17, checked against two real logs);
+  RaceChrono, Harry's LapTimer, Torque wait for sample files
 - ✅ NMEA and VBO (2026-11-16, `NmeaImporter`, `VboImporter`): RMC and GGA sentences, checksums checked,
   .txt and .log read as NMEA when they are; VBOX files by their column names, other columns (rpm...) kept
 - ✅ Gears (2026-11-15, `Gears`, the Bike page of the settings, the "Gear" gauge): recorded by
@@ -274,10 +301,13 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Barlow Semi Condensed (OFL) bundled for gauge texts
 - ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
   with its gauges on; Export and Import in the library panel. Built-in gauges and templates marked
-  with a padlock. Next: file associations (MIME types) so a double click imports
+  with a padlock. File associations: in the Windows installer (2026-11-17); Linux MIME types still to do
 - ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
   theme colors, kept in projects and templates; Barlow Semi Condensed bundled in all weights
-- Per gauge on the video: own font, size, colors, opacity (later)
+- ✅ Per gauge on the video (2026-11-17, `OverlayItem::ownTheme`, `textScale`, `opacity`): text size and opacity
+  in the properties; "Own colors and font" makes the color and font controls under it edit that gauge alone.
+  A see-through gauge is drawn whole, then faded, so its parts do not show through each other. Kept in
+  projects and templates
 - ✅ Charts (2026-11-14): one smoothing for Data, Timeline and Compare laps (none, 2, 5, 15 s, display
   only); the Data chart draws each pixel's mean with its span as a faint band
 - ✅ Own vector set, batch 1 (2026-11-14, `tools/vectorgauges`, reviewed one by one against what
@@ -324,10 +354,21 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   One movement per part (turn, fill, slide). Gauges that come with the program open as a copy
 - ✅ Editor (2026-11-15): undo and redo; a part being moved is drawn to the edges and middles of
   the others and of the gauge; fonts by name; a second click picks inside a group
-- Editor, still to do: a part's second and later movements, the g-ball and the picture strip;
-  markers of a graph's axes and a lap's start line; gradients; the points of a line with more
-  than two; aligning several parts; turning a text's frame into a box
-- Path shapes; lap table, sector bar
+- ✅ Editor (2026-11-17): a part's second and later movements, applied in their order ("Movement 1",
+  "Movement 2", Add another movement); a ball moved by two values (g-forces: the measurement each way, how far,
+  either way reversed, the trail) and a picture strip (how many pictures, how fast at the ends)
+- ✅ Editor (2026-11-17): fills that fade to another color along a line; lines through any number of points,
+  closed and filled as polygons ("filled" on a line in gauge.json); a text in a box, wrapped at its width
+- ✅ Editor (2026-11-17): a graph's markers on its top and left edges and a lap map's start line, each a list
+  under a heading of its own below the part (what is drawn at the current point under a third)
+- ✅ Editor (2026-11-17): several parts picked (Ctrl or Shift, in the list or on the picture), moved together
+  and lined up: left edges, centers, right edges, tops, middles, bottoms, spread evenly across or down
+- ✅ Path shapes (2026-11-17): polygons, and lines and polygons curved smoothly through their points ("smooth")
+- ✅ Lap table and sector bar (2026-11-17, gauge parts `lapTable` and `sectorBar`; gauges Lap table and
+  Sector bar; in the editor). The table: the last laps finished and the one under way, number, time and
+  how far behind the best so far, the best lit. The bar: the sectors of the lap under way, each finished
+  one lit when it beat the best of it in the laps before, the one being driven filling up against that
+  best; empty segments without sector lines
 - ✅ G-plot with a tail and Lean angle (2026-11-16): `trailSeconds` of a two-value move draws the way
   the part went over the last seconds, fading; a lean-angle gauge with a rider leaning under an arc
 - ✅ For runners (2026-11-16): pace as minutes and seconds (5:18 /km) everywhere; the cadence of FIT runs
@@ -346,9 +387,28 @@ encoders, preferred by the Small file profile; volumes up to 200 %, held under f
 the automatic end of a fixed dial following the highest value held for a second, not a GPS spike.
 
 ## M7 — Polish and distribution
-- Export backend B (in-process libav) if/when needed; export queue (done: the gauges alone with transparency)
-- AppImage + Flatpak, Windows installer, macOS bundle
+- Export backend B (in-process libav) if/when needed (an export queue dropped: several projects are exported one
+  after another by the command line)
+- ✅ Command line (2026-11-17, `CommandLine`, `ProjectData`): --render a project, or a video, data and a template
+  (synced by the clocks or --offset); --profile, --encoder / --hardware / --software and each choice of the export
+  dialog by hand; --gauges-only; --list-encoders, --list-profiles, --list-templates; progress in a terminal, a line
+  every tenth into a file; Ctrl+C keeps a playable file. Waits for the terrain, the weather and the street maps.
+  Linux checked; Windows (its console taken from cmd) not yet
+- AppImage + Flatpak, macOS bundle
+- ✅ Windows installer (2026-11-17, `windows/trackrideviz.nsi`, NSIS, built by CI next to the zip): for the user
+  alone or for everyone, Start menu and desktop shortcuts, .rtvproj / .rtvgauge / .rtvtemplate opened by a
+  double click; the uninstaller takes away only what was installed (an update first runs the old one).
+  English and Ukrainian. Checked under Wine: install, update over it, uninstall
 - Translations (uk, en), user manual
+- Updates (2026-11-17, `ReleaseCheck`): ✅ a release build carries its tag (CI, RTV_RELEASE_TAG; other builds never
+  ask); once a day, quietly, GitHub's latest release is compared with it; a newer one shows as a link in the status
+  bar and in Help, with its notes, the release page, "Skip this version"; Help > Check for updates; a switch in
+  Settings. ✅ "Update now" (`Updater`): the AppImage downloads the new one beside it, checks it against GitHub's
+  SHA-256 and renames it over itself, then offers a restart; a copy the installer put there (told by the installer's
+  registry entry pointing at its folder) gets the new setup.exe, checked the same way, and runs it after closing:
+  quietly with /RESTART for the user alone, with its pages for everyone; the installer waits for the old program to
+  end. The zip, macOS and distributions' packages only point to the release page. Later: .zsync for other AppImage
+  updaters
 - Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;
   decide which tests run on every push and which only before a release
 

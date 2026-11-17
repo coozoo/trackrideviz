@@ -548,62 +548,478 @@
     </message>
 </context>
 <context>
+    <name>CommandLine</name>
+    <message>
+        <location filename="../src/commandline.cpp" line="136"/>
+        <source>Export profiles (--profile takes the name in the first column, or the whole name):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="147"/>
+        <source>%1, the best encoder there is for it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="147"/>
+        <source> or </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="151"/>
+        <source>encoder %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="156"/>
+        <source>* the one the export dialog used last, taken when --profile is not given</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="162"/>
+        <source>Templates (--template takes the name):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="171"/>
+        <source> (yours)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="179"/>
+        <source>Trying the encoders of %1 (a short test encode each)...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="183"/>
+        <source>ffmpeg could not be run, or has none of the encoders this program knows.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="185"/>
+        <source>Encoders that work on this computer (--encoder takes the name in the first column):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="195"/>
+        <source>quality %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="196"/>
+        <source>%1 kbit/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="197"/>
+        <source>%1, %2, %3, sound: %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="198"/>
+        <source>%1 pixels high</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="198"/>
+        <source>size of the video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="240"/>
+        <source>No video: give a project, or --video.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="244"/>
+        <source>The video %1 is not there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="270"/>
+        <source>There is no template &quot;%1&quot;; --list-templates names them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="294"/>
+        <source>There is no export profile &quot;%1&quot;; --list-profiles names them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="311"/>
+        <source>The folder %1 is not there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="315"/>
+        <source>%1 is there already; --overwrite replaces it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="324"/>
+        <source>Reading %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="329"/>
+        <source>%1 could not be read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="343"/>
+        <source>Waiting for the heights of the terrain and the weather of the ride...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="354"/>
+        <source>No data: the gauges show none.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="364"/>
+        <source>--offset wants seconds, as 12.5 or -3600.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="380"/>
+        <source>The video and the data could not be put in step: %1 Give --offset.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="384"/>
+        <source>In step: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="393"/>
+        <source>Waiting for the street maps...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="406"/>
+        <source>Finding the encoders this computer can use...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="410"/>
+        <source>ffmpeg could not be run, or has none of the encoders this program knows: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="421"/>
+        <source>No encoder of a graphics card works on this computer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="422"/>
+        <source>No encoder for the processor works here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="443"/>
+        <source>--%1 wants a whole number from %2 to %3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="470"/>
+        <source>--speed is fast, balanced or small.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="479"/>
+        <source>--audio is copy, aac, none, opus or vorbis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="496"/>
+        <source>--from and --to want seconds into the video, the end after the start.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="517"/>
+        <source>The export cannot replace a file it is made from (%1).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="522"/>
+        <source>A .%1 file cannot hold a see-through picture: save the gauges as .mov or .webm.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="526"/>
+        <source>There are no gauges on the video to export.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="530"/>
+        <source>A .%1 file cannot hold Opus or Vorbis sound: save it as .mkv, or take --audio aac.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="534"/>
+        <source>%1 -&gt; %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="535"/>
+        <source>Profile: %1; %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="535"/>
+        <source>the gauges alone, see-through</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="573"/>
+        <source>left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="601"/>
+        <source>Done in %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="604"/>
+        <source>Stopped; what was done so far is in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="611"/>
+        <source>The export failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="661"/>
+        <source>Race Track Visualizer: gauges over a video, exported here without the window.
+
+Examples:
+  trackrideviz --render ride.rtvproj
+  trackrideviz --render ride.rtvproj -o ride_youtube.mp4 --profile youtube --hardware
+  trackrideviz --render --video GX010042.MP4 --data ride.fit --template &quot;Track day&quot;
+  trackrideviz --render ride.rtvproj --gauges-only -o gauges.mov
+  trackrideviz --list-encoders
+
+A project is exported as it was saved: its gauges, synchronization, cuts and music. Without one,
+the video and the data are put in step by their clocks (as when they are opened in the window),
+or by --offset. Units, maps, the rider and the bike are those of the program&apos;s settings.
+
+How it is encoded: the export profile the export dialog used last, or --profile; its encoder is
+the best for the profile among those that work on this computer, of the kind used last (graphics
+card or processor) or of the kind --hardware / --software asks for; --encoder names one exactly.
+What follows changes the profile&apos;s choices one by one.
+
+Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a playable file).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="683"/>
+        <source>The project to export (as --project).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="686"/>
+        <source>Export a video with the gauges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="687"/>
+        <source>The encoders that work on this computer: of the graphics card and of the processor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="688"/>
+        <source>The export profiles: the program&apos;s and those saved in the export dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="689"/>
+        <source>The templates of the library.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="690"/>
+        <source>The project to export.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="691"/>
+        <source>The video (in place of the project&apos;s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="692"/>
+        <source>The data: .fit, .gpx, .tcx, .csv, NMEA, VBO, or a GoPro video&apos;s own (in place of the project&apos;s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="693"/>
+        <source>The gauges of this template of the library, placed for the video&apos;s shape (in place of the project&apos;s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="694"/>
+        <source>Data time = video time + this many seconds (in place of the synchronization).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="695"/>
+        <source>The file to write; its suffix (.mp4, .mkv, .mov, .webm) is the container. Without it: beside the video, named &lt;video&gt;_overlay.&lt;suffix&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="697"/>
+        <source>Replace the output file when it is there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="698"/>
+        <source>youtube, small, source, or one saved in the export dialog (--list-profiles).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="699"/>
+        <source>This encoder exactly, as --list-encoders names it: libx264, h264_nvenc, hevc_vaapi...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="700"/>
+        <source>An encoder of the graphics card for the profile&apos;s codec.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="701"/>
+        <source>An encoder of the processor for the profile&apos;s codec.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="702"/>
+        <source>Video bitrate in kbit/s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="703"/>
+        <source>Constant quality instead of a bitrate, on the encoder&apos;s own scale (lower is better).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="704"/>
+        <source>fast, balanced or small: encoding time against file size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="705"/>
+        <source>Output height in pixels (never larger than the video); 0: as the video.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="706"/>
+        <source>copy, aac, none, opus or vorbis (opus and vorbis go into .mkv).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="707"/>
+        <source>Sound bitrate in kbit/s, when the sound is encoded again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="708"/>
+        <source>The gauges alone on a see-through background, for another editor: .mov (ProRes 4444) or .webm.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="709"/>
+        <source>Start this many seconds into the video.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="710"/>
+        <source>End this many seconds into the video.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="711"/>
+        <source>No progress, only the outcome.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/commandline.cpp" line="712"/>
+        <source>Qt&apos;s own messages too, for finding out what goes wrong.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CsvImporter</name>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="481"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="654"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="492"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="665"/>
         <source>%1: there are no data profiles to read CSV files with. Import some first (Library, Import).</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="494"/>
-        <source>%1: none of the %n data profile(s) recognizes this file.</source>
-        <translation>
-            <numerusform>%1: none of the %n data profile recognises this file.</numerusform>
-            <numerusform>%1: none of the %n data profiles recognises this file.</numerusform>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="667"/>
+        <source>%1: none of the %n data profile(s) recognizes this file. Profiles for other loggers can be imported (Library, Import).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="521"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="697"/>
+        <source>The AiM file has no blank line ending its header.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="705"/>
+        <source>The Racelogic file has no &quot;[column names]&quot; line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="709"/>
+        <source>The Racelogic file has no &quot;Log Rate (Hz)&quot; line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
         <source>The file has no line %1 for the column names.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="528"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="751"/>
         <source>Line %1 does not hold column names.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="541"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="764"/>
         <source>The column name lines differ in length.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="565"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="788"/>
         <source>The file has no data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="681"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="930"/>
         <source>The file has no time column the profile knows.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="696"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="945"/>
         <source>The time column is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="700"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="949"/>
         <source>CSV, data profile &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="764"/>
+        <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="1013"/>
         <source>None of the columns this data profile names are in the file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -696,17 +1112,17 @@ Worked out from the other data</source>
 <context>
     <name>DataProfileFile</name>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="225"/>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="227"/>
         <source>This is not a data profile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="229"/>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="231"/>
         <source>The data profile was saved by a newer version of the program.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="265"/>
+        <location filename="../src/core/telemetry/csv/dataprofile.cpp" line="268"/>
         <source>The data profile is incomplete.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -714,7 +1130,7 @@ Worked out from the other data</source>
 <context>
     <name>DataProfileLibrary</name>
     <message>
-        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="83"/>
+        <location filename="../src/core/telemetry/csv/dataprofilelibrary.cpp" line="122"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -842,47 +1258,57 @@ Worked out from the other data</source>
 <context>
     <name>DiagnosticsPanel</name>
     <message>
-        <location filename="../src/diagnostics.cpp" line="113"/>
+        <location filename="../src/diagnostics.cpp" line="115"/>
         <source>Copy all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="114"/>
+        <location filename="../src/diagnostics.cpp" line="116"/>
         <source>The start-up details, the players&apos; state and the log, to paste into a report</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="120"/>
+        <location filename="../src/diagnostics.cpp" line="122"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="144"/>
+        <location filename="../src/diagnostics.cpp" line="146"/>
         <source>Qt %1 (built with %2), display: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="147"/>
+        <location filename="../src/diagnostics.cpp" line="149"/>
         <source>Not run from an AppImage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="147"/>
+        <location filename="../src/diagnostics.cpp" line="149"/>
         <source>AppImage: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="161"/>
+        <location filename="../src/diagnostics.cpp" line="163"/>
         <source>Qt plugins: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/diagnostics.cpp" line="166"/>
-        <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
+        <location filename="../src/diagnostics.cpp" line="168"/>
+        <source>Sound devices: none found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="168"/>
+        <source>Sound devices: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/diagnostics.cpp" line="173"/>
+        <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/diagnostics.cpp" line="180"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1403,1093 +1829,1412 @@ Worked out from the other data</source>
 <context>
     <name>GaugeEditor</name>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="169"/>
+        <location filename="../src/gaugeeditor.cpp" line="77"/>
+        <location filename="../src/gaugeeditor.cpp" line="81"/>
+        <source>At the current point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="78"/>
+        <source>On the top edge, at the current time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="79"/>
+        <source>On the left edge, at the current value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="82"/>
+        <source>At the start line, turned across the way</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="188"/>
         <source>Text &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="171"/>
-        <location filename="../src/gaugeeditor.cpp" line="634"/>
+        <location filename="../src/gaugeeditor.cpp" line="190"/>
+        <location filename="../src/gaugeeditor.cpp" line="702"/>
         <source>Value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="173"/>
+        <location filename="../src/gaugeeditor.cpp" line="192"/>
         <source>Unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="175"/>
+        <location filename="../src/gaugeeditor.cpp" line="194"/>
         <source>Value and unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="177"/>
-        <location filename="../src/gaugeeditor.cpp" line="634"/>
+        <location filename="../src/gaugeeditor.cpp" line="196"/>
+        <location filename="../src/gaugeeditor.cpp" line="702"/>
         <source>Name of the measurement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="179"/>
+        <location filename="../src/gaugeeditor.cpp" line="198"/>
         <source>Name, value and unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="181"/>
+        <location filename="../src/gaugeeditor.cpp" line="200"/>
         <source>Number on the scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="183"/>
-        <location filename="../src/gaugeeditor.cpp" line="634"/>
-        <location filename="../src/gaugeeditor.cpp" line="1020"/>
-        <location filename="../src/gaugeeditor.cpp" line="1738"/>
+        <location filename="../src/gaugeeditor.cpp" line="202"/>
+        <location filename="../src/gaugeeditor.cpp" line="702"/>
+        <location filename="../src/gaugeeditor.cpp" line="1246"/>
+        <location filename="../src/gaugeeditor.cpp" line="2111"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="185"/>
+        <location filename="../src/gaugeeditor.cpp" line="204"/>
         <source>Picture of the measurement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="186"/>
-        <location filename="../src/gaugeeditor.cpp" line="1031"/>
-        <location filename="../src/gaugeeditor.cpp" line="1781"/>
+        <location filename="../src/gaugeeditor.cpp" line="205"/>
+        <location filename="../src/gaugeeditor.cpp" line="1257"/>
+        <location filename="../src/gaugeeditor.cpp" line="2163"/>
         <source>Picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="187"/>
+        <location filename="../src/gaugeeditor.cpp" line="206"/>
         <source>Picture %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="189"/>
-        <location filename="../src/gaugeeditor.cpp" line="645"/>
+        <location filename="../src/gaugeeditor.cpp" line="208"/>
+        <location filename="../src/gaugeeditor.cpp" line="714"/>
         <source>Group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="191"/>
-        <location filename="../src/gaugeeditor.cpp" line="642"/>
-        <location filename="../src/gaugeeditor.cpp" line="1841"/>
+        <location filename="../src/gaugeeditor.cpp" line="210"/>
+        <location filename="../src/gaugeeditor.cpp" line="710"/>
+        <location filename="../src/gaugeeditor.cpp" line="2277"/>
         <source>Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="193"/>
-        <location filename="../src/gaugeeditor.cpp" line="642"/>
-        <location filename="../src/gaugeeditor.cpp" line="1841"/>
+        <location filename="../src/gaugeeditor.cpp" line="212"/>
+        <location filename="../src/gaugeeditor.cpp" line="710"/>
+        <location filename="../src/gaugeeditor.cpp" line="2277"/>
         <source>Route</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="195"/>
-        <location filename="../src/gaugeeditor.cpp" line="642"/>
+        <location filename="../src/gaugeeditor.cpp" line="214"/>
+        <location filename="../src/gaugeeditor.cpp" line="710"/>
         <source>Route of the lap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="197"/>
-        <location filename="../src/gaugeeditor.cpp" line="1835"/>
+        <location filename="../src/gaugeeditor.cpp" line="216"/>
+        <location filename="../src/gaugeeditor.cpp" line="2250"/>
         <source>Gears</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="199"/>
-        <location filename="../src/gaugeeditor.cpp" line="637"/>
+        <location filename="../src/gaugeeditor.cpp" line="218"/>
+        <location filename="../src/gaugeeditor.cpp" line="712"/>
+        <location filename="../src/gaugeeditor.cpp" line="2256"/>
+        <source>Lap table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="220"/>
+        <location filename="../src/gaugeeditor.cpp" line="712"/>
+        <location filename="../src/gaugeeditor.cpp" line="2270"/>
+        <source>Sector bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="222"/>
+        <location filename="../src/gaugeeditor.cpp" line="705"/>
         <source>Round scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="201"/>
-        <location filename="../src/gaugeeditor.cpp" line="637"/>
+        <location filename="../src/gaugeeditor.cpp" line="224"/>
+        <location filename="../src/gaugeeditor.cpp" line="705"/>
         <source>Sliding scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="206"/>
-        <location filename="../src/gaugeeditor.cpp" line="639"/>
+        <location filename="../src/gaugeeditor.cpp" line="229"/>
+        <location filename="../src/gaugeeditor.cpp" line="707"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="208"/>
-        <location filename="../src/gaugeeditor.cpp" line="639"/>
+        <location filename="../src/gaugeeditor.cpp" line="231"/>
+        <location filename="../src/gaugeeditor.cpp" line="707"/>
         <source>Ellipse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="210"/>
-        <location filename="../src/gaugeeditor.cpp" line="639"/>
+        <location filename="../src/gaugeeditor.cpp" line="233"/>
+        <location filename="../src/gaugeeditor.cpp" line="707"/>
         <source>Arc</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="212"/>
+        <location filename="../src/gaugeeditor.cpp" line="235"/>
         <source>Pie slice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="214"/>
-        <location filename="../src/gaugeeditor.cpp" line="639"/>
+        <location filename="../src/gaugeeditor.cpp" line="237"/>
+        <location filename="../src/gaugeeditor.cpp" line="707"/>
         <source>Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="218"/>
+        <location filename="../src/gaugeeditor.cpp" line="237"/>
+        <source>Polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="241"/>
         <source>Part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="230"/>
+        <location filename="../src/gaugeeditor.cpp" line="253"/>
         <source>turns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="234"/>
+        <location filename="../src/gaugeeditor.cpp" line="258"/>
         <source>fills</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="237"/>
-        <location filename="../src/gaugeeditor.cpp" line="1516"/>
+        <location filename="../src/gaugeeditor.cpp" line="262"/>
+        <location filename="../src/gaugeeditor.cpp" line="1765"/>
         <source>slides</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="239"/>
+        <location filename="../src/gaugeeditor.cpp" line="265"/>
+        <source>plays</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="268"/>
         <source>moves</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="542"/>
+        <location filename="../src/gaugeeditor.cpp" line="605"/>
         <source>Gauge editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="555"/>
+        <location filename="../src/gaugeeditor.cpp" line="619"/>
         <source>Name of the gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="562"/>
+        <location filename="../src/gaugeeditor.cpp" line="626"/>
         <source>The gauge&apos;s own units: parts are placed and sized in them, and the whole is scaled to wherever the gauge is put on the video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="576"/>
+        <location filename="../src/gaugeeditor.cpp" line="640"/>
         <source>What the gauge is made for: it shows this when it is put on the video, and here. Any gauge can be given another measurement later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="597"/>
+        <location filename="../src/gaugeeditor.cpp" line="661"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="599"/>
-        <location filename="../src/gaugeeditor.cpp" line="1753"/>
+        <location filename="../src/gaugeeditor.cpp" line="663"/>
+        <location filename="../src/gaugeeditor.cpp" line="2126"/>
+        <location filename="../src/gaugeeditor.cpp" line="2261"/>
         <source>Size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="603"/>
+        <location filename="../src/gaugeeditor.cpp" line="667"/>
         <source>Made for:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="605"/>
+        <location filename="../src/gaugeeditor.cpp" line="669"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="608"/>
+        <location filename="../src/gaugeeditor.cpp" line="672"/>
         <source>Redo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="619"/>
-        <source>The gauge&apos;s parts, drawn from the first to the last: what is lower in the list lies on top</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="629"/>
+        <location filename="../src/gaugeeditor.cpp" line="697"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="636"/>
+        <location filename="../src/gaugeeditor.cpp" line="704"/>
         <source>Needle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="636"/>
+        <location filename="../src/gaugeeditor.cpp" line="704"/>
         <source>Bar that fills</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="636"/>
+        <location filename="../src/gaugeeditor.cpp" line="704"/>
         <source>Arc that fills</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="640"/>
+        <location filename="../src/gaugeeditor.cpp" line="708"/>
         <source>Picture...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="643"/>
+        <location filename="../src/gaugeeditor.cpp" line="711"/>
         <source>Gears (chainrings and sprockets)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="674"/>
+        <location filename="../src/gaugeeditor.cpp" line="743"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="674"/>
+        <location filename="../src/gaugeeditor.cpp" line="743"/>
         <source>Another part like the one picked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="675"/>
+        <location filename="../src/gaugeeditor.cpp" line="744"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="675"/>
+        <location filename="../src/gaugeeditor.cpp" line="744"/>
         <source>Takes the picked part out of the gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="676"/>
+        <location filename="../src/gaugeeditor.cpp" line="745"/>
         <source>Further back: drawn earlier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="677"/>
+        <location filename="../src/gaugeeditor.cpp" line="746"/>
         <source>Further to the front: drawn later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="755"/>
+        <location filename="../src/gaugeeditor.cpp" line="854"/>
         <source>A moment of the sample ride: how the gauge looks with other values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="766"/>
-        <source>Click a part to pick it (again to pick inside a group), drag it to move it, drag its corner to size it. A part being moved is drawn to the edges and middles of the others; hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten.</source>
+        <location filename="../src/gaugeeditor.cpp" line="684"/>
+        <source>The gauge&apos;s parts, drawn from the first to the last: what is lower in the list lies on top. Ctrl or Shift picks several, to line them up.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="871"/>
+        <location filename="../src/gaugeeditor.cpp" line="865"/>
+        <source>Click a part to pick it (again to pick inside a group), drag it to move it, drag its corner to size it. A part being moved is drawn to the edges and middles of the others; hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten. Ctrl+click picks several, to move them together or line them up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="971"/>
         <source>Give the gauge a name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="877"/>
+        <location filename="../src/gaugeeditor.cpp" line="977"/>
         <source>The gauge has no parts yet: add one with &quot;Add&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="883"/>
+        <location filename="../src/gaugeeditor.cpp" line="983"/>
         <source>A gauge that comes with the program is called &quot;%1&quot;. Give yours another name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="889"/>
+        <location filename="../src/gaugeeditor.cpp" line="989"/>
         <source>There is a gauge &quot;%1&quot; already. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="966"/>
-        <location filename="../src/gaugeeditor.cpp" line="991"/>
+        <location filename="../src/gaugeeditor.cpp" line="1178"/>
+        <location filename="../src/gaugeeditor.cpp" line="1217"/>
         <source>%1 (%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1032"/>
+        <location filename="../src/gaugeeditor.cpp" line="1193"/>
+        <source>Pick this and add a part to put one here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1258"/>
         <source>Pictures (*.svg *.png *.jpg *.jpeg *.webp);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1055"/>
+        <location filename="../src/gaugeeditor.cpp" line="1281"/>
         <source>%1 is not a picture this program can read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1387"/>
+        <location filename="../src/gaugeeditor.cpp" line="1635"/>
         <source>Colors of the theme change with the theme chosen for a video; a color of its own stays.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1388"/>
+        <location filename="../src/gaugeeditor.cpp" line="1636"/>
         <source>As it is</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1389"/>
+        <location filename="../src/gaugeeditor.cpp" line="1637"/>
         <source>Theme: text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1390"/>
+        <location filename="../src/gaugeeditor.cpp" line="1638"/>
         <source>Theme: background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1391"/>
+        <location filename="../src/gaugeeditor.cpp" line="1639"/>
         <source>Theme: accent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1392"/>
+        <location filename="../src/gaugeeditor.cpp" line="1640"/>
         <source>Theme: 2nd accent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1393"/>
+        <location filename="../src/gaugeeditor.cpp" line="1641"/>
         <source>Its own...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1417"/>
+        <location filename="../src/gaugeeditor.cpp" line="1665"/>
         <source>Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1446"/>
+        <location filename="../src/gaugeeditor.cpp" line="1694"/>
         <source>The gauges&apos; own (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1457"/>
+        <location filename="../src/gaugeeditor.cpp" line="1705"/>
         <source>%1 (not on this computer)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1460"/>
+        <location filename="../src/gaugeeditor.cpp" line="1708"/>
         <source>The gauges&apos; own font comes with the program and looks the same everywhere. Another one is only named in the gauge: a computer without it draws the text in a font of its own.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1472"/>
+        <location filename="../src/gaugeeditor.cpp" line="1720"/>
         <source>Font:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1479"/>
+        <location filename="../src/gaugeeditor.cpp" line="1727"/>
         <source>What this part shows. &quot;The gauge&apos;s&quot; follows whatever the gauge is given on the video; a measurement of its own stays (a compass inside a speedometer).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1481"/>
+        <location filename="../src/gaugeeditor.cpp" line="1729"/>
         <source>The gauge&apos;s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1510"/>
+        <location filename="../src/gaugeeditor.cpp" line="1758"/>
         <source>With the value it:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1512"/>
+        <location filename="../src/gaugeeditor.cpp" line="1760"/>
         <source>stays as it is</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1512"/>
-        <source>turns (a needle)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1513"/>
-        <source>fills round (an arc)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1514"/>
-        <source>fills sideways (a bar)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1515"/>
-        <source>fills upwards (a column)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1563"/>
-        <source>Around X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1564"/>
-        <source>The point it turns around, in the gauge&apos;s units</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1565"/>
-        <source>Around Y:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1566"/>
-        <source>Angle at the lowest:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1567"/>
-        <source>Degrees clockwise, 0 = straight up. A needle is drawn pointing up and turned by this.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1568"/>
-        <source>Angle at the highest:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1571"/>
-        <source>Empty at X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1572"/>
-        <source>Where the fill starts, and how far it has come at the highest value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1573"/>
-        <source>Full at X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1574"/>
-        <source>Slant of the edge:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1577"/>
-        <source>Empty at Y:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1578"/>
-        <source>Where the fill starts (the bottom, for one that rises), and how far it has come at the highest value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1579"/>
-        <source>Full at Y:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1582"/>
-        <source>Moved in X, lowest:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1583"/>
-        <source>Moved in X, highest:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1584"/>
-        <source>Moved in Y, lowest:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1585"/>
-        <source>Moved in Y, highest:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1588"/>
-        <source>A movement this editor does not change; it is kept as it is.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1591"/>
-        <source>A scale of its own</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1592"/>
-        <source>Off: from the lowest to the highest the measurement usually has, whatever it is. On: between the two values below - give a needle the same ends as the round scale it points at.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1596"/>
-        <source>Lowest value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1597"/>
-        <source>Highest value:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1599"/>
-        <source>Past the end it starts over (a compass)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1606"/>
-        <source>From:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1607"/>
-        <source>The values at the ends of the scale, in the units shown</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1608"/>
-        <source>To:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1611"/>
-        <location filename="../src/gaugeeditor.cpp" line="1824"/>
-        <source>Starts at angle:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1612"/>
-        <location filename="../src/gaugeeditor.cpp" line="1825"/>
-        <source>Degrees clockwise, 0 = straight up</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1613"/>
-        <source>Ends at angle:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1614"/>
-        <source>Radius:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1615"/>
-        <source>Width of the arc:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1616"/>
-        <source>0: no arc, only ticks and numbers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1617"/>
-        <source>Color of the arc:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1621"/>
-        <source>Numbers:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1621"/>
-        <source>above</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1621"/>
-        <source>below</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1622"/>
-        <source>on the left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1622"/>
-        <source>on the right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1624"/>
-        <source>Length shown:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1625"/>
-        <source>Between two numbers:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1626"/>
-        <source>Distance between two large ticks, in the gauge&apos;s units</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1627"/>
-        <source>After the end it starts over (a compass)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1628"/>
-        <source>Values grow the other way</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1629"/>
-        <source>Mark at the value, length:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1630"/>
-        <location filename="../src/gaugeeditor.cpp" line="1640"/>
-        <source>0: none</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1631"/>
-        <source>Mark, width:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1632"/>
-        <source>Color of the mark:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1634"/>
-        <source>A number every:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1635"/>
-        <source>Large ticks, with a number each; 0: none</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1636"/>
-        <source>Large tick, length:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1637"/>
-        <source>Large tick, width:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1638"/>
-        <source>Large ticks:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1639"/>
-        <source>A small tick every:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1641"/>
-        <source>Small tick, length:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1642"/>
-        <source>Small tick, width:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1643"/>
-        <source>Small ticks:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1644"/>
-        <source>Numbers set in by:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1645"/>
-        <source>Size of the numbers:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1687"/>
-        <source>Pick a part in the list or in the picture, or add one with &quot;Add&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1713"/>
-        <source>From X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1714"/>
-        <source>From Y:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1715"/>
-        <source>To X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1716"/>
-        <source>To Y:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1720"/>
-        <source>The point the text is set against, in the gauge&apos;s units</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1720"/>
-        <source>In the gauge&apos;s units, from its top left corner</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1721"/>
-        <source>X:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1722"/>
-        <source>Y:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1725"/>
-        <source>Width:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1726"/>
-        <source>Height:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1731"/>
-        <source>Color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1733"/>
-        <source>Shows:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1734"/>
-        <source>Not drawn where there is no data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1739"/>
-        <source>Says:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1741"/>
-        <source>the value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1741"/>
-        <source>the unit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1742"/>
-        <source>the value and the unit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1743"/>
-        <source>the measurement&apos;s name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1744"/>
-        <source>name, value and unit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1745"/>
-        <source>a number of the scale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1746"/>
-        <source>these words:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1750"/>
-        <source>Words:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1754"/>
-        <source>Height of the letters, in the gauge&apos;s units</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1755"/>
-        <source>Set:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1755"/>
-        <source>to the right of the point</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1755"/>
-        <source>around the point</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1756"/>
-        <source>to the left of the point</source>
+        <location filename="../src/gaugeeditor.cpp" line="1760"/>
+        <source>(no more: remove this movement)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1761"/>
-        <source>Bold</source>
+        <source>turns (a needle)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1762"/>
-        <source>Italic</source>
+        <source>fills round (an arc)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1763"/>
-        <source>CAPITALS</source>
+        <source>fills sideways (a bar)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1764"/>
+        <source>fills upwards (a column)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1766"/>
+        <source>moves by two values (a g-force ball)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1767"/>
-        <source>Written as:</source>
+        <source>plays a picture strip (a beating heart)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1769"/>
-        <source>a number</source>
+        <location filename="../src/gaugeeditor.cpp" line="1844"/>
+        <source>Around X:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1769"/>
-        <source>a whole number, cut off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1770"/>
-        <source>minutes:seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1771"/>
-        <source>degrees, minutes, seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1772"/>
-        <source>the time of day</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1774"/>
-        <source>Decimals:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1775"/>
-        <source>-1: as many as suit the measurement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1776"/>
-        <source>&quot;+&quot; before positive values</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1782"/>
-        <source>The measurement&apos;s own picture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1783"/>
-        <source>Instead of the picture: a heart for the heart rate, a mountain for the elevation and so on</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1784"/>
-        <source>A drawing (.svg) stays sharp at any size and may use the theme&apos;s colors: write @foreground, @background, @accent or @accent2 where a color goes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1791"/>
-        <source>Shape</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1794"/>
-        <source>Kind:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1794"/>
-        <source>rectangle</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1794"/>
-        <source>ellipse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1795"/>
-        <source>arc</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1795"/>
-        <source>pie slice</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1811"/>
-        <source>Filled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1816"/>
-        <location filename="../src/gaugeeditor.cpp" line="1842"/>
-        <source>Width of the line:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1820"/>
-        <location filename="../src/gaugeeditor.cpp" line="1858"/>
-        <source>Corners rounded by:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1826"/>
-        <source>Turns through:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1831"/>
-        <source>Scale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1836"/>
-        <source>In use:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1837"/>
-        <source>Width of the chain:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugeeditor.cpp" line="1843"/>
-        <source>Kept free inside:</source>
+        <location filename="../src/gaugeeditor.cpp" line="1845"/>
+        <source>The point it turns around, in the gauge&apos;s units</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1846"/>
-        <source>On a street map</source>
+        <source>Around Y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1847"/>
+        <source>Angle at the lowest:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1848"/>
+        <source>Degrees clockwise, 0 = straight up. A needle is drawn pointing up and turned by this.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1849"/>
+        <source>Angle at the highest:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1852"/>
+        <source>Empty at X:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1853"/>
-        <source>Strength of the map:</source>
+        <source>Where the fill starts, and how far it has come at the highest value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1854"/>
+        <source>Full at X:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1855"/>
-        <source>Close-up, meters across:</source>
+        <source>Slant of the edge:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1856"/>
-        <source>0: the whole route. Otherwise this much around the rider, the map moving under them.</source>
+        <location filename="../src/gaugeeditor.cpp" line="1858"/>
+        <source>Empty at Y:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1857"/>
-        <source>The way ahead up (close-up)</source>
+        <location filename="../src/gaugeeditor.cpp" line="1859"/>
+        <source>Where the fill starts (the bottom, for one that rises), and how far it has come at the highest value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="1862"/>
-        <source>Seconds before now:</source>
+        <location filename="../src/gaugeeditor.cpp" line="1860"/>
+        <source>Full at Y:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1863"/>
-        <source>Both 0: the whole recording</source>
+        <source>Moved in X, lowest:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1864"/>
-        <source>Seconds after now:</source>
+        <source>Moved in X, highest:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1865"/>
+        <source>Moved in Y, lowest:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1866"/>
-        <source>The parts under it in the list are drawn at the current point, their place counted from it: X 0, Y 0 is the point itself.</source>
+        <source>Moved in Y, highest:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1869"/>
+        <source>Sideways it follows:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1870"/>
+        <source>Up and down it follows:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1871"/>
+        <source>Reaches as far as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1872"/>
+        <source>From where it is drawn, in the gauge&apos;s units, at the largest value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1873"/>
+        <source>Sideways the other way</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1874"/>
+        <source>Up and down the other way</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1875"/>
+        <source>Trail, seconds:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1876"/>
+        <source>The way it went over the last seconds, drawn behind it, fading; 0: none</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1880"/>
+        <source>The picture holds the strip&apos;s pictures side by side (or one above the other); one shows at a time, played faster the higher the value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1884"/>
+        <source>Pictures in the strip:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1889"/>
+        <source>Pictures a second, lowest:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1890"/>
+        <source>Pictures a second, highest:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1894"/>
+        <source>A movement this editor does not change; it is kept as it is.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1897"/>
+        <source>A scale of its own</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1898"/>
+        <source>Off: from the lowest to the highest the measurement usually has, whatever it is. On: between the two values below - give a needle the same ends as the round scale it points at.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1902"/>
+        <source>Lowest value:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1903"/>
+        <source>Highest value:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1907"/>
+        <source>Past the end it starts over (a compass)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1915"/>
+        <source>From:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1916"/>
+        <source>The values at the ends of the scale, in the units shown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1917"/>
+        <source>To:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1920"/>
+        <location filename="../src/gaugeeditor.cpp" line="2239"/>
+        <source>Starts at angle:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1921"/>
+        <location filename="../src/gaugeeditor.cpp" line="2240"/>
+        <source>Degrees clockwise, 0 = straight up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1922"/>
+        <source>Ends at angle:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1923"/>
+        <source>Radius:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1924"/>
+        <source>Width of the arc:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1925"/>
+        <source>0: no arc, only ticks and numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1926"/>
+        <source>Color of the arc:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1930"/>
+        <source>Numbers:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1930"/>
+        <source>above</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1930"/>
+        <source>below</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1931"/>
+        <source>on the left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1931"/>
+        <source>on the right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1933"/>
+        <source>Length shown:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1934"/>
+        <source>Between two numbers:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1935"/>
+        <source>Distance between two large ticks, in the gauge&apos;s units</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1936"/>
+        <source>After the end it starts over (a compass)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1937"/>
+        <source>Values grow the other way</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1938"/>
+        <source>Mark at the value, length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1939"/>
+        <location filename="../src/gaugeeditor.cpp" line="1949"/>
+        <source>0: none</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1940"/>
+        <source>Mark, width:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1941"/>
+        <source>Color of the mark:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1943"/>
+        <source>A number every:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1944"/>
+        <source>Large ticks, with a number each; 0: none</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1945"/>
+        <source>Large tick, length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1946"/>
+        <source>Large tick, width:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1947"/>
+        <source>Large ticks:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1948"/>
+        <source>A small tick every:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1950"/>
+        <source>Small tick, length:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1951"/>
+        <source>Small tick, width:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1952"/>
+        <source>Small ticks:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1953"/>
+        <source>Numbers set in by:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="1954"/>
+        <source>Size of the numbers:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/gaugeeditor.cpp" line="1996"/>
+        <source>%n parts picked</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2002"/>
+        <source>Left edges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2002"/>
+        <source>Centers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2002"/>
+        <source>Right edges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2003"/>
+        <source>Tops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2003"/>
+        <source>Middles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2003"/>
+        <source>Bottoms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2004"/>
+        <source>Spread across</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2004"/>
+        <source>Spread down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2014"/>
+        <source>Lined up with the ones furthest out; spread: the first and the last stay where they are, the others go evenly between them. Dragging one moves them all.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2027"/>
+        <source>Parts added with &quot;Add&quot; while this is picked go here. Their place is counted from the point they are drawn at: X 0, Y 0 is the point itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2029"/>
+        <source>Pick a part in the list or in the picture, or add one with &quot;Add&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2057"/>
+        <source>Point %1, X:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2059"/>
+        <source>Point %1, Y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2062"/>
+        <source>Add a point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2063"/>
+        <source>After the last one, as far on again as the last step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2064"/>
+        <source>Remove the last point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2093"/>
+        <source>The point the text is set against, in the gauge&apos;s units</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2093"/>
+        <source>In the gauge&apos;s units, from its top left corner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2094"/>
+        <source>X:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2095"/>
+        <source>Y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2098"/>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2099"/>
+        <source>Height:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2104"/>
+        <source>Color:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2106"/>
+        <source>Shows:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2107"/>
+        <source>Not drawn where there is no data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2112"/>
+        <source>Says:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2114"/>
+        <source>the value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2114"/>
+        <source>the unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2115"/>
+        <source>the value and the unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2116"/>
+        <source>the measurement&apos;s name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2117"/>
+        <source>name, value and unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2118"/>
+        <source>a number of the scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2119"/>
+        <source>these words:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2123"/>
+        <source>Words:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2127"/>
+        <location filename="../src/gaugeeditor.cpp" line="2262"/>
+        <source>Height of the letters, in the gauge&apos;s units</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2128"/>
+        <source>Set:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2128"/>
+        <source>to the right of the point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2128"/>
+        <source>around the point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2129"/>
+        <source>to the left of the point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2134"/>
+        <location filename="../src/gaugeeditor.cpp" line="2263"/>
+        <source>Bold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2135"/>
+        <location filename="../src/gaugeeditor.cpp" line="2264"/>
+        <source>Italic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2136"/>
+        <source>CAPITALS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2137"/>
+        <source>In a box, wrapped at its width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2145"/>
+        <source>The text inside the frame below, aligned in it and broken into lines where it is too long</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2149"/>
+        <source>Written as:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2151"/>
+        <source>a number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2151"/>
+        <source>a whole number, cut off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2152"/>
+        <source>minutes:seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2153"/>
+        <source>degrees, minutes, seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2154"/>
+        <source>the time of day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2156"/>
+        <location filename="../src/gaugeeditor.cpp" line="2265"/>
+        <source>Decimals:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2157"/>
+        <source>-1: as many as suit the measurement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2158"/>
+        <source>&quot;+&quot; before positive values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2164"/>
+        <source>The measurement&apos;s own picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2165"/>
+        <source>Instead of the picture: a heart for the heart rate, a mountain for the elevation and so on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2166"/>
+        <source>A drawing (.svg) stays sharp at any size and may use the theme&apos;s colors: write @foreground, @background, @accent or @accent2 where a color goes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2173"/>
+        <source>Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2176"/>
+        <source>Kind:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2176"/>
+        <source>rectangle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2176"/>
+        <source>ellipse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2177"/>
+        <source>arc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2177"/>
+        <source>pie slice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2193"/>
+        <source>Filled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2198"/>
+        <source>Closed and filled (a polygon)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2199"/>
+        <source>From the last point back to the first, the inside filled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2200"/>
+        <source>Curved through the points</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2201"/>
+        <source>A smooth curve through every point instead of straight pieces: a wave, a swoosh, a round outline; at least three points</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2208"/>
+        <source>Fades to another color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2219"/>
+        <source>A gradient from the color above, at the start of a line, to this one at its end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2222"/>
+        <source>Fades to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2223"/>
+        <source>Fade from X:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2224"/>
+        <source>Fade from Y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2225"/>
+        <source>Fade to X:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2226"/>
+        <source>Fade to Y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2231"/>
+        <location filename="../src/gaugeeditor.cpp" line="2278"/>
+        <source>Width of the line:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2235"/>
+        <location filename="../src/gaugeeditor.cpp" line="2273"/>
+        <location filename="../src/gaugeeditor.cpp" line="2307"/>
+        <source>Corners rounded by:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2241"/>
+        <source>Turns through:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2246"/>
+        <source>Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2251"/>
+        <source>In use:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2252"/>
+        <source>Width of the chain:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2257"/>
+        <source>Lines:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2258"/>
+        <source>The laps finished last, and the one under way at the bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2259"/>
+        <source>Best lap:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2266"/>
+        <source>Of a second; -1: two</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2271"/>
+        <source>Faster than the best:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2272"/>
+        <source>Gap between sectors:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2279"/>
+        <source>Kept free inside:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2282"/>
+        <source>On a street map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2289"/>
+        <source>Strength of the map:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2292"/>
+        <source>as in the settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2299"/>
+        <source>Map:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2304"/>
+        <source>Close-up, meters across:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2305"/>
+        <source>0: the whole route. Otherwise this much around the rider, the map moving under them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2306"/>
+        <source>The way ahead up (close-up)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2311"/>
+        <source>Seconds before now:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2312"/>
+        <source>Both 0: the whole recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2313"/>
+        <source>Seconds after now:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2316"/>
+        <source>The parts under it in the list are drawn at the current point, their place counted from it: X 0, Y 0 is the point itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2318"/>
+        <source>The parts under its headings in the list are drawn where these say, their place counted from there: X 0, Y 0 is the point itself.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2330"/>
         <source>Movement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2330"/>
+        <source>Movement %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2335"/>
+        <source>Add another movement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2336"/>
+        <source>Applied after the ones above: a needle that turns and slides, an arc that fills and turns with the heading</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GaugeFile</name>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="683"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="718"/>
         <source>This is not a gauge file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="688"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="723"/>
         <source>This is not a Race Track Visualizer gauge file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="692"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="727"/>
         <source>The gauge was saved by a newer version of the program (file version %1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="710"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="745"/>
         <source>The gauge has no size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="724"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="759"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="771"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="806"/>
         <source>Cannot create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="811"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="846"/>
         <source>Cannot write %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="816"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="851"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2510,240 +3255,240 @@ Worked out from the other data</source>
 <context>
     <name>GaugeLibraryPanel</name>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="472"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="508"/>
         <source>Add to video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="474"/>
-        <source>Puts the selected gauge on the video. A double click does the same.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="387"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="799"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="423"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="883"/>
         <source>Import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="364"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="394"/>
         <source>Gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="365"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="395"/>
         <source>Templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="388"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="424"/>
         <source>Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a gauge.xml or project.cdp) and XML data profiles. Choose the folder that holds them, or a folder with Widgets and Templates or with Gauges, Templates and DataProfiles in it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="397"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="433"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="472"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="508"/>
         <source>Apply to video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="473"/>
-        <source>Replaces the gauges on the video with this template. A double click does the same.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="458"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="494"/>
         <source>Deletes the selected template from the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="110"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="140"/>
         <source>Maps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="111"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="141"/>
         <source>Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="112"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="142"/>
         <source>Elevation and grade</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="113"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="143"/>
         <source>Distance and time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="114"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="144"/>
         <source>Heart rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="115"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="145"/>
         <source>Cadence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="116"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="146"/>
         <source>Power and pedaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="117"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="147"/>
         <source>Laps and sectors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="118"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="148"/>
         <source>G-force</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="119"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="149"/>
         <source>Heading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="120"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="150"/>
         <source>Engine and vehicle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="121"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="151"/>
         <source>Other</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="371"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="401"/>
         <source>Find by name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="392"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="428"/>
         <source>Gauge or template files (.rtvgauge, .rtvtemplate)...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="393"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="429"/>
         <source>A folder of gauges, templates or data profiles...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="395"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="431"/>
         <source>Export...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="400"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="436"/>
         <source>New gauge...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="401"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="437"/>
         <source>Opens the gauge editor with an empty gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="403"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="439"/>
         <source>Edit...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="445"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="481"/>
         <source>Saves the selected template, with the gauges it uses, as one file to pass on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="446"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="482"/>
         <source>Saves the selected gauge as one file to pass on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="452"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="488"/>
         <source>Opens a copy of this gauge in the gauge editor: what comes with the program stays as it is</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="453"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="489"/>
         <source>Opens the selected gauge in the gauge editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="456"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="492"/>
         <source>This template comes with the program and cannot be deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="457"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="493"/>
         <source>This gauge comes with the program and cannot be deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="459"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="495"/>
         <source>Deletes the selected gauge from the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="492"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="509"/>
+        <source>Replaces the gauges on the video with this template. A double click, or dragging it onto the video, does the same.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="511"/>
+        <source>Puts the selected gauge on the video. A double click does the same; dragging it onto the video puts it where it is let go.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugelibrarypanel.cpp" line="530"/>
         <source>%1
 Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="557"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="595"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="559"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="597"/>
         <source>Imported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="636"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="674"/>
         <source>%1 copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="654"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="692"/>
         <source>Gauge editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="681"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="719"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="683"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="721"/>
         <source>Remove gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="683"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="721"/>
         <source>Remove template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="707"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="745"/>
         <source>Folder with gauges and templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="718"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="837"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="756"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="921"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="821"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="905"/>
         <source>%n of them have parts that cannot be shown.</source>
         <translation>
             <numerusform>%n of them have parts that cannot be shown.</numerusform>
@@ -2751,7 +3496,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="825"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="909"/>
         <source>%n template(s) imported.</source>
         <translation>
             <numerusform>%n template imported.</numerusform>
@@ -2759,68 +3504,68 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="682"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="720"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="558"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="596"/>
         <source>Built-in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="719"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="757"/>
         <source>There are no gauges (.rtvgauge, .veg, gauge.xml), templates (.rtvtemplate, .vet, project.cdp) or data profiles in that folder.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="730"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="814"/>
         <source>Gauges and templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="731"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="815"/>
         <source>Gauges and templates (*.%1 *.%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="765"/>
-        <location filename="../src/gaugelibrarypanel.cpp" line="785"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="849"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="869"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="771"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="855"/>
         <source>Export template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="771"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="855"/>
         <source>Export gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="772"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="856"/>
         <source>Templates (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="772"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="856"/>
         <source>Gauges (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="785"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="869"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugelibrarypanel.cpp" line="792"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="876"/>
         <source>Importing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="817"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="901"/>
         <source>%n gauge(s) imported.</source>
         <translation>
             <numerusform>%n gauge imported.</numerusform>
@@ -2828,7 +3573,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="829"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="913"/>
         <source>%n data profile(s) imported: CSV files of those loggers can now be opened as data.</source>
         <translation>
             <numerusform>%n data profile imported: CSV files of those loggers can now be opened as data.</numerusform>
@@ -2836,7 +3581,7 @@ Comes with the program; it cannot be deleted.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/gaugelibrarypanel.cpp" line="835"/>
+        <location filename="../src/gaugelibrarypanel.cpp" line="919"/>
         <source>%n file(s) could not be used.</source>
         <translation>
             <numerusform>%n file could not be used.</numerusform>
@@ -2935,27 +3680,32 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>GpmfImporter</name>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="516"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="523"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="490"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="497"/>
         <source>Not a video file this program can read data from.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="497"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="429"/>
+        <source>The camera had no satellite fix while this video was recorded: there are no positions in it, only its G-forces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="504"/>
         <source>The video holds no data of its own. Only GoPro cameras write positions into their videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="527"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="534"/>
         <source>The camera had no satellite fix while this video was recorded: there are no positions in it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="586"/>
+        <location filename="../src/core/telemetry/gpmfimporter.cpp" line="593"/>
         <source>GoPro, %n chapter(s) from %1</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3004,113 +3754,130 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>JoinDialog</name>
     <message>
-        <location filename="../src/joindialog.cpp" line="42"/>
+        <location filename="../src/joindialog.cpp" line="43"/>
         <source>Join videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="47"/>
+        <location filename="../src/joindialog.cpp" line="48"/>
         <source>Joined in this order; drag to change it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="58"/>
+        <location filename="../src/joindialog.cpp" line="59"/>
         <source>Add...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="59"/>
+        <location filename="../src/joindialog.cpp" line="60"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="60"/>
+        <location filename="../src/joindialog.cpp" line="61"/>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="61"/>
+        <location filename="../src/joindialog.cpp" line="62"/>
         <source>Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="70"/>
+        <location filename="../src/joindialog.cpp" line="71"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="72"/>
+        <location filename="../src/joindialog.cpp" line="73"/>
         <source>Choose where the joined video goes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="78"/>
+        <location filename="../src/joindialog.cpp" line="79"/>
         <source>Save as:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="80"/>
-        <source>The pictures and the sound are copied, not encoded again: joining is quick and loses nothing, but the videos must be of the same kind, such as the chapters a camera splits a long recording into.</source>
+        <location filename="../src/joindialog.cpp" line="81"/>
+        <source>Videos of the same kind, such as the chapters a camera splits a long recording into, are copied: joining is quick and loses nothing. Others are encoded again, which takes longer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="96"/>
+        <location filename="../src/joindialog.cpp" line="97"/>
         <source>Join</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="171"/>
+        <location filename="../src/joindialog.cpp" line="172"/>
         <source>Add videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="173"/>
-        <location filename="../src/joindialog.cpp" line="224"/>
+        <location filename="../src/joindialog.cpp" line="174"/>
+        <location filename="../src/joindialog.cpp" line="225"/>
         <source>Videos (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="223"/>
+        <location filename="../src/joindialog.cpp" line="224"/>
         <source>Save joined video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="252"/>
+        <location filename="../src/joindialog.cpp" line="253"/>
         <source>Choose two or more videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="262"/>
+        <location filename="../src/joindialog.cpp" line="263"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="266"/>
+        <location filename="../src/joindialog.cpp" line="267"/>
         <source>%1 exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="272"/>
+        <location filename="../src/joindialog.cpp" line="273"/>
         <source>Reading the videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="293"/>
+        <location filename="../src/joindialog.cpp" line="323"/>
         <source>A temporary file could not be written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="298"/>
+        <location filename="../src/joindialog.cpp" line="328"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="305"/>
+        <location filename="../src/joindialog.cpp" line="336"/>
+        <source>%1
+
+They can be joined by encoding them again. That takes a while; the joined video gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the others scaled into it. Encode them?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="342"/>
+        <source>The camera&apos;s data in the videos does not come along: open it from the videos themselves.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="362"/>
+        <source>Encoding...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/joindialog.cpp" line="387"/>
         <source>ffmpeg could not be started; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="341"/>
+        <location filename="../src/joindialog.cpp" line="406"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3417,324 +4184,329 @@ Comes with the program; it cannot be deleted.</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="443"/>
+        <location filename="../src/mainwindow.cpp" line="583"/>
         <source>Play / pause (Space)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="463"/>
+        <location filename="../src/mainwindow.cpp" line="603"/>
         <source> s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="465"/>
+        <location filename="../src/mainwindow.cpp" line="605"/>
         <source>Time in the data at the first frame of the video.
 Increase it if the gauges are late compared to the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="470"/>
+        <location filename="../src/mainwindow.cpp" line="610"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="471"/>
+        <location filename="../src/mainwindow.cpp" line="611"/>
         <source>Set the offset from the recording time of the video and the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="487"/>
+        <location filename="../src/mainwindow.cpp" line="627"/>
         <source>Data offset:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="501"/>
+        <location filename="../src/mainwindow.cpp" line="641"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="502"/>
+        <location filename="../src/mainwindow.cpp" line="642"/>
         <source>Gauge library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="503"/>
+        <location filename="../src/mainwindow.cpp" line="643"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="504"/>
+        <location filename="../src/mainwindow.cpp" line="644"/>
         <source>Timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="505"/>
+        <location filename="../src/mainwindow.cpp" line="645"/>
         <source>Laps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="517"/>
+        <location filename="../src/mainwindow.cpp" line="657"/>
         <source>Compare laps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="522"/>
+        <location filename="../src/mainwindow.cpp" line="662"/>
         <source>Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="543"/>
+        <location filename="../src/mainwindow.cpp" line="683"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="561"/>
+        <location filename="../src/mainwindow.cpp" line="701"/>
         <source>Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="573"/>
+        <location filename="../src/mainwindow.cpp" line="713"/>
         <source>Remove start/finish line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="578"/>
+        <location filename="../src/mainwindow.cpp" line="718"/>
         <source>Remove sector lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="583"/>
+        <location filename="../src/mainwindow.cpp" line="723"/>
         <source>Change surfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="587"/>
+        <location filename="../src/mainwindow.cpp" line="727"/>
         <source>Clear surfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="618"/>
+        <location filename="../src/mainwindow.cpp" line="758"/>
         <source>Channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="618"/>
+        <location filename="../src/mainwindow.cpp" line="758"/>
         <source>Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="618"/>
+        <location filename="../src/mainwindow.cpp" line="758"/>
         <source>Unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="618"/>
+        <location filename="../src/mainwindow.cpp" line="758"/>
         <source>Min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="618"/>
+        <location filename="../src/mainwindow.cpp" line="758"/>
         <source>Max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="624"/>
+        <location filename="../src/mainwindow.cpp" line="764"/>
         <source>&quot;Now&quot; is the value at the video frame on screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="627"/>
+        <location filename="../src/mainwindow.cpp" line="767"/>
         <source>Recorded; the terrain&apos;s when there is none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="628"/>
+        <location filename="../src/mainwindow.cpp" line="768"/>
         <source>From the terrain model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="629"/>
+        <location filename="../src/mainwindow.cpp" line="769"/>
         <source>Recorded only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="631"/>
+        <location filename="../src/mainwindow.cpp" line="771"/>
         <source>Where the elevation comes from. The terrain model gives the height of the ground under the route (%1); grade, climb and vertical speed follow it. Its pieces are fetched once, like a map&apos;s.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="645"/>
+        <location filename="../src/mainwindow.cpp" line="785"/>
         <source>Elevation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="650"/>
+        <location filename="../src/mainwindow.cpp" line="790"/>
         <source>From weather history</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="651"/>
+        <location filename="../src/mainwindow.cpp" line="791"/>
         <source>By hand:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="652"/>
+        <location filename="../src/mainwindow.cpp" line="792"/>
         <source>Where the wind of this ride comes from. Weather history is switched on in the settings (Weather); a wind entered here by hand is the same all along the ride and kept in the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="657"/>
+        <location filename="../src/mainwindow.cpp" line="797"/>
         <source>The wind&apos;s speed as forecasts give it, 10 m above the ground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="663"/>
+        <location filename="../src/mainwindow.cpp" line="803"/>
         <source>from </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="665"/>
+        <location filename="../src/mainwindow.cpp" line="805"/>
         <source>Where the wind blows from: 0 north, 90 east, 180 south, 270 west</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="690"/>
+        <location filename="../src/mainwindow.cpp" line="830"/>
         <source>Wind:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="730"/>
+        <location filename="../src/mainwindow.cpp" line="870"/>
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="731"/>
+        <location filename="../src/mainwindow.cpp" line="871"/>
         <source>Open &amp;video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="734"/>
+        <location filename="../src/mainwindow.cpp" line="874"/>
         <source>&amp;Recent videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="738"/>
+        <location filename="../src/mainwindow.cpp" line="878"/>
         <source>Open &amp;data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="741"/>
+        <location filename="../src/mainwindow.cpp" line="881"/>
         <source>Recent &amp;data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="745"/>
+        <location filename="../src/mainwindow.cpp" line="885"/>
         <source>Add data from other &amp;files...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="748"/>
+        <location filename="../src/mainwindow.cpp" line="888"/>
         <source>&amp;Join videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="750"/>
+        <location filename="../src/mainwindow.cpp" line="890"/>
         <source>Open &amp;project...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="753"/>
+        <location filename="../src/mainwindow.cpp" line="893"/>
         <source>Recent pro&amp;jects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="757"/>
+        <location filename="../src/mainwindow.cpp" line="897"/>
         <source>&amp;Save project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="760"/>
+        <location filename="../src/mainwindow.cpp" line="900"/>
         <source>Save project &amp;as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="764"/>
+        <location filename="../src/mainwindow.cpp" line="904"/>
         <source>&amp;Export video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="769"/>
+        <location filename="../src/mainwindow.cpp" line="909"/>
         <source>Save the &amp;gauges as a template...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="771"/>
+        <location filename="../src/mainwindow.cpp" line="911"/>
         <source>&amp;Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="777"/>
+        <location filename="../src/mainwindow.cpp" line="917"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="781"/>
+        <location filename="../src/mainwindow.cpp" line="921"/>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="782"/>
+        <location filename="../src/mainwindow.cpp" line="922"/>
         <source>&amp;Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="786"/>
+        <location filename="../src/mainwindow.cpp" line="926"/>
         <source>&amp;Redo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="791"/>
+        <location filename="../src/mainwindow.cpp" line="931"/>
         <source>&amp;View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="802"/>
+        <location filename="../src/mainwindow.cpp" line="942"/>
         <source>&amp;Reset layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="813"/>
+        <location filename="../src/mainwindow.cpp" line="953"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="814"/>
+        <location filename="../src/mainwindow.cpp" line="954"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="816"/>
+        <location filename="../src/mainwindow.cpp" line="955"/>
+        <source>Check for &amp;updates...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="959"/>
         <source>Support &amp;Ukraine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="818"/>
+        <location filename="../src/mainwindow.cpp" line="961"/>
         <source>About &amp;Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="824"/>
-        <location filename="../src/mainwindow.cpp" line="838"/>
+        <location filename="../src/mainwindow.cpp" line="967"/>
+        <location filename="../src/mainwindow.cpp" line="981"/>
         <source>Open video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="825"/>
+        <location filename="../src/mainwindow.cpp" line="968"/>
         <source>Video files (%1);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="839"/>
+        <location filename="../src/mainwindow.cpp" line="982"/>
         <source>%1 is the first of %n parts of one recording. Join them into one video?</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3742,23 +4514,23 @@ Increase it if the gauges are late compared to the picture.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="878"/>
+        <location filename="../src/mainwindow.cpp" line="1021"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="882"/>
+        <location filename="../src/mainwindow.cpp" line="1025"/>
         <source>Clear the list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="895"/>
-        <location filename="../src/mainwindow.cpp" line="1863"/>
+        <location filename="../src/mainwindow.cpp" line="1038"/>
+        <location filename="../src/mainwindow.cpp" line="2172"/>
         <source>Open data</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="932"/>
+        <location filename="../src/mainwindow.cpp" line="1075"/>
         <source>Joined; the data follows the %n break(s) between the recordings.</source>
         <translation>
             <numerusform>Joined; the data follows the break between the recordings.</numerusform>
@@ -3766,24 +4538,24 @@ Increase it if the gauges are late compared to the picture.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="969"/>
+        <location filename="../src/mainwindow.cpp" line="1112"/>
         <source>Loading %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1029"/>
-        <location filename="../src/mainwindow.cpp" line="1048"/>
-        <location filename="../src/mainwindow.cpp" line="1118"/>
+        <location filename="../src/mainwindow.cpp" line="1172"/>
+        <location filename="../src/mainwindow.cpp" line="1191"/>
+        <location filename="../src/mainwindow.cpp" line="1261"/>
         <source>Open project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1030"/>
+        <location filename="../src/mainwindow.cpp" line="1173"/>
         <source>Projects (*.%1);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1119"/>
+        <location filename="../src/mainwindow.cpp" line="1262"/>
         <source>These files of the project were not found:
 %1
 
@@ -3791,34 +4563,34 @@ Open them again from where they are now and save the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1133"/>
-        <location filename="../src/mainwindow.cpp" line="1155"/>
+        <location filename="../src/mainwindow.cpp" line="1276"/>
+        <location filename="../src/mainwindow.cpp" line="1298"/>
         <source>Save project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1137"/>
+        <location filename="../src/mainwindow.cpp" line="1280"/>
         <source>Project saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1156"/>
+        <location filename="../src/mainwindow.cpp" line="1299"/>
         <source>Projects (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1186"/>
-        <location filename="../src/mainwindow.cpp" line="1197"/>
+        <location filename="../src/mainwindow.cpp" line="1329"/>
+        <location filename="../src/mainwindow.cpp" line="1340"/>
         <source>Export video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1187"/>
+        <location filename="../src/mainwindow.cpp" line="1330"/>
         <source>Open the data for this video first: without it there is nothing to draw.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="1194"/>
+        <location filename="../src/mainwindow.cpp" line="1337"/>
         <source>%n piece(s) of the map under the gauges are still being fetched.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3826,424 +4598,617 @@ Open them again from where they are now and save the project.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1195"/>
+        <location filename="../src/mainwindow.cpp" line="1338"/>
         <source>The heights of the terrain are still being fetched.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1196"/>
+        <location filename="../src/mainwindow.cpp" line="1339"/>
         <source>The weather of the ride is still being fetched.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1198"/>
+        <location filename="../src/mainwindow.cpp" line="1341"/>
         <source>%1
 An export started now would be drawn without them. Export anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1243"/>
+        <location filename="../src/mainwindow.cpp" line="1386"/>
         <source>Unsaved changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1244"/>
+        <location filename="../src/mainwindow.cpp" line="1387"/>
         <source>The gauges or the synchronization were changed. Save the project?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1295"/>
+        <location filename="../src/mainwindow.cpp" line="1436"/>
+        <source>Place the gauges for the video&apos;s shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1472"/>
         <source>Add gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1309"/>
+        <location filename="../src/mainwindow.cpp" line="1487"/>
         <source>Apply template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1316"/>
-        <location filename="../src/mainwindow.cpp" line="1335"/>
-        <location filename="../src/mainwindow.cpp" line="1359"/>
-        <location filename="../src/mainwindow.cpp" line="1372"/>
+        <location filename="../src/mainwindow.cpp" line="1494"/>
+        <location filename="../src/mainwindow.cpp" line="1513"/>
+        <location filename="../src/mainwindow.cpp" line="1537"/>
+        <location filename="../src/mainwindow.cpp" line="1550"/>
         <source>Save as template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1316"/>
+        <location filename="../src/mainwindow.cpp" line="1494"/>
         <source>There are no gauges on the video to save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1348"/>
+        <location filename="../src/mainwindow.cpp" line="1526"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1349"/>
+        <location filename="../src/mainwindow.cpp" line="1527"/>
         <source>Category:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1350"/>
+        <location filename="../src/mainwindow.cpp" line="1528"/>
         <source>The gauges on the video, where they are and their colors.
 It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1359"/>
+        <location filename="../src/mainwindow.cpp" line="1537"/>
         <source>There is a template &quot;%1&quot; already. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1376"/>
+        <location filename="../src/mainwindow.cpp" line="1554"/>
         <source>Template &quot;%1&quot; saved to the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1388"/>
-        <location filename="../src/mainwindow.cpp" line="1608"/>
+        <location filename="../src/mainwindow.cpp" line="1566"/>
+        <location filename="../src/mainwindow.cpp" line="1839"/>
         <source>Remove gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1401"/>
+        <location filename="../src/mainwindow.cpp" line="1581"/>
         <source>Move gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1417"/>
-        <location filename="../src/mainwindow.cpp" line="1438"/>
+        <location filename="../src/mainwindow.cpp" line="1581"/>
+        <source>Change a gauge&apos;s shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1597"/>
+        <location filename="../src/mainwindow.cpp" line="1618"/>
         <source>Change what a gauge shows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1450"/>
+        <location filename="../src/mainwindow.cpp" line="1630"/>
         <source>Change a gauge&apos;s scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1461"/>
+        <location filename="../src/mainwindow.cpp" line="1641"/>
         <source>Show the street map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1461"/>
+        <location filename="../src/mainwindow.cpp" line="1641"/>
         <source>Hide the street map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1472"/>
+        <location filename="../src/mainwindow.cpp" line="1652"/>
         <source>Show the route close up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1472"/>
+        <location filename="../src/mainwindow.cpp" line="1652"/>
         <source>Show the whole route</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1494"/>
+        <location filename="../src/mainwindow.cpp" line="1674"/>
         <source>Show</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1509"/>
+        <location filename="../src/mainwindow.cpp" line="1689"/>
         <source>Street map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1517"/>
+        <location filename="../src/mainwindow.cpp" line="1697"/>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1721"/>
+        <source>Choose a gauge&apos;s map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1730"/>
         <source>Close-up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1521"/>
+        <location filename="../src/mainwindow.cpp" line="1734"/>
         <source>Off: the whole route</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1521"/>
+        <location filename="../src/mainwindow.cpp" line="1734"/>
         <source>300 m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1521"/>
+        <location filename="../src/mainwindow.cpp" line="1734"/>
         <source>600 m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1522"/>
+        <location filename="../src/mainwindow.cpp" line="1735"/>
         <source>1 km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1522"/>
+        <location filename="../src/mainwindow.cpp" line="1735"/>
         <source>2 km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1522"/>
+        <location filename="../src/mainwindow.cpp" line="1735"/>
         <source>5 km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1536"/>
+        <location filename="../src/mainwindow.cpp" line="1749"/>
         <source>The way ahead up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1537"/>
+        <location filename="../src/mainwindow.cpp" line="1750"/>
         <source>Turns the close-up so that the direction of travel points up; north is up otherwise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1547"/>
+        <location filename="../src/mainwindow.cpp" line="1760"/>
         <source>Turn the map to the way ahead</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1547"/>
+        <location filename="../src/mainwindow.cpp" line="1760"/>
         <source>Turn the map north up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1552"/>
+        <location filename="../src/mainwindow.cpp" line="1765"/>
         <source>Units</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1555"/>
+        <location filename="../src/mainwindow.cpp" line="1699"/>
+        <location filename="../src/mainwindow.cpp" line="1768"/>
         <source>As in the settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1555"/>
+        <location filename="../src/mainwindow.cpp" line="294"/>
+        <source>Version %1 is available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="296"/>
+        <source>Update to version %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="308"/>
+        <location filename="../src/mainwindow.cpp" line="317"/>
+        <location filename="../src/mainwindow.cpp" line="2844"/>
+        <source>Check for updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="309"/>
+        <source>This is the latest version, %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="317"/>
+        <source>Could not find out about newer versions: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="322"/>
+        <source>What is new, and how to get it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1768"/>
         <source>Metric (km/h, m, °C)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1556"/>
+        <location filename="../src/mainwindow.cpp" line="1769"/>
         <source>Imperial (mph, ft, °F)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1570"/>
+        <location filename="../src/mainwindow.cpp" line="1783"/>
         <source>Change a gauge&apos;s units</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1575"/>
+        <location filename="../src/mainwindow.cpp" line="1788"/>
+        <source>Keep the gauge&apos;s shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1791"/>
+        <source>Off: handles on the right and bottom edges change only the width or the height. Round parts become oval.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1802"/>
+        <source>Keep a gauge&apos;s shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1802"/>
+        <source>Free a gauge&apos;s shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1806"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1586"/>
+        <location filename="../src/mainwindow.cpp" line="1817"/>
         <source>Text and numbers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1586"/>
+        <location filename="../src/mainwindow.cpp" line="1817"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1587"/>
+        <location filename="../src/mainwindow.cpp" line="1818"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1587"/>
+        <location filename="../src/mainwindow.cpp" line="1818"/>
         <source>Plates behind the gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1589"/>
+        <location filename="../src/mainwindow.cpp" line="1820"/>
         <source>Accent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1601"/>
+        <location filename="../src/mainwindow.cpp" line="1832"/>
         <source>The measurement the selected gauge shows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1622"/>
+        <location filename="../src/mainwindow.cpp" line="1853"/>
         <source>From the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1623"/>
+        <location filename="../src/mainwindow.cpp" line="1854"/>
         <source>Where the gauge&apos;s scale ends, in its units. From the data: a round number above the highest value of the recording.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1629"/>
+        <location filename="../src/mainwindow.cpp" line="1860"/>
         <source>Scale up to:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1685"/>
+        <location filename="../src/mainwindow.cpp" line="1875"/>
+        <source>The letters and numbers of the selected gauge, larger or smaller than it was made with</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1878"/>
+        <source>Change a gauge&apos;s text size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1885"/>
+        <source>How much of the selected gauge shows over the video; 100 %: all of it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1888"/>
+        <source>Change a gauge&apos;s opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1890"/>
+        <source>Own colors and font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1891"/>
+        <source>On: the colors and the font below are this gauge&apos;s alone. Off: it looks like all the others.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1896"/>
+        <source>Give a gauge its own look</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1896"/>
+        <source>Give a gauge the common look</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1902"/>
+        <source>Text size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1903"/>
+        <source>Opacity:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1951"/>
         <source>Default</source>
         <comment>font weight</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1712"/>
+        <location filename="../src/mainwindow.cpp" line="1979"/>
         <source>Type to find a font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1748"/>
+        <location filename="../src/mainwindow.cpp" line="2043"/>
         <source>Change gauge colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1803"/>
+        <location filename="../src/mainwindow.cpp" line="2098"/>
         <source>What the part of the gauge made for %1 shows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1950"/>
-        <location filename="../src/mainwindow.cpp" line="2010"/>
+        <location filename="../src/mainwindow.cpp" line="2127"/>
+        <source>This gauge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2128"/>
+        <source>Colors and font of the selected gauge alone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2259"/>
+        <location filename="../src/mainwindow.cpp" line="2319"/>
         <source>Video: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2545"/>
+        <location filename="../src/mainwindow.cpp" line="2845"/>
+        <source>This copy was not built for a release (it is a development build or a distribution&apos;s package), so it cannot tell how new it is. The releases are &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2864"/>
+        <source>Version %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2870"/>
+        <source>Version %1 of %2 is out, made on %3. This one is %4, of %5.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2878"/>
+        <source>No notes came with it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2884"/>
+        <source>Update now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2893"/>
+        <source>Open the release page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2898"/>
+        <source>Skip this version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2899"/>
+        <source>Later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2930"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2930"/>
+        <source>Version %1 is in place. Restart now to use it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2933"/>
+        <source>Version %1 starts the next time the program does.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="2947"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;img src=&quot;:/images/icons/flag-ukraine.svg&quot; width=&quot;24&quot; height=&quot;16&quot;&gt; &lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1105"/>
-        <location filename="../src/mainwindow.cpp" line="1961"/>
+        <location filename="../src/mainwindow.cpp" line="1248"/>
+        <location filename="../src/mainwindow.cpp" line="2270"/>
         <source>Set by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="329"/>
+        <location filename="../src/mainwindow.cpp" line="372"/>
         <source>Music: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1664"/>
+        <location filename="../src/mainwindow.cpp" line="556"/>
+        <source>Not opened, not something this program reads: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="1930"/>
         <source>%1 (comes with the program)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1686"/>
+        <location filename="../src/mainwindow.cpp" line="1952"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1687"/>
+        <location filename="../src/mainwindow.cpp" line="1953"/>
         <source>Regular</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1688"/>
+        <location filename="../src/mainwindow.cpp" line="1954"/>
         <source>Medium</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1689"/>
+        <location filename="../src/mainwindow.cpp" line="1955"/>
         <source>Semibold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1690"/>
+        <location filename="../src/mainwindow.cpp" line="1956"/>
         <source>Bold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1693"/>
+        <location filename="../src/mainwindow.cpp" line="1959"/>
         <source>Imported gauges often name a font (Arial...); with this they use the one chosen here too</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1702"/>
+        <location filename="../src/mainwindow.cpp" line="1965"/>
         <source>Change gauge font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1731"/>
+        <location filename="../src/mainwindow.cpp" line="1998"/>
         <source>Font:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1732"/>
+        <location filename="../src/mainwindow.cpp" line="1999"/>
         <source>Weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1973"/>
+        <location filename="../src/mainwindow.cpp" line="2282"/>
         <source>The data comes from this video: nothing to synchronize.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1986"/>
+        <location filename="../src/mainwindow.cpp" line="2295"/>
         <source>Not synchronized: %1 Set the offset by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2010"/>
-        <location filename="../src/mainwindow.cpp" line="2014"/>
+        <location filename="../src/mainwindow.cpp" line="2319"/>
+        <location filename="../src/mainwindow.cpp" line="2323"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2014"/>
-        <location filename="../src/mainwindow.cpp" line="2018"/>
+        <location filename="../src/mainwindow.cpp" line="2323"/>
+        <location filename="../src/mainwindow.cpp" line="2327"/>
         <source>Data: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2021"/>
+        <location filename="../src/mainwindow.cpp" line="2330"/>
         <source>  and %1, shifted by %2 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2027"/>
+        <location filename="../src/mainwindow.cpp" line="2336"/>
         <source>Start: %1 UTC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2029"/>
+        <location filename="../src/mainwindow.cpp" line="2338"/>
         <source>Duration: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2030"/>
+        <location filename="../src/mainwindow.cpp" line="2339"/>
         <source>Laps: %1, pauses: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2033"/>
+        <location filename="../src/mainwindow.cpp" line="2342"/>
         <source>Fetching the heights of the terrain...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2037"/>
+        <location filename="../src/mainwindow.cpp" line="2346"/>
         <source>Fetching the weather of the ride...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2041"/>
+        <location filename="../src/mainwindow.cpp" line="2350"/>
         <source>Weather: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2046"/>
+        <location filename="../src/mainwindow.cpp" line="2355"/>
         <source>Warnings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2072"/>
+        <location filename="../src/mainwindow.cpp" line="2381"/>
         <source>Not recorded: worked out from the other measurements</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="2065"/>
+        <location filename="../src/mainwindow.cpp" line="2374"/>
         <source>%1: %n samples</source>
         <translation>
             <numerusform>%1: %n samples</numerusform>
@@ -4251,98 +5216,99 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2132"/>
+        <location filename="../src/mainwindow.cpp" line="2441"/>
         <source>Click on the route to place the start/finish line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2125"/>
+        <location filename="../src/mainwindow.cpp" line="2434"/>
         <source>The direction of travel is not known there.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1589"/>
+        <location filename="../src/mainwindow.cpp" line="1820"/>
         <source>Needles, bars and highlights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1591"/>
+        <location filename="../src/mainwindow.cpp" line="1822"/>
         <source>2nd accent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1591"/>
+        <location filename="../src/mainwindow.cpp" line="1822"/>
         <source>Scales, units and labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1633"/>
+        <location filename="../src/mainwindow.cpp" line="1864"/>
         <source>Gauge data:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1639"/>
+        <location filename="../src/mainwindow.cpp" line="1906"/>
+        <location filename="../src/mainwindow.cpp" line="2127"/>
         <source>All gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1640"/>
+        <location filename="../src/mainwindow.cpp" line="2129"/>
         <source>Colors and font of every gauge on the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1662"/>
-        <location filename="../src/mainwindow.cpp" line="1681"/>
+        <location filename="../src/mainwindow.cpp" line="1928"/>
+        <location filename="../src/mainwindow.cpp" line="1947"/>
         <source>The font of the gauges&apos; texts; Default: as each gauge is designed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1663"/>
+        <location filename="../src/mainwindow.cpp" line="1929"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1691"/>
+        <location filename="../src/mainwindow.cpp" line="1957"/>
         <source>One weight for every text; Default keeps each gauge&apos;s bold values and lighter labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1692"/>
+        <location filename="../src/mainwindow.cpp" line="1958"/>
         <source>Override own fonts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2135"/>
+        <location filename="../src/mainwindow.cpp" line="2444"/>
         <source>Place start/finish line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2141"/>
+        <location filename="../src/mainwindow.cpp" line="2450"/>
         <source>Click on the route to place the sector line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2144"/>
+        <location filename="../src/mainwindow.cpp" line="2453"/>
         <source>Add sector line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2190"/>
+        <location filename="../src/mainwindow.cpp" line="2499"/>
         <source>Click on the route to mark a surface.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2204"/>
+        <location filename="../src/mainwindow.cpp" line="2513"/>
         <source>Mark surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2388"/>
+        <location filename="../src/mainwindow.cpp" line="2697"/>
         <source>Change the data sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2544"/>
+        <location filename="../src/mainwindow.cpp" line="2946"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4350,27 +5316,27 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="98"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="102"/>
         <source>The file has no video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="113"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="117"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="128"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="132"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="137"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="141"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="146"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="150"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4618,28 +5584,36 @@ It appears among the templates in the library.</source>
 <context>
     <name>ProjectFile</name>
     <message>
-        <location filename="../src/core/project/project.cpp" line="217"/>
+        <location filename="../src/core/project/project.cpp" line="221"/>
         <source>This is not a project file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="222"/>
+        <location filename="../src/core/project/project.cpp" line="226"/>
         <source>This is not a Race Track Visualizer project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="226"/>
+        <location filename="../src/core/project/project.cpp" line="230"/>
         <source>The project was saved by a newer version of the program (file version %1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="375"/>
+        <location filename="../src/core/project/project.cpp" line="380"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/project/project.cpp" line="389"/>
+        <location filename="../src/core/project/project.cpp" line="394"/>
         <source>Cannot open %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ReleaseCheck</name>
+    <message>
+        <location filename="../src/core/update/releasecheck.cpp" line="139"/>
+        <source>The answer about the latest release could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4647,7 +5621,7 @@ It appears among the templates in the library.</source>
     <name>SettingsDialog</name>
     <message>
         <location filename="../src/settingsdialog.cpp" line="63"/>
-        <location filename="../src/settingsdialog.cpp" line="892"/>
+        <location filename="../src/settingsdialog.cpp" line="898"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4759,581 +5733,591 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="190"/>
-        <source>Decode video on the graphics card when possible</source>
+        <location filename="../src/settingsdialog.cpp" line="183"/>
+        <source>Look for a newer version once a day</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="191"/>
-        <source>Uses far less processor time. Turn it off if the picture is wrong or missing.</source>
+        <location filename="../src/settingsdialog.cpp" line="184"/>
+        <source>Asks the project&apos;s page on GitHub, quietly; a newer version is shown in the status bar, nothing pops up. Help &gt; Check for updates asks at once.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="194"/>
+        <source>Decode video on the graphics card when possible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="195"/>
+        <source>Uses far less processor time. Turn it off if the picture is wrong or missing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="198"/>
         <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="199"/>
+        <location filename="../src/settingsdialog.cpp" line="203"/>
         <source>Which decoder is tried first. The others are still used if it is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="205"/>
+        <location filename="../src/settingsdialog.cpp" line="209"/>
         <source>Preferred decoder:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="210"/>
+        <location filename="../src/settingsdialog.cpp" line="214"/>
         <source>Decoding changes after a restart.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="213"/>
+        <location filename="../src/settingsdialog.cpp" line="217"/>
         <source>These settings are overridden now: the environment variable QT_FFMPEG_DECODING_HW_DEVICE_TYPES is set.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="224"/>
+        <location filename="../src/settingsdialog.cpp" line="228"/>
         <source>Kilometers per hour (km/h)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="225"/>
+        <location filename="../src/settingsdialog.cpp" line="229"/>
         <source>Miles per hour (mph)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="228"/>
+        <location filename="../src/settingsdialog.cpp" line="232"/>
         <source>Metric (m, km)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="229"/>
+        <location filename="../src/settingsdialog.cpp" line="233"/>
         <source>Imperial (ft, mi)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="232"/>
+        <location filename="../src/settingsdialog.cpp" line="236"/>
         <source>Celsius (°C)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="233"/>
+        <location filename="../src/settingsdialog.cpp" line="237"/>
         <source>Fahrenheit (°F)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="236"/>
+        <location filename="../src/settingsdialog.cpp" line="240"/>
         <source>Speed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="237"/>
+        <location filename="../src/settingsdialog.cpp" line="241"/>
         <source>Distance and elevation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="238"/>
+        <location filename="../src/settingsdialog.cpp" line="242"/>
         <source>Temperature:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="239"/>
+        <location filename="../src/settingsdialog.cpp" line="243"/>
         <source>Used in the data tables and by the built-in gauges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="248"/>
+        <location filename="../src/settingsdialog.cpp" line="252"/>
         <source>Found automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="250"/>
-        <location filename="../src/settingsdialog.cpp" line="272"/>
+        <location filename="../src/settingsdialog.cpp" line="254"/>
+        <location filename="../src/settingsdialog.cpp" line="276"/>
         <source>Browse...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="253"/>
+        <location filename="../src/settingsdialog.cpp" line="257"/>
         <source>Locate ffmpeg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="260"/>
+        <location filename="../src/settingsdialog.cpp" line="264"/>
         <source>Check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="270"/>
+        <location filename="../src/settingsdialog.cpp" line="274"/>
         <source>Next to the source video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="275"/>
+        <location filename="../src/settingsdialog.cpp" line="279"/>
         <source>Folder for exported videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="286"/>
+        <location filename="../src/settingsdialog.cpp" line="290"/>
         <source>ffmpeg program:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="288"/>
+        <location filename="../src/settingsdialog.cpp" line="292"/>
         <source>Save videos to:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="289"/>
+        <location filename="../src/settingsdialog.cpp" line="293"/>
         <source>Encoder, quality and size are chosen in the export window and remembered from the last export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="296"/>
+        <location filename="../src/settingsdialog.cpp" line="300"/>
         <source>Download street maps for gauges that show one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="300"/>
+        <location filename="../src/settingsdialog.cpp" line="304"/>
         <source>%1 (needs a key)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="303"/>
+        <location filename="../src/settingsdialog.cpp" line="307"/>
         <source>Own server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="312"/>
+        <location filename="../src/settingsdialog.cpp" line="316"/>
         <source>Show the map&apos;s credit on the gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="317"/>
+        <location filename="../src/settingsdialog.cpp" line="321"/>
         <source>The map pieces around a route are fetched once and kept on this computer; after that the gauge and the export work without a connection. The server learns which area the route is in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="320"/>
+        <location filename="../src/settingsdialog.cpp" line="324"/>
         <source>Map:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="321"/>
-        <location filename="../src/settingsdialog.cpp" line="645"/>
+        <location filename="../src/settingsdialog.cpp" line="325"/>
+        <location filename="../src/settingsdialog.cpp" line="649"/>
         <source>Key:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="322"/>
+        <location filename="../src/settingsdialog.cpp" line="326"/>
         <source>Tile server:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="323"/>
+        <location filename="../src/settingsdialog.cpp" line="327"/>
         <source>An address with {z}, {x} and {y} in it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="324"/>
+        <location filename="../src/settingsdialog.cpp" line="328"/>
         <source>Its credit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="326"/>
+        <location filename="../src/settingsdialog.cpp" line="330"/>
         <source>Deletes the map pieces and terrain heights kept on this computer. They are fetched again when a gauge needs them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="336"/>
+        <location filename="../src/settingsdialog.cpp" line="340"/>
         <source>The makers of these maps ask to be named wherever the map is shown. Switch the credit off only when the video names them elsewhere, in its end credits or its description.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="351"/>
+        <location filename="../src/settingsdialog.cpp" line="355"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Power page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="354"/>
+        <location filename="../src/settingsdialog.cpp" line="358"/>
         <source>700x25, 29x2.25, 26x1.95, 40-622...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="355"/>
+        <location filename="../src/settingsdialog.cpp" line="359"/>
         <source>The size printed on the tire: it gives the wheel&apos;s circumference, and on the Power page it picks road, gravel or mountain bike tires by its width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="361"/>
+        <location filename="../src/settingsdialog.cpp" line="365"/>
         <source> mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="362"/>
+        <location filename="../src/settingsdialog.cpp" line="366"/>
         <source>from the tire size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="363"/>
+        <location filename="../src/settingsdialog.cpp" line="367"/>
         <source>How far the bike goes in one turn of the wheel. Measured by rolling it once along the ground with the rider on, it is more exact than from the tire size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="369"/>
+        <location filename="../src/settingsdialog.cpp" line="373"/>
         <source>From the tire size: %1 mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="371"/>
+        <location filename="../src/settingsdialog.cpp" line="375"/>
         <source>Without a tire size: %1 mm, a usual road wheel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="372"/>
+        <location filename="../src/settingsdialog.cpp" line="376"/>
         <source>This tire size cannot be read; a usual road wheel is taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="382"/>
+        <location filename="../src/settingsdialog.cpp" line="386"/>
         <source>Usual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="397"/>
+        <location filename="../src/settingsdialog.cpp" line="401"/>
         <source>teeth of each ring: 34 or 50, 34</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="398"/>
+        <location filename="../src/settingsdialog.cpp" line="402"/>
         <source>teeth of each sprocket: 11, 13, 15, ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="402"/>
-        <location filename="../src/settingsdialog.cpp" line="521"/>
+        <location filename="../src/settingsdialog.cpp" line="406"/>
+        <location filename="../src/settingsdialog.cpp" line="525"/>
         <source>Tire size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="403"/>
+        <location filename="../src/settingsdialog.cpp" line="407"/>
         <source>Wheel circumference:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="405"/>
+        <location filename="../src/settingsdialog.cpp" line="409"/>
         <source>Chainrings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="406"/>
+        <location filename="../src/settingsdialog.cpp" line="410"/>
         <source>Sprockets:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="415"/>
+        <location filename="../src/settingsdialog.cpp" line="419"/>
         <source>Estimate the power of rides recorded without a power meter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="350"/>
-        <location filename="../src/settingsdialog.cpp" line="426"/>
-        <location filename="../src/settingsdialog.cpp" line="428"/>
+        <location filename="../src/settingsdialog.cpp" line="354"/>
+        <location filename="../src/settingsdialog.cpp" line="430"/>
+        <location filename="../src/settingsdialog.cpp" line="432"/>
         <source> kg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="407"/>
+        <location filename="../src/settingsdialog.cpp" line="411"/>
         <source>Fill in your chainrings and sprockets, and the gear is estimated from speed and cadence. Gears recorded by electronic shifting are used as they are.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="427"/>
+        <location filename="../src/settingsdialog.cpp" line="431"/>
         <source> cm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="433"/>
+        <location filename="../src/settingsdialog.cpp" line="437"/>
         <source>The size printed on the tire picks road, gravel or mountain bike tires by its width. The same as on the Bike page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="457"/>
+        <location filename="../src/settingsdialog.cpp" line="461"/>
         <source>Road, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="458"/>
+        <location filename="../src/settingsdialog.cpp" line="462"/>
         <source>Road, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="459"/>
+        <location filename="../src/settingsdialog.cpp" line="463"/>
         <source>Road, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="460"/>
+        <location filename="../src/settingsdialog.cpp" line="464"/>
         <source>Gravel, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="461"/>
+        <location filename="../src/settingsdialog.cpp" line="465"/>
         <source>Gravel, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="462"/>
+        <location filename="../src/settingsdialog.cpp" line="466"/>
         <source>Gravel, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="463"/>
+        <location filename="../src/settingsdialog.cpp" line="467"/>
         <source>Mountain bike, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="464"/>
+        <location filename="../src/settingsdialog.cpp" line="468"/>
         <source>Mountain bike, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="465"/>
+        <location filename="../src/settingsdialog.cpp" line="469"/>
         <source>Mountain bike, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="466"/>
-        <location filename="../src/settingsdialog.cpp" line="498"/>
+        <location filename="../src/settingsdialog.cpp" line="470"/>
+        <location filename="../src/settingsdialog.cpp" line="502"/>
         <source>My own value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="467"/>
+        <location filename="../src/settingsdialog.cpp" line="471"/>
         <source>Fast: racing tires, pumped hard. Slow: thick, puncture-proof or knobby ones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="493"/>
+        <location filename="../src/settingsdialog.cpp" line="497"/>
         <source>Road bike, hands on the tops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="494"/>
+        <location filename="../src/settingsdialog.cpp" line="498"/>
         <source>Road bike, hands on the hoods</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="495"/>
+        <location filename="../src/settingsdialog.cpp" line="499"/>
         <source>Road bike, in the drops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="496"/>
+        <location filename="../src/settingsdialog.cpp" line="500"/>
         <source>On aero bars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="497"/>
+        <location filename="../src/settingsdialog.cpp" line="501"/>
         <source>Upright: mountain or city bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="499"/>
+        <location filename="../src/settingsdialog.cpp" line="503"/>
         <source> m²</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="511"/>
-        <location filename="../src/settingsdialog.cpp" line="611"/>
+        <location filename="../src/settingsdialog.cpp" line="515"/>
+        <location filename="../src/settingsdialog.cpp" line="615"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="527"/>
+        <location filename="../src/settingsdialog.cpp" line="531"/>
         <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power (est.)&quot;, to compare the two. Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a tailwind high.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="538"/>
+        <location filename="../src/settingsdialog.cpp" line="542"/>
         <source>Surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="546"/>
+        <location filename="../src/settingsdialog.cpp" line="550"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="551"/>
+        <location filename="../src/settingsdialog.cpp" line="555"/>
         <source>New surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="556"/>
+        <location filename="../src/settingsdialog.cpp" line="560"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="564"/>
+        <location filename="../src/settingsdialog.cpp" line="568"/>
         <source>Restore the usual ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="575"/>
+        <location filename="../src/settingsdialog.cpp" line="579"/>
         <source>What a stretch of a ride can be marked as in the Laps panel (&quot;Mark surface&quot;). The number is how much harder the tires roll there than on typical asphalt: the power estimate multiplies their rolling resistance by it. Stretches marked already keep the number they were marked with.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="620"/>
+        <location filename="../src/settingsdialog.cpp" line="624"/>
         <source>%1 (with a key of your own)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="621"/>
+        <location filename="../src/settingsdialog.cpp" line="625"/>
         <source>%1 (no key needed)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="624"/>
+        <location filename="../src/settingsdialog.cpp" line="628"/>
         <source>from the service&apos;s website, after signing up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="644"/>
+        <location filename="../src/settingsdialog.cpp" line="648"/>
         <source>Service:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="648"/>
+        <location filename="../src/settingsdialog.cpp" line="652"/>
         <source>The wind&apos;s speed and direction, the wind against the rider and the air&apos;s density are then measurements of the ride like any other: for gauges, for the data viewer, and counted in by the power estimate. Kept on disk: a ride asked about once needs no connection again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="607"/>
+        <location filename="../src/settingsdialog.cpp" line="611"/>
         <source>Asks a weather service for the wind, the temperature and the pressure at places along the ride, hour by hour. Sent to it: those places and the date.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="429"/>
+        <location filename="../src/settingsdialog.cpp" line="433"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Bike page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="609"/>
+        <location filename="../src/settingsdialog.cpp" line="613"/>
         <source> km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="610"/>
+        <location filename="../src/settingsdialog.cpp" line="614"/>
         <source>The weather services know places 10-25 km apart: closer than that brings little</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="612"/>
+        <location filename="../src/settingsdialog.cpp" line="616"/>
         <source>The wind is measured 10 m above the ground. Near it about 60 % is left in the open, less between houses and trees.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="518"/>
+        <location filename="../src/settingsdialog.cpp" line="522"/>
         <source>Rider&apos;s weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="512"/>
+        <location filename="../src/settingsdialog.cpp" line="516"/>
         <source>What the chain and the bearings take of the power that drives the wheel: 2-3 % when clean, more when worn or dirty. Turning the cranks costs a few watts more even when the wheel needs nothing, as on a descent.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="519"/>
+        <location filename="../src/settingsdialog.cpp" line="523"/>
         <source>Rider&apos;s height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="401"/>
-        <location filename="../src/settingsdialog.cpp" line="520"/>
+        <location filename="../src/settingsdialog.cpp" line="405"/>
+        <location filename="../src/settingsdialog.cpp" line="524"/>
         <source>Bike&apos;s weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="522"/>
+        <location filename="../src/settingsdialog.cpp" line="526"/>
         <source>Tires:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="523"/>
+        <location filename="../src/settingsdialog.cpp" line="527"/>
         <source>Rolling resistance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="524"/>
+        <location filename="../src/settingsdialog.cpp" line="528"/>
         <source>Riding position:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="525"/>
+        <location filename="../src/settingsdialog.cpp" line="529"/>
         <source>Drag area (CdA):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="526"/>
+        <location filename="../src/settingsdialog.cpp" line="530"/>
         <source>Drivetrain loss:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="538"/>
+        <location filename="../src/settingsdialog.cpp" line="542"/>
         <source>Rolling resistance ×</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="606"/>
+        <location filename="../src/settingsdialog.cpp" line="610"/>
         <source>Fetch the wind and the air of the day of each ride from weather history</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="646"/>
+        <location filename="../src/settingsdialog.cpp" line="650"/>
         <source>A place every:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="647"/>
+        <location filename="../src/settingsdialog.cpp" line="651"/>
         <source>Wind reaching the rider:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="652"/>
+        <location filename="../src/settingsdialog.cpp" line="656"/>
         <source>Deletes the weather of rides kept on this computer. It is fetched again when a ride asks for it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="685"/>
+        <location filename="../src/settingsdialog.cpp" line="689"/>
         <source>Delete the stored weather (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="692"/>
+        <location filename="../src/settingsdialog.cpp" line="696"/>
         <source>Delete the stored maps (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="714"/>
+        <location filename="../src/settingsdialog.cpp" line="718"/>
         <source>Not found, or it cannot be run. Videos cannot be exported without it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="757"/>
-        <location filename="../src/settingsdialog.cpp" line="760"/>
+        <location filename="../src/settingsdialog.cpp" line="762"/>
+        <location filename="../src/settingsdialog.cpp" line="765"/>
         <source> lb</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="765"/>
+        <location filename="../src/settingsdialog.cpp" line="770"/>
         <source> in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="893"/>
+        <location filename="../src/settingsdialog.cpp" line="899"/>
         <source>Language and decoding changes take effect the next time the program starts.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5451,27 +6435,27 @@ It appears among the templates in the library.</source>
 <context>
     <name>TemplateFile</name>
     <message>
-        <location filename="../src/core/overlay/gaugetemplate.cpp" line="155"/>
+        <location filename="../src/core/overlay/gaugetemplate.cpp" line="173"/>
         <source>This is not a template file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/gaugetemplate.cpp" line="160"/>
+        <location filename="../src/core/overlay/gaugetemplate.cpp" line="178"/>
         <source>This is not a Race Track Visualizer template file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/gaugetemplate.cpp" line="164"/>
+        <location filename="../src/core/overlay/gaugetemplate.cpp" line="182"/>
         <source>The template was saved by a newer version of the program (file version %1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/gaugetemplate.cpp" line="216"/>
+        <location filename="../src/core/overlay/gaugetemplate.cpp" line="240"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/overlay/gaugetemplate.cpp" line="230"/>
+        <location filename="../src/core/overlay/gaugetemplate.cpp" line="254"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5643,6 +6627,49 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
 </context>
 <context>
+    <name>Updater</name>
+    <message>
+        <location filename="../src/updater.cpp" line="80"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="97"/>
+        <source>%1 cannot be changed here. Download the new version from the release page instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="111"/>
+        <source>Could not write %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="121"/>
+        <source>Downloading %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="122"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="152"/>
+        <source>The download failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="159"/>
+        <source>The downloaded file is not the one released (its checksum differs), so it was thrown away. Try again later, or take it from the release page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/updater.cpp" line="173"/>
+        <source>Could not put the new version in place of %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VboImporter</name>
     <message>
         <location filename="../src/core/telemetry/vboimporter.cpp" line="68"/>
@@ -5717,17 +6744,17 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VideoCanvas</name>
     <message>
-        <location filename="../src/videocanvas.cpp" line="639"/>
+        <location filename="../src/videocanvas.cpp" line="695"/>
         <source>Open a video to start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videocanvas.cpp" line="640"/>
+        <location filename="../src/videocanvas.cpp" line="696"/>
         <source>The video cannot be shown: OpenGL is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/videocanvas.cpp" line="666"/>
+        <location filename="../src/videocanvas.cpp" line="727"/>
         <source>This gauge is not in the library</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5735,87 +6762,87 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VideoEncoders</name>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="57"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
         <source>H.264 (software, x264)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="60"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="63"/>
         <source>H.265 / HEVC (software, x265)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="64"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="67"/>
         <source>AV1 (software, SVT-AV1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="68"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
         <source>H.264 (graphics card, VA-API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="71"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
         <source>H.265 / HEVC (graphics card, VA-API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="74"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="77"/>
         <source>AV1 (graphics card, VA-API)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="78"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
         <source>H.264 (graphics card, NVIDIA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="79"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
         <source>H.265 / HEVC (graphics card, NVIDIA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="80"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
         <source>AV1 (graphics card, NVIDIA)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="81"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
         <source>H.264 (graphics card, Intel Quick Sync)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="82"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
         <source>H.265 / HEVC (graphics card, Intel Quick Sync)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="83"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
         <source>AV1 (graphics card, Intel Quick Sync)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="84"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="87"/>
         <source>H.264 (graphics card, AMD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="85"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="88"/>
         <source>H.265 / HEVC (graphics card, AMD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="86"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
         <source>AV1 (graphics card, AMD)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="89"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
         <source>H.264 (Apple VideoToolbox)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videoencoders.cpp" line="92"/>
+        <location filename="../src/core/video/videoencoders.cpp" line="95"/>
         <source>H.265 / HEVC (Apple VideoToolbox)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5829,17 +6856,17 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="156"/>
-        <source>%1 is %2 %3×%4, the first video %5 %6×%7: only videos of the same kind can be joined.</source>
+        <source>%1 is %2 %3×%4, the first video %5 %6×%7.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="162"/>
-        <source>%1 has %2 frames per second, the first video %3: only videos of the same kind can be joined.</source>
+        <source>%1 has %2 frames per second, the first video %3.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
-        <source>The sound of %1 differs from that of the first video: only videos of the same kind can be joined.</source>
+        <source>The sound of %1 differs from that of the first video.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5912,23 +6939,18 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="175"/>
-        <source>Files of this logger are laid out in a way that is not supported yet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="235"/>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="273"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="239"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="277"/>
         <source>unknown units %1, %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="259"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="263"/>
         <source>unknown operation %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="308"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="312"/>
         <source>RPM is worked out for %n cylinder(s)</source>
         <translation>
             <numerusform>RPM is worked out for %n cylinder</numerusform>
@@ -5936,22 +6958,22 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="324"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="328"/>
         <source>%1 is not supported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="384"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="388"/>
         <source>The data profile has no time column.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="389"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="393"/>
         <source>The data profile does not say how to recognize its files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="394"/>
+        <location filename="../src/core/telemetry/csv/xmldataprofileimporter.cpp" line="398"/>
         <source>worked out later: %1</source>
         <translation type="unfinished"></translation>
     </message>

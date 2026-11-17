@@ -19,7 +19,10 @@
 #include "gaugelibrarypanel.h"
 #include "maps/terrain.h"
 #include "maps/tilestore.h"
+#include "overlay/gaugetemplate.h"
+#include "overlay/librarypackage.h"
 #include "overlay/templatelibrary.h"
+#include "project/projectdata.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
 #include "sync/videosync.h"
@@ -28,6 +31,7 @@
 #include "telemetry/gears.h"
 #include "weather/weather.h"
 #include "telemetry/telemetryimporter.h"
+#include "updater.h"
 #include "videocanvas.h"
 
 #include <QAbstractItemView>
@@ -55,23 +59,29 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
+#include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSettings>
 #include <QShortcut>
 #include <QSlider>
+#include <QSpinBox>
 #include <QStatusBar>
 #include <QStyle>
 #include <QScreen>
 #include <QAudioDevice>
 #include <QDesktopServices>
+#include <QDropEvent>
 #include <QMetaEnum>
+#include <QMimeData>
+#include <QTextBrowser>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
 #include <QUndoStack>
 #include <QUrl>
 #include <QVBoxLayout>
+#include <QVersionNumber>
 #include <QVideoSink>
 #include <QtConcurrent>
 
@@ -155,27 +165,6 @@ struct ImportResult
     bool weatherWaiting{false};    // for the weather of the ride
     QString error;
 };
-
-// What gauges read: the file's data corrected, with the terrain's heights where the project
-// asks for them, and everything that can be worked out from that.
-TelemetrySessionPtr workedOut(const TelemetrySessionPtr &raw, const QVector<DataEdit> &edits, Terrain::Use elevation,
-                              const PowerEstimate::Rider &rider, const QVector<SurfaceStretch> &surfaces,
-                              const WeatherChoice &weatherChoice, const HandWind &handWind, const Drivetrain &drivetrain,
-                              bool *waiting, bool *weatherWaiting)
-{
-    // the gears want the speed and the cadence only
-    const TelemetrySessionPtr complete = Gears::apply(DerivedChannels::complete(Terrain::apply(DataEdits::apply(raw, edits),
-                                         elevation, waiting)), drivetrain);
-    *weatherWaiting = false;
-    // a wind entered by hand stands in for the weather history's
-    const Weather weather = complete && weatherChoice.enabled && !handWind.used
-                            ? WeatherStore::instance()->along(*complete, weatherChoice, weatherWaiting) : Weather();
-    const TelemetrySessionPtr windy = handWind.used ? WeatherChannels::addWind(complete, handWind, weatherChoice.windShare)
-                                      : WeatherChannels::add(complete, weather, weatherChoice.windShare);
-    // the estimate wants the speed, the grade and the wind; what is worked out from a power wants the estimate
-    const TelemetrySessionPtr powered = PowerEstimate::apply(windy, rider, surfaces);
-    return powered == complete ? complete : DerivedChannels::complete(powered);
-}
 
 // One change of the overlay. Whole states are kept rather than differences:
 // they are a handful of numbers, and "set it to exactly this" cannot go wrong.
@@ -289,6 +278,60 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_canvas, &VideoCanvas::itemMenuRequested, this, &MainWindow::showItemMenu);
     connect(m_canvas, &VideoCanvas::selectedItemChanged, this, &MainWindow::updateProperties);
     connect(m_libraryPanel, &GaugeLibraryPanel::addRequested, this, &MainWindow::addGauge);
+    connect(m_canvas, &VideoCanvas::gaugeDropped, this, &MainWindow::addGaugeAt);
+    connect(m_canvas, &VideoCanvas::templateDropped, this, &MainWindow::applyTemplate);
+    // files dropped anywhere on the window
+    setAcceptDrops(true);
+
+    // a newer release: a link in the status bar and an entry in Help, nothing that pops up
+    m_releaseCheck = new ReleaseCheck(this);
+    connect(m_releaseCheck, &ReleaseCheck::newer, this, [this](const ReleaseCheck::Release &release)
+    {
+        m_newRelease = release;
+        const bool skipped = release.tag == AppSettings::skippedRelease();
+        if (!skipped || m_updateAsked)
+            {
+                m_updateLabel->setText(QString("<a href=\"#\">%1</a>").arg(tr("Version %1 is available").arg(release.version)));
+                m_updateLabel->show();
+                m_updateAction->setText(tr("Update to version %1...").arg(release.version));
+                m_updateAction->setVisible(true);
+            }
+        if (m_updateAsked)
+            {
+                showNewRelease();
+            }
+    });
+    connect(m_releaseCheck, &ReleaseCheck::upToDate, this, [this]()
+    {
+        if (m_updateAsked)
+            {
+                QMessageBox::information(this, tr("Check for updates"),
+                                         tr("This is the latest version, %1.").arg(qApp->applicationVersion()));
+            }
+    });
+    connect(m_releaseCheck, &ReleaseCheck::failed, this, [this](const QString &why)
+    {
+        DiagnosticLog::note("updates", why);
+        if (m_updateAsked)
+            {
+                QMessageBox::warning(this, tr("Check for updates"), tr("Could not find out about newer versions: %1").arg(why));
+            }
+    });
+    m_updateLabel = new QLabel(this);
+    m_updateLabel->setTextFormat(Qt::RichText);
+    m_updateLabel->setToolTip(tr("What is new, and how to get it"));
+    m_updateLabel->hide();
+    connect(m_updateLabel, &QLabel::linkActivated, this, &MainWindow::showNewRelease);
+    statusBar()->addPermanentWidget(m_updateLabel);
+    // once a day, a while after the start: the window first
+    const QDateTime lastCheck = AppSettings::lastUpdateCheck();
+    if (!ReleaseCheck::currentTag().isEmpty() && AppSettings::checkForUpdates()
+            && (!lastCheck.isValid() || lastCheck.secsTo(QDateTime::currentDateTime()) > 20 * 3600))
+        {
+            QTimer::singleShot(8000, this, [this]() { checkForUpdates(false); });
+        }
+    // told from inside the canvas's painting: the gauges are placed again after it
+    connect(m_canvas, &VideoCanvas::pictureAspectChanged, this, &MainWindow::fitLayoutTo, Qt::QueuedConnection);
     connect(m_libraryPanel, &GaugeLibraryPanel::applyTemplateRequested, this, &MainWindow::applyTemplate);
     connect(m_libraryPanel, &GaugeLibraryPanel::libraryChanged, this, &MainWindow::rebuildOverlay);
     updateProperties();
@@ -415,6 +458,103 @@ void MainWindow::settleDock(QDockWidget *dock, bool floating)
     dock->setGeometry(frame);
     dock->raise();
     dock->activateWindow();
+}
+
+namespace
+{
+QStringList localFiles(const QMimeData *data)
+{
+    QStringList paths;
+    for (const QUrl &url : data->urls())
+        {
+            if (url.isLocalFile())
+                {
+                    paths << url.toLocalFile();
+                }
+        }
+    return paths;
+}
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (!localFiles(event->mimeData()).isEmpty())
+        {
+            event->acceptProposedAction();
+        }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    const QStringList paths = localFiles(event->mimeData());
+    if (paths.isEmpty())
+        {
+            return;
+        }
+    event->acceptProposedAction();
+    // what to do is chosen after the drop is over: a question asked inside it would hold the
+    // program the files came from
+    QTimer::singleShot(0, this, [this, paths]() { openDropped(paths); });
+}
+
+void MainWindow::openDropped(const QStringList &paths)
+{
+    static const QStringList videos{"mp4", "mov", "mkv", "avi", "m4v", "mts", "webm"};
+    QString video;
+    QString data;
+    QString project;
+    QStringList library;
+    QStringList unknown;
+    for (const QString &path : paths)
+        {
+            const QFileInfo info(path);
+            const QString suffix = info.suffix().toLower();
+            if (suffix == QLatin1String(ProjectFile::Suffix))
+                {
+                    project = project.isEmpty() ? path : project;
+                }
+            else if (info.isDir() || suffix == LibraryPackage::GaugeSuffix || suffix == LibraryPackage::TemplateSuffix
+                     || suffix == "veg" || suffix == "vet")
+                {
+                    library << path;
+                }
+            // a video first; a second .mp4 (a GoPro's) is taken for its data
+            else if (videos.contains(suffix) && video.isEmpty())
+                {
+                    video = path;
+                }
+            else if (TelemetryImporter::canLoad(path) && data.isEmpty())
+                {
+                    data = path;
+                }
+            else
+                {
+                    unknown << info.fileName();
+                }
+        }
+    if (!project.isEmpty())
+        {
+            openProject(project);
+        }
+    else
+        {
+            if (!video.isEmpty())
+                {
+                    openChosenVideo(video);
+                }
+            if (!data.isEmpty())
+                {
+                    openTelemetry(data);
+                }
+        }
+    if (!library.isEmpty() && !m_libraryPanel->importDropped(library))
+        {
+            unknown << library;
+        }
+    if (!unknown.isEmpty())
+        {
+            statusBar()->showMessage(tr("Not opened, not something this program reads: %1").arg(unknown.join(", ")), 8000);
+        }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -812,6 +952,9 @@ void MainWindow::createMenus()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(Icons::named("help-about"), tr("&About"), this, &MainWindow::showAbout);
+    helpMenu->addAction(Icons::named("view-refresh"), tr("Check for &updates..."), this, [this]() { checkForUpdates(true); });
+    m_updateAction = helpMenu->addAction(Icons::named("go-next"), QString(), this, &MainWindow::showNewRelease);
+    m_updateAction->setVisible(false);
     // to the README, which anyone can check, not to a fund: a link in the program could be swapped
     helpMenu->addAction(QIcon(":/images/icons/flag-ukraine.svg"), tr("Support &Ukraine"), this,
                         []() { QDesktopServices::openUrl(QUrl(kSupportUkraine)); });
@@ -1017,7 +1160,7 @@ void MainWindow::loadTelemetry(const QString &path, bool keepSync, bool quietly)
         result.main = TelemetryImporter::loadRecorded(path, &result.error);
         result.sources = sources;
         result.raw = DataSources::loadAndMerge(result.main, &result.sources);
-        result.session = workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, drivetrain, &result.waiting,
+        result.session = ProjectData::workedOut(result.raw, edits, elevation, rider, surfaces, weather, wind, drivetrain, &result.waiting,
                                    &result.weatherWaiting);
         return result;
     }));
@@ -1187,7 +1330,7 @@ void MainWindow::exportVideo()
                                      tr("Open the data for this video first: without it there is nothing to draw."));
             return;
         }
-    const int pending = TileStore::instance()->pending();
+    const int pending = TileStore::pendingOfAllMaps();
     if (pending > 0 || m_terrainWaiting || m_weatherWaiting)
         {
             // what is drawn before they come stays as it is in the exported file
@@ -1274,7 +1417,31 @@ void MainWindow::changeOverlay(const QString &description, const OverlayState &a
     }));
 }
 
+void MainWindow::fitLayoutTo(double aspect)
+{
+    const double was = m_project.layoutAspect;
+    if (aspect <= 0.0 || std::abs(aspect - was) < 0.01)
+        {
+            return;
+        }
+    m_project.layoutAspect = aspect;
+    if (was <= 0.0 || m_project.overlay.isEmpty())
+        {
+            return;   // a project from before: its gauges were placed on this video, most likely
+        }
+    // measured from their nearest edges on the old shape, put back the same way on the new one;
+    // their size follows the height, as it does when a template is applied
+    const Overlay placed(m_project.overlay, nullptr, m_units, m_project.theme);
+    const QVector<OverlayItem> fitted = GaugeTemplate::fromOverlay(placed, m_project.theme, was).overlayItems(aspect);
+    changeOverlay(tr("Place the gauges for the video's shape"), {fitted, m_project.theme});
+}
+
 void MainWindow::addGauge(const QString &gaugeId)
+{
+    addGaugeAt(gaugeId, QPointF(-1.0, -1.0));
+}
+
+void MainWindow::addGaugeAt(const QString &gaugeId, const QPointF &center)
 {
     const Gauge gauge = GaugeLibrary::gauge(gaugeId);
     if (gauge.isEmpty())
@@ -1286,9 +1453,19 @@ void MainWindow::addGauge(const QString &gaugeId)
     item.channel = GaugeLibrary::defaultChannel(gauge, m_session ? m_session->channelIds() : QStringList());
     // near the middle, each new one a little further down right so they do not hide each other
     const double step = 0.03 * (m_project.overlay.size() % 8);
-    item.height = 0.25;
-    item.x = 0.35 + step;
-    item.y = 0.3 + step;
+    // a quarter of the picture's height, a wide gauge (a sector bar) no wider than about half of it
+    const double picture = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
+    const double shape = gauge.size.width() / gauge.size.height();
+    item.height = std::min(0.25, 0.45 * picture / shape);
+    const double width = item.height * shape / picture;
+    item.x = std::min(0.35 + step, 1.0 - width);
+    item.y = std::min(0.3 + step, 1.0 - item.height);
+    if (center.x() >= 0.0 && center.y() >= 0.0)
+        {
+            // where it was dropped, the whole of it on the picture
+            item.x = std::clamp(center.x() - width / 2.0, 0.0, std::max(0.0, 1.0 - width));
+            item.y = std::clamp(center.y() - item.height / 2.0, 0.0, std::max(0.0, 1.0 - item.height));
+        }
 
     OverlayState after{m_project.overlay, m_project.theme};
     after.items.append(item);
@@ -1305,6 +1482,7 @@ void MainWindow::applyTemplate(const QString &templateId)
         }
     // laid out for the shape of this video; 16:9 until one is open
     const double aspect = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
+    m_project.layoutAspect = aspect;
     m_canvas->setSelectedItem(-1);
     changeOverlay(tr("Apply template"), {t.overlayItems(aspect), t.theme});
 }
@@ -1388,7 +1566,7 @@ void MainWindow::removeGauge(int index)
     changeOverlay(tr("Remove gauge"), after);
 }
 
-void MainWindow::onItemGeometryEdited(int index, double x, double y, double height)
+void MainWindow::onItemGeometryEdited(int index, double x, double y, double height, double aspect)
 {
     if (index < 0 || index >= m_project.overlay.size())
         {
@@ -1398,7 +1576,9 @@ void MainWindow::onItemGeometryEdited(int index, double x, double y, double heig
     after.items[index].x = x;
     after.items[index].y = y;
     after.items[index].height = height;
-    changeOverlay(tr("Move gauge"), after);
+    const bool reshaped = after.items[index].aspect != aspect;
+    after.items[index].aspect = aspect;
+    changeOverlay(reshaped ? tr("Change a gauge's shape") : tr("Move gauge"), after);
 }
 
 void MainWindow::setGaugeChannel(int index, const QString &channel)
@@ -1513,6 +1693,39 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             {
                 setGaugeStreets(index, shown);
             });
+            // a map of its own: satellite pictures under one gauge, streets under another
+            QMenu *mapMenu = menu.addMenu(tr("Map"));
+            const QString ownMap = m_project.overlay.at(index).map;
+            QVector<QPair<QString, QString>> maps{{tr("As in the settings"), QString()}};
+            for (const TileStore::Provider &provider : TileStore::providers())
+                {
+                    maps.append({provider.name, provider.id});
+                }
+            for (const auto &map : maps)
+                {
+                    QAction *action = mapMenu->addAction(map.first);
+                    action->setCheckable(true);
+                    action->setChecked(map.second == ownMap);
+                    const QString id = map.second;
+                    connect(action, &QAction::triggered, this, [this, index, id]()
+                    {
+                        if (index < m_project.overlay.size())
+                            {
+                                OverlayState after{m_project.overlay, m_project.theme};
+                                after.items[index].map = id;
+                                // a map chosen is a map shown
+                                if (!id.isEmpty())
+                                    {
+                                        after.items[index].streets = OverlayItem::Shown;
+                                    }
+                                changeOverlay(tr("Choose a gauge's map"), after);
+                            }
+                    });
+                    if (id.isEmpty())
+                        {
+                            mapMenu->addSeparator();
+                        }
+                }
             // the whole route, or this much of it around the rider
             QMenu *closeUp = menu.addMenu(tr("Close-up"));
             const double current = overlay.closeUp(index);
@@ -1571,6 +1784,24 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                     }
             });
         }
+    // set free, its width and height change on their own: a profile as wide as the picture
+    QAction *keepShape = menu.addAction(tr("Keep the gauge's shape"));
+    keepShape->setCheckable(true);
+    keepShape->setChecked(m_project.overlay.at(index).aspect <= 0.0);
+    keepShape->setToolTip(tr("Off: handles on the right and bottom edges change only the width or the height. "
+                             "Round parts become oval."));
+    menu.setToolTipsVisible(true);
+    connect(keepShape, &QAction::triggered, this, [this, index](bool keep)
+    {
+        if (index < m_project.overlay.size() && index < m_canvas->overlay().count())
+            {
+                OverlayState after{m_project.overlay, m_project.theme};
+                // freed where it is, so nothing moves until a handle is dragged
+                const QRectF rect = m_canvas->overlay().itemRect(index, QRectF(0, 0, 1000, 1000));
+                after.items[index].aspect = keep ? 0.0 : rect.width() / rect.height();
+                changeOverlay(keep ? tr("Keep a gauge's shape") : tr("Free a gauge's shape"), after);
+            }
+    });
     menu.addSeparator();
     menu.addAction(Icons::named("list-remove"), tr("Remove"), this, [this, index]()
     {
@@ -1635,13 +1866,48 @@ QWidget *MainWindow::createPropertiesPanel()
     form->addRow(channelLabel, m_channelCombo);
     form->addRow(m_partsHolder);
     form->addRow(m_scaleMaxLabel, m_scaleMaxSpin);
+    // this gauge's own look
+    m_textSizeSpin = new QSpinBox(panel);
+    m_textSizeSpin->setRange(30, 300);
+    m_textSizeSpin->setSingleStep(5);
+    m_textSizeSpin->setSuffix(" %");
+    m_textSizeSpin->setKeyboardTracking(false);
+    m_textSizeSpin->setToolTip(tr("The letters and numbers of the selected gauge, larger or smaller than it was made with"));
+    connect(m_textSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int percent)
+    {
+        changeGaugeLook(tr("Change a gauge's text size"), [percent](OverlayItem &item) { item.textScale = percent / 100.0; });
+    });
+    m_opacitySpin = new QSpinBox(panel);
+    m_opacitySpin->setRange(5, 100);
+    m_opacitySpin->setSingleStep(5);
+    m_opacitySpin->setSuffix(" %");
+    m_opacitySpin->setKeyboardTracking(false);
+    m_opacitySpin->setToolTip(tr("How much of the selected gauge shows over the video; 100 %: all of it"));
+    connect(m_opacitySpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int percent)
+    {
+        changeGaugeLook(tr("Change a gauge's opacity"), [percent](OverlayItem &item) { item.opacity = percent / 100.0; });
+    });
+    m_ownLookCheck = new QCheckBox(tr("Own colors and font"), panel);
+    m_ownLookCheck->setToolTip(tr("On: the colors and the font below are this gauge's alone. Off: it looks like all the others."));
+    connect(m_ownLookCheck, &QCheckBox::clicked, this, [this](bool own)
+    {
+        const GaugeTheme common = m_project.theme;
+        // starting from the look of all gauges
+        changeGaugeLook(own ? tr("Give a gauge its own look") : tr("Give a gauge the common look"), [own, common](OverlayItem &item)
+        {
+            item.ownTheme = own;
+            item.theme = own ? common : GaugeTheme();
+        });
+    });
+    form->addRow(tr("Text size:"), m_textSizeSpin);
+    form->addRow(tr("Opacity:"), m_opacitySpin);
+    form->addRow(QString(), m_ownLookCheck);
     form->addRow(QString(), m_removeGaugeButton);
-    QLabel *colorsTitle = new QLabel(tr("All gauges"), panel);
-    colorsTitle->setToolTip(tr("Colors and font of every gauge on the video"));
-    QFont bold = colorsTitle->font();
+    m_lookTitle = new QLabel(tr("All gauges"), panel);
+    QFont bold = m_lookTitle->font();
     bold.setBold(true);
-    colorsTitle->setFont(bold);
-    form->addRow(colorsTitle);
+    m_lookTitle->setFont(bold);
+    form->addRow(m_lookTitle);
     for (int role = 0; role < int(std::size(kThemeRoles)); ++role)
         {
             QPushButton *button = new QPushButton(panel);
@@ -1693,14 +1959,15 @@ QWidget *MainWindow::createPropertiesPanel()
     m_fontEverywhereCheck->setToolTip(tr("Imported gauges often name a font (Arial...); with this they use the one chosen here too"));
     auto changeFont = [this]()
     {
-        OverlayState after{m_project.overlay, m_project.theme};
-        after.theme.font = m_fontCombo->currentData().toString();
-        after.theme.fontWeight = m_fontWeightCombo->currentData().toInt();
-        after.theme.fontEverywhere = m_fontEverywhereCheck->isChecked();
-        if (after.theme != m_project.theme)
-            {
-                changeOverlay(tr("Change gauge font"), after);
-            }
+        const QString font = m_fontCombo->currentData().toString();
+        const int weight = m_fontWeightCombo->currentData().toInt();
+        const bool everywhere = m_fontEverywhereCheck->isChecked();
+        changeTheme(tr("Change gauge font"), [font, weight, everywhere](GaugeTheme &theme)
+        {
+            theme.font = font;
+            theme.fontWeight = weight;
+            theme.fontEverywhere = everywhere;
+        });
     };
     connect(m_fontCombo, QOverload<int>::of(&QComboBox::activated), this, changeFont);
     // typing filters the list by any part of the name; Enter or a click picks one
@@ -1734,18 +2001,46 @@ QWidget *MainWindow::createPropertiesPanel()
     return panel;
 }
 
+bool MainWindow::editsOwnLook() const
+{
+    const int index = m_canvas->selectedItem();
+    return index >= 0 && index < m_project.overlay.size() && m_project.overlay.at(index).ownTheme;
+}
+
+const GaugeTheme &MainWindow::shownTheme() const
+{
+    return editsOwnLook() ? m_project.overlay.at(m_canvas->selectedItem()).theme : m_project.theme;
+}
+
+void MainWindow::changeTheme(const QString &description, const std::function<void(GaugeTheme &)> &change)
+{
+    OverlayState after{m_project.overlay, m_project.theme};
+    change(editsOwnLook() ? after.items[m_canvas->selectedItem()].theme : after.theme);
+    changeOverlay(description, after);
+}
+
+void MainWindow::changeGaugeLook(const QString &description, const std::function<void(OverlayItem &)> &change)
+{
+    const int index = m_canvas->selectedItem();
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    change(after.items[index]);
+    changeOverlay(description, after);
+}
+
 void MainWindow::chooseThemeColor(int role)
 {
-    const QColor current = m_project.theme.*(kThemeRoles[role].color);
+    const QColor current = shownTheme().*(kThemeRoles[role].color);
     // transparency matters here: gauge plates are usually see-through
     const QColor chosen = QColorDialog::getColor(current, this, tr(kThemeRoles[role].label), QColorDialog::ShowAlphaChannel);
     if (!chosen.isValid())
         {
             return;
         }
-    OverlayState after{m_project.overlay, m_project.theme};
-    after.theme.*(kThemeRoles[role].color) = chosen;
-    changeOverlay(tr("Change gauge colors"), after);
+    changeTheme(tr("Change gauge colors"), [role, chosen](GaugeTheme &theme) { theme.*(kThemeRoles[role].color) = chosen; });
 }
 
 void MainWindow::updateProperties()
@@ -1818,9 +2113,23 @@ void MainWindow::updateProperties()
             m_scaleMaxSpin->setSuffix(unit.isEmpty() ? QString() : " " + unit);
             m_scaleMaxSpin->setValue(item.scaleMax);
         }
+    {
+        const QSignalBlocker sizeBlocker(m_textSizeSpin);
+        const QSignalBlocker opacityBlocker(m_opacitySpin);
+        m_textSizeSpin->setEnabled(selected);
+        m_opacitySpin->setEnabled(selected);
+        m_ownLookCheck->setEnabled(selected);
+        m_textSizeSpin->setValue(selected ? int(std::lround(item.textScale * 100.0)) : 100);
+        m_opacitySpin->setValue(selected ? int(std::lround(item.opacity * 100.0)) : 100);
+        m_ownLookCheck->setChecked(selected && item.ownTheme);
+    }
+    const GaugeTheme &theme = shownTheme();
+    m_lookTitle->setText(editsOwnLook() ? tr("This gauge") : tr("All gauges"));
+    m_lookTitle->setToolTip(editsOwnLook() ? tr("Colors and font of the selected gauge alone")
+                            : tr("Colors and font of every gauge on the video"));
     for (int role = 0; role < m_themeButtons.size(); ++role)
         {
-            const QColor color = m_project.theme.*(kThemeRoles[role].color);
+            const QColor color = theme.*(kThemeRoles[role].color);
             // a swatch; the text keeps it usable for those who cannot tell the colors apart
             QPixmap swatch(32, 16);
             swatch.fill(color);
@@ -1831,17 +2140,17 @@ void MainWindow::updateProperties()
         const QSignalBlocker fontBlocker(m_fontCombo);
         const QSignalBlocker weightBlocker(m_fontWeightCombo);
         const QSignalBlocker everywhereBlocker(m_fontEverywhereCheck);
-        int row = m_fontCombo->findData(m_project.theme.font);
+        int row = m_fontCombo->findData(theme.font);
         if (row < 0)
             {
                 // a font this computer does not have: still shown as the one chosen
-                m_fontCombo->addItem(m_project.theme.font, m_project.theme.font);
+                m_fontCombo->addItem(theme.font, theme.font);
                 row = m_fontCombo->count() - 1;
             }
         m_fontCombo->setCurrentIndex(row);
-        m_fontWeightCombo->setCurrentIndex(std::max(0, m_fontWeightCombo->findData(m_project.theme.fontWeight)));
-        m_fontEverywhereCheck->setChecked(m_project.theme.fontEverywhere);
-        m_fontEverywhereCheck->setEnabled(!m_project.theme.font.isEmpty() || m_project.theme.fontWeight > 0);
+        m_fontWeightCombo->setCurrentIndex(std::max(0, m_fontWeightCombo->findData(theme.fontWeight)));
+        m_fontEverywhereCheck->setChecked(theme.fontEverywhere);
+        m_fontEverywhereCheck->setEnabled(!theme.font.isEmpty() || theme.fontWeight > 0);
     }
 }
 
@@ -2267,7 +2576,7 @@ QString MainWindow::playersState() const
                .arg(player->playbackRate())
                .arg(enumKey(player->mediaStatus()),
                     player->error() != QMediaPlayer::NoError ? ", " + player->errorString() : QString(), sound,
-                    output->device().description());
+                    output->device().isNull() ? QStringLiteral("none") : output->device().description());
     };
     return describe(QStringLiteral("Video"), m_player, m_audioOutput) + "\n"
            + describe(QStringLiteral("Music"), m_musicPlayer, m_musicOutput);
@@ -2412,7 +2721,7 @@ void MainWindow::recomputeData()
             return;
         }
     m_sinceRecompute.start();
-    m_recordedSession = workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
+    m_recordedSession = ProjectData::workedOut(m_rawSession, m_project.dataEdits, m_project.elevation, m_rider, m_project.surfaces, m_weather,
                                   m_project.wind, m_drivetrain,
                                   &m_terrainWaiting, &m_weatherWaiting);
     m_dataPanel->setSessions(m_rawSession, m_recordedSession, m_units);
@@ -2516,26 +2825,119 @@ void MainWindow::applyMapSettings()
 {
     TileStore *maps = TileStore::instance();
     const QString before = maps->urlTemplate() + maps->attribution();
-    QString address = AppSettings::mapTileUrl();
-    QString credit = AppSettings::mapAttribution();
-    int maxZoom = 19;
-    if (AppSettings::mapProvider() != QLatin1String(AppSettings::OwnMapServer))
-        {
-            const TileStore::Provider provider = TileStore::provider(AppSettings::mapProvider());
-            address = provider.urlTemplate;
-            address.replace("{apikey}", AppSettings::mapApiKey());
-            credit = provider.attribution;
-            maxZoom = provider.maxZoom;
-        }
-    maps->setSource(address, AppSettings::mapCreditShown() ? credit : QString(), maxZoom);
-    maps->setDownloads(AppSettings::mapDownloads());
-    TileStore::terrain()->setDownloads(AppSettings::mapDownloads());
+    AppSettings::applyMapSources();
     // asked for only when the Weather page of the settings says so
     WeatherStore::instance()->setDownloads(true);
     m_lapsPanel->refreshMapChoice();
     if (maps->urlTemplate() + maps->attribution() != before)
         {
             rebuildOverlay();
+        }
+}
+
+void MainWindow::checkForUpdates(bool asked)
+{
+    if (ReleaseCheck::currentTag().isEmpty())
+        {
+            if (asked)
+                {
+                    QMessageBox::information(this, tr("Check for updates"),
+                                             tr("This copy was not built for a release (it is a development build or a "
+                                                "distribution's package), so it cannot tell how new it is. The releases are "
+                                                "<a href=\"%1\">here</a>.").arg(ReleaseCheck::releasesPage().toString()));
+                }
+            return;
+        }
+    m_updateAsked = asked;
+    AppSettings::setLastUpdateCheck(QDateTime::currentDateTime());
+    m_releaseCheck->check();
+}
+
+void MainWindow::showNewRelease()
+{
+    if (!m_newRelease.isValid())
+        {
+            return;
+        }
+    const ReleaseCheck::Release release = m_newRelease;
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Version %1").arg(release.version));
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QVersionNumber ours;
+    QString ourBuild;
+    ReleaseCheck::parseTag(ReleaseCheck::currentTag(), &ours, &ourBuild);
+    const auto day = [](const QString &built) { return QDateTime::fromString(built, "yyyyMMddHHmm").date(); };
+    QLabel *intro = new QLabel(tr("Version %1 of %2 is out, made on %3. This one is %4, of %5.")
+                               .arg(release.version, qApp->applicationDisplayName(),
+                                    QLocale().toString(day(release.built), QLocale::ShortFormat), ours.toString(),
+                                    QLocale().toString(day(ourBuild), QLocale::ShortFormat)), &dialog);
+    intro->setWordWrap(true);
+    layout->addWidget(intro);
+    QTextBrowser *notes = new QTextBrowser(&dialog);
+    notes->setOpenExternalLinks(true);
+    notes->setMarkdown(release.notes.isEmpty() ? tr("No notes came with it.") : release.notes);
+    layout->addWidget(notes, 1);
+    QDialogButtonBox *buttons = new QDialogButtonBox(&dialog);
+    // an AppImage and an installed copy replace themselves; the others are pointed to the page
+    if (Updater::assetFor(release))
+        {
+            QPushButton *update = buttons->addButton(tr("Update now"), QDialogButtonBox::AcceptRole);
+            update->setIcon(Icons::named("go-next"));
+            update->setDefault(true);
+            connect(update, &QPushButton::clicked, &dialog, [this, &dialog, release]()
+            {
+                dialog.accept();
+                updateTo(release);
+            });
+        }
+    QPushButton *page = buttons->addButton(tr("Open the release page"), QDialogButtonBox::AcceptRole);
+    if (!Updater::assetFor(release))
+        {
+            page->setIcon(Icons::named("go-next"));
+        }
+    QPushButton *skip = buttons->addButton(tr("Skip this version"), QDialogButtonBox::DestructiveRole);
+    buttons->addButton(tr("Later"), QDialogButtonBox::RejectRole);
+    connect(page, &QPushButton::clicked, &dialog, [&dialog, release]()
+    {
+        QDesktopServices::openUrl(release.page.isValid() ? release.page : ReleaseCheck::releasesPage());
+        dialog.accept();
+    });
+    connect(skip, &QPushButton::clicked, &dialog, [this, &dialog, release]()
+    {
+        // not shown again until a newer one comes
+        AppSettings::setSkippedRelease(release.tag);
+        m_updateLabel->hide();
+        m_updateAction->setVisible(false);
+        dialog.reject();
+    });
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    dialog.resize(560, 440);
+    dialog.exec();
+}
+
+void MainWindow::updateTo(const ReleaseCheck::Release &release)
+{
+    const Updater::Next next = Updater::prepare(this, release);
+    if (!next.isValid())
+        {
+            return;
+        }
+    if (Updater::kind() == Updater::AppImage)
+        {
+            m_updateLabel->hide();
+            m_updateAction->setVisible(false);
+            if (QMessageBox::question(this, tr("Update"), tr("Version %1 is in place. Restart now to use it?").arg(release.version))
+                    != QMessageBox::Yes)
+                {
+                    statusBar()->showMessage(tr("Version %1 starts the next time the program does.").arg(release.version), 8000);
+                    return;
+                }
+        }
+    // the installer waits for the program to end; unsaved work is asked about first
+    if (close())
+        {
+            QProcess::startDetached(next.program, next.arguments);
         }
 }
 

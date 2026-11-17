@@ -2135,6 +2135,31 @@ def cassette(name):
     write(name, (w, h), components, drawings, ["rearGearNumber"])
 
 
+def lap_table(name):
+    """The last laps and the one under way: number, time and how far behind the best, the best
+    lap lit."""
+    w, h = 300, 250
+    plate_ = f"<rect x='0' y='0' width='{w}' height='{h}' rx='10' fill='@background' fill-opacity='0.45'/>"
+    components = [image("plate.svg", (0, 0, w, h)),
+                  text("label", (18, 26), 22, "accent2", align="left", italic=True, upperCase=True),
+                  {"type": "lapTable", "frame": [18, 46, w - 36, 190], "color": "foreground", "activeColor": "accent",
+                   "rows": 5, "font": {"family": FONT, "size": 26, "bold": True}}]
+    write(name, (w, h), components, {"plate.svg": svg(w, h, plate_)}, ["lap", "lapTime", "bestLapTime"])
+
+
+def sector_bar(name):
+    """The sectors of the lap side by side, lit when faster than the best of them, the one being
+    driven filling up; the last sector against the best of it beside them."""
+    w, h = 460, 60
+    plate_ = f"<rect x='0' y='0' width='{w}' height='{h}' rx='8' fill='@background' fill-opacity='0.45'/>"
+    components = [image("plate.svg", (0, 0, w, h)),
+                  {"type": "sectorBar", "frame": [12, 14, 330, 32], "color": "foreground", "activeColor": "accent",
+                   "padding": 6, "cornerRadius": 4},
+                  dict(text("value", (w - 12, 30), 28, align="right", bold=True, precision=2, showPlus=True,
+                            format="number"), channel="sectorDelta")]
+    write(name, (w, h), components, {"plate.svg": svg(w, h, plate_)}, ["sector", "sectorTime", "sectorDelta"])
+
+
 def skid_ball(name):
     """A curved glass tube with a ball that rolls to the side of the force: to the right in a
     right-hand bend; two marks for the middle."""
@@ -2411,6 +2436,8 @@ def main():
     power_phase("Power phase right", "right")
     pedals("Pedals")
     g_dial("Dial g")
+    lap_table("Lap table")
+    sector_bar("Sector bar")
 
 
 if __name__ == "__main__":

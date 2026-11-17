@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QHash>
+#include <QLocale>
 #include <QRegularExpression>
 
 #include <algorithm>
@@ -441,6 +442,178 @@ int findColumn(const QStringList &names, const DataProfile::Mapping &m)
         }
     return -1;
 }
+// What a logger's own header block tells: where the names and the data are, and more.
+struct LoggerHeader
+{
+    int namesLine{-1};
+    int dataStart{0};
+    QVector<double> beacons;   // AiM: the running time at the start of each lap after the first, s
+    QDateTime start;           // AiM: when the recording started, UTC
+    double interval{0.0};      // Racelogic: seconds from one row to the next
+};
+
+// AiM's "Date" line: "Saturday, June 1, 2019", "06/01/2019", "2019-06-01"...
+QDate aimDate(const QString &text)
+{
+    QDate date;
+    if (calendarDate(text, &date))
+        {
+            return date;
+        }
+    const QLocale c = QLocale::c();
+    for (const char *format : {"dddd, MMMM d, yyyy", "MMMM d, yyyy", "dddd, d MMMM yyyy", "d MMMM yyyy", "d MMM yyyy"})
+        {
+            date = c.toDate(text, QLatin1String(format));
+            if (date.isValid())
+                {
+                    return date;
+                }
+        }
+    return QDate();
+}
+
+// AiM's "Time" line: "10:20:31", "10:20 AM"
+bool aimClock(const QString &text, double *seconds)
+{
+    if (clockTime(text, seconds))
+        {
+            return true;
+        }
+    const QLocale c = QLocale::c();
+    for (const char *format : {"h:mm AP", "h:mm ap", "h:mm"})
+        {
+            const QTime time = c.toTime(text, QLatin1String(format));
+            if (time.isValid())
+                {
+                    *seconds = time.msecsSinceStartOfDay() / 1000.0;
+                    return true;
+                }
+        }
+    return false;
+}
+
+LoggerHeader aimHeader(const QStringList &text, const QString &separators)
+{
+    LoggerHeader header;
+    QDate date;
+    double timeOfDay = -1.0;
+    int blank = -1;
+    int pendingBlank = -1;    // a blank line counts once something follows it: not the file's end
+    for (int i = 0; i < std::min<int>(101, int(text.size())); ++i)
+        {
+            const QString line = text.at(i).trimmed();
+            if (line.isEmpty())
+                {
+                    pendingBlank = i;
+                    continue;
+                }
+            if (pendingBlank >= 0)
+                {
+                    blank = pendingBlank;
+                    pendingBlank = -1;
+                }
+            const QStringList cells = tokens(line, separators);
+            if (cells.size() < 2)
+                {
+                    continue;
+                }
+            const QString key = cells.first().toLower();
+            // "Saturday, June 1, 2019" was cut at its commas, quotes and all
+            QString rest = cells.mid(1).join(QLatin1String(", "));
+            if (rest.size() >= 2 && rest.startsWith('"') && rest.endsWith('"'))
+                {
+                    rest = rest.mid(1, rest.size() - 2);
+                }
+            double seconds = 0.0;
+            if (key == QLatin1String("date"))
+                {
+                    date = aimDate(rest);
+                }
+            else if (key == QLatin1String("time") && aimClock(cells.at(1), &seconds))
+                {
+                    // the names line starts with "Time" too, but no clock time follows it there
+                    timeOfDay = seconds;
+                }
+            else if (key == QLatin1String("beacon markers"))
+                {
+                    header.beacons.clear();
+                    for (int k = 1; k < cells.size(); ++k)
+                        {
+                            bool ok = false;
+                            const double t = cells.at(k).toDouble(&ok);
+                            if (!ok)
+                                {
+                                    break;
+                                }
+                            header.beacons << t;
+                        }
+                }
+        }
+    if (blank >= 4)
+        {
+            header.namesLine = blank - 4;
+            header.dataStart = blank + 1;
+        }
+    if (date.isValid() && timeOfDay >= 0.0)
+        {
+            // written in the logger's local time, taken as this computer's
+            header.start = QDateTime(date, QTime(0, 0)).addMSecs(qint64(std::llround(timeOfDay * 1000.0))).toUTC();
+        }
+    return header;
+}
+
+// AiM's "Time" starts again at 0 with each lap: the time from the start of the recording.
+Column aimTotalTime(const Column &lapTime, const QVector<double> &beacons)
+{
+    Column total(lapTime.size(), kNaN);
+    if (lapTime.isEmpty())
+        {
+            return total;
+        }
+    double lapStart = 0.0;
+    int lap = -1;
+    total[0] = lapTime.at(0);
+    for (int r = 1; r < lapTime.size(); ++r)
+        {
+            if (lapTime.at(r) == 0.0)
+                {
+                    ++lap;
+                    if (lap < beacons.size())
+                        {
+                            lapStart = beacons.at(lap);
+                        }
+                    else
+                        {
+                            // no marker for it: one row on from the row before
+                            const double step = r > 1 ? total.at(r - 1) - total.at(r - 2) : 0.0;
+                            lapStart = total.at(r - 1) + step;
+                        }
+                }
+            total[r] = lapStart + lapTime.at(r);
+        }
+    return total;
+}
+
+LoggerHeader racelogicHeader(const QStringList &text)
+{
+    LoggerHeader header;
+    for (int i = 0; i < text.size(); ++i)
+        {
+            const QString line = text.at(i).trimmed();
+            if (line.startsWith(QLatin1String("Log Rate (Hz)"), Qt::CaseInsensitive))
+                {
+                    const double rate = line.section(':', 1).trimmed().toDouble();
+                    header.interval = rate > 0.0 ? 1.0 / rate : 0.0;
+                }
+            else if (line.compare(QLatin1String("[column names]"), Qt::CaseInsensitive) == 0)
+                {
+                    header.namesLine = i + 1;
+                    header.dataStart = i + 3;
+                    break;
+                }
+        }
+    return header;
+}
 }
 
 QStringList CsvImporter::lines(const QByteArray &data)
@@ -491,7 +664,8 @@ TelemetrySessionPtr CsvImporter::load(const QString &path, const QVector<DataPro
                     *error = profiles.isEmpty()
                              ? tr("%1: there are no data profiles to read CSV files with. Import some first (Library, Import).")
                              .arg(QFileInfo(path).fileName())
-                             : tr("%1: none of the %n data profile(s) recognizes this file.", nullptr, int(profiles.size()))
+                             : tr("%1: none of the %n data profile(s) recognizes this file. Profiles for other "
+                                  "loggers can be imported (Library, Import).", nullptr, int(profiles.size()))
                              .arg(QFileInfo(path).fileName());
                 }
             return nullptr;
@@ -511,11 +685,60 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
     };
     const QStringList text = lines(data);
 
+    // where the names and the data are, for loggers that write a header block of their own
+    QVector<int> headerLines = profile.headerLines;
+    int dataStart = profile.dataStart;
+    LoggerHeader logger;
+    if (profile.layout == DataProfile::AimSections)
+        {
+            logger = aimHeader(text, profile.separators);
+            if (logger.namesLine < 0)
+                {
+                    return fail(tr("The AiM file has no blank line ending its header."));
+                }
+        }
+    else if (profile.layout == DataProfile::RacelogicSections)
+        {
+            logger = racelogicHeader(text);
+            if (logger.namesLine < 0)
+                {
+                    return fail(tr("The Racelogic file has no \"[column names]\" line."));
+                }
+            if (!(logger.interval > 0.0) || !std::isfinite(logger.interval))
+                {
+                    return fail(tr("The Racelogic file has no \"Log Rate (Hz)\" line."));
+                }
+        }
+    if (logger.namesLine >= 0)
+        {
+            headerLines = {logger.namesLine};
+            dataStart = logger.dataStart;
+        }
+    else if (!headerLines.isEmpty())
+        {
+            // a logger that writes more "# ..." lines in front than when the profile was made
+            // (TrackAddict: one, later five to nine): names and data move down as far
+            int shift = 0;
+            const int first = headerLines.first();
+            while (first >= 0 && first + shift < text.size() && text.at(first + shift).trimmed().startsWith('#'))
+                {
+                    ++shift;
+                }
+            if (first + shift < text.size())
+                {
+                    for (int &line : headerLines)
+                        {
+                            line += shift;
+                        }
+                    dataStart += shift;
+                }
+        }
+
     // column names: one header line, or several joined
     QStringList names;
-    for (int h = 0; h < profile.headerLines.size(); ++h)
+    for (int h = 0; h < headerLines.size(); ++h)
         {
-            const int index = profile.headerLines.at(h);
+            const int index = headerLines.at(h);
             if (index < 0 || index >= text.size())
                 {
                     return fail(tr("The file has no line %1 for the column names.").arg(index + 1));
@@ -546,7 +769,7 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
     QVector<Column> columns(names.size());
     QVector<ColumnTime> times(names.size());
     int rows = 0;
-    for (int line = std::max(0, profile.dataStart); line < text.size(); ++line)
+    for (int line = std::max(0, dataStart); line < text.size(); ++line)
         {
             const QString trimmed = text.at(line).trimmed();
             if (trimmed.isEmpty())
@@ -563,6 +786,32 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
     if (rows == 0)
         {
             return fail(tr("The file has no data."));
+        }
+    if (profile.layout == DataProfile::AimSections)
+        {
+            names << QStringLiteral("Total Time");
+            columns << aimTotalTime(columns.first(), logger.beacons);
+            times.resize(names.size());
+        }
+    else if (profile.layout == DataProfile::RacelogicSections)
+        {
+            int index = -1;
+            for (int i = 0; i < names.size() && index < 0; ++i)
+                {
+                    index = names.at(i).compare(QLatin1String("time"), Qt::CaseInsensitive) == 0 ? i : -1;
+                }
+            if (index < 0)
+                {
+                    names << QStringLiteral("time");
+                    columns.resize(names.size());
+                    times.resize(names.size());
+                    index = int(names.size()) - 1;
+                }
+            columns[index] = Column(rows);
+            for (int r = 0; r < rows; ++r)
+                {
+                    columns[index][r] = r * logger.interval;
+                }
         }
 
     // calculated columns, in as many rounds as their inputs need
@@ -803,6 +1052,10 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
                                              .addMSecs(qint64(std::llround((timeOfDay->timeOfDay - atRow) * 1000.0)));
                     session->setStartUtc(moment);
                 }
+        }
+    if (!session->startUtc().isValid() && logger.start.isValid())
+        {
+            session->setStartUtc(logger.start.addMSecs(qint64(std::llround(t0 * 1000.0))));
         }
     return session;
 }

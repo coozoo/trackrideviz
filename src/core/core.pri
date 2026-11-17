@@ -18,6 +18,7 @@ SOURCES += \
     $$PWD/gauge/gaugefonts.cpp \
     $$PWD/gauge/gaugetheme.cpp \
     $$PWD/gauge/gaugelibrary.cpp \
+    $$PWD/gauge/gaugeshape.cpp \
     $$PWD/gauge/gaugerenderer.cpp \
     $$PWD/gauge/metricrange.cpp \
     $$PWD/gauge/veggaugeimporter.cpp \
@@ -31,7 +32,9 @@ SOURCES += \
     $$PWD/overlay/templatelibrary.cpp \
     $$PWD/overlay/xmltemplateimporter.cpp \
     $$PWD/project/project.cpp \
+    $$PWD/project/projectdata.cpp \
     $$PWD/settings/appsettings.cpp \
+    $$PWD/update/releasecheck.cpp \
     $$PWD/settings/bundleddata.cpp \
     $$PWD/sync/syncmap.cpp \
     $$PWD/sync/videosync.cpp \
@@ -78,6 +81,7 @@ HEADERS += \
     $$PWD/gauge/gaugefile.h \
     $$PWD/gauge/gaugefonts.h \
     $$PWD/gauge/gaugelibrary.h \
+    $$PWD/gauge/gaugeshape.h \
     $$PWD/gauge/gaugerenderer.h \
     $$PWD/gauge/gaugetheme.h \
     $$PWD/gauge/metricrange.h \
@@ -92,7 +96,9 @@ HEADERS += \
     $$PWD/overlay/templatelibrary.h \
     $$PWD/overlay/xmltemplateimporter.h \
     $$PWD/project/project.h \
+    $$PWD/project/projectdata.h \
     $$PWD/settings/appsettings.h \
+    $$PWD/update/releasecheck.h \
     $$PWD/settings/bundleddata.h \
     $$PWD/sync/syncmap.h \
     $$PWD/sync/videosync.h \
@@ -136,6 +142,8 @@ HEADERS += \
     $$PWD/video/videojoin.h
 
 RESOURCES += $$PWD/gauge/fonts/fonts.qrc
+# the data profiles that come with the program
+RESOURCES += $$PWD/telemetry/csv/profiles/dataprofiles.qrc
 
 # gzip for the library's own files (Gzip); zlib is there wherever Qt is
 LIBS += -lz

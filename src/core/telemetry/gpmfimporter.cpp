@@ -389,7 +389,8 @@ TelemetrySessionPtr GpmfImporter::fromPayloads(const QVector<Payload> &payloads)
         {
             readRecords(payload.data, 0, payload.data.size(), payload, Stream(), &reading);
         }
-    if (reading.fixes.isEmpty())
+    // without a satellite fix there are no positions, but the G-forces are still worth having
+    if (reading.fixes.isEmpty() && reading.accel.isEmpty())
         {
             return nullptr;
         }
@@ -420,7 +421,13 @@ TelemetrySessionPtr GpmfImporter::fromPayloads(const QVector<Payload> &payloads)
         }
     if (lat.isEmpty())
         {
-            return nullptr;
+            if (reading.accel.isEmpty())
+                {
+                    return nullptr;
+                }
+            session->removeEmptyChannels();
+            session->addWarning(QCoreApplication::translate("GpmfImporter", "The camera had no satellite fix while this video "
+                                                            "was recorded: there are no positions in it, only its G-forces."));
         }
     addMotion(*session, reading.accel, {ChannelId::AccelX, ChannelId::AccelY, ChannelId::AccelZ}, "m/s2", 1.0);
     // radians to degrees

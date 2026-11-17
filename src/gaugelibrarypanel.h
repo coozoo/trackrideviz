@@ -8,6 +8,13 @@ class QListWidget;
 class QPushButton;
 class QTabBar;
 
+// What a gauge or a template dragged out of the library carries: its id.
+namespace LibraryDrag
+{
+inline constexpr char GaugeMime[] = "application/x-trackrideviz-gauge";
+inline constexpr char TemplateMime[] = "application/x-trackrideviz-template";
+}
+
 // The library dock: the gauges and templates on this computer with small
 // pictures, how they get in (import) and how they get onto the video.
 class GaugeLibraryPanel : public QWidget
@@ -19,6 +26,10 @@ public:
 
     // What an import found to bring in (see the .cpp).
     struct ImportFolders;
+
+    // Brings in what was dropped on the window: gauge and template files (.rtvgauge, .rtvtemplate,
+    // .veg, .vet) and folders, as Import does with a folder. False when none of it is such.
+    bool importDropped(const QStringList &paths);
 
 public slots:
     // Reads the library again. Pictures are drawn in a worker thread and

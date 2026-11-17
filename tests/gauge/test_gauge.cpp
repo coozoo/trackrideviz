@@ -3,6 +3,7 @@
 #include "gauge/gaugefonts.h"
 #include "gauge/gaugelibrary.h"
 #include "gauge/gaugerenderer.h"
+#include "gauge/gaugeshape.h"
 #include "gauge/metricrange.h"
 #include "gauge/veggaugeimporter.h"
 #include "gauge/xmlgaugeimporter.h"
@@ -1033,6 +1034,33 @@ private slots:
                 QCOMPARE(TileStore::provider(provider.id).name, provider.name);
             }
         QCOMPARE(TileStore::provider("no such map").id, providers.first().id);
+
+        // a gauge's map of its own: one store per map, its server and credit, the settings' key
+        TileStore::setMapOptions(false, true, "secret");
+        QCOMPARE(TileStore::forMap(QString()), TileStore::instance());
+        TileStore *satellite = TileStore::forMap("satellite");
+        QVERIFY(satellite != TileStore::instance());
+        QCOMPARE(TileStore::forMap("satellite"), satellite);
+        QCOMPARE(satellite->urlTemplate(), TileStore::provider("satellite").urlTemplate);
+        QCOMPARE(satellite->attribution(), TileStore::provider("satellite").attribution);
+        QVERIFY(TileStore::forMap("opencyclemap")->urlTemplate().contains("apikey=secret"));
+        // without the credit drawn
+        TileStore::setMapOptions(false, false, "secret");
+        QVERIFY(satellite->attribution().isEmpty());
+        QCOMPARE(TileStore::pendingOfAllMaps(), 0);
+
+        // kept in the gauge's file
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 100, 100);
+        map.tiles = true;
+        map.mapProvider = "opentopomap";
+        gauge.components.append(map);
+        Gauge back;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &back));
+        QCOMPARE(back.components.first().mapProvider, QString("opentopomap"));
     }
 
     void trackMapOverStreetTiles()
@@ -2274,6 +2302,11 @@ private slots:
         line.filled = false;
         line.points = {QPointF(1, 1), QPointF(2, 3), QPointF(4, 5)};
         line.lineWidth = 3;
+        // the same points closed and filled, fading
+        GaugeComponent polygon = line;
+        polygon.filled = true;
+        polygon.gradientColor = GaugeColor{GaugeColor::Background, QColor()};
+        polygon.gradientLine = QLineF(0, 0, 0, 5);
         GaugeComponent dial;
         dial.type = GaugeComponent::Dial;
         dial.frame = QRectF(0, 0, 100, 100);
@@ -2319,7 +2352,7 @@ private slots:
         graph.frame = QRectF(0, 0, 100, 50);
         graph.windowBefore = 60;
         graph.windowAfter = 10;
-        gauge.components = {rect, arc, outline, line, dial, tape, text, graph};
+        gauge.components = {rect, arc, outline, line, dial, tape, text, graph, polygon};
 
         const QByteArray json = GaugeFile::toJson(gauge);
         Gauge loaded;
@@ -2345,6 +2378,34 @@ private slots:
         QCOMPARE(c[2].lineWidth, 2.0);
         QCOMPARE(c[3].points.size(), 3);
         QCOMPARE(c[3].points[2], QPointF(4, 5));
+        QVERIFY(!c[3].filled);
+        QVERIFY(c[8].filled);
+        QCOMPARE(c[8].points, polygon.points);
+        QCOMPARE(c[8].gradientColor, polygon.gradientColor);
+        QCOMPARE(c[8].gradientLine, polygon.gradientLine);
+
+        // curved through the points: the curve passes each of them and bulges between them
+        GaugeComponent wave = line;
+        wave.smooth = true;
+        wave.points = {QPointF(0, 50), QPointF(25, 0), QPointF(50, 50), QPointF(75, 0), QPointF(100, 50)};
+        Gauge waves;
+        waves.size = QSizeF(100, 60);
+        waves.components = {wave};
+        Gauge waveBack;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(waves), &waveBack));
+        QVERIFY(waveBack.components.first().smooth);
+        QImage straightImage(100, 60, QImage::Format_ARGB32_Premultiplied);
+        QImage curvedImage = straightImage;
+        for (const bool curved : {false, true})
+            {
+                Gauge g = waves;
+                g.components.first().smooth = curved;
+                QImage &image = curved ? curvedImage : straightImage;
+                image.fill(Qt::transparent);
+                QPainter painter(&image);
+                BoundGauge(g, ChannelId::Speed, nullptr, Units(), GaugeTheme()).render(painter, QRectF(0, 0, 100, 60), 0.0);
+            }
+        QVERIFY(curvedImage != straightImage);
         QCOMPARE(c[4].type, GaugeComponent::Dial);
         QCOMPARE(c[4].scale.endAngle, 135.0);
         QCOMPARE(c[4].scale.radius, 48.0);
@@ -2369,6 +2430,177 @@ private slots:
     }
 
     // --- XML gauges -----------------------------------------------------------
+
+    // Three laps of 60, 50 and 70 s from 10 s, then a fourth under way to the end at 300 s.
+    // With sectors: 20, 20, 20 s; 18, 22, 10 s; 25, 25, 20 s, and 15 s of the fourth's first.
+    static TelemetrySessionPtr lapSession(bool sectors)
+    {
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+        speed.append(0.0, 10.0);
+        speed.append(300.0, 10.0);
+        session->setLaps({{10.0, 70.0, sectors ? QVector<double>{30.0, 50.0} : QVector<double>{}},
+                          {70.0, 120.0, sectors ? QVector<double>{88.0, 110.0} : QVector<double>{}},
+                          {120.0, 190.0, sectors ? QVector<double>{145.0, 170.0} : QVector<double>{}}});
+        Channel &lap = session->channelForWriting(ChannelId::Lap, QString(), Channel::Step);
+        for (const double start : {10.0, 70.0, 120.0, 190.0})
+            {
+                lap.append(start, lap.count() + 1);
+            }
+        if (sectors)
+            {
+                Channel &sector = session->channelForWriting(ChannelId::Sector, QString(), Channel::Step);
+                sector.append(190.0, 1);
+                sector.append(205.0, 2);
+            }
+        return session;
+    }
+
+    static bool hasColor(const QImage &image, const QRect &area, QRgb color)
+    {
+        for (int y = area.top(); y <= area.bottom(); ++y)
+            {
+                for (int x = area.left(); x <= area.right(); ++x)
+                    {
+                        const QRgb p = image.pixel(x, y);
+                        if (qAlpha(p) > 128 && std::abs(qRed(p) - qRed(color)) < 60 && std::abs(qBlue(p) - qBlue(color)) < 60)
+                            {
+                                return true;
+                            }
+                    }
+            }
+        return false;
+    }
+
+    void lapTableShowsTheLapsSoFar()
+    {
+        GaugeComponent table;
+        table.type = GaugeComponent::LapTable;
+        table.frame = QRectF(0, 0, 100, 90);
+        table.rows = 3;
+        table.fontSize = 14;
+        table.color = GaugeColor{GaugeColor::Custom, Qt::red};
+        table.activeColor = GaugeColor{GaugeColor::Custom, Qt::blue};
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(table);
+        const TelemetrySessionPtr session = lapSession(false);
+        const QRect first(0, 0, 100, 30), second(0, 30, 100, 30), third(0, 60, 100, 30);
+
+        // the first lap under way, alone
+        QImage image = draw(gauge, 40.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, first, qRgb(255, 0, 0)));
+        QCOMPARE(paintedPixels(image.copy(second)) + paintedPixels(image.copy(third)), 0);
+
+        // two finished, the second the best, and the third under way
+        image = draw(gauge, 130.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, first, qRgb(255, 0, 0)));
+        QVERIFY(!hasColor(image, first, qRgb(0, 0, 255)));
+        QVERIFY(hasColor(image, second, qRgb(0, 0, 255)));
+        QVERIFY(!hasColor(image, second, qRgb(255, 0, 0)));
+        QVERIFY(hasColor(image, third, qRgb(255, 0, 0)));
+
+        // four laps, three lines: the first scrolled away, the lap under way at the bottom
+        image = draw(gauge, 250.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, first, qRgb(0, 0, 255)));
+        QVERIFY(hasColor(image, second, qRgb(255, 0, 0)));
+        QVERIFY(hasColor(image, third, qRgb(255, 0, 0)));
+
+        // kept in the file
+        Gauge back;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &back));
+        QCOMPARE(back.components.first().type, GaugeComponent::LapTable);
+        QCOMPARE(back.components.first().rows, 3);
+        QCOMPARE(back.components.first().activeColor, table.activeColor);
+    }
+
+    void sectorBarComparesWithTheBest()
+    {
+        GaugeComponent bar;
+        bar.type = GaugeComponent::SectorBar;
+        bar.frame = QRectF(0, 0, 90, 30);
+        bar.color = GaugeColor{GaugeColor::Custom, Qt::red};
+        bar.activeColor = GaugeColor{GaugeColor::Custom, Qt::blue};
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(bar);
+        const TelemetrySessionPtr session = lapSession(true);
+        const auto alphaAt = [](const QImage &image, int x) { return qAlpha(image.pixel(x, 15)); };
+
+        // the first lap's first sector: nothing to beat, so the best
+        QImage image = draw(gauge, 40.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(0, 0, 255)));
+        // the second sector being driven, with no best to fill up against
+        QVERIFY(alphaAt(image, 45) < 100);
+
+        // the second lap: 18 s beat 20 s; the second sector 12 s into the best 20 s of it
+        image = draw(gauge, 100.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(0, 0, 255)));
+        QVERIFY(alphaAt(image, 40) > 128);
+        QVERIFY(alphaAt(image, 55) < 100);
+        QVERIFY(alphaAt(image, 75) < 100);
+
+        // the third lap: 25 s against 18 s, 25 s against 20 s, slower both
+        image = draw(gauge, 175.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(255, 0, 0)));
+        QVERIFY(hasColor(image, QRect(45, 15, 1, 1), qRgb(255, 0, 0)));
+
+        // the lap under way: its first sector of 15 s the best
+        image = draw(gauge, 210.0, ChannelId::Speed, session);
+        QVERIFY(hasColor(image, QRect(15, 15, 1, 1), qRgb(0, 0, 255)));
+
+        // without sector lines: empty segments
+        image = draw(gauge, 100.0, ChannelId::Speed, lapSession(false));
+        QVERIFY(alphaAt(image, 15) > 0 && alphaAt(image, 15) < 100);
+    }
+
+    void widenedGaugeSpreadsItsParts()
+    {
+        Gauge gauge;
+        gauge.size = QSizeF(200, 100);
+        GaugeComponent graph;
+        graph.type = GaugeComponent::Graph;
+        graph.frame = QRectF(10, 10, 180, 80);
+        GaugeComponent dot;
+        dot.type = GaugeComponent::Shape;
+        dot.shape = GaugeComponent::Ellipse;
+        dot.frame = QRectF(-4, -4, 8, 8);
+        graph.knob.append(dot);
+        GaugeComponent value;
+        value.type = GaugeComponent::Text;
+        value.frame = QRectF(100, 50, 0, 0);
+        value.fontSize = 30;
+        GaugeComponent needle;
+        needle.type = GaugeComponent::Image;
+        needle.frame = QRectF(90, 0, 20, 100);
+        GaugeManipulation turn;
+        turn.pivot = QPointF(100, 50);
+        needle.manipulations.append(turn);
+        GaugeComponent group;
+        group.type = GaugeComponent::Group;
+        group.children = {needle};
+        gauge.components = {graph, value, group};
+
+        // as wide again: 4 : 1
+        const Gauge wide = GaugeShape::widened(gauge, 4.0);
+        QCOMPARE(wide.size, QSizeF(400, 100));
+        QCOMPARE(wide.components[0].frame, QRectF(20, 10, 360, 80));
+        // the dot at the current point keeps its shape, letters their size
+        QCOMPARE(wide.components[0].knob[0].frame, dot.frame);
+        QCOMPARE(wide.components[1].frame.topLeft(), QPointF(200, 50));
+        QCOMPARE(wide.components[1].fontSize, 30.0);
+        QCOMPARE(wide.components[2].children[0].manipulations[0].pivot, QPointF(200, 50));
+        // narrower too, and the gauge as it is at its own shape or without one
+        QCOMPARE(GaugeShape::widened(gauge, 1.0).size, QSizeF(100, 100));
+        QCOMPARE(GaugeShape::widened(gauge, 2.0).components[0].frame, graph.frame);
+        QCOMPARE(GaugeShape::widened(gauge, 0.0).size, gauge.size);
+
+        // letters larger, wherever they are, and nothing else
+        const Gauge large = GaugeShape::textsScaled(wide, 1.5);
+        QCOMPARE(large.components[1].fontSize, 45.0);
+        QCOMPARE(large.components[1].frame, wide.components[1].frame);
+        QCOMPARE(large.size, wide.size);
+    }
 
     void xmlChannels()
     {

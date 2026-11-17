@@ -1,18 +1,19 @@
 #include "appearance.h"
+#include "commandline.h"
 #include "diagnostics.h"
 #include "gauge/gaugefonts.h"
 #include "gstreamerworkaround.h"
 #include "mainwindow.h"
-#include "project/project.h"
 #include "settings/appsettings.h"
-#include "telemetry/telemetryimporter.h"
 
 #include <QApplication>
-#include <QFileInfo>
+#include <QDir>
 #include <QIcon>
 #include <QLocale>
 #include <QTranslator>
 #include <QtDebug>
+
+#include <memory>
 
 const QString APP_VERSION = "0.01";
 
@@ -20,11 +21,29 @@ int main(int argc, char *argv[])
 {
     // everything Qt says from the very start, for View > Diagnostics
     DiagnosticLog::install();
-    QApplication a(argc, argv);
+    // exporting from a terminal or a script: no window, nothing of the desktop needed
+    const bool commandLine = CommandLine::wanted(argc, argv);
+    if (commandLine)
+        {
+            CommandLine::attachConsole();
+            if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
+                {
+                    qputenv("QT_QPA_PLATFORM", "offscreen");
+                }
+        }
+    const std::unique_ptr<QGuiApplication> application(commandLine ? new QGuiApplication(argc, argv) : new QApplication(argc, argv));
+    QGuiApplication &a = *application;
     a.setApplicationName("trackrideviz");
     a.setApplicationDisplayName("Race Track Visualizer");
     a.setApplicationVersion(APP_VERSION);
     a.setOrganizationName("trackrideviz");
+#ifdef Q_OS_WIN
+    // ffmpeg.exe and ffprobe.exe are in ffmpeg\ beside the program, with the Vulkan loader only
+    // they need (their filters import it; Windows without a graphics driver has none). The rest
+    // of their DLLs are the program's own, found through the PATH they inherit. The loader is
+    // kept out of the program's folder: there Wine's graphics would load it too, and recurse.
+    qputenv("PATH", QDir::toNativeSeparators(a.applicationDirPath()).toLocal8Bit() + ";" + qgetenv("PATH"));
+#endif
     // before anything draws gauges in another thread (library pictures, export)
     GaugeFonts::load();
 
@@ -54,6 +73,10 @@ int main(int argc, char *argv[])
 #endif
     a.setProperty("appversion", APP_VERSION + platform + " (QTbuild:" + QString(QT_VERSION_STR) + ")");
     a.setProperty("appname", "Race Track Visualizer");
+    if (commandLine)
+        {
+            return CommandLine::run();
+        }
 
 #ifdef Q_OS_LINUX
     a.setWindowIcon(QIcon(":/images/trackrideviz.png"));
@@ -78,22 +101,12 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    // Files given on the command line: a project, or data files by their suffix; anything else is the video.
+    // Files given on the command line (a double click on one, too) are taken as if dropped on the
+    // window: a project, a video, data, gauges and templates for the library.
     const QStringList files = a.arguments().mid(1);
-    for (const QString &file : files)
+    if (!files.isEmpty())
         {
-            if (QFileInfo(file).suffix().compare(ProjectFile::Suffix, Qt::CaseInsensitive) == 0)
-                {
-                    w.openProject(file);
-                }
-            else if (TelemetryImporter::canLoad(file))
-                {
-                    w.openTelemetry(file);
-                }
-            else
-                {
-                    w.openVideo(file);
-                }
+            w.openDropped(files);
         }
 
     return a.exec();

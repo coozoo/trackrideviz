@@ -2,6 +2,9 @@
 
 #include "ffmpegtools.h"
 
+#include <future>
+#include <vector>
+
 namespace
 {
 VideoEncoder make(const char *id, const QString &label, bool hardware, VideoEncoder::Codec codec)
@@ -183,16 +186,16 @@ QVector<VideoEncoder> VideoEncoders::detect(const QString &ffmpegProgram)
             return usable;
         }
     const QString compiledIn = QString::fromLocal8Bit(listing.output);
-    for (const VideoEncoder &encoder : known())
+    // a hardware encoder is only usable when the driver takes a frame: each is tried, all at
+    // once, as starting ffmpeg takes a while (on Windows above all) and a test may wait long
+    const QVector<VideoEncoder> all = known();
+    std::vector<std::future<bool>> works(size_t(all.size()));
+    for (int i = 0; i < all.size(); ++i)
         {
+            const VideoEncoder &encoder = all.at(i);
             // lines look like " V....D libx264              libx264 H.264 ..."
-            if (!compiledIn.contains(" " + encoder.id + " "))
+            if (!encoder.hardware || !compiledIn.contains(" " + encoder.id + " "))
                 {
-                    continue;
-                }
-            if (!encoder.hardware)
-                {
-                    usable.append(encoder);
                     continue;
                 }
             QStringList args = {"-hide_banner", "-loglevel", "error"};
@@ -204,8 +207,21 @@ QVector<VideoEncoder> VideoEncoders::detect(const QString &ffmpegProgram)
             probe.rateControl = ExportSettings::Quality;
             args << arguments(encoder, probe);
             args << "-f" << "null" << "-";
-            const FfmpegTools::RunResult test = FfmpegTools::run(ffmpegProgram, args, 10000);
-            if (test.started && test.exitCode == 0)
+            works[size_t(i)] = std::async(std::launch::async, [ffmpegProgram, args]()
+            {
+                const FfmpegTools::RunResult test = FfmpegTools::run(ffmpegProgram, args, 10000);
+                return test.started && test.exitCode == 0;
+            });
+        }
+    // in the order known() gives, whichever test ends first
+    for (int i = 0; i < all.size(); ++i)
+        {
+            const VideoEncoder &encoder = all.at(i);
+            if (!compiledIn.contains(" " + encoder.id + " "))
+                {
+                    continue;
+                }
+            if (!encoder.hardware || works[size_t(i)].get())
                 {
                     usable.append(encoder);
                 }

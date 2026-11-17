@@ -58,13 +58,15 @@ private slots:
     void withGeometryMovesOneItem()
     {
         const Overlay overlay({item(0.0, 0.0, 0.5), item(0.5, 0.5, 0.25)}, nullptr, Units(), GaugeTheme());
-        const Overlay moved = overlay.withGeometry(1, 0.1, 0.2, 0.5);
+        const Overlay moved = overlay.withGeometry(1, 0.1, 0.2, 0.5, 0.0);
         const QRectF frame(0, 0, 1000, 1000);
         QCOMPARE(moved.itemRect(1, frame), QRectF(100, 200, 500, 500));
         QCOMPARE(moved.item(1).gaugeId, overlay.item(1).gaugeId);
         QCOMPARE(moved.itemRect(0, frame), overlay.itemRect(0, frame));
         // the original is untouched
         QCOMPARE(overlay.itemRect(1, frame), QRectF(500, 500, 250, 250));
+        // set free of its shape: three times as wide as high
+        QCOMPARE(overlay.withGeometry(1, 0.1, 0.2, 0.2, 3.0).itemRect(1, frame), QRectF(100, 200, 600, 200));
     }
 
     void itemAtFindsTheTopmost()
@@ -162,6 +164,41 @@ private slots:
         QCOMPARE(qAlpha(image.pixel(350, 50)), 0);
     }
 
+    void gaugeOfItsOwnLook()
+    {
+        auto session = std::make_shared<TelemetrySession>();
+        session->channelForWriting(ChannelId::Speed, "m/s").append(0.0, 5.0);
+        session->channelForWriting(ChannelId::Speed, "m/s").append(10.0, 5.0);
+        const auto draw = [&](const OverlayItem &placed)
+        {
+            QImage image(400, 200, QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);
+            QPainter painter(&image);
+            Overlay({placed}, session, Units(), GaugeTheme()).render(painter, QRectF(0, 0, 400, 200), 1.0);
+            return image;
+        };
+        const OverlayItem plain = item(0.25, 0.0, 1.0);
+        OverlayItem faint = plain;
+        faint.opacity = 0.5;
+        OverlayItem own = plain;
+        own.ownTheme = true;
+        own.theme.background = QColor(0, 0, 255);
+        const QImage asMade = draw(plain);
+        // half as opaque everywhere it is drawn
+        const QImage half = draw(faint);
+        QVERIFY(qAbs(qAlpha(half.pixel(200, 100)) - qAlpha(asMade.pixel(200, 100)) / 2) <= 2);
+        // its own colors, not the common ones
+        const QImage blue = draw(own);
+        QVERIFY(blue != asMade);
+        int bluish = 0;
+        for (int x = 120; x < 280; ++x)
+            {
+                const QRgb p = blue.pixel(x, 100);
+                bluish += qBlue(p) > 150 && qRed(p) < 80 ? 1 : 0;
+            }
+        QVERIFY(bluish > 10);
+    }
+
     void roundTrip()
     {
         Project project;
@@ -181,6 +218,17 @@ private slots:
         // a part made for the heading shows the wind's direction; the scale ends at 60
         project.overlay[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
         project.overlay[1].scaleMax = 60.0;
+        // made wider than the gauge was drawn
+        project.overlay[1].aspect = 3.5;
+        // placed on a vertical video
+        project.layoutAspect = 9.0 / 16.0;
+        // one gauge of its own look: green, larger letters, half see-through
+        project.overlay[0].ownTheme = true;
+        project.overlay[0].theme.accent = QColor(0, 200, 0);
+        project.overlay[0].theme.font = "DejaVu Sans";
+        project.overlay[0].textScale = 1.5;
+        project.overlay[0].opacity = 0.5;
+        project.overlay[1].map = "satellite";
         project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);
@@ -196,6 +244,12 @@ private slots:
         QCOMPARE(loaded.overlay, project.overlay);
         QCOMPARE(loaded.theme, project.theme);
         QCOMPARE(loaded.elevation, Terrain::Always);
+        QCOMPARE(loaded.layoutAspect, 9.0 / 16.0);
+        // a project from before the shape was kept: not known
+        QJsonObject old = QJsonDocument::fromJson(ProjectFile::toJson(project, "/rides/2025")).object();
+        old.remove("layoutAspect");
+        QVERIFY(ProjectFile::fromJson(QJsonDocument(old).toJson(), "/rides/2025", &loaded, &error));
+        QCOMPARE(loaded.layoutAspect, 0.0);
     }
 
     void pathsAreStoredRelative()

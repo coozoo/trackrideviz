@@ -65,6 +65,10 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
         {
             const QJsonObject stream = value.toObject();
             const QString type = stream.value("codec_type").toString();
+            if (stream.value("codec_tag_string").toString() == QLatin1String("gpmd"))
+                {
+                    result.hasCameraData = true;
+                }
             if (type == "audio" && !result.hasAudio)
                 {
                     result.hasAudio = true;

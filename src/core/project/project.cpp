@@ -93,6 +93,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
         {"overlay", overlay},
         {"theme", project.theme.toJson()},
     };
+    if (project.layoutAspect > 0.0)
+        {
+            root.insert("layoutAspect", project.layoutAspect);
+        }
     if (!project.moreData.isEmpty())
         {
             QJsonArray sources;
@@ -357,6 +361,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                 }
         }
     loaded.theme = GaugeTheme::fromJson(root.value("theme").toObject());
+    loaded.layoutAspect = std::max(0.0, root.value("layoutAspect").toDouble());
     *project = loaded;
     return true;
 }

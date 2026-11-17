@@ -7,6 +7,7 @@
 #include "weather/weather.h"
 #include "telemetry/telemetrysession.h"
 #include "units/units.h"
+#include "update/releasecheck.h"
 
 #include <QElapsedTimer>
 #include <QMainWindow>
@@ -23,6 +24,7 @@ class QDoubleSpinBox;
 class QLabel;
 class QMenu;
 class QSlider;
+class QSpinBox;
 class QTimer;
 class QToolButton;
 class QPushButton;
@@ -54,9 +56,13 @@ public slots:
     // Imports in a worker thread; the window stays usable meanwhile.
     void openTelemetry(const QString &path);
     void openProject(const QString &path);
+    void openDropped(const QStringList &paths);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    // Files dropped on the window: a project, a video, data, gauges and templates for the library.
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private slots:
     void chooseVideo();
@@ -72,9 +78,14 @@ private slots:
     void exportVideo();
     // Editing what is on the video. Every one of these is one undo step.
     void addGauge(const QString &gaugeId);
+    // A video of another shape than the gauges were placed on: each placed again from its nearest
+    // edges, as a template places them
+    void fitLayoutTo(double aspect);
+    // ... centered at `center` (fractions of the frame), kept on the picture; below 0: where addGauge puts it
+    void addGaugeAt(const QString &gaugeId, const QPointF &center);
     void applyTemplate(const QString &templateId);
     void removeGauge(int index);
-    void onItemGeometryEdited(int index, double x, double y, double height);
+    void onItemGeometryEdited(int index, double x, double y, double height, double aspect);
     void setGaugeChannel(int index, const QString &channel);
     // A part of the gauge made for `own` shows `shown` instead.
     void setGaugePartChannel(int index, const QString &own, const QString &shown);
@@ -85,6 +96,12 @@ private slots:
     void recomputeData();
     void saveAsTemplate();
     void chooseThemeColor(int role);
+    // The colors and font the controls show and change: the selected gauge's own, or every gauge's.
+    bool editsOwnLook() const;
+    const GaugeTheme &shownTheme() const;
+    void changeTheme(const QString &description, const std::function<void(GaugeTheme &)> &change);
+    // The selected gauge's own look changed as `change` does.
+    void changeGaugeLook(const QString &description, const std::function<void(OverlayItem &)> &change);
     void showItemMenu(int index, const QPoint &globalPosition);
     void updateProperties();
     void togglePlayback();
@@ -99,6 +116,11 @@ private slots:
     void applySettings();
     void applyMapSettings();
     void showAbout();
+    // Newer releases: looked for quietly once a day, or at once from the Help menu.
+    void checkForUpdates(bool asked);
+    void showNewRelease();
+    // Replaces this copy with `release` where it can, and starts it.
+    void updateTo(const ReleaseCheck::Release &release);
 
 private:
     // A File submenu of the files of `kind` opened lately; `open` opens one.
@@ -207,11 +229,21 @@ private:
     QLabel *m_scaleMaxLabel{nullptr};
     QDoubleSpinBox *m_scaleMaxSpin{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
+    // the selected gauge's own look; with its own colors and font the controls under them edit those
+    QSpinBox *m_textSizeSpin{nullptr};
+    QSpinBox *m_opacitySpin{nullptr};
+    QCheckBox *m_ownLookCheck{nullptr};
+    QLabel *m_lookTitle{nullptr};
     QVector<QPushButton *> m_themeButtons;
     QComboBox *m_fontCombo{nullptr};
     QComboBox *m_fontWeightCombo{nullptr};
     QCheckBox *m_fontEverywhereCheck{nullptr};
     QUndoStack *m_undoStack{nullptr};
+    ReleaseCheck *m_releaseCheck{nullptr};
+    ReleaseCheck::Release m_newRelease;     // a newer one found; invalid when none
+    bool m_updateAsked{false};              // the check under way was asked for: its answer is told
+    QLabel *m_updateLabel{nullptr};         // in the status bar while there is a newer one
+    QAction *m_updateAction{nullptr};
     // The project differs from what is on disk in a way worth asking about.
     bool m_modified{false};
 

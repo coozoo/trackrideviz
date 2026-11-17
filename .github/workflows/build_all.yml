@@ -47,6 +47,8 @@ jobs:
       build_mac_zip: ${{ steps.set_flags.outputs.build_mac_zip }}
       build_win: ${{ steps.set_flags.outputs.build_win }}
       build_lin: ${{ steps.set_flags.outputs.build_lin }}
+      # the release's tag as GitHub names it, for the program to know which release it is
+      release_tag: ${{ steps.build.outputs.VER_TAG_NAME }}_${{ github.ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -126,12 +128,17 @@ jobs:
     name: Build release
     needs: create_release
     runs-on: ${{ matrix.config.os }}
+    env:
+      # built into the program (see trackrideviz.pro): a release then tells when a newer one is
+      # out; artifacts of other branches are no releases and never ask
+      RTV_RELEASE_TAG: ${{ github.ref == 'refs/heads/main' && needs.create_release.outputs.release_tag || '' }}
     strategy:
       fail-fast: false
       matrix:
         config:
           - os: ubuntu-22.04
-          - os: macos-latest
+          # macOS comes back for the final stage, once the rest is ready
+          # - os: macos-latest
           - os: windows-latest
     steps:
       - name: Checkout code
@@ -244,7 +251,7 @@ jobs:
           asset_content_type: application/octet-stream
       - name: Archive Linux AppImage
         if: matrix.config.os == 'ubuntu-22.04' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_lin == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: Race_Track_Visualizer-x86_64.AppImage
           path: ./Race_Track_Visualizer-x86_64.AppImage
@@ -297,14 +304,14 @@ jobs:
           asset_content_type: application/zip
       - name: Archive macOS zip
         if: matrix.config.os == 'macos-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_mac_zip == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildosx.outputs.APP_NAME }}_${{ steps.buildosx.outputs.VER_TAG_NAME }}.zip
           path: ./${{ steps.bundleosx.outputs.MAC_ZIP_NAME }}
           overwrite: true
       - name: Archive macOS dmg
         if: matrix.config.os == 'macos-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_mac_dmg == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildosx.outputs.APP_NAME }}_${{ steps.buildosx.outputs.VER_TAG_NAME }}.dmg
           path: ./${{ steps.bundleosx.outputs.MAC_DMG_NAME }}
@@ -326,6 +333,7 @@ jobs:
             mingw-w64-x86_64-qt6-svg
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-qt6-tools
+            mingw-w64-x86_64-nsis
             tar
       - name: get app version
         if: matrix.config.os == 'windows-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_win == '1')
@@ -362,7 +370,7 @@ jobs:
             "libfreetype*.dll" "libb*.dll" "libpng*.dll" "libglib*.dll" "libintl*.dll"
             "libiconv*.dll" "libcrypto*.dll" "libssl*.dll" "libmd4c*.dll"
             "avcodec*.dll" "avformat*.dll" "avutil*.dll" "swscale*.dll" "swresample*.dll"
-            "libva.dll" "libva_win32.dll" "libvpl*.dll" "libsoxr.dll"
+            "libva.dll" "libva_win32.dll" "libvpl*.dll" "libsoxr.dll" "libgomp*.dll"
             "libaom.dll" "libdav1d*.dll" "librav1e.dll" "libSvtAv1Enc*.dll" "libsvtav1enc*.dll"
             "libx264*.dll" "libx265*.dll" "xvidcore.dll" "libvpx*.dll"
             "libopus*.dll" "libvorbis*.dll" "libogg*.dll" "libtheora*.dll" "libmp3lame*.dll"
@@ -374,9 +382,16 @@ jobs:
             "librtmp*.dll" "libsrt.dll" "libssh.dll"
             "libgnutls*.dll" "libgmp*.dll" "libhogweed*.dll" "libnettle*.dll" "libidn2*.dll"
             "libp11-kit*.dll" "libtasn1*.dll" "libunistring*.dll"
-            "librsvg*.dll" "libcairo*.dll" "libpixman*.dll" "libfontconfig*.dll" "libexpat*.dll"
+            "librsvg*.dll" "libcairo*.dll" "liblzo2*.dll" "libpixman*.dll" "libfontconfig*.dll" "libexpat*.dll"
             "libpango*.dll" "libfribidi*.dll" "libthai*.dll" "libdatrie*.dll"
             "libgdk_pixbuf*.dll" "libgio*.dll" "libgobject*.dll" "libgmodule*.dll" "libffi*.dll"
+            # and what ffmpeg.exe and ffprobe.exe load besides: devices and filters
+            "avdevice*.dll" "avfilter*.dll" "libcaca*.dll" "libopenal*.dll"
+            # not vulkan-1.dll here: one next to the program is loaded by the graphics stack too
+            # (under Wine it then recursed until the stack overflowed); ffmpeg gets it in ffmpeg/
+            "libplacebo*.dll" "libdovi.dll" "libshaderc_shared.dll" "libspirv-cross-c-shared.dll"
+            "libass*.dll" "libunibreak*.dll" "libvidstab.dll" "libzimg*.dll"
+            "libz-1*.dll" "libwhisper*.dll" "ggml*.dll"
           )
           for pattern in "${DLL_PATTERNS[@]}"; do
             files=("$ROOTMSYS/bin"/$pattern)
@@ -385,7 +400,25 @@ jobs:
             fi
           done
           shopt -u nullglob
+          # export and the music's lengths run ffmpeg and ffprobe: in ffmpeg/ with vulkan-1.dll,
+          # which their filters (libplacebo) import and Windows without a graphics driver lacks;
+          # the other DLLs above they find in the program's folder, which the program puts on
+          # their PATH. Not beside the program: Wine's graphics would load it there and recurse
+          mkdir -p release/ffmpeg
+          cp $ROOTMSYS/bin/ffmpeg.exe $ROOTMSYS/bin/ffprobe.exe $ROOTMSYS/bin/vulkan-1.dll release/ffmpeg/
+          # OpenGL in software, Qt's own build of Mesa llvmpipe: where the graphics driver offers
+          # none worth having (Microsoft Basic Render Driver in a virtual machine, remote
+          # desktops, old drivers) Qt loads it by itself; without it the window stays empty
+          curl -fsSL -o opengl32sw.7z https://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64-mesa_11_2_2-signed_sha256.7z
+          echo "c61f801c1760aa24b02c7a8354323cddf368b86f8f5c34b50b3b224f7d728afd  opengl32sw.7z" | sha256sum -c -
+          7z x -y -orelease opengl32sw.7z opengl32sw.dll
+          rm opengl32sw.7z
           mv release ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64; 7z -tzip a ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64/
+          # the same folder as an installer, for those who would rather install than unpack
+          MAKENSIS=$ROOTMSYS/bin/makensis.exe windows/make-installer.sh \
+            ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64 \
+            "$(cat main.cpp | grep 'const QString APP_VERSION' | awk -F\" '{print $2;}')" \
+            ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
           ls -l
         shell: msys2 {0}
       - name: Upload Release Asset Win64
@@ -399,10 +432,27 @@ jobs:
           asset_path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           asset_name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           asset_content_type: application/zip
+      - name: Upload Release Asset Win64 installer
+        if: matrix.config.os == 'windows-latest' && github.ref == 'refs/heads/main'
+        uses: shogo82148/actions-upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          asset_name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
       - name: Archive Win64 zip
         if: matrix.config.os == 'windows-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_win == '1'
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
           path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64.zip
+          overwrite: true
+      - name: Archive Win64 installer
+        if: matrix.config.os == 'windows-latest' && github.ref != 'refs/heads/main' && needs.create_release.outputs.build_win == '1'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
           overwrite: true

@@ -10,13 +10,15 @@
 #include <QJsonObject>
 #include <QSaveFile>
 
+#include <algorithm>
+
 namespace
 {
 const char kFormat[] = "rtvgauge";
 const int kVersion = 1;
 
 const char *const kComponentTypes[] = {"image", "text", "group", "graph", "trackMap", "lapMap", "shape", "dial", "tape",
-                                       "gears"};
+                                       "gears", "lapTable", "sectorBar"};
 const char *const kAutoTexts[] = {"fixed", "value", "unit", "valueAndUnit", "label", "labelValueUnit", "intervalMarking"};
 const char *const kShapeKinds[] = {"rectangle", "ellipse", "arc", "pie", "line"};
 const char *const kValueFormats[] = {"number", "wholeNumber", "duration", "degreesMinutesSeconds", "clock"};
@@ -441,6 +443,14 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["filled"] = false;
                 }
+            if (c.filled && c.shape == GaugeComponent::Line)
+                {
+                    object["filled"] = true;   // closed: a polygon
+                }
+            if (c.smooth && c.shape == GaugeComponent::Line)
+                {
+                    object["smooth"] = true;
+                }
             if (c.cornerRadius > 0.0)
                 {
                     object["cornerRadius"] = c.cornerRadius;
@@ -460,6 +470,23 @@ QJsonObject componentToJson(const GaugeComponent &c)
         case GaugeComponent::Gears:
             object["activeColor"] = colorToJson(c.activeColor);
             object["lineWidth"] = c.lineWidth;
+            break;
+        case GaugeComponent::LapTable:
+            object["activeColor"] = colorToJson(c.activeColor);
+            object["rows"] = c.rows;
+            object["font"] = fontToJson(c);
+            if (c.precision >= 0)
+                {
+                    object["precision"] = c.precision;
+                }
+            break;
+        case GaugeComponent::SectorBar:
+            object["activeColor"] = colorToJson(c.activeColor);
+            object["padding"] = c.padding;
+            if (c.cornerRadius > 0.0)
+                {
+                    object["cornerRadius"] = c.cornerRadius;
+                }
             break;
         case GaugeComponent::Dial:
         case GaugeComponent::Tape:
@@ -493,6 +520,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["tiles"] = true;
                     object["tileOpacity"] = c.tileOpacity;
+                    if (!c.mapProvider.isEmpty())
+                        {
+                            object["map"] = c.mapProvider;
+                        }
                     object["cornerRadius"] = c.cornerRadius;
                 }
             if (c.fillAlpha >= 0)
@@ -582,8 +613,9 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.children = componentsFromJson(object.value("components"));
     c.shape = GaugeComponent::ShapeKind(indexOf(kShapeKinds, object.value("shape").toString()));
     c.points = pointsFromJson(object.value("points"));
-    // arcs and lines are only ever drawn with a pen
-    c.filled = object.value("filled").toBool(true) && c.shape != GaugeComponent::Arc && c.shape != GaugeComponent::Line;
+    // arcs are only ever drawn with a pen; lines unless they say they are closed (a polygon)
+    c.filled = c.shape == GaugeComponent::Line ? object.value("filled").toBool(false)
+               : object.value("filled").toBool(true) && c.shape != GaugeComponent::Arc;
     c.cornerRadius = object.value("cornerRadius").toDouble();
     c.startAngle = object.value("startAngle").toDouble();
     c.sweepAngle = object.value("sweepAngle").toDouble();
@@ -596,8 +628,11 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.windowAfter = window.at(1).toDouble();
     c.lineWidth = object.value("lineWidth").toDouble(c.lineWidth);
     c.padding = object.value("padding").toDouble();
+    c.rows = std::max(1, object.value("rows").toInt(c.rows));
     c.tiles = object.value("tiles").toBool();
     c.tileOpacity = object.value("tileOpacity").toDouble(1.0);
+    c.mapProvider = object.value("map").toString();
+    c.smooth = object.value("smooth").toBool();
     c.span = object.value("span").toDouble();
     c.headingUp = object.value("headingUp").toBool();
     c.fillAlpha = object.value("fillAlpha").toInt(-1);

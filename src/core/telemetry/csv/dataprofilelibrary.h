@@ -15,7 +15,9 @@ public:
     static QString userFolder();
     static void setUserFolder(const QString &folder);
 
+    // The user's, then those that come with the program (one of the user's of the same name wins).
     static QVector<DataProfile> profiles();
+    static QVector<DataProfile> builtinProfiles();
     // Stores a profile; one of the same name is replaced. False on failure.
     static bool add(const DataProfile &profile, QString *error = nullptr);
     static bool remove(const QString &name);

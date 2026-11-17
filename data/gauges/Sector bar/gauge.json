@@ -1,0 +1,60 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Sector bar",
+    "size": [
+        460,
+        60
+    ],
+    "supportedTypes": [
+        "sector",
+        "sectorTime",
+        "sectorDelta"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/plate.svg",
+            "frame": [
+                0,
+                0,
+                460,
+                60
+            ],
+            "color": "original"
+        },
+        {
+            "type": "sectorBar",
+            "frame": [
+                12,
+                14,
+                330,
+                32
+            ],
+            "color": "foreground",
+            "activeColor": "accent",
+            "padding": 6,
+            "cornerRadius": 4
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                448,
+                30
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center",
+            "precision": 2,
+            "showPlus": true,
+            "format": "number",
+            "channel": "sectorDelta"
+        }
+    ]
+}
