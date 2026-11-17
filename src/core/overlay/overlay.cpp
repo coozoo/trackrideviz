@@ -2,6 +2,7 @@
 
 #include "../gauge/builtingauges.h"
 #include "../gauge/gaugelibrary.h"
+#include "../gauge/gaugeshape.h"
 
 #include <algorithm>
 #include <cmath>
@@ -55,7 +56,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
 {
     for (const OverlayItem &item : items)
         {
-            Gauge gauge = GaugeLibrary::gauge(item.gaugeId);
+            Gauge gauge = GaugeShape::widened(GaugeLibrary::gauge(item.gaugeId), item.aspect);
             Placed placed;
             placed.item = item;
             chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp);
@@ -95,7 +96,7 @@ QRectF Overlay::itemRect(int index, const QRectF &frame) const
     const Placed &placed = m_placed.at(index);
     const QSizeF shape = placed.gauge.isEmpty() ? QSizeF(1, 1) : placed.gauge.size();
     const double height = placed.item.height * frame.height();
-    const double width = height * shape.width() / shape.height();
+    const double width = height * (placed.item.aspect > 0.0 ? placed.item.aspect : shape.width() / shape.height());
     return QRectF(frame.left() + placed.item.x * frame.width(),
                   frame.top() + placed.item.y * frame.height(), width, height);
 }
@@ -113,13 +114,14 @@ int Overlay::itemAt(const QPointF &point, const QRectF &frame) const
     return -1;
 }
 
-Overlay Overlay::withGeometry(int index, double x, double y, double height) const
+Overlay Overlay::withGeometry(int index, double x, double y, double height, double aspect) const
 {
     Overlay copy = *this;
     OverlayItem &item = copy.m_placed[index].item;
     item.x = x;
     item.y = y;
     item.height = height;
+    item.aspect = aspect;
     return copy;
 }
 
@@ -259,6 +261,10 @@ void OverlayItem::writeChoices(QJsonObject &object) const
         {
             object.insert("scaleMax", scaleMax);
         }
+    if (aspect > 0.0)
+        {
+            object.insert("aspect", aspect);
+        }
 }
 
 void OverlayItem::readChoices(const QJsonObject &object)
@@ -274,4 +280,5 @@ void OverlayItem::readChoices(const QJsonObject &object)
                 }
         }
     scaleMax = std::max(0.0, object.value("scaleMax").toDouble());
+    aspect = std::max(0.0, object.value("aspect").toDouble());
 }

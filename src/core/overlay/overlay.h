@@ -22,7 +22,10 @@ struct OverlayItem
     QString channel{ChannelId::Speed};      // the measurement the gauge is bound to
     double x{0.0};        // left edge, fraction of the frame width
     double y{0.0};        // top edge, fraction of the frame height
-    double height{0.25};  // fraction of the frame height; the width follows the gauge's shape
+    double height{0.25};  // fraction of the frame height; the width follows the gauge's shape...
+    // ...or, when above 0, this shape: width / height on the picture, the gauge laid out again
+    // for it (GaugeShape)
+    double aspect{0.0};
     // A street map under the gauge's route: as the gauge was drawn, or the user's choice.
     enum Streets { AsDesigned, Shown, Hidden };
     Streets streets{AsDesigned};
@@ -53,14 +56,14 @@ struct OverlayItem
         return own;
     }
 
-    // `channels` and `scaleMax` in a project's or a template's entry of the item (nothing when unchanged).
+    // `channels`, `scaleMax` and `aspect` in a project's or a template's entry of the item (nothing when unchanged).
     void writeChoices(QJsonObject &object) const;
     void readChoices(const QJsonObject &object);
 
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
-               && x == other.x && y == other.y && height == other.height && streets == other.streets
+               && x == other.x && y == other.y && height == other.height && aspect == other.aspect && streets == other.streets
                && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;
     }
@@ -106,8 +109,9 @@ public:
 
     const OverlayItem &item(int index) const { return m_placed.at(index).item; }
     // The same overlay with one gauge somewhere else. Cheap (nothing is
-    // bound again), so it can follow the mouse while a gauge is dragged.
-    Overlay withGeometry(int index, double x, double y, double height) const;
+    // bound again), so it can follow the mouse while a gauge is dragged; a
+    // new shape is drawn stretched until the overlay is built again.
+    Overlay withGeometry(int index, double x, double y, double height, double aspect) const;
 
     // Smallest pixel rectangle that holds every gauge on a frame of this
     // size, clipped to the frame, with even position and size (video chroma

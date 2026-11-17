@@ -138,6 +138,7 @@ private slots:
         t.items[1].units = OverlayItem::ImperialUnits;
         t.items[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
         t.items[1].scaleMax = 60.0;
+        t.items[0].aspect = 2.0;
         const QVector<OverlayItem> placed = t.overlayItems(16.0 / 9.0);
         const Overlay overlay(placed, nullptr, Units(), t.theme);
         const GaugeTemplate made = GaugeTemplate::fromOverlay(overlay, t.theme, 16.0 / 9.0);
@@ -152,6 +153,8 @@ private slots:
         QCOMPARE(made.items[1].units, OverlayItem::ImperialUnits);
         QCOMPARE(made.items[1].channels.value(ChannelId::Heading), QString(ChannelId::WindDirection));
         QCOMPARE(made.items[1].scaleMax, 60.0);
+        QCOMPARE(made.items[0].aspect, 2.0);
+        QCOMPARE(made.items[1].aspect, 0.0);
         QCOMPARE(placed[1].unitsFor(Units()).speed, Units::MilesPerHour);
         QCOMPARE(placed[0].unitsFor(Units()).speed, Units::KilometersPerHour);
         const QVector<OverlayItem> again = made.overlayItems(16.0 / 9.0);
@@ -164,6 +167,9 @@ private slots:
         // on a narrower frame it still ends at the right edge
         const OverlayItem narrow = made.overlayItems(4.0 / 3.0)[1];
         QVERIFY(qAbs(narrow.x + narrow.height * 1080.0 / 1440.0 - 1.0) < 1e-9);
+        // the one made wider is twice as wide as high on any frame
+        const QRectF wide = Overlay(made.overlayItems(4.0 / 3.0), nullptr, Units(), t.theme).itemRect(0, QRectF(0, 0, 1440, 1080));
+        QVERIFY(qAbs(wide.width() - 2.0 * wide.height()) < 1e-9);
     }
 
     // --- file -----------------------------------------------------------------
@@ -182,6 +188,7 @@ private slots:
         t.items[0].closeUp = 0.0;
         t.items[0].channels.insert(ChannelId::Cadence, ChannelId::Power);
         t.items[0].scaleMax = 180.0;
+        t.items[0].aspect = 4.25;
         GaugeTemplate loaded;
         QString error;
         QVERIFY2(TemplateFile::fromJson(TemplateFile::toJson(t), &loaded, &error), qPrintable(error));

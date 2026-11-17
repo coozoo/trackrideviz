@@ -1392,7 +1392,7 @@ void MainWindow::removeGauge(int index)
     changeOverlay(tr("Remove gauge"), after);
 }
 
-void MainWindow::onItemGeometryEdited(int index, double x, double y, double height)
+void MainWindow::onItemGeometryEdited(int index, double x, double y, double height, double aspect)
 {
     if (index < 0 || index >= m_project.overlay.size())
         {
@@ -1402,7 +1402,9 @@ void MainWindow::onItemGeometryEdited(int index, double x, double y, double heig
     after.items[index].x = x;
     after.items[index].y = y;
     after.items[index].height = height;
-    changeOverlay(tr("Move gauge"), after);
+    const bool reshaped = after.items[index].aspect != aspect;
+    after.items[index].aspect = aspect;
+    changeOverlay(reshaped ? tr("Change a gauge's shape") : tr("Move gauge"), after);
 }
 
 void MainWindow::setGaugeChannel(int index, const QString &channel)
@@ -1575,6 +1577,24 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                     }
             });
         }
+    // set free, its width and height change on their own: a profile as wide as the picture
+    QAction *keepShape = menu.addAction(tr("Keep the gauge's shape"));
+    keepShape->setCheckable(true);
+    keepShape->setChecked(m_project.overlay.at(index).aspect <= 0.0);
+    keepShape->setToolTip(tr("Off: handles on the right and bottom edges change only the width or the height. "
+                             "Round parts become oval."));
+    menu.setToolTipsVisible(true);
+    connect(keepShape, &QAction::triggered, this, [this, index](bool keep)
+    {
+        if (index < m_project.overlay.size() && index < m_canvas->overlay().count())
+            {
+                OverlayState after{m_project.overlay, m_project.theme};
+                // freed where it is, so nothing moves until a handle is dragged
+                const QRectF rect = m_canvas->overlay().itemRect(index, QRectF(0, 0, 1000, 1000));
+                after.items[index].aspect = keep ? 0.0 : rect.width() / rect.height();
+                changeOverlay(keep ? tr("Keep a gauge's shape") : tr("Free a gauge's shape"), after);
+            }
+    });
     menu.addSeparator();
     menu.addAction(Icons::named("list-remove"), tr("Remove"), this, [this, index]()
     {

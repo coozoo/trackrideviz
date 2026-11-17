@@ -50,7 +50,7 @@ public slots:
 signals:
     void selectedItemChanged(int index);
     // The user finished moving or resizing a gauge. Fractions of the frame, as in OverlayItem.
-    void itemGeometryEdited(int index, double x, double y, double height);
+    void itemGeometryEdited(int index, double x, double y, double height, double aspect);
     void itemDeleteRequested(int index);
     void itemMenuRequested(int index, const QPoint &globalPosition);
 
@@ -101,13 +101,18 @@ private:
     double m_positionTime{0.0};
     SyncMap m_sync;
     QRectF resizeHandle(const QRectF &itemRect) const;
+    // A gauge whose shape is not kept has handles on its right and bottom edges too.
+    QRectF widthHandle(const QRectF &itemRect) const;
+    QRectF heightHandle(const QRectF &itemRect) const;
     void updateCursor(const QPointF &position);
 
     Overlay m_overlay;
     int m_selected{-1};
     // A gauge being moved or resized with the mouse. The overlay shows it
     // where the mouse has it; the project hears about it on release.
-    enum Drag { NoDrag, Moving, Resizing };
+    enum Drag { NoDrag, Moving, Resizing, ResizingWidth, ResizingHeight };
+    // Which handle of the selected gauge is under `position`: one of the Resizing kinds, or NoDrag.
+    Drag handleAt(const QPointF &position) const;
     Drag m_drag{NoDrag};
     QPointF m_dragStart;
     QRectF m_dragStartRect;

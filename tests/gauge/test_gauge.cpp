@@ -3,6 +3,7 @@
 #include "gauge/gaugefonts.h"
 #include "gauge/gaugelibrary.h"
 #include "gauge/gaugerenderer.h"
+#include "gauge/gaugeshape.h"
 #include "gauge/metricrange.h"
 #include "gauge/veggaugeimporter.h"
 #include "gauge/xmlgaugeimporter.h"
@@ -2491,6 +2492,48 @@ private slots:
         // without sector lines: empty segments
         image = draw(gauge, 100.0, ChannelId::Speed, lapSession(false));
         QVERIFY(alphaAt(image, 15) > 0 && alphaAt(image, 15) < 100);
+    }
+
+    void widenedGaugeSpreadsItsParts()
+    {
+        Gauge gauge;
+        gauge.size = QSizeF(200, 100);
+        GaugeComponent graph;
+        graph.type = GaugeComponent::Graph;
+        graph.frame = QRectF(10, 10, 180, 80);
+        GaugeComponent dot;
+        dot.type = GaugeComponent::Shape;
+        dot.shape = GaugeComponent::Ellipse;
+        dot.frame = QRectF(-4, -4, 8, 8);
+        graph.knob.append(dot);
+        GaugeComponent value;
+        value.type = GaugeComponent::Text;
+        value.frame = QRectF(100, 50, 0, 0);
+        value.fontSize = 30;
+        GaugeComponent needle;
+        needle.type = GaugeComponent::Image;
+        needle.frame = QRectF(90, 0, 20, 100);
+        GaugeManipulation turn;
+        turn.pivot = QPointF(100, 50);
+        needle.manipulations.append(turn);
+        GaugeComponent group;
+        group.type = GaugeComponent::Group;
+        group.children = {needle};
+        gauge.components = {graph, value, group};
+
+        // as wide again: 4 : 1
+        const Gauge wide = GaugeShape::widened(gauge, 4.0);
+        QCOMPARE(wide.size, QSizeF(400, 100));
+        QCOMPARE(wide.components[0].frame, QRectF(20, 10, 360, 80));
+        // the dot at the current point keeps its shape, letters their size
+        QCOMPARE(wide.components[0].knob[0].frame, dot.frame);
+        QCOMPARE(wide.components[1].frame.topLeft(), QPointF(200, 50));
+        QCOMPARE(wide.components[1].fontSize, 30.0);
+        QCOMPARE(wide.components[2].children[0].manipulations[0].pivot, QPointF(200, 50));
+        // narrower too, and the gauge as it is at its own shape or without one
+        QCOMPARE(GaugeShape::widened(gauge, 1.0).size, QSizeF(100, 100));
+        QCOMPARE(GaugeShape::widened(gauge, 2.0).components[0].frame, graph.frame);
+        QCOMPARE(GaugeShape::widened(gauge, 0.0).size, gauge.size);
     }
 
     void xmlChannels()

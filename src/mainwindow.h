@@ -74,7 +74,7 @@ private slots:
     void addGauge(const QString &gaugeId);
     void applyTemplate(const QString &templateId);
     void removeGauge(int index);
-    void onItemGeometryEdited(int index, double x, double y, double height);
+    void onItemGeometryEdited(int index, double x, double y, double height, double aspect);
     void setGaugeChannel(int index, const QString &channel);
     // A part of the gauge made for `own` shows `shown` instead.
     void setGaugePartChannel(int index, const QString &own, const QString &shown);

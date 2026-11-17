@@ -58,13 +58,15 @@ private slots:
     void withGeometryMovesOneItem()
     {
         const Overlay overlay({item(0.0, 0.0, 0.5), item(0.5, 0.5, 0.25)}, nullptr, Units(), GaugeTheme());
-        const Overlay moved = overlay.withGeometry(1, 0.1, 0.2, 0.5);
+        const Overlay moved = overlay.withGeometry(1, 0.1, 0.2, 0.5, 0.0);
         const QRectF frame(0, 0, 1000, 1000);
         QCOMPARE(moved.itemRect(1, frame), QRectF(100, 200, 500, 500));
         QCOMPARE(moved.item(1).gaugeId, overlay.item(1).gaugeId);
         QCOMPARE(moved.itemRect(0, frame), overlay.itemRect(0, frame));
         // the original is untouched
         QCOMPARE(overlay.itemRect(1, frame), QRectF(500, 500, 250, 250));
+        // set free of its shape: three times as wide as high
+        QCOMPARE(overlay.withGeometry(1, 0.1, 0.2, 0.2, 3.0).itemRect(1, frame), QRectF(100, 200, 600, 200));
     }
 
     void itemAtFindsTheTopmost()
@@ -181,6 +183,8 @@ private slots:
         // a part made for the heading shows the wind's direction; the scale ends at 60
         project.overlay[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
         project.overlay[1].scaleMax = 60.0;
+        // made wider than the gauge was drawn
+        project.overlay[1].aspect = 3.5;
         project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);

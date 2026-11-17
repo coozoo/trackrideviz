@@ -128,6 +128,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   the fractions, not the edge anchors
 - ✅ Saving the gauges on the video as a template (2026-11-14, File menu): each measured from
   the edge it is nearest to, with a name and a category
+- ✅ A gauge's own shape on the video (2026-11-17, `GaugeShape`, `OverlayItem::aspect`): "Keep the gauge's
+  shape" off in its menu gives handles on the right and bottom edges; the gauge is laid out again for the
+  new width (frames, points, pivots, tape travel spread over it; letters and markers at the current point
+  as they were), so a profile or a graph can run across the picture; round parts become oval. Kept in
+  projects and templates
 - ✅ Units a single gauge shows (2026-11-15): "Units" in a gauge's menu on the video - as in the settings,
   metric or imperial; kept in the project and in templates
 

@@ -28,13 +28,15 @@ struct TemplateItem
     OverlayItem::UnitSystem units{OverlayItem::AsSettings};
     QHash<QString, QString> channels;   // as OverlayItem's
     double scaleMax{0.0};
+    double aspect{0.0};                 // as OverlayItem's: 0 = the gauge's own shape
 
     bool operator==(const TemplateItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel && edgeX == other.edgeX && edgeY == other.edgeY
                && offsetX == other.offsetX && offsetY == other.offsetY && height == other.height
                && streets == other.streets && closeUp == other.closeUp && headingUp == other.headingUp
-               && units == other.units && channels == other.channels && scaleMax == other.scaleMax;
+               && units == other.units && channels == other.channels && scaleMax == other.scaleMax
+               && aspect == other.aspect;
     }
 };
 

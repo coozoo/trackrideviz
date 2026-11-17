@@ -18,6 +18,7 @@ SOURCES += \
     $$PWD/gauge/gaugefonts.cpp \
     $$PWD/gauge/gaugetheme.cpp \
     $$PWD/gauge/gaugelibrary.cpp \
+    $$PWD/gauge/gaugeshape.cpp \
     $$PWD/gauge/gaugerenderer.cpp \
     $$PWD/gauge/metricrange.cpp \
     $$PWD/gauge/veggaugeimporter.cpp \
@@ -78,6 +79,7 @@ HEADERS += \
     $$PWD/gauge/gaugefile.h \
     $$PWD/gauge/gaugefonts.h \
     $$PWD/gauge/gaugelibrary.h \
+    $$PWD/gauge/gaugeshape.h \
     $$PWD/gauge/gaugerenderer.h \
     $$PWD/gauge/gaugetheme.h \
     $$PWD/gauge/metricrange.h \
