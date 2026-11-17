@@ -1,6 +1,8 @@
 # Race Track Visualizer
 
 [![Release_Version](https://github.com/coozoo/trackrideviz/actions/workflows/build_all.yml/badge.svg)](https://github.com/coozoo/trackrideviz/actions/workflows/build_all.yml)
+[![Tests](https://github.com/coozoo/trackrideviz/actions/workflows/tests.yml/badge.svg)](https://github.com/coozoo/trackrideviz/actions/workflows/tests.yml)
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/yura/trackrideviz/package/trackrideviz/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/yura/trackrideviz/package/trackrideviz/)
 
 Telemetry overlays for action camera video: speed, lap times, G-force, track map, heart rate,
 power, OBD data and more, drawn as gauges on top of your footage and exported as a new video.
@@ -56,6 +58,22 @@ can be checked.
 
 Packages for Linux (AppImage, .deb) and Windows are on the
 [releases page](https://github.com/coozoo/trackrideviz/releases).
+
+Fedora, from [Copr](https://copr.fedorainfracloud.org/coprs/yura/trackrideviz/):
+
+```bash
+sudo dnf copr enable yura/trackrideviz
+sudo dnf install trackrideviz
+```
+
+Ubuntu, from the [PPA](https://launchpad.net/~coozoo/+archive/ubuntu/trackrideviz):
+
+```bash
+sudo add-apt-repository ppa:coozoo/trackrideviz
+sudo apt install trackrideviz
+```
+
+Both are updated by the package manager with the rest of the system.
 
 On Windows, take whichever you prefer:
 
