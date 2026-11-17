@@ -118,8 +118,27 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "GNU GPL v3"
   DeleteRegKey SHCTX "Software\Classes\${PROGID}"
 !macroend
 
+; Until the program running from here has ended (the program starts its update and closes):
+; its file cannot be written while it runs. Half a minute at most.
+Function WaitForProgram
+  StrCpy $1 0
+  waiting:
+    IfFileExists "$INSTDIR\${EXENAME}" 0 done
+    ClearErrors
+    FileOpen $0 "$INSTDIR\${EXENAME}" a
+    IfErrors 0 free
+    IntOp $1 $1 + 1
+    IntCmp $1 60 done
+    Sleep 500
+    Goto waiting
+  free:
+    FileClose $0
+  done:
+FunctionEnd
+
 Section "!$(SectionProgram)" SecProgram
   SectionIn RO
+  Call WaitForProgram
   ; a version before goes first, by its own uninstaller: files it had and this one has not
   ; would stay behind otherwise
   IfFileExists "$INSTDIR\uninstall.exe" 0 +3
@@ -188,6 +207,17 @@ Section "Uninstall"
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, p 0, p 0)'
   DeleteRegKey SHCTX "${UNINSTALL_KEY}"
 SectionEnd
+
+; An update started by the program (/RESTART, with /S): the new version is started at the end,
+; as the finish page would
+Function .onInstSuccess
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/RESTART" $1
+  ${IfNot} ${Errors}
+    Exec '"$INSTDIR\${EXENAME}"'
+  ${EndIf}
+FunctionEnd
 
 Function un.onInit
   SetRegView 64

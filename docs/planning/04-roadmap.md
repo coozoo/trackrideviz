@@ -397,9 +397,12 @@ the automatic end of a fixed dial following the highest value held for a second,
 - Updates (2026-11-17, `ReleaseCheck`): ✅ a release build carries its tag (CI, RTV_RELEASE_TAG; other builds never
   ask); once a day, quietly, GitHub's latest release is compared with it; a newer one shows as a link in the status
   bar and in Help, with its notes, the release page, "Skip this version"; Help > Check for updates; a switch in
-  Settings. Next: the Windows installer updates itself (setup.exe downloaded, checked against GitHub's SHA-256,
-  run in the same mode); the AppImage replaces itself (and .zsync for other updaters); the zip and macOS only point
-  to the release page
+  Settings. ✅ "Update now" (`Updater`): the AppImage downloads the new one beside it, checks it against GitHub's
+  SHA-256 and renames it over itself, then offers a restart; a copy the installer put there (told by the installer's
+  registry entry pointing at its folder) gets the new setup.exe, checked the same way, and runs it after closing:
+  quietly with /RESTART for the user alone, with its pages for everyone; the installer waits for the old program to
+  end. The zip, macOS and distributions' packages only point to the release page. Later: .zsync for other AppImage
+  updaters
 - Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;
   decide which tests run on every push and which only before a release
 

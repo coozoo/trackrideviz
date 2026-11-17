@@ -40,6 +40,7 @@ SOURCES += main.cpp \
     src/gstreamerworkaround.cpp \
     src/icons.cpp \
     src/timelinepanel.cpp \
+    src/updater.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
     src/videocanvas.cpp
@@ -62,6 +63,7 @@ HEADERS += \
     src/icons.h \
     src/trackview.h \
     src/timelinepanel.h \
+    src/updater.h \
     src/mainwindow.h \
     src/settingsdialog.h \
     src/videocanvas.h

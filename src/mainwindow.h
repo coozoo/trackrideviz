@@ -119,6 +119,8 @@ private slots:
     // Newer releases: looked for quietly once a day, or at once from the Help menu.
     void checkForUpdates(bool asked);
     void showNewRelease();
+    // Replaces this copy with `release` where it can, and starts it.
+    void updateTo(const ReleaseCheck::Release &release);
 
 private:
     // A File submenu of the files of `kind` opened lately; `open` opens one.

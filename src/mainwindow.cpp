@@ -30,6 +30,7 @@
 #include "telemetry/gears.h"
 #include "weather/weather.h"
 #include "telemetry/telemetryimporter.h"
+#include "updater.h"
 #include "videocanvas.h"
 
 #include <QAbstractItemView>
@@ -57,6 +58,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
+#include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSettings>
@@ -2911,8 +2913,23 @@ void MainWindow::showNewRelease()
     notes->setMarkdown(release.notes.isEmpty() ? tr("No notes came with it.") : release.notes);
     layout->addWidget(notes, 1);
     QDialogButtonBox *buttons = new QDialogButtonBox(&dialog);
+    // an AppImage and an installed copy replace themselves; the others are pointed to the page
+    if (Updater::assetFor(release))
+        {
+            QPushButton *update = buttons->addButton(tr("Update now"), QDialogButtonBox::AcceptRole);
+            update->setIcon(Icons::named("go-next"));
+            update->setDefault(true);
+            connect(update, &QPushButton::clicked, &dialog, [this, &dialog, release]()
+            {
+                dialog.accept();
+                updateTo(release);
+            });
+        }
     QPushButton *page = buttons->addButton(tr("Open the release page"), QDialogButtonBox::AcceptRole);
-    page->setIcon(Icons::named("go-next"));
+    if (!Updater::assetFor(release))
+        {
+            page->setIcon(Icons::named("go-next"));
+        }
     QPushButton *skip = buttons->addButton(tr("Skip this version"), QDialogButtonBox::DestructiveRole);
     buttons->addButton(tr("Later"), QDialogButtonBox::RejectRole);
     connect(page, &QPushButton::clicked, &dialog, [&dialog, release]()
@@ -2932,6 +2949,31 @@ void MainWindow::showNewRelease()
     layout->addWidget(buttons);
     dialog.resize(560, 440);
     dialog.exec();
+}
+
+void MainWindow::updateTo(const ReleaseCheck::Release &release)
+{
+    const Updater::Next next = Updater::prepare(this, release);
+    if (!next.isValid())
+        {
+            return;
+        }
+    if (Updater::kind() == Updater::AppImage)
+        {
+            m_updateLabel->hide();
+            m_updateAction->setVisible(false);
+            if (QMessageBox::question(this, tr("Update"), tr("Version %1 is in place. Restart now to use it?").arg(release.version))
+                    != QMessageBox::Yes)
+                {
+                    statusBar()->showMessage(tr("Version %1 starts the next time the program does.").arg(release.version), 8000);
+                    return;
+                }
+        }
+    // the installer waits for the program to end; unsaved work is asked about first
+    if (close())
+        {
+            QProcess::startDetached(next.program, next.arguments);
+        }
 }
 
 void MainWindow::showAbout()
