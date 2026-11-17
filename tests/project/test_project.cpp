@@ -185,6 +185,8 @@ private slots:
         project.overlay[1].scaleMax = 60.0;
         // made wider than the gauge was drawn
         project.overlay[1].aspect = 3.5;
+        // placed on a vertical video
+        project.layoutAspect = 9.0 / 16.0;
         project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);
@@ -200,6 +202,12 @@ private slots:
         QCOMPARE(loaded.overlay, project.overlay);
         QCOMPARE(loaded.theme, project.theme);
         QCOMPARE(loaded.elevation, Terrain::Always);
+        QCOMPARE(loaded.layoutAspect, 9.0 / 16.0);
+        // a project from before the shape was kept: not known
+        QJsonObject old = QJsonDocument::fromJson(ProjectFile::toJson(project, "/rides/2025")).object();
+        old.remove("layoutAspect");
+        QVERIFY(ProjectFile::fromJson(QJsonDocument(old).toJson(), "/rides/2025", &loaded, &error));
+        QCOMPARE(loaded.layoutAspect, 0.0);
     }
 
     void pathsAreStoredRelative()

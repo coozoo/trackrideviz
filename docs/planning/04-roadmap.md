@@ -124,8 +124,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ G-force comes from GPS now (M4); without data a part rests at 0, not at its scale's start
 - Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
 - A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
-- Templates are placed for the video open when applied; a later video of another shape keeps
-  the fractions, not the edge anchors
+- ✅ Gauges follow the video's shape (2026-11-17, `Project::layoutAspect`): the project keeps the shape its
+  gauges were placed on; a video of another shape (a vertical one after 16:9) gets each placed again from
+  its nearest edges, as a template places them, as one step that can be undone
 - ✅ Saving the gauges on the video as a template (2026-11-14, File menu): each measured from
   the edge it is nearest to, with a name and a category
 - ✅ A gauge's own shape on the video (2026-11-17, `GaugeShape`, `OverlayItem::aspect`): "Keep the gauge's

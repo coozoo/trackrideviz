@@ -53,6 +53,10 @@ struct Project
     Terrain::Use elevation{Terrain::WhenMissing};
 
     QVector<OverlayItem> overlay{Overlay::defaultItems()};
+    // The shape of the picture (width / height) the gauges' places were set on. A video of
+    // another shape gets them placed again from their nearest edges; 0 = not known (older
+    // projects), the first video's shape is taken then.
+    double layoutAspect{16.0 / 9.0};
     GaugeTheme theme;         // colors of all gauges
 };
 

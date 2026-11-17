@@ -72,6 +72,9 @@ private slots:
     void exportVideo();
     // Editing what is on the video. Every one of these is one undo step.
     void addGauge(const QString &gaugeId);
+    // A video of another shape than the gauges were placed on: each placed again from its nearest
+    // edges, as a template places them
+    void fitLayoutTo(double aspect);
     // ... centered at `center` (fractions of the frame), kept on the picture; below 0: where addGauge puts it
     void addGaugeAt(const QString &gaugeId, const QPointF &center);
     void applyTemplate(const QString &templateId);

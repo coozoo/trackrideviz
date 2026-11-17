@@ -407,6 +407,7 @@ void VideoCanvas::clear()
 {
     m_pendingFrame = QVideoFrame();
     m_hasPicture = false;
+    m_announcedAspect = 0.0;   // the next video tells its shape, whatever it is
     m_videoTime = 0.0;
     m_positionTime = 0.0;
     update();
@@ -583,6 +584,12 @@ void VideoCanvas::uploadPendingFrame()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
     m_hasPicture = !m_pictureSize.isEmpty();
+    const double aspect = pictureAspect();
+    if (aspect > 0.0 && std::abs(aspect - m_announcedAspect) > 0.005)
+        {
+            m_announcedAspect = aspect;
+            emit pictureAspectChanged(aspect);
+        }
 }
 
 double VideoCanvas::pictureAspect() const

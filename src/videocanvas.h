@@ -57,6 +57,8 @@ signals:
     // the frame (both -1 when there is no picture yet).
     void gaugeDropped(const QString &gaugeId, const QPointF &center);
     void templateDropped(const QString &templateId);
+    // The picture shown has another shape than the one before (width / height, turned as shown).
+    void pictureAspectChanged(double aspect);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -90,6 +92,7 @@ private:
 
     QVideoFrame m_pendingFrame;     // not uploaded yet
     bool m_hasPicture{false};       // textures hold something to show
+    double m_announcedAspect{0.0};  // the shape pictureAspectChanged last told
     QSize m_pictureSize;            // as stored, before rotation
     int m_rotation{0};              // degrees clockwise: 0, 90, 180, 270
     Layout m_layout{Rgba};

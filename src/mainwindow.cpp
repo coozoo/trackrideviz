@@ -19,6 +19,7 @@
 #include "gaugelibrarypanel.h"
 #include "maps/terrain.h"
 #include "maps/tilestore.h"
+#include "overlay/gaugetemplate.h"
 #include "overlay/templatelibrary.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
@@ -291,6 +292,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_libraryPanel, &GaugeLibraryPanel::addRequested, this, &MainWindow::addGauge);
     connect(m_canvas, &VideoCanvas::gaugeDropped, this, &MainWindow::addGaugeAt);
     connect(m_canvas, &VideoCanvas::templateDropped, this, &MainWindow::applyTemplate);
+    // told from inside the canvas's painting: the gauges are placed again after it
+    connect(m_canvas, &VideoCanvas::pictureAspectChanged, this, &MainWindow::fitLayoutTo, Qt::QueuedConnection);
     connect(m_libraryPanel, &GaugeLibraryPanel::applyTemplateRequested, this, &MainWindow::applyTemplate);
     connect(m_libraryPanel, &GaugeLibraryPanel::libraryChanged, this, &MainWindow::rebuildOverlay);
     updateProperties();
@@ -1276,6 +1279,25 @@ void MainWindow::changeOverlay(const QString &description, const OverlayState &a
     }));
 }
 
+void MainWindow::fitLayoutTo(double aspect)
+{
+    const double was = m_project.layoutAspect;
+    if (aspect <= 0.0 || std::abs(aspect - was) < 0.01)
+        {
+            return;
+        }
+    m_project.layoutAspect = aspect;
+    if (was <= 0.0 || m_project.overlay.isEmpty())
+        {
+            return;   // a project from before: its gauges were placed on this video, most likely
+        }
+    // measured from their nearest edges on the old shape, put back the same way on the new one;
+    // their size follows the height, as it does when a template is applied
+    const Overlay placed(m_project.overlay, nullptr, m_units, m_project.theme);
+    const QVector<OverlayItem> fitted = GaugeTemplate::fromOverlay(placed, m_project.theme, was).overlayItems(aspect);
+    changeOverlay(tr("Place the gauges for the video's shape"), {fitted, m_project.theme});
+}
+
 void MainWindow::addGauge(const QString &gaugeId)
 {
     addGaugeAt(gaugeId, QPointF(-1.0, -1.0));
@@ -1322,6 +1344,7 @@ void MainWindow::applyTemplate(const QString &templateId)
         }
     // laid out for the shape of this video; 16:9 until one is open
     const double aspect = m_canvas->pictureAspect() > 0.0 ? m_canvas->pictureAspect() : 16.0 / 9.0;
+    m_project.layoutAspect = aspect;
     m_canvas->setSelectedItem(-1);
     changeOverlay(tr("Apply template"), {t.overlayItems(aspect), t.theme});
 }
