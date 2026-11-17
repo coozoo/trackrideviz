@@ -54,20 +54,26 @@ enum PartKind
     SectorBarPart, GroupPart
 };
 
-// The parts a part holds that are shown in the list under it: a group's, or what a graph
-// or a map draws at the current point.
-QVector<GaugeComponent> *partsIn(GaugeComponent &part)
+// The lists of parts a part holds, shown under it: a group's parts, or what a route map draws
+// at the current point. A graph and a lap map hold more than one, each under a heading of its
+// own in the list: what is drawn at the current point, on the graph's edges, at the start line.
+QVector<QPair<QString, QVector<GaugeComponent> *>> listsIn(GaugeComponent &part)
 {
     switch (part.type)
         {
         case GaugeComponent::Group:
-            return &part.children;
-        case GaugeComponent::Graph:
+            return {{QString(), &part.children}};
         case GaugeComponent::TrackMap:
+            return {{QString(), &part.knob}};
+        case GaugeComponent::Graph:
+            return {{GaugeEditor::tr("At the current point"), &part.knob},
+                {GaugeEditor::tr("On the top edge, at the current time"), &part.xMarker},
+                {GaugeEditor::tr("On the left edge, at the current value"), &part.yMarker}};
         case GaugeComponent::LapMap:
-            return &part.knob;
+            return {{GaugeEditor::tr("At the current point"), &part.knob},
+                {GaugeEditor::tr("At the start line, turned across the way"), &part.startLine}};
         default:
-            return nullptr;
+            return {};
         }
 }
 
@@ -933,13 +939,25 @@ void GaugeEditor::accept()
 QVector<GaugeComponent> *GaugeEditor::listAt(const Path &parent)
 {
     QVector<GaugeComponent> *list = &m_gauge.components;
-    for (const int index : parent)
+    for (int i = 0; i < parent.size(); ++i)
         {
+            const int index = parent.at(i);
             if (!list || index < 0 || index >= list->size())
                 {
                     return nullptr;
                 }
-            list = partsIn((*list)[index]);
+            const auto lists = listsIn((*list)[index]);
+            if (lists.size() == 1)
+                {
+                    list = lists.first().second;
+                    continue;
+                }
+            // under headings: the next step of the path is the heading
+            if (lists.isEmpty() || ++i >= parent.size() || parent.at(i) < 0 || parent.at(i) >= lists.size())
+                {
+                    return nullptr;
+                }
+            list = lists.at(parent.at(i)).second;
         }
     return list;
 }
@@ -996,9 +1014,23 @@ void GaugeEditor::fillTree()
                 QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent) : new QTreeWidgetItem(m_tree);
                 const QString movement = movementOf(part);
                 item->setText(0, movement.isEmpty() ? describe(part) : tr("%1 (%2)").arg(describe(part), movement));
-                if (QVector<GaugeComponent> *inside = partsIn(part))
+                const auto lists = listsIn(part);
+                if (lists.size() == 1)
                     {
-                        fill(item, *inside);
+                        fill(item, *lists.first().second);
+                    }
+                else
+                    {
+                        for (const auto &list : lists)
+                            {
+                                QTreeWidgetItem *heading = new QTreeWidgetItem(item);
+                                heading->setText(0, list.first);
+                                QFont font = heading->font(0);
+                                font.setItalic(true);
+                                heading->setFont(0, font);
+                                heading->setToolTip(0, tr("Pick this and add a part to put one here"));
+                                fill(heading, *list.second);
+                            }
                     }
             }
     };
@@ -1271,6 +1303,13 @@ void GaugeEditor::addPart(int kind)
                     at = path.last() + 1;
                     path.last() = at;
                 }
+        }
+    else if (QVector<GaugeComponent> *heading = path.isEmpty() ? nullptr : listAt(path))
+        {
+            // a heading under a graph or a lap map: at the end of its list
+            list = heading;
+            at = int(list->size());
+            path.append(at);
         }
     else
         {
@@ -1792,7 +1831,12 @@ void GaugeEditor::fillProperties()
     const Part *picked = selected();
     if (!picked)
         {
-            QLabel *hint = new QLabel(tr("Pick a part in the list or in the picture, or add one with \"Add\"."), m_properties);
+            // a heading under a graph or a lap map: what goes there
+            const Path path = selectedPath();
+            const bool heading = !path.isEmpty() && listAt(path);
+            QLabel *hint = new QLabel(heading ? tr("Parts added with \"Add\" while this is picked go here. Their place is "
+                                                   "counted from the point they are drawn at: X 0, Y 0 is the point itself.")
+                                      : tr("Pick a part in the list or in the picture, or add one with \"Add\"."), m_properties);
             hint->setWordWrap(true);
             m_propertiesLayout->addWidget(hint);
             m_propertiesLayout->addStretch(1);
@@ -2062,8 +2106,11 @@ void GaugeEditor::fillProperties()
                               tr("Both 0: the whole recording"));
                     addNumber(form, tr("Seconds after now:"), part.windowAfter, 0, 86400, 0, [](Part &p, double v) { p.windowAfter = v; });
                 }
-            QLabel *note = new QLabel(tr("The parts under it in the list are drawn at the current point, their place counted "
-                                         "from it: X 0, Y 0 is the point itself."), m_properties);
+            QLabel *note = new QLabel(part.type == GaugeComponent::TrackMap
+                                      ? tr("The parts under it in the list are drawn at the current point, their place counted "
+                                           "from it: X 0, Y 0 is the point itself.")
+                                      : tr("The parts under its headings in the list are drawn where these say, their place "
+                                           "counted from there: X 0, Y 0 is the point itself."), m_properties);
             note->setWordWrap(true);
             form->addRow(note);
         }
