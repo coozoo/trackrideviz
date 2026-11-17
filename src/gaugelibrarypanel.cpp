@@ -418,7 +418,7 @@ GaugeLibraryPanel::GaugeLibraryPanel(QWidget *parent)
     connect(m_list, &QListWidget::itemDoubleClicked, this, &GaugeLibraryPanel::useSelected);
     connect(m_list, &QListWidget::itemSelectionChanged, this, &GaugeLibraryPanel::updateButtons);
 
-    m_useButton = new QPushButton(this);
+    m_useButton = new QPushButton(Icons::named("go-next"), QString(), this);
     connect(m_useButton, &QPushButton::clicked, this, &GaugeLibraryPanel::useSelected);
     m_importButton = new QPushButton(Icons::named("document-open"), tr("Import..."), this);
     m_importButton->setToolTip(tr("Brings in .veg gauges, .vet templates, XML gauges and templates (folders with a "

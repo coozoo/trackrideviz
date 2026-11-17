@@ -74,7 +74,7 @@ LapsPanel::LapsPanel(QWidget *parent)
             }
     };
 
-    m_placeButton = new QPushButton(tr("Place start/finish"), this);
+    m_placeButton = new QPushButton(Icons::named("flag-checkered"), tr("Place start/finish"), this);
     m_placeButton->setCheckable(true);
     m_placeButton->setToolTip(tr("Then click on the map where laps begin: the line is put across the route there"));
     connect(m_placeButton, &QPushButton::toggled, this, [this](bool checked) { placeToggled(m_placeButton, checked); });
@@ -88,7 +88,7 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_clearSectorsButton = new QPushButton(Icons::named("edit-clear"), tr("Clear sectors"), this);
     connect(m_clearSectorsButton, &QPushButton::clicked, this, &LapsPanel::removeSectorsRequested);
 
-    m_surfaceButton = new QPushButton(tr("Mark surface"), this);
+    m_surfaceButton = new QPushButton(Icons::named("flag-red"), tr("Mark surface"), this);
     m_surfaceButton->setCheckable(true);
     m_surfaceButton->setToolTip(tr("Then click on the map where a stretch begins and where it ends, and choose what it is "
                                    "ridden on: the power estimate counts it in"));
