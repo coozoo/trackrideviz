@@ -17,6 +17,7 @@ struct MediaInfo
     QString videoCodec;
     bool hasAudio{false};
     QString audioCodec;
+    bool hasCameraData{false};   // a GoPro's GPMF track ("gpmd"): positions, G-forces
     // when the camera says it recorded the file (creation_time); cameras
     // differ in whether that is the start or the end, and in the time zone
     QDateTime created;

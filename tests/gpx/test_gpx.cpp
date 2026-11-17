@@ -197,7 +197,8 @@ void TestGpx::backwardTimeIsSkipped()
     QCOMPARE(session->warnings().size(), 1);
 }
 
-// Optional: RTV_GPX_SAMPLE=/path/to/file.gpx runs the importer over a real recording.
+// Optional: RTV_GPX_SAMPLE=/path/to/file runs the importer over a real recording: a .gpx, or any
+// other file the program reads (a camera's .mp4 among them).
 void TestGpx::sampleFile()
 {
     const QString path = qEnvironmentVariable("RTV_GPX_SAMPLE");
@@ -206,7 +207,7 @@ void TestGpx::sampleFile()
             QSKIP("RTV_GPX_SAMPLE is not set");
         }
     QString error;
-    const TelemetrySessionPtr session = GpxImporter::load(path, &error);
+    const TelemetrySessionPtr session = TelemetryImporter::load(path, &error);
     QVERIFY2(session, qPrintable(error));
     qInfo() << session->sourceInfo() << session->startUtc() << "duration" << session->duration()
             << "channels" << session->channelIds() << "warnings" << session->warnings();

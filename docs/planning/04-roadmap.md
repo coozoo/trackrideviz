@@ -174,7 +174,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   creation_time) and kept in the project as shifts: telemetry time = video time + offset + the
   part's shift, so the data stays in step after each break and one offset still tunes it all.
   Checked on four camera files: three chapters followed on, a 36:37 break before the fourth
-- Joining videos of different kinds (re-encoding), keeping camera data streams (GPMF) in the join
+- ✅ GoPro data kept in a join (2026-11-17, `VideoJoin::keepsCameraData`): when every part has a GPMF
+  track and the output is .mp4/.mov, it is joined with the picture and sound, so the joined video
+  carries its own data. Checked with GoPro's sample files (HERO5, HERO6 joined with themselves:
+  twice the positions, twice as long)
+- Joining videos of different kinds (re-encoding)
 
 ## Maps
 - ✅ Street maps under route and lap gauges (2026-11-14, `TileStore`): a map part of a gauge may ask

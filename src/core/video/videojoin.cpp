@@ -244,12 +244,25 @@ QStringList VideoJoin::chaptersFrom(const QString &path)
     return ordered;
 }
 
-QStringList VideoJoin::arguments(const QString &listFile, const QString &output)
+bool VideoJoin::keepsCameraData(const QVector<Part> &parts, const QString &output)
+{
+    const QString suffix = QFileInfo(output).suffix().toLower();
+    return !parts.isEmpty() && (suffix == "mp4" || suffix == "mov" || suffix == "m4v")
+           && std::all_of(parts.cbegin(), parts.cend(), [](const Part &part) { return part.info.hasCameraData; });
+}
+
+QStringList VideoJoin::arguments(const QString &listFile, const QString &output, bool cameraData)
 {
     QStringList args = {"-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", listFile,
-                        // picture and sound; camera data streams do not fit every container
-                        "-map", "0:v:0", "-map", "0:a?", "-c", "copy"
+                        "-map", "0:v:0", "-map", "0:a?"
                        };
+    if (cameraData)
+        {
+            // read through concat only the GPMF track is a data stream (the timecode and the
+            // camera's own are of no known kind); it needs its tag again to be one in the output
+            args << "-map" << "0:d?" << "-tag:d" << "gpmd";
+        }
+    args << "-c" << "copy";
     const QString suffix = QFileInfo(output).suffix().toLower();
     if (suffix == "mp4" || suffix == "mov" || suffix == "m4v")
         {

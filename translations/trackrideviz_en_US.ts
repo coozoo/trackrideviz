@@ -3135,7 +3135,7 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="341"/>
+        <location filename="../src/joindialog.cpp" line="342"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4375,27 +4375,27 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="98"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="102"/>
         <source>The file has no video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="113"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="117"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="128"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="132"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="137"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="141"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="146"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="150"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation type="unfinished"></translation>
     </message>

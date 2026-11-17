@@ -39,6 +39,9 @@ public:
 
     // An ffmpeg concat list naming the parts.
     static QByteArray listFile(const QStringList &paths);
+    // Whether the camera's data track goes into the join: every part has one, and `output` is a
+    // container that holds it (.mp4, .mov).
+    static bool keepsCameraData(const QVector<Part> &parts, const QString &output);
     // ffmpeg arguments that join what `listFile` names into `output`.
-    static QStringList arguments(const QString &listFile, const QString &output);
+    static QStringList arguments(const QString &listFile, const QString &output, bool cameraData = false);
 };

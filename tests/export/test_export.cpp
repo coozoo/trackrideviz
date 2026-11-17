@@ -1,6 +1,7 @@
 #include "gauge/builtingauges.h"
 #include "overlay/overlay.h"
 #include "telemetry/channelids.h"
+#include "telemetry/gpmfimporter.h"
 #include "video/cutlist.h"
 #include "video/exportjob.h"
 #include "video/exportplan.h"
@@ -1230,6 +1231,60 @@ private slots:
         QVERIFY2(std::fabs(joined.duration - 4.0) < 0.1, qPrintable(QString::number(joined.duration)));
         QVERIFY(joined.hasAudio);
         QCOMPARE(countFrames(output), 120);
+        // asked for the camera's data where there is none, the join still works
+        const FfmpegTools::RunResult withData = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output, true), 60000);
+        QVERIFY2(withData.started && withData.exitCode == 0, withData.errorOutput.constData());
+        QCOMPARE(countFrames(output), 120);
+    }
+
+    void cameraDataIsKeptWhenEveryPartHasIt()
+    {
+        MediaInfo plain;
+        QVERIFY(MediaProbe::parse(R"({"streams":[{"codec_type":"video","codec_name":"h264","width":8,"height":8,"avg_frame_rate":"30/1"},
+                                     {"codec_type":"data","codec_name":"bin_data","codec_tag_string":"gpmd"}],"format":{"duration":"1"}})",
+                                  &plain));
+        QVERIFY(plain.hasCameraData);
+        VideoJoin::Part gopro{"GX010001.MP4", plain};
+        VideoJoin::Part other = gopro;
+        other.info.hasCameraData = false;
+        QVERIFY(VideoJoin::keepsCameraData({gopro, gopro}, "joined.mp4"));
+        QVERIFY(VideoJoin::keepsCameraData({gopro, gopro}, "joined.MOV"));
+        QVERIFY(!VideoJoin::keepsCameraData({gopro, other}, "joined.mp4"));
+        QVERIFY(!VideoJoin::keepsCameraData({gopro, gopro}, "joined.mkv"));
+        QVERIFY(VideoJoin::arguments("list", "out.mp4", true).contains("0:d?"));
+        QVERIFY(!VideoJoin::arguments("list", "out.mp4").contains("0:d?"));
+    }
+
+    // Optional: RTV_GOPRO_SAMPLE=/path/to/gopro.mp4 joins the camera file with itself and reads
+    // the data of the join.
+    void goproJoinKeepsItsData()
+    {
+        const QString sample = qEnvironmentVariable("RTV_GOPRO_SAMPLE");
+        if (sample.isEmpty() || m_sourceVideo.isEmpty())
+            {
+                QSKIP("RTV_GOPRO_SAMPLE is not set, or ffmpeg is not installed");
+            }
+        VideoJoin::Part part{sample, MediaInfo()};
+        QVERIFY(MediaProbe::probe("ffprobe", sample, &part.info));
+        QVERIFY(part.info.hasCameraData);
+        const QString list = m_dir.filePath("gopro.ffconcat");
+        QFile file(list);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(VideoJoin::listFile({sample, sample}));
+        file.close();
+        const QString output = m_dir.filePath("gopro-joined.mp4");
+        QVERIFY(VideoJoin::keepsCameraData({part, part}, output));
+        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output, true), 120000);
+        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        MediaInfo joined;
+        QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
+        QVERIFY(joined.hasCameraData);
+        QString error;
+        const TelemetrySessionPtr one = GpmfImporter::load(sample, &error);
+        const TelemetrySessionPtr both = GpmfImporter::load(output, &error);
+        QVERIFY2(one && both, qPrintable(error));
+        QCOMPARE(both->channel("positionLat")->count(), 2 * one->channel("positionLat")->count());
+        QVERIFY(std::fabs(both->duration() - 2.0 * one->duration()) < 1.0);
     }
 
     void failedExportExplainsAndLeavesNoFile()

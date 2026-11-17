@@ -309,7 +309,8 @@ void JoinDialog::join()
                     m_process = nullptr;
                 }
         });
-        m_process->start(FfmpegTools::ffmpegProgram(), VideoJoin::arguments(list, m_outputPath));
+        m_process->start(FfmpegTools::ffmpegProgram(),
+                         VideoJoin::arguments(list, m_outputPath, VideoJoin::keepsCameraData(probed.parts, m_outputPath)));
     });
     watcher->setFuture(QtConcurrent::run([ffprobe, files]()
     {
