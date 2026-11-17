@@ -226,6 +226,8 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Gauges Route map close-up and Route map streets close-up; any gauge with a route is switched
   between the whole route and 300 m to 5 km around the rider from its menu on the video
   ("Close-up", kept in projects and templates as `"closeUp"`)
+- ✅ Files dropped on the window (2026-11-17): a project opens; a video opens (chapters offered to be joined);
+  data is read; gauges, templates and folders of them are imported into the library
 - ✅ Gauges and templates dragged from the library onto the video (2026-11-17): a gauge is placed centered where
   it is let go, kept on the picture; a template is applied
 - ✅ The library panel finds gauges and templates by name and by group (2026-11-14): where they

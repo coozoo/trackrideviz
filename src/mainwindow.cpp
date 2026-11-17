@@ -20,6 +20,7 @@
 #include "maps/terrain.h"
 #include "maps/tilestore.h"
 #include "overlay/gaugetemplate.h"
+#include "overlay/librarypackage.h"
 #include "overlay/templatelibrary.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
@@ -67,7 +68,9 @@
 #include <QScreen>
 #include <QAudioDevice>
 #include <QDesktopServices>
+#include <QDropEvent>
 #include <QMetaEnum>
+#include <QMimeData>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -293,6 +296,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_libraryPanel, &GaugeLibraryPanel::addRequested, this, &MainWindow::addGauge);
     connect(m_canvas, &VideoCanvas::gaugeDropped, this, &MainWindow::addGaugeAt);
     connect(m_canvas, &VideoCanvas::templateDropped, this, &MainWindow::applyTemplate);
+    // files dropped anywhere on the window
+    setAcceptDrops(true);
     // told from inside the canvas's painting: the gauges are placed again after it
     connect(m_canvas, &VideoCanvas::pictureAspectChanged, this, &MainWindow::fitLayoutTo, Qt::QueuedConnection);
     connect(m_libraryPanel, &GaugeLibraryPanel::applyTemplateRequested, this, &MainWindow::applyTemplate);
@@ -421,6 +426,103 @@ void MainWindow::settleDock(QDockWidget *dock, bool floating)
     dock->setGeometry(frame);
     dock->raise();
     dock->activateWindow();
+}
+
+namespace
+{
+QStringList localFiles(const QMimeData *data)
+{
+    QStringList paths;
+    for (const QUrl &url : data->urls())
+        {
+            if (url.isLocalFile())
+                {
+                    paths << url.toLocalFile();
+                }
+        }
+    return paths;
+}
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (!localFiles(event->mimeData()).isEmpty())
+        {
+            event->acceptProposedAction();
+        }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    const QStringList paths = localFiles(event->mimeData());
+    if (paths.isEmpty())
+        {
+            return;
+        }
+    event->acceptProposedAction();
+    // what to do is chosen after the drop is over: a question asked inside it would hold the
+    // program the files came from
+    QTimer::singleShot(0, this, [this, paths]() { openDropped(paths); });
+}
+
+void MainWindow::openDropped(const QStringList &paths)
+{
+    static const QStringList videos{"mp4", "mov", "mkv", "avi", "m4v", "mts", "webm"};
+    QString video;
+    QString data;
+    QString project;
+    QStringList library;
+    QStringList unknown;
+    for (const QString &path : paths)
+        {
+            const QFileInfo info(path);
+            const QString suffix = info.suffix().toLower();
+            if (suffix == QLatin1String(ProjectFile::Suffix))
+                {
+                    project = project.isEmpty() ? path : project;
+                }
+            else if (info.isDir() || suffix == LibraryPackage::GaugeSuffix || suffix == LibraryPackage::TemplateSuffix
+                     || suffix == "veg" || suffix == "vet")
+                {
+                    library << path;
+                }
+            // a video first; a second .mp4 (a GoPro's) is taken for its data
+            else if (videos.contains(suffix) && video.isEmpty())
+                {
+                    video = path;
+                }
+            else if (TelemetryImporter::canLoad(path) && data.isEmpty())
+                {
+                    data = path;
+                }
+            else
+                {
+                    unknown << info.fileName();
+                }
+        }
+    if (!project.isEmpty())
+        {
+            openProject(project);
+        }
+    else
+        {
+            if (!video.isEmpty())
+                {
+                    openChosenVideo(video);
+                }
+            if (!data.isEmpty())
+                {
+                    openTelemetry(data);
+                }
+        }
+    if (!library.isEmpty() && !m_libraryPanel->importDropped(library))
+        {
+            unknown << library;
+        }
+    if (!unknown.isEmpty())
+        {
+            statusBar()->showMessage(tr("Not opened, not something this program reads: %1").arg(unknown.join(", ")), 8000);
+        }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

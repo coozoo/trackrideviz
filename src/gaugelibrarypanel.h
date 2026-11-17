@@ -27,6 +27,10 @@ public:
     // What an import found to bring in (see the .cpp).
     struct ImportFolders;
 
+    // Brings in what was dropped on the window: gauge and template files (.rtvgauge, .rtvtemplate,
+    // .veg, .vet) and folders, as Import does with a folder. False when none of it is such.
+    bool importDropped(const QStringList &paths);
+
 public slots:
     // Reads the library again. Pictures are drawn in a worker thread and
     // appear as they are ready.

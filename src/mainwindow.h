@@ -55,9 +55,13 @@ public slots:
     // Imports in a worker thread; the window stays usable meanwhile.
     void openTelemetry(const QString &path);
     void openProject(const QString &path);
+    void openDropped(const QStringList &paths);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    // Files dropped on the window: a project, a video, data, gauges and templates for the library.
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private slots:
     void chooseVideo();

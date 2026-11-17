@@ -761,6 +761,52 @@ void GaugeLibraryPanel::importFiles()
     startImport(found);
 }
 
+bool GaugeLibraryPanel::importDropped(const QStringList &paths)
+{
+    ImportFolders found;
+    for (const QString &path : paths)
+        {
+            const QFileInfo info(path);
+            const QString suffix = info.suffix().toLower();
+            if (info.isDir())
+                {
+                    const ImportFolders inside = importFoldersIn(path);
+                    found.packages += inside.packages;
+                    found.dataProfiles += inside.dataProfiles;
+                    found.xmlTemplates += inside.xmlTemplates;
+                    found.xmlGauges += inside.xmlGauges;
+                    found.gaugeFiles += inside.gaugeFiles;
+                    found.templateFiles += inside.templateFiles;
+                    found.widgets = found.widgets.isEmpty() ? inside.widgets : found.widgets;
+                }
+            else if (suffix == LibraryPackage::GaugeSuffix || suffix == LibraryPackage::TemplateSuffix)
+                {
+                    found.packages << path;
+                }
+            else if (suffix == "veg")
+                {
+                    found.gaugeFiles << path;
+                    found.widgets = found.widgets.isEmpty() ? info.absolutePath() : found.widgets;
+                }
+            else if (suffix == "vet")
+                {
+                    found.templateFiles << path;
+                    // their gauges are next door, in Widgets
+                    if (found.widgets.isEmpty())
+                        {
+                            found.widgets = childIgnoringCase(QDir(info.absolutePath() + "/.."), "Widgets");
+                        }
+                }
+        }
+    if (found.gaugeFiles.isEmpty() && found.templateFiles.isEmpty() && found.xmlGauges.isEmpty() && found.xmlTemplates.isEmpty()
+            && found.dataProfiles.isEmpty() && found.packages.isEmpty())
+        {
+            return false;
+        }
+    startImport(found);
+    return true;
+}
+
 void GaugeLibraryPanel::importPackages()
 {
     QSettings settings;

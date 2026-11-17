@@ -738,6 +738,10 @@ void VideoCanvas::dragEnterEvent(QDragEnterEvent *event)
             event->setDropAction(Qt::CopyAction);
             event->accept();
         }
+    else
+        {
+            event->ignore();   // files: the window takes them
+        }
 }
 
 void VideoCanvas::dragMoveEvent(QDragMoveEvent *event)
