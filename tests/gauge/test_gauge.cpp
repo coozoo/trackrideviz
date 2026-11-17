@@ -2544,6 +2544,12 @@ private slots:
         QCOMPARE(GaugeShape::widened(gauge, 1.0).size, QSizeF(100, 100));
         QCOMPARE(GaugeShape::widened(gauge, 2.0).components[0].frame, graph.frame);
         QCOMPARE(GaugeShape::widened(gauge, 0.0).size, gauge.size);
+
+        // letters larger, wherever they are, and nothing else
+        const Gauge large = GaugeShape::textsScaled(wide, 1.5);
+        QCOMPARE(large.components[1].fontSize, 45.0);
+        QCOMPARE(large.components[1].frame, wide.components[1].frame);
+        QCOMPARE(large.size, wide.size);
     }
 
     void xmlChannels()

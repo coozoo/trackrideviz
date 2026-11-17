@@ -4,6 +4,8 @@
 #include "../gauge/gaugelibrary.h"
 #include "../gauge/gaugeshape.h"
 
+#include <QPainter>
+
 #include <algorithm>
 #include <cmath>
 
@@ -56,13 +58,15 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
 {
     for (const OverlayItem &item : items)
         {
-            Gauge gauge = GaugeShape::widened(GaugeLibrary::gauge(item.gaugeId), item.aspect);
+            Gauge gauge = GaugeShape::textsScaled(GaugeShape::widened(GaugeLibrary::gauge(item.gaugeId), item.aspect),
+                                                  item.textScale);
             Placed placed;
             placed.item = item;
             chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp);
             if (!gauge.isEmpty())
                 {
-                    placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), theme, {item.channels, item.scaleMax});
+                    placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), item.ownTheme ? item.theme : theme,
+                                              {item.channels, item.scaleMax});
                 }
             m_placed.append(placed);
         }
@@ -228,10 +232,8 @@ QRect Overlay::boundingRect(const QSize &frameSize) const
 
 void Overlay::render(QPainter &painter, const QRectF &frame, double time) const
 {
-    for (int i = 0; i < m_placed.size(); ++i)
-        {
-            m_placed.at(i).gauge.render(painter, itemRect(i, frame), time);
-        }
+    // every gauge, wherever it is
+    render(painter, frame, time, QRectF(-1e9, -1e9, 2e9, 2e9));
 }
 
 void Overlay::render(QPainter &painter, const QRectF &frame, double time, const QRectF &within) const
@@ -241,7 +243,26 @@ void Overlay::render(QPainter &painter, const QRectF &frame, double time, const 
             const QRectF rect = itemRect(i, frame);
             if (rect.intersects(within))
                 {
-                    m_placed.at(i).gauge.render(painter, rect, time);
+                    const double opacity = std::clamp(m_placed.at(i).item.opacity, 0.0, 1.0);
+                    if (opacity >= 1.0)
+                        {
+                            m_placed.at(i).gauge.render(painter, rect, time);
+                            continue;
+                        }
+                    // drawn whole first, then faded as one: its parts do not show through each other
+                    const QRect box = rect.toAlignedRect();
+                    const qreal ratio = painter.device() ? painter.device()->devicePixelRatioF() : 1.0;
+                    QImage picture(box.size() * ratio, QImage::Format_ARGB32_Premultiplied);
+                    picture.setDevicePixelRatio(ratio);
+                    picture.fill(Qt::transparent);
+                    {
+                        QPainter inside(&picture);
+                        m_placed.at(i).gauge.render(inside, rect.translated(-box.topLeft()), time);
+                    }
+                    painter.save();
+                    painter.setOpacity(painter.opacity() * opacity);
+                    painter.drawImage(box.topLeft(), picture);
+                    painter.restore();
                 }
         }
 }
@@ -265,6 +286,18 @@ void OverlayItem::writeChoices(QJsonObject &object) const
         {
             object.insert("aspect", aspect);
         }
+    if (ownTheme)
+        {
+            object.insert("ownTheme", theme.toJson());
+        }
+    if (textScale != 1.0)
+        {
+            object.insert("textScale", textScale);
+        }
+    if (opacity < 1.0)
+        {
+            object.insert("opacity", opacity);
+        }
 }
 
 void OverlayItem::readChoices(const QJsonObject &object)
@@ -281,4 +314,8 @@ void OverlayItem::readChoices(const QJsonObject &object)
         }
     scaleMax = std::max(0.0, object.value("scaleMax").toDouble());
     aspect = std::max(0.0, object.value("aspect").toDouble());
+    ownTheme = object.value("ownTheme").isObject();
+    theme = ownTheme ? GaugeTheme::fromJson(object.value("ownTheme").toObject()) : GaugeTheme();
+    textScale = std::clamp(object.value("textScale").toDouble(1.0), 0.2, 5.0);
+    opacity = std::clamp(object.value("opacity").toDouble(1.0), 0.0, 1.0);
 }

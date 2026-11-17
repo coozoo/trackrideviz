@@ -61,6 +61,7 @@
 #include <QSettings>
 #include <QShortcut>
 #include <QSlider>
+#include <QSpinBox>
 #include <QStatusBar>
 #include <QStyle>
 #include <QScreen>
@@ -1695,13 +1696,48 @@ QWidget *MainWindow::createPropertiesPanel()
     form->addRow(channelLabel, m_channelCombo);
     form->addRow(m_partsHolder);
     form->addRow(m_scaleMaxLabel, m_scaleMaxSpin);
+    // this gauge's own look
+    m_textSizeSpin = new QSpinBox(panel);
+    m_textSizeSpin->setRange(30, 300);
+    m_textSizeSpin->setSingleStep(5);
+    m_textSizeSpin->setSuffix(" %");
+    m_textSizeSpin->setKeyboardTracking(false);
+    m_textSizeSpin->setToolTip(tr("The letters and numbers of the selected gauge, larger or smaller than it was made with"));
+    connect(m_textSizeSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int percent)
+    {
+        changeGaugeLook(tr("Change a gauge's text size"), [percent](OverlayItem &item) { item.textScale = percent / 100.0; });
+    });
+    m_opacitySpin = new QSpinBox(panel);
+    m_opacitySpin->setRange(5, 100);
+    m_opacitySpin->setSingleStep(5);
+    m_opacitySpin->setSuffix(" %");
+    m_opacitySpin->setKeyboardTracking(false);
+    m_opacitySpin->setToolTip(tr("How much of the selected gauge shows over the video; 100 %: all of it"));
+    connect(m_opacitySpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int percent)
+    {
+        changeGaugeLook(tr("Change a gauge's opacity"), [percent](OverlayItem &item) { item.opacity = percent / 100.0; });
+    });
+    m_ownLookCheck = new QCheckBox(tr("Own colors and font"), panel);
+    m_ownLookCheck->setToolTip(tr("On: the colors and the font below are this gauge's alone. Off: it looks like all the others."));
+    connect(m_ownLookCheck, &QCheckBox::clicked, this, [this](bool own)
+    {
+        const GaugeTheme common = m_project.theme;
+        // starting from the look of all gauges
+        changeGaugeLook(own ? tr("Give a gauge its own look") : tr("Give a gauge the common look"), [own, common](OverlayItem &item)
+        {
+            item.ownTheme = own;
+            item.theme = own ? common : GaugeTheme();
+        });
+    });
+    form->addRow(tr("Text size:"), m_textSizeSpin);
+    form->addRow(tr("Opacity:"), m_opacitySpin);
+    form->addRow(QString(), m_ownLookCheck);
     form->addRow(QString(), m_removeGaugeButton);
-    QLabel *colorsTitle = new QLabel(tr("All gauges"), panel);
-    colorsTitle->setToolTip(tr("Colors and font of every gauge on the video"));
-    QFont bold = colorsTitle->font();
+    m_lookTitle = new QLabel(tr("All gauges"), panel);
+    QFont bold = m_lookTitle->font();
     bold.setBold(true);
-    colorsTitle->setFont(bold);
-    form->addRow(colorsTitle);
+    m_lookTitle->setFont(bold);
+    form->addRow(m_lookTitle);
     for (int role = 0; role < int(std::size(kThemeRoles)); ++role)
         {
             QPushButton *button = new QPushButton(panel);
@@ -1753,14 +1789,15 @@ QWidget *MainWindow::createPropertiesPanel()
     m_fontEverywhereCheck->setToolTip(tr("Imported gauges often name a font (Arial...); with this they use the one chosen here too"));
     auto changeFont = [this]()
     {
-        OverlayState after{m_project.overlay, m_project.theme};
-        after.theme.font = m_fontCombo->currentData().toString();
-        after.theme.fontWeight = m_fontWeightCombo->currentData().toInt();
-        after.theme.fontEverywhere = m_fontEverywhereCheck->isChecked();
-        if (after.theme != m_project.theme)
-            {
-                changeOverlay(tr("Change gauge font"), after);
-            }
+        const QString font = m_fontCombo->currentData().toString();
+        const int weight = m_fontWeightCombo->currentData().toInt();
+        const bool everywhere = m_fontEverywhereCheck->isChecked();
+        changeTheme(tr("Change gauge font"), [font, weight, everywhere](GaugeTheme &theme)
+        {
+            theme.font = font;
+            theme.fontWeight = weight;
+            theme.fontEverywhere = everywhere;
+        });
     };
     connect(m_fontCombo, QOverload<int>::of(&QComboBox::activated), this, changeFont);
     // typing filters the list by any part of the name; Enter or a click picks one
@@ -1794,18 +1831,46 @@ QWidget *MainWindow::createPropertiesPanel()
     return panel;
 }
 
+bool MainWindow::editsOwnLook() const
+{
+    const int index = m_canvas->selectedItem();
+    return index >= 0 && index < m_project.overlay.size() && m_project.overlay.at(index).ownTheme;
+}
+
+const GaugeTheme &MainWindow::shownTheme() const
+{
+    return editsOwnLook() ? m_project.overlay.at(m_canvas->selectedItem()).theme : m_project.theme;
+}
+
+void MainWindow::changeTheme(const QString &description, const std::function<void(GaugeTheme &)> &change)
+{
+    OverlayState after{m_project.overlay, m_project.theme};
+    change(editsOwnLook() ? after.items[m_canvas->selectedItem()].theme : after.theme);
+    changeOverlay(description, after);
+}
+
+void MainWindow::changeGaugeLook(const QString &description, const std::function<void(OverlayItem &)> &change)
+{
+    const int index = m_canvas->selectedItem();
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    change(after.items[index]);
+    changeOverlay(description, after);
+}
+
 void MainWindow::chooseThemeColor(int role)
 {
-    const QColor current = m_project.theme.*(kThemeRoles[role].color);
+    const QColor current = shownTheme().*(kThemeRoles[role].color);
     // transparency matters here: gauge plates are usually see-through
     const QColor chosen = QColorDialog::getColor(current, this, tr(kThemeRoles[role].label), QColorDialog::ShowAlphaChannel);
     if (!chosen.isValid())
         {
             return;
         }
-    OverlayState after{m_project.overlay, m_project.theme};
-    after.theme.*(kThemeRoles[role].color) = chosen;
-    changeOverlay(tr("Change gauge colors"), after);
+    changeTheme(tr("Change gauge colors"), [role, chosen](GaugeTheme &theme) { theme.*(kThemeRoles[role].color) = chosen; });
 }
 
 void MainWindow::updateProperties()
@@ -1878,9 +1943,23 @@ void MainWindow::updateProperties()
             m_scaleMaxSpin->setSuffix(unit.isEmpty() ? QString() : " " + unit);
             m_scaleMaxSpin->setValue(item.scaleMax);
         }
+    {
+        const QSignalBlocker sizeBlocker(m_textSizeSpin);
+        const QSignalBlocker opacityBlocker(m_opacitySpin);
+        m_textSizeSpin->setEnabled(selected);
+        m_opacitySpin->setEnabled(selected);
+        m_ownLookCheck->setEnabled(selected);
+        m_textSizeSpin->setValue(selected ? int(std::lround(item.textScale * 100.0)) : 100);
+        m_opacitySpin->setValue(selected ? int(std::lround(item.opacity * 100.0)) : 100);
+        m_ownLookCheck->setChecked(selected && item.ownTheme);
+    }
+    const GaugeTheme &theme = shownTheme();
+    m_lookTitle->setText(editsOwnLook() ? tr("This gauge") : tr("All gauges"));
+    m_lookTitle->setToolTip(editsOwnLook() ? tr("Colors and font of the selected gauge alone")
+                            : tr("Colors and font of every gauge on the video"));
     for (int role = 0; role < m_themeButtons.size(); ++role)
         {
-            const QColor color = m_project.theme.*(kThemeRoles[role].color);
+            const QColor color = theme.*(kThemeRoles[role].color);
             // a swatch; the text keeps it usable for those who cannot tell the colors apart
             QPixmap swatch(32, 16);
             swatch.fill(color);
@@ -1891,17 +1970,17 @@ void MainWindow::updateProperties()
         const QSignalBlocker fontBlocker(m_fontCombo);
         const QSignalBlocker weightBlocker(m_fontWeightCombo);
         const QSignalBlocker everywhereBlocker(m_fontEverywhereCheck);
-        int row = m_fontCombo->findData(m_project.theme.font);
+        int row = m_fontCombo->findData(theme.font);
         if (row < 0)
             {
                 // a font this computer does not have: still shown as the one chosen
-                m_fontCombo->addItem(m_project.theme.font, m_project.theme.font);
+                m_fontCombo->addItem(theme.font, theme.font);
                 row = m_fontCombo->count() - 1;
             }
         m_fontCombo->setCurrentIndex(row);
-        m_fontWeightCombo->setCurrentIndex(std::max(0, m_fontWeightCombo->findData(m_project.theme.fontWeight)));
-        m_fontEverywhereCheck->setChecked(m_project.theme.fontEverywhere);
-        m_fontEverywhereCheck->setEnabled(!m_project.theme.font.isEmpty() || m_project.theme.fontWeight > 0);
+        m_fontWeightCombo->setCurrentIndex(std::max(0, m_fontWeightCombo->findData(theme.fontWeight)));
+        m_fontEverywhereCheck->setChecked(theme.fontEverywhere);
+        m_fontEverywhereCheck->setEnabled(!theme.font.isEmpty() || theme.fontWeight > 0);
     }
 }
 

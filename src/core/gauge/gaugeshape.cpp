@@ -45,6 +45,18 @@ void widen(QVector<GaugeComponent> &components, double factor)
             widen(c.children, factor);
         }
 }
+
+void scaleTexts(QVector<GaugeComponent> &components, double factor)
+{
+    for (GaugeComponent &c : components)
+        {
+            c.fontSize *= factor;
+            for (QVector<GaugeComponent> *inside : {&c.children, &c.knob, &c.xMarker, &c.yMarker, &c.startLine})
+                {
+                    scaleTexts(*inside, factor);
+                }
+        }
+}
 }
 
 Gauge GaugeShape::widened(const Gauge &gauge, double aspect)
@@ -61,5 +73,16 @@ Gauge GaugeShape::widened(const Gauge &gauge, double aspect)
     Gauge result = gauge;
     result.size.setWidth(gauge.size.width() * factor);
     widen(result.components, factor);
+    return result;
+}
+
+Gauge GaugeShape::textsScaled(const Gauge &gauge, double factor)
+{
+    if (factor <= 0.0 || std::abs(factor - 1.0) < 1e-6)
+        {
+            return gauge;
+        }
+    Gauge result = gauge;
+    scaleTexts(result.components, factor);
     return result;
 }

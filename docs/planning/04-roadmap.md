@@ -300,7 +300,10 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   with a padlock. Next: file associations (MIME types) so a double click imports
 - ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
   theme colors, kept in projects and templates; Barlow Semi Condensed bundled in all weights
-- Per gauge on the video: own font, size, colors, opacity (later)
+- ✅ Per gauge on the video (2026-11-17, `OverlayItem::ownTheme`, `textScale`, `opacity`): text size and opacity
+  in the properties; "Own colors and font" makes the color and font controls under it edit that gauge alone.
+  A see-through gauge is drawn whole, then faded, so its parts do not show through each other. Kept in
+  projects and templates
 - ✅ Charts (2026-11-14): one smoothing for Data, Timeline and Compare laps (none, 2, 5, 15 s, display
   only); the Data chart draws each pixel's mean with its span as a faint band
 - ✅ Own vector set, batch 1 (2026-11-14, `tools/vectorgauges`, reviewed one by one against what

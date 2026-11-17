@@ -51,6 +51,10 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.channels = item.channels;
             placed.scaleMax = item.scaleMax;
             placed.aspect = item.aspect;
+            placed.ownTheme = item.ownTheme;
+            placed.theme = item.theme;
+            placed.textScale = item.textScale;
+            placed.opacity = item.opacity;
             result.append(placed);
         }
     return result;
@@ -86,6 +90,10 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.channels = placed.channels;
             item.scaleMax = placed.scaleMax;
             item.aspect = placed.aspect;
+            item.ownTheme = placed.ownTheme;
+            item.theme = placed.theme;
+            item.textScale = placed.textScale;
+            item.opacity = placed.opacity;
             result.items.append(item);
         }
     return result;
@@ -126,6 +134,10 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             choices.channels = item.channels;
             choices.scaleMax = item.scaleMax;
             choices.aspect = item.aspect;
+            choices.ownTheme = item.ownTheme;
+            choices.theme = item.theme;
+            choices.textScale = item.textScale;
+            choices.opacity = item.opacity;
             choices.writeChoices(object);
             items.append(object);
         }
@@ -201,6 +213,10 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
             item.channels = choices.channels;
             item.scaleMax = choices.scaleMax;
             item.aspect = choices.aspect;
+            item.ownTheme = choices.ownTheme;
+            item.theme = choices.theme;
+            item.textScale = choices.textScale;
+            item.opacity = choices.opacity;
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.items.append(item);

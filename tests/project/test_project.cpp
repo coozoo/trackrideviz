@@ -164,6 +164,41 @@ private slots:
         QCOMPARE(qAlpha(image.pixel(350, 50)), 0);
     }
 
+    void gaugeOfItsOwnLook()
+    {
+        auto session = std::make_shared<TelemetrySession>();
+        session->channelForWriting(ChannelId::Speed, "m/s").append(0.0, 5.0);
+        session->channelForWriting(ChannelId::Speed, "m/s").append(10.0, 5.0);
+        const auto draw = [&](const OverlayItem &placed)
+        {
+            QImage image(400, 200, QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);
+            QPainter painter(&image);
+            Overlay({placed}, session, Units(), GaugeTheme()).render(painter, QRectF(0, 0, 400, 200), 1.0);
+            return image;
+        };
+        const OverlayItem plain = item(0.25, 0.0, 1.0);
+        OverlayItem faint = plain;
+        faint.opacity = 0.5;
+        OverlayItem own = plain;
+        own.ownTheme = true;
+        own.theme.background = QColor(0, 0, 255);
+        const QImage asMade = draw(plain);
+        // half as opaque everywhere it is drawn
+        const QImage half = draw(faint);
+        QVERIFY(qAbs(qAlpha(half.pixel(200, 100)) - qAlpha(asMade.pixel(200, 100)) / 2) <= 2);
+        // its own colors, not the common ones
+        const QImage blue = draw(own);
+        QVERIFY(blue != asMade);
+        int bluish = 0;
+        for (int x = 120; x < 280; ++x)
+            {
+                const QRgb p = blue.pixel(x, 100);
+                bluish += qBlue(p) > 150 && qRed(p) < 80 ? 1 : 0;
+            }
+        QVERIFY(bluish > 10);
+    }
+
     void roundTrip()
     {
         Project project;
@@ -187,6 +222,12 @@ private slots:
         project.overlay[1].aspect = 3.5;
         // placed on a vertical video
         project.layoutAspect = 9.0 / 16.0;
+        // one gauge of its own look: green, larger letters, half see-through
+        project.overlay[0].ownTheme = true;
+        project.overlay[0].theme.accent = QColor(0, 200, 0);
+        project.overlay[0].theme.font = "DejaVu Sans";
+        project.overlay[0].textScale = 1.5;
+        project.overlay[0].opacity = 0.5;
         project.elevation = Terrain::Always;
         project.theme.accent = QColor(10, 200, 30, 128);
         project.theme.background = QColor(0, 0, 0, 0);

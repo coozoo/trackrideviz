@@ -23,6 +23,7 @@ class QDoubleSpinBox;
 class QLabel;
 class QMenu;
 class QSlider;
+class QSpinBox;
 class QTimer;
 class QToolButton;
 class QPushButton;
@@ -90,6 +91,12 @@ private slots:
     void recomputeData();
     void saveAsTemplate();
     void chooseThemeColor(int role);
+    // The colors and font the controls show and change: the selected gauge's own, or every gauge's.
+    bool editsOwnLook() const;
+    const GaugeTheme &shownTheme() const;
+    void changeTheme(const QString &description, const std::function<void(GaugeTheme &)> &change);
+    // The selected gauge's own look changed as `change` does.
+    void changeGaugeLook(const QString &description, const std::function<void(OverlayItem &)> &change);
     void showItemMenu(int index, const QPoint &globalPosition);
     void updateProperties();
     void togglePlayback();
@@ -212,6 +219,11 @@ private:
     QLabel *m_scaleMaxLabel{nullptr};
     QDoubleSpinBox *m_scaleMaxSpin{nullptr};
     QPushButton *m_removeGaugeButton{nullptr};
+    // the selected gauge's own look; with its own colors and font the controls under them edit those
+    QSpinBox *m_textSizeSpin{nullptr};
+    QSpinBox *m_opacitySpin{nullptr};
+    QCheckBox *m_ownLookCheck{nullptr};
+    QLabel *m_lookTitle{nullptr};
     QVector<QPushButton *> m_themeButtons;
     QComboBox *m_fontCombo{nullptr};
     QComboBox *m_fontWeightCombo{nullptr};

@@ -26,6 +26,12 @@ struct OverlayItem
     // ...or, when above 0, this shape: width / height on the picture, the gauge laid out again
     // for it (GaugeShape)
     double aspect{0.0};
+    // Its own look: colors and font instead of the project's (with ownTheme), letters this many
+    // times their size, drawn this opaque.
+    bool ownTheme{false};
+    GaugeTheme theme;
+    double textScale{1.0};
+    double opacity{1.0};
     // A street map under the gauge's route: as the gauge was drawn, or the user's choice.
     enum Streets { AsDesigned, Shown, Hidden };
     Streets streets{AsDesigned};
@@ -56,14 +62,15 @@ struct OverlayItem
         return own;
     }
 
-    // `channels`, `scaleMax` and `aspect` in a project's or a template's entry of the item (nothing when unchanged).
+    // `channels`, `scaleMax`, `aspect` and the item's own look in a project's or a template's entry of the item (nothing when unchanged).
     void writeChoices(QJsonObject &object) const;
     void readChoices(const QJsonObject &object);
 
     bool operator==(const OverlayItem &other) const
     {
         return gaugeId == other.gaugeId && channel == other.channel
-               && x == other.x && y == other.y && height == other.height && aspect == other.aspect && streets == other.streets
+               && x == other.x && y == other.y && height == other.height && aspect == other.aspect && ownTheme == other.ownTheme
+               && (!ownTheme || theme == other.theme) && textScale == other.textScale && opacity == other.opacity && streets == other.streets
                && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;
     }
