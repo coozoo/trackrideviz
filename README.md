@@ -52,6 +52,19 @@ can be checked.
   the gauges alone on a transparent background (ProRes 4444 or VP9 WebM), to lay over the video in another editor
 - Music under the video: a playlist of files, with fades and the volumes of the video and the music
 
+## Installation
+
+Packages for Linux (AppImage, .deb) and Windows (zip) are on the
+[releases page](https://github.com/coozoo/trackrideviz/releases).
+
+On macOS the downloaded app has to be allowed to run first:
+
+```bash
+# adjust the location to where the app is
+xattr -dr com.apple.quarantine /Applications/trackrideviz.app
+codesign --force --deep --sign - /Applications/trackrideviz.app
+```
+
 ## Build
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
@@ -158,6 +171,8 @@ only some:
 | `[build mac]` | the macOS .dmg (same as `[build mac dmg]`) |
 | `[build mac zip]` | the macOS .zip |
 | `[skip ci]` | nothing |
+
+macOS is left out of the build matrix until the final stage; the tags for it do nothing until then.
 
 ### It has to build with Qt 6.2
 
