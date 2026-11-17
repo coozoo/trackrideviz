@@ -220,7 +220,7 @@ QString describe(const GaugeComponent &part)
                 case GaugeComponent::Pie:
                     return GaugeEditor::tr("Pie slice");
                 case GaugeComponent::Line:
-                    return GaugeEditor::tr("Line");
+                    return part.filled ? GaugeEditor::tr("Polygon") : GaugeEditor::tr("Line");
                 }
             break;
         }
@@ -1818,10 +1818,41 @@ void GaugeEditor::fillProperties()
     QFormLayout *place = section(describe(part));
     if (line && part.points.size() >= 2)
         {
-            addNumber(place, tr("From X:"), part.points.first().x(), -far, far, 1, [](Part &p, double v) { p.points.first().setX(v); });
-            addNumber(place, tr("From Y:"), part.points.first().y(), -far, far, 1, [](Part &p, double v) { p.points.first().setY(v); });
-            addNumber(place, tr("To X:"), part.points.last().x(), -far, far, 1, [](Part &p, double v) { p.points.last().setX(v); });
-            addNumber(place, tr("To Y:"), part.points.last().y(), -far, far, 1, [](Part &p, double v) { p.points.last().setY(v); });
+            for (int i = 0; i < part.points.size(); ++i)
+                {
+                    addNumber(place, tr("Point %1, X:").arg(i + 1), part.points.at(i).x(), -far, far, 1,
+                              [i](Part &p, double v) { if (i < p.points.size()) p.points[i].setX(v); });
+                    addNumber(place, tr("Point %1, Y:").arg(i + 1), part.points.at(i).y(), -far, far, 1,
+                              [i](Part &p, double v) { if (i < p.points.size()) p.points[i].setY(v); });
+                }
+            QPushButton *more = new QPushButton(tr("Add a point"), m_properties);
+            more->setToolTip(tr("After the last one, as far on again as the last step"));
+            QPushButton *fewer = new QPushButton(tr("Remove the last point"), m_properties);
+            fewer->setEnabled(part.points.size() > 2);
+            const auto points = [this](bool add)
+            {
+                if (Part *p = selected())
+                    {
+                        if (add)
+                            {
+                                const QPointF last = p->points.last();
+                                const QPointF step = last - p->points.at(p->points.size() - 2);
+                                p->points.append(last + (step.isNull() ? QPointF(10, 0) : step));
+                            }
+                        else if (p->points.size() > 2)
+                            {
+                                p->points.removeLast();
+                            }
+                        changed();
+                        QMetaObject::invokeMethod(this, [this]() { fillProperties(); }, Qt::QueuedConnection);
+                    }
+            };
+            connect(more, &QPushButton::clicked, this, [points]() { points(true); });
+            connect(fewer, &QPushButton::clicked, this, [points]() { points(false); });
+            QHBoxLayout *buttons = new QHBoxLayout;
+            buttons->addWidget(more);
+            buttons->addWidget(fewer);
+            place->addRow(buttons);
         }
     else if (part.type != GaugeComponent::Group)
         {
@@ -1869,6 +1900,15 @@ void GaugeEditor::fillProperties()
             addCheck(form, tr("Bold"), part.bold, [](Part &p, bool on) { p.bold = on; });
             addCheck(form, tr("Italic"), part.italic, [](Part &p, bool on) { p.italic = on; });
             addCheck(form, tr("CAPITALS"), part.upperCase, [](Part &p, bool on) { p.upperCase = on; });
+            addCheck(form, tr("In a box, wrapped at its width"), part.boxed, [this](Part &p, bool on)
+            {
+                p.boxed = on;
+                // a box to start from, a few lines high, from the point the text was set against
+                if (on && (p.frame.width() <= 0.0 || p.frame.height() <= 0.0))
+                    {
+                        p.frame.setSize(QSizeF(std::round(m_gauge.size.width() * 0.6), std::round(p.fontSize * 2.5)));
+                    }
+            }, tr("The text inside the frame below, aligned in it and broken into lines where it is too long"), true);
             if (part.autoText != GaugeComponent::FixedText && part.autoText != GaugeComponent::Unit
                     && part.autoText != GaugeComponent::Label)
                 {
@@ -1919,7 +1959,37 @@ void GaugeEditor::fillProperties()
                             addCheck(form, tr("Filled"), part.filled, [](Part &p, bool on) { p.filled = on; }, QString(), true);
                         }
                 }
-            if (line || !part.filled || part.shape == GaugeComponent::Arc)
+            else
+                {
+                    addCheck(form, tr("Closed and filled (a polygon)"), part.filled, [](Part &p, bool on) { p.filled = on; },
+                             tr("From the last point back to the first, the inside filled"), true);
+                }
+            if (part.filled)
+                {
+                    // from the color above to this one, along a line
+                    const bool fades = part.gradientColor.role != GaugeColor::Original;
+                    addCheck(form, tr("Fades to another color"), fades, [this](Part &p, bool on)
+                    {
+                        if (!on)
+                            {
+                                p.gradientColor = GaugeColor();
+                                return;
+                            }
+                        // top to bottom of the shape, to the background
+                        const QRectF bounds = boundsOf(p);
+                        p.gradientColor.role = GaugeColor::Background;
+                        p.gradientLine = QLineF(bounds.center().x(), bounds.top(), bounds.center().x(), bounds.bottom());
+                    }, tr("A gradient from the color above, at the start of a line, to this one at its end"), true);
+                    if (fades)
+                        {
+                            addColor(form, tr("Fades to:"), part.gradientColor, [](Part &p, const GaugeColor &c) { p.gradientColor = c; });
+                            addNumber(form, tr("Fade from X:"), part.gradientLine.x1(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP1(QPointF(v, p.gradientLine.y1())); });
+                            addNumber(form, tr("Fade from Y:"), part.gradientLine.y1(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP1(QPointF(p.gradientLine.x1(), v)); });
+                            addNumber(form, tr("Fade to X:"), part.gradientLine.x2(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP2(QPointF(v, p.gradientLine.y2())); });
+                            addNumber(form, tr("Fade to Y:"), part.gradientLine.y2(), -far, far, 1, [](Part &p, double v) { p.gradientLine.setP2(QPointF(p.gradientLine.x2(), v)); });
+                        }
+                }
+            if (!part.filled || part.shape == GaugeComponent::Arc)
                 {
                     addNumber(form, tr("Width of the line:"), part.lineWidth, 0.1, 1000, 1, [](Part &p, double v) { p.lineWidth = v; });
                 }

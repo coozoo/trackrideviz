@@ -2275,6 +2275,11 @@ private slots:
         line.filled = false;
         line.points = {QPointF(1, 1), QPointF(2, 3), QPointF(4, 5)};
         line.lineWidth = 3;
+        // the same points closed and filled, fading
+        GaugeComponent polygon = line;
+        polygon.filled = true;
+        polygon.gradientColor = GaugeColor{GaugeColor::Background, QColor()};
+        polygon.gradientLine = QLineF(0, 0, 0, 5);
         GaugeComponent dial;
         dial.type = GaugeComponent::Dial;
         dial.frame = QRectF(0, 0, 100, 100);
@@ -2320,7 +2325,7 @@ private slots:
         graph.frame = QRectF(0, 0, 100, 50);
         graph.windowBefore = 60;
         graph.windowAfter = 10;
-        gauge.components = {rect, arc, outline, line, dial, tape, text, graph};
+        gauge.components = {rect, arc, outline, line, dial, tape, text, graph, polygon};
 
         const QByteArray json = GaugeFile::toJson(gauge);
         Gauge loaded;
@@ -2346,6 +2351,11 @@ private slots:
         QCOMPARE(c[2].lineWidth, 2.0);
         QCOMPARE(c[3].points.size(), 3);
         QCOMPARE(c[3].points[2], QPointF(4, 5));
+        QVERIFY(!c[3].filled);
+        QVERIFY(c[8].filled);
+        QCOMPARE(c[8].points, polygon.points);
+        QCOMPARE(c[8].gradientColor, polygon.gradientColor);
+        QCOMPARE(c[8].gradientLine, polygon.gradientLine);
         QCOMPARE(c[4].type, GaugeComponent::Dial);
         QCOMPARE(c[4].scale.endAngle, 135.0);
         QCOMPARE(c[4].scale.radius, 48.0);

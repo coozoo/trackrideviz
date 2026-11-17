@@ -347,8 +347,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Editor (2026-11-17): a part's second and later movements, applied in their order ("Movement 1",
   "Movement 2", Add another movement); a ball moved by two values (g-forces: the measurement each way, how far,
   either way reversed, the trail) and a picture strip (how many pictures, how fast at the ends)
-- Editor, still to do: markers of a graph's axes and a lap's start line; gradients; the points of a line with more
-  than two; aligning several parts; turning a text's frame into a box
+- ✅ Editor (2026-11-17): fills that fade to another color along a line; lines through any number of points,
+  closed and filled as polygons ("filled" on a line in gauge.json); a text in a box, wrapped at its width
+- Editor, still to do: markers of a graph's axes and a lap's start line; aligning several parts
 - Path shapes
 - ✅ Lap table and sector bar (2026-11-17, gauge parts `lapTable` and `sectorBar`; gauges Lap table and
   Sector bar; in the editor). The table: the last laps finished and the one under way, number, time and

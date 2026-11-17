@@ -177,7 +177,7 @@ struct GaugeComponent
         Ellipse,     // inside `frame`
         Arc,         // of the ellipse inside `frame`, from startAngle turning sweepAngle
         Pie,         // the same, filled to the middle
-        Line         // through `points`
+        Line         // through `points`; filled: closed, a polygon
     };
     enum ValueFormat
     {

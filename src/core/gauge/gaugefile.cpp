@@ -443,6 +443,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                 {
                     object["filled"] = false;
                 }
+            if (c.filled && c.shape == GaugeComponent::Line)
+                {
+                    object["filled"] = true;   // closed: a polygon
+                }
             if (c.cornerRadius > 0.0)
                 {
                     object["cornerRadius"] = c.cornerRadius;
@@ -601,8 +605,9 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.children = componentsFromJson(object.value("components"));
     c.shape = GaugeComponent::ShapeKind(indexOf(kShapeKinds, object.value("shape").toString()));
     c.points = pointsFromJson(object.value("points"));
-    // arcs and lines are only ever drawn with a pen
-    c.filled = object.value("filled").toBool(true) && c.shape != GaugeComponent::Arc && c.shape != GaugeComponent::Line;
+    // arcs are only ever drawn with a pen; lines unless they say they are closed (a polygon)
+    c.filled = c.shape == GaugeComponent::Line ? object.value("filled").toBool(false)
+               : object.value("filled").toBool(true) && c.shape != GaugeComponent::Arc;
     c.cornerRadius = object.value("cornerRadius").toDouble();
     c.startAngle = object.value("startAngle").toDouble();
     c.sweepAngle = object.value("sweepAngle").toDouble();
