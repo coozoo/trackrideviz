@@ -33,7 +33,8 @@ See [Installation in the README](../README.md#installation): the AppImage, the .
 Copr, the Ubuntu PPA, the Windows installer or zip, and the macOS app.
 
 Export needs **ffmpeg** (with ffprobe). The Windows packages bring their own; the Linux packages
-pull it in; on macOS it comes from Homebrew (`brew install ffmpeg`). Its location can be set in
+pull it in; on macOS it comes from Homebrew (`brew install ffmpeg`) or MacPorts, and the program
+finds it in `/opt/homebrew/bin`, `/usr/local/bin` or `/opt/local/bin` by itself. Its location can be set in
 Settings > Export when it is somewhere else.
 
 ## 2. The window
