@@ -99,7 +99,8 @@ xattr -dr com.apple.quarantine /Applications/trackrideviz.app
 codesign --force --deep --sign - /Applications/trackrideviz.app
 ```
 
-Export needs ffmpeg, from [Homebrew](https://brew.sh): `brew install ffmpeg`.
+Export needs ffmpeg, from [Homebrew](https://brew.sh) (`brew install ffmpeg`) or MacPorts; the program
+finds it there by itself.
 
 ## Command line
 
@@ -125,7 +126,7 @@ playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools), zlib and a C++17 compiler.
 `ffmpeg` (with `ffprobe`) is needed at run time for export and for the music's lengths; the Windows
-package comes with them. Otherwise the ones next to the program, then (on macOS) Homebrew's, then
+package comes with them. Otherwise the ones next to the program, then (on macOS) Homebrew's and MacPorts', then
 on the PATH, are used, and their location can be set in the settings.
 
 ```bash
