@@ -1954,42 +1954,33 @@ void GaugeEditor::addScale(QFormLayout *form, const Part &part)
     addNumber(form, tr("Size of the numbers:"), part.fontSize, 1, 2000, 0, [](Part &p, double v) { p.fontSize = v; });
 }
 
-void GaugeEditor::fillProperties()
+namespace
 {
-    // the old rows go, with their layouts
-    while (QLayoutItem *item = m_propertiesLayout->takeAt(0))
+// Takes everything out of a layout and the layouts in it, the widgets deleted. By count: a
+// QFormLayout complains when asked for an item it does not have.
+void clearLayout(QLayout *layout)
+{
+    while (layout->count() > 0)
         {
+            QLayoutItem *item = layout->takeAt(0);
             if (QWidget *widget = item->widget())
                 {
                     widget->hide();
                     widget->deleteLater();
                 }
-            if (QLayout *layout = item->layout())
+            if (QLayout *inner = item->layout())
                 {
-                    while (QLayoutItem *inner = layout->takeAt(0))
-                        {
-                            if (inner->widget())
-                                {
-                                    inner->widget()->hide();
-                                    inner->widget()->deleteLater();
-                                }
-                            if (QLayout *row = inner->layout())
-                                {
-                                    while (QLayoutItem *last = row->takeAt(0))
-                                        {
-                                            if (last->widget())
-                                                {
-                                                    last->widget()->hide();
-                                                    last->widget()->deleteLater();
-                                                }
-                                            delete last;
-                                        }
-                                }
-                            delete inner;
-                        }
+                    clearLayout(inner);
                 }
             delete item;
         }
+}
+}
+
+void GaugeEditor::fillProperties()
+{
+    // the old rows go, with their layouts
+    clearLayout(m_propertiesLayout);
     const QVector<GaugeComponent *> several = pickedParts();
     if (several.size() >= 2)
         {
