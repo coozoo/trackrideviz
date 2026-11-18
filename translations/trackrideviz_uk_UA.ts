@@ -79,7 +79,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="94"/>
         <source>T</source>
-        <translation>з</translation>
+        <translation>T</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="98"/>
@@ -134,7 +134,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="123"/>
         <source>Grade</source>
-        <translation>Ухил</translation>
+        <translation>Нахил</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="127"/>
@@ -313,7 +313,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="216"/>
         <source>Running time</source>
-        <translation>Час запису</translation>
+        <translation>Час руху</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="221"/>
@@ -420,42 +420,42 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="281"/>
         <source>Left/right balance</source>
-        <translation>Баланс лівої/правої</translation>
+        <translation>Баланс ліво/право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="282"/>
         <source>Right/left balance</source>
-        <translation>Баланс правої/лівої</translation>
+        <translation>Баланс право/ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="283"/>
         <source>Left power</source>
-        <translation>Потужність лівої</translation>
+        <translation>Потужність ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="284"/>
         <source>Right power</source>
-        <translation>Потужність правої</translation>
+        <translation>Потужність право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="285"/>
         <source>Left torque effectiveness</source>
-        <translation>Ефективність крутного моменту лівої</translation>
+        <translation>Ефективність крутного моменту ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="286"/>
         <source>Right torque effectiveness</source>
-        <translation>Ефективність крутного моменту правої</translation>
+        <translation>Ефективність крутного моменту право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="287"/>
         <source>Left pedal smoothness</source>
-        <translation>Плавність педалювання лівої</translation>
+        <translation>Плавність педалювання ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="288"/>
         <source>Right pedal smoothness</source>
-        <translation>Плавність педалювання правої</translation>
+        <translation>Плавність педалювання право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="289"/>
@@ -465,7 +465,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="290"/>
         <source>Left platform offset</source>
-        <translation>Зміщення на педалі лівої</translation>
+        <translation>Зміщення на педалі ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="290"/>
@@ -476,47 +476,47 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="291"/>
         <source>Right platform offset</source>
-        <translation>Зміщення на педалі правої</translation>
+        <translation>Зміщення на педалі право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="292"/>
         <source>Left power phase start</source>
-        <translation>Початок фази потужності лівої</translation>
+        <translation>Початок фази потужності ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="293"/>
         <source>Left power phase</source>
-        <translation>Фаза потужності лівої</translation>
+        <translation>Фаза потужності ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="294"/>
         <source>Left peak phase start</source>
-        <translation>Початок пікової фази лівої</translation>
+        <translation>Початок пікової фази ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="295"/>
         <source>Left peak phase</source>
-        <translation>Пікова фаза лівої</translation>
+        <translation>Пікова фаза ліво</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="296"/>
         <source>Right power phase start</source>
-        <translation>Початок фази потужності правої</translation>
+        <translation>Початок фази потужності право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="297"/>
         <source>Right power phase</source>
-        <translation>Фаза потужності правої</translation>
+        <translation>Фаза потужності право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="298"/>
         <source>Right peak phase start</source>
-        <translation>Початок пікової фази правої</translation>
+        <translation>Початок пікової фази право</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="299"/>
         <source>Right peak phase</source>
-        <translation>Пікова фаза правої</translation>
+        <translation>Пікова фаза право</translation>
     </message>
 </context>
 <context>
@@ -557,7 +557,7 @@
     <message>
         <location filename="../src/commandline.cpp" line="147"/>
         <source>%1, the best encoder there is for it</source>
-        <translation>%1, найкращий кодувальник, що для нього є</translation>
+        <translation>%1, найкращий кодувальник</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="147"/>
@@ -637,12 +637,12 @@
     <message>
         <location filename="../src/commandline.cpp" line="270"/>
         <source>There is no template &quot;%1&quot;; --list-templates names them.</source>
-        <translation>Шаблону «%1» немає; --list-templates їх перелічує.</translation>
+        <translation>Шаблону &quot;%1&quot; немає; --list-templates їх перелік.&quot;&quot;</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="294"/>
         <source>There is no export profile &quot;%1&quot;; --list-profiles names them.</source>
-        <translation>Профілю експорту «%1» немає; --list-profiles їх перелічує.</translation>
+        <translation>Профілю експорту &quot;%1&quot; немає; --list-profiles їх перелік.</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="311"/>
@@ -782,7 +782,7 @@
     <message>
         <location filename="../src/commandline.cpp" line="604"/>
         <source>Stopped; what was done so far is in %1</source>
-        <translation>Зупинено; зроблене досі — у %1</translation>
+        <translation>Зупинено; зроблене досі - у %1</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="611"/>
@@ -821,10 +821,10 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
 
 Проєкт експортується таким, яким його збережено: його індикатори, синхронізація, вирізи й музика.
 Без проєкту відео й дані узгоджуються за їхніми годинниками (як під час відкриття у вікні) або
-через --offset. Одиниці, карти, вершник і велосипед — з налаштувань програми.
+через --offset. Одиниці, карти, вершник і велосипед - з налаштувань програми.
 
 Як кодується: профіль експорту, який востаннє використано у вікні експорту, або --profile; його
-кодувальник — найкращий для профілю серед тих, що працюють на цьому комп’ютері, того ж роду, що й
+кодувальник - найкращий для профілю серед тих, що працюють на цьому комп’ютері, того ж роду, що й
 востаннє (відеокарта чи процесор), або того, що просить --hardware / --software; --encoder називає
 його точно. Подальше змінює вибір профілю поодинці.
 
@@ -918,7 +918,7 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
     <message>
         <location filename="../src/commandline.cpp" line="703"/>
         <source>Constant quality instead of a bitrate, on the encoder&apos;s own scale (lower is better).</source>
-        <translation>Стала якість замість бітрейту, за власною шкалою кодувальника (менше — краще).</translation>
+        <translation>Стала якість замість бітрейту, за власною шкалою кодувальника (менше - краще).</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="704"/>
@@ -958,7 +958,7 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
     <message>
         <location filename="../src/commandline.cpp" line="711"/>
         <source>No progress, only the outcome.</source>
-        <translation>Без поступу, лише результат.</translation>
+        <translation>Без прогресу, лише результат.</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="712"/>
@@ -995,12 +995,12 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
     <message>
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="705"/>
         <source>The Racelogic file has no &quot;[column names]&quot; line.</source>
-        <translation>У файлі Racelogic немає рядка «[column names]».</translation>
+        <translation>У файлі Racelogic немає рядка &quot;[column names]&quot;.</translation>
     </message>
     <message>
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="709"/>
         <source>The Racelogic file has no &quot;Log Rate (Hz)&quot; line.</source>
-        <translation>У файлі Racelogic немає рядка «Log Rate (Hz)».</translation>
+        <translation>У файлі Racelogic немає рядка &quot;Log Rate (Hz)&quot;.</translation>
     </message>
     <message>
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="744"/>
@@ -1035,7 +1035,7 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
     <message>
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="949"/>
         <source>CSV, data profile &quot;%1&quot;</source>
-        <translation>CSV, профіль даних «%1»</translation>
+        <translation>CSV, профіль даних &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/core/telemetry/csv/csvimporter.cpp" line="1013"/>
@@ -1069,7 +1069,7 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
         <location filename="../src/datapanel.cpp" line="646"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Shift+drag over a channel picks samples to take out.</source>
-        <translation>Клацання — перейти туди, коліщатко — масштаб (Shift+коліщатко — зсув).
+        <translation>Клацання - перейти туди, коліщатко - масштаб (Shift+коліщатко - зсув).
 Shift+перетягування над каналом вибирає зразки, щоб їх вилучити.</translation>
     </message>
     <message>
@@ -1426,7 +1426,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/exportdialog.cpp" line="158"/>
         <source>Lower is better and bigger. 18-23 is hard to tell from the original; each step of 6 roughly halves or doubles the file.</source>
-        <translation>Менше значення — краща якість і більший файл. 18–23 важко відрізнити від оригіналу; кожен крок на 6 приблизно вдвічі зменшує або збільшує файл.</translation>
+        <translation>Менше значення - краща якість і більший файл. 18-23 важко відрізнити від оригіналу; кожен крок на 6 приблизно вдвічі зменшує або збільшує файл.</translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="164"/>
@@ -1612,7 +1612,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/exportdialog.cpp" line="722"/>
         <source>%1; the video itself is %2 Mbit/s</source>
-        <translation>%1; саме відео — %2 Mbit/s</translation>
+        <translation>%1; саме відео - %2 Mbit/s</translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="733"/>
@@ -1687,7 +1687,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/exportdialog.cpp" line="200"/>
         <source>Keeping the sound is exact and instant. Convert it if the export fails because the chosen file type cannot hold the camera&apos;s sound format. Opus sounds best for its size; the sound is only a small part of a video file, though.</source>
-        <translation>Збереження звуку точне й миттєве. Перетворіть його, якщо експорт не вдається, бо обраний тип файлу не може містити звуковий формат камери. Opus звучить найкраще для свого розміру, хоча звук — лише невелика частина відеофайлу.</translation>
+        <translation>Збереження звуку точне й миттєве. Перетворіть його, якщо експорт не вдається, бо обраний тип файлу не може містити звуковий формат камери. Opus звучить найкраще для свого розміру, хоча звук - лише невелика частина відеофайлу.</translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="206"/>
@@ -1878,7 +1878,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="188"/>
         <source>Text &quot;%1&quot;</source>
-        <translation>Текст «%1»</translation>
+        <translation>Текст &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="190"/>
@@ -2180,7 +2180,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="865"/>
         <source>Click a part to pick it (again to pick inside a group), drag it to move it, drag its corner to size it. A part being moved is drawn to the edges and middles of the others; hold Alt to move it freely. Arrow keys move it by one unit, with Shift by ten. Ctrl+click picks several, to move them together or line them up.</source>
-        <translation>Клацніть частину, щоб вибрати її (ще раз — щоб вибрати всередині групи), перетягніть, щоб пересунути, перетягніть її кут, щоб змінити розмір. Частина, яку пересувають, притягується до країв і середин інших; утримуйте Alt, щоб пересувати вільно. Клавіші зі стрілками пересувають на одну одиницю, із Shift — на десять. Ctrl+клацання вибирає кілька, щоб пересувати їх разом або вирівнювати.</translation>
+        <translation>Клацніть частину, щоб вибрати її (ще раз - щоб вибрати всередині групи), перетягніть, щоб пересунути, перетягніть її кут, щоб змінити розмір. Частина, яку пересувають, притягується до країв і середин інших; утримуйте Alt, щоб пересувати вільно. Клавіші зі стрілками пересувають на одну одиницю, із Shift - на десять. Ctrl+клацання вибирає кілька, щоб пересувати їх разом або вирівнювати.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="971"/>
@@ -2190,17 +2190,17 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="977"/>
         <source>The gauge has no parts yet: add one with &quot;Add&quot;.</source>
-        <translation>У приладу ще немає частин: додайте одну кнопкою «Додати».</translation>
+        <translation>У приладу ще немає частин: додайте одну кнопкою &quot;Додати&quot;.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="983"/>
         <source>A gauge that comes with the program is called &quot;%1&quot;. Give yours another name.</source>
-        <translation>Прилад із назвою «%1» вже є серед вбудованих. Дайте своєму іншу назву.</translation>
+        <translation>Прилад із назвою &quot;%1&quot; вже є серед вбудованих. Дайте своєму іншу назву.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="989"/>
         <source>There is a gauge &quot;%1&quot; already. Replace it?</source>
-        <translation>Прилад «%1» уже існує. Замінити його?</translation>
+        <translation>Прилад &quot;%1&quot; уже існує. Замінити його?</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1178"/>
@@ -2221,7 +2221,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1281"/>
         <source>%1 is not a picture this program can read.</source>
-        <translation>%1 — не зображення, яке ця програма може прочитати.</translation>
+        <translation>%1 - не зображення, яке ця програма може прочитати.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1635"/>
@@ -2286,7 +2286,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1727"/>
         <source>What this part shows. &quot;The gauge&apos;s&quot; follows whatever the gauge is given on the video; a measurement of its own stays (a compass inside a speedometer).</source>
-        <translation>Що показує ця частина. «Як у приладу» — те, що приладу дано на відео; власне вимірювання залишається (компас усередині спідометра).</translation>
+        <translation>Що показує ця частина. &quot;Як у приладу&quot; - те, що приладу дано на відео; власне вимірювання залишається (компас усередині спідометра).</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1729"/>
@@ -2496,7 +2496,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1898"/>
         <source>Off: from the lowest to the highest the measurement usually has, whatever it is. On: between the two values below - give a needle the same ends as the round scale it points at.</source>
-        <translation>Вимкнено: від найменшого до найбільшого, що зазвичай має вимірювання, яким би воно не було. Увімкнено: між двома значеннями нижче — дайте стрілці ті самі межі, що й круглій шкалі, на яку вона вказує.</translation>
+        <translation>Вимкнено: від найменшого до найбільшого, що зазвичай має вимірювання, яким би воно не було. Увімкнено: між двома значеннями нижче - дайте стрілці ті самі межі, що й круглій шкалі, на яку вона вказує.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="1902"/>
@@ -2748,12 +2748,12 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2027"/>
         <source>Parts added with &quot;Add&quot; while this is picked go here. Their place is counted from the point they are drawn at: X 0, Y 0 is the point itself.</source>
-        <translation>Частини, додані через «Додати», поки це вибрано, потрапляють сюди. Їхнє місце відлічується від точки, де їх малюють: X 0, Y 0 — сама точка.</translation>
+        <translation>Частини, додані через &quot;Додати&quot;, поки це вибрано, потрапляють сюди. Їхнє місце відлічується від точки, де їх малюють: X 0, Y 0 - сама точка.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2029"/>
         <source>Pick a part in the list or in the picture, or add one with &quot;Add&quot;.</source>
-        <translation>Виберіть частину у списку або на зображенні чи додайте її кнопкою «Додати».</translation>
+        <translation>Виберіть частину у списку або на зображенні чи додайте її кнопкою &quot;Додати&quot;.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2057"/>
@@ -2967,7 +2967,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2158"/>
         <source>&quot;+&quot; before positive values</source>
-        <translation>«+» перед додатними значеннями</translation>
+        <translation>&quot;+&quot; перед додатними значеннями</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2164"/>
@@ -3195,12 +3195,12 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2316"/>
         <source>The parts under it in the list are drawn at the current point, their place counted from it: X 0, Y 0 is the point itself.</source>
-        <translation>Частини під нею у списку малюються в поточній точці, їхнє місце відлічується від неї: X 0, Y 0 — сама точка.</translation>
+        <translation>Частини під нею у списку малюються в поточній точці, їхнє місце відлічується від неї: X 0, Y 0 - сама точка.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2318"/>
         <source>The parts under its headings in the list are drawn where these say, their place counted from there: X 0, Y 0 is the point itself.</source>
-        <translation>Частини під її заголовками у списку малюються там, де кажуть заголовки, а їхнє місце відлічується звідти: X 0, Y 0 — сама точка.</translation>
+        <translation>Частини під її заголовками у списку малюються там, де кажуть заголовки, а їхнє місце відлічується звідти: X 0, Y 0 - сама точка.</translation>
     </message>
     <message>
         <location filename="../src/gaugeeditor.cpp" line="2330"/>
@@ -3492,7 +3492,7 @@ Comes with the program; it cannot be deleted.</source>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="719"/>
         <source>Delete the template &quot;%1&quot; from the library? Its gauges stay.</source>
-        <translation>Вилучити шаблон «%1» із бібліотеки? Його прилади залишаться.</translation>
+        <translation>Вилучити шаблон &quot;%1&quot; із бібліотеки? Його прилади залишаться.</translation>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="721"/>
@@ -3536,7 +3536,7 @@ Comes with the program; it cannot be deleted.</source>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="720"/>
         <source>Delete &quot;%1&quot; from the library? Projects that use it will show an empty place.</source>
-        <translation>Вилучити «%1» із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
+        <translation>Вилучити &quot;%1&quot; із бібліотеки? У проєктах, де його використано, залишиться порожнє місце.</translation>
     </message>
     <message>
         <location filename="../src/gaugelibrarypanel.cpp" line="596"/>
@@ -3933,7 +3933,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../src/lapcomparepanel.cpp" line="313"/>
         <source>Select laps in the Laps panel with Ctrl+click or Shift+click</source>
-        <translation>Виберіть кола на панелі «Кола» через Ctrl+клацання або Shift+клацання</translation>
+        <translation>Виберіть кола на панелі &quot;Кола&quot; через Ctrl+клацання або Shift+клацання</translation>
     </message>
     <message>
         <location filename="../src/lapcomparepanel.cpp" line="320"/>
@@ -3943,7 +3943,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../src/lapcomparepanel.cpp" line="390"/>
         <source>Select two or more laps in the Laps panel to compare them.</source>
-        <translation>Виберіть два або більше кіл на панелі «Кола», щоб їх порівняти.</translation>
+        <translation>Виберіть два або більше кіл на панелі &quot;Кола&quot;, щоб їх порівняти.</translation>
     </message>
     <message>
         <location filename="../src/lapcomparepanel.cpp" line="393"/>
@@ -4153,7 +4153,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../src/lapspanel.cpp" line="532"/>
         <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
-        <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них — фініш.</translation>
+        <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них - фініш.</translation>
     </message>
     <message numerus="yes">
         <location filename="../src/lapspanel.cpp" line="537"/>
@@ -4346,7 +4346,7 @@ Increase it if the gauges are late compared to the picture.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="765"/>
         <source>&quot;Now&quot; is the value at the video frame on screen</source>
-        <translation>«Зараз» — значення для кадру відео на екрані</translation>
+        <translation>&quot;Зараз&quot; - значення для кадру відео на екрані</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="768"/>
@@ -4386,7 +4386,7 @@ Increase it if the gauges are late compared to the picture.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="793"/>
         <source>Where the wind of this ride comes from. Weather history is switched on in the settings (Weather); a wind entered here by hand is the same all along the ride and kept in the project.</source>
-        <translation>Звідки береться вітер цієї поїздки. Архів погоди вмикається в налаштуваннях («Погода»); вітер, введений тут вручну, однаковий уздовж усієї поїздки і зберігається в проєкті.</translation>
+        <translation>Звідки береться вітер цієї поїздки. Архів погоди вмикається в налаштуваннях (&quot;Погода&quot;); вітер, введений тут вручну, однаковий уздовж усієї поїздки і зберігається в проєкті.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="798"/>
@@ -4553,9 +4553,9 @@ Increase it if the gauges are late compared to the picture.</source>
         <location filename="../src/mainwindow.cpp" line="985"/>
         <source>%1 is the first of %n parts of one recording. Join them into one video?</source>
         <translation>
-            <numerusform>%1 — перша з %n частини одного запису. Об’єднати їх в одне відео?</numerusform>
-            <numerusform>%1 — перша з %n частин одного запису. Об’єднати їх в одне відео?</numerusform>
-            <numerusform>%1 — перша з %n частин одного запису. Об’єднати їх в одне відео?</numerusform>
+            <numerusform>%1 - перша з %n частини одного запису. Об’єднати їх в одне відео?</numerusform>
+            <numerusform>%1 - перша з %n частин одного запису. Об’єднати їх в одне відео?</numerusform>
+            <numerusform>%1 - перша з %n частин одного запису. Об’єднати їх в одне відео?</numerusform>
         </translation>
     </message>
     <message>
@@ -4722,12 +4722,12 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="1540"/>
         <source>There is a template &quot;%1&quot; already. Replace it?</source>
-        <translation>Шаблон «%1» уже існує. Замінити його?</translation>
+        <translation>Шаблон &quot;%1&quot; уже існує. Замінити його?</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1557"/>
         <source>Template &quot;%1&quot; saved to the library</source>
-        <translation>Шаблон «%1» збережено до бібліотеки</translation>
+        <translation>Шаблон &quot;%1&quot; збережено до бібліотеки</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1569"/>
@@ -5048,7 +5048,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="2101"/>
         <source>What the part of the gauge made for %1 shows</source>
-        <translation>Що показує частина індикатора, зроблена для «%1»</translation>
+        <translation>Що показує частина індикатора, зроблена для &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="2130"/>
@@ -5069,7 +5069,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="2848"/>
         <source>This copy was not built for a release (it is a development build or a distribution&apos;s package), so it cannot tell how new it is. The releases are &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
-        <translation>Цю копію зібрано не для випуску (це збірка для розробки або пакет дистрибутива), тож вона не може сказати, наскільки вона нова. Випуски — &lt;a href=&quot;%1&quot;&gt;тут&lt;/a&gt;.</translation>
+        <translation>Цю копію зібрано не для випуску (це збірка для розробки або пакет дистрибутива), тож вона не може сказати, наскільки вона нова. Випуски - &lt;a href=&quot;%1&quot;&gt;тут&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="2867"/>
@@ -5079,7 +5079,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="2873"/>
         <source>Version %1 of %2 is out, made on %3. This one is %4, of %5.</source>
-        <translation>Вийшла версія %1 програми %2, зібрана %3. Ця — %4, від %5.</translation>
+        <translation>Вийшла версія %1 програми %2, зібрана %3. Ця - %4, від %5.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="2881"/>
@@ -5313,7 +5313,7 @@ It appears among the templates in the library.</source>
         <location filename="../src/mainwindow.cpp" line="1931"/>
         <location filename="../src/mainwindow.cpp" line="1950"/>
         <source>The font of the gauges&apos; texts; Default: as each gauge is designed</source>
-        <translation>Шрифт текстів приладів; «Типовий»: як задумано в кожному приладі</translation>
+        <translation>Шрифт текстів приладів; &quot;Типовий&quot;: як задумано в кожному приладі</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1932"/>
@@ -5323,7 +5323,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="1960"/>
         <source>One weight for every text; Default keeps each gauge&apos;s bold values and lighter labels</source>
-        <translation>Одна насиченість для всіх текстів; «Типова» лишає жирні значення і легші підписи кожного приладу</translation>
+        <translation>Одна насиченість для всіх текстів; &quot;Типова&quot; лишає жирні значення і легші підписи кожного приладу</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1961"/>
@@ -5755,7 +5755,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="172"/>
         <source>How many of the videos, data files and projects opened lately the File menu lists</source>
-        <translation>Скільки нещодавно відкритих відео, файлів даних і проєктів показує меню «Файл»</translation>
+        <translation>Скільки нещодавно відкритих відео, файлів даних і проєктів показує меню &quot;Файл&quot;</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="175"/>
@@ -5992,7 +5992,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="355"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Power page.</source>
-        <translation>З усім, що на ньому: фляги, сумки, інструменти. Те саме, що на сторінці «Потужність».</translation>
+        <translation>З усім, що на ньому: фляги, сумки, інструменти. Те саме, що на сторінці &quot;Потужність&quot;.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="358"/>
@@ -6002,7 +6002,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="359"/>
         <source>The size printed on the tire: it gives the wheel&apos;s circumference, and on the Power page it picks road, gravel or mountain bike tires by its width</source>
-        <translation>Розмір, надрукований на шині: з нього визначається обвід колеса, а на сторінці «Потужність» за шириною обираються шосейні, гравійні чи гірські шини</translation>
+        <translation>Розмір, надрукований на шині: з нього визначається обвід колеса, а на сторінці &quot;Потужність&quot; за шириною обираються шосейні, гравійні чи гірські шини</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="365"/>
@@ -6182,7 +6182,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="531"/>
         <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power (est.)&quot;, to compare the two. Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a tailwind high.</source>
-        <translation>Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як «Потужність (оц.)», щоб їх порівняти. Без погоди дня (див. сторінку «Погода») вітер невідомий: із зустрічним оцінка занижена, з попутним — завищена.</translation>
+        <translation>Обчислюється зі швидкості, ухилу та висоти. Записану потужність ніколи не замінює: оцінка тоді стоїть поруч як &quot;Потужність (оц.)&quot;, щоб їх порівняти. Без погоди дня (див. сторінку &quot;Погода&quot;) вітер невідомий: із зустрічним оцінка занижена, з попутним - завищена.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="542"/>
@@ -6212,7 +6212,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="579"/>
         <source>What a stretch of a ride can be marked as in the Laps panel (&quot;Mark surface&quot;). The number is how much harder the tires roll there than on typical asphalt: the power estimate multiplies their rolling resistance by it. Stretches marked already keep the number they were marked with.</source>
-        <translation>Чим можна позначити відрізок поїздки на панелі «Кола» («Позначити покриття»). Число показує, наскільки важче там котяться шини, ніж на звичайному асфальті: оцінка потужності множить на нього їхній опір коченню. Уже позначені відрізки зберігають число, з яким їх позначено.</translation>
+        <translation>Чим можна позначити відрізок поїздки на панелі &quot;Кола&quot; (&quot;Позначити покриття&quot;). Число показує, наскільки важче там котяться шини, ніж на звичайному асфальті: оцінка потужності множить на нього їхній опір коченню. Уже позначені відрізки зберігають число, з яким їх позначено.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="624"/>
@@ -6282,12 +6282,12 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="433"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Bike page.</source>
-        <translation>З усім, що на ньому: фляги, сумки, інструменти. Те саме, що на сторінці «Велосипед».</translation>
+        <translation>З усім, що на ньому: фляги, сумки, інструменти. Те саме, що на сторінці &quot;Велосипед&quot;.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="437"/>
         <source>The size printed on the tire picks road, gravel or mountain bike tires by its width. The same as on the Bike page.</source>
-        <translation>Розмір, надрукований на шині, за шириною обирає шосейні, гравійні чи гірські шини. Те саме, що на сторінці «Велосипед».</translation>
+        <translation>Розмір, надрукований на шині, за шириною обирає шосейні, гравійні чи гірські шини. Те саме, що на сторінці &quot;Велосипед&quot;.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="516"/>
@@ -6565,7 +6565,7 @@ It appears among the templates in the library.</source>
         <location filename="../src/timelinepanel.cpp" line="616"/>
         <source>Click to go there, wheel to zoom, Ctrl+drag to slide the data against the video.
 Shift+drag marks a part; right-click a cut part to keep it again.</source>
-        <translation>Клацання — перейти туди, коліщатко — масштаб, Ctrl+перетягування — зсунути дані відносно відео.
+        <translation>Клацання - перейти туди, коліщатко - масштаб, Ctrl+перетягування - зсунути дані відносно відео.
 Shift+перетягування позначає частину; клацання правою кнопкою на вирізаній частині повертає її.</translation>
     </message>
     <message>
@@ -6596,8 +6596,8 @@ Shift+перетягування позначає частину; клацанн
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="643"/>
-        <source>Cut A–B</source>
-        <translation>Вирізати A–B</translation>
+        <source>Cut A-B</source>
+        <translation>Вирізати A-B</translation>
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="643"/>
@@ -6611,8 +6611,8 @@ Shift+перетягування позначає частину; клацанн
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="657"/>
-        <source>Keep A–B</source>
-        <translation>Залишити A–B</translation>
+        <source>Keep A-B</source>
+        <translation>Залишити A-B</translation>
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="657"/>
@@ -6916,12 +6916,12 @@ Shift+перетягування позначає частину; клацанн
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="156"/>
         <source>%1 is %2 %3×%4, the first video %5 %6×%7.</source>
-        <translation>%1 — це %2 %3×%4, а перше відео — %5 %6×%7.</translation>
+        <translation>%1 - це %2 %3×%4, а перше відео - %5 %6×%7.</translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="162"/>
         <source>%1 has %2 frames per second, the first video %3.</source>
-        <translation>%1 має %2 кадрів за секунду, а перше відео — %3.</translation>
+        <translation>%1 має %2 кадрів за секунду, а перше відео - %3.</translation>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
@@ -6972,7 +6972,7 @@ Shift+перетягування позначає частину; клацанн
     <message>
         <location filename="../src/core/weather/weather.cpp" line="430"/>
         <source>%1 wants a key of its own: enter it on the Weather page of the settings.</source>
-        <translation>%1 потребує власного ключа: введіть його на сторінці «Погода» в налаштуваннях.</translation>
+        <translation>%1 потребує власного ключа: введіть його на сторінці &quot;Погода&quot; в налаштуваннях.</translation>
     </message>
     <message>
         <location filename="../src/core/weather/weather.cpp" line="558"/>

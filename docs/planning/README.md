@@ -1,4 +1,4 @@
-# Race Track Visualizer — planning
+# Race Track Visualizer - planning
 
 Working documents. They describe where the project is going; the code says where it is.
 

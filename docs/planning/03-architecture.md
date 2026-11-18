@@ -14,7 +14,7 @@ there because linuxdeployqt wants an old glibc). Dev box: Qt 6.11.1, FFmpeg 8.1,
 └───────────────┬──────────────────────────┬───────────────┘
                 │                          │
 ┌───────────────▼──────────────────────────▼───────────────┐
-│ rtvcore   (src/core;   QtCore + QtGui only — no Widgets, │
+│ rtvcore   (src/core;   QtCore + QtGui only - no Widgets, │
 │            no Quick, so every front end can link it)     │
 │                                                          │
 │  telemetry/  Session, Channel, importers, profiles       │
@@ -63,10 +63,10 @@ Overlay::render(QPainter&, frame, time)             // all placed gauges of a pr
 A `Gauge` is a description without data or colors. Binding it to a channel of a recording does
 everything that is the same for every frame; `render()` is then the same call for:
 
-- preview — painted over the video frame in the canvas widget
-- export — painted into a `QImage` (RGBA premultiplied) per output frame, in the worker thread
+- preview - painted over the video frame in the canvas widget
+- export - painted into a `QImage` (RGBA premultiplied) per output frame, in the worker thread
 - library thumbnails
-- QML later — `QQuickPaintedItem` (or Canvas Painter) wrapper
+- QML later - `QQuickPaintedItem` (or Canvas Painter) wrapper
 
 A bound gauge is immutable, so one `Overlay` is shared by the preview and a running export.
 
@@ -84,7 +84,7 @@ Speed (measured with `perf` on 1080p frames of imported `.vet` templates: 12-33 
 ## 3.3 Telemetry model
 
 - `Channel`: id, unit, `QVector<double> t` (seconds from session start) + `QVector<float|double> v`.
-  Channels keep their own sample rate (GPS 1–25 Hz, accel 200 Hz, HR 1 Hz) — no forced common grid.
+  Channels keep their own sample rate (GPS 1-25 Hz, accel 200 Hz, HR 1 Hz) - no forced common grid.
 - `TelemetrySession`: UTC start, channels, laps, source info. **Immutable after load** and held by
   `std::shared_ptr<const TelemetrySession>`, so UI thread, preview and export worker all read it
   without locks. Edits (sync, derived channels, laps) produce a new session object.
@@ -126,14 +126,14 @@ object in core (`positionChanged(ms)`), everything else listens to that.
 Risk: frame-exact stepping with QMediaPlayer is approximate. If that hurts the sync UI, swap in our
 own libav decoder behind the same `FrameSource` interface.
 
-### Export — three options
+### Export - three options
 
 | | A. external `ffmpeg` process | B. in-process libav* | C. hybrid (proposed) |
 |---|---|---|---|
 | How | Render overlay `QImage`s, write raw RGBA to ffmpeg stdin; ffmpeg decodes the source, `overlay` filter, encodes, copies audio | Link libavformat/codec/filter; decode → composite → encode in our process | `ExportBackend` interface; A first, B second |
-| Effort | Low — days | High — weeks, plus hw-accel plumbing per platform | A now, B when needed |
+| Effort | Low - days | High - weeks, plus hw-accel plumbing per platform | A now, B when needed |
 | Encoders / hw accel | Whatever the ffmpeg binary has; one command-line flag | Must wire each one | |
-| "Runs anywhere, no deps" | Ship a static `ffmpeg` binary next to the app (AppImage/Flatpak/installer) — works on desktop | Fully self-contained | |
+| "Runs anywhere, no deps" | Ship a static `ffmpeg` binary next to the app (AppImage/Flatpak/installer) - works on desktop | Fully self-contained | |
 | Mobile | No (cannot spawn binaries on iOS; awkward on Android) | **Yes** | B is the mobile path |
 | License | App stays independent of FFmpeg's license, even a GPL build with x264 | Linking x264/x265 makes the whole app GPL | |
 | Progress / cancel | Parse `-progress pipe:`; kill process | Native | |
@@ -206,8 +206,8 @@ start, so the user can keep editing while it renders.
 
 `QMainWindow` with docks, layouts saved/restored:
 
-- center: **Canvas** — video + overlays; select, drag, resize, snap to edges/safe area
-- bottom: **Timeline** — scrubber, trim handles, lap markers, a telemetry strip (speed trace) so the
+- center: **Canvas** - video + overlays; select, drag, resize, snap to edges/safe area
+- bottom: **Timeline** - scrubber, trim handles, lap markers, a telemetry strip (speed trace) so the
   data is visible against the video; sync offset by dragging the strip
 - left: **Sources** (videos, data files, sync state) / **Library** (gauges, templates)
 - right: **Properties** (selected overlay: metric, units, range, colors, visibility range)
@@ -293,7 +293,7 @@ With tiles missing the data is left as it is and worked out again when they have
 
 ## 3.8 Touch UI (QML, later)
 
-Not a port of the desktop app: a 4-step flow — pick video → confirm sync → pick template → export.
+Not a port of the desktop app: a 4-step flow - pick video → confirm sync → pick template → export.
 Reuses `rtvcore` whole; needs backend B and a `QQuickPaintedItem` gauge wrapper. No gauge editor.
 
 ## 3.9 From Overseer

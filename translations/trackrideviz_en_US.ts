@@ -6544,7 +6544,7 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="643"/>
-        <source>Cut A–B</source>
+        <source>Cut A-B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6559,7 +6559,7 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="657"/>
-        <source>Keep A–B</source>
+        <source>Keep A-B</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1,4 +1,4 @@
-# Race Track Visualizer — User manual
+# Race Track Visualizer - User manual
 
 Race Track Visualizer puts the data of a ride, a run or a track day on its video: speed, lap
 times, G-force, the route on a map, heart rate, power and more, drawn as gauges over the footage
@@ -48,7 +48,7 @@ Settings > Export when it is somewhere else.
   - *Properties*: what the selected gauge shows, its colors, font, text size and opacity.
   - *Laps*: the route on a map, the start/finish and sector lines, the lap table and surfaces.
   - *Music*: tracks played under the video.
-  - *Timeline*, *Data* and *Compare laps*: charts of the ride (sections 10–12).
+  - *Timeline*, *Data* and *Compare laps*: charts of the ride (sections 10-12).
   - *Diagnostics*: what the program does inside, for reports (section 21).
 - **View** lists every panel, to bring back a closed one; **View > Reset layout** puts them all
   where they were at the start.
@@ -94,8 +94,8 @@ Save the work with **File > Save project** (Ctrl+S) to come back to it later.
 | GPS loggers | NMEA (`.nmea`, `.txt`, `.log`), VBO |
 | Lap timers and loggers | CSV with a data profile (AiM, Racelogic, TrackAddict, or one of your own; XML data profiles import) |
 
-**File > Add data from other files** adds channels of other recordings of the same ride — a
-chest strap, a power meter — to the main data, lined up by their clocks or shifted by hand.
+**File > Add data from other files** adds channels of other recordings of the same ride - a
+chest strap, a power meter - to the main data, lined up by their clocks or shifted by hand.
 
 What the recording lacks is **worked out** from the rest and shown in italics in the channel
 lists: distance, speed, heading, grade, climb and descent, vertical speed, G-forces, pace,
@@ -129,7 +129,7 @@ The data of a GoPro video is already on the video's clock: there is nothing to s
     gauges with a route;
   - *Units*: as in the settings, metric or imperial, for this gauge alone;
   - *Keep the gauge's shape*: off, the handles on the right and bottom edges change only the
-    width or the height — an elevation profile or a graph can then run across the picture;
+    width or the height - an elevation profile or a graph can then run across the picture;
   - *Remove*.
 - **Properties** panel: what the selected gauge shows, the **colors and font** of every gauge
   (or, with *Own colors and font*, of the selected one alone), **text size** and **opacity**.
@@ -180,8 +180,8 @@ The **Timeline** shows the video and the data where the offset puts them, a chos
 - Click or drag to go there; wheel to zoom about the mouse, Shift+wheel to pan.
 - **Ctrl+drag** slides the data against the video (sets the offset).
 - **Cuts** leave parts of the video out of the export: mark the start with **[** and the end with
-  **]** (or Shift+drag), then **Cut A–B** (Delete). **Cut stops** finds every stop of 10 s or more
-  and leaves it out, keeping 2 s at each end. **Keep A–B** and **Keep all** put parts back. The
+  **]** (or Shift+drag), then **Cut A-B** (Delete). **Cut stops** finds every stop of 10 s or more
+  and leaves it out, keeping 2 s at each end. **Keep A-B** and **Keep all** put parts back. The
   gauges keep the true values of what is kept, so lap times stay right.
 
 ## 11. Data viewer and corrections
@@ -209,7 +209,7 @@ them at one place.
   ride previewed once exports without a connection. The map's credit is drawn in its corner and
   can be switched off. Settings > Maps also shows how much the stored tiles take and deletes them.
 - **Elevation from the terrain**: in the Sources panel, the height of the ground under the route
-  from a terrain model — for recordings without an elevation (the default), in place of the
+  from a terrain model - for recordings without an elevation (the default), in place of the
   recorded one, or never. A road on a bridge or in a tunnel gets the ground's height.
 - **Weather**: for the power estimate, the wind, temperature and pressure of the day from a
   weather history service (Settings > Weather), or a wind entered by hand in the Sources panel.
@@ -233,7 +233,7 @@ preview and mixed into the export.
   (ProRes 4444 or VP9 WebM) to lay over the video in another editor.
 - **Profile**: YouTube upload, small file (HEVC or AV1 with Opus in MKV), like the video, or one
   you saved (**Save as...**).
-- **Encoder**: only those that work on this computer are listed — graphics card (VA-API, NVIDIA,
+- **Encoder**: only those that work on this computer are listed - graphics card (VA-API, NVIDIA,
   AMD, Quick Sync, VideoToolbox) or processor.
 - **Quality**: a bitrate (with the expected file size) or a constant quality; **Speed**; **Size**.
 - **Sound**: copied, converted (AAC, Opus, Vorbis) or left out; mixed with the music when there
@@ -405,7 +405,7 @@ More from a part of Qt, with `QT_LOGGING_RULES` set before starting:
 - **Empty window on Windows** (virtual machines, remote desktops): start it with
   `QT_LOGGING_RULES=qt.qpa.gl=true` as above; the log names the OpenGL driver. "Microsoft Basic
   Render Driver" or "GDI Generic" means no real graphics driver, and Qt should then draw in
-  software with the `opengl32sw.dll` next to the program — a log that says it could not load it
+  software with the `opengl32sw.dll` next to the program - a log that says it could not load it
   means that file is missing.
 - **Maps stay empty**: look for SSL or network errors; check Settings > Maps (downloads on, a key
   where the map needs one).

@@ -2,13 +2,13 @@
 
 Each milestone ends with something usable; nothing is built "for later" before it is needed.
 
-## M0 — Repo skeleton ✅ (2026-11-12)
+## M0 - Repo skeleton ✅ (2026-11-12)
 Repo, README, GPL-3.0, qmake project, main window shell with docks, en/uk translations,
 `Channel` + first unit test, debian/spec/macOS/Windows packaging and both workflows.
 Verified: local build + tests (Qt 6.11), deb build + tests in an Ubuntu 22.04 container (Qt 6.2.4).
 Not yet verified (needs a push to GitHub): AppImage, macOS and Windows jobs.
 
-## M1 — First overlay on screen (vertical slice) ✅ (2026-11-12)
+## M1 - First overlay on screen (vertical slice) ✅ (2026-11-12)
 - ✅ GPX + FIT import → `TelemetrySession` (see [06-fit-notes.md](06-fit-notes.md)); tested on 41 real FIT files
 - ✅ Open a video, play/seek (`QMediaPlayer` + `QVideoSink` → `VideoCanvas`, OpenGL)
 - ✅ Sync: clock match from the camera file name + the data's UTC offset, whole-hour snapping when
@@ -34,13 +34,13 @@ slow `toImage()` path; chapters are not joined yet.
 
 **Proves:** telemetry model, render path, preview.
 
-## M1.5 — Settings ✅ (2026-11-12)
+## M1.5 - Settings ✅ (2026-11-12)
 - `AppSettings` in the core; settings dialog with Appearance (style, light/dark, language, window
   layout), Preview (hardware decoding, preferred decoder) and Units (speed, length, temperature)
 - Channel table and the built-in speedometer follow the units
 - Where each kind of setting lives: [03-architecture §3.7a](03-architecture.md)
 
-## M2 — First exported video ✅ (2026-11-12)
+## M2 - First exported video ✅ (2026-11-12)
 - ✅ Export through an external `ffmpeg` (`ExportPlan` + `ExportJob`, 03-architecture §3.5): ffmpeg
   decodes the source itself, the application pipes only the gauge area as RGBA, ffmpeg overlays,
   encodes and passes the sound through. Progress; **stopping keeps a playable video** of the part
@@ -63,9 +63,9 @@ ffmpeg documentation and only offered when the test encode passes, but never ran
 
 **Proves:** the whole chain end to end. From here the app is already useful.
 
-## M3 — Real gauges
+## M3 - Real gauges
 
-### M3a — gauge engine, library, editing ✅ (2026-11-12)
+### M3a - gauge engine, library, editing ✅ (2026-11-12)
 - ✅ Gauge model as a superset of `.veg` gauges: image, text, group; manipulations rotate, radial clip,
   translate, width clip, height clip (with own value range, wrap, reverse, clip rectangle)
 - ✅ A gauge is bound to a channel when placed; scale, unit and label come from that channel,
@@ -83,7 +83,7 @@ circuit. A contact sheet of the imported dials, fills, tapes and combination gau
 real ride, was compared by eye: needles, arc fills, numbering and tapes sit where they should.
 Not compared pixel for pixel against the program the files come from - it does not run here.
 
-### M3b — every `.veg` part, templates, speed ✅ (2026-11-12)
+### M3b - every `.veg` part, templates, speed ✅ (2026-11-12)
 - ✅ Graph (the channel over the whole recording, with markers at the current point), track map,
   lap circuit (route of the current lap with its start line), sprite animations driven by the
   value, two-axis movement (g-force ball), fixed radial masks, slanted bar ends, channel icons
@@ -120,7 +120,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   of a full installation, laid out as in the originals
 - Data profiles are not imported yet (M5)
 
-### M3c — what is left
+### M3c - what is left
 - ✅ G-force comes from GPS now (M4); without data a part rests at 0, not at its scale's start
 - Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
 - A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
@@ -137,7 +137,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ Units a single gauge shows (2026-11-15): "Units" in a gauge's menu on the video - as in the settings,
   metric or imperial; kept in the project and in templates
 
-## M4 — Track day features
+## M4 - Track day features
 - ✅ Derived channels (2026-11-13, `DerivedChannels`), for every source, only where the recording
   lacks them: distance from positions (glitches skipped), speed from distance, heading between
   positions a moment apart (held while standing), grade over ±20 m of distance from smoothed
@@ -169,7 +169,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   in the table are taken out (latitude and longitude together) and put back; kept in the
   project and undoable. The order is: recording, corrections, derived channels, laps - so speed,
   distance, grade and laps follow a removed GPS jump
-- ✅ Cuts (2026-11-13, `CutList`): parts of the video left out of the export, marked A–B on the
+- ✅ Cuts (2026-11-13, `CutList`): parts of the video left out of the export, marked A-B on the
   timeline (`[` `]`, Shift+drag, Delete cuts) or found in the data ("Cut stops": speed under
   0.5 m/s or a device pause for 10 s or more, 2 s kept at each end). Kept in the project, undoable,
   skipped while playing. The export drops them with ffmpeg's select, the sound with atrim + concat (it is then AAC);
@@ -238,7 +238,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   question before an export while map tiles or terrain heights are still being fetched; a button
   in Settings > Maps that deletes the stored tiles and says how much they take (2026-11-14)
 
-## M5 — More data
+## M5 - More data
 - ✅ GoPro embedded telemetry (2026-11-15, `GpmfImporter`): "Open data" on the camera's own .mp4
   reads its positions, elevation and speed (GPS5 and GPS9), on the video's clock, so nothing is
   to be synchronized. Checked with made-up files only: no camera file was at hand
@@ -296,7 +296,7 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   for these in imported gauges are mapped (`DataTypes::canonical`). Engine, boat, dive and flight
   measurements need a logger's file and come with its profile
 
-## M6 — Gauge editor
+## M6 - Gauge editor
 - ✅ SVG drawings in gauges (2026-11-13): sharp at any size, theme colors inside the drawing;
   Barlow Semi Condensed (OFL) bundled for gauge texts
 - ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
@@ -388,7 +388,7 @@ Since (2026-11-16): the music lowered while the camera is loud (ducking, in the 
 encoders, preferred by the Small file profile; volumes up to 200 %, held under full scale by a limiter;
 the automatic end of a fixed dial following the highest value held for a second, not a GPS spike.
 
-## M7 — Polish and distribution
+## M7 - Polish and distribution
 - Export backend B (in-process libav) if/when needed (an export queue dropped: several projects are exported one
   after another by the command line)
 - ✅ Command line (2026-11-17, `CommandLine`, `ProjectData`): --render a project, or a video, data and a template
@@ -418,7 +418,7 @@ the automatic end of a fixed dial following the highest value held for a second,
   built by its own rules, without the .buildinfo (over a minute) and the debug symbols package that were never
   uploaded; the tests job builds the core and the tests only, the program being compiled by the release workflow
 
-## M8 — Touch UI
+## M8 - Touch UI
 - QML app on `rtvcore` for tablets/phones (needs backend B)
 
 ## Later / maybe

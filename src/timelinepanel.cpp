@@ -640,7 +640,7 @@ TimelinePanel::TimelinePanel(QWidget *parent)
             QShortcut *shortcut = new QShortcut(QKeySequence(b ? Qt::Key_BracketRight : Qt::Key_BracketLeft), window());
             connect(shortcut, &QShortcut::activated, this, [this, b]() { m_strip->setMark(b, m_strip->position()); });
         }
-    m_cutButton = button(tr("Cut A–B"), tr("Leave the part between A and B out of the export (Delete)"));
+    m_cutButton = button(tr("Cut A-B"), tr("Leave the part between A and B out of the export (Delete)"));
     m_cutButton->setIcon(Icons::named("edit-cut"));
     connect(m_cutButton, &QToolButton::clicked, this, [this]()
     {
@@ -654,7 +654,7 @@ TimelinePanel::TimelinePanel(QWidget *parent)
     });
     QShortcut *cutShortcut = new QShortcut(QKeySequence::Delete, this, nullptr, nullptr, Qt::WidgetWithChildrenShortcut);
     connect(cutShortcut, &QShortcut::activated, m_cutButton, &QToolButton::click);
-    m_keepButton = button(tr("Keep A–B"), tr("Put the part between A and B back"));
+    m_keepButton = button(tr("Keep A-B"), tr("Put the part between A and B back"));
     m_keepButton->setIcon(Icons::named("edit-undo"));
     connect(m_keepButton, &QToolButton::clicked, this, [this]()
     {

@@ -1,4 +1,4 @@
-# 6. FIT decoder — notes before writing it
+# 6. FIT decoder - notes before writing it
 
 Decision: own decoder (05-decisions §5). This page collects what to get right. The first list is
 from the public FIT protocol description and general experience; it is a **checklist to verify

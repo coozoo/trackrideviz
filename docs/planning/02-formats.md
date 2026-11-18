@@ -1,11 +1,11 @@
-# 2. Formats — what we read, what we write
+# 2. Formats - what we read, what we write
 
 Principle: **import, don't open-in-place.** Foreign gauges/templates/profiles are converted once into
 our native format and stored in the user's library. We never write the foreign formats back.
 
 ## 2.1 Gauge and template formats
 
-### `.veg` (gauge) — JSON, fully understood, import is straightforward
+### `.veg` (gauge) - JSON, fully understood, import is straightforward
 
 ```
 { frame:{width,height}, supportedTypes|unsupportedTypes:[...], unlisted, isLogo,
@@ -29,24 +29,24 @@ Component `type`s seen across the 256 shipped gauges (count):
 | `lapCircuit` | 10 | lap progress |
 | `staticRadialClip` | 1 | fixed mask |
 
-Other keys: `auxiliaryType` (a component bound to a *second* metric — combo gauges),
+Other keys: `auxiliaryType` (a component bound to a *second* metric - combo gauges),
 `minValue`/`maxValue`/`wrapValue`/`minInterval` (scale), `colorStyle`, `fontColor`,
 `hideWhenUnknown`, `clipAngle`, `invertXAxis`/`invertYAxis`, `casingTransform`.
 
-### `.vet` (template) — JSON, importable
+### `.vet` (template) - JSON, importable
 
 ```
 { category, thumbnailPath, backgroundColor, accentColor, accent2Color, activityDefault,
   widgets:[ { filename:"x.veg", valueType:"speed",
               origin:{ x:{offset,fromEdge:"min"|"max"}, y:{...} }, scale? } ] }
 ```
-360 templates add `sphericalPosition`/`sphericalTransform` — ignored.
+360 templates add `sphericalPosition`/`sphericalTransform` - ignored.
 
 **Asset caveat:** the gauges reference Garmin's PNGs (`Widgets/images`, 394 files). We do not ship
 them. The importer asks for a folder of the user's `.veg` / `.vet` files (or one holding `Widgets` and `Templates`) and
 copies images into the user's own library.
 
-### XML gauges — imported (2026-11-13)
+### XML gauges - imported (2026-11-13)
 
 A folder with `gauge.xml` and its pictures. `<Gauge version="3" width height transparency>` →
 `<Components>` (nested; a child's `x`, `y` count from its parent's) → `<Inputs>`: per gauge, input
@@ -83,7 +83,7 @@ Left out, and reported: Digit (picture per digit, 1 gauge), the G-plot's stick a
 axis labels and grids, charts over distance (drawn over time), values from the fastest lap
 (ghost), vertical text.
 
-### XML templates — imported (2026-11-13)
+### XML templates - imported (2026-11-13)
 
 A folder with `project.cdp` (`<Project version="2">`) and `Gauges/<name>/` holding a copy of each
 gauge it uses. `<GaugeSettings>` lists `<Gauge name x y transparency>` in drawing order: the top
@@ -97,7 +97,7 @@ is anchored to the edge or middle nearest its center. A template's copy of a gau
 the library's gauge of that name (templates for 720p carry smaller copies) is stored as
 "<gauge> - <template>". A gauge's `transparency` in the template is not used (noted).
 
-### Binary, undocumented gauge formats — no import planned.
+### Binary, undocumented gauge formats - no import planned.
 
 ### `.vet` placement, as found (2026-11-12)
 
@@ -137,7 +137,7 @@ Additions to the `.veg` component model:
 - SVG as well as PNG images
 - a gauge as one zip file for sharing
 
-### XML data profiles — imported (2026-11-13)
+### XML data profiles - imported (2026-11-13)
 
 `<DataProfile version="2">`: header line indices (several are joined "name - unit"), data start line,
 separator characters, decimal comma, file line matchers (line, text, contains / exact, case),
@@ -151,8 +151,8 @@ the column), mm:ss.fff and 1' 23" 456, hemisphere letters (N/E = 1, S/W = -1, "1
 "Data Running Time, Seconds" is the time base; "Time of Day" and "Date" give the start (taken as
 UTC); "Lap Indicator" starts a lap wherever it changes to anything but 0.
 
-Kept as calculators: unit converters (distance, speed, temperature, pressure — relative to the
-atmosphere if asked —, angle and grade, pulses to RPM), math (+ − × ÷, √, power, modulus, log,
+Kept as calculators: unit converters (distance, speed, temperature, pressure - relative to the
+atmosphere if asked -, angle and grade, pulses to RPM), math (+ − × ÷, √, power, modulus, log,
 hypotenuse, trigonometry, inverse; with a constant or a second column), gap filling with outlier
 removal, time-window averages (plain or of angles), deltas, last value. Left out and noted:
 calculators that derive measurements (lap statistics, ascent/descent, heading and distance from
@@ -184,7 +184,7 @@ the same name is added as "<name> (2)", and a template of an existing name gets 
 | Format | Source | Approach | Phase |
 |--------|--------|----------|-------|
 | GPX (+ Garmin TrackPointExtension: hr, cad, temp, power) | everything | `QXmlStreamReader`; start from Overseer's `GpxTrack` and widen it | 1 |
-| FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK license terms) or the official C++ SDK — see decisions §5 | 1 |
+| FIT | Garmin, Wahoo, action cameras, most bike computers | Own decoder (the format is a simple record stream; avoids FIT SDK license terms) or the official C++ SDK - see decisions §5 | 1 |
 | GoPro GPMF (embedded in MP4) | GoPro Hero 5+ | Demux the `gpmd` data stream via libavformat/ffprobe, parse KLV ourselves (GPS5/GPS9, ACCL, GYRO) | 2 |
 | CSV + data profile ✅ | RaceChrono, Harry's LapTimer, TrackAddict, Torque OBD, anything | Profile = matcher + separators + column mappings + calculators (`CsvImporter`, `DataProfile`). XML data profiles imported; own ones come with the program (`csv/profiles/`: TrackAddict) | 2 |
 | TCX | older Garmin, Strava export | XML | 2 |
