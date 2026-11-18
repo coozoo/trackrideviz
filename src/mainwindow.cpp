@@ -52,6 +52,7 @@
 #include <QFileInfo>
 #include <QFormLayout>
 #include <QFutureWatcher>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -765,8 +766,8 @@ void MainWindow::createDocks()
     m_channelTree->setToolTip(tr("\"Now\" is the value at the video frame on screen"));
 
     m_elevationCombo = new QComboBox(sources);
-    m_elevationCombo->addItem(tr("Recorded; the terrain's when there is none"), int(Terrain::WhenMissing));
-    m_elevationCombo->addItem(tr("From the terrain model"), int(Terrain::Always));
+    m_elevationCombo->addItem(tr("Recorded / terrain model"), int(Terrain::WhenMissing));
+    m_elevationCombo->addItem(tr("Terrain model"), int(Terrain::Always));
     m_elevationCombo->addItem(tr("Recorded only"), int(Terrain::Never));
     m_elevationCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_elevationCombo->setToolTip(tr("Where the elevation comes from. The terrain model gives the height of the ground under "
@@ -788,8 +789,10 @@ void MainWindow::createDocks()
 
     // the wind of this ride: the weather history's (when the settings ask for it), or the user's own
     m_windCombo = new QComboBox(sources);
-    m_windCombo->addItem(tr("From weather history"), false);
+    m_windCombo->addItem(tr("Weather history"), false);
     m_windCombo->addItem(tr("By hand:"), true);
+    // the panel may be narrow: the combo gives way rather than the panel growing
+    m_windCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_windCombo->setToolTip(tr("Where the wind of this ride comes from. Weather history is switched on in the settings "
                                "(Weather); a wind entered here by hand is the same all along the ride and kept in the project."));
     m_windSpeedSpin = new QDoubleSpinBox(sources);
@@ -827,11 +830,13 @@ void MainWindow::createDocks()
     connect(m_windCombo, &QComboBox::activated, this, windChanged);
     connect(m_windSpeedSpin, &QDoubleSpinBox::editingFinished, this, windChanged);
     connect(m_windFromSpin, &QDoubleSpinBox::editingFinished, this, windChanged);
-    QHBoxLayout *windRow = new QHBoxLayout;
-    windRow->addWidget(new QLabel(tr("Wind:"), sources));
-    windRow->addWidget(m_windCombo, 1);
-    windRow->addWidget(m_windSpeedSpin);
-    windRow->addWidget(m_windFromSpin);
+    // the numbers on a line of their own, under the choice, so the panel can stay narrow
+    QGridLayout *windRow = new QGridLayout;
+    windRow->setColumnStretch(1, 1);
+    windRow->addWidget(new QLabel(tr("Wind:"), sources), 0, 0);
+    windRow->addWidget(m_windCombo, 0, 1, 1, 2);
+    windRow->addWidget(m_windSpeedSpin, 1, 1);
+    windRow->addWidget(m_windFromSpin, 1, 2);
     showWind();
 
     QVBoxLayout *sourcesLayout = new QVBoxLayout(sources);
