@@ -93,10 +93,15 @@ icon.files += images/trackrideviz.png
 icon.path += /usr/share/icons/hicolor/256x256/apps
 desktop.files += $${TARGET}.desktop
 desktop.path += /usr/share/applications/
+metainfo.files += io.github.coozoo.trackrideviz.metainfo.xml
+metainfo.path = /usr/share/metainfo
+# .rtvproj, .rtvgauge and .rtvtemplate (the desktop file says the program opens them)
+mime.files += $${TARGET}-mime.xml
+mime.path = /usr/share/mime/packages
 # Gauges and templates that come with the program (see BundledData).
 bundled.files += data/gauges data/templates
 bundled.path = /usr/share/$${TARGET}
-INSTALLS += binary icon desktop bundled
+INSTALLS += binary icon desktop metainfo mime bundled
 macx {
     bundleddata.files = data/gauges data/templates
     bundleddata.path = Contents/Resources

@@ -10,6 +10,12 @@ power, OBD data and more, drawn as gauges on top of your footage and exported as
 A cross-platform (Linux, Windows, macOS) Qt application meant to replace older telemetry overlay
 editors that are no longer maintained and hardly run on current systems.
 
+<p align="center">
+  <a href="docs/images/mainview.png"><img src="docs/images/mainview.png" width="32%" alt="A video with gauges, the route on a street map and the data below"></a>
+  <a href="docs/images/templates.png"><img src="docs/images/templates.png" width="32%" alt="A template applied to the video"></a>
+  <a href="docs/images/export.png"><img src="docs/images/export.png" width="32%" alt="Exporting the video"></a>
+</p>
+
 ## Why
 
 Once upon a time I wanted to put the data of a ride on its video, and found there was no good
@@ -73,7 +79,8 @@ sudo add-apt-repository ppa:coozoo/trackrideviz
 sudo apt install trackrideviz
 ```
 
-Both are updated by the package manager with the rest of the system.
+Both are updated by the package manager with the rest of the system, and open projects, gauges
+and templates with the program by a double click.
 
 On Windows, take whichever you prefer:
 
