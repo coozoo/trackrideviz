@@ -401,7 +401,8 @@ the automatic end of a fixed dial following the highest value held for a second,
   alone or for everyone, Start menu and desktop shortcuts, .rtvproj / .rtvgauge / .rtvtemplate opened by a
   double click; the uninstaller takes away only what was installed (an update first runs the old one).
   English and Ukrainian. Checked under Wine: install, update over it, uninstall
-- Translations (uk, en), user manual
+- Translations (uk, en); ✅ user manual (2026-11-18, `docs/manual.md`, Help > User manual): every part of the
+  program, the files and where they are kept, the command line, updates, and how to read the logs by hand
 - Updates (2026-11-17, `ReleaseCheck`): ✅ a release build carries its tag (CI, RTV_RELEASE_TAG; other builds never
   ask); once a day, quietly, GitHub's latest release is compared with it; a newer one shows as a link in the status
   bar and in Help, with its notes, the release page, "Skip this version"; Help > Check for updates; a switch in

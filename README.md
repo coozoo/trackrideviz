@@ -60,6 +60,8 @@ can be checked.
   the gauges alone on a transparent background (ProRes 4444 or VP9 WebM), to lay over the video in another editor
 - Music under the video: a playlist of files, with fades and the volumes of the video and the music
 
+The [user manual](docs/manual.md) tells how to use it, step by step.
+
 ## Installation
 
 Packages for Linux (AppImage, .deb) and Windows are on the
