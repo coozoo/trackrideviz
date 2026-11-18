@@ -6,12 +6,12 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="49"/>
         <source>mph</source>
-        <translation>миль/год</translation>
+        <translation>mph</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="49"/>
         <source>km/h</source>
-        <translation>км/год</translation>
+        <translation>km/h</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="72"/>
@@ -34,14 +34,14 @@
         <location filename="../src/core/units/units.cpp" line="212"/>
         <location filename="../src/core/units/units.cpp" line="236"/>
         <source>ft</source>
-        <translation>фут</translation>
+        <translation>ft</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="81"/>
         <location filename="../src/core/units/units.cpp" line="212"/>
         <location filename="../src/core/units/units.cpp" line="236"/>
         <source>m</source>
-        <translation>м</translation>
+        <translation>m</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="85"/>
@@ -58,13 +58,13 @@
         <location filename="../src/core/units/units.cpp" line="89"/>
         <location filename="../src/core/units/units.cpp" line="240"/>
         <source>mi</source>
-        <translation>миль</translation>
+        <translation>mi</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="90"/>
         <location filename="../src/core/units/units.cpp" line="241"/>
         <source>km</source>
-        <translation>км</translation>
+        <translation>km</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="94"/>
@@ -124,7 +124,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="115"/>
         <source>kg/m³</source>
-        <translation>кг/м³</translation>
+        <translation>kg/m³</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="119"/>
@@ -144,7 +144,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="127"/>
         <source>bpm</source>
-        <translation>уд/хв</translation>
+        <translation>bpm</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="132"/>
@@ -154,12 +154,12 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="132"/>
         <source>rpm</source>
-        <translation>об/хв</translation>
+        <translation>rpm</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="132"/>
         <source>spm</source>
-        <translation>кр/хв</translation>
+        <translation>spm</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="136"/>
@@ -172,7 +172,7 @@
         <location filename="../src/core/units/units.cpp" line="283"/>
         <location filename="../src/core/units/units.cpp" line="284"/>
         <source>W</source>
-        <translation>Вт</translation>
+        <translation>W</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="141"/>
@@ -208,7 +208,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="163"/>
         <source>m/s²</source>
-        <translation>м/с²</translation>
+        <translation>m/s²</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="168"/>
@@ -218,7 +218,7 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="168"/>
         <source>°/s</source>
-        <translation>°/с</translation>
+        <translation>°/s</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="172"/>
@@ -252,7 +252,7 @@
         <location filename="../src/core/units/units.cpp" line="198"/>
         <location filename="../src/core/units/units.cpp" line="216"/>
         <source>s</source>
-        <translation>с</translation>
+        <translation>s</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="186"/>
@@ -293,12 +293,12 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="206"/>
         <source>ft/min</source>
-        <translation>фут/хв</translation>
+        <translation>ft/min</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="207"/>
         <source>m/s</source>
-        <translation>м/с</translation>
+        <translation>m/s</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="211"/>
@@ -329,17 +329,17 @@
     <message>
         <location filename="../src/core/units/units.cpp" line="222"/>
         <source>/km</source>
-        <translation>/км</translation>
+        <translation>/km</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Power, 3 s</source>
-        <translation>Потужність, 3 с</translation>
+        <translation>Потужність, 3 s</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="229"/>
         <source>Power, 30 s</source>
-        <translation>Потужність, 30 с</translation>
+        <translation>Потужність, 30 s</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="230"/>
@@ -471,7 +471,7 @@
         <location filename="../src/core/units/units.cpp" line="290"/>
         <location filename="../src/core/units/units.cpp" line="291"/>
         <source>mm</source>
-        <translation>мм</translation>
+        <translation>mm</translation>
     </message>
     <message>
         <location filename="../src/core/units/units.cpp" line="291"/>
@@ -529,17 +529,17 @@
     <message>
         <location filename="../src/chartsmoothing.h" line="26"/>
         <source>Smoothed a little (2 s)</source>
-        <translation>Трохи згладжено (2 с)</translation>
+        <translation>Трохи згладжено (2 s)</translation>
     </message>
     <message>
         <location filename="../src/chartsmoothing.h" line="27"/>
         <source>Smoothed (5 s)</source>
-        <translation>Згладжено (5 с)</translation>
+        <translation>Згладжено (5 s)</translation>
     </message>
     <message>
         <location filename="../src/chartsmoothing.h" line="28"/>
         <source>Smoothed a lot (15 s)</source>
-        <translation>Сильно згладжено (15 с)</translation>
+        <translation>Сильно згладжено (15 s)</translation>
     </message>
     <message>
         <location filename="../src/chartsmoothing.h" line="29"/>
@@ -607,7 +607,7 @@
     <message>
         <location filename="../src/commandline.cpp" line="196"/>
         <source>%1 kbit/s</source>
-        <translation>%1 кбіт/с</translation>
+        <translation>%1 kbit/s</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="197"/>
@@ -913,7 +913,7 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
     <message>
         <location filename="../src/commandline.cpp" line="702"/>
         <source>Video bitrate in kbit/s.</source>
-        <translation>Бітрейт відео в кбіт/с.</translation>
+        <translation>Бітрейт відео в kbit/s.</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="703"/>
@@ -938,7 +938,7 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
     <message>
         <location filename="../src/commandline.cpp" line="707"/>
         <source>Sound bitrate in kbit/s, when the sound is encoded again.</source>
-        <translation>Бітрейт звуку в кбіт/с, коли звук кодується наново.</translation>
+        <translation>Бітрейт звуку в kbit/s, коли звук кодується наново.</translation>
     </message>
     <message>
         <location filename="../src/commandline.cpp" line="708"/>
@@ -1204,7 +1204,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/datasourcesdialog.cpp" line="60"/>
         <source> s</source>
-        <translation> с</translation>
+        <translation> s</translation>
     </message>
     <message>
         <location filename="../src/datasourcesdialog.cpp" line="62"/>
@@ -1260,7 +1260,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/datasourcesdialog.cpp" line="233"/>
         <source>%1 s from what the clocks say.</source>
-        <translation>%1 с від того, що кажуть годинники.</translation>
+        <translation>%1 s від того, що кажуть годинники.</translation>
     </message>
     <message>
         <location filename="../src/datasourcesdialog.cpp" line="251"/>
@@ -1327,7 +1327,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/diagnostics.cpp" line="173"/>
         <source>Font: %1 %2 pt, drawn with %3 %4 pt; %5 dpi, scale %6; icon theme: %7</source>
-        <translation>Шрифт: %1 %2 пт, відображається як %3 %4 пт; %5 dpi, масштаб %6; тема значків: %7</translation>
+        <translation>Шрифт: %1 %2 pt, відображається як %3 %4 pt; %5 dpi, масштаб %6; тема значків: %7</translation>
     </message>
     <message>
         <location filename="../src/diagnostics.cpp" line="180"/>
@@ -1431,7 +1431,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/exportdialog.cpp" line="164"/>
         <source> Mbit/s</source>
-        <translation> Мбіт/с</translation>
+        <translation> Mbit/s</translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="177"/>
@@ -1612,7 +1612,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/exportdialog.cpp" line="722"/>
         <source>%1; the video itself is %2 Mbit/s</source>
-        <translation>%1; саме відео — %2 Мбіт/с</translation>
+        <translation>%1; саме відео — %2 Mbit/s</translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="733"/>
@@ -1692,7 +1692,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/exportdialog.cpp" line="206"/>
         <source>%1 kbit/s</source>
-        <translation>%1 кбіт/с</translation>
+        <translation>%1 kbit/s</translation>
     </message>
     <message>
         <location filename="../src/exportdialog.cpp" line="734"/>
@@ -3923,7 +3923,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../src/lapcomparepanel.cpp" line="228"/>
         <source>Time behind the fastest, s</source>
-        <translation>Відставання від найшвидшого, с</translation>
+        <translation>Відставання від найшвидшого, s</translation>
     </message>
     <message>
         <location filename="../src/lapcomparepanel.cpp" line="303"/>
@@ -4129,7 +4129,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../src/lapspanel.cpp" line="433"/>
         <source> km</source>
-        <translation> км</translation>
+        <translation> km</translation>
     </message>
     <message>
         <location filename="../src/lapspanel.cpp" line="433"/>
@@ -4229,7 +4229,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../src/mainwindow.cpp" line="604"/>
         <source> s</source>
-        <translation> с</translation>
+        <translation> s</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="606"/>
@@ -4391,7 +4391,7 @@ Increase it if the gauges are late compared to the picture.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="798"/>
         <source>The wind&apos;s speed as forecasts give it, 10 m above the ground</source>
-        <translation>Швидкість вітру, як її дають прогнози, на висоті 10 м</translation>
+        <translation>Швидкість вітру, як її дають прогнози, на висоті 10 m</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="804"/>
@@ -4809,27 +4809,27 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="1737"/>
         <source>300 m</source>
-        <translation>300 м</translation>
+        <translation>300 m</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1737"/>
         <source>600 m</source>
-        <translation>600 м</translation>
+        <translation>600 m</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1738"/>
         <source>1 km</source>
-        <translation>1 км</translation>
+        <translation>1 km</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1738"/>
         <source>2 km</source>
-        <translation>2 км</translation>
+        <translation>2 km</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1738"/>
         <source>5 km</source>
-        <translation>5 км</translation>
+        <translation>5 km</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1752"/>
@@ -4897,12 +4897,12 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="1771"/>
         <source>Metric (km/h, m, °C)</source>
-        <translation>Метричні (км/год, м, °C)</translation>
+        <translation>Метричні (km/h, m, °C)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1772"/>
         <source>Imperial (mph, ft, °F)</source>
-        <translation>Імперські (миль/год, фути, °F)</translation>
+        <translation>Імперські (mph, ft, °F)</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="1786"/>
@@ -5217,7 +5217,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="2333"/>
         <source>  and %1, shifted by %2 s</source>
-        <translation>  і %1, зсув %2 с</translation>
+        <translation>  і %1, зсув %2 s</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="2339"/>
@@ -5475,7 +5475,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/musicpanel.cpp" line="153"/>
         <source> s</source>
-        <translation> с</translation>
+        <translation> s</translation>
     </message>
     <message>
         <location filename="../src/musicpanel.cpp" line="155"/>
@@ -5835,22 +5835,22 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="228"/>
         <source>Kilometers per hour (km/h)</source>
-        <translation>Кілометри за годину (км/год)</translation>
+        <translation>Кілометри за годину (km/h)</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="229"/>
         <source>Miles per hour (mph)</source>
-        <translation>Милі за годину (миль/год)</translation>
+        <translation>Милі за годину (mph)</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="232"/>
         <source>Metric (m, km)</source>
-        <translation>Метрична (м, км)</translation>
+        <translation>Метрична (m, km)</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="233"/>
         <source>Imperial (ft, mi)</source>
-        <translation>Імперська (фути, милі)</translation>
+        <translation>Імперська (ft, mi)</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="236"/>
@@ -6007,7 +6007,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="365"/>
         <source> mm</source>
-        <translation> мм</translation>
+        <translation> mm</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="366"/>
@@ -6022,12 +6022,12 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="373"/>
         <source>From the tire size: %1 mm</source>
-        <translation>За розміром шини: %1 мм</translation>
+        <translation>За розміром шини: %1 mm</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="375"/>
         <source>Without a tire size: %1 mm, a usual road wheel</source>
-        <translation>Без розміру шини: %1 мм, звичайне шосейне колесо</translation>
+        <translation>Без розміру шини: %1 mm, звичайне шосейне колесо</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="376"/>
@@ -6080,12 +6080,12 @@ It appears among the templates in the library.</source>
         <location filename="../src/settingsdialog.cpp" line="430"/>
         <location filename="../src/settingsdialog.cpp" line="432"/>
         <source> kg</source>
-        <translation> кг</translation>
+        <translation> kg</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="431"/>
         <source> cm</source>
-        <translation> см</translation>
+        <translation> cm</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="461"/>
@@ -6171,7 +6171,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="503"/>
         <source> m²</source>
-        <translation> м²</translation>
+        <translation> m²</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="515"/>
@@ -6257,17 +6257,17 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="613"/>
         <source> km</source>
-        <translation> км</translation>
+        <translation> km</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="614"/>
         <source>The weather services know places 10-25 km apart: closer than that brings little</source>
-        <translation>Сервіси погоди знають точки за 10-25 км одна від одної: частіше майже нічого не дає</translation>
+        <translation>Сервіси погоди знають точки за 10-25 km одна від одної: частіше майже нічого не дає</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="616"/>
         <source>The wind is measured 10 m above the ground. Near it about 60 % is left in the open, less between houses and trees.</source>
-        <translation>Вітер вимірюють на висоті 10 м. Біля землі на відкритому місці лишається близько 60 %, між будинками й деревами менше.</translation>
+        <translation>Вітер вимірюють на висоті 10 m. Біля землі на відкритому місці лишається близько 60 %, між будинками й деревами менше.</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="522"/>
@@ -6369,7 +6369,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/settingsdialog.cpp" line="770"/>
         <source> in</source>
-        <translation> дюймів</translation>
+        <translation> in</translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="899"/>
@@ -6628,7 +6628,7 @@ Shift+перетягування позначає частину; клацанн
     <message>
         <location filename="../src/timelinepanel.cpp" line="667"/>
         <source>Leave out every stop of 10 s or more, keeping 2 s at each end</source>
-        <translation>Вирізати кожну зупинку від 10 с, залишивши по 2 с з кожного боку</translation>
+        <translation>Вирізати кожну зупинку від 10 s, залишивши по 2 s з кожного боку</translation>
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="669"/>
@@ -6653,7 +6653,7 @@ Shift+перетягування позначає частину; клацанн
     <message>
         <location filename="../src/timelinepanel.cpp" line="786"/>
         <source>No stops of 10 s or more in the video.</source>
-        <translation>У відео немає зупинок від 10 с.</translation>
+        <translation>У відео немає зупинок від 10 s.</translation>
     </message>
     <message>
         <location filename="../src/timelinepanel.cpp" line="678"/>
@@ -6959,7 +6959,7 @@ Shift+перетягування позначає частину; клацанн
     <message>
         <location filename="../src/core/sync/videosync.cpp" line="88"/>
         <source>File name time (%1) did not overlap the data; shifted by %2 min to make it fit. Check it.</source>
-        <translation>Час із назви файлу (%1) не збігався з даними; зсунуто на %2 хв, щоб сумістити. Перевірте.</translation>
+        <translation>Час із назви файлу (%1) не збігався з даними; зсунуто на %2 min, щоб сумістити. Перевірте.</translation>
     </message>
     <message>
         <location filename="../src/core/sync/videosync.cpp" line="95"/>
