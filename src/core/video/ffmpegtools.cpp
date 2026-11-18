@@ -18,6 +18,11 @@ QString FfmpegTools::ffmpegProgram()
             // in a folder of its own with the Vulkan loader it needs (see main.cpp)
             const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg/ffmpeg.exe",
                                       QCoreApplication::applicationDirPath() + "/ffmpeg.exe"};
+#elif defined(Q_OS_MACOS)
+            // started from the Finder the program gets no PATH of the shell, so not Homebrew's
+            // (Apple silicon, then Intel)
+            const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg",
+                                      QStringLiteral("/opt/homebrew/bin/ffmpeg"), QStringLiteral("/usr/local/bin/ffmpeg")};
 #else
             const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg"};
 #endif

@@ -136,8 +136,7 @@ jobs:
       matrix:
         config:
           - os: ubuntu-22.04
-          # macOS comes back for the final stage, once the rest is ready
-          # - os: macos-latest
+          - os: macos-latest
           - os: windows-latest
     steps:
       - name: Checkout code
