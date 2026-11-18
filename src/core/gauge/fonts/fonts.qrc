@@ -10,5 +10,18 @@
         <file>BarlowSemiCondensed-SemiBoldItalic.ttf</file>
         <file>BarlowSemiCondensed-Bold.ttf</file>
         <file>BarlowSemiCondensed-BoldItalic.ttf</file>
+        <file>Roboto-Light.ttf</file>
+        <file>Roboto-Regular.ttf</file>
+        <file>Roboto-Italic.ttf</file>
+        <file>Roboto-Bold.ttf</file>
+        <file>Roboto-BoldItalic.ttf</file>
+        <file>RobotoCondensed-Regular.ttf</file>
+        <file>RobotoCondensed-Bold.ttf</file>
+        <file>Orbitron-Medium.ttf</file>
+        <file>Orbitron-Bold.ttf</file>
+        <file>DSEG7Classic-Regular.ttf</file>
+        <file>DSEG7Classic-Italic.ttf</file>
+        <file>DSEG7Classic-Bold.ttf</file>
+        <file>DSEG7Classic-BoldItalic.ttf</file>
     </qresource>
 </RCC>

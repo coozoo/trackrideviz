@@ -280,7 +280,11 @@ part of your work, edit the description too.
 [GPL-3.0](LICENSE)
 
 Gauges use the Barlow Semi Condensed font by Jeremy Tribby, under the SIL Open Font License
-([text](src/core/gauge/fonts/OFL-BarlowSemiCondensed.txt)).
+([text](src/core/gauge/fonts/OFL-BarlowSemiCondensed.txt)). Imported gauges are drawn with Roboto and
+Roboto Condensed ([text](src/core/gauge/fonts/OFL-Roboto.txt)), Orbitron by Matt McInerney
+([text](src/core/gauge/fonts/OFL-Orbitron.txt)) and DSEG7 Classic by keshikan
+([text](src/core/gauge/fonts/OFL-DSEG.txt)) where the computer lacks the fonts they name, all under the
+same license.
 
 The icons that stand in where the desktop has none are from the Tango Desktop Project, in the
 public domain ([text](images/icons/COPYING.Tango)).

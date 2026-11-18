@@ -122,7 +122,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 
 ### M3c - what is left
 - ✅ G-force comes from GPS now (M4); without data a part rests at 0, not at its scale's start
-- Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
+- ✅ Fonts named by imported gauges (2026-11-18, `GaugeFonts`): Roboto, Roboto Condensed ("Roboto Cn" of .veg
+  gauges), Orbitron in place of Furore and DSEG7 Classic in place of DS-Digital ship with the program (OFL);
+  Consolas and Courier New fall to a monospaced font, Arial, Helvetica, Verdana and Tahoma to their usual
+  stand-ins, Impact to Roboto Condensed - each only where the computer lacks the font itself. Gauges imported
+  earlier keep "Roboto" for "Roboto Cn" until imported again
 - A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
 - ✅ Gauges follow the video's shape (2026-11-17, `Project::layoutAspect`): the project keeps the shape its
   gauges were placed on; a video of another shape (a vertical one after 16:9) gets each placed again from
