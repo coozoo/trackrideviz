@@ -156,7 +156,7 @@ jobs:
           sudo apt-get update -qq
           # the runner's own libunwind-14-dev blocks libunwind-dev, which libgstreamer1.0-dev needs
           sudo apt-get -y remove libunwind-14-dev || true
-          sudo apt-get -y install debhelper dput devscripts qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev libqt6svg6-dev zlib1g-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libgl1-mesa-dev libfuse2 qt6-image-formats-plugins \
+          sudo apt-get -y install debhelper dput devscripts zsync qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev libqt6svg6-dev zlib1g-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libgl1-mesa-dev libfuse2 qt6-image-formats-plugins \
             libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl
       - name: Update changelog
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
@@ -229,6 +229,13 @@ jobs:
           python3 tools/appimage/patch-apprun.py appdir/AppRun
           VERSION=${{ steps.build.outputs.VER_TAG_NAME }} ./appimagetool-*.AppImage ./appdir
           mv Race_Track_Visualizer-*-x86_64.AppImage ./Race_Track_Visualizer-x86_64.AppImage
+          # AppImage updaters (AppImageUpdate, appimaged, Gear Lever...) take the .zsync from the latest
+          # release and fetch only the changed parts; what appimagetool embedded names the file with its
+          # version, so the name it has now goes in, and the .zsync is made from the final file
+          rm -f Race_Track_Visualizer-*-x86_64.AppImage.zsync
+          python3 tools/appimage/set-update-info.py Race_Track_Visualizer-x86_64.AppImage \
+            "gh-releases-zsync|${GITHUB_REPOSITORY%%/*}|${GITHUB_REPOSITORY#*/}|latest|Race_Track_Visualizer-x86_64.AppImage.zsync"
+          zsyncmake -u Race_Track_Visualizer-x86_64.AppImage -o Race_Track_Visualizer-x86_64.AppImage.zsync Race_Track_Visualizer-x86_64.AppImage
           ls -l
       - name: Upload Release Asset Linux AppImage
         if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'
@@ -240,6 +247,16 @@ jobs:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./Race_Track_Visualizer-x86_64.AppImage
           asset_name: Race_Track_Visualizer-x86_64.AppImage
+          asset_content_type: application/octet-stream
+      - name: Upload Release Asset Linux AppImage zsync
+        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'
+        uses: shogo82148/actions-upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./Race_Track_Visualizer-x86_64.AppImage.zsync
+          asset_name: Race_Track_Visualizer-x86_64.AppImage.zsync
           asset_content_type: application/octet-stream
       - name: Upload deb to release
         if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'

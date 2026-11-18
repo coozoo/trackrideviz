@@ -409,8 +409,10 @@ the automatic end of a fixed dial following the highest value held for a second,
   SHA-256 and renames it over itself, then offers a restart; a copy the installer put there (told by the installer's
   registry entry pointing at its folder) gets the new setup.exe, checked the same way, and runs it after closing:
   quietly with /RESTART for the user alone, with its pages for everyone; the installer waits for the old program to
-  end. The zip, macOS and distributions' packages only point to the release page. Later: .zsync for other AppImage
-  updaters
+  end. The zip, macOS and distributions' packages only point to the release page. ✅ .zsync (2026-11-18,
+  `tools/appimage/set-update-info.py`): the AppImage keeps its name without a version; the update information in it
+  names that, and its .zsync goes to the release beside it, so AppImageUpdate, appimaged, Gear Lever and
+  AppImageLauncher update it from the latest release, fetching only what changed
 - Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;
   decide which tests run on every push and which only before a release
 
