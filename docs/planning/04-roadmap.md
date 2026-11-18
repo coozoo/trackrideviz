@@ -396,7 +396,7 @@ the automatic end of a fixed dial following the highest value held for a second,
   dialog by hand; --gauges-only; --list-encoders, --list-profiles, --list-templates; progress in a terminal, a line
   every tenth into a file; Ctrl+C keeps a playable file. Waits for the terrain, the weather and the street maps.
   Linux checked; Windows (its console taken from cmd) not yet
-- AppImage + Flatpak, macOS bundle
+- AppImage, macOS bundle (macOS back in CI 2026-11-18, ffmpeg from Homebrew); no Flatpak
 - ✅ Windows installer (2026-11-17, `windows/trackrideviz.nsi`, NSIS, built by CI next to the zip): for the user
   alone or for everyone, Start menu and desktop shortcuts, .rtvproj / .rtvgauge / .rtvtemplate opened by a
   double click; the uninstaller takes away only what was installed (an update first runs the old one).
@@ -413,8 +413,9 @@ the automatic end of a fixed dial following the highest value held for a second,
   `tools/appimage/set-update-info.py`): the AppImage keeps its name without a version; the update information in it
   names that, and its .zsync goes to the release beside it, so AppImageUpdate, appimaged, Gear Lever and
   AppImageLauncher update it from the latest release, fetching only what changed
-- Shorter CI once the features have settled: the build takes about 8 minutes and the tests longer;
-  decide which tests run on every push and which only before a release
+- ✅ Shorter CI (2026-11-18): Windows installs only the Qt modules used, not all of Qt (3.4 GB); the .deb is
+  built by its own rules, without the .buildinfo (over a minute) and the debug symbols package that were never
+  uploaded; the tests job builds the core and the tests only, the program being compiled by the release workflow
 
 ## M8 — Touch UI
 - QML app on `rtvcore` for tablets/phones (needs backend B)

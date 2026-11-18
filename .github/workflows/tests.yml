@@ -40,12 +40,13 @@ jobs:
             libgl1-mesa-dev \
             ffmpeg
 
+      # Only the Makefile with the check target: the program itself is compiled by the release
+      # workflow, and check builds the core and the tests on their own
       - name: Shadow build (Debug, with tests target)
         run: |
           mkdir -p build/Desktopqt6-Debug
           cd build/Desktopqt6-Debug
           qmake6 ../../trackrideviz.pro CONFIG+=debug CONFIG+=tests
-          make -j$(nproc)
 
       - name: Run unit tests
         working-directory: build/Desktopqt6-Debug
