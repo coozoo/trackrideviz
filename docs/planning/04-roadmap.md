@@ -301,7 +301,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Barlow Semi Condensed (OFL) bundled for gauge texts
 - ✅ `.rtvgauge` / `.rtvtemplate` (2026-11-13): one gzipped JSON file to pass a gauge or a template
   with its gauges on; Export and Import in the library panel. Built-in gauges and templates marked
-  with a padlock. File associations: in the Windows installer (2026-11-17); Linux MIME types still to do
+  with a padlock. File associations: in the Windows installer (2026-11-17); on Linux (2026-11-18) MIME types in the
+  .deb and .rpm (`trackrideviz-mime.xml`, named in the desktop file and the AppStream metainfo); the AppImage carries
+  them too, for whatever integration tool takes it in (untested)
 - ✅ Project font (2026-11-13): font, weight and "also gauges with a font of their own" next to the
   theme colors, kept in projects and templates; Barlow Semi Condensed bundled in all weights
 - ✅ Per gauge on the video (2026-11-17, `OverlayItem::ownTheme`, `textScale`, `opacity`): text size and opacity

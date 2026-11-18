@@ -43,6 +43,11 @@
     <category>AudioVideo</category>
     <category>Video</category>
   </categories>
+  <provides>
+    <mediatype>application/x-trackrideviz-project</mediatype>
+    <mediatype>application/x-trackrideviz-gauge</mediatype>
+    <mediatype>application/x-trackrideviz-template</mediatype>
+  </provides>
   <content_rating type="oars-1.1"/>
   <releases>
     <release version="0.01" date="2026-11-18"/>

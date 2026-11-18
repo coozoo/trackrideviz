@@ -79,7 +79,8 @@ sudo add-apt-repository ppa:coozoo/trackrideviz
 sudo apt install trackrideviz
 ```
 
-Both are updated by the package manager with the rest of the system.
+Both are updated by the package manager with the rest of the system, and open projects, gauges
+and templates with the program by a double click.
 
 On Windows, take whichever you prefer:
 

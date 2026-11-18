@@ -5,3 +5,4 @@ Name=Race Track Visualizer
 Exec=trackrideviz %F
 Icon=trackrideviz
 Comment=Telemetry overlays for action camera video
+MimeType=application/x-trackrideviz-project;application/x-trackrideviz-gauge;application/x-trackrideviz-template;
