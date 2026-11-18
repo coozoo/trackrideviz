@@ -228,7 +228,7 @@ void ExportDialog::createWidgets()
     QHBoxLayout *rangeRow = new QHBoxLayout;
     rangeRow->addWidget(m_rangeCheck);
     rangeRow->addWidget(m_startEdit);
-    rangeRow->addWidget(new QLabel(QString::fromUtf8("–"), m_options));
+    rangeRow->addWidget(new QLabel(QString::fromUtf8("-"), m_options));
     rangeRow->addWidget(m_endEdit);
     rangeRow->addStretch(1);
 

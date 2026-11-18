@@ -100,6 +100,7 @@ QString enumKey(E value)
 const int kLayoutVersion = 2;
 const char kRepository[] = "https://github.com/coozoo/trackrideviz";
 const char kSupportUkraine[] = "https://github.com/coozoo/trackrideviz#support-ukraine";
+const char kManual[] = "https://github.com/coozoo/trackrideviz/blob/main/docs/manual.md";
 
 // A line of text that never makes the window wider: what does not fit ends in "...", and the
 // whole of it is the tooltip.
@@ -951,6 +952,8 @@ void MainWindow::createMenus()
     });
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(Icons::named("help-contents", "help-about"), tr("User &manual"), this,
+                        []() { QDesktopServices::openUrl(QUrl(kManual)); });
     helpMenu->addAction(Icons::named("help-about"), tr("&About"), this, &MainWindow::showAbout);
     helpMenu->addAction(Icons::named("view-refresh"), tr("Check for &updates..."), this, [this]() { checkForUpdates(true); });
     m_updateAction = helpMenu->addAction(Icons::named("go-next"), QString(), this, &MainWindow::showNewRelease);

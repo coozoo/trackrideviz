@@ -60,6 +60,8 @@ can be checked.
   the gauges alone on a transparent background (ProRes 4444 or VP9 WebM), to lay over the video in another editor
 - Music under the video: a playlist of files, with fades and the volumes of the video and the music
 
+The [user manual](docs/manual.md) tells how to use it, step by step.
+
 ## Installation
 
 Packages for Linux (AppImage, .deb) and Windows are on the
@@ -97,6 +99,8 @@ xattr -dr com.apple.quarantine /Applications/trackrideviz.app
 codesign --force --deep --sign - /Applications/trackrideviz.app
 ```
 
+Export needs ffmpeg, from [Homebrew](https://brew.sh): `brew install ffmpeg`.
+
 ## Command line
 
 The program exports without its window too, for scripts and for many videos in a row:
@@ -121,8 +125,8 @@ playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools), zlib and a C++17 compiler.
 `ffmpeg` (with `ffprobe`) is needed at run time for export and for the music's lengths; the Windows
-package comes with them. Otherwise the ones next to the program, then on the PATH, are used, and
-their location can be set in the settings.
+package comes with them. Otherwise the ones next to the program, then (on macOS) Homebrew's, then
+on the PATH, are used, and their location can be set in the settings.
 
 ```bash
 qmake6

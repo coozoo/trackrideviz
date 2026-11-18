@@ -114,7 +114,7 @@ MusicPanel::MusicPanel(QWidget *parent)
     m_toEdit->setToolTip(tr("Where in the selected file the music ends"));
     QHBoxLayout *trimRow = new QHBoxLayout;
     trimRow->addWidget(m_fromEdit);
-    trimRow->addWidget(new QLabel(QString::fromUtf8("–"), this));
+    trimRow->addWidget(new QLabel(QString::fromUtf8("-"), this));
     trimRow->addWidget(m_toEdit);
     trimRow->addStretch(1);
 
