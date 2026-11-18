@@ -1189,7 +1189,7 @@ Worked out from the other data</source>
     <message>
         <location filename="../src/datasourcesdialog.cpp" line="35"/>
         <source>Channels of other files are added to it, such as the heart rate of a chest strap or the power of a meter recorded on another device. A channel the main data has too is taken from the added file only when ticked.</source>
-        <translation>До них додаються канали інших файлів, як- пульс із нагрудного датчика чи потужність із трекера, записані іншим пристроєм. Канал, що є й в основних даних, береться з доданого файлу лише тоді, коли його позначено.</translation>
+        <translation>До них додаються канали інших файлів, як пульс із нагрудного датчика чи потужність із трекера, записані іншим пристроєм. Канал, що є й в основних даних, береться з доданого файлу лише тоді, коли його позначено.</translation>
     </message>
     <message>
         <location filename="../src/datasourcesdialog.cpp" line="43"/>
