@@ -127,7 +127,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
   Consolas and Courier New fall to a monospaced font, Arial, Helvetica, Verdana and Tahoma to their usual
   stand-ins, Impact to Roboto Condensed - each only where the computer lacks the font itself. Gauges imported
   earlier keep "Roboto" for "Roboto Cn" until imported again
-- A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
+- ✅ The "nav" knob of track line and lap circuit gauges (an arrow turned by the heading, on the route's point)
+  points the way of travel since heading is worked out from GPS (M4); checked again 2026-11-18 at three moments
+  of the sample ride
 - ✅ Gauges follow the video's shape (2026-11-17, `Project::layoutAspect`): the project keeps the shape its
   gauges were placed on; a video of another shape (a vertical one after 16:9) gets each placed again from
   its nearest edges, as a template places them, as one step that can be undone
