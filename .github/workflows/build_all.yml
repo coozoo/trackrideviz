@@ -21,9 +21,8 @@ permissions:
 #   * [build linux] [build win] [build mac] [build mac dmg] [build mac zip]
 #     in the commit message (or PR title/body) limit the non-main build to those targets
 #
-# Launchpad PPA upload is off until the PPA exists: create ppa:coozoo/trackrideviz, add the
-# LAUNCHPAD_GPG_KEY / LAUNCHPAD_GPG_KEY_ID / LAUNCHPAD_SSH_KEY secrets, then set the
-# repository variable LAUNCHPAD_PPA to  ppa:coozoo/trackrideviz
+# main uploads the source package to ppa:coozoo/trackrideviz, signed with the
+# LAUNCHPAD_GPG_KEY / LAUNCHPAD_GPG_KEY_ID / LAUNCHPAD_SSH_KEY secrets
 
 jobs:
   check-skip:
@@ -163,19 +162,19 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
         run: bash debian/update-changelog.sh
       - name: Set up GPG
-        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main' && vars.LAUNCHPAD_PPA != ''
+        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'
         run: |
           echo "${{ secrets.LAUNCHPAD_GPG_KEY }}" | gpg --batch --import
           echo "${{ secrets.LAUNCHPAD_GPG_KEY_ID }}:6:" | gpg --import-ownertrust
       - name: Setup SSH for Launchpad
-        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main' && vars.LAUNCHPAD_PPA != ''
+        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.LAUNCHPAD_SSH_KEY }}" > ~/.ssh/launchpad-ci_id_rsa
           chmod 600 ~/.ssh/launchpad-ci_id_rsa
           ssh-keyscan -t rsa git.launchpad.net >> ~/.ssh/known_hosts
       - name: Prep launchpad
-        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main' && vars.LAUNCHPAD_PPA != ''
+        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'
         env:
           GPG_KEY_ID: ${{ secrets.LAUNCHPAD_GPG_KEY_ID }}
         id: launchpadid
@@ -183,9 +182,9 @@ jobs:
           dpkg-buildpackage -k"$GPG_KEY_ID" -S -sa
           echo "CHANGES_NAME=$(ls ../*.changes | head -1 | xargs -n 1 basename)" >> $GITHUB_OUTPUT
       - name: Upload package to Launchpad PPA
-        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main' && vars.LAUNCHPAD_PPA != ''
+        if: matrix.config.os == 'ubuntu-22.04' && github.ref == 'refs/heads/main'
         run: |
-          dput ${{ vars.LAUNCHPAD_PPA }} ../${{ steps.launchpadid.outputs.CHANGES_NAME }}
+          dput ppa:coozoo/trackrideviz ../${{ steps.launchpadid.outputs.CHANGES_NAME }}
       - name: build on linux
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
         id: buildlinux
