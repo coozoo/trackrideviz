@@ -11,14 +11,14 @@
   <mime-type type="application/x-trackrideviz-gauge">
     <comment>Race Track Visualizer gauge</comment>
     <comment xml:lang="uk">Індикатор Race Track Visualizer</comment>
-    <sub-class-of type="application/json"/>
+    <sub-class-of type="application/gzip"/>
     <icon name="trackrideviz"/>
     <glob pattern="*.rtvgauge"/>
   </mime-type>
   <mime-type type="application/x-trackrideviz-template">
     <comment>Race Track Visualizer template</comment>
     <comment xml:lang="uk">Шаблон Race Track Visualizer</comment>
-    <sub-class-of type="application/json"/>
+    <sub-class-of type="application/gzip"/>
     <icon name="trackrideviz"/>
     <glob pattern="*.rtvtemplate"/>
   </mime-type>
