@@ -57,8 +57,16 @@ struct MapOptions
 {
     bool downloads{false};
     bool credit{true};
-    QString apiKey;
+    QHash<QString, QString> keys;   // by TileStore::KeyService id
 };
+
+// The provider's address with its key put in.
+QString addressOf(const TileStore::Provider &provider, const QHash<QString, QString> &keys)
+{
+    QString address = provider.urlTemplate;
+    address.replace("{apikey}", keys.value(provider.service).trimmed());
+    return address;
+}
 
 QMutex mapsMutex;
 QHash<QString, TileStore *> maps;   // forMap()'s, by provider id
@@ -72,31 +80,33 @@ TileStore *TileStore::forMap(const QString &providerId)
             return instance();
         }
     const QMutexLocker lock(&mapsMutex);
+    const Provider provider = TileStore::provider(providerId);
+    if (!provider.service.isEmpty() && mapOptions.keys.value(provider.service).trimmed().isEmpty())
+        {
+            // its key was taken away: the map of the settings rather than none
+            return instance();
+        }
     if (TileStore *store = maps.value(providerId))
         {
             return store;
         }
     TileStore *made = new TileStore;
-    const Provider provider = TileStore::provider(providerId);
-    QString address = provider.urlTemplate;
-    address.replace("{apikey}", mapOptions.apiKey);
-    made->setSource(address, mapOptions.credit ? provider.attribution : QString(), provider.maxZoom);
+    made->setSource(addressOf(provider, mapOptions.keys), mapOptions.credit ? provider.attribution : QString(),
+                    provider.maxZoom);
     made->setDownloads(mapOptions.downloads);
     connect(made, &TileStore::arrived, instance(), &TileStore::arrived);
     maps.insert(providerId, made);
     return made;
 }
 
-void TileStore::setMapOptions(bool downloads, bool credit, const QString &apiKey)
+void TileStore::setMapOptions(bool downloads, bool credit, const QHash<QString, QString> &keys)
 {
     const QMutexLocker lock(&mapsMutex);
-    mapOptions = {downloads, credit, apiKey};
+    mapOptions = {downloads, credit, keys};
     for (auto it = maps.cbegin(); it != maps.cend(); ++it)
         {
             const Provider provider = TileStore::provider(it.key());
-            QString address = provider.urlTemplate;
-            address.replace("{apikey}", apiKey);
-            it.value()->setSource(address, credit ? provider.attribution : QString(), provider.maxZoom);
+            it.value()->setSource(addressOf(provider, keys), credit ? provider.attribution : QString(), provider.maxZoom);
             it.value()->setDownloads(downloads);
         }
 }
@@ -163,19 +173,117 @@ QString TileStore::defaultAttribution()
 
 QVector<TileStore::Provider> TileStore::providers()
 {
+    const QString osm = QStringLiteral("© OpenStreetMap contributors");
+    const QString esri = QStringLiteral("Esri, HERE, Garmin, USGS, ") + osm;
+    const QString thunderforest = QStringLiteral("Maps © Thunderforest · Data ") + osm;
+    const QString stadia = QStringLiteral("© Stadia Maps · © OpenMapTiles · ") + osm;
+    const QString stamen = QStringLiteral("© Stadia Maps · © Stamen Design · © OpenMapTiles · ") + osm;
+    const QString maptiler = QStringLiteral("© MapTiler · ") + osm;
+    const QString mapbox = QStringLiteral("© Mapbox · ") + osm;
+    const QString ign = QStringLiteral("IGN-F / Géoplateforme");
+    // by concatenation: the %2F of the address would be taken for an argument of arg()
+    const auto ignLayer = [](const char *layer, const char *format)
+    {
+        return QStringLiteral("https://data.geopf.fr/wmts?layer=") + QLatin1String(layer)
+               + QStringLiteral("&style=normal&tilematrixset=PM&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2F")
+               + QLatin1String(format) + QStringLiteral("&TileMatrix={z}&TileCol={x}&TileRow={y}");
+    };
     return
     {
-        {"osm", "OpenStreetMap", defaultUrlTemplate(), defaultAttribution(), 19},
+        // free to use, each asking for its credit
+        {"osm", "OpenStreetMap", defaultUrlTemplate(), defaultAttribution(), 19, QString()},
         {"cyclosm", "CyclOSM", "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
-         "© OpenStreetMap contributors · CyclOSM", 20},
+         osm + " · CyclOSM", 20, QString()},
         {"opentopomap", "OpenTopoMap", "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-         "© OpenStreetMap, SRTM · OpenTopoMap (CC-BY-SA)", 17},
-        {"satellite", "Satellite",
+         "© OpenStreetMap, SRTM · OpenTopoMap (CC-BY-SA)", 17, QString()},
+        {"osm-hot", "OpenStreetMap Humanitarian", "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+         osm + " · Humanitarian OSM Team, OSM France", 19, QString()},
+        {"osm-france", "OpenStreetMap France", "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
+         osm + " · OSM France", 19, QString()},
+        {"opnvkarte", "ÖPNVKarte (public transport)", "https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png",
+         osm + " · ÖPNVKarte", 18, QString()},
+        {"satellite", "Satellite (Esri)",
          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-         "Esri, Maxar, Earthstar Geographics", 19},
-        {"opencyclemap", "OpenCycleMap", "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}",
-         "Maps © Thunderforest · Data © OpenStreetMap contributors", 22},
+         "Esri, Maxar, Earthstar Geographics", 19, QString()},
+        {"esri-topo", "Esri Topographic",
+         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", esri, 19, QString()},
+        {"esri-street", "Esri Streets",
+         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", esri, 19, QString()},
+        {"relief", "Relief (maps-for-free)", "https://maps-for-free.com/layer/relief/z{z}/row{y}/{z}_{x}-{y}.jpg",
+         "maps-for-free.com", 11, QString()},
+        {"ign-plan", "IGN France map", ignLayer("GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2", "png"), ign, 19, QString()},
+        {"ign-photo", "IGN France aerial photos", ignLayer("ORTHOIMAGERY.ORTHOPHOTOS", "jpeg"), ign, 19, QString()},
+        {"usgs-topo", "USGS Topo (USA)",
+         "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+         "USGS The National Map", 16, QString()},
+        {"usgs-imagery", "USGS Imagery (USA)",
+         "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
+         "USGS The National Map", 16, QString()},
+        // with a key of the user's own
+        {"opencyclemap", "Thunderforest OpenCycleMap",
+         "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+        {"tf-outdoors", "Thunderforest Outdoors",
+         "https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+        {"tf-landscape", "Thunderforest Landscape",
+         "https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+        {"tf-transport", "Thunderforest Transport",
+         "https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+        {"stadia-smooth", "Stadia Alidade Smooth",
+         "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
+        {"stadia-dark", "Stadia Alidade Smooth Dark",
+         "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
+        {"stadia-outdoors", "Stadia Outdoors",
+         "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
+        {"stamen-terrain", "Stamen Terrain",
+         "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.png?api_key={apikey}", stamen, 18, "stadia"},
+        {"stamen-toner", "Stamen Toner",
+         "https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png?api_key={apikey}", stamen, 20, "stadia"},
+        {"stamen-watercolor", "Stamen Watercolor",
+         "https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key={apikey}", stamen, 16, "stadia"},
+        {"maptiler-streets", "MapTiler Streets",
+         "https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+        {"maptiler-outdoor", "MapTiler Outdoor",
+         "https://api.maptiler.com/maps/outdoor-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+        {"maptiler-topo", "MapTiler Topo",
+         "https://api.maptiler.com/maps/topo-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+        {"maptiler-winter", "MapTiler Winter",
+         "https://api.maptiler.com/maps/winter-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+        {"maptiler-satellite", "MapTiler Satellite",
+         "https://api.maptiler.com/maps/satellite/256/{z}/{x}/{y}.jpg?key={apikey}", maptiler, 20, "maptiler"},
+        {"mapbox-satellite", "Mapbox Satellite Streets",
+         "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
+         mapbox, 22, "mapbox"},
+        {"mapbox-outdoors", "Mapbox Outdoors",
+         "https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
+         mapbox, 22, "mapbox"},
+        {"mapbox-streets", "Mapbox Streets",
+         "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
+         mapbox, 22, "mapbox"},
     };
+}
+
+QVector<TileStore::KeyService> TileStore::keyServices()
+{
+    return
+    {
+        {"thunderforest", "Thunderforest", "https://manage.thunderforest.com/"},
+        {"stadia", "Stadia Maps", "https://client.stadiamaps.com/signup/"},
+        {"maptiler", "MapTiler", "https://cloud.maptiler.com/account/keys/"},
+        {"mapbox", "Mapbox", "https://account.mapbox.com/access-tokens/"},
+    };
+}
+
+QVector<TileStore::Provider> TileStore::usableProviders(const QHash<QString, QString> &keys)
+{
+    QVector<Provider> usable;
+    for (const Provider &one : providers())
+        {
+            if (one.service.isEmpty() || !keys.value(one.service).trimmed().isEmpty())
+                {
+                    usable.append(one);
+                }
+        }
+    return usable;
 }
 
 TileStore::Provider TileStore::provider(const QString &id)

@@ -15,6 +15,7 @@
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -299,14 +300,32 @@ QWidget *SettingsDialog::createMapsPage()
     QWidget *page = new QWidget(this);
     m_mapDownloadsCheck = new QCheckBox(tr("Download street maps for gauges that show one"), page);
     m_mapProviderCombo = new QComboBox(page);
-    for (const TileStore::Provider &provider : TileStore::providers())
+    // services whose maps need a key of the user's own: their maps are offered once it is there
+    QGridLayout *keys = new QGridLayout;
+    keys->setColumnStretch(1, 1);
+    const QVector<TileStore::KeyService> services = TileStore::keyServices();
+    for (int i = 0; i < services.size(); ++i)
         {
-            m_mapProviderCombo->addItem(provider.urlTemplate.contains("{apikey}") ? tr("%1 (needs a key)").arg(provider.name)
-                                        : provider.name, provider.id);
+            const TileStore::KeyService &service = services.at(i);
+            QLineEdit *edit = new QLineEdit(page);
+            edit->setClearButtonEnabled(true);
+            QStringList maps;
+            for (const TileStore::Provider &provider : TileStore::providers())
+                {
+                    if (provider.service == service.id)
+                        {
+                            maps << provider.name;
+                        }
+                }
+            edit->setToolTip(maps.join('\n'));
+            QLabel *signUp = new QLabel(QString("<a href=\"%1\">%2</a>").arg(service.signUp, tr("Get a key")), page);
+            signUp->setOpenExternalLinks(true);
+            keys->addWidget(new QLabel(service.name + ':', page), i, 0);
+            keys->addWidget(edit, i, 1);
+            keys->addWidget(signUp, i, 2);
+            m_mapKeyEdits.insert(service.id, edit);
+            connect(edit, &QLineEdit::textChanged, this, &SettingsDialog::fillMapChoice);
         }
-    m_mapProviderCombo->addItem(tr("Own server"), QString(AppSettings::OwnMapServer));
-    m_mapApiKeyEdit = new QLineEdit(page);
-    m_mapApiKeyEdit->setClearButtonEnabled(true);
     m_mapUrlEdit = new QLineEdit(page);
     m_mapUrlEdit->setPlaceholderText(TileStore::defaultUrlTemplate());
     m_mapUrlEdit->setClearButtonEnabled(true);
@@ -322,7 +341,10 @@ QWidget *SettingsDialog::createMapsPage()
                          "after that the gauge and the export work without a connection. "
                          "The server learns which area the route is in."), page));
     form->addRow(tr("Map:"), m_mapProviderCombo);
-    form->addRow(tr("Key:"), m_mapApiKeyEdit);
+    form->addRow(new QLabel(QString("<b>%1</b>").arg(tr("Keys")), page));
+    form->addRow(note(tr("Some map services want a key of your own (most have a free allowance). "
+                         "Their maps are offered once the key is entered."), page));
+    form->addRow(keys);
     form->addRow(tr("Tile server:"), m_mapUrlEdit);
     form->addRow(note(tr("An address with {z}, {x} and {y} in it."), page));
     form->addRow(tr("Its credit:"), m_mapAttributionEdit);
@@ -703,7 +725,27 @@ void SettingsDialog::updateMapFields()
     const bool own = id == QLatin1String(AppSettings::OwnMapServer);
     m_mapUrlEdit->setEnabled(own);
     m_mapAttributionEdit->setEnabled(own);
-    m_mapApiKeyEdit->setEnabled(!own && TileStore::provider(id).urlTemplate.contains("{apikey}"));
+}
+
+void SettingsDialog::fillMapChoice()
+{
+    const QString chosen = m_mapProviderCombo->count() > 0 ? m_mapProviderCombo->currentData().toString()
+                           : AppSettings::mapProvider();
+    QHash<QString, QString> keys;
+    for (auto it = m_mapKeyEdits.cbegin(); it != m_mapKeyEdits.cend(); ++it)
+        {
+            keys.insert(it.key(), it.value()->text());
+        }
+    const QSignalBlocker blocker(m_mapProviderCombo);
+    m_mapProviderCombo->clear();
+    for (const TileStore::Provider &provider : TileStore::usableProviders(keys))
+        {
+            m_mapProviderCombo->addItem(provider.name, provider.id);
+        }
+    m_mapProviderCombo->addItem(tr("Own server"), QString(AppSettings::OwnMapServer));
+    const int index = m_mapProviderCombo->findData(chosen);
+    m_mapProviderCombo->setCurrentIndex(std::max(0, index));
+    updateMapFields();
 }
 
 void SettingsDialog::checkFfmpeg()
@@ -737,8 +779,13 @@ void SettingsDialog::load()
     checkFfmpeg();
 
     m_mapDownloadsCheck->setChecked(AppSettings::mapDownloads());
-    select(m_mapProviderCombo, AppSettings::mapProvider());
-    m_mapApiKeyEdit->setText(AppSettings::mapApiKey());
+    for (auto it = m_mapKeyEdits.cbegin(); it != m_mapKeyEdits.cend(); ++it)
+        {
+            const QSignalBlocker blocker(it.value());
+            it.value()->setText(AppSettings::mapApiKey(it.key()));
+        }
+    m_mapProviderCombo->clear();
+    fillMapChoice();
     m_mapUrlEdit->setText(AppSettings::mapTileUrl());
     m_mapAttributionEdit->setText(AppSettings::mapAttribution());
     m_mapCreditCheck->setChecked(AppSettings::mapCreditShown());
@@ -844,7 +891,10 @@ void SettingsDialog::accept()
 
     AppSettings::setMapDownloads(m_mapDownloadsCheck->isChecked());
     AppSettings::setMapProvider(m_mapProviderCombo->currentData().toString());
-    AppSettings::setMapApiKey(m_mapApiKeyEdit->text());
+    for (auto it = m_mapKeyEdits.cbegin(); it != m_mapKeyEdits.cend(); ++it)
+        {
+            AppSettings::setMapApiKey(it.key(), it.value()->text());
+        }
     AppSettings::setMapCreditShown(m_mapCreditCheck->isChecked());
     AppSettings::setMapTileUrl(m_mapUrlEdit->text().trimmed());
     AppSettings::setMapAttribution(m_mapAttributionEdit->text().trimmed());

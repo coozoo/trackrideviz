@@ -170,6 +170,27 @@ private slots:
         QCOMPARE(AppSettings::exportFolder(), QString("/videos/out"));
     }
 
+    void mapKeysPerService()
+    {
+        // the one key of before was Thunderforest's: it stays theirs
+        QSettings().setValue("maps/apiKey", "old");
+        QCOMPARE(AppSettings::mapApiKey("thunderforest"), QString("old"));
+        QCOMPARE(AppSettings::mapApiKey("maptiler"), QString());
+        AppSettings::setMapApiKey("maptiler", "  mt  ");
+        AppSettings::setMapApiKey("thunderforest", "new");
+        QCOMPARE(AppSettings::mapApiKey("maptiler"), QString("mt"));
+        QCOMPARE(AppSettings::mapApiKey("thunderforest"), QString("new"));
+        QVERIFY(!QSettings().contains("maps/apiKey"));
+        QStringList ids;
+        for (const TileStore::Provider &provider : AppSettings::usableMapProviders())
+            ids << provider.id;
+        QVERIFY(ids.contains("maptiler-outdoor") && ids.contains("opencyclemap") && !ids.contains("mapbox-outdoors"));
+        // a chosen map whose key is taken away: the first map is drawn
+        AppSettings::setMapProvider("mapbox-outdoors");
+        AppSettings::applyMapSources();
+        QCOMPARE(TileStore::instance()->urlTemplate(), TileStore::providers().first().urlTemplate);
+    }
+
     void metricDisplay()
     {
         const Units units;

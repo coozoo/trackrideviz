@@ -24,7 +24,9 @@ const char kMapDownloads[] = "maps/downloads";
 const char kMapTileUrl[] = "maps/tileUrl";
 const char kMapAttribution[] = "maps/attribution";
 const char kMapProvider[] = "maps/provider";
+// before keys were kept per service: the Thunderforest one, the only map that wanted a key
 const char kMapApiKey[] = "maps/apiKey";
+const char kMapKeys[] = "maps/keys/";
 const char kMapCreditShown[] = "maps/creditShown";
 const char kLapsMapShown[] = "maps/lapsPanel";
 const char kExportEncoder[] = "export/encoder";
@@ -322,14 +324,36 @@ void AppSettings::setMapProvider(const QString &id)
     QSettings().setValue(kMapProvider, id);
 }
 
-QString AppSettings::mapApiKey()
+QString AppSettings::mapApiKey(const QString &service)
 {
-    return QSettings().value(kMapApiKey).toString().trimmed();
+    QSettings settings;
+    const QString fallback = service == QLatin1String("thunderforest") ? settings.value(kMapApiKey).toString() : QString();
+    return settings.value(kMapKeys + service, fallback).toString().trimmed();
 }
 
-void AppSettings::setMapApiKey(const QString &key)
+void AppSettings::setMapApiKey(const QString &service, const QString &key)
 {
-    QSettings().setValue(kMapApiKey, key.trimmed());
+    QSettings settings;
+    settings.setValue(kMapKeys + service, key.trimmed());
+    if (service == QLatin1String("thunderforest"))
+        {
+            settings.remove(kMapApiKey);
+        }
+}
+
+QHash<QString, QString> AppSettings::mapApiKeys()
+{
+    QHash<QString, QString> keys;
+    for (const TileStore::KeyService &service : TileStore::keyServices())
+        {
+            keys.insert(service.id, mapApiKey(service.id));
+        }
+    return keys;
+}
+
+QVector<TileStore::Provider> AppSettings::usableMapProviders()
+{
+    return TileStore::usableProviders(mapApiKeys());
 }
 
 QString AppSettings::mapCredit()
@@ -612,17 +636,23 @@ void AppSettings::applyMapSources()
     QString address = mapTileUrl();
     QString credit = mapAttribution();
     int maxZoom = 19;
+    const QHash<QString, QString> keys = mapApiKeys();
     if (mapProvider() != QLatin1String(OwnMapServer))
         {
-            const TileStore::Provider provider = TileStore::provider(mapProvider());
+            TileStore::Provider provider = TileStore::provider(mapProvider());
+            if (!provider.service.isEmpty() && keys.value(provider.service).isEmpty())
+                {
+                    // its key was taken away
+                    provider = TileStore::providers().first();
+                }
             address = provider.urlTemplate;
-            address.replace("{apikey}", mapApiKey());
+            address.replace("{apikey}", keys.value(provider.service));
             credit = provider.attribution;
             maxZoom = provider.maxZoom;
         }
     TileStore::instance()->setSource(address, mapCreditShown() ? credit : QString(), maxZoom);
     TileStore::instance()->setDownloads(mapDownloads());
     // gauges with a map of their own
-    TileStore::setMapOptions(mapDownloads(), mapCreditShown(), mapApiKey());
+    TileStore::setMapOptions(mapDownloads(), mapCreditShown(), keys);
     TileStore::terrain()->setDownloads(mapDownloads());
 }

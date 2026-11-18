@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../maps/tilestore.h"
 #include "../telemetry/gears.h"
 #include "../telemetry/powerestimate.h"
 #include "../telemetry/surfaces.h"
@@ -102,9 +103,12 @@ public:
     static constexpr const char *OwnMapServer = "own";
     static QString mapProvider();
     static void setMapProvider(const QString &id);
-    // For the maps whose server wants a key.
-    static QString mapApiKey();
-    static void setMapApiKey(const QString &key);
+    // The keys of map services that want one (TileStore::keyServices()), by service id.
+    static QString mapApiKey(const QString &service);
+    static void setMapApiKey(const QString &service, const QString &key);
+    static QHash<QString, QString> mapApiKeys();
+    // The maps that can be chosen with the keys there are.
+    static QVector<TileStore::Provider> usableMapProviders();
     // The user's own server: its address with {z}, {x}, {y}, and the credit line it asks for.
     // The tile stores (maps, the terrain) set as these settings say.
     static void applyMapSources();

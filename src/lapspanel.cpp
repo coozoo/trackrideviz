@@ -127,11 +127,6 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_streetsCheck->setChecked(AppSettings::lapsMapShown());
     m_mapCombo = new QComboBox(this);
     m_mapCombo->setToolTip(tr("The map here and under the gauges that show one"));
-    for (const TileStore::Provider &provider : TileStore::providers())
-        {
-            m_mapCombo->addItem(provider.name, provider.id);
-        }
-    m_mapCombo->addItem(tr("Own server"), QString(AppSettings::OwnMapServer));
     connect(m_streetsCheck, &QCheckBox::toggled, this, [this](bool shown)
     {
         AppSettings::setLapsMapShown(shown);
@@ -215,6 +210,16 @@ LapsPanel::LapsPanel(QWidget *parent)
 
 void LapsPanel::refreshMapChoice()
 {
+    // the maps the keys in the settings allow, as there may be more or fewer since
+    {
+        const QSignalBlocker blocker(m_mapCombo);
+        m_mapCombo->clear();
+        for (const TileStore::Provider &provider : AppSettings::usableMapProviders())
+            {
+                m_mapCombo->addItem(provider.name, provider.id);
+            }
+        m_mapCombo->addItem(tr("Own server"), QString(AppSettings::OwnMapServer));
+    }
     const int index = m_mapCombo->findData(AppSettings::mapProvider());
     m_mapCombo->setCurrentIndex(index >= 0 ? index : 0);
     m_mapCombo->setEnabled(m_streetsCheck->isChecked());

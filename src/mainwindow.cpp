@@ -1700,7 +1700,7 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             QMenu *mapMenu = menu.addMenu(tr("Map"));
             const QString ownMap = m_project.overlay.at(index).map;
             QVector<QPair<QString, QString>> maps{{tr("As in the settings"), QString()}};
-            for (const TileStore::Provider &provider : TileStore::providers())
+            for (const TileStore::Provider &provider : AppSettings::usableMapProviders())
                 {
                     maps.append({provider.name, provider.id});
                 }
