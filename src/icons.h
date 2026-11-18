@@ -11,4 +11,7 @@ namespace Icons
 // `name` is a freedesktop icon name; `fallback` names the shipped picture
 // when it is not the same.
 QIcon named(const QString &name, const QString &fallback = QString());
+// Only the shipped picture, for a set that has to look alike whatever the theme (the pages of
+// the settings: some have no theme icon at all).
+QIcon bundled(const QString &name);
 }
