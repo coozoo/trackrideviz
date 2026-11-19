@@ -219,7 +219,10 @@ them at one place.
     Streets, Outdoors, Streets). Enter the key under Keys in Settings > Maps ("Get a key" opens the
     service's page); the service's maps are offered from then on. A map whose key is removed is
     drawn as the settings' map.
-  - Or your own tile server: any address with `{z}`, `{x}` and `{y}`. Tiles are kept on disk, so a
+  - Or your own tile server: any address with `{z}`, `{x}` and `{y}`.
+  - IGN and USGS show their own country close up (IGN France, USGS the USA); elsewhere they
+    only have the coarse levels, and the map is drawn from those, enlarged and blurry. Any map
+    does the same where a tile is missing or still coming. Tiles are kept on disk, so a
   ride previewed once exports without a connection. The map's credit is drawn in its corner and
   can be switched off. Settings > Maps also shows how much the stored tiles take and deletes them.
 - **Elevation from the terrain**: in the Sources panel, the height of the ground under the route

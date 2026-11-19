@@ -1179,6 +1179,43 @@ private slots:
         store->setFolder(m_dir.filePath("no-tiles"));
     }
 
+    void mapStandsInWithCoarserTiles()
+    {
+        // a server with nothing so close here (a map of one country, away from it): the tile a zoom
+        // coarser is drawn enlarged, each tile from its own quarter of it
+        TileStore *store = TileStore::instance();
+        store->setFolder(m_dir.filePath("coarser-tiles"));
+        const QRectF area(30.5, -40.0, 0.02, 0.02);
+        const TileStore::Block block = TileStore::blockFor(area);
+        const QColor quarters[2][2] = {{Qt::red, Qt::green}, {Qt::blue, Qt::yellow}};   // [row][column]
+        for (int y = block.top >> 1; y <= block.bottom >> 1; ++y)
+            {
+                for (int x = block.left >> 1; x <= block.right >> 1; ++x)
+                    {
+                        QImage wider(256, 256, QImage::Format_ARGB32);
+                        QPainter painter(&wider);
+                        for (int row = 0; row < 2; ++row)
+                            for (int column = 0; column < 2; ++column)
+                                painter.fillRect(column * 128, row * 128, 128, 128, quarters[row][column]);
+                        painter.end();
+                        const QString path = store->tilePath(block.zoom - 1, x, y);
+                        QVERIFY(QDir().mkpath(QFileInfo(path).path()));
+                        QVERIFY(wider.save(path));
+                    }
+            }
+        const TileStore::Picture picture = store->picture(area);
+        QVERIFY(!picture.image.isNull());
+        for (int y = block.top; y <= block.bottom; ++y)
+            {
+                for (int x = block.left; x <= block.right; ++x)
+                    {
+                        const QPoint middle((x - block.left) * 256 + 128, (y - block.top) * 256 + 128);
+                        QCOMPARE(picture.image.pixelColor(middle), quarters[y & 1][x & 1]);
+                    }
+            }
+        store->setFolder(m_dir.filePath("no-tiles"));
+    }
+
     void mapFollowsTheRider()
     {
         // 111 m north, then as far east; the frame shows 100 m, a meter to a unit
