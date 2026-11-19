@@ -5,6 +5,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <functional>
+
 // The program's own video engine: FFmpeg's libraries linked in (see libav.pri). Builds
 // without them answer that it is not there, and everything goes through the ffmpeg program.
 namespace Libav
@@ -21,6 +23,17 @@ QString version();
 // no ffprobe needed. False when the file cannot be read, with why in `error`, or when the
 // program was built without the libraries.
 bool probe(const QString &videoPath, MediaInfo *info, QString *error = nullptr);
+// The length of a sound or video file in seconds, as ffprobe's format=duration; 0 when it
+// cannot be read or without the libraries.
+double duration(const QString &path);
+
+// What VideoJoin::arguments has ffmpeg do, done in-process: the files the concat list
+// `listFile` names copied one after another into `output`, the first picture, all sound and,
+// with `cameraData`, the camera's data. Blocking; `progress` is told how far the output has
+// got (seconds) now and then, and stops the join by answering false. A failed or stopped join
+// leaves an unfinished file, with why in `error` (empty when stopped).
+bool copyJoin(const QString &listFile, const QString &output, bool cameraData,
+              const std::function<bool(double seconds)> &progress, QString *error);
 
 // The encoder is in the libraries.
 bool hasEncoder(const QString &id);

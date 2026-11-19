@@ -1,6 +1,7 @@
 #include "soundtrack.h"
 
 #include "ffmpegtools.h"
+#include "libav.h"
 
 #include <algorithm>
 #include <cmath>
@@ -135,19 +136,28 @@ QString SoundtrackMix::music(const Soundtrack &soundtrack, int firstInput, doubl
     return parts.join(';');
 }
 
-double SoundtrackMix::probeDuration(const QString &ffprobeProgram, const QString &path)
+double SoundtrackMix::probeDuration(const QString &ffprobeProgram, const QString &path, bool preferOwn)
 {
-    const FfmpegTools::RunResult result = FfmpegTools::run(ffprobeProgram,
+    auto withFfprobe = [&]()
     {
-        "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", path
-    });
-    if (!result.started || result.exitCode != 0)
+        const FfmpegTools::RunResult result = FfmpegTools::run(ffprobeProgram,
         {
-            return 0.0;
+            "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", path
+        });
+        if (!result.started || result.exitCode != 0)
+            {
+                return 0.0;
+            }
+        bool ok = false;
+        const double duration = QString::fromLatin1(result.output).trimmed().toDouble(&ok);
+        return ok && std::isfinite(duration) && duration > 0.0 ? duration : 0.0;
+    };
+    if (!Libav::available())
+        {
+            return withFfprobe();
         }
-    bool ok = false;
-    const double duration = QString::fromLatin1(result.output).trimmed().toDouble(&ok);
-    return ok && std::isfinite(duration) && duration > 0.0 ? duration : 0.0;
+    const double first = preferOwn ? Libav::duration(path) : withFfprobe();
+    return first > 0.0 ? first : preferOwn ? withFfprobe() : Libav::duration(path);
 }
 
 QStringList SoundtrackMix::fileFilters()

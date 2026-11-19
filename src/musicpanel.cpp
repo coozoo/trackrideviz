@@ -1,6 +1,7 @@
 #include "musicpanel.h"
 
 #include "icons.h"
+#include "settings/appsettings.h"
 #include "video/ffmpegtools.h"
 
 #include <QAbstractItemModel>
@@ -393,11 +394,12 @@ void MusicPanel::addFiles()
         }
     settings.setValue("paths/music", QFileInfo(paths.first()).absolutePath());
 
-    // the lengths are needed for the fades and for what follows; ffprobe tells them
+    // the lengths are needed for the fades and for what follows; the chosen engine tells them
     ++m_reading;
     m_addButton->setEnabled(false);
     refreshSummary();
     const QString ffprobe = FfmpegTools::ffprobeProgram();
+    const bool preferOwn = AppSettings::ownVideoEngine();
     auto *watcher = new QFutureWatcher<QVector<MusicTrack>>(this);
     const quint64 generation = m_generation;
     connect(watcher, &QFutureWatcher<QVector<MusicTrack>>::finished, this, [this, watcher, generation]()
@@ -416,14 +418,14 @@ void MusicPanel::addFiles()
         edit(soundtrack, tr("Add music"));
         refreshSummary();
     });
-    watcher->setFuture(QtConcurrent::run([ffprobe, paths]()
+    watcher->setFuture(QtConcurrent::run([ffprobe, paths, preferOwn]()
     {
         QVector<MusicTrack> tracks;
         for (const QString &path : paths)
             {
                 MusicTrack track;
                 track.path = path;
-                track.duration = SoundtrackMix::probeDuration(ffprobe, path);
+                track.duration = SoundtrackMix::probeDuration(ffprobe, path, preferOwn);
                 tracks.append(track);
             }
         return tracks;

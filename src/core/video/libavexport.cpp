@@ -8,6 +8,7 @@
 #include <cstring>
 
 #include <algorithm>
+#include <atomic>
 #include <vector>
 
 #ifdef RTV_LIBAV
@@ -117,6 +118,8 @@ struct LibavExport::Private
     bool finished{false};
     int64_t videoEndUs{-1};         // output time the picture ends at, once it has
     int64_t lastVideoPts{AV_NOPTS_VALUE};
+    int64_t lastEncodedPts{AV_NOPTS_VALUE};  // in the encoder's time base
+    std::atomic<double> secondsDone{0.0};    // of the picture, read from other threads
     AVPacket *packet{nullptr};
     AVFrame *frame{nullptr};
 
@@ -316,13 +319,13 @@ bool LibavExport::Private::buildGraph()
         }
     } freeLater{&inputs, &outputs};
 
-    // a source for each input the graph names: "0:v", "1:v", "2:a"
+    // a source for each input the graph names: "0:v", "1:v", "2:a", "3:a:0" (the first)
     for (AVFilterInOut *in = inputs; in; in = in->next)
         {
             const QString label = QString::fromUtf8(in->name ? in->name : "");
             const int colon = int(label.indexOf(':'));
             const int index = label.left(colon).toInt();
-            const bool isAudio = label.mid(colon + 1) == QLatin1String("a");
+            const bool isAudio = label.mid(colon + 1).startsWith(QLatin1Char('a'));
             if (colon < 1 || index < 0 || index >= int(files.size()))
                 {
                     return fail(QString("The filter graph names an unknown input: %1").arg(label));
@@ -521,8 +524,11 @@ bool LibavExport::Private::openOutput()
     videoEncoder->height = av_buffersink_get_h(videoSink);
     videoEncoder->pix_fmt = AVPixelFormat(av_buffersink_get_format(videoSink));
     videoEncoder->sample_aspect_ratio = av_buffersink_get_sample_aspect_ratio(videoSink);
-    videoEncoder->time_base = av_buffersink_get_time_base(videoSink);
     videoEncoder->framerate = av_buffersink_get_frame_rate(videoSink);
+    // a tick a frame, as ffmpeg encodes: the graph's own clock may be finer (concat's is in
+    // microseconds), and a container keeps the encoder's
+    videoEncoder->time_base = videoEncoder->framerate.num > 0 && videoEncoder->framerate.den > 0
+                              ? av_inv_q(videoEncoder->framerate) : av_buffersink_get_time_base(videoSink);
     if (AVBufferRef *frames = av_buffersink_get_hw_frames_ctx(videoSink))
         {
             videoEncoder->hw_frames_ctx = av_buffer_ref(frames);
@@ -788,6 +794,12 @@ bool LibavExport::Private::encode(AVCodecContext *encoder, AVStream *stream, AVF
         }
     while ((result = avcodec_receive_packet(encoder, packet)) >= 0)
         {
+            // a picture lasts a frame, also where the graph did not say (after concat): else the
+            // container guesses the last one's length, and the rate read back is a little off
+            if (packet->duration <= 0 && encoder->codec_type == AVMEDIA_TYPE_VIDEO && encoder->framerate.num > 0)
+                {
+                    packet->duration = av_rescale_q(1, av_inv_q(encoder->framerate), encoder->time_base);
+                }
             av_packet_rescale_ts(packet, encoder->time_base, stream->time_base);
             packet->stream_index = stream->index;
             result = av_interleaved_write_frame(output, packet);
@@ -808,7 +820,23 @@ bool LibavExport::Private::drain()
             while ((result = av_buffersink_get_frame_flags(videoSink, frame, AV_BUFFERSINK_FLAG_NO_REQUEST)) >= 0)
                 {
                     lastVideoPts = frame->pts;
+                    if (frame->pts != AV_NOPTS_VALUE)
+                        {
+                            secondsDone = std::max(0.0, frame->pts * av_q2d(base));
+                        }
                     frame->pict_type = AV_PICTURE_TYPE_NONE;
+                    if (frame->pts != AV_NOPTS_VALUE)
+                        {
+                            frame->pts = av_rescale_q(frame->pts, base, videoEncoder->time_base);
+                            // two pictures of a variable rate on one tick: the later goes, as ffmpeg drops it
+                            if (lastEncodedPts != AV_NOPTS_VALUE && frame->pts <= lastEncodedPts)
+                                {
+                                    av_frame_unref(frame);
+                                    continue;
+                                }
+                            lastEncodedPts = frame->pts;
+                        }
+                    frame->duration = 0;
                     const bool ok = encode(videoEncoder, videoStream, frame);
                     av_frame_unref(frame);
                     if (!ok)
@@ -1056,6 +1084,15 @@ void LibavExport::endGauges()
 qint64 LibavExport::gaugesSent() const
 {
     return d->sent;
+}
+
+double LibavExport::secondsDone() const
+{
+#ifdef RTV_LIBAV
+    return d->secondsDone;
+#else
+    return 0.0;
+#endif
 }
 
 QString LibavExport::error() const

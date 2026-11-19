@@ -32,13 +32,14 @@ and exported as a new video.
 See [Installation in the README](../README.md#installation): the AppImage, the .deb, Fedora's
 Copr, the Ubuntu PPA, the Windows installer or zip, and the macOS app.
 
-The program reads and exports videos with **its own video engine**, FFmpeg's libraries built in
-(the AppImage, Windows, macOS and Fedora packages have it). It can also export with the **ffmpeg
-program** instead (Settings > Export > Video engine), and does so when built without the engine
-(the .deb for Ubuntu 22.04). The Windows packages bring the ffmpeg program too; the Linux packages
+The program reads, joins and exports videos with **its own video engine**, FFmpeg's libraries built
+in (the AppImage, Windows, macOS and Fedora packages have it). It can use the **ffmpeg program**
+instead (Settings > Export > Video engine), for reading videos and music, joining and exporting
+alike: a newer ffmpeg you installed may read or encode what the built-in one cannot. Where the
+chosen one fails to read a file, the other one tries. Without the engine (the .deb for Ubuntu
+22.04) everything goes through the ffmpeg program. The Windows packages bring the ffmpeg program too; the Linux packages
 pull it in; on macOS it comes from Homebrew (`brew install ffmpeg`) or MacPorts, and the program
-finds it in `/opt/homebrew/bin`, `/usr/local/bin` or `/opt/local/bin` by itself. Joining videos
-still uses the ffmpeg program. Its location can be set in
+finds it in `/opt/homebrew/bin`, `/usr/local/bin` or `/opt/local/bin` by itself. Its location can be set in
 Settings > Export when it is somewhere else.
 
 ## 2. The window

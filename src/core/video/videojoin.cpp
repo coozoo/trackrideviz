@@ -253,7 +253,8 @@ bool VideoJoin::keepsCameraData(const QVector<Part> &parts, const QString &outpu
 
 QStringList VideoJoin::arguments(const QString &listFile, const QString &output, bool cameraData)
 {
-    QStringList args = {"-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", listFile,
+    QStringList args = {"-hide_banner", "-loglevel", "error", "-nostats", "-progress", "pipe:1", "-y",
+                        "-f", "concat", "-safe", "0", "-i", listFile,
                         "-map", "0:v:0", "-map", "0:a?"
                        };
     if (cameraData)
@@ -272,14 +273,14 @@ QStringList VideoJoin::arguments(const QString &listFile, const QString &output,
     return args;
 }
 
-QStringList VideoJoin::encodeArguments(const QVector<Part> &parts, const QString &output, const VideoEncoder &encoder,
-                                       const ExportSettings &settings)
+ExportPlan VideoJoin::encodePlan(const QVector<Part> &parts, const QString &output, const VideoEncoder &encoder,
+                                 const ExportSettings &settings)
 {
-    QStringList args = {"-hide_banner", "-loglevel", "error", "-nostats", "-progress", "pipe:1", "-y"};
-    args << VideoEncoders::globalArguments(encoder);
+    ExportPlan plan;
+    plan.globalOptions = VideoEncoders::globalArguments(encoder);
     for (const Part &part : parts)
         {
-            args << "-i" << part.path;
+            plan.inputs.append({QStringList(), part.path});
         }
     const MediaInfo &first = parts.first().info;
     // even sizes: every encoder takes those
@@ -317,21 +318,34 @@ QStringList VideoJoin::encodeArguments(const QVector<Part> &parts, const QString
     chains << QString("%1concat=n=%2:v=1:a=%3[joined]%4").arg(inputs).arg(parts.size()).arg(sound ? 1 : 0)
               .arg(sound ? QStringLiteral("[a]") : QString())
            << QString("[joined]%1[v]").arg(VideoEncoders::outputFilter(encoder));
-    args << "-filter_complex" << chains.join(';') << "-map" << "[v]";
+    plan.filterGraph = chains.join(';');
     if (sound)
         {
-            args << "-map" << "[a]";
+            plan.audioMap = "[a]";
+            plan.audioOptions = {"-c:a", "aac", "-b:a", QString("%1k").arg(settings.audioKbps)};
         }
-    args << VideoEncoders::arguments(encoder, settings);
-    if (sound)
-        {
-            args << "-c:a" << "aac" << "-b:a" << QString("%1k").arg(settings.audioKbps);
-        }
+    plan.hasAudio = sound;
+    plan.videoOptions = VideoEncoders::arguments(encoder, settings);
     if (ExportSettings::isMp4Family(QFileInfo(output).suffix()))
         {
-            args << "-movflags" << "+faststart";
+            plan.muxerArguments = {"-movflags", "+faststart"};
         }
-    args << output;
+    plan.outputPath = output;
+    plan.outputSize = QSize(width, height);
+    plan.fpsNum = first.fpsNum;
+    plan.fpsDen = first.fpsDen;
+    plan.arguments = plan.ffmpegArguments();
+    return plan;
+}
+
+QStringList VideoJoin::encodeArguments(const QVector<Part> &parts, const QString &output, const VideoEncoder &encoder,
+                                       const ExportSettings &settings)
+{
+    QStringList args = encodePlan(parts, output, encoder, settings).ffmpegArguments();
+    // after "-hide_banner -loglevel error"
+    args.insert(3, "-nostats");
+    args.insert(4, "-progress");
+    args.insert(5, "pipe:1");
     return args;
 }
 

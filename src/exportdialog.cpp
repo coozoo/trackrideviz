@@ -577,15 +577,15 @@ void ExportDialog::startProbing()
         probeWatcher->deleteLater();
         onProbed(result.ok, result.info, result.error);
     });
-    probeWatcher->setFuture(QtConcurrent::run([ffprobe, video]()
+    // the engine of the settings, or the other one when it cannot read the video or export here
+    const bool preferOwn = AppSettings::ownVideoEngine();
+    probeWatcher->setFuture(QtConcurrent::run([ffprobe, video, preferOwn]()
     {
         ProbeResult result;
-        result.ok = MediaProbe::probe(ffprobe, video, &result.info, &result.error);
+        result.ok = MediaProbe::probe(ffprobe, video, &result.info, &result.error, preferOwn);
         return result;
     }));
 
-    // the engine of the settings, or the other one when it cannot export here
-    const bool preferOwn = AppSettings::ownVideoEngine();
     const QString key = (preferOwn ? QStringLiteral("own|") : QStringLiteral("program|")) + m_ffmpeg;
     if (encoderCache().contains(key))
         {

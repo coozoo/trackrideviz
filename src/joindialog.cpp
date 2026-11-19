@@ -4,6 +4,7 @@
 #include "video/ffmpegtools.h"
 #include "settings/appsettings.h"
 #include "video/videojoin.h"
+#include "video/videojoinjob.h"
 
 #include <QDialogButtonBox>
 #include <QFile>
@@ -16,7 +17,6 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMessageBox>
-#include <QProcess>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QTemporaryDir>
@@ -109,28 +109,16 @@ JoinDialog::JoinDialog(const QStringList &paths, QWidget *parent)
 
 JoinDialog::~JoinDialog()
 {
-    if (m_process && m_process->state() != QProcess::NotRunning)
-        {
-            // its end is not news for a dialog going away
-            m_process->disconnect(this);
-            m_process->kill();
-            m_process->waitForFinished(3000);
-            QFile::remove(m_outputPath);
-        }
+    // a join still running stops and leaves no file behind
+    delete m_job;
     delete m_listDir;
 }
 
 void JoinDialog::reject()
 {
-    if (m_process && m_process->state() != QProcess::NotRunning)
+    if (m_job)
         {
-            // its end is not news for a dialog going away
-            m_process->disconnect(this);
-            m_process->kill();
-            m_process->waitForFinished(3000);
-            m_process->deleteLater();
-            m_process = nullptr;
-            QFile::remove(m_outputPath);
+            m_job->cancel();
         }
     QDialog::reject();
 }
@@ -272,6 +260,7 @@ void JoinDialog::join()
     setBusy(true);
     m_status->setText(tr("Reading the videos..."));
     const QString ffprobe = FfmpegTools::ffprobeProgram();
+    const bool preferOwn = AppSettings::ownVideoEngine();
     auto *watcher = new QFutureWatcher<Probed>(this);
     connect(watcher, &QFutureWatcher<Probed>::finished, this, [this, watcher]()
     {
@@ -284,6 +273,11 @@ void JoinDialog::join()
                 return;
             }
         m_shifts = VideoJoin::shifts(probed.parts);
+        m_joinedLength = 0.0;
+        for (const VideoJoin::Part &part : probed.parts)
+            {
+                m_joinedLength += part.info.duration;
+            }
         const QString why = VideoJoin::whyNot(probed.parts);
         if (why.isEmpty())
             {
@@ -294,14 +288,14 @@ void JoinDialog::join()
                 encodeParts(probed.parts, why);
             }
     });
-    watcher->setFuture(QtConcurrent::run([ffprobe, files]()
+    watcher->setFuture(QtConcurrent::run([ffprobe, files, preferOwn]()
     {
         Probed probed;
         for (const QString &path : files)
             {
                 VideoJoin::Part part{path, MediaInfo()};
                 QString error;
-                if (!MediaProbe::probe(ffprobe, path, &part.info, &error))
+                if (!MediaProbe::probe(ffprobe, path, &part.info, &error, preferOwn))
                     {
                         probed.error = QString("%1: %2").arg(QFileInfo(path).fileName(), error);
                         break;
@@ -326,8 +320,7 @@ void JoinDialog::copyParts(const QVector<VideoJoin::Part> &parts)
         }
     file.close();
     m_status->setText(tr("Joining..."));
-    m_progress->setRange(0, 0);
-    startFfmpeg(VideoJoin::arguments(list, m_outputPath, VideoJoin::keepsCameraData(parts, m_outputPath)), false);
+    newJob()->startCopy(list, m_outputPath, VideoJoin::keepsCameraData(parts, m_outputPath));
 }
 
 void JoinDialog::encodeParts(const QVector<VideoJoin::Part> &parts, const QString &why)
@@ -354,58 +347,32 @@ void JoinDialog::encodeParts(const QVector<VideoJoin::Part> &parts, const QStrin
         {
             settings.bitrateKbps = first.bitrateKbps;
         }
-    m_encodedLength = 0.0;
-    for (const VideoJoin::Part &part : parts)
-        {
-            m_encodedLength += part.info.duration;
-        }
     m_status->setText(tr("Encoding..."));
+    newJob()->startEncode(parts, m_outputPath, VideoEncoders::byId(settings.encoder), settings);
+}
+
+VideoJoinJob *JoinDialog::newJob()
+{
+    delete m_job;
+    m_job = new VideoJoinJob(AppSettings::ownVideoEngine() ? ExportJob::OwnEngine : ExportJob::ProgramEngine, this);
     m_progress->setRange(0, 1000);
     m_progress->setValue(0);
-    startFfmpeg(VideoJoin::encodeArguments(parts, m_outputPath, VideoEncoders::byId(settings.encoder), settings), true);
-}
-
-void JoinDialog::startFfmpeg(const QStringList &arguments, bool showProgress)
-{
-    m_process = new QProcess(this);
-    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &JoinDialog::onJoined);
-    if (showProgress)
-        {
-            connect(m_process, &QProcess::readyReadStandardOutput, this, [this]()
-            {
-                const double done = VideoJoin::progressSeconds(m_process->readAllStandardOutput());
-                if (done >= 0.0 && m_encodedLength > 0.0)
-                    {
-                        m_progress->setValue(int(std::clamp(done / m_encodedLength, 0.0, 1.0) * 1000.0));
-                    }
-            });
-        }
-    connect(m_process, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error)
+    connect(m_job, &VideoJoinJob::progress, this, [this](double seconds)
     {
-        if (error == QProcess::FailedToStart)
+        if (m_joinedLength > 0.0)
             {
-                m_status->setText(tr("ffmpeg could not be started; its location can be set in the settings."));
-                setBusy(false);
-                // no finished() follows a process that never ran: let it go now
-                m_process->deleteLater();
-                m_process = nullptr;
+                m_progress->setValue(int(std::clamp(seconds / m_joinedLength, 0.0, 1.0) * 1000.0));
             }
     });
-    m_process->start(FfmpegTools::ffmpegProgram(), arguments);
-}
-
-void JoinDialog::onJoined()
-{
-    const bool ok = m_process->exitStatus() == QProcess::NormalExit && m_process->exitCode() == 0;
-    const QString errors = QString::fromLocal8Bit(m_process->readAllStandardError()).trimmed();
-    m_process->deleteLater();
-    m_process = nullptr;
-    if (!ok)
-        {
-            QFile::remove(m_outputPath);
-            m_status->setText(tr("Joining failed: %1").arg(errors.right(600)));
-            setBusy(false);
-            return;
-        }
-    accept();
+    connect(m_job, &VideoJoinJob::finished, this, [this](bool ok, const QString &error)
+    {
+        if (!ok)
+            {
+                m_status->setText(tr("Joining failed: %1").arg(error));
+                setBusy(false);
+                return;
+            }
+        accept();
+    });
+    return m_job;
 }
