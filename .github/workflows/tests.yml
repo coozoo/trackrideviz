@@ -38,7 +38,9 @@ jobs:
             qt6-tools-dev-tools \
             qt6-l10n-tools \
             libgl1-mesa-dev \
-            ffmpeg
+            ffmpeg \
+            pkg-config \
+            libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswresample-dev
 
       # Only the Makefile with the check target: the program itself is compiled by the release
       # workflow, and check builds the core and the tests on their own
