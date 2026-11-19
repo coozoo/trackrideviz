@@ -400,8 +400,18 @@ encoders, preferred by the Small file profile; volumes up to 200 %, held under f
 the automatic end of a fixed dial following the highest value held for a second, not a GPS spike.
 
 ## M7 - Polish and distribution
-- Export backend B (in-process libav) if/when needed (an export queue dropped: several projects are exported one
-  after another by the command line)
+- ✅ The program's own video engine (2026-11-19, `Libav`, `LibavExport`, version 0.04): FFmpeg's libraries (6.1 or
+  later) linked in when present (`src/core/libav.pri`). The export plan is kept in parts (inputs, filter graph,
+  sound, options) and the ffmpeg command line is made of them; LibavExport runs the same parts in-process - same
+  filter graph (set up in steps, so VA-API's upload filter gets its device), same encoders and options, the gauges
+  handed over as pictures, copied or encoded sound, a stop that keeps a playable file with sound of the same length.
+  Videos are read through it (ffprobe only as a fallback); encoders are found through it (hardware ones by a test
+  encode). Settings > Export > Video engine: built in (default) or the ffmpeg program; the other is used when the
+  chosen one has no encoder; `--engine` on the command line; the export window names the engine. Checked: every
+  export test runs on both engines; x264 output bit-identical to ffmpeg's; VA-API and Quick Sync encode. CI builds it
+  everywhere: FFmpeg 8.1.2 built for the AppImage, MSYS2's on Windows, Homebrew's on macOS, ffmpeg-free on Fedora;
+  the Ubuntu 22.04 .deb stays on the ffmpeg program. Still through the ffmpeg program: joining videos, the music's
+  lengths (ffprobe). An export queue was dropped: several projects are exported one after another by the command line
 - ✅ Command line (2026-11-17, `CommandLine`, `ProjectData`): --render a project, or a video, data and a template
   (synced by the clocks or --offset); --profile, --encoder / --hardware / --software and each choice of the export
   dialog by hand; --gauges-only; --list-encoders, --list-profiles, --list-templates; progress in a terminal, a line

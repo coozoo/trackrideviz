@@ -19,6 +19,7 @@ const char kSaveWindowLayout[] = "appearance/saveWindowLayout";
 const char kHardwareDecoding[] = "preview/hardwareDecoding";
 const char kPreferredDecoder[] = "preview/preferredDecoder";
 const char kFfmpegPath[] = "export/ffmpegPath";
+const char kVideoEngine[] = "export/engine";   // "own" or "program"
 const char kExportFolder[] = "export/folder";
 const char kMapDownloads[] = "maps/downloads";
 const char kMapTileUrl[] = "maps/tileUrl";
@@ -280,6 +281,16 @@ QByteArray AppSettings::decodingDeviceTypes(bool hardwareDecoding, Decoder prefe
             order.prepend(first);
         }
     return order.join(',');
+}
+
+bool AppSettings::ownVideoEngine()
+{
+    return QSettings().value(kVideoEngine, "own").toString() != QLatin1String("program");
+}
+
+void AppSettings::setOwnVideoEngine(bool own)
+{
+    QSettings().setValue(kVideoEngine, own ? "own" : "program");
 }
 
 QString AppSettings::ffmpegPath()

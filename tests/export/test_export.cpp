@@ -25,7 +25,16 @@ class TestExport : public QObject
 {
     Q_OBJECT
 
+public:
+    // The whole suite runs once for each engine (see main): what one export makes, the other must
+    explicit TestExport(ExportJob::Engine engine)
+        : m_engine(engine)
+    {
+    }
+
 private:
+    const ExportJob::Engine m_engine;
+
     // Tests that let an export run for a while before stopping it are left
     // out unless asked for: together they take a minute.
     static bool slowTests() { return qEnvironmentVariableIntValue("RTV_SLOW_TESTS") != 0; }
@@ -937,6 +946,28 @@ private slots:
         QVERIFY(VideoEncoders::detect("/no/such/ffmpeg").isEmpty());
     }
 
+    void detectOwnFindsTheLibrariesEncoders()
+    {
+        if (m_engine != ExportJob::OwnEngine)
+            {
+                QSKIP("about the program's own engine");
+            }
+        const QVector<VideoEncoder> own = VideoEncoders::detectOwn();
+        QStringList ids;
+        for (const VideoEncoder &encoder : own)
+            ids << encoder.id;
+        // what the libraries were built with; the graphics card's only when it really encodes
+        QVERIFY2(!own.isEmpty(), "no encoder at all");
+        for (const VideoEncoder &encoder : VideoEncoders::known())
+            {
+                if (!encoder.hardware)
+                    QCOMPARE(ids.contains(encoder.id), Libav::hasEncoder(encoder.id));
+            }
+        QVERIFY(!Libav::hasEncoder("no_such_encoder"));
+        QVERIFY(!Libav::encoderWorks("no_such_encoder", {}));
+        qInfo() << "encoders of the program's own engine:" << ids.join(' ');
+    }
+
     void exportDrawsTheGaugeAndKeepsTheSound()
     {
         if (m_sourceVideo.isEmpty())
@@ -950,7 +981,7 @@ private slots:
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay);
         QCOMPARE(plan.overlayRect, QRect(160, 120, 60, 60));
 
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         QSignalSpy progress(&job, &ExportJob::progress);
         job.start();
@@ -997,7 +1028,7 @@ private slots:
         const QString output = m_dir.filePath("two-corners.mp4");
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay);
         QCOMPARE(plan.regions.size(), 2);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1035,7 +1066,7 @@ private slots:
         ExportSettings settings = settingsFor(output);
         settings.picture = ExportSettings::GaugesOnly;
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1111,7 +1142,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
 
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1192,7 +1223,7 @@ private slots:
         const QString output = m_dir.filePath("cut.mp4");
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay, {{0.5, 1.2}});
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1240,7 +1271,7 @@ private slots:
                         settings.audio = ExportSettings::OpusAudio;
                     }
                 const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay, {{0.5, 0.8}}, soundtrack);
-                ExportJob job("ffmpeg", plan, overlay, 0.0);
+                ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
                 QSignalSpy finished(&job, &ExportJob::finished);
                 job.start();
                 QVERIFY(finished.wait(60000));
@@ -1411,7 +1442,7 @@ private slots:
         const Overlay overlay = oneGauge();
         // a source that is not there: ffmpeg starts and gives up
         const ExportPlan plan = ExportPlan::make(m_dir.filePath("missing.mp4"), info, settingsFor(output), overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1423,6 +1454,10 @@ private slots:
 
     void missingFfmpegIsAFailureNotAHang()
     {
+        if (m_engine == ExportJob::OwnEngine)
+            {
+                QSKIP("about the ffmpeg program");
+            }
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor(m_dir.filePath("x.mp4")), overlay);
         ExportJob job("/no/such/dir/ffmpeg", plan, overlay, 0.0);
@@ -1444,7 +1479,7 @@ private slots:
             }
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(source, info, settings, overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         QSignalSpy progress(&job, &ExportJob::progress);
         job.start();
@@ -1532,7 +1567,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const QString output = m_dir.filePath("never.mp4");
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor(output), overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.stop();
         QCOMPARE(finished.count(), 1);
@@ -1558,7 +1593,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(source, info, settingsFor(output), overlay);
         {
-            ExportJob job("ffmpeg", plan, overlay, 0.0);
+            ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
             QSignalSpy progress(&job, &ExportJob::progress);
             job.start();
             QVERIFY(progress.wait(30000));
@@ -1567,5 +1602,18 @@ private slots:
     }
 };
 
-QTEST_MAIN(TestExport)
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
+    QTEST_SET_MAIN_SOURCE_PATH
+    TestExport program(ExportJob::ProgramEngine);
+    int failed = QTest::qExec(&program, argc, argv);
+    if (Libav::available())
+        {
+            TestExport own(ExportJob::OwnEngine);
+            failed += QTest::qExec(&own, argc, argv);
+        }
+    return failed;
+}
+
 #include "test_export.moc"

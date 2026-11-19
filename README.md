@@ -112,6 +112,7 @@ trackrideviz --render ride.rtvproj -o ride.mp4 --profile youtube --hardware
 trackrideviz --render --video GX010042.MP4 --data ride.fit --template "Track day"
 trackrideviz --render ride.rtvproj --gauges-only -o gauges.mov
 trackrideviz --list-encoders                             # what this computer can encode with
+trackrideviz --render ride.rtvproj --engine ffmpeg         # with the ffmpeg program, not the built-in engine
 trackrideviz --help                                      # everything else
 ```
 

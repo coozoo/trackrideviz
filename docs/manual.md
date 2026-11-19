@@ -32,9 +32,13 @@ and exported as a new video.
 See [Installation in the README](../README.md#installation): the AppImage, the .deb, Fedora's
 Copr, the Ubuntu PPA, the Windows installer or zip, and the macOS app.
 
-Export needs **ffmpeg** (with ffprobe). The Windows packages bring their own; the Linux packages
+The program reads and exports videos with **its own video engine**, FFmpeg's libraries built in
+(the AppImage, Windows, macOS and Fedora packages have it). It can also export with the **ffmpeg
+program** instead (Settings > Export > Video engine), and does so when built without the engine
+(the .deb for Ubuntu 22.04). The Windows packages bring the ffmpeg program too; the Linux packages
 pull it in; on macOS it comes from Homebrew (`brew install ffmpeg`) or MacPorts, and the program
-finds it in `/opt/homebrew/bin`, `/usr/local/bin` or `/opt/local/bin` by itself. Its location can be set in
+finds it in `/opt/homebrew/bin`, `/usr/local/bin` or `/opt/local/bin` by itself. Joining videos
+still uses the ffmpeg program. Its location can be set in
 Settings > Export when it is somewhere else.
 
 ## 2. The window
@@ -243,6 +247,8 @@ preview and mixed into the export.
   (ProRes 4444 or VP9 WebM) to lay over the video in another editor.
 - **Profile**: YouTube upload, small file (HEVC or AV1 with Opus in MKV), like the video, or one
   you saved (**Save as...**).
+- **Engine**: which one runs the export - built in, or the ffmpeg program (chosen in
+  Settings > Export; the other one is used when the chosen one has no encoder that works).
 - **Encoder**: only those that work on this computer are listed - graphics card (VA-API, NVIDIA,
   AMD, Quick Sync, VideoToolbox) or processor.
 - **Quality**: a bitrate (with the expected file size) or a constant quality; **Speed**; **Size**.
@@ -296,7 +302,8 @@ Where the program keeps things (`trackrideviz` is the program's name):
 - **Appearance**: style, light or dark, language, window layout.
 - **Preview**: decoding on the graphics card, the decoder.
 - **Units**: speed, length, temperature.
-- **Export**: the ffmpeg program, the folder for exported videos.
+- **Export**: the video engine (built in or the ffmpeg program), where the ffmpeg program is, the
+  folder for exported videos.
 - **Maps**: the map, the keys of map services, your own server, downloads on or off, the credit,
   stored tiles.
 - **Bike**: chainrings, sprockets and wheel, for gears worked out from speed and cadence.
@@ -322,6 +329,7 @@ trackrideviz --help                                      # every option
 
 - A project is exported as it was saved. Without one, the video and the data are put in step by
   their clocks, or by `--offset`.
+- `--engine builtin` or `--engine ffmpeg` picks the engine (otherwise as in the settings).
 - The profile and the kind of encoder are those the export dialog used last unless `--profile`,
   `--encoder`, `--hardware` or `--software` say otherwise; `--bitrate`, `--quality`, `--speed`,
   `--height`, `--audio`, `--audio-bitrate`, `--from` and `--to` set each choice by hand.
@@ -407,8 +415,9 @@ More from a part of Qt, with `QT_LOGGING_RULES` set before starting:
 
 - Lines with `[warning]`, `[critical]` or `[fatal]` are where to start; `[debug]` and `[info]`
   are background.
-- **Export fails**: the message ends with what ffmpeg itself reported (its last lines); the
-  command line prints the same, and `--verbose` adds Qt's own messages. "Unknown encoder" or "Error while
+- **Export fails**: the message ends with what ffmpeg or the built-in engine reported; the command
+  line prints the same, and `--verbose` adds Qt's and the engine's own messages (`rtv.libav:` lines).
+  Trying the other engine (Settings > Export, or `--engine`) tells whether it is the engine's doing. "Unknown encoder" or "Error while
   opening encoder" points at the encoder: try `--software` or another encoder in the dialog.
 - **No encoders listed / export does nothing**: ffmpeg was not found or does not run. Check
   `ffmpeg -version` in a terminal (Windows: the `ffmpeg` folder next to the program), or set its
