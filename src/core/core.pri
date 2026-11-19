@@ -5,6 +5,7 @@
 
 QT += svg network
 INCLUDEPATH += $$PWD
+include($$PWD/libav.pri)
 
 # A debug build run from its build folder finds the gauges and templates of
 # the source tree (see BundledData). Release builds look only where packages
@@ -69,6 +70,7 @@ SOURCES += \
     $$PWD/video/exportplan.cpp \
     $$PWD/video/exportprofile.cpp \
     $$PWD/video/ffmpegtools.cpp \
+    $$PWD/video/libav.cpp \
     $$PWD/video/mediainfo.cpp \
     $$PWD/video/soundtrack.cpp \
     $$PWD/video/videoencoders.cpp \
@@ -136,6 +138,7 @@ HEADERS += \
     $$PWD/video/exportprofile.h \
     $$PWD/video/exportsettings.h \
     $$PWD/video/ffmpegtools.h \
+    $$PWD/video/libav.h \
     $$PWD/video/mediainfo.h \
     $$PWD/video/soundtrack.h \
     $$PWD/video/videoencoders.h \
