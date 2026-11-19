@@ -37,6 +37,19 @@ public:
     // ffmpeg says nothing about the graphics card. Takes about a second;
     // call from a worker thread.
     static QVector<VideoEncoder> detect(const QString &ffmpegProgram);
+    // The same for the program's own engine: those in FFmpeg's libraries linked in, a
+    // hardware one only if a test encode with it succeeds. Empty without the libraries.
+    static QVector<VideoEncoder> detectOwn();
+
+    // The engine an export runs on and its encoders: the program's own when `preferOwn` and it
+    // is built in, else the ffmpeg program; the other one when the chosen one has none (ffmpeg
+    // not installed, or a build without the libraries). Blocking; call from a worker thread.
+    struct ForEngine
+    {
+        bool own{false};
+        QVector<VideoEncoder> encoders;
+    };
+    static ForEngine detectFor(bool preferOwn, const QString &ffmpegProgram);
 
     // "-c:v ..." with rate control and speed for these settings.
     static QStringList arguments(const VideoEncoder &encoder, const ExportSettings &settings);

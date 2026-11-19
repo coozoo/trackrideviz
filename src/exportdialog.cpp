@@ -2,6 +2,7 @@
 
 #include "icons.h"
 #include "settings/appsettings.h"
+#include "video/libav.h"
 #include "video/exportplan.h"
 #include "video/ffmpegtools.h"
 
@@ -41,10 +42,11 @@ struct ProbeResult
 };
 
 // Testing the hardware encoders takes about a second and the answer does not
-// change while the program runs, so it is asked once per ffmpeg program.
-QHash<QString, QVector<VideoEncoder>> &encoderCache()
+// change while the program runs, so it is asked once per engine and ffmpeg program.
+// by engine and ffmpeg program: "own" or the program's path
+QHash<QString, VideoEncoders::ForEngine> &encoderCache()
 {
-    static QHash<QString, QVector<VideoEncoder>> cache;
+    static QHash<QString, VideoEncoders::ForEngine> cache;
     return cache;
 }
 
@@ -238,6 +240,10 @@ void ExportDialog::createWidgets()
     form->addRow(tr("Profile:"), profileRow);
     form->addRow(tr("Save as:"), outputRow);
     form->addRow(tr("Encoder:"), m_encoderCombo);
+    // which engine runs it: the program's own or the ffmpeg program (Settings > Export)
+    m_engineLabel = new QLabel(tr("Looking for encoders..."), m_options);
+    m_engineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    form->addRow(tr("Engine:"), m_engineLabel);
     form->addRow(tr("Quality:"), rateRow);
     form->addRow(tr("Speed:"), m_speedCombo);
     form->addRow(tr("Size:"), m_sizeCombo);
@@ -578,26 +584,32 @@ void ExportDialog::startProbing()
         return result;
     }));
 
-    if (encoderCache().contains(m_ffmpeg))
+    // the engine of the settings, or the other one when it cannot export here
+    const bool preferOwn = AppSettings::ownVideoEngine();
+    const QString key = (preferOwn ? QStringLiteral("own|") : QStringLiteral("program|")) + m_ffmpeg;
+    if (encoderCache().contains(key))
         {
-            onEncodersDetected(encoderCache().value(m_ffmpeg));
+            const VideoEncoders::ForEngine known = encoderCache().value(key);
+            m_ownEngine = known.own;
+            onEncodersDetected(known.encoders);
             return;
         }
     const QString ffmpeg = m_ffmpeg;
-    auto *encoderWatcher = new QFutureWatcher<QVector<VideoEncoder>>(this);
-    connect(encoderWatcher, &QFutureWatcher<QVector<VideoEncoder>>::finished, this, [this, encoderWatcher, ffmpeg]()
+    auto *encoderWatcher = new QFutureWatcher<VideoEncoders::ForEngine>(this);
+    connect(encoderWatcher, &QFutureWatcher<VideoEncoders::ForEngine>::finished, this, [this, encoderWatcher, key]()
     {
-        const QVector<VideoEncoder> encoders = encoderWatcher->result();
+        const VideoEncoders::ForEngine found = encoderWatcher->result();
         encoderWatcher->deleteLater();
-        if (!encoders.isEmpty())
+        if (!found.encoders.isEmpty())
             {
-                encoderCache().insert(ffmpeg, encoders);
+                encoderCache().insert(key, found);
             }
-        onEncodersDetected(encoders);
+        m_ownEngine = found.own;
+        onEncodersDetected(found.encoders);
     });
-    encoderWatcher->setFuture(QtConcurrent::run([ffmpeg]()
+    encoderWatcher->setFuture(QtConcurrent::run([preferOwn, ffmpeg]()
     {
-        return VideoEncoders::detect(ffmpeg);
+        return VideoEncoders::detectFor(preferOwn, ffmpeg);
     }));
 }
 
@@ -649,9 +661,11 @@ void ExportDialog::onEncodersDetected(const QVector<VideoEncoder> &encoders)
     m_encodersKnown = !encoders.isEmpty();
     m_encoders = encoders;
     m_encoderCombo->clear();
+    m_engineLabel->setText(m_ownEngine ? tr("Built in: %1").arg(Libav::version()) : tr("ffmpeg program: %1").arg(m_ffmpeg));
     if (encoders.isEmpty())
         {
             m_encoderCombo->addItem(tr("None found"));
+            m_engineLabel->setText(tr("None"));
             m_statusLabel->setText(tr("ffmpeg could not be run (%1). Install it, or set its location in the settings.")
                                    .arg(m_ffmpeg));
             updateReadiness();
@@ -829,7 +843,8 @@ void ExportDialog::startExport()
             AppSettings::setExportDefaults(settings);
             AppSettings::setExportProfile(m_profileCombo->currentData().toString());
         }
-    ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync);
+    ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync, nullptr,
+                                   m_ownEngine ? ExportJob::OwnEngine : ExportJob::ProgramEngine);
     m_thread = new QThread(this);
     job->moveToThread(m_thread);
     connect(m_thread, &QThread::started, job, &ExportJob::start);

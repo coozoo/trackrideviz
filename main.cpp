@@ -5,6 +5,7 @@
 #include "gstreamerworkaround.h"
 #include "mainwindow.h"
 #include "settings/appsettings.h"
+#include "video/libav.h"
 
 #include <QApplication>
 #include <QDir>
@@ -37,6 +38,8 @@ int main(int argc, char *argv[])
     a.setApplicationDisplayName("Race Track Visualizer");
     a.setApplicationVersion(APP_VERSION);
     a.setOrganizationName("trackrideviz");
+    // the video engine's messages into the program's log, before anything opens the graphics card
+    Libav::quiet();
 #ifdef Q_OS_WIN
     // ffmpeg.exe and ffprobe.exe are in ffmpeg\ beside the program, with the Vulkan loader only
     // they need (their filters import it; Windows without a graphics driver has none). The rest

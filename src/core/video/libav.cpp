@@ -1,10 +1,12 @@
 #include "libav.h"
 
 #include <QDir>
+#include <QLoggingCategory>
 #include <QFile>
 
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 
 #ifdef RTV_LIBAV
 extern "C" {
@@ -13,6 +15,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/display.h>
 #include <libavutil/ffversion.h>
+#include <libavutil/hwcontext.h>
 }
 
 // the oldest the program is written for: FFmpeg 6.1 (stream side data in the codec parameters)
@@ -20,12 +23,37 @@ static_assert(LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(60, 16, 100), "FFmpeg 6.
 
 namespace
 {
-// Only what goes wrong, and that through Qt's messages rather than the console alone.
+Q_LOGGING_CATEGORY(libavLog, "rtv.libav")
+
+// The libraries' messages as the program's own (the Diagnostics panel, the command line with
+// --verbose), not straight onto the terminal: trying encoders that are not there is loud.
+void toQt(void *source, int level, const char *format, va_list arguments)
+{
+    if (level > av_log_get_level())
+        {
+            return;
+        }
+    char line[1024];
+    int prefix = 1;
+    av_log_format_line2(source, level, format, arguments, line, sizeof(line), &prefix);
+    const QString text = QString::fromUtf8(line).trimmed();
+    if (!text.isEmpty())
+        {
+            qCInfo(libavLog).noquote() << text;
+        }
+}
+
 void quietLibraries()
 {
     static const bool done = []()
     {
         av_log_set_level(AV_LOG_ERROR);
+        av_log_set_callback(toQt);
+        // libva writes its own lines about every device it opens; errors only
+        if (!qEnvironmentVariableIsSet("LIBVA_MESSAGING_LEVEL"))
+            {
+                qputenv("LIBVA_MESSAGING_LEVEL", "1");
+            }
         return true;
     }();
     Q_UNUSED(done);
@@ -56,6 +84,13 @@ QString metadata(const AVDictionary *dictionary, const char *key)
 }
 }
 #endif
+
+void Libav::quiet()
+{
+#ifdef RTV_LIBAV
+    quietLibraries();
+#endif
+}
 
 bool Libav::available()
 {
@@ -94,7 +129,8 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
 #ifdef RTV_LIBAV
     quietLibraries();
     AVFormatContext *format = nullptr;
-    const int opened = avformat_open_input(&format, QFile::encodeName(videoPath).constData(), nullptr, nullptr);
+    // the libraries take file names in UTF-8 everywhere (Windows included)
+    const int opened = avformat_open_input(&format, videoPath.toUtf8().constData(), nullptr, nullptr);
     if (opened < 0)
         {
             return fail(MediaProbe::tr("The video cannot be read (%1): %2")
@@ -183,5 +219,114 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
     Q_UNUSED(videoPath);
     Q_UNUSED(info);
     return fail(QString());
+#endif
+}
+
+bool Libav::hasEncoder(const QString &id)
+{
+#ifdef RTV_LIBAV
+    return avcodec_find_encoder_by_name(id.toUtf8().constData()) != nullptr;
+#else
+    Q_UNUSED(id);
+    return false;
+#endif
+}
+
+bool Libav::encoderWorks(const QString &id, const QStringList &options, const QString &vaapiDevice)
+{
+#ifdef RTV_LIBAV
+    quietLibraries();
+    const AVCodec *codec = avcodec_find_encoder_by_name(id.toUtf8().constData());
+    if (!codec)
+        {
+            return false;
+        }
+    const int width = 320;
+    const int height = 240;
+    AVCodecContext *encoder = avcodec_alloc_context3(codec);
+    AVBufferRef *device = nullptr;
+    AVBufferRef *frames = nullptr;
+    AVFrame *picture = av_frame_alloc();
+    AVFrame *uploaded = nullptr;
+    AVPacket *packet = av_packet_alloc();
+    AVDictionary *settings = nullptr;
+    bool works = false;
+    encoder->width = width;
+    encoder->height = height;
+    encoder->time_base = AVRational{1, 30};
+    encoder->framerate = AVRational{30, 1};
+    // what the export's graph gives graphics cards (see VideoEncoders::outputFilter)
+    encoder->pix_fmt = AV_PIX_FMT_NV12;
+    for (int i = 0; i + 1 < options.size(); i += 2)
+        {
+            QString name = options.at(i).mid(1);
+            name.truncate(name.indexOf(':') >= 0 ? name.indexOf(':') : name.size());
+            av_dict_set(&settings, name.toUtf8().constData(), options.at(i + 1).toUtf8().constData(), 0);
+        }
+    picture->format = AV_PIX_FMT_NV12;
+    picture->width = width;
+    picture->height = height;
+    bool ready = av_frame_get_buffer(picture, 0) >= 0;
+    if (ready)
+        {
+            // black
+            memset(picture->data[0], 16, size_t(picture->linesize[0]) * height);
+            memset(picture->data[1], 128, size_t(picture->linesize[1]) * height / 2);
+        }
+    if (ready && !vaapiDevice.isEmpty())
+        {
+            ready = av_hwdevice_ctx_create(&device, AV_HWDEVICE_TYPE_VAAPI, vaapiDevice.toUtf8().constData(), nullptr, 0) >= 0;
+            if (ready)
+                {
+                    frames = av_hwframe_ctx_alloc(device);
+                    auto *context = reinterpret_cast<AVHWFramesContext *>(frames->data);
+                    context->format = AV_PIX_FMT_VAAPI;
+                    context->sw_format = AV_PIX_FMT_NV12;
+                    context->width = width;
+                    context->height = height;
+                    context->initial_pool_size = 4;
+                    ready = av_hwframe_ctx_init(frames) >= 0;
+                }
+            if (ready)
+                {
+                    encoder->pix_fmt = AV_PIX_FMT_VAAPI;
+                    encoder->hw_frames_ctx = av_buffer_ref(frames);
+                    uploaded = av_frame_alloc();
+                    ready = av_hwframe_get_buffer(frames, uploaded, 0) >= 0
+                            && av_hwframe_transfer_data(uploaded, picture, 0) >= 0;
+                }
+        }
+    if (ready && avcodec_open2(encoder, codec, &settings) >= 0)
+        {
+            // a few pictures and the end: some encoders give their first packet only then
+            AVFrame *sent = uploaded ? uploaded : picture;
+            bool fed = true;
+            for (int i = 0; i < 3 && fed; ++i)
+                {
+                    sent->pts = i;
+                    fed = avcodec_send_frame(encoder, sent) >= 0;
+                }
+            if (fed && avcodec_send_frame(encoder, nullptr) >= 0)
+                {
+                    while (avcodec_receive_packet(encoder, packet) >= 0)
+                        {
+                            works = true;
+                            av_packet_unref(packet);
+                        }
+                }
+        }
+    av_dict_free(&settings);
+    av_packet_free(&packet);
+    av_frame_free(&uploaded);
+    av_frame_free(&picture);
+    avcodec_free_context(&encoder);
+    av_buffer_unref(&frames);
+    av_buffer_unref(&device);
+    return works;
+#else
+    Q_UNUSED(id);
+    Q_UNUSED(options);
+    Q_UNUSED(vaapiDevice);
+    return false;
 #endif
 }
