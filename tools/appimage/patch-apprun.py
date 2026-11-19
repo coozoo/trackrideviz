@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Adds what the bundled Qt and GStreamer need to the AppRun go-appimage writes.
+"""Adds what the bundled Qt and GStreamer need to the AppRun go-appimage writes, and the
+system's graphics driver loaders before the bundled ones.
 
     python3 tools/appimage/patch-apprun.py appdir/AppRun
 
@@ -37,6 +38,14 @@ export LADSPA_PATH=
 export LV2_PATH=
 export FREI0R_PATH=
 
+# The loaders of the graphics card's drivers (libva for VA-API, VDPAU, OpenCL, Intel's
+# Media SDK) only work with the drivers of their own version: the system's are used, and
+# those of the build machine (in graphics-fallback, out of the program's way) only on a
+# system that has none, so that the program still starts there, without the graphics card.
+if ! { /sbin/ldconfig -p 2>/dev/null || ldconfig -p 2>/dev/null; } | grep -q 'libva\\.so\\.2 ' ; then
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${HERE}/usr/lib/graphics-fallback"
+fi
+
 """
 
 path = sys.argv[1]
@@ -49,4 +58,4 @@ if at is None or at == 0 or not lines[at - 1].startswith("####"):
 lines[at - 1:at - 1] = ADDED.split("\n")
 with open(path, "w", encoding="utf-8") as f:
     f.write("\n".join(lines))
-print(f"{path}: Qt and GStreamer settings added")
+print(f"{path}: Qt, GStreamer and graphics driver settings added")
