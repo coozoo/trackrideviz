@@ -23,6 +23,12 @@ BuildRequires: qt6-qtsvg-devel >= 6.2
 BuildRequires: zlib-devel
 BuildRequires: qt6-linguist >= 6.2
 BuildRequires: desktop-file-utils
+# FFmpeg's libraries: the program's own video engine (ffmpeg-free-devel on Fedora)
+BuildRequires: pkgconfig(libavformat)
+BuildRequires: pkgconfig(libavcodec)
+BuildRequires: pkgconfig(libavfilter)
+BuildRequires: pkgconfig(libavutil)
+BuildRequires: pkgconfig(libswresample)
 Requires:      desktop-file-utils
 # the programs, not a package name: Fedora's own ffmpeg-free has them, as RPM Fusion's ffmpeg
 # (with more encoders) does; "ffmpeg" alone exists only outside Fedora

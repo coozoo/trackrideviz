@@ -1,6 +1,7 @@
 #include "diagnostics.h"
 
 #include "icons.h"
+#include "video/libav.h"
 
 #include <QApplication>
 #include <QAudioDevice>
@@ -161,6 +162,9 @@ QString DiagnosticsPanel::environment()
                 }
         }
     lines << tr("Qt plugins: %1").arg(QLibraryInfo::path(QLibraryInfo::PluginsPath));
+    // whether this build has the video engine of its own, and which libraries it runs on
+    lines << (Libav::available() ? tr("Video engine: %1").arg(Libav::version())
+              : tr("Video engine: the ffmpeg program only (built without FFmpeg's libraries)"));
     // where sound can go: none found means silence, whatever the players say
     QStringList outputs;
     for (const QAudioDevice &device : QMediaDevices::audioOutputs())

@@ -125,6 +125,9 @@ playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools), zlib and a C++17 compiler.
+FFmpeg's libraries 6.1 or newer (libavformat, libavcodec, libavfilter, libavutil, libswresample, found
+through pkg-config) are optional: with them the program has its own video engine; `CONFIG+=no_libav`
+builds without them.
 `ffmpeg` (with `ffprobe`) is needed at run time for export and for the music's lengths; the Windows
 package comes with them. Otherwise the ones next to the program, then (on macOS) Homebrew's and MacPorts', then
 on the PATH, are used, and their location can be set in the settings.

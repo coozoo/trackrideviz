@@ -2,6 +2,8 @@
 # rtvcore/rtvcore.pro (first in tests.pro).
 
 QT += svg network
+# the core's libraries come along when it was built with them
+include($$PWD/../src/core/libav.pri)
 INCLUDEPATH += $$PWD/../src/core
 
 LIBS += -L$$OUT_PWD/../rtvcore -lrtvcore -lz

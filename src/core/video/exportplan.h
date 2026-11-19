@@ -10,8 +10,10 @@
 
 class Overlay;
 
-// Everything worked out before an export starts: the ffmpeg command line and
-// what the application has to feed into it.
+// Everything worked out before an export starts: what goes in, the filter graph that
+// puts it together, how it is encoded and stored, and what the application has to
+// feed into it. The ffmpeg command line is made from these parts; an engine of the
+// program's own (libav) runs the same parts in-process.
 //
 // ffmpeg reads and decodes the source video itself. The application sends
 // only the gauges, through ffmpeg's standard input: for every video frame one
@@ -21,7 +23,25 @@ class Overlay;
 // corners so cost two small regions, not the whole frame.
 struct ExportPlan
 {
-    QStringList arguments;      // for ffmpeg
+    // One input of the filter graph, numbered by its place: [0:v], [1:v], [2:a]...
+    struct Input
+    {
+        QStringList options;    // ffmpeg's, as they stand before its -i: "-ss", "12.000"
+        QString source;         // a file; Pipe for the gauges the application draws
+    };
+    static constexpr const char *Pipe = "pipe:0";
+
+    // The parts. Options are kept as ffmpeg writes them ("-b:v", "20000k"); libav knows
+    // them by the same names without the dash and the stream (b, crf, preset, movflags).
+    QStringList globalOptions;  // before the inputs: the graphics card to encode on
+    QVector<Input> inputs;
+    QString filterGraph;        // -filter_complex: ends in [v], and [a] when the sound is made anew
+    // The sound: "[a]" from the graph, "0:a?" the video's own as it is; empty: none.
+    QString audioMap;
+    QStringList audioOptions;   // "-c:a", "copy" / "aac", "-b:a", "192k"...
+    QStringList videoOptions;   // "-c:v", "libx264", "-b:v", "20000k"...
+
+    QStringList arguments;      // for ffmpeg: all of the above in its order
     QSize outputSize;
     // Parts of the output frame with gauges on them. None: nothing is drawn,
     // no pictures are expected and the video is simply re-encoded.
@@ -54,6 +74,9 @@ struct ExportPlan
     }
     // Length of `frames` pictures in seconds.
     double lengthOf(qint64 frames) const { return fpsNum > 0 ? double(frames) * fpsDen / fpsNum : 0.0; }
+
+    // The ffmpeg command line made of the parts (what `arguments` holds).
+    QStringList ffmpegArguments() const;
 
     // `cuts`: parts of the video left out (video time). `soundtrack`: music and volumes.
     static ExportPlan make(const QString &videoPath, const MediaInfo &info,

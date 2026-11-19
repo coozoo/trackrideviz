@@ -7,6 +7,7 @@
 #include "video/exportplan.h"
 #include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
+#include "video/libav.h"
 #include "video/mediainfo.h"
 #include "video/soundtrack.h"
 #include "video/videoencoders.h"
@@ -431,6 +432,30 @@ private slots:
         QVERIFY(!plan.arguments.contains("0:a?"));
     }
 
+    void planKeepsItsParts()
+    {
+        // what an engine of the program's own reads: the inputs in their order, the graph,
+        // where the sound comes from and the options of each part; ffmpeg's command is made of them
+        ExportSettings settings = settingsFor("out.mp4");
+        settings.start = 10.0;
+        settings.audio = ExportSettings::AacAudio;
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        QCOMPARE(plan.inputs.size(), 2);
+        QCOMPARE(plan.inputs.at(0).source, QString("in.mp4"));
+        QVERIFY(hasPair(plan.inputs.at(0).options, "-ss", "10.000"));
+        QCOMPARE(plan.inputs.at(1).source, QString(ExportPlan::Pipe));
+        QVERIFY(hasPair(plan.inputs.at(1).options, "-f", "rawvideo"));
+        QVERIFY(plan.filterGraph.startsWith("[0:v][1:v]overlay=") && plan.filterGraph.contains("[v]"));
+        QCOMPARE(plan.audioMap, QString("0:a?"));
+        QVERIFY(hasPair(plan.audioOptions, "-c:a", "aac"));
+        QVERIFY(hasPair(plan.videoOptions, "-c:v", "libx264"));
+        QCOMPARE(plan.arguments, plan.ffmpegArguments());
+        QCOMPARE(plan.arguments.last(), QString("out.mp4"));
+
+        settings.audio = ExportSettings::NoAudio;
+        QVERIFY(ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge()).audioMap.isEmpty());
+    }
+
     // --- music -------------------------------------------------------------
 
     void soundtrackTimes()
@@ -847,7 +872,51 @@ private slots:
         QVERIFY(info.hasAudio);
 
         QVERIFY(!MediaProbe::probe("ffprobe", m_dir.filePath("missing.mp4"), &info, &error));
-        QVERIFY(!MediaProbe::probe("/no/such/ffprobe", m_sourceVideo, &info, &error));
+        // without ffprobe the program's own libraries read it, when it has them
+        QCOMPARE(MediaProbe::probe("/no/such/ffprobe", m_sourceVideo, &info, &error), Libav::available());
+        QVERIFY(!MediaProbe::probeWithFfprobe("/no/such/ffprobe", m_sourceVideo, &info, &error));
+    }
+
+    void libavReadsAsFfprobeDoes()
+    {
+        if (!Libav::available())
+            {
+                QSKIP("built without FFmpeg's libraries");
+            }
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        QVERIFY(Libav::version().startsWith("FFmpeg "));
+        // the test video, and a copy that a phone held upright would make: turned by its display matrix
+        const QString rotated = m_dir.filePath("rotated.mp4");
+        QVERIFY(QProcess::execute("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-display_rotation", "90",
+                                             "-i", m_sourceVideo, "-c", "copy", rotated}) == 0);
+        for (const QString &path : {m_sourceVideo, rotated})
+            {
+                MediaInfo own;
+                MediaInfo theirs;
+                QString error;
+                QVERIFY2(Libav::probe(path, &own, &error), qPrintable(error));
+                QVERIFY2(MediaProbe::probeWithFfprobe("ffprobe", path, &theirs, &error), qPrintable(error));
+                QCOMPARE(own.size, theirs.size);
+                QCOMPARE(own.fpsNum, theirs.fpsNum);
+                QCOMPARE(own.fpsDen, theirs.fpsDen);
+                QVERIFY(qAbs(own.duration - theirs.duration) < 0.001);
+                QCOMPARE(own.frameCount, theirs.frameCount);
+                QCOMPARE(own.bitrateKbps, theirs.bitrateKbps);
+                QCOMPARE(own.videoCodec, theirs.videoCodec);
+                QCOMPARE(own.hasAudio, theirs.hasAudio);
+                QCOMPARE(own.audioCodec, theirs.audioCodec);
+                QCOMPARE(own.created, theirs.created);
+            }
+        MediaInfo turned;
+        QVERIFY(Libav::probe(rotated, &turned));
+        QCOMPARE(turned.size, QSize(240, 320));
+        QString error;
+        MediaInfo none;
+        QVERIFY(!Libav::probe(m_dir.filePath("missing.mp4"), &none, &error));
+        QVERIFY(!error.isEmpty());
     }
 
     void detectFindsSoftwareEncoder()
