@@ -75,7 +75,8 @@ SOURCES += \
     $$PWD/video/mediainfo.cpp \
     $$PWD/video/soundtrack.cpp \
     $$PWD/video/videoencoders.cpp \
-    $$PWD/video/videojoin.cpp
+    $$PWD/video/videojoin.cpp \
+    $$PWD/video/videojoinjob.cpp
 
 HEADERS += \
     $$PWD/gauge/builtingauges.h \
@@ -144,7 +145,8 @@ HEADERS += \
     $$PWD/video/mediainfo.h \
     $$PWD/video/soundtrack.h \
     $$PWD/video/videoencoders.h \
-    $$PWD/video/videojoin.h
+    $$PWD/video/videojoin.h \
+    $$PWD/video/videojoinjob.h
 
 RESOURCES += $$PWD/gauge/fonts/fonts.qrc
 # the data profiles that come with the program

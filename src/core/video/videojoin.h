@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../sync/syncmap.h"
+#include "exportplan.h"
 #include "exportsettings.h"
 #include "mediainfo.h"
 #include "videoencoders.h"
@@ -44,7 +45,8 @@ public:
     // Whether the camera's data track goes into the join: every part has one, and `output` is a
     // container that holds it (.mp4, .mov).
     static bool keepsCameraData(const QVector<Part> &parts, const QString &output);
-    // ffmpeg arguments that join what `listFile` names into `output`.
+    // ffmpeg arguments that join what `listFile` names into `output`; the progress on its
+    // standard output (see progressSeconds).
     static QStringList arguments(const QString &listFile, const QString &output, bool cameraData = false);
 
     // Joining videos of different kinds: each encoded again at the first one's size (the rest
@@ -52,6 +54,9 @@ public:
     // 48 kHz stereo AAC (silence for a part without any). With `encoder` and the rate of
     // `settings`. ffmpeg writes its progress to its standard output (see progressSeconds).
     // The camera's data track cannot come along.
+    // The same as a plan, which either engine runs (VideoJoinJob).
+    static ExportPlan encodePlan(const QVector<Part> &parts, const QString &output, const VideoEncoder &encoder,
+                                 const ExportSettings &settings);
     static QStringList encodeArguments(const QVector<Part> &parts, const QString &output, const VideoEncoder &encoder,
                                        const ExportSettings &settings);
     // How far ffmpeg's -progress output says it got, in seconds of the output; -1 when the

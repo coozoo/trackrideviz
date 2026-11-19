@@ -42,6 +42,8 @@ public:
     void endGauges();
 
     qint64 gaugesSent() const;
+    // How far the picture has got, in seconds of the output; may be asked from another thread.
+    double secondsDone() const;
     QString error() const;
 
     // Built with the libraries (as Libav::available()).

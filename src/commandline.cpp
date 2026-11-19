@@ -259,7 +259,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
     const QString ffmpeg = FfmpegTools::ffmpegProgram();
     MediaInfo info;
     QString probeError;
-    if (!MediaProbe::probe(FfmpegTools::ffprobeProgram(), project.videoPath, &info, &probeError))
+    if (!MediaProbe::probe(FfmpegTools::ffprobeProgram(), project.videoPath, &info, &probeError, preferOwn))
         {
             return fail(probeError);
         }

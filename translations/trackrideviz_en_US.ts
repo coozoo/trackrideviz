@@ -3876,75 +3876,70 @@ Comes with the program; it cannot be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="172"/>
+        <location filename="../src/joindialog.cpp" line="160"/>
         <source>Add videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="174"/>
-        <location filename="../src/joindialog.cpp" line="225"/>
+        <location filename="../src/joindialog.cpp" line="162"/>
+        <location filename="../src/joindialog.cpp" line="213"/>
         <source>Videos (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="224"/>
+        <location filename="../src/joindialog.cpp" line="212"/>
         <source>Save joined video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="253"/>
+        <location filename="../src/joindialog.cpp" line="241"/>
         <source>Choose two or more videos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="263"/>
+        <location filename="../src/joindialog.cpp" line="251"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="267"/>
+        <location filename="../src/joindialog.cpp" line="255"/>
         <source>%1 exists. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="273"/>
+        <location filename="../src/joindialog.cpp" line="261"/>
         <source>Reading the videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="323"/>
+        <location filename="../src/joindialog.cpp" line="317"/>
         <source>A temporary file could not be written.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="328"/>
+        <location filename="../src/joindialog.cpp" line="322"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="336"/>
+        <location filename="../src/joindialog.cpp" line="329"/>
         <source>%1
 
 They can be joined by encoding them again. That takes a while; the joined video gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the others scaled into it. Encode them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="342"/>
+        <location filename="../src/joindialog.cpp" line="335"/>
         <source>The camera&apos;s data in the videos does not come along: open it from the videos themselves.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="362"/>
+        <location filename="../src/joindialog.cpp" line="350"/>
         <source>Encoding...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="387"/>
-        <source>ffmpeg could not be started; its location can be set in the settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/joindialog.cpp" line="406"/>
+        <location filename="../src/joindialog.cpp" line="371"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4202,43 +4197,48 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>LibavExport</name>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="188"/>
-        <location filename="../src/core/video/libavexport.cpp" line="195"/>
+        <location filename="../src/core/video/libav.cpp" line="289"/>
+        <location filename="../src/core/video/libav.cpp" line="401"/>
+        <location filename="../src/core/video/libavexport.cpp" line="191"/>
+        <location filename="../src/core/video/libavexport.cpp" line="198"/>
         <source>%1 cannot be read: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="230"/>
+        <location filename="../src/core/video/libavexport.cpp" line="233"/>
         <source>No decoder for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="350"/>
+        <location filename="../src/core/video/libavexport.cpp" line="353"/>
         <source>%1 has no sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="351"/>
+        <location filename="../src/core/video/libav.cpp" line="334"/>
+        <location filename="../src/core/video/libavexport.cpp" line="354"/>
         <source>%1 has no picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="413"/>
+        <location filename="../src/core/video/libavexport.cpp" line="416"/>
         <source>No sound encoder %1 in this build</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="517"/>
+        <location filename="../src/core/video/libavexport.cpp" line="520"/>
         <source>No encoder %1 in this build</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="595"/>
+        <location filename="../src/core/video/libav.cpp" line="340"/>
+        <location filename="../src/core/video/libavexport.cpp" line="601"/>
         <source>%1 cannot be written: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="922"/>
+        <location filename="../src/core/video/libav.cpp" line="414"/>
+        <location filename="../src/core/video/libavexport.cpp" line="950"/>
         <source>Built without FFmpeg&apos;s libraries</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5432,35 +5432,35 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="136"/>
-        <location filename="../src/core/video/libav.cpp" line="148"/>
+        <location filename="../src/core/video/libav.cpp" line="138"/>
+        <location filename="../src/core/video/libav.cpp" line="150"/>
         <source>The video cannot be read (%1): %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="200"/>
+        <location filename="../src/core/video/libav.cpp" line="202"/>
         <location filename="../src/core/video/mediainfo.cpp" line="103"/>
         <source>The file has no video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="214"/>
+        <location filename="../src/core/video/libav.cpp" line="216"/>
         <location filename="../src/core/video/mediainfo.cpp" line="118"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="158"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="177"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="167"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="186"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="176"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="195"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5468,188 +5468,188 @@ It appears among the templates in the library.</source>
 <context>
     <name>MusicPanel</name>
     <message>
-        <location filename="../src/musicpanel.cpp" line="56"/>
+        <location filename="../src/musicpanel.cpp" line="57"/>
         <source>Played one after another. Drag to change the order.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="72"/>
+        <location filename="../src/musicpanel.cpp" line="73"/>
         <source>Add...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="73"/>
+        <location filename="../src/musicpanel.cpp" line="74"/>
         <source>Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="75"/>
+        <location filename="../src/musicpanel.cpp" line="76"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="78"/>
+        <location filename="../src/musicpanel.cpp" line="79"/>
         <source>Play earlier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="84"/>
+        <location filename="../src/musicpanel.cpp" line="85"/>
         <source>Play later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="95"/>
+        <location filename="../src/musicpanel.cpp" line="96"/>
         <source>Show or hide when the music begins, the fades and the volumes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="113"/>
+        <location filename="../src/musicpanel.cpp" line="114"/>
         <source>Where in the selected file the music begins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="114"/>
+        <location filename="../src/musicpanel.cpp" line="115"/>
         <source>Where in the selected file the music ends</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="124"/>
+        <location filename="../src/musicpanel.cpp" line="125"/>
         <source>The moment of the video the first track begins at; the others follow it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="127"/>
-        <location filename="../src/musicpanel.cpp" line="135"/>
+        <location filename="../src/musicpanel.cpp" line="128"/>
+        <location filename="../src/musicpanel.cpp" line="136"/>
         <source>Move the music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="129"/>
+        <location filename="../src/musicpanel.cpp" line="130"/>
         <source>Here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="130"/>
+        <location filename="../src/musicpanel.cpp" line="131"/>
         <source>Begin the music where the video stands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="137"/>
+        <location filename="../src/musicpanel.cpp" line="138"/>
         <source>Go</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="138"/>
+        <location filename="../src/musicpanel.cpp" line="139"/>
         <source>Show the moment the music begins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="153"/>
+        <location filename="../src/musicpanel.cpp" line="154"/>
         <source> s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="155"/>
+        <location filename="../src/musicpanel.cpp" line="156"/>
         <source>Each track fades in at its beginning and out at its end</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="158"/>
+        <location filename="../src/musicpanel.cpp" line="159"/>
         <source>Change the fades</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="169"/>
+        <location filename="../src/musicpanel.cpp" line="170"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="174"/>
-        <location filename="../src/musicpanel.cpp" line="193"/>
-        <location filename="../src/musicpanel.cpp" line="603"/>
-        <location filename="../src/musicpanel.cpp" line="608"/>
+        <location filename="../src/musicpanel.cpp" line="175"/>
+        <location filename="../src/musicpanel.cpp" line="194"/>
+        <location filename="../src/musicpanel.cpp" line="605"/>
+        <location filename="../src/musicpanel.cpp" line="610"/>
         <source>Change the volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="188"/>
+        <location filename="../src/musicpanel.cpp" line="189"/>
         <source>Quieter while the camera is loud</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="189"/>
+        <location filename="../src/musicpanel.cpp" line="190"/>
         <source>The music gives way to talk or an engine the camera recorded. Heard in the export; the preview plays the music as it is.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="547"/>
+        <location filename="../src/musicpanel.cpp" line="549"/>
         <source>Selected track: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="548"/>
+        <location filename="../src/musicpanel.cpp" line="550"/>
         <source>Selected track</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="203"/>
+        <location filename="../src/musicpanel.cpp" line="204"/>
         <source>Play:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="184"/>
+        <location filename="../src/musicpanel.cpp" line="185"/>
         <source>The sound the camera recorded. Above 100 % it is louder in the export; the preview plays it at full volume.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="186"/>
+        <location filename="../src/musicpanel.cpp" line="187"/>
         <source>Above 100 % the music is louder in the export; the preview plays it at full volume.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="91"/>
-        <location filename="../src/musicpanel.cpp" line="204"/>
+        <location filename="../src/musicpanel.cpp" line="92"/>
+        <location filename="../src/musicpanel.cpp" line="205"/>
         <source>All tracks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="217"/>
+        <location filename="../src/musicpanel.cpp" line="218"/>
         <source>Begins at:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="218"/>
+        <location filename="../src/musicpanel.cpp" line="219"/>
         <source>Fade:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="219"/>
+        <location filename="../src/musicpanel.cpp" line="220"/>
         <source>Video sound:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="220"/>
+        <location filename="../src/musicpanel.cpp" line="221"/>
         <source>Music:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="336"/>
+        <location filename="../src/musicpanel.cpp" line="337"/>
         <source>(missing)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="365"/>
-        <location filename="../src/musicpanel.cpp" line="380"/>
+        <location filename="../src/musicpanel.cpp" line="366"/>
+        <location filename="../src/musicpanel.cpp" line="381"/>
         <source>Reading the music...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="366"/>
+        <location filename="../src/musicpanel.cpp" line="367"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="369"/>
+        <location filename="../src/musicpanel.cpp" line="370"/>
         <source>%n track(s), %1 of music.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -5657,29 +5657,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="376"/>
+        <location filename="../src/musicpanel.cpp" line="377"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="388"/>
-        <location filename="../src/musicpanel.cpp" line="416"/>
+        <location filename="../src/musicpanel.cpp" line="389"/>
+        <location filename="../src/musicpanel.cpp" line="418"/>
         <source>Add music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="451"/>
+        <location filename="../src/musicpanel.cpp" line="453"/>
         <source>Remove music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="476"/>
-        <location filename="../src/musicpanel.cpp" line="524"/>
+        <location filename="../src/musicpanel.cpp" line="478"/>
+        <location filename="../src/musicpanel.cpp" line="526"/>
         <source>Reorder music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="587"/>
+        <location filename="../src/musicpanel.cpp" line="589"/>
         <source>Trim music</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6483,12 +6483,12 @@ It appears among the templates in the library.</source>
 <context>
     <name>SoundtrackMix</name>
     <message>
-        <location filename="../src/core/video/soundtrack.cpp" line="155"/>
+        <location filename="../src/core/video/soundtrack.cpp" line="165"/>
         <source>Music (*.mp3 *.ogg *.oga *.opus *.flac *.wav *.m4a *.aac *.wma)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/soundtrack.cpp" line="156"/>
+        <location filename="../src/core/video/soundtrack.cpp" line="166"/>
         <source>All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7025,6 +7025,14 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
         <source>The sound of %1 differs from that of the first video.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoJoinJob</name>
+    <message>
+        <location filename="../src/core/video/videojoinjob.cpp" line="114"/>
+        <source>ffmpeg could not be started; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

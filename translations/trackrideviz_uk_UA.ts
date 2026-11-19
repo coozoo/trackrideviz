@@ -3911,53 +3911,53 @@ Comes with the program; it cannot be deleted.</source>
         <translation>Об’єднати</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="172"/>
+        <location filename="../src/joindialog.cpp" line="160"/>
         <source>Add videos</source>
         <translation>Додати відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="174"/>
-        <location filename="../src/joindialog.cpp" line="225"/>
+        <location filename="../src/joindialog.cpp" line="162"/>
+        <location filename="../src/joindialog.cpp" line="213"/>
         <source>Videos (%1)</source>
         <translation>Відео (%1)</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="224"/>
+        <location filename="../src/joindialog.cpp" line="212"/>
         <source>Save joined video</source>
         <translation>Зберегти об’єднане відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="253"/>
+        <location filename="../src/joindialog.cpp" line="241"/>
         <source>Choose two or more videos.</source>
         <translation>Виберіть два або більше відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="263"/>
+        <location filename="../src/joindialog.cpp" line="251"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation>Виберіть новий файл для об’єднаного відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="267"/>
+        <location filename="../src/joindialog.cpp" line="255"/>
         <source>%1 exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="273"/>
+        <location filename="../src/joindialog.cpp" line="261"/>
         <source>Reading the videos...</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="323"/>
+        <location filename="../src/joindialog.cpp" line="317"/>
         <source>A temporary file could not be written.</source>
         <translation>Не вдалося записати тимчасовий файл.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="328"/>
+        <location filename="../src/joindialog.cpp" line="322"/>
         <source>Joining...</source>
         <translation>Об’єднання...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="336"/>
+        <location filename="../src/joindialog.cpp" line="329"/>
         <source>%1
 
 They can be joined by encoding them again. That takes a while; the joined video gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the others scaled into it. Encode them?</source>
@@ -3966,22 +3966,17 @@ They can be joined by encoding them again. That takes a while; the joined video 
 Їх можна об’єднати, закодувавши заново. Це займе певний час; об’єднане відео отримає розмір і частоту кадрів першого (%2×%3, %4 кадрів за секунду), інші буде вписано в нього. Кодувати?</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="342"/>
+        <location filename="../src/joindialog.cpp" line="335"/>
         <source>The camera&apos;s data in the videos does not come along: open it from the videos themselves.</source>
         <translation>Дані камери з цих відео не переносяться: відкрийте їх із самих відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="362"/>
+        <location filename="../src/joindialog.cpp" line="350"/>
         <source>Encoding...</source>
         <translation>Кодування...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="387"/>
-        <source>ffmpeg could not be started; its location can be set in the settings.</source>
-        <translation>Не вдалося запустити ffmpeg; його розташування можна вказати в налаштуваннях.</translation>
-    </message>
-    <message>
-        <location filename="../src/joindialog.cpp" line="406"/>
+        <location filename="../src/joindialog.cpp" line="371"/>
         <source>Joining failed: %1</source>
         <translation>Об’єднати не вдалося: %1</translation>
     </message>
@@ -4241,43 +4236,48 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>LibavExport</name>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="188"/>
-        <location filename="../src/core/video/libavexport.cpp" line="195"/>
+        <location filename="../src/core/video/libav.cpp" line="289"/>
+        <location filename="../src/core/video/libav.cpp" line="401"/>
+        <location filename="../src/core/video/libavexport.cpp" line="191"/>
+        <location filename="../src/core/video/libavexport.cpp" line="198"/>
         <source>%1 cannot be read: %2</source>
         <translation>%1 не вдається прочитати: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="230"/>
+        <location filename="../src/core/video/libavexport.cpp" line="233"/>
         <source>No decoder for %1</source>
         <translation>Немає декодера для %1</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="350"/>
+        <location filename="../src/core/video/libavexport.cpp" line="353"/>
         <source>%1 has no sound</source>
         <translation>%1 не має звуку</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="351"/>
+        <location filename="../src/core/video/libav.cpp" line="334"/>
+        <location filename="../src/core/video/libavexport.cpp" line="354"/>
         <source>%1 has no picture</source>
         <translation>%1 не має зображення</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="413"/>
+        <location filename="../src/core/video/libavexport.cpp" line="416"/>
         <source>No sound encoder %1 in this build</source>
         <translation>У цій збірці немає кодувальника звуку %1</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="517"/>
+        <location filename="../src/core/video/libavexport.cpp" line="520"/>
         <source>No encoder %1 in this build</source>
         <translation>У цій збірці немає кодувальника %1</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="595"/>
+        <location filename="../src/core/video/libav.cpp" line="340"/>
+        <location filename="../src/core/video/libavexport.cpp" line="601"/>
         <source>%1 cannot be written: %2</source>
         <translation>%1 не вдається записати: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libavexport.cpp" line="922"/>
+        <location filename="../src/core/video/libav.cpp" line="414"/>
+        <location filename="../src/core/video/libavexport.cpp" line="950"/>
         <source>Built without FFmpeg&apos;s libraries</source>
         <translation>Зібрано без бібліотек FFmpeg</translation>
     </message>
@@ -5481,35 +5481,35 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="136"/>
-        <location filename="../src/core/video/libav.cpp" line="148"/>
+        <location filename="../src/core/video/libav.cpp" line="138"/>
+        <location filename="../src/core/video/libav.cpp" line="150"/>
         <source>The video cannot be read (%1): %2</source>
         <translation>Відео не вдається прочитати (%1): %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="200"/>
+        <location filename="../src/core/video/libav.cpp" line="202"/>
         <location filename="../src/core/video/mediainfo.cpp" line="103"/>
         <source>The file has no video.</source>
         <translation>Файл не містить відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="214"/>
+        <location filename="../src/core/video/libav.cpp" line="216"/>
         <location filename="../src/core/video/mediainfo.cpp" line="118"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation>Не вдалося прочитати розмір або частоту кадрів відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="158"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="177"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation>ffprobe читав %1 надто довго. Можливо, файл на повільному диску або пошкоджений?</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="167"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="186"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffprobe (%1). Його встановлюють разом із ffmpeg; розташування можна вказати в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="176"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="195"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation>ffprobe не може прочитати відео: %1</translation>
     </message>
@@ -5517,188 +5517,188 @@ It appears among the templates in the library.</source>
 <context>
     <name>MusicPanel</name>
     <message>
-        <location filename="../src/musicpanel.cpp" line="56"/>
+        <location filename="../src/musicpanel.cpp" line="57"/>
         <source>Played one after another. Drag to change the order.</source>
         <translation>Грають одна за одною. Перетягніть, щоб змінити порядок.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="72"/>
+        <location filename="../src/musicpanel.cpp" line="73"/>
         <source>Add...</source>
         <translation>Додати...</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="73"/>
+        <location filename="../src/musicpanel.cpp" line="74"/>
         <source>Add music files: MP3, Ogg, Opus, FLAC, WAV, M4A</source>
         <translation>Додати музичні файли: MP3, Ogg, Opus, FLAC, WAV, M4A</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="75"/>
+        <location filename="../src/musicpanel.cpp" line="76"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="78"/>
+        <location filename="../src/musicpanel.cpp" line="79"/>
         <source>Play earlier</source>
         <translation>Грати раніше</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="84"/>
+        <location filename="../src/musicpanel.cpp" line="85"/>
         <source>Play later</source>
         <translation>Грати пізніше</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="95"/>
+        <location filename="../src/musicpanel.cpp" line="96"/>
         <source>Show or hide when the music begins, the fades and the volumes</source>
         <translation>Показати чи сховати початок музики, згасання та гучність</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="113"/>
+        <location filename="../src/musicpanel.cpp" line="114"/>
         <source>Where in the selected file the music begins</source>
         <translation>Звідки у вибраному файлі починається музика</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="114"/>
+        <location filename="../src/musicpanel.cpp" line="115"/>
         <source>Where in the selected file the music ends</source>
         <translation>Де у вибраному файлі музика закінчується</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="124"/>
+        <location filename="../src/musicpanel.cpp" line="125"/>
         <source>The moment of the video the first track begins at; the others follow it</source>
         <translation>Момент відео, з якого починається перший трек; решта йдуть за ним</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="127"/>
-        <location filename="../src/musicpanel.cpp" line="135"/>
+        <location filename="../src/musicpanel.cpp" line="128"/>
+        <location filename="../src/musicpanel.cpp" line="136"/>
         <source>Move the music</source>
         <translation>Пересунути музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="129"/>
+        <location filename="../src/musicpanel.cpp" line="130"/>
         <source>Here</source>
         <translation>Тут</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="130"/>
+        <location filename="../src/musicpanel.cpp" line="131"/>
         <source>Begin the music where the video stands</source>
         <translation>Почати музику там, де зараз відео</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="137"/>
+        <location filename="../src/musicpanel.cpp" line="138"/>
         <source>Go</source>
         <translation>Перейти</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="138"/>
+        <location filename="../src/musicpanel.cpp" line="139"/>
         <source>Show the moment the music begins</source>
         <translation>Показати момент, коли починається музика</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="153"/>
+        <location filename="../src/musicpanel.cpp" line="154"/>
         <source> s</source>
         <translation> s</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="155"/>
+        <location filename="../src/musicpanel.cpp" line="156"/>
         <source>Each track fades in at its beginning and out at its end</source>
         <translation>Кожен трек плавно наростає на початку й затихає в кінці</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="158"/>
+        <location filename="../src/musicpanel.cpp" line="159"/>
         <source>Change the fades</source>
         <translation>Змінити наростання й затихання</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="169"/>
+        <location filename="../src/musicpanel.cpp" line="170"/>
         <source>Off</source>
         <translation>Вимк.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="174"/>
-        <location filename="../src/musicpanel.cpp" line="193"/>
-        <location filename="../src/musicpanel.cpp" line="603"/>
-        <location filename="../src/musicpanel.cpp" line="608"/>
+        <location filename="../src/musicpanel.cpp" line="175"/>
+        <location filename="../src/musicpanel.cpp" line="194"/>
+        <location filename="../src/musicpanel.cpp" line="605"/>
+        <location filename="../src/musicpanel.cpp" line="610"/>
         <source>Change the volume</source>
         <translation>Змінити гучність</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="188"/>
+        <location filename="../src/musicpanel.cpp" line="189"/>
         <source>Quieter while the camera is loud</source>
         <translation>Тихіше, коли камера гучна</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="189"/>
+        <location filename="../src/musicpanel.cpp" line="190"/>
         <source>The music gives way to talk or an engine the camera recorded. Heard in the export; the preview plays the music as it is.</source>
         <translation>Музика поступається мові чи двигуну, записаним камерою. Чути в експорті; попередній перегляд грає музику як є.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="547"/>
+        <location filename="../src/musicpanel.cpp" line="549"/>
         <source>Selected track: %1</source>
         <translation>Вибраний трек: %1</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="548"/>
+        <location filename="../src/musicpanel.cpp" line="550"/>
         <source>Selected track</source>
         <translation>Вибраний трек</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="203"/>
+        <location filename="../src/musicpanel.cpp" line="204"/>
         <source>Play:</source>
         <translation>Грати:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="184"/>
+        <location filename="../src/musicpanel.cpp" line="185"/>
         <source>The sound the camera recorded. Above 100 % it is louder in the export; the preview plays it at full volume.</source>
         <translation>Звук, записаний камерою. Понад 100 % він гучніший в експорті; попередній перегляд грає його на повну гучність.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="186"/>
+        <location filename="../src/musicpanel.cpp" line="187"/>
         <source>Above 100 % the music is louder in the export; the preview plays it at full volume.</source>
         <translation>Понад 100 % музика гучніша в експорті; попередній перегляд грає її на повну гучність.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="91"/>
-        <location filename="../src/musicpanel.cpp" line="204"/>
+        <location filename="../src/musicpanel.cpp" line="92"/>
+        <location filename="../src/musicpanel.cpp" line="205"/>
         <source>All tracks</source>
         <translation>Усі треки</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="217"/>
+        <location filename="../src/musicpanel.cpp" line="218"/>
         <source>Begins at:</source>
         <translation>Починається о:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="218"/>
+        <location filename="../src/musicpanel.cpp" line="219"/>
         <source>Fade:</source>
         <translation>Наростання/затихання:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="219"/>
+        <location filename="../src/musicpanel.cpp" line="220"/>
         <source>Video sound:</source>
         <translation>Звук відео:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="220"/>
+        <location filename="../src/musicpanel.cpp" line="221"/>
         <source>Music:</source>
         <translation>Музика:</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="336"/>
+        <location filename="../src/musicpanel.cpp" line="337"/>
         <source>(missing)</source>
         <translation>(немає)</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="365"/>
-        <location filename="../src/musicpanel.cpp" line="380"/>
+        <location filename="../src/musicpanel.cpp" line="366"/>
+        <location filename="../src/musicpanel.cpp" line="381"/>
         <source>Reading the music...</source>
         <translation>Читання музики...</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="366"/>
+        <location filename="../src/musicpanel.cpp" line="367"/>
         <source>No music. Add files to play them under the video, one after another.</source>
         <translation>Музики немає. Додайте файли, щоб вони грали під відео один за одним.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/musicpanel.cpp" line="369"/>
+        <location filename="../src/musicpanel.cpp" line="370"/>
         <source>%n track(s), %1 of music.</source>
         <translation>
             <numerusform>%n трек, %1 музики.</numerusform>
@@ -5707,29 +5707,29 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="376"/>
+        <location filename="../src/musicpanel.cpp" line="377"/>
         <source>The video has %1 from the music&apos;s beginning on.</source>
         <translation>Від початку музики у відео ще %1.</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="388"/>
-        <location filename="../src/musicpanel.cpp" line="416"/>
+        <location filename="../src/musicpanel.cpp" line="389"/>
+        <location filename="../src/musicpanel.cpp" line="418"/>
         <source>Add music</source>
         <translation>Додати музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="451"/>
+        <location filename="../src/musicpanel.cpp" line="453"/>
         <source>Remove music</source>
         <translation>Вилучити музику</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="476"/>
-        <location filename="../src/musicpanel.cpp" line="524"/>
+        <location filename="../src/musicpanel.cpp" line="478"/>
+        <location filename="../src/musicpanel.cpp" line="526"/>
         <source>Reorder music</source>
         <translation>Змінити порядок музики</translation>
     </message>
     <message>
-        <location filename="../src/musicpanel.cpp" line="587"/>
+        <location filename="../src/musicpanel.cpp" line="589"/>
         <source>Trim music</source>
         <translation>Обрізати музику</translation>
     </message>
@@ -6534,12 +6534,12 @@ It appears among the templates in the library.</source>
 <context>
     <name>SoundtrackMix</name>
     <message>
-        <location filename="../src/core/video/soundtrack.cpp" line="155"/>
+        <location filename="../src/core/video/soundtrack.cpp" line="165"/>
         <source>Music (*.mp3 *.ogg *.oga *.opus *.flac *.wav *.m4a *.aac *.wma)</source>
         <translation>Музика (*.mp3 *.ogg *.oga *.opus *.flac *.wav *.m4a *.aac *.wma)</translation>
     </message>
     <message>
-        <location filename="../src/core/video/soundtrack.cpp" line="156"/>
+        <location filename="../src/core/video/soundtrack.cpp" line="166"/>
         <source>All files (*)</source>
         <translation>Усі файли (*)</translation>
     </message>
@@ -7081,6 +7081,14 @@ Shift+перетягування позначає частину; клацанн
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
         <source>The sound of %1 differs from that of the first video.</source>
         <translation>Звук %1 відрізняється від звуку першого відео.</translation>
+    </message>
+</context>
+<context>
+    <name>VideoJoinJob</name>
+    <message>
+        <location filename="../src/core/video/videojoinjob.cpp" line="114"/>
+        <source>ffmpeg could not be started; its location can be set in the settings.</source>
+        <translation>Не вдалося запустити ffmpeg; його розташування можна вказати в налаштуваннях.</translation>
     </message>
 </context>
 <context>

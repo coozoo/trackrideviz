@@ -413,8 +413,9 @@ the automatic end of a fixed dial following the highest value held for a second,
   chosen one has no encoder; `--engine` on the command line; the export window names the engine. Checked: every
   export test runs on both engines; x264 output bit-identical to ffmpeg's; VA-API and Quick Sync encode. CI builds it
   everywhere: FFmpeg 8.1.2 built for the AppImage, MSYS2's on Windows, Homebrew's on macOS, ffmpeg-free on Fedora;
-  the Ubuntu 22.04 .deb stays on the ffmpeg program. Still through the ffmpeg program: joining videos, the music's
-  lengths (ffprobe). An export queue was dropped: several projects are exported one after another by the command line
+  the Ubuntu 22.04 .deb stays on the ffmpeg program. Joining videos (copied: `Libav::copyJoin`; encoded: the
+  join as an `ExportPlan` run by LibavExport; both through `VideoJoinJob`) and the music's lengths follow the chosen
+  engine too, as does reading videos (the other engine where it fails) (2026-11-19). An export queue was dropped: several projects are exported one after another by the command line
 - ✅ Command line (2026-11-17, `CommandLine`, `ProjectData`): --render a project, or a video, data and a template
   (synced by the clocks or --offset); --profile, --encoder / --hardware / --software and each choice of the export
   dialog by hand; --gauges-only; --list-encoders, --list-profiles, --list-templates; progress in a terminal, a line

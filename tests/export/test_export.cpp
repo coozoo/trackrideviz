@@ -12,6 +12,7 @@
 #include "video/soundtrack.h"
 #include "video/videoencoders.h"
 #include "video/videojoin.h"
+#include "video/videojoinjob.h"
 
 #include <QDir>
 #include <QHash>
@@ -41,6 +42,26 @@ private:
 
     QTemporaryDir m_dir;
     QString m_sourceVideo;   // made by ffmpeg in initTestCase; empty when ffmpeg is missing
+
+    // A join on this run's engine, as the Join dialog runs it: why it failed, empty when it
+    // worked; `progressed`: the last progress told.
+    QString join(const std::function<void(VideoJoinJob &)> &start, double *progressed = nullptr)
+    {
+        VideoJoinJob job(m_engine);
+        QSignalSpy finished(&job, &VideoJoinJob::finished);
+        QSignalSpy progress(&job, &VideoJoinJob::progress);
+        start(job);
+        if (!finished.wait(120000))
+            {
+                return "the join did not end";
+            }
+        if (progressed && !progress.isEmpty())
+            {
+                *progressed = progress.last().at(0).toDouble();
+            }
+        const QString error = finished.first().at(1).toString();
+        return finished.first().at(0).toBool() ? QString() : error.isEmpty() ? QString("failed, saying nothing") : error;
+    }
 
     static MediaInfo fullHd60()
     {
@@ -1251,8 +1272,11 @@ private slots:
                 {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i", QString("sine=frequency=880:duration=%1").arg(length), path});
                 QVERIFY(made.started && made.exitCode == 0);
             }
-        QCOMPARE(std::round(SoundtrackMix::probeDuration("ffprobe", second)), 3.0);
-        QCOMPARE(SoundtrackMix::probeDuration("ffprobe", m_dir.filePath("missing.wav")), 0.0);
+        const bool own = m_engine == ExportJob::OwnEngine;
+        QCOMPARE(std::round(SoundtrackMix::probeDuration("ffprobe", second, own)), 3.0);
+        QCOMPARE(SoundtrackMix::probeDuration("ffprobe", m_dir.filePath("missing.wav"), own), 0.0);
+        // either engine stands in for the other
+        QCOMPARE(std::round(SoundtrackMix::probeDuration("/no/such/ffprobe", second, own)), Libav::available() ? 3.0 : 0.0);
 
         Soundtrack soundtrack;
         soundtrack.tracks = {{first, 1.5, 0.0, 0.0}, {second, 3.0, 0.5, 0.0}};
@@ -1328,16 +1352,16 @@ private slots:
         file.write(VideoJoin::listFile({m_sourceVideo, m_sourceVideo}));
         file.close();
         const QString output = m_dir.filePath("joined.mp4");
-        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output), 60000);
-        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        QString error = join([&](VideoJoinJob &job) { job.startCopy(list, output, false); });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
         QVERIFY2(std::fabs(joined.duration - 4.0) < 0.1, qPrintable(QString::number(joined.duration)));
         QVERIFY(joined.hasAudio);
         QCOMPARE(countFrames(output), 120);
         // asked for the camera's data where there is none, the join still works
-        const FfmpegTools::RunResult withData = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output, true), 60000);
-        QVERIFY2(withData.started && withData.exitCode == 0, withData.errorOutput.constData());
+        error = join([&](VideoJoinJob &job) { job.startCopy(list, output, true); });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
         QCOMPARE(countFrames(output), 120);
     }
 
@@ -1363,11 +1387,13 @@ private slots:
         settings.rateControl = ExportSettings::Quality;
         settings.speed = ExportSettings::Fast;
         const QString output = m_dir.filePath("encoded-join.mp4");
-        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::encodeArguments({a, b}, output,
-                                                            VideoEncoders::byId("libx264"), settings), 120000);
-        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
-        // the progress came on the standard output
-        QVERIFY(VideoJoin::progressSeconds(run.output) > 2.5);
+        double progressed = -1.0;
+        const QString error = join([&](VideoJoinJob &job)
+        {
+            job.startEncode({a, b}, output, VideoEncoders::byId("libx264"), settings);
+        }, &progressed);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+        QVERIFY2(progressed > 2.5, qPrintable(QString::number(progressed)));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
         // the first one's size and rate throughout; sound all the way, silence for the second
@@ -1398,6 +1424,29 @@ private slots:
         QVERIFY(!VideoJoin::arguments("list", "out.mp4").contains("0:d?"));
     }
 
+    void canceledJoinLeavesNothing()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        VideoJoin::Part part{m_sourceVideo, MediaInfo()};
+        QVERIFY(MediaProbe::probe("ffprobe", part.path, &part.info));
+        ExportSettings settings;
+        settings.encoder = "libx264";
+        const QString output = m_dir.filePath("canceled-join.mp4");
+        VideoJoinJob job(m_engine);
+        QSignalSpy finished(&job, &VideoJoinJob::finished);
+        job.startEncode({part, part, part, part}, output, VideoEncoders::byId("libx264"), settings);
+        QVERIFY(job.isRunning());
+        QTest::qWait(100);
+        job.cancel();
+        QVERIFY(!job.isRunning());
+        QTest::qWait(300);
+        QVERIFY(finished.isEmpty());
+        QVERIFY(!QFile::exists(output));
+    }
+
     // Optional: RTV_GOPRO_SAMPLE=/path/to/gopro.mp4 joins the camera file with itself and reads
     // the data of the join.
     void goproJoinKeepsItsData()
@@ -1417,12 +1466,11 @@ private slots:
         file.close();
         const QString output = m_dir.filePath("gopro-joined.mp4");
         QVERIFY(VideoJoin::keepsCameraData({part, part}, output));
-        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output, true), 120000);
-        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        QString error = join([&](VideoJoinJob &job) { job.startCopy(list, output, true); });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
         QVERIFY(joined.hasCameraData);
-        QString error;
         const TelemetrySessionPtr one = GpmfImporter::load(sample, &error);
         const TelemetrySessionPtr both = GpmfImporter::load(output, &error);
         QVERIFY2(one && both, qPrintable(error));

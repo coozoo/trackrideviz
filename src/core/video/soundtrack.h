@@ -89,8 +89,9 @@ namespace SoundtrackMix
 // Ends in the label `out`.
 QString music(const Soundtrack &soundtrack, int firstInput, double offset, double outputLength, const QString &out);
 
-// The length of an audio file, from ffprobe; 0 when it cannot be read. Blocking.
-double probeDuration(const QString &ffprobeProgram, const QString &path);
+// The length of an audio file, read by the engine of the settings (`preferOwn`: the program's
+// libraries, else ffprobe), by the other where it fails; 0 when neither can. Blocking.
+double probeDuration(const QString &ffprobeProgram, const QString &path, bool preferOwn = true);
 
 // What the open dialog offers.
 QStringList fileFilters();

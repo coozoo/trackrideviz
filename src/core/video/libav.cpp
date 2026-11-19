@@ -1,9 +1,11 @@
 #include "libav.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QLoggingCategory>
 #include <QFile>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -219,6 +221,197 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
     Q_UNUSED(videoPath);
     Q_UNUSED(info);
     return fail(QString());
+#endif
+}
+
+double Libav::duration(const QString &path)
+{
+#ifdef RTV_LIBAV
+    quietLibraries();
+    AVFormatContext *format = nullptr;
+    if (avformat_open_input(&format, path.toUtf8().constData(), nullptr, nullptr) < 0)
+        {
+            return 0.0;
+        }
+    double seconds = 0.0;
+    if (avformat_find_stream_info(format, nullptr) >= 0 && format->duration != AV_NOPTS_VALUE)
+        {
+            seconds = double(format->duration) / AV_TIME_BASE;
+        }
+    avformat_close_input(&format);
+    return std::isfinite(seconds) && seconds > 0.0 ? seconds : 0.0;
+#else
+    Q_UNUSED(path);
+    return 0.0;
+#endif
+}
+
+bool Libav::copyJoin(const QString &listFile, const QString &output, bool cameraData,
+                     const std::function<bool(double seconds)> &progress, QString *error)
+{
+    auto fail = [error](const QString &message)
+    {
+        if (error)
+            {
+                *error = message;
+            }
+        return false;
+    };
+#ifdef RTV_LIBAV
+    quietLibraries();
+    AVFormatContext *input = nullptr;
+    AVFormatContext *out = nullptr;
+    AVPacket *packet = av_packet_alloc();
+    struct Free
+    {
+        AVFormatContext **input;
+        AVFormatContext **out;
+        AVPacket **packet;
+        ~Free()
+        {
+            avformat_close_input(input);
+            if (*out && !((*out)->oformat->flags & AVFMT_NOFILE))
+                {
+                    avio_closep(&(*out)->pb);
+                }
+            avformat_free_context(*out);
+            av_packet_free(packet);
+        }
+    } freeLater{&input, &out, &packet};
+
+    // -f concat -safe 0
+    AVDictionary *inputOptions = nullptr;
+    av_dict_set(&inputOptions, "safe", "0", 0);
+    int result = avformat_open_input(&input, listFile.toUtf8().constData(), av_find_input_format("concat"), &inputOptions);
+    av_dict_free(&inputOptions);
+    if (result < 0 || (result = avformat_find_stream_info(input, nullptr)) < 0)
+        {
+            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be read: %2").arg(listFile, errorText(result)));
+        }
+    const QByteArray path = output.toUtf8();
+    result = avformat_alloc_output_context2(&out, nullptr, nullptr, path.constData());
+    if (result < 0 || !out)
+        {
+            return fail(QString("The output file's type: %1").arg(errorText(result)));
+        }
+
+    // -map 0:v:0 -map 0:a? [-map 0:d? -tag:d gpmd]: where each input stream goes, -1 nowhere
+    std::vector<int> into(input->nb_streams, -1);
+    bool picture = false;
+    for (unsigned i = 0; i < input->nb_streams; ++i)
+        {
+            const AVStream *stream = input->streams[i];
+            const AVMediaType type = stream->codecpar->codec_type;
+            const bool wanted = (type == AVMEDIA_TYPE_VIDEO && !picture) || type == AVMEDIA_TYPE_AUDIO
+                                || (type == AVMEDIA_TYPE_DATA && cameraData);
+            if (!wanted)
+                {
+                    continue;
+                }
+            picture = picture || type == AVMEDIA_TYPE_VIDEO;
+            AVStream *copy = avformat_new_stream(out, nullptr);
+            avcodec_parameters_copy(copy->codecpar, stream->codecpar);
+            copy->time_base = stream->time_base;
+            copy->disposition = stream->disposition;
+            av_dict_copy(&copy->metadata, stream->metadata, 0);
+            if (type == AVMEDIA_TYPE_DATA)
+                {
+                    copy->codecpar->codec_tag = MKTAG('g', 'p', 'm', 'd');
+                }
+            else
+                {
+                    // the file's own tag (hvc1 rather than hev1) where the container takes it, as ffmpeg keeps it
+                    unsigned tag = 0;
+                    const AVCodecTag *const *tags = out->oformat->codec_tag;
+                    const bool keeps = !tags || av_codec_get_id(tags, stream->codecpar->codec_tag) == stream->codecpar->codec_id
+                                       || !av_codec_get_tag2(tags, stream->codecpar->codec_id, &tag);
+                    copy->codecpar->codec_tag = keeps ? stream->codecpar->codec_tag : 0;
+                }
+            into[i] = copy->index;
+        }
+    if (!picture)
+        {
+            return fail(QCoreApplication::translate("LibavExport", "%1 has no picture").arg(listFile));
+        }
+    // the recording's date and the like, as ffmpeg takes them from its first input
+    av_dict_copy(&out->metadata, input->metadata, 0);
+    if (!(out->oformat->flags & AVFMT_NOFILE) && (result = avio_open(&out->pb, path.constData(), AVIO_FLAG_WRITE)) < 0)
+        {
+            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be written: %2").arg(output, errorText(result)));
+        }
+    AVDictionary *muxerOptions = nullptr;
+    if (QString(out->oformat->name).contains("mp4") || QString(out->oformat->name).contains("mov"))
+        {
+            av_dict_set(&muxerOptions, "movflags", "+faststart", 0);
+        }
+    result = avformat_write_header(out, &muxerOptions);
+    av_dict_free(&muxerOptions);
+    if (result < 0)
+        {
+            return fail(QString("Starting the output file: %1").arg(errorText(result)));
+        }
+
+    std::vector<int64_t> lastDts(out->nb_streams, AV_NOPTS_VALUE);
+    int sinceTold = 0;
+    while ((result = av_read_frame(input, packet)) >= 0)
+        {
+            const int to = packet->stream_index < int(into.size()) ? into[size_t(packet->stream_index)] : -1;
+            if (to < 0)
+                {
+                    av_packet_unref(packet);
+                    continue;
+                }
+            AVStream *stream = out->streams[to];
+            av_packet_rescale_ts(packet, input->streams[packet->stream_index]->time_base, stream->time_base);
+            packet->stream_index = to;
+            packet->pos = -1;
+            // where two files meet the times may step back a little: on, as ffmpeg puts them
+            int64_t &last = lastDts[size_t(to)];
+            if (packet->dts != AV_NOPTS_VALUE && last != AV_NOPTS_VALUE && packet->dts <= last)
+                {
+                    const int64_t moved = last + 1;
+                    if (packet->pts != AV_NOPTS_VALUE && packet->pts >= packet->dts)
+                        {
+                            packet->pts = std::max(packet->pts, moved);
+                        }
+                    packet->dts = moved;
+                }
+            if (packet->dts != AV_NOPTS_VALUE)
+                {
+                    last = packet->dts;
+                }
+            const bool isPicture = stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO;
+            const double at = packet->dts != AV_NOPTS_VALUE ? packet->dts * av_q2d(stream->time_base) : -1.0;
+            result = av_interleaved_write_frame(out, packet);
+            if (result < 0)
+                {
+                    return fail(QString("Writing the file: %1").arg(errorText(result)));
+                }
+            if (isPicture && at >= 0.0 && ++sinceTold >= 30)
+                {
+                    sinceTold = 0;
+                    if (progress && !progress(at))
+                        {
+                            return fail(QString());
+                        }
+                }
+        }
+    if (result != AVERROR_EOF)
+        {
+            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be read: %2").arg(listFile, errorText(result)));
+        }
+    result = av_write_trailer(out);
+    if (result < 0)
+        {
+            return fail(QString("Finishing the file: %1").arg(errorText(result)));
+        }
+    return true;
+#else
+    Q_UNUSED(listFile);
+    Q_UNUSED(output);
+    Q_UNUSED(cameraData);
+    Q_UNUSED(progress);
+    return fail(QCoreApplication::translate("LibavExport", "Built without FFmpeg's libraries"));
 #endif
 }
 
