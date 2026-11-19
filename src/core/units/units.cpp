@@ -108,7 +108,7 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         }
     if (id == ChannelId::WindDirection || id == ChannelId::WindRelative)
         {
-            return {id == ChannelId::WindDirection ? tr("Wind direction") : tr("Wind as the rider meets it"), "°", 1.0, 0.0, 0};
+            return {id == ChannelId::WindDirection ? tr("Wind direction") : tr("Wind angle"), "°", 1.0, 0.0, 0};
         }
     if (id == ChannelId::AirDensity)
         {

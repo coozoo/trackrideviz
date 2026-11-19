@@ -19,10 +19,11 @@ QString FfmpegTools::ffmpegProgram()
             const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg/ffmpeg.exe",
                                       QCoreApplication::applicationDirPath() + "/ffmpeg.exe"};
 #elif defined(Q_OS_MACOS)
-            // started from the Finder the program gets no PATH of the shell, so not Homebrew's
-            // (Apple silicon, then Intel)
+            // started from the Finder the program gets no PATH of the shell: Homebrew's (Apple
+            // silicon, then Intel) and MacPorts' are looked for here
             const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg",
-                                      QStringLiteral("/opt/homebrew/bin/ffmpeg"), QStringLiteral("/usr/local/bin/ffmpeg")};
+                                      QStringLiteral("/opt/homebrew/bin/ffmpeg"), QStringLiteral("/usr/local/bin/ffmpeg"),
+                                      QStringLiteral("/opt/local/bin/ffmpeg")};
 #else
             const QStringList bundled{QCoreApplication::applicationDirPath() + "/ffmpeg"};
 #endif
