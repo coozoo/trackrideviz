@@ -20,6 +20,8 @@ namespace
 const double kPi = 3.14159265358979323846;
 const int kTileSize = 256;
 const int kMaxZoom = 19;
+// how many zooms coarser a tile may be that stands in for a missing one (256 times enlarged at most)
+const int kCoarserLevels = 8;
 // servers ask for no more than two requests at a time
 const int kParallel = 2;
 // Mercator maps end here
@@ -509,6 +511,10 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
     Block block;
     QString key;
     QVector<QString> paths;
+    // for each tile, those around it of coarser zooms (one, two... levels up): drawn enlarged
+    // where it is missing - while it comes, or for good where the server has nothing so close
+    // (maps of one country away from it)
+    QVector<QVector<QString>> coarser;
     quint64 cleared = 0;
     {
         const QMutexLocker lock(&m_mutex);
@@ -524,6 +530,12 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                 for (int x = block.left; x <= block.right; ++x)
                     {
                         paths.append(pathOf({block.zoom, x, y}));
+                        QVector<QString> up;
+                        for (int k = 1; k <= kCoarserLevels && block.zoom - k >= 0; ++k)
+                            {
+                                up.append(pathOf({block.zoom - k, x >> k, y >> k}));
+                            }
+                        coarser.append(up);
                     }
             }
     }
@@ -534,23 +546,40 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
     image.fill(Qt::transparent);
     int found = 0;
     QVector<Tile> missing;
+    QVector<bool> stoodIn;      // for each missing one: a coarser tile was drawn in its place
     {
         QPainter painter(&image);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
         int index = 0;
         for (int y = block.top; y <= block.bottom; ++y)
             {
                 for (int x = block.left; x <= block.right; ++x)
                     {
+                        const QRect cell((x - block.left) * kTileSize, (y - block.top) * kTileSize, kTileSize, kTileSize);
+                        const QVector<QString> &up = coarser.at(index);
                         const QImage one(paths.at(index++));
                         if (!one.isNull())
                             {
-                                painter.drawImage(QRect((x - block.left) * kTileSize, (y - block.top) * kTileSize, kTileSize, kTileSize), one);
+                                painter.drawImage(cell, one);
                                 ++found;
+                                continue;
                             }
-                        else
+                        missing.append({block.zoom, x, y});
+                        bool drawn = false;
+                        for (int k = 1; k <= up.size() && !drawn; ++k)
                             {
-                                missing.append({block.zoom, x, y});
+                                const QImage wider(up.at(k - 1));
+                                if (!wider.isNull())
+                                    {
+                                        // the part of it this tile is
+                                        const int part = kTileSize >> k;
+                                        const int mask = (1 << k) - 1;
+                                        painter.drawImage(cell, wider, QRect((x & mask) * part, (y & mask) * part, part, part));
+                                        drawn = true;
+                                        ++found;
+                                    }
                             }
+                        stoodIn.append(drawn);
                     }
             }
     }
@@ -570,12 +599,32 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                 // The cache counts megabytes: a block of a whole route can be a few dozen
                 m_pictures.insert(key, new Picture(result), std::max<qint64>(1, image.sizeInBytes() >> 20));
             }
-        for (const Tile &tile : std::as_const(missing))
+        for (int i = 0; i < missing.size(); ++i)
             {
-                if (!m_failed.contains(tile) && !m_running.contains(tile))
+                const Tile &tile = missing.at(i);
+                if (!m_failed.contains(tile))
                     {
-                        m_wanted.insert(tile);
-                        asked = true;
+                        if (!m_running.contains(tile))
+                            {
+                                m_wanted.insert(tile);
+                                asked = true;
+                            }
+                        continue;
+                    }
+                // the server has none so close here: the nearest coarser one it may have, unless one stands in
+                for (int k = 1; !stoodIn.at(i) && k <= kCoarserLevels && tile.zoom - k >= 0; ++k)
+                    {
+                        const Tile wider{tile.zoom - k, tile.x >> k, tile.y >> k};
+                        if (m_failed.contains(wider))
+                            {
+                                continue;
+                            }
+                        if (!m_running.contains(wider))
+                            {
+                                m_wanted.insert(wider);
+                                asked = true;
+                            }
+                        break;
                     }
             }
         asked = asked && m_downloads;

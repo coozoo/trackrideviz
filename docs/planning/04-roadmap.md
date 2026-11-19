@@ -219,6 +219,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ A map of its own per gauge (2026-11-17, `TileStore::forMap`): "Map" in a route gauge's menu on the video
   and in the editor, as in the settings or one of the maps the program knows; each map has a store of its own,
   following the settings' downloads, credit and key. Kept in gauges ("map"), projects and templates
+- ✅ A coarser tile stands in for a missing one (2026-11-19, `TileStore::picture`): up to 8 zooms coarser, enlarged -
+  while the tile comes, and for good where the server has nothing so close (IGN outside France, USGS outside the USA:
+  over Kyiv IGN's map ends at zoom 7, its photos at 11, USGS at 7); once a tile is refused, the coarser one is fetched
 - ✅ More maps and a key per service (2026-11-18): free OSM Humanitarian and France, ÖPNVKarte, Esri topographic and
   streets, maps-for-free relief, IGN France map and photos, USGS topo and imagery (each checked with a real tile);
   Thunderforest, Stadia (with Stamen), MapTiler and Mapbox styles with the user's key (addresses as the services
