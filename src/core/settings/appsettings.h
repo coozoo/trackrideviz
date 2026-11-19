@@ -75,6 +75,10 @@ public:
 
     // --- Export ---------------------------------------------------------
     // Full path of the ffmpeg program; empty = find "ffmpeg" on the PATH.
+    // Exports on the program's own video engine (FFmpeg's libraries linked in) rather than the
+    // ffmpeg program; true unless chosen otherwise. A build without the libraries uses ffmpeg anyway.
+    static bool ownVideoEngine();
+    static void setOwnVideoEngine(bool own);
     static QString ffmpegPath();
     static void setFfmpegPath(const QString &path);
     // Where exported videos go; empty = next to the source video.

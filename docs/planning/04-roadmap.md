@@ -122,8 +122,14 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 
 ### M3c - what is left
 - ✅ G-force comes from GPS now (M4); without data a part rests at 0, not at its scale's start
-- Fonts named by gauges may be missing (Furore, Roboto Cn); the system substitutes
-- A "nav" knob (arrow) is not turned to the direction of travel; the format's intent is unclear
+- ✅ Fonts named by imported gauges (2026-11-18, `GaugeFonts`): Roboto, Roboto Condensed ("Roboto Cn" of .veg
+  gauges), Orbitron in place of Furore and DSEG7 Classic in place of DS-Digital ship with the program (OFL);
+  Consolas and Courier New fall to a monospaced font, Arial, Helvetica, Verdana and Tahoma to their usual
+  stand-ins, Impact to Roboto Condensed - each only where the computer lacks the font itself. Gauges imported
+  earlier keep "Roboto" for "Roboto Cn" until imported again
+- ✅ The "nav" knob of track line and lap circuit gauges (an arrow turned by the heading, on the route's point)
+  points the way of travel since heading is worked out from GPS (M4); checked again 2026-11-18 at three moments
+  of the sample ride
 - ✅ Gauges follow the video's shape (2026-11-17, `Project::layoutAspect`): the project keeps the shape its
   gauges were placed on; a video of another shape (a vertical one after 16:9) gets each placed again from
   its nearest edges, as a template places them, as one step that can be undone
@@ -213,6 +219,9 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ A map of its own per gauge (2026-11-17, `TileStore::forMap`): "Map" in a route gauge's menu on the video
   and in the editor, as in the settings or one of the maps the program knows; each map has a store of its own,
   following the settings' downloads, credit and key. Kept in gauges ("map"), projects and templates
+- ✅ A coarser tile stands in for a missing one (2026-11-19, `TileStore::picture`): up to 8 zooms coarser, enlarged -
+  while the tile comes, and for good where the server has nothing so close (IGN outside France, USGS outside the USA:
+  over Kyiv IGN's map ends at zoom 7, its photos at 11, USGS at 7); once a tile is refused, the coarser one is fetched
 - ✅ More maps and a key per service (2026-11-18): free OSM Humanitarian and France, ÖPNVKarte, Esri topographic and
   streets, maps-for-free relief, IGN France map and photos, USGS topo and imagery (each checked with a real tile);
   Thunderforest, Stadia (with Stamen), MapTiler and Mapbox styles with the user's key (addresses as the services
@@ -394,8 +403,19 @@ encoders, preferred by the Small file profile; volumes up to 200 %, held under f
 the automatic end of a fixed dial following the highest value held for a second, not a GPS spike.
 
 ## M7 - Polish and distribution
-- Export backend B (in-process libav) if/when needed (an export queue dropped: several projects are exported one
-  after another by the command line)
+- ✅ The program's own video engine (2026-11-19, `Libav`, `LibavExport`, version 0.04): FFmpeg's libraries (6.1 or
+  later) linked in when present (`src/core/libav.pri`). The export plan is kept in parts (inputs, filter graph,
+  sound, options) and the ffmpeg command line is made of them; LibavExport runs the same parts in-process - same
+  filter graph (set up in steps, so VA-API's upload filter gets its device), same encoders and options, the gauges
+  handed over as pictures, copied or encoded sound, a stop that keeps a playable file with sound of the same length.
+  Videos are read through it (ffprobe only as a fallback); encoders are found through it (hardware ones by a test
+  encode). Settings > Export > Video engine: built in (default) or the ffmpeg program; the other is used when the
+  chosen one has no encoder; `--engine` on the command line; the export window names the engine. Checked: every
+  export test runs on both engines; x264 output bit-identical to ffmpeg's; VA-API and Quick Sync encode. CI builds it
+  everywhere: FFmpeg 8.1.2 built for the AppImage, MSYS2's on Windows, Homebrew's on macOS, ffmpeg-free on Fedora;
+  the Ubuntu 22.04 .deb stays on the ffmpeg program. Joining videos (copied: `Libav::copyJoin`; encoded: the
+  join as an `ExportPlan` run by LibavExport; both through `VideoJoinJob`) and the music's lengths follow the chosen
+  engine too, as does reading videos (the other engine where it fails) (2026-11-19). An export queue was dropped: several projects are exported one after another by the command line
 - ✅ Command line (2026-11-17, `CommandLine`, `ProjectData`): --render a project, or a video, data and a template
   (synced by the clocks or --offset); --profile, --encoder / --hardware / --software and each choice of the export
   dialog by hand; --gauges-only; --list-encoders, --list-profiles, --list-templates; progress in a terminal, a line

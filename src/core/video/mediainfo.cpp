@@ -1,6 +1,7 @@
 #include "mediainfo.h"
 
 #include "ffmpegtools.h"
+#include "libav.h"
 
 #include <QDir>
 
@@ -120,7 +121,51 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
     return true;
 }
 
-bool MediaProbe::probe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info, QString *error)
+bool MediaProbe::probe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info, QString *error,
+                       bool preferOwn)
+{
+    // the program's own libraries first; ffprobe for what they cannot read (an older build of
+    // them than the ffmpeg installed), and their explanation when ffprobe is not there either
+    QString ownError;
+    if (Libav::available() && !preferOwn)
+        {
+            // ffprobe first, as chosen: a newer ffmpeg reads what the libraries cannot
+            QString probeError;
+            if (probeWithFfprobe(ffprobeProgram, videoPath, info, &probeError))
+                {
+                    return true;
+                }
+            if (Libav::probe(videoPath, info, &ownError))
+                {
+                    return true;
+                }
+            if (error)
+                {
+                    *error = probeError;
+                }
+            return false;
+        }
+    if (Libav::available())
+        {
+            if (Libav::probe(videoPath, info, &ownError))
+                {
+                    return true;
+                }
+            QString probeError;
+            if (probeWithFfprobe(ffprobeProgram, videoPath, info, &probeError))
+                {
+                    return true;
+                }
+            if (error)
+                {
+                    *error = ownError;
+                }
+            return false;
+        }
+    return probeWithFfprobe(ffprobeProgram, videoPath, info, error);
+}
+
+bool MediaProbe::probeWithFfprobe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info, QString *error)
 {
     const FfmpegTools::RunResult run = FfmpegTools::run(ffprobeProgram,
     {"-v", "error", "-print_format", "json", "-show_format", "-show_streams", videoPath});

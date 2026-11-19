@@ -13,6 +13,8 @@
 #include "telemetry/demosession.h"
 
 #include <QColorSpace>
+#include <QFontDatabase>
+#include <QFontInfo>
 #include <QJsonObject>
 #include <QPainter>
 #include <QTemporaryDir>
@@ -343,6 +345,35 @@ private slots:
         // "original" keeps the picture as it is
         const QImage untouched = draw(imageGauge(filled(Qt::magenta), QRectF(20, 20, 60, 60)), 0.0);
         QCOMPARE(untouched.pixelColor(50, 50), QColor(Qt::magenta));
+    }
+
+    void importedFontsFound()
+    {
+        // fonts imported gauges name are drawn in the bundled ones of the same kind, wherever
+        // the computer lacks them
+        GaugeFonts::load();
+        const auto drawnWith = [](const QString &family, bool bold = false)
+        {
+            QFont font(family);
+            font.setBold(bold);
+            return QFontInfo(font).family();
+        };
+        if (!QFontDatabase::families().contains("DS-Digital"))
+            QCOMPARE(drawnWith("DS-Digital"), QString("DSEG7 Classic"));
+        if (!QFontDatabase::families().contains("Furore"))
+            QCOMPARE(drawnWith("Furore", true), QString("Orbitron"));
+        QCOMPARE(drawnWith("Roboto Condensed"), QString("Roboto Condensed"));
+        QCOMPARE(drawnWith("Roboto", true), QString("Roboto"));
+
+        // the condensed cut is named as a family of its own
+        const QByteArray veg = R"({"gaugeName": "Fonts", "frame": {"width": 100, "height": 50}, "components": [
+                {"type": "text", "textValue": "1", "fontFamily": "Roboto Cn", "fontSize": 12, "frame": {"x": 0, "y": 0}},
+                {"type": "text", "textValue": "2", "fontFamily": "Roboto Cn Bold", "fontSize": 12, "frame": {"x": 0, "y": 0}}]})";
+        const VegGaugeImporter::Result result = VegGaugeImporter::parse(veg, "Fonts", QString());
+        QCOMPARE(result.gauge.components.size(), 2);
+        QCOMPARE(result.gauge.components.at(0).fontFamily, QString("Roboto Condensed"));
+        QCOMPARE(result.gauge.components.at(1).fontFamily, QString("Roboto Condensed"));
+        QVERIFY(result.gauge.components.at(1).bold);
     }
 
     void themeFontAndWeight()
@@ -1145,6 +1176,43 @@ private slots:
         // half as strong when the gauge asks so
         gauge.components[0].tileOpacity = 0.5;
         QVERIFY(std::abs(draw(gauge, 0.0, ChannelId::Speed, session).pixelColor(50, 60).alpha() - 128) <= 2);
+        store->setFolder(m_dir.filePath("no-tiles"));
+    }
+
+    void mapStandsInWithCoarserTiles()
+    {
+        // a server with nothing so close here (a map of one country, away from it): the tile a zoom
+        // coarser is drawn enlarged, each tile from its own quarter of it
+        TileStore *store = TileStore::instance();
+        store->setFolder(m_dir.filePath("coarser-tiles"));
+        const QRectF area(30.5, -40.0, 0.02, 0.02);
+        const TileStore::Block block = TileStore::blockFor(area);
+        const QColor quarters[2][2] = {{Qt::red, Qt::green}, {Qt::blue, Qt::yellow}};   // [row][column]
+        for (int y = block.top >> 1; y <= block.bottom >> 1; ++y)
+            {
+                for (int x = block.left >> 1; x <= block.right >> 1; ++x)
+                    {
+                        QImage wider(256, 256, QImage::Format_ARGB32);
+                        QPainter painter(&wider);
+                        for (int row = 0; row < 2; ++row)
+                            for (int column = 0; column < 2; ++column)
+                                painter.fillRect(column * 128, row * 128, 128, 128, quarters[row][column]);
+                        painter.end();
+                        const QString path = store->tilePath(block.zoom - 1, x, y);
+                        QVERIFY(QDir().mkpath(QFileInfo(path).path()));
+                        QVERIFY(wider.save(path));
+                    }
+            }
+        const TileStore::Picture picture = store->picture(area);
+        QVERIFY(!picture.image.isNull());
+        for (int y = block.top; y <= block.bottom; ++y)
+            {
+                for (int x = block.left; x <= block.right; ++x)
+                    {
+                        const QPoint middle((x - block.left) * 256 + 128, (y - block.top) * 256 + 128);
+                        QCOMPARE(picture.image.pixelColor(middle), quarters[y & 1][x & 1]);
+                    }
+            }
         store->setFolder(m_dir.filePath("no-tiles"));
     }
 

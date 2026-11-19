@@ -91,21 +91,20 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     const bool mixed = plan.hasAudio && soundtrack.changesSound();
 
     const VideoEncoder encoder = VideoEncoders::byId(settings.encoder);
-    QStringList &args = plan.arguments;
-    args << "-hide_banner" << "-loglevel" << "error" << "-y";
     if (!gaugesOnly)
         {
-            args << VideoEncoders::globalArguments(encoder);
+            plan.globalOptions << VideoEncoders::globalArguments(encoder);
             // input 0: the video, cut on the input side so nothing outside the range is decoded
+            Input video{{}, videoPath};
             if (plan.startTime > 0.0)
                 {
-                    args << "-ss" << QString::number(plan.startTime, 'f', 3);
+                    video.options << "-ss" << QString::number(plan.startTime, 'f', 3);
                 }
             if (settings.duration > 0.0)
                 {
-                    args << "-t" << QString::number(length, 'f', 3);
+                    video.options << "-t" << QString::number(length, 'f', 3);
                 }
-            args << "-i" << videoPath;
+            plan.inputs.append(video);
         }
 
     // input 1 (0 for the gauges alone): the gauges from the application
@@ -114,10 +113,9 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             // QImage::Format_ARGB32 is 0xAARRGGBB per pixel: B, G, R, A in memory on
             // little-endian machines, A, R, G, B on big-endian ones
             const char *pixelFormat = QSysInfo::ByteOrder == QSysInfo::LittleEndian ? "bgra" : "argb";
-            args << "-f" << "rawvideo" << "-pixel_format" << pixelFormat
-                 << "-video_size" << QString("%1x%2").arg(plan.stackSize.width()).arg(plan.stackSize.height())
-                 << "-framerate" << QString("%1/%2").arg(plan.fpsNum).arg(plan.fpsDen)
-                 << "-i" << "pipe:0";
+            plan.inputs.append({{"-f", "rawvideo", "-pixel_format", pixelFormat,
+                                 "-video_size", QString("%1x%2").arg(plan.stackSize.width()).arg(plan.stackSize.height()),
+                                 "-framerate", QString("%1/%2").arg(plan.fpsNum).arg(plan.fpsDen)}, Pipe});
         }
     // inputs 2, 3, ... (1, 2, ... without gauges): the music
     const int firstMusicInput = piped ? 2 : 1;
@@ -127,7 +125,7 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                 {
                     if (track.plays())
                         {
-                            args << "-i" << track.path;
+                            plan.inputs.append({{}, track.path});
                         }
                 }
         }
@@ -280,49 +278,50 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                     graph += ";[am]alimiter=limit=0.97:level=0[a]";
                 }
         }
-    args << "-filter_complex" << graph << "-map" << "[v]";
+    plan.filterGraph = graph;
 
     if (mixed || cutAudio)
         {
-            args << "-map" << "[a]" << audioEncoding(settings);
+            plan.audioMap = "[a]";
+            plan.audioOptions = audioEncoding(settings);
         }
-    else if (!plan.hasAudio)
+    else if (plan.hasAudio)
         {
-            args << "-an";
-        }
-    else switch (settings.audio)
-        {
-        case ExportSettings::CopyAudio:
-            // "?": a video without sound is not an error
-            args << "-map" << "0:a?" << "-c:a" << "copy";
-            break;
-        case ExportSettings::NoAudio:
-            args << "-an";
-            break;
-        case ExportSettings::AacAudio:
-        case ExportSettings::OpusAudio:
-        case ExportSettings::VorbisAudio:
-            args << "-map" << "0:a?" << audioEncoding(settings);
-            break;
+            switch (settings.audio)
+                {
+                case ExportSettings::CopyAudio:
+                    // "?": a video without sound is not an error
+                    plan.audioMap = "0:a?";
+                    plan.audioOptions = QStringList{"-c:a", "copy"};
+                    break;
+                case ExportSettings::NoAudio:
+                    break;
+                case ExportSettings::AacAudio:
+                case ExportSettings::OpusAudio:
+                case ExportSettings::VorbisAudio:
+                    plan.audioMap = "0:a?";
+                    plan.audioOptions = audioEncoding(settings);
+                    break;
+                }
         }
 
     const QString suffix = QFileInfo(settings.outputPath).suffix().toLower();
     if (gaugesOnly && ExportSettings::isVp9Alpha(suffix))
         {
             // constant quality: mostly empty pictures take little whatever the size
-            args << "-c:v" << "libvpx-vp9" << "-pix_fmt" << "yuva420p" << "-crf" << "30" << "-b:v" << "0"
-                 << "-row-mt" << "1" << "-deadline" << "good" << "-cpu-used" << "4"
-                 // libvpx loses the transparency with alternate reference frames
-                 << "-auto-alt-ref" << "0";
+            plan.videoOptions << "-c:v" << "libvpx-vp9" << "-pix_fmt" << "yuva420p" << "-crf" << "30" << "-b:v" << "0"
+                              << "-row-mt" << "1" << "-deadline" << "good" << "-cpu-used" << "4"
+                              // libvpx loses the transparency with alternate reference frames
+                              << "-auto-alt-ref" << "0";
         }
     else if (gaugesOnly)
         {
             // what video editors take with transparency; big, but exact
-            args << "-c:v" << "prores_ks" << "-profile:v" << "4444" << "-pix_fmt" << "yuva444p10le";
+            plan.videoOptions << "-c:v" << "prores_ks" << "-profile:v" << "4444" << "-pix_fmt" << "yuva444p10le";
         }
     else
         {
-            args << VideoEncoders::arguments(encoder, settings);
+            plan.videoOptions << VideoEncoders::arguments(encoder, settings);
         }
     const bool mp4Family = ExportSettings::isMp4Family(suffix);
     if (!gaugesOnly && encoder.codec == VideoEncoder::Hevc && mp4Family)
@@ -335,7 +334,27 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             // index at the front: the file starts playing before it is fully downloaded
             plan.muxerArguments << "-movflags" << "+faststart";
         }
-    args << plan.muxerArguments;
-    args << settings.outputPath;
+    plan.arguments = plan.ffmpegArguments();
     return plan;
+}
+
+QStringList ExportPlan::ffmpegArguments() const
+{
+    QStringList args = {"-hide_banner", "-loglevel", "error", "-y"};
+    args << globalOptions;
+    for (const Input &input : inputs)
+        {
+            args << input.options << "-i" << input.source;
+        }
+    args << "-filter_complex" << filterGraph << "-map" << "[v]";
+    if (audioMap.isEmpty())
+        {
+            args << "-an";
+        }
+    else
+        {
+            args << "-map" << audioMap << audioOptions;
+        }
+    args << videoOptions << muxerArguments << outputPath;
+    return args;
 }

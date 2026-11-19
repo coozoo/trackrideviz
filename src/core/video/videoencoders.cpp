@@ -1,6 +1,7 @@
 #include "videoencoders.h"
 
 #include "ffmpegtools.h"
+#include "libav.h"
 
 #include <future>
 #include <vector>
@@ -227,4 +228,65 @@ QVector<VideoEncoder> VideoEncoders::detect(const QString &ffmpegProgram)
                 }
         }
     return usable;
+}
+
+QVector<VideoEncoder> VideoEncoders::detectOwn()
+{
+    QVector<VideoEncoder> usable;
+    const QVector<VideoEncoder> all = known();
+    std::vector<std::future<bool>> works(size_t(all.size()));
+    for (int i = 0; i < all.size(); ++i)
+        {
+            const VideoEncoder &encoder = all.at(i);
+            if (!encoder.hardware || !Libav::hasEncoder(encoder.id))
+                {
+                    continue;
+                }
+            // constant QP is the mode every driver has
+            ExportSettings probe;
+            probe.rateControl = ExportSettings::Quality;
+            QStringList options = arguments(encoder, probe);
+            options.removeFirst();   // "-c:v"
+            options.removeFirst();   // its name
+            const QString device = encoder.vaapi ? globalArguments(encoder).value(1) : QString();
+            works[size_t(i)] = std::async(std::launch::async, [encoder, options, device]()
+            {
+                return Libav::encoderWorks(encoder.id, options, device);
+            });
+        }
+    for (int i = 0; i < all.size(); ++i)
+        {
+            const VideoEncoder &encoder = all.at(i);
+            if (!Libav::hasEncoder(encoder.id))
+                {
+                    continue;
+                }
+            if (!encoder.hardware || works[size_t(i)].get())
+                {
+                    usable.append(encoder);
+                }
+        }
+    return usable;
+}
+
+VideoEncoders::ForEngine VideoEncoders::detectFor(bool preferOwn, const QString &ffmpegProgram)
+{
+    ForEngine result;
+    result.own = preferOwn && Libav::available();
+    result.encoders = result.own ? detectOwn() : detect(ffmpegProgram);
+    if (result.encoders.isEmpty())
+        {
+            // the other engine, if it has something
+            const bool other = !result.own;
+            if (!other || Libav::available())
+                {
+                    const QVector<VideoEncoder> found = other ? detectOwn() : detect(ffmpegProgram);
+                    if (!found.isEmpty())
+                        {
+                            result.own = other;
+                            result.encoders = found;
+                        }
+                }
+        }
+    return result;
 }

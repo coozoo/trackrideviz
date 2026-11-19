@@ -26,14 +26,20 @@ struct MediaInfo
     double fps() const { return fpsDen > 0 ? double(fpsNum) / fpsDen : 0.0; }
 };
 
-// Reads MediaInfo with ffprobe, the companion of ffmpeg.
+// Reads MediaInfo: with the program's own libraries when it has them (Libav), or with
+// ffprobe, the companion of ffmpeg.
 class MediaProbe
 {
     Q_DECLARE_TR_FUNCTIONS(MediaProbe)
 
 public:
-    // Runs ffprobe and waits for it; call from a worker thread.
-    static bool probe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info, QString *error = nullptr);
+    // Reads the file, or runs ffprobe and waits for it; call from a worker thread. The engine
+    // of the settings first (`preferOwn`: the libraries, else ffprobe), the other where it fails.
+    static bool probe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info, QString *error = nullptr,
+                      bool preferOwn = true);
+    // With ffprobe alone.
+    static bool probeWithFfprobe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info,
+                                 QString *error = nullptr);
 
     // Interprets the output of `ffprobe -print_format json -show_format -show_streams`.
     static bool parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *error = nullptr);

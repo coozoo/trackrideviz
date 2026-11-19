@@ -3,10 +3,13 @@
 #include "../overlay/overlay.h"
 #include "../sync/syncmap.h"
 #include "exportplan.h"
+#include "libavexport.h"
 
 #include <QElapsedTimer>
 #include <QImage>
 #include <QObject>
+
+#include <memory>
 
 class QProcess;
 
@@ -35,8 +38,16 @@ public:
     };
     Q_ENUM(Outcome)
 
+    // Which runs the plan: the ffmpeg program, or FFmpeg's libraries in this process (the
+    // program's own engine, LibavExport; only when built with them).
+    enum Engine
+    {
+        ProgramEngine,
+        OwnEngine,
+    };
+
     ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const Overlay &overlay,
-              const SyncMap &sync, QObject *parent = nullptr);
+              const SyncMap &sync, QObject *parent = nullptr, Engine engine = ProgramEngine);
     // Destroying a job that is still running stops ffmpeg and removes the unfinished file.
     ~ExportJob() override;
 
@@ -58,6 +69,7 @@ private slots:
     void onProcessError();
 
 private:
+    void stepOwn();
     void renderFrame(qint64 index);
     void abandon();
     void hurryUp();
@@ -66,6 +78,8 @@ private:
     void finish(Outcome outcome, const QString &message);
     QString errorTail() const;
 
+    Engine m_engine{ProgramEngine};
+    std::unique_ptr<LibavExport> m_own;
     QString m_ffmpegProgram;
     ExportPlan m_plan;
     Overlay m_overlay;

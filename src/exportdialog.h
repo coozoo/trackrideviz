@@ -87,6 +87,7 @@ private:
     Soundtrack m_soundtrack;
     double m_currentPosition{0.0};
     QString m_ffmpeg;
+    bool m_ownEngine{false};   // the program's own video engine runs the export, not ffmpeg
 
     bool m_probed{false};
     MediaInfo m_info;
@@ -101,6 +102,7 @@ private:
     QThread *m_thread{nullptr};
 
     QLabel *m_sourceLabel{nullptr};
+    QLabel *m_engineLabel{nullptr};
     QComboBox *m_pictureCombo{nullptr};
     QComboBox *m_profileCombo{nullptr};
     QPushButton *m_saveProfileButton{nullptr};

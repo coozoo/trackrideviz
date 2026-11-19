@@ -6,6 +6,7 @@
 #include "telemetry/gears.h"
 #include "weather/weather.h"
 #include "video/ffmpegtools.h"
+#include "video/libav.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -291,7 +292,20 @@ QWidget *SettingsDialog::createExportPage()
     folderRow->addWidget(m_exportFolderEdit, 1);
     folderRow->addWidget(browseFolder);
 
+    m_engineCombo = new QComboBox(page);
+    if (Libav::available())
+        {
+            m_engineCombo->addItem(tr("Built in (%1)").arg(Libav::version().section(' ', 0, 1)), true);
+        }
+    m_engineCombo->addItem(tr("ffmpeg program"), false);
+    m_engineCombo->setEnabled(m_engineCombo->count() > 1);
+
     QFormLayout *form = new QFormLayout(page);
+    form->addRow(tr("Video engine:"), m_engineCombo);
+    form->addRow(note(Libav::available()
+                      ? tr("The built-in engine needs no ffmpeg program. The program is used when chosen here, "
+                           "or when the built-in engine has no encoder that works.")
+                      : tr("This build has no engine of its own: it exports with the ffmpeg program."), page));
     form->addRow(tr("ffmpeg program:"), ffmpegRow);
     form->addRow(QString(), m_ffmpegStatus);
     form->addRow(tr("Save videos to:"), folderRow);
@@ -778,6 +792,7 @@ void SettingsDialog::load()
     select(m_decoderCombo, AppSettings::preferredDecoder());
     m_decoderCombo->setEnabled(m_hardwareDecodingCheck->isChecked());
 
+    select(m_engineCombo, AppSettings::ownVideoEngine() && Libav::available());
     m_ffmpegEdit->setText(QDir::toNativeSeparators(AppSettings::ffmpegPath()));
     m_exportFolderEdit->setText(QDir::toNativeSeparators(AppSettings::exportFolder()));
     checkFfmpeg();
@@ -890,6 +905,11 @@ void SettingsDialog::accept()
     units.temperature = Units::Temperature(m_temperatureCombo->currentData().toInt());
     AppSettings::setUnits(units);
 
+    // a build without the engine leaves the choice for one that has it
+    if (Libav::available())
+        {
+            AppSettings::setOwnVideoEngine(m_engineCombo->currentData().toBool());
+        }
     AppSettings::setFfmpegPath(QDir::fromNativeSeparators(m_ffmpegEdit->text().trimmed()));
     AppSettings::setExportFolder(QDir::fromNativeSeparators(m_exportFolderEdit->text().trimmed()));
 

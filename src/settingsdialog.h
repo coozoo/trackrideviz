@@ -76,6 +76,7 @@ private:
     QComboBox *m_lengthCombo{nullptr};
     QComboBox *m_temperatureCombo{nullptr};
 
+    QComboBox *m_engineCombo{nullptr};
     QLineEdit *m_ffmpegEdit{nullptr};
     QLabel *m_ffmpegStatus{nullptr};
     QLineEdit *m_exportFolderEdit{nullptr};

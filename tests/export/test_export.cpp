@@ -7,10 +7,12 @@
 #include "video/exportplan.h"
 #include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
+#include "video/libav.h"
 #include "video/mediainfo.h"
 #include "video/soundtrack.h"
 #include "video/videoencoders.h"
 #include "video/videojoin.h"
+#include "video/videojoinjob.h"
 
 #include <QDir>
 #include <QHash>
@@ -24,13 +26,42 @@ class TestExport : public QObject
 {
     Q_OBJECT
 
+public:
+    // The whole suite runs once for each engine (see main): what one export makes, the other must
+    explicit TestExport(ExportJob::Engine engine)
+        : m_engine(engine)
+    {
+    }
+
 private:
+    const ExportJob::Engine m_engine;
+
     // Tests that let an export run for a while before stopping it are left
     // out unless asked for: together they take a minute.
     static bool slowTests() { return qEnvironmentVariableIntValue("RTV_SLOW_TESTS") != 0; }
 
     QTemporaryDir m_dir;
     QString m_sourceVideo;   // made by ffmpeg in initTestCase; empty when ffmpeg is missing
+
+    // A join on this run's engine, as the Join dialog runs it: why it failed, empty when it
+    // worked; `progressed`: the last progress told.
+    QString join(const std::function<void(VideoJoinJob &)> &start, double *progressed = nullptr)
+    {
+        VideoJoinJob job(m_engine);
+        QSignalSpy finished(&job, &VideoJoinJob::finished);
+        QSignalSpy progress(&job, &VideoJoinJob::progress);
+        start(job);
+        if (!finished.wait(120000))
+            {
+                return "the join did not end";
+            }
+        if (progressed && !progress.isEmpty())
+            {
+                *progressed = progress.last().at(0).toDouble();
+            }
+        const QString error = finished.first().at(1).toString();
+        return finished.first().at(0).toBool() ? QString() : error.isEmpty() ? QString("failed, saying nothing") : error;
+    }
 
     static MediaInfo fullHd60()
     {
@@ -429,6 +460,30 @@ private slots:
         plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
         QVERIFY(plan.arguments.contains("-an"));
         QVERIFY(!plan.arguments.contains("0:a?"));
+    }
+
+    void planKeepsItsParts()
+    {
+        // what an engine of the program's own reads: the inputs in their order, the graph,
+        // where the sound comes from and the options of each part; ffmpeg's command is made of them
+        ExportSettings settings = settingsFor("out.mp4");
+        settings.start = 10.0;
+        settings.audio = ExportSettings::AacAudio;
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        QCOMPARE(plan.inputs.size(), 2);
+        QCOMPARE(plan.inputs.at(0).source, QString("in.mp4"));
+        QVERIFY(hasPair(plan.inputs.at(0).options, "-ss", "10.000"));
+        QCOMPARE(plan.inputs.at(1).source, QString(ExportPlan::Pipe));
+        QVERIFY(hasPair(plan.inputs.at(1).options, "-f", "rawvideo"));
+        QVERIFY(plan.filterGraph.startsWith("[0:v][1:v]overlay=") && plan.filterGraph.contains("[v]"));
+        QCOMPARE(plan.audioMap, QString("0:a?"));
+        QVERIFY(hasPair(plan.audioOptions, "-c:a", "aac"));
+        QVERIFY(hasPair(plan.videoOptions, "-c:v", "libx264"));
+        QCOMPARE(plan.arguments, plan.ffmpegArguments());
+        QCOMPARE(plan.arguments.last(), QString("out.mp4"));
+
+        settings.audio = ExportSettings::NoAudio;
+        QVERIFY(ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge()).audioMap.isEmpty());
     }
 
     // --- music -------------------------------------------------------------
@@ -847,7 +902,51 @@ private slots:
         QVERIFY(info.hasAudio);
 
         QVERIFY(!MediaProbe::probe("ffprobe", m_dir.filePath("missing.mp4"), &info, &error));
-        QVERIFY(!MediaProbe::probe("/no/such/ffprobe", m_sourceVideo, &info, &error));
+        // without ffprobe the program's own libraries read it, when it has them
+        QCOMPARE(MediaProbe::probe("/no/such/ffprobe", m_sourceVideo, &info, &error), Libav::available());
+        QVERIFY(!MediaProbe::probeWithFfprobe("/no/such/ffprobe", m_sourceVideo, &info, &error));
+    }
+
+    void libavReadsAsFfprobeDoes()
+    {
+        if (!Libav::available())
+            {
+                QSKIP("built without FFmpeg's libraries");
+            }
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        QVERIFY(Libav::version().startsWith("FFmpeg "));
+        // the test video, and a copy that a phone held upright would make: turned by its display matrix
+        const QString rotated = m_dir.filePath("rotated.mp4");
+        QVERIFY(QProcess::execute("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-display_rotation", "90",
+                                             "-i", m_sourceVideo, "-c", "copy", rotated}) == 0);
+        for (const QString &path : {m_sourceVideo, rotated})
+            {
+                MediaInfo own;
+                MediaInfo theirs;
+                QString error;
+                QVERIFY2(Libav::probe(path, &own, &error), qPrintable(error));
+                QVERIFY2(MediaProbe::probeWithFfprobe("ffprobe", path, &theirs, &error), qPrintable(error));
+                QCOMPARE(own.size, theirs.size);
+                QCOMPARE(own.fpsNum, theirs.fpsNum);
+                QCOMPARE(own.fpsDen, theirs.fpsDen);
+                QVERIFY(qAbs(own.duration - theirs.duration) < 0.001);
+                QCOMPARE(own.frameCount, theirs.frameCount);
+                QCOMPARE(own.bitrateKbps, theirs.bitrateKbps);
+                QCOMPARE(own.videoCodec, theirs.videoCodec);
+                QCOMPARE(own.hasAudio, theirs.hasAudio);
+                QCOMPARE(own.audioCodec, theirs.audioCodec);
+                QCOMPARE(own.created, theirs.created);
+            }
+        MediaInfo turned;
+        QVERIFY(Libav::probe(rotated, &turned));
+        QCOMPARE(turned.size, QSize(240, 320));
+        QString error;
+        MediaInfo none;
+        QVERIFY(!Libav::probe(m_dir.filePath("missing.mp4"), &none, &error));
+        QVERIFY(!error.isEmpty());
     }
 
     void detectFindsSoftwareEncoder()
@@ -868,6 +967,28 @@ private slots:
         QVERIFY(VideoEncoders::detect("/no/such/ffmpeg").isEmpty());
     }
 
+    void detectOwnFindsTheLibrariesEncoders()
+    {
+        if (m_engine != ExportJob::OwnEngine)
+            {
+                QSKIP("about the program's own engine");
+            }
+        const QVector<VideoEncoder> own = VideoEncoders::detectOwn();
+        QStringList ids;
+        for (const VideoEncoder &encoder : own)
+            ids << encoder.id;
+        // what the libraries were built with; the graphics card's only when it really encodes
+        QVERIFY2(!own.isEmpty(), "no encoder at all");
+        for (const VideoEncoder &encoder : VideoEncoders::known())
+            {
+                if (!encoder.hardware)
+                    QCOMPARE(ids.contains(encoder.id), Libav::hasEncoder(encoder.id));
+            }
+        QVERIFY(!Libav::hasEncoder("no_such_encoder"));
+        QVERIFY(!Libav::encoderWorks("no_such_encoder", {}));
+        qInfo() << "encoders of the program's own engine:" << ids.join(' ');
+    }
+
     void exportDrawsTheGaugeAndKeepsTheSound()
     {
         if (m_sourceVideo.isEmpty())
@@ -881,7 +1002,7 @@ private slots:
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay);
         QCOMPARE(plan.overlayRect, QRect(160, 120, 60, 60));
 
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         QSignalSpy progress(&job, &ExportJob::progress);
         job.start();
@@ -928,7 +1049,7 @@ private slots:
         const QString output = m_dir.filePath("two-corners.mp4");
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay);
         QCOMPARE(plan.regions.size(), 2);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -966,7 +1087,7 @@ private slots:
         ExportSettings settings = settingsFor(output);
         settings.picture = ExportSettings::GaugesOnly;
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1042,7 +1163,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
 
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1123,7 +1244,7 @@ private slots:
         const QString output = m_dir.filePath("cut.mp4");
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settingsFor(output), overlay, {{0.5, 1.2}});
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1151,8 +1272,11 @@ private slots:
                 {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i", QString("sine=frequency=880:duration=%1").arg(length), path});
                 QVERIFY(made.started && made.exitCode == 0);
             }
-        QCOMPARE(std::round(SoundtrackMix::probeDuration("ffprobe", second)), 3.0);
-        QCOMPARE(SoundtrackMix::probeDuration("ffprobe", m_dir.filePath("missing.wav")), 0.0);
+        const bool own = m_engine == ExportJob::OwnEngine;
+        QCOMPARE(std::round(SoundtrackMix::probeDuration("ffprobe", second, own)), 3.0);
+        QCOMPARE(SoundtrackMix::probeDuration("ffprobe", m_dir.filePath("missing.wav"), own), 0.0);
+        // either engine stands in for the other
+        QCOMPARE(std::round(SoundtrackMix::probeDuration("/no/such/ffprobe", second, own)), Libav::available() ? 3.0 : 0.0);
 
         Soundtrack soundtrack;
         soundtrack.tracks = {{first, 1.5, 0.0, 0.0}, {second, 3.0, 0.5, 0.0}};
@@ -1171,7 +1295,7 @@ private slots:
                         settings.audio = ExportSettings::OpusAudio;
                     }
                 const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay, {{0.5, 0.8}}, soundtrack);
-                ExportJob job("ffmpeg", plan, overlay, 0.0);
+                ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
                 QSignalSpy finished(&job, &ExportJob::finished);
                 job.start();
                 QVERIFY(finished.wait(60000));
@@ -1228,16 +1352,16 @@ private slots:
         file.write(VideoJoin::listFile({m_sourceVideo, m_sourceVideo}));
         file.close();
         const QString output = m_dir.filePath("joined.mp4");
-        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output), 60000);
-        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        QString error = join([&](VideoJoinJob &job) { job.startCopy(list, output, false); });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
         QVERIFY2(std::fabs(joined.duration - 4.0) < 0.1, qPrintable(QString::number(joined.duration)));
         QVERIFY(joined.hasAudio);
         QCOMPARE(countFrames(output), 120);
         // asked for the camera's data where there is none, the join still works
-        const FfmpegTools::RunResult withData = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output, true), 60000);
-        QVERIFY2(withData.started && withData.exitCode == 0, withData.errorOutput.constData());
+        error = join([&](VideoJoinJob &job) { job.startCopy(list, output, true); });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
         QCOMPARE(countFrames(output), 120);
     }
 
@@ -1263,11 +1387,13 @@ private slots:
         settings.rateControl = ExportSettings::Quality;
         settings.speed = ExportSettings::Fast;
         const QString output = m_dir.filePath("encoded-join.mp4");
-        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::encodeArguments({a, b}, output,
-                                                            VideoEncoders::byId("libx264"), settings), 120000);
-        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
-        // the progress came on the standard output
-        QVERIFY(VideoJoin::progressSeconds(run.output) > 2.5);
+        double progressed = -1.0;
+        const QString error = join([&](VideoJoinJob &job)
+        {
+            job.startEncode({a, b}, output, VideoEncoders::byId("libx264"), settings);
+        }, &progressed);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+        QVERIFY2(progressed > 2.5, qPrintable(QString::number(progressed)));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
         // the first one's size and rate throughout; sound all the way, silence for the second
@@ -1298,6 +1424,29 @@ private slots:
         QVERIFY(!VideoJoin::arguments("list", "out.mp4").contains("0:d?"));
     }
 
+    void canceledJoinLeavesNothing()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        VideoJoin::Part part{m_sourceVideo, MediaInfo()};
+        QVERIFY(MediaProbe::probe("ffprobe", part.path, &part.info));
+        ExportSettings settings;
+        settings.encoder = "libx264";
+        const QString output = m_dir.filePath("canceled-join.mp4");
+        VideoJoinJob job(m_engine);
+        QSignalSpy finished(&job, &VideoJoinJob::finished);
+        job.startEncode({part, part, part, part}, output, VideoEncoders::byId("libx264"), settings);
+        QVERIFY(job.isRunning());
+        QTest::qWait(100);
+        job.cancel();
+        QVERIFY(!job.isRunning());
+        QTest::qWait(300);
+        QVERIFY(finished.isEmpty());
+        QVERIFY(!QFile::exists(output));
+    }
+
     // Optional: RTV_GOPRO_SAMPLE=/path/to/gopro.mp4 joins the camera file with itself and reads
     // the data of the join.
     void goproJoinKeepsItsData()
@@ -1317,12 +1466,11 @@ private slots:
         file.close();
         const QString output = m_dir.filePath("gopro-joined.mp4");
         QVERIFY(VideoJoin::keepsCameraData({part, part}, output));
-        const FfmpegTools::RunResult run = FfmpegTools::run("ffmpeg", VideoJoin::arguments(list, output, true), 120000);
-        QVERIFY2(run.started && run.exitCode == 0, run.errorOutput.constData());
+        QString error = join([&](VideoJoinJob &job) { job.startCopy(list, output, true); });
+        QVERIFY2(error.isEmpty(), qPrintable(error));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
         QVERIFY(joined.hasCameraData);
-        QString error;
         const TelemetrySessionPtr one = GpmfImporter::load(sample, &error);
         const TelemetrySessionPtr both = GpmfImporter::load(output, &error);
         QVERIFY2(one && both, qPrintable(error));
@@ -1342,7 +1490,7 @@ private slots:
         const Overlay overlay = oneGauge();
         // a source that is not there: ffmpeg starts and gives up
         const ExportPlan plan = ExportPlan::make(m_dir.filePath("missing.mp4"), info, settingsFor(output), overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.start();
         QVERIFY(finished.wait(60000));
@@ -1354,6 +1502,10 @@ private slots:
 
     void missingFfmpegIsAFailureNotAHang()
     {
+        if (m_engine == ExportJob::OwnEngine)
+            {
+                QSKIP("about the ffmpeg program");
+            }
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor(m_dir.filePath("x.mp4")), overlay);
         ExportJob job("/no/such/dir/ffmpeg", plan, overlay, 0.0);
@@ -1375,7 +1527,7 @@ private slots:
             }
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(source, info, settings, overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         QSignalSpy progress(&job, &ExportJob::progress);
         job.start();
@@ -1463,7 +1615,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const QString output = m_dir.filePath("never.mp4");
         const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settingsFor(output), overlay);
-        ExportJob job("ffmpeg", plan, overlay, 0.0);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
         QSignalSpy finished(&job, &ExportJob::finished);
         job.stop();
         QCOMPARE(finished.count(), 1);
@@ -1489,7 +1641,7 @@ private slots:
         const Overlay overlay = oneGauge();
         const ExportPlan plan = ExportPlan::make(source, info, settingsFor(output), overlay);
         {
-            ExportJob job("ffmpeg", plan, overlay, 0.0);
+            ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
             QSignalSpy progress(&job, &ExportJob::progress);
             job.start();
             QVERIFY(progress.wait(30000));
@@ -1498,5 +1650,18 @@ private slots:
     }
 };
 
-QTEST_MAIN(TestExport)
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
+    QTEST_SET_MAIN_SOURCE_PATH
+    TestExport program(ExportJob::ProgramEngine);
+    int failed = QTest::qExec(&program, argc, argv);
+    if (Libav::available())
+        {
+            TestExport own(ExportJob::OwnEngine);
+            failed += QTest::qExec(&own, argc, argv);
+        }
+    return failed;
+}
+
 #include "test_export.moc"

@@ -112,6 +112,7 @@ trackrideviz --render ride.rtvproj -o ride.mp4 --profile youtube --hardware
 trackrideviz --render --video GX010042.MP4 --data ride.fit --template "Track day"
 trackrideviz --render ride.rtvproj --gauges-only -o gauges.mov
 trackrideviz --list-encoders                             # what this computer can encode with
+trackrideviz --render ride.rtvproj --engine ffmpeg         # with the ffmpeg program, not the built-in engine
 trackrideviz --help                                      # everything else
 ```
 
@@ -125,6 +126,9 @@ playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.
 
 Requires Qt 6.2.4 or newer (Core, Gui, Widgets, OpenGLWidgets, Multimedia, Concurrent, Svg, Linguist
 tools), zlib and a C++17 compiler.
+FFmpeg's libraries 6.1 or newer (libavformat, libavcodec, libavfilter, libavutil, libswresample, found
+through pkg-config) are optional: with them the program has its own video engine; `CONFIG+=no_libav`
+builds without them.
 `ffmpeg` (with `ffprobe`) is needed at run time for export and for the music's lengths; the Windows
 package comes with them. Otherwise the ones next to the program, then (on macOS) Homebrew's and MacPorts', then
 on the PATH, are used, and their location can be set in the settings.
@@ -280,7 +284,11 @@ part of your work, edit the description too.
 [GPL-3.0](LICENSE)
 
 Gauges use the Barlow Semi Condensed font by Jeremy Tribby, under the SIL Open Font License
-([text](src/core/gauge/fonts/OFL-BarlowSemiCondensed.txt)).
+([text](src/core/gauge/fonts/OFL-BarlowSemiCondensed.txt)). Imported gauges are drawn with Roboto and
+Roboto Condensed ([text](src/core/gauge/fonts/OFL-Roboto.txt)), Orbitron by Matt McInerney
+([text](src/core/gauge/fonts/OFL-Orbitron.txt)) and DSEG7 Classic by keshikan
+([text](src/core/gauge/fonts/OFL-DSEG.txt)) where the computer lacks the fonts they name, all under the
+same license.
 
 The icons that stand in where the desktop has none are from the Tango Desktop Project, in the
 public domain ([text](images/icons/COPYING.Tango)).

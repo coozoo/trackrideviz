@@ -170,6 +170,17 @@ private slots:
         QCOMPARE(AppSettings::exportFolder(), QString("/videos/out"));
     }
 
+    void videoEngine()
+    {
+        // the program's own engine unless the ffmpeg program is chosen
+        QVERIFY(AppSettings::ownVideoEngine());
+        AppSettings::setOwnVideoEngine(false);
+        QVERIFY(!AppSettings::ownVideoEngine());
+        QCOMPARE(QSettings().value("export/engine").toString(), QString("program"));
+        AppSettings::setOwnVideoEngine(true);
+        QVERIFY(AppSettings::ownVideoEngine());
+    }
+
     void mapKeysPerService()
     {
         // the one key of before was Thunderforest's: it stays theirs

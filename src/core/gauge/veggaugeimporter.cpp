@@ -209,6 +209,12 @@ void applyFont(const QString &sourceFamily, GaugeComponent *component)
     for (int i = words.size() - 1; i > 0; --i)
         {
             const QString word = words.at(i).toLower();
+            if (word == "cn")
+                {
+                    // the condensed cut is a family of its own
+                    words[i] = QStringLiteral("Condensed");
+                    continue;
+                }
             if (word == "italic")
                 {
                     component->italic = true;
@@ -217,7 +223,7 @@ void applyFont(const QString &sourceFamily, GaugeComponent *component)
                 {
                     component->bold = true;
                 }
-            else if (word != "light" && word != "cn" && word != "regular")
+            else if (word != "light" && word != "regular")
                 {
                     continue;
                 }

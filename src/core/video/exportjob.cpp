@@ -27,8 +27,9 @@ const int kHurryDelayMs = 1500;
 }
 
 ExportJob::ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const Overlay &overlay,
-                     const SyncMap &sync, QObject *parent)
+                     const SyncMap &sync, QObject *parent, Engine engine)
     : QObject(parent)
+    , m_engine(engine)
     , m_ffmpegProgram(ffmpegProgram)
     , m_plan(plan)
     , m_overlay(overlay)
@@ -39,6 +40,16 @@ ExportJob::ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const
 
 ExportJob::~ExportJob()
 {
+    if (m_own)
+        {
+            if (!m_done)
+                {
+                    // closed first, then the unfinished file goes
+                    m_own.reset();
+                    QFile::remove(m_plan.outputPath);
+                }
+            return;
+        }
     if (m_done || !m_process)
         {
             return;
@@ -63,6 +74,29 @@ void ExportJob::start()
         {
             // Qt's own format: drawing into anything else converts at every step
             m_frame = QImage(m_plan.stackSize, QImage::Format_ARGB32_Premultiplied);
+        }
+    if (m_engine == OwnEngine)
+        {
+            m_own = std::make_unique<LibavExport>(m_plan, [this](qint64 index)
+            {
+                renderFrame(index);
+                // over nothing the colors go with straight alpha (see ExportPlan)
+                return m_plan.transparent ? m_frame.convertToFormat(QImage::Format_ARGB32) : m_frame;
+            });
+            m_clock.start();
+            QString error;
+            if (!m_own->start(&error))
+                {
+                    m_own.reset();
+                    // reported once start() has returned, as a failed ffmpeg is
+                    QTimer::singleShot(0, this, [this, error]()
+                    {
+                        finish(Failed, tr("The video engine could not start: %1").arg(error));
+                    });
+                    return;
+                }
+            QTimer::singleShot(0, this, &ExportJob::stepOwn);
+            return;
         }
     m_process = new QProcess(this);
     connect(m_process, &QProcess::started, this, &ExportJob::pump);
@@ -96,6 +130,21 @@ void ExportJob::stop()
 {
     if (m_done || m_stopping || m_abandoned)
         {
+            return;
+        }
+    if (m_engine == OwnEngine)
+        {
+            if (!m_own || m_plan.frameCount == 0 || m_own->gaugesSent() == 0)
+                {
+                    // nothing tells the engine where to end, or nothing is worth keeping
+                    m_abandoned = true;
+                    m_own.reset();
+                    finish(Canceled, QString());
+                    return;
+                }
+            // the file ends after the pictures sent so far, its sound with it
+            m_stopping = true;
+            m_own->endGauges();
             return;
         }
     const bool running = m_process && m_process->state() == QProcess::Running;
@@ -156,6 +205,40 @@ void ExportJob::abandon()
     else
         {
             finish(Canceled, QString());
+        }
+}
+
+void ExportJob::stepOwn()
+{
+    if (m_done || !m_own)
+        {
+            return;
+        }
+    const LibavExport::State state = m_own->step();
+    m_nextFrame = m_own->gaugesSent();
+    const qint64 now = m_clock.elapsed();
+    if (now - m_lastReportMs >= kReportIntervalMs || state != LibavExport::Working)
+        {
+            m_lastReportMs = now;
+            emit progress(m_nextFrame, m_plan.frameCount, now > 0 ? m_nextFrame * 1000.0 / now : 0.0);
+        }
+    switch (state)
+        {
+        case LibavExport::Working:
+            // back to the event loop between slices, so a stop gets through
+            QTimer::singleShot(0, this, &ExportJob::stepOwn);
+            return;
+        case LibavExport::Done:
+            m_own.reset();
+            finish(m_stopping && m_nextFrame < m_plan.frameCount ? Stopped : Succeeded, QString());
+            return;
+        case LibavExport::Failed:
+            {
+                const QString error = m_own->error();
+                m_own.reset();
+                finish(Failed, tr("The video engine reported:\n%1").arg(error));
+                return;
+            }
         }
 }
 

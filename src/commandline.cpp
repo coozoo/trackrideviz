@@ -15,6 +15,7 @@
 #include "video/exportplan.h"
 #include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
+#include "video/libav.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
 #include "weather/weather.h"
@@ -173,11 +174,22 @@ int listTemplates()
     return 0;
 }
 
-int listEncoders()
+// The engine and encoders of an export: the one asked for, or the other when it cannot export here.
+VideoEncoders::ForEngine findEncoders(bool preferOwn)
 {
-    const QString ffmpeg = FfmpegTools::ffmpegProgram();
-    say(QCoreApplication::translate("CommandLine", "Trying the encoders of %1 (a short test encode each)...").arg(ffmpeg));
-    const QVector<VideoEncoder> found = VideoEncoders::detect(ffmpeg);
+    const VideoEncoders::ForEngine found = VideoEncoders::detectFor(preferOwn, FfmpegTools::ffmpegProgram());
+    if (!found.encoders.isEmpty())
+        {
+            say(found.own ? QCoreApplication::translate("CommandLine", "Engine: built in, %1").arg(Libav::version())
+                : QCoreApplication::translate("CommandLine", "Engine: the ffmpeg program, %1").arg(FfmpegTools::ffmpegProgram()));
+        }
+    return found;
+}
+
+int listEncoders(bool preferOwn)
+{
+    say(QCoreApplication::translate("CommandLine", "Trying the encoders (a short test encode each)..."));
+    const QVector<VideoEncoder> found = findEncoders(preferOwn).encoders;
     if (found.isEmpty())
         {
             return fail(QCoreApplication::translate("CommandLine", "ffmpeg could not be run, or has none of the encoders this program knows."));
@@ -205,7 +217,7 @@ QString hms(double seconds)
     return QString("%1:%2:%3").arg(whole / 3600).arg((whole / 60) % 60, 2, 10, QChar('0')).arg(whole % 60, 2, 10, QChar('0'));
 }
 
-int render(const QCommandLineParser &parser)
+int render(const QCommandLineParser &parser, bool preferOwn)
 {
     // what is drawn: a project, or a video, its data and a template
     Project project;
@@ -247,7 +259,7 @@ int render(const QCommandLineParser &parser)
     const QString ffmpeg = FfmpegTools::ffmpegProgram();
     MediaInfo info;
     QString probeError;
-    if (!MediaProbe::probe(FfmpegTools::ffprobeProgram(), project.videoPath, &info, &probeError))
+    if (!MediaProbe::probe(FfmpegTools::ffprobeProgram(), project.videoPath, &info, &probeError, preferOwn))
         {
             return fail(probeError);
         }
@@ -397,14 +409,22 @@ int render(const QCommandLineParser &parser)
 
     ExportSettings current = AppSettings::exportDefaults();
     QVector<VideoEncoder> available;
+    // the engine: the one asked for when it can export here, else the other
+    bool own = preferOwn && Libav::available();
     if (parser.isSet("encoder"))
         {
             current.encoder = parser.value("encoder");
+            if (!own && Libav::available() && FfmpegTools::versionLine(ffmpeg).isEmpty())
+                {
+                    own = true;
+                }
         }
     else
         {
             say(QCoreApplication::translate("CommandLine", "Finding the encoders this computer can use..."));
-            available = VideoEncoders::detect(ffmpeg);
+            const VideoEncoders::ForEngine found = findEncoders(preferOwn);
+            own = found.own;
+            available = found.encoders;
             if (available.isEmpty())
                 {
                     return fail(QCoreApplication::translate("CommandLine", "ffmpeg could not be run, or has none of the encoders this program knows: %1").arg(ffmpeg));
@@ -534,7 +554,7 @@ int render(const QCommandLineParser &parser)
     say(QCoreApplication::translate("CommandLine", "%1 -> %2").arg(video.fileName(), output.filePath()));
     say(QCoreApplication::translate("CommandLine", "Profile: %1; %2").arg(profile->name, gauges ? QCoreApplication::translate("CommandLine", "the gauges alone, see-through") : describe(settings)));
     const ExportPlan plan = ExportPlan::make(project.videoPath, info, settings, overlay, project.cuts, soundtrack);
-    ExportJob job(ffmpeg, plan, overlay, project.sync());
+    ExportJob job(ffmpeg, plan, overlay, project.sync(), nullptr, own ? ExportJob::OwnEngine : ExportJob::ProgramEngine);
     const bool quiet = parser.isSet("quiet");
     QEventLoop loop;
     ExportJob::Outcome outcome = ExportJob::Failed;
@@ -646,7 +666,16 @@ int CommandLine::run()
     std::signal(SIGTERM, onInterrupt);
     // Qt's own messages (fonts, plugins) only with --verbose: they would bury the progress
     const QStringList arguments = QCoreApplication::arguments();
-    if (!arguments.contains("--verbose"))
+    if (arguments.contains("--verbose"))
+        {
+            // onto the terminal, also when it is a pipe or a file (Qt would send them to the journal then)
+            qInstallMessageHandler([](QtMsgType, const QMessageLogContext &context, const QString &text)
+            {
+                const bool named = context.category && qstrcmp(context.category, "default") != 0;
+                std::fprintf(stderr, "%s%s%s\n", named ? context.category : "", named ? ": " : "", qPrintable(text));
+            });
+        }
+    else
         {
             qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &, const QString &text)
             {
@@ -696,6 +725,8 @@ int CommandLine::run()
                                         "Without it: beside the video, named <video>_overlay.<suffix>."), "file"},
         {QStringList{"y", "overwrite"}, QCoreApplication::translate("CommandLine", "Replace the output file when it is there.")},
         {"profile", QCoreApplication::translate("CommandLine", "youtube, small, source, or one saved in the export dialog (--list-profiles)."), "name"},
+        {"engine", QCoreApplication::translate("CommandLine", "builtin: FFmpeg's libraries built into the program; ffmpeg: the ffmpeg program. "
+                                        "Without it: as in the settings (built in when the program has it)."), "engine"},
         {"encoder", QCoreApplication::translate("CommandLine", "This encoder exactly, as --list-encoders names it: libx264, h264_nvenc, hevc_vaapi..."), "name"},
         {"hardware", QCoreApplication::translate("CommandLine", "An encoder of the graphics card for the profile's codec.")},
         {"software", QCoreApplication::translate("CommandLine", "An encoder of the processor for the profile's codec.")},
@@ -722,13 +753,28 @@ int CommandLine::run()
         {
             return listTemplates();
         }
+    // the engine wanted
+    bool preferOwn = AppSettings::ownVideoEngine();
+    if (parser.isSet("engine"))
+        {
+            const QString engine = parser.value("engine").toLower();
+            if (engine != QLatin1String("builtin") && engine != QLatin1String("ffmpeg"))
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "--engine takes builtin or ffmpeg, not %1.").arg(engine), 2);
+                }
+            preferOwn = engine == QLatin1String("builtin");
+            if (preferOwn && !Libav::available())
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "This build has no engine of its own: it exports with the ffmpeg program."), 2);
+                }
+        }
     if (parser.isSet("list-encoders"))
         {
-            return listEncoders();
+            return listEncoders(preferOwn);
         }
     if (parser.isSet("render"))
         {
-            return render(parser);
+            return render(parser, preferOwn);
         }
     parser.showHelp(2);
 }
