@@ -48,6 +48,8 @@ private:
     // Runs the ffmpeg named on the Export page and shows its version, or that it cannot be run.
     void checkFfmpeg();
     void updateMapFields();
+    // the maps the keys typed in allow, the one chosen kept when it still can be
+    void fillMapChoice();
     void updateStoredMaps();
     // Shows what the chosen tires and position stand for; the numbers can be typed only for "my own".
     void updatePowerFields();
@@ -79,7 +81,7 @@ private:
     QLineEdit *m_exportFolderEdit{nullptr};
     QCheckBox *m_mapDownloadsCheck{nullptr};
     QComboBox *m_mapProviderCombo{nullptr};
-    QLineEdit *m_mapApiKeyEdit{nullptr};
+    QHash<QString, QLineEdit *> m_mapKeyEdits;   // by TileStore::KeyService id
     QCheckBox *m_mapCreditCheck{nullptr};
     QPushButton *m_mapClearButton{nullptr};
     QLineEdit *m_mapUrlEdit{nullptr};

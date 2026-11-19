@@ -7,6 +7,7 @@
 #include "icons.h"
 #include "laps/lapengine.h"
 #include "maps/tilestore.h"
+#include "settings/appsettings.h"
 #include "telemetry/channelids.h"
 #include "telemetry/demosession.h"
 #include "telemetry/derivedchannels.h"
@@ -2288,7 +2289,14 @@ void GaugeEditor::fillProperties()
                         {
                             addNumber(form, tr("Strength of the map:"), part.tileOpacity, 0.05, 1, 2, [](Part &p, double v) { p.tileOpacity = v; });
                             // a map of its own, or the one chosen in the settings
-                            const QVector<TileStore::Provider> providers = TileStore::providers();
+                            // those the keys in the settings allow, and the one the gauge has whatever
+                            QVector<TileStore::Provider> providers = AppSettings::usableMapProviders();
+                            if (!part.mapProvider.isEmpty()
+                                    && std::none_of(providers.cbegin(), providers.cend(),
+                                                    [&part](const TileStore::Provider &p) { return p.id == part.mapProvider; }))
+                                {
+                                    providers.append(TileStore::provider(part.mapProvider));
+                                }
                             QVector<QPair<QString, int>> maps{{tr("as in the settings"), -1}};
                             int current = -1;
                             for (int i = 0; i < providers.size(); ++i)

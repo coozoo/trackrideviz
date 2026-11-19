@@ -213,6 +213,11 @@ and the pipe size); ffmpeg's four overlay filters alone take 19 s of that.
 - ✅ A map of its own per gauge (2026-11-17, `TileStore::forMap`): "Map" in a route gauge's menu on the video
   and in the editor, as in the settings or one of the maps the program knows; each map has a store of its own,
   following the settings' downloads, credit and key. Kept in gauges ("map"), projects and templates
+- ✅ More maps and a key per service (2026-11-18): free OSM Humanitarian and France, ÖPNVKarte, Esri topographic and
+  streets, maps-for-free relief, IGN France map and photos, USGS topo and imagery (each checked with a real tile);
+  Thunderforest, Stadia (with Stamen), MapTiler and Mapbox styles with the user's key (addresses as the services
+  document them, untried without a key), offered once their key is entered; the one key of before becomes
+  Thunderforest's. CARTO was left out: its tiles now want a key and come back as "API key required" pictures
 - ✅ The Laps panel draws its route on the street map (2026-11-14), with a switch and the choice
   of map under it - the same choice as in the settings, so the gauges follow it
 - ✅ The route map of the Laps panel zooms (wheel, + and -) and moves (drag); what is picked in the

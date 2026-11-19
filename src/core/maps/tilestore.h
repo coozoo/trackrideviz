@@ -43,9 +43,10 @@ public:
     // use (from the GUI thread, as gauges are bound there), its tiles kept beside the others;
     // what comes for it is told by instance()'s arrived(). An empty id: instance().
     static TileStore *forMap(const QString &providerId);
-    // What every store of forMap() follows of the settings: downloads, the credit drawn, the key
-    // of servers that want one.
-    static void setMapOptions(bool downloads, bool credit, const QString &apiKey);
+    // What every store of forMap() follows of the settings: downloads, the credit drawn, the keys
+    // of the services that want one (by KeyService id). A map without its key is drawn as the
+    // settings' own.
+    static void setMapOptions(bool downloads, bool credit, const QHash<QString, QString> &keys);
     // pending() of instance() and of every store of forMap().
     static int pendingOfAllMaps();
 
@@ -71,11 +72,23 @@ public:
         QString urlTemplate;   // with {apikey} when the server wants one
         QString attribution;
         int maxZoom{19};
+        QString service;       // the KeyService whose key it takes; empty: free to use
     };
     // The maps the program knows; the first is the one it starts with.
     static QVector<Provider> providers();
     // By id; the first one when the id is not known.
     static Provider provider(const QString &id);
+    // A map service whose maps need a key of the user's own; one key serves all its maps.
+    struct KeyService
+    {
+        QString id;            // kept in the settings
+        QString name;
+        QString signUp;        // where a key is had
+    };
+    static QVector<KeyService> keyServices();
+    // The maps that can be drawn with these keys (by KeyService id): the free ones and those
+    // whose key is there.
+    static QVector<Provider> usableProviders(const QHash<QString, QString> &keys);
 
     // One tile as it is on disk; a null image when it is not there (it is then asked for).
     // May be called from any thread.

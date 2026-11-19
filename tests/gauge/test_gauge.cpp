@@ -1034,9 +1034,35 @@ private slots:
                 QCOMPARE(TileStore::provider(provider.id).name, provider.name);
             }
         QCOMPARE(TileStore::provider("no such map").id, providers.first().id);
+        // a map that wants a key names its service, and only those have a place for one
+        QSet<QString> services;
+        for (const TileStore::KeyService &service : TileStore::keyServices())
+            {
+                services.insert(service.id);
+                QVERIFY(service.signUp.startsWith("https://"));
+            }
+        for (const TileStore::Provider &provider : providers)
+            {
+                QCOMPARE(provider.urlTemplate.contains("{apikey}"), !provider.service.isEmpty());
+                QVERIFY(provider.service.isEmpty() || services.contains(provider.service));
+            }
+        // offered: the free maps, and those of a service once its key is there
+        const auto offered = [](const QHash<QString, QString> &keys)
+        {
+            QStringList ids;
+            for (const TileStore::Provider &provider : TileStore::usableProviders(keys))
+                ids << provider.id;
+            return ids;
+        };
+        QVERIFY(offered({}).contains("osm") && offered({}).contains("ign-plan"));
+        QVERIFY(!offered({}).contains("opencyclemap") && !offered({}).contains("maptiler-outdoor"));
+        QVERIFY(!offered({{"thunderforest", "  "}}).contains("opencyclemap"));
+        const QStringList withKey = offered({{"thunderforest", "abc"}});
+        QVERIFY(withKey.contains("opencyclemap") && withKey.contains("tf-outdoors"));
+        QVERIFY(!withKey.contains("stadia-smooth"));
 
-        // a gauge's map of its own: one store per map, its server and credit, the settings' key
-        TileStore::setMapOptions(false, true, "secret");
+        // a gauge's map of its own: one store per map, its server and credit, the settings' keys
+        TileStore::setMapOptions(false, true, {{"thunderforest", "secret"}});
         QCOMPARE(TileStore::forMap(QString()), TileStore::instance());
         TileStore *satellite = TileStore::forMap("satellite");
         QVERIFY(satellite != TileStore::instance());
@@ -1044,8 +1070,10 @@ private slots:
         QCOMPARE(satellite->urlTemplate(), TileStore::provider("satellite").urlTemplate);
         QCOMPARE(satellite->attribution(), TileStore::provider("satellite").attribution);
         QVERIFY(TileStore::forMap("opencyclemap")->urlTemplate().contains("apikey=secret"));
+        // a map whose key is missing is drawn as the settings' map, not left empty
+        QCOMPARE(TileStore::forMap("maptiler-outdoor"), TileStore::instance());
         // without the credit drawn
-        TileStore::setMapOptions(false, false, "secret");
+        TileStore::setMapOptions(false, false, {{"thunderforest", "secret"}});
         QVERIFY(satellite->attribution().isEmpty());
         QCOMPARE(TileStore::pendingOfAllMaps(), 0);
 

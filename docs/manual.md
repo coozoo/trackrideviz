@@ -204,9 +204,18 @@ them at one place.
 
 ## 13. Maps, terrain and weather
 
-- **Street maps** under route gauges and in the Laps panel: OpenStreetMap, CyclOSM,
-  OpenTopoMap, satellite pictures, OpenCycleMap (with your key) or your own tile server, chosen in
-  Settings > Maps; a gauge can have a map of its own from its menu. Tiles are kept on disk, so a
+- **Street maps** under route gauges and in the Laps panel, chosen in Settings > Maps; a gauge
+  can have a map of its own from its menu.
+  - Free: OpenStreetMap (standard, Humanitarian, France), CyclOSM, OpenTopoMap, ÖPNVKarte (public
+    transport), Esri satellite, topographic and streets, a shaded relief, IGN France (map and aerial
+    photos) and USGS (USA, topographic and imagery).
+  - With a key of your own (most have a free allowance): Thunderforest (OpenCycleMap, Outdoors,
+    Landscape, Transport), Stadia Maps (Alidade Smooth and Dark, Outdoors, Stamen Terrain, Toner,
+    Watercolor), MapTiler (Streets, Outdoor, Topo, Winter, Satellite) and Mapbox (Satellite
+    Streets, Outdoors, Streets). Enter the key under Keys in Settings > Maps ("Get a key" opens the
+    service's page); the service's maps are offered from then on. A map whose key is removed is
+    drawn as the settings' map.
+  - Or your own tile server: any address with `{z}`, `{x}` and `{y}`. Tiles are kept on disk, so a
   ride previewed once exports without a connection. The map's credit is drawn in its corner and
   can be switched off. Settings > Maps also shows how much the stored tiles take and deletes them.
 - **Elevation from the terrain**: in the Sources panel, the height of the ground under the route
@@ -288,7 +297,8 @@ Where the program keeps things (`trackrideviz` is the program's name):
 - **Preview**: decoding on the graphics card, the decoder.
 - **Units**: speed, length, temperature.
 - **Export**: the ffmpeg program, the folder for exported videos.
-- **Maps**: the map, your own server or key, downloads on or off, the credit, stored tiles.
+- **Maps**: the map, the keys of map services, your own server, downloads on or off, the credit,
+  stored tiles.
 - **Bike**: chainrings, sprockets and wheel, for gears worked out from speed and cadence.
 - **Power**: the estimate on or off; rider and bike weight, height, tires, riding position.
 - **Surfaces**: how each surface adds to the rolling resistance.
