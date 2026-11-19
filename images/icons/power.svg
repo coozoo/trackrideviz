@@ -1,0 +1,16 @@
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <radialGradient id="s" cx="24" cy="42.5" r="16" gradientTransform="matrix(1 0 0 .25 0 31.9)" gradientUnits="userSpaceOnUse">
+   <stop offset="0" stop-opacity=".45"/>
+   <stop offset="1" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="b" x1="18" x2="30" y1="4" y2="44" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fce94f" offset="0"/>
+   <stop stop-color="#edd400" offset=".5"/>
+   <stop stop-color="#f57900" offset="1"/>
+  </linearGradient>
+ </defs>
+ <ellipse cx="24" cy="42.5" rx="16" ry="4" fill="url(#s)"/>
+ <path d="m28.5 3.5-15 22.5h9l-4 18.5 17-25.5h-9.5z" fill="url(#b)" stroke="#ce5c00" stroke-linejoin="round" stroke-width="1.6"/>
+ <path d="m25.4 8.9-9.2 14.3h8.8l-2.4 11.7 10.6-15.9h-9.3z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".6"/>
+</svg>

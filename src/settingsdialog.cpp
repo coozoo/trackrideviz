@@ -66,15 +66,17 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     m_pages = new QStackedWidget(this);
     connect(m_pageList, &QListWidget::currentRowChanged, m_pages, &QStackedWidget::setCurrentIndex);
 
-    addPage(tr("Appearance"), createAppearancePage());
-    addPage(tr("Preview"), createPreviewPage());
-    addPage(tr("Units"), createUnitsPage());
-    addPage(tr("Export"), createExportPage());
-    addPage(tr("Maps"), createMapsPage());
-    addPage(tr("Bike"), createBikePage());
-    addPage(tr("Power"), createPowerPage());
-    addPage(tr("Surfaces"), createSurfacesPage());
-    addPage(tr("Weather"), createWeatherPage());
+    m_pageList->setIconSize(QSize(32, 32));
+    m_pageList->setSpacing(4);
+    addPage(tr("Appearance"), "preferences-desktop-theme", createAppearancePage());
+    addPage(tr("Preview"), "video-display", createPreviewPage());
+    addPage(tr("Units"), "accessories-calculator", createUnitsPage());
+    addPage(tr("Export"), "media-record", createExportPage());
+    addPage(tr("Maps"), "applications-internet", createMapsPage());
+    addPage(tr("Bike"), "bicycle", createBikePage());
+    addPage(tr("Power"), "power", createPowerPage());
+    addPage(tr("Surfaces"), "road", createSurfacesPage());
+    addPage(tr("Weather"), "weather-few-clouds", createWeatherPage());
     m_pageList->setCurrentRow(0);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this);
@@ -108,7 +110,7 @@ void SettingsDialog::showEvent(QShowEvent *event)
     QHBoxLayout *body = m_body;
     QDialogButtonBox *buttons = m_buttons;
     // the list as wide as its longest name, in any language
-    m_pageList->setFixedWidth(m_pageList->sizeHintForColumn(0) + 2 * m_pageList->frameWidth() + 24);
+    m_pageList->setFixedWidth(m_pageList->sizeHintForColumn(0) + 2 * (m_pageList->frameWidth() + m_pageList->spacing()) + 24);
     // as large as the largest page needs, as far as the screen allows; what still does not
     // fit scrolls
     QSize largest;
@@ -130,9 +132,11 @@ void SettingsDialog::showEvent(QShowEvent *event)
          pos().y() - std::max(0, frameGeometry().bottom() - screen()->availableGeometry().bottom()));
 }
 
-void SettingsDialog::addPage(const QString &title, QWidget *page)
+void SettingsDialog::addPage(const QString &title, const QString &icon, QWidget *page)
 {
-    m_pageList->addItem(title);
+    QListWidgetItem *item = new QListWidgetItem(Icons::bundled(icon), title);
+    item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    m_pageList->addItem(item);
     // a page taller than the dialog scrolls rather than squeezing its rows
     QScrollArea *scroll = new QScrollArea(this);
     scroll->setWidgetResizable(true);

@@ -34,7 +34,7 @@ protected:
     void showEvent(QShowEvent *event) override;
 
 private:
-    void addPage(const QString &title, QWidget *page);
+    void addPage(const QString &title, const QString &icon, QWidget *page);
     QWidget *createAppearancePage();
     QWidget *createPreviewPage();
     QWidget *createUnitsPage();
