@@ -13,6 +13,8 @@
 #include "telemetry/demosession.h"
 
 #include <QColorSpace>
+#include <QFontDatabase>
+#include <QFontInfo>
 #include <QJsonObject>
 #include <QPainter>
 #include <QTemporaryDir>
@@ -343,6 +345,35 @@ private slots:
         // "original" keeps the picture as it is
         const QImage untouched = draw(imageGauge(filled(Qt::magenta), QRectF(20, 20, 60, 60)), 0.0);
         QCOMPARE(untouched.pixelColor(50, 50), QColor(Qt::magenta));
+    }
+
+    void importedFontsFound()
+    {
+        // fonts imported gauges name are drawn in the bundled ones of the same kind, wherever
+        // the computer lacks them
+        GaugeFonts::load();
+        const auto drawnWith = [](const QString &family, bool bold = false)
+        {
+            QFont font(family);
+            font.setBold(bold);
+            return QFontInfo(font).family();
+        };
+        if (!QFontDatabase::families().contains("DS-Digital"))
+            QCOMPARE(drawnWith("DS-Digital"), QString("DSEG7 Classic"));
+        if (!QFontDatabase::families().contains("Furore"))
+            QCOMPARE(drawnWith("Furore", true), QString("Orbitron"));
+        QCOMPARE(drawnWith("Roboto Condensed"), QString("Roboto Condensed"));
+        QCOMPARE(drawnWith("Roboto", true), QString("Roboto"));
+
+        // the condensed cut is named as a family of its own
+        const QByteArray veg = R"({"gaugeName": "Fonts", "frame": {"width": 100, "height": 50}, "components": [
+                {"type": "text", "textValue": "1", "fontFamily": "Roboto Cn", "fontSize": 12, "frame": {"x": 0, "y": 0}},
+                {"type": "text", "textValue": "2", "fontFamily": "Roboto Cn Bold", "fontSize": 12, "frame": {"x": 0, "y": 0}}]})";
+        const VegGaugeImporter::Result result = VegGaugeImporter::parse(veg, "Fonts", QString());
+        QCOMPARE(result.gauge.components.size(), 2);
+        QCOMPARE(result.gauge.components.at(0).fontFamily, QString("Roboto Condensed"));
+        QCOMPARE(result.gauge.components.at(1).fontFamily, QString("Roboto Condensed"));
+        QVERIFY(result.gauge.components.at(1).bold);
     }
 
     void themeFontAndWeight()
