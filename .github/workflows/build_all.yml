@@ -149,9 +149,26 @@ jobs:
           echo "VER_TAG_NAME=$(cat main.cpp |grep 'const QString APP'|awk -F\" '{print $2;}')-$(date +'%Y%m%d%H%M')" >> $GITHUB_OUTPUT
           echo "APP_NAME=$(cat *.pro |grep 'TARGET ='|awk -F\= '{print $2;}'| tr -d ' ')" >> $GITHUB_OUTPUT
         id: build
+      # The packages downloaded are kept between runs, as setup-msys2 keeps Windows' (the mirror
+      # once took 25 minutes): still installed every time, only not fetched again. Kept for one
+      # image of the runner, which brings newer versions; a new one starts from the last.
+      - name: runner image
+        if: matrix.config.os != 'windows-latest'
+        id: image
+        shell: bash
+        run: echo "version=${ImageVersion:-none}" >> $GITHUB_OUTPUT
+      - name: apt downloads (kept between runs)
+        if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
+        uses: actions/cache@v6
+        with:
+          path: ~/apt-cache
+          key: apt-ubuntu-22.04-${{ steps.image.outputs.version }}-${{ hashFiles('.github/workflows/build_all.yml') }}
+          restore-keys: apt-ubuntu-22.04-
       - name: install qt into linux
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
         run: |
+          mkdir -p ~/apt-cache/partial
+          echo "Dir::Cache::Archives \"$HOME/apt-cache\";" | sudo tee /etc/apt/apt.conf.d/99downloads-kept
           sudo apt-get update -qq
           # the runner's own libunwind-14-dev blocks libunwind-dev, which libgstreamer1.0-dev needs
           sudo apt-get -y remove libunwind-14-dev || true
@@ -160,6 +177,9 @@ jobs:
           # what the AppImage's own FFmpeg is built with (tools/appimage/ffmpeg-libraries.sh) and bundles
           sudo apt-get -y install nasm libx264-dev libx265-dev libvpx-dev libaom-dev libsvtav1enc-dev \
             libopus-dev libvorbis-dev libmp3lame-dev libva-dev libdrm-dev
+          # versions no longer on the mirror go; the rest readable for the cache to be saved
+          sudo apt-get autoclean -qq
+          sudo chown -R "$(id -u):$(id -g)" ~/apt-cache
       - name: FFmpeg libraries for the AppImage (kept between runs)
         if: matrix.config.os == 'ubuntu-22.04' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_lin == '1')
         id: ffmpegcache
@@ -321,9 +341,21 @@ jobs:
           echo "VER_TAG_NAME=$(cat main.cpp |grep 'const QString APP'|awk -F\" '{print $2;}')" >> $GITHUB_OUTPUT
           echo "APP_NAME=$(cat *.pro |grep 'TARGET ='|awk -F\= '{print $2;}'| tr -d ' ')" >> $GITHUB_OUTPUT
         id: buildosx
+      - name: Homebrew downloads (kept between runs)
+        if: matrix.config.os == 'macos-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_mac_dmg == '1' || needs.create_release.outputs.build_mac_zip == '1')
+        uses: actions/cache@v6
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: brew-${{ steps.image.outputs.version }}-${{ hashFiles('.github/workflows/build_all.yml') }}
+          restore-keys: brew-${{ steps.image.outputs.version }}-
       - name: install qt OSX
         if: matrix.config.os == 'macos-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_mac_dmg == '1' || needs.create_release.outputs.build_mac_zip == '1')
-        # ffmpeg: its libraries are the program's own video engine, bundled by macdeployqt
+        # ffmpeg: its libraries are the program's own video engine, bundled by macdeployqt.
+        # Homebrew as the runner image has it: updating itself first, and cleaning up after,
+        # take minutes and are not needed on a machine used once
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: brew install qt ffmpeg pkgconf
       - name: buid OSX
         if: matrix.config.os == 'macos-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_mac_dmg == '1' || needs.create_release.outputs.build_mac_zip == '1')
