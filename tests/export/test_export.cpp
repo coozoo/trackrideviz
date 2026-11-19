@@ -431,6 +431,30 @@ private slots:
         QVERIFY(!plan.arguments.contains("0:a?"));
     }
 
+    void planKeepsItsParts()
+    {
+        // what an engine of the program's own reads: the inputs in their order, the graph,
+        // where the sound comes from and the options of each part; ffmpeg's command is made of them
+        ExportSettings settings = settingsFor("out.mp4");
+        settings.start = 10.0;
+        settings.audio = ExportSettings::AacAudio;
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        QCOMPARE(plan.inputs.size(), 2);
+        QCOMPARE(plan.inputs.at(0).source, QString("in.mp4"));
+        QVERIFY(hasPair(plan.inputs.at(0).options, "-ss", "10.000"));
+        QCOMPARE(plan.inputs.at(1).source, QString(ExportPlan::Pipe));
+        QVERIFY(hasPair(plan.inputs.at(1).options, "-f", "rawvideo"));
+        QVERIFY(plan.filterGraph.startsWith("[0:v][1:v]overlay=") && plan.filterGraph.contains("[v]"));
+        QCOMPARE(plan.audioMap, QString("0:a?"));
+        QVERIFY(hasPair(plan.audioOptions, "-c:a", "aac"));
+        QVERIFY(hasPair(plan.videoOptions, "-c:v", "libx264"));
+        QCOMPARE(plan.arguments, plan.ffmpegArguments());
+        QCOMPARE(plan.arguments.last(), QString("out.mp4"));
+
+        settings.audio = ExportSettings::NoAudio;
+        QVERIFY(ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge()).audioMap.isEmpty());
+    }
+
     // --- music -------------------------------------------------------------
 
     void soundtrackTimes()

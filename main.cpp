@@ -15,7 +15,7 @@
 
 #include <memory>
 
-const QString APP_VERSION = "0.03";
+const QString APP_VERSION = "0.04";
 
 int main(int argc, char *argv[])
 {
