@@ -39,12 +39,17 @@ export LV2_PATH=
 export FREI0R_PATH=
 
 # The loaders of the graphics card's drivers (libva for VA-API, VDPAU, OpenCL, Intel's
-# Media SDK) only work with the drivers of their own version: the system's are used, and
-# those of the build machine (in graphics-fallback, out of the program's way) only on a
-# system that has none, so that the program still starts there, without the graphics card.
-if ! { /sbin/ldconfig -p 2>/dev/null || ldconfig -p 2>/dev/null; } | grep -q 'libva\\.so\\.2 ' ; then
-  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${HERE}/usr/lib/graphics-fallback"
-fi
+# libvpl and Media SDK) only work with the drivers of their own version: the system's are
+# used, and those of the build machine (in graphics-fallback, a folder per library named
+# after it, out of the program's way) only for a library the system does not have, so that
+# the program still starts there, without that part of the graphics card.
+SYSTEM_LIBRARIES=$({ /sbin/ldconfig -p 2>/dev/null || ldconfig -p 2>/dev/null; })
+for FALLBACK in "${HERE}"/usr/lib/graphics-fallback/*/ ; do
+  [ -d "$FALLBACK" ] || continue
+  if ! printf '%s\\n' "$SYSTEM_LIBRARIES" | grep -qF "$(basename "$FALLBACK") (" ; then
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${FALLBACK%/}"
+  fi
+done
 
 """
 

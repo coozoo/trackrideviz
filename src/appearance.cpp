@@ -66,6 +66,21 @@ void Appearance::apply()
     const QString wanted = AppSettings::style();
     const QStringList available = QStyleFactory::keys();
     const QString style = available.contains(wanted, Qt::CaseInsensitive) ? wanted : platformStyle;
+
+    // Only a change is applied: setting the same palette again turns Qt 6.2's widgets light
+    // (every Settings OK came here, whatever was changed in it).
+    static bool applied = false;
+    static QString appliedStyle;
+    static AppSettings::ColorScheme appliedScheme = AppSettings::SystemColors;
+    const AppSettings::ColorScheme scheme = AppSettings::colorScheme();
+    if (applied && style == appliedStyle && scheme == appliedScheme)
+        {
+            return;
+        }
+    applied = true;
+    appliedStyle = style;
+    appliedScheme = scheme;
+
     if (QApplication::style()->objectName().compare(style, Qt::CaseInsensitive) != 0)
         {
             QApplication::setStyle(style);
@@ -80,7 +95,7 @@ void Appearance::apply()
         {
             qApp->setStyleSheet(QString());
         }
-    switch (AppSettings::colorScheme())
+    switch (scheme)
         {
         case AppSettings::Dark:
             QApplication::setPalette(darkPalette());

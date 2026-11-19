@@ -220,6 +220,7 @@ jobs:
           make clean
           make -j$(nproc)
           ldd ${{ steps.build.outputs.APP_NAME }} | grep -E "libav(format|codec|filter)" || { echo "::error::Built without FFmpeg's libraries"; exit 1; }
+          ldd /opt/ffmpeg/lib/libavcodec.so | grep -q libvpl || { echo "::error::FFmpeg built without Intel Quick Sync (libvpl)"; exit 1; }
           mkdir -p appdir/usr/bin
           cp ${{ steps.build.outputs.APP_NAME }} appdir/usr/bin/${{ steps.build.outputs.APP_NAME }}
           mkdir -p appdir/usr/share/icons/hicolor/256x256/apps
@@ -253,10 +254,14 @@ jobs:
           done
           # The loaders of graphics drivers must be the system's, which match its drivers (with
           # 22.04's libva, a newer system's VA-API driver does not even load): kept aside, used
-          # only where the system has none (see patch-apprun.py)
-          mkdir -p appdir/usr/lib/graphics-fallback
-          for name in libva.so libva-drm.so libva-x11.so libva-wayland.so libvdpau.so libOpenCL.so libmfx.so libvpl.so; do
-            find appdir -name "$name.*" -not -path '*/graphics-fallback/*' -exec mv -v {} appdir/usr/lib/graphics-fallback/ \;
+          # only where the system has none (see patch-apprun.py), a folder for each, named as the
+          # library the system is asked for; libva's parts go with it
+          for family in "libva.so.2:libva libva-drm libva-x11 libva-wayland" "libvdpau.so.1:libvdpau" \
+                        "libOpenCL.so.1:libOpenCL" "libmfx.so.1:libmfx" "libvpl.so.2:libvpl"; do
+            folder=appdir/usr/lib/graphics-fallback/${family%%:*}
+            for name in ${family#*:}; do
+              find appdir -name "$name.so.*" -not -path '*/graphics-fallback/*' -exec mkdir -p "$folder" \; -exec mv -v {} "$folder"/ \;
+            done
           done
           python3 tools/appimage/patch-apprun.py appdir/AppRun
           VERSION=${{ steps.build.outputs.VER_TAG_NAME }} ./appimagetool-*.AppImage ./appdir
