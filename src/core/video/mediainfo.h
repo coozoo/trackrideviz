@@ -17,6 +17,10 @@ struct MediaInfo
     QString videoCodec;
     bool hasAudio{false};
     QString audioCodec;
+    // the clocks the picture and the sound are stored in ("1/15360", "1/48000"; Matroska's are
+    // "1/1000"): ffmpeg's concat copies only files whose clocks are the same
+    QString videoTimeBase;
+    QString audioTimeBase;
     bool hasCameraData{false};   // a GoPro's GPMF track ("gpmd"): positions, G-forces
     // when the camera says it recorded the file (creation_time); cameras
     // differ in whether that is the start or the end, and in the time zone

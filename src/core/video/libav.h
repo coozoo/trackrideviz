@@ -27,12 +27,13 @@ bool probe(const QString &videoPath, MediaInfo *info, QString *error = nullptr);
 // cannot be read or without the libraries.
 double duration(const QString &path);
 
-// What VideoJoin::arguments has ffmpeg do, done in-process: the files the concat list
-// `listFile` names copied one after another into `output`, the first picture, all sound and,
-// with `cameraData`, the camera's data. Blocking; `progress` is told how far the output has
-// got (seconds) now and then, and stops the join by answering false. A failed or stopped join
-// leaves an unfinished file, with why in `error` (empty when stopped).
-bool copyJoin(const QString &listFile, const QString &output, bool cameraData,
+// What VideoJoin::arguments has ffmpeg do, done in-process: the files `paths` copied one
+// after another into `output`, the first picture, all sound and, with `cameraData`, the
+// camera's data. Unlike ffmpeg's concat, files whose clocks differ (Matroska and MP4) are
+// copied right. Blocking; `progress` is told how far the output has got (seconds) now and
+// then, and stops the join by answering false. A failed or stopped join leaves an unfinished
+// file, with why in `error` (empty when stopped).
+bool copyJoin(const QStringList &paths, const QString &output, bool cameraData,
               const std::function<bool(double seconds)> &progress, QString *error);
 
 // The encoder is in the libraries.

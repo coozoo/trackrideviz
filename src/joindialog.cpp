@@ -5,6 +5,7 @@
 #include "settings/appsettings.h"
 #include "video/videojoin.h"
 #include "video/videojoinjob.h"
+#include "video/libav.h"
 
 #include <QDialogButtonBox>
 #include <QFile>
@@ -19,7 +20,6 @@
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QPushButton>
-#include <QTemporaryDir>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -111,7 +111,6 @@ JoinDialog::~JoinDialog()
 {
     // a join still running stops and leaves no file behind
     delete m_job;
-    delete m_listDir;
 }
 
 void JoinDialog::reject()
@@ -278,7 +277,11 @@ void JoinDialog::join()
             {
                 m_joinedLength += part.info.duration;
             }
-        const QString why = VideoJoin::whyNot(probed.parts);
+        QString why = VideoJoin::whyNot(probed.parts);
+        if (why.isEmpty() && !(AppSettings::ownVideoEngine() && Libav::available()))
+            {
+                why = VideoJoin::whyNotByProgram(probed.parts);
+            }
         if (why.isEmpty())
             {
                 copyParts(probed.parts);
@@ -308,19 +311,8 @@ void JoinDialog::join()
 
 void JoinDialog::copyParts(const QVector<VideoJoin::Part> &parts)
 {
-    delete m_listDir;
-    m_listDir = new QTemporaryDir;
-    const QString list = m_listDir->filePath("join.ffconcat");
-    QFile file(list);
-    if (!file.open(QIODevice::WriteOnly) || file.write(VideoJoin::listFile(paths())) < 0)
-        {
-            m_status->setText(tr("A temporary file could not be written."));
-            setBusy(false);
-            return;
-        }
-    file.close();
     m_status->setText(tr("Joining..."));
-    newJob()->startCopy(list, m_outputPath, VideoJoin::keepsCameraData(parts, m_outputPath));
+    newJob()->startCopy(paths(), m_outputPath, VideoJoin::keepsCameraData(parts, m_outputPath));
 }
 
 void JoinDialog::encodeParts(const QVector<VideoJoin::Part> &parts, const QString &why)

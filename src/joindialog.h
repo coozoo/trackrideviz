@@ -10,7 +10,6 @@ class QLabel;
 class QLineEdit;
 class QListWidget;
 class QProgressBar;
-class QTemporaryDir;
 class VideoJoinJob;
 
 // Joins several videos into one file, by copying their streams or encoding them again, and works out
@@ -53,7 +52,6 @@ private:
     QDialogButtonBox *m_buttons{nullptr};
     QWidget *m_editors{nullptr};
     VideoJoinJob *m_job{nullptr};
-    QTemporaryDir *m_listDir{nullptr};
     bool m_outputEdited{false};
     double m_joinedLength{0.0};    // s, of all the parts: what the progress is counted against
     QString m_outputPath;

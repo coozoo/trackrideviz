@@ -171,6 +171,24 @@ QString VideoJoin::whyNot(const QVector<Part> &parts)
     return QString();
 }
 
+QString VideoJoin::whyNotByProgram(const QVector<Part> &parts)
+{
+    if (parts.isEmpty())
+        {
+            return QString();
+        }
+    const MediaInfo &first = parts.first().info;
+    for (const Part &part : parts)
+        {
+            if (part.info.videoTimeBase != first.videoTimeBase || part.info.audioTimeBase != first.audioTimeBase)
+                {
+                    return tr("%1 keeps its times otherwise than the first video (another kind of file): the ffmpeg "
+                              "program cannot copy them together.").arg(QFileInfo(part.path).fileName());
+                }
+        }
+    return QString();
+}
+
 QVector<TimeShift> VideoJoin::shifts(const QVector<Part> &parts)
 {
     QVector<TimeShift> shifts;
