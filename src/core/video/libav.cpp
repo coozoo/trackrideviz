@@ -1,6 +1,7 @@
 #include "libav.h"
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QLoggingCategory>
 #include <QFile>
@@ -166,6 +167,8 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
                     result.hasAudio = true;
                     result.audioCodec = QString::fromLatin1(avcodec_get_name(codec->codec_id));
                     result.audioTimeBase = QString("%1/%2").arg(stream->time_base.num).arg(stream->time_base.den);
+                    result.audioSampleRate = codec->sample_rate;
+                    result.audioChannels = codec->ch_layout.nb_channels;
                 }
             // cover art is stored as a one-frame "video" stream
             const bool coverArt = stream->disposition & AV_DISPOSITION_ATTACHED_PIC;
@@ -176,6 +179,13 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
             haveVideo = true;
             result.videoCodec = QString::fromLatin1(avcodec_get_name(codec->codec_id));
             result.videoTimeBase = QString("%1/%2").arg(stream->time_base.num).arg(stream->time_base.den);
+            if (codec->extradata && codec->extradata_size > 0)
+                {
+                    // as ffprobe -show_data_hash sha256 tells it
+                    result.videoSetup = QString::fromLatin1(QCryptographicHash::hash(
+                                            QByteArray::fromRawData(reinterpret_cast<const char *>(codec->extradata), codec->extradata_size),
+                                            QCryptographicHash::Sha256).toHex());
+                }
             result.size = QSize(codec->width, codec->height);
             const AVPacketSideData *matrix = av_packet_side_data_get(codec->coded_side_data, codec->nb_coded_side_data,
                                              AV_PKT_DATA_DISPLAYMATRIX);

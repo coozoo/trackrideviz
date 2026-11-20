@@ -80,7 +80,8 @@ Save the work with **File > Save project** (Ctrl+S) to come back to it later.
 
 - **Open video** takes MP4, MOV, MKV, AVI, M4V, MTS and WebM.
 - **Join videos** (File menu) puts several videos into one file. Videos of one kind (the same
-  camera and settings) are copied without encoding, in seconds; camera parts (GX01xxxx,
+  camera and settings; a video exported here is of another kind than the camera's own) are
+  copied without encoding, in seconds; camera parts (GX01xxxx,
   GX02xxxx...) are put in order. The built-in engine also copies an .mkv and an .mp4 of the same
   video together; the ffmpeg program cannot (its times would come out wrong) and encodes them
   instead. When they cannot be copied, the dialog says why and offers to

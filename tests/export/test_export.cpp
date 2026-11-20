@@ -939,6 +939,9 @@ private slots:
                 QCOMPARE(own.hasAudio, theirs.hasAudio);
                 QCOMPARE(own.audioCodec, theirs.audioCodec);
                 QCOMPARE(own.videoTimeBase, theirs.videoTimeBase);
+                QCOMPARE(own.videoSetup, theirs.videoSetup);
+                QCOMPARE(own.audioSampleRate, theirs.audioSampleRate);
+                QCOMPARE(own.audioChannels, theirs.audioChannels);
                 QCOMPARE(own.audioTimeBase, theirs.audioTimeBase);
                 QCOMPARE(own.created, theirs.created);
             }
@@ -1339,6 +1342,16 @@ private slots:
         MediaInfo other = minute;
         other.size = QSize(1280, 720);
         QVERIFY(!VideoJoin::whyNot({{"/v/a.mp4", minute}, {"/v/b.mp4", other}}).isEmpty());
+        // the camera's file and one of ours: same codec and size, another encoder's setup
+        MediaInfo camera = minute;
+        camera.videoSetup = "3745b6";
+        MediaInfo exported = minute;
+        exported.videoSetup = "9c01aa";
+        QVERIFY(!VideoJoin::whyNot({{"/v/a.mp4", camera}, {"/v/b.mkv", exported}}).isEmpty());
+        QVERIFY(VideoJoin::whyNot({{"/v/a.mp4", camera}, {"/v/b.mp4", camera}}).isEmpty());
+        MediaInfo mono = minute;
+        mono.audioChannels = 1;
+        QVERIFY(!VideoJoin::whyNot({{"/v/a.mp4", minute}, {"/v/b.mp4", mono}}).isEmpty());
         QVERIFY(VideoJoin::listFile({"/v/it's.mp4"}).contains("file '/v/it'\\''s.mp4'"));
     }
 

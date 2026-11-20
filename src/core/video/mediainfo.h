@@ -17,6 +17,12 @@ struct MediaInfo
     QString videoCodec;
     bool hasAudio{false};
     QString audioCodec;
+    int audioSampleRate{0};
+    int audioChannels{0};
+    // How the picture's decoder is set up (SHA-256 of the codec's extradata: H.264's SPS and
+    // PPS), lowercase hex; empty when there is none. Files of one encoder and its settings
+    // share it; a copy joined across a difference decodes the later parts as garbage.
+    QString videoSetup;
     // the clocks the picture and the sound are stored in ("1/15360", "1/48000"; Matroska's are
     // "1/1000"): ffmpeg's concat copies only files whose clocks are the same
     QString videoTimeBase;

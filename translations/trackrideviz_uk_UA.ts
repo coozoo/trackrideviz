@@ -4231,7 +4231,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>LibavExport</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="285"/>
+        <location filename="../src/core/video/libav.cpp" line="295"/>
         <location filename="../src/core/video/libavexport.cpp" line="191"/>
         <location filename="../src/core/video/libavexport.cpp" line="198"/>
         <source>%1 cannot be read: %2</source>
@@ -4248,7 +4248,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>%1 не має звуку</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="381"/>
+        <location filename="../src/core/video/libav.cpp" line="391"/>
         <location filename="../src/core/video/libavexport.cpp" line="354"/>
         <source>%1 has no picture</source>
         <translation>%1 не має зображення</translation>
@@ -4264,13 +4264,13 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>У цій збірці немає кодувальника %1</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="388"/>
+        <location filename="../src/core/video/libav.cpp" line="398"/>
         <location filename="../src/core/video/libavexport.cpp" line="601"/>
         <source>%1 cannot be written: %2</source>
         <translation>%1 не вдається записати: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="500"/>
+        <location filename="../src/core/video/libav.cpp" line="510"/>
         <location filename="../src/core/video/libavexport.cpp" line="950"/>
         <source>Built without FFmpeg&apos;s libraries</source>
         <translation>Зібрано без бібліотек FFmpeg</translation>
@@ -5475,35 +5475,35 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="138"/>
-        <location filename="../src/core/video/libav.cpp" line="150"/>
+        <location filename="../src/core/video/libav.cpp" line="139"/>
+        <location filename="../src/core/video/libav.cpp" line="151"/>
         <source>The video cannot be read (%1): %2</source>
         <translation>Відео не вдається прочитати (%1): %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="204"/>
-        <location filename="../src/core/video/mediainfo.cpp" line="105"/>
+        <location filename="../src/core/video/libav.cpp" line="214"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="109"/>
         <source>The file has no video.</source>
         <translation>Файл не містить відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="218"/>
-        <location filename="../src/core/video/mediainfo.cpp" line="120"/>
+        <location filename="../src/core/video/libav.cpp" line="228"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="124"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation>Не вдалося прочитати розмір або частоту кадрів відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="179"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="183"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation>ffprobe читав %1 надто довго. Можливо, файл на повільному диску або пошкоджений?</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="188"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="192"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffprobe (%1). Його встановлюють разом із ffmpeg; розташування можна вказати в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="197"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="201"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation>ffprobe не може прочитати відео: %1</translation>
     </message>
@@ -7057,7 +7057,7 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>VideoJoin</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="487"/>
+        <location filename="../src/core/video/libav.cpp" line="497"/>
         <location filename="../src/core/video/videojoin.cpp" line="147"/>
         <source>Choose two or more videos.</source>
         <translation>Виберіть два або більше відео.</translation>
@@ -7074,11 +7074,16 @@ Shift+перетягування позначає частину; клацанн
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
+        <source>%1 was made by another encoder, or with other settings, than the first video: its pictures would not decode after a copy.</source>
+        <translation>%1 створено іншим кодувальником або з іншими налаштуваннями, ніж перше відео: після копіювання його кадри не декодуватимуться.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videojoin.cpp" line="173"/>
         <source>The sound of %1 differs from that of the first video.</source>
         <translation>Звук %1 відрізняється від звуку першого відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/videojoin.cpp" line="185"/>
+        <location filename="../src/core/video/videojoin.cpp" line="191"/>
         <source>%1 keeps its times otherwise than the first video (another kind of file): the ffmpeg program cannot copy them together.</source>
         <translation>%1 зберігає час інакше, ніж перше відео (інший тип файлу): програма ffmpeg не може скопіювати їх разом.</translation>
     </message>

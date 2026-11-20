@@ -162,7 +162,13 @@ QString VideoJoin::whyNot(const QVector<Part> &parts)
                     return tr("%1 has %2 frames per second, the first video %3.")
                            .arg(name, QString::number(info.fps(), 'f', 2), QString::number(first.fps(), 'f', 2));
                 }
-            if (info.hasAudio != first.hasAudio || info.audioCodec != first.audioCodec)
+            if (!info.videoSetup.isEmpty() && !first.videoSetup.isEmpty() && info.videoSetup != first.videoSetup)
+                {
+                    return tr("%1 was made by another encoder, or with other settings, than the first video: "
+                              "its pictures would not decode after a copy.").arg(name);
+                }
+            if (info.hasAudio != first.hasAudio || info.audioCodec != first.audioCodec
+                    || info.audioSampleRate != first.audioSampleRate || info.audioChannels != first.audioChannels)
                 {
                     return tr("The sound of %1 differs from that of the first video.")
                            .arg(name);
