@@ -75,6 +75,8 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
                     result.hasAudio = true;
                     result.audioCodec = stream.value("codec_name").toString();
                     result.audioTimeBase = stream.value("time_base").toString();
+                    result.audioSampleRate = stream.value("sample_rate").toVariant().toInt();
+                    result.audioChannels = stream.value("channels").toInt();
                 }
             // cover art is stored as a one-frame "video" stream
             const bool coverArt = stream.value("disposition").toObject().value("attached_pic").toInt() != 0;
@@ -85,6 +87,8 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
             haveVideo = true;
             result.videoCodec = stream.value("codec_name").toString();
             result.videoTimeBase = stream.value("time_base").toString();
+            // "SHA256:3745b6..."
+            result.videoSetup = stream.value("extradata_hash").toString().section(':', 1).toLower();
             result.size = QSize(stream.value("width").toInt(), stream.value("height").toInt());
             if (std::abs(rotationOf(stream)) % 180 == 90)
                 {
@@ -170,7 +174,7 @@ bool MediaProbe::probe(const QString &ffprobeProgram, const QString &videoPath, 
 bool MediaProbe::probeWithFfprobe(const QString &ffprobeProgram, const QString &videoPath, MediaInfo *info, QString *error)
 {
     const FfmpegTools::RunResult run = FfmpegTools::run(ffprobeProgram,
-    {"-v", "error", "-print_format", "json", "-show_format", "-show_streams", videoPath});
+    {"-v", "error", "-print_format", "json", "-show_format", "-show_streams", "-show_data_hash", "sha256", videoPath});
     if (run.timedOut)
         {
             if (error)

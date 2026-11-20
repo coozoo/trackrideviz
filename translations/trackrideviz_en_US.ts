@@ -4192,7 +4192,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>LibavExport</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="285"/>
+        <location filename="../src/core/video/libav.cpp" line="295"/>
         <location filename="../src/core/video/libavexport.cpp" line="191"/>
         <location filename="../src/core/video/libavexport.cpp" line="198"/>
         <source>%1 cannot be read: %2</source>
@@ -4209,7 +4209,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="381"/>
+        <location filename="../src/core/video/libav.cpp" line="391"/>
         <location filename="../src/core/video/libavexport.cpp" line="354"/>
         <source>%1 has no picture</source>
         <translation type="unfinished"></translation>
@@ -4225,13 +4225,13 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="388"/>
+        <location filename="../src/core/video/libav.cpp" line="398"/>
         <location filename="../src/core/video/libavexport.cpp" line="601"/>
         <source>%1 cannot be written: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="500"/>
+        <location filename="../src/core/video/libav.cpp" line="510"/>
         <location filename="../src/core/video/libavexport.cpp" line="950"/>
         <source>Built without FFmpeg&apos;s libraries</source>
         <translation type="unfinished"></translation>
@@ -5426,35 +5426,35 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="138"/>
-        <location filename="../src/core/video/libav.cpp" line="150"/>
+        <location filename="../src/core/video/libav.cpp" line="139"/>
+        <location filename="../src/core/video/libav.cpp" line="151"/>
         <source>The video cannot be read (%1): %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="204"/>
-        <location filename="../src/core/video/mediainfo.cpp" line="105"/>
+        <location filename="../src/core/video/libav.cpp" line="214"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="109"/>
         <source>The file has no video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="218"/>
-        <location filename="../src/core/video/mediainfo.cpp" line="120"/>
+        <location filename="../src/core/video/libav.cpp" line="228"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="124"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="179"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="183"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="188"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="192"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="197"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="201"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7002,7 +7002,7 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VideoJoin</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="487"/>
+        <location filename="../src/core/video/libav.cpp" line="497"/>
         <location filename="../src/core/video/videojoin.cpp" line="147"/>
         <source>Choose two or more videos.</source>
         <translation type="unfinished"></translation>
@@ -7019,11 +7019,16 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
     </message>
     <message>
         <location filename="../src/core/video/videojoin.cpp" line="167"/>
+        <source>%1 was made by another encoder, or with other settings, than the first video: its pictures would not decode after a copy.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videojoin.cpp" line="173"/>
         <source>The sound of %1 differs from that of the first video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/videojoin.cpp" line="185"/>
+        <location filename="../src/core/video/videojoin.cpp" line="191"/>
         <source>%1 keeps its times otherwise than the first video (another kind of file): the ffmpeg program cannot copy them together.</source>
         <translation type="unfinished"></translation>
     </message>
