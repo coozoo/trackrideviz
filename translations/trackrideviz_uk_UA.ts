@@ -3911,53 +3911,48 @@ Comes with the program; it cannot be deleted.</source>
         <translation>Об’єднати</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="160"/>
+        <location filename="../src/joindialog.cpp" line="159"/>
         <source>Add videos</source>
         <translation>Додати відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="162"/>
-        <location filename="../src/joindialog.cpp" line="213"/>
+        <location filename="../src/joindialog.cpp" line="161"/>
+        <location filename="../src/joindialog.cpp" line="212"/>
         <source>Videos (%1)</source>
         <translation>Відео (%1)</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="212"/>
+        <location filename="../src/joindialog.cpp" line="211"/>
         <source>Save joined video</source>
         <translation>Зберегти об’єднане відео</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="241"/>
+        <location filename="../src/joindialog.cpp" line="240"/>
         <source>Choose two or more videos.</source>
         <translation>Виберіть два або більше відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="251"/>
+        <location filename="../src/joindialog.cpp" line="250"/>
         <source>Choose a new file to save the joined video in.</source>
         <translation>Виберіть новий файл для об’єднаного відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="255"/>
+        <location filename="../src/joindialog.cpp" line="254"/>
         <source>%1 exists. Replace it?</source>
         <translation>%1 вже існує. Замінити?</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="261"/>
+        <location filename="../src/joindialog.cpp" line="260"/>
         <source>Reading the videos...</source>
         <translation>Читання відео...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="317"/>
-        <source>A temporary file could not be written.</source>
-        <translation>Не вдалося записати тимчасовий файл.</translation>
-    </message>
-    <message>
-        <location filename="../src/joindialog.cpp" line="322"/>
+        <location filename="../src/joindialog.cpp" line="314"/>
         <source>Joining...</source>
         <translation>Об’єднання...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="329"/>
+        <location filename="../src/joindialog.cpp" line="321"/>
         <source>%1
 
 They can be joined by encoding them again. That takes a while; the joined video gets the size and the frame rate of the first one (%2×%3, %4 frames per second), the others scaled into it. Encode them?</source>
@@ -3966,17 +3961,17 @@ They can be joined by encoding them again. That takes a while; the joined video 
 Їх можна об’єднати, закодувавши заново. Це займе певний час; об’єднане відео отримає розмір і частоту кадрів першого (%2×%3, %4 кадрів за секунду), інші буде вписано в нього. Кодувати?</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="335"/>
+        <location filename="../src/joindialog.cpp" line="327"/>
         <source>The camera&apos;s data in the videos does not come along: open it from the videos themselves.</source>
         <translation>Дані камери з цих відео не переносяться: відкрийте їх із самих відео.</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="350"/>
+        <location filename="../src/joindialog.cpp" line="342"/>
         <source>Encoding...</source>
         <translation>Кодування...</translation>
     </message>
     <message>
-        <location filename="../src/joindialog.cpp" line="371"/>
+        <location filename="../src/joindialog.cpp" line="363"/>
         <source>Joining failed: %1</source>
         <translation>Об’єднати не вдалося: %1</translation>
     </message>
@@ -4236,8 +4231,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>LibavExport</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="289"/>
-        <location filename="../src/core/video/libav.cpp" line="401"/>
+        <location filename="../src/core/video/libav.cpp" line="285"/>
         <location filename="../src/core/video/libavexport.cpp" line="191"/>
         <location filename="../src/core/video/libavexport.cpp" line="198"/>
         <source>%1 cannot be read: %2</source>
@@ -4254,7 +4248,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>%1 не має звуку</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="334"/>
+        <location filename="../src/core/video/libav.cpp" line="381"/>
         <location filename="../src/core/video/libavexport.cpp" line="354"/>
         <source>%1 has no picture</source>
         <translation>%1 не має зображення</translation>
@@ -4270,13 +4264,13 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>У цій збірці немає кодувальника %1</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="340"/>
+        <location filename="../src/core/video/libav.cpp" line="388"/>
         <location filename="../src/core/video/libavexport.cpp" line="601"/>
         <source>%1 cannot be written: %2</source>
         <translation>%1 не вдається записати: %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="414"/>
+        <location filename="../src/core/video/libav.cpp" line="500"/>
         <location filename="../src/core/video/libavexport.cpp" line="950"/>
         <source>Built without FFmpeg&apos;s libraries</source>
         <translation>Зібрано без бібліотек FFmpeg</translation>
@@ -5487,29 +5481,29 @@ It appears among the templates in the library.</source>
         <translation>Відео не вдається прочитати (%1): %2</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="202"/>
-        <location filename="../src/core/video/mediainfo.cpp" line="103"/>
+        <location filename="../src/core/video/libav.cpp" line="204"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="105"/>
         <source>The file has no video.</source>
         <translation>Файл не містить відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="216"/>
-        <location filename="../src/core/video/mediainfo.cpp" line="118"/>
+        <location filename="../src/core/video/libav.cpp" line="218"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="120"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation>Не вдалося прочитати розмір або частоту кадрів відео.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="177"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="179"/>
         <source>ffprobe took too long to read %1. Is it on a slow drive, or damaged?</source>
         <translation>ffprobe читав %1 надто довго. Можливо, файл на повільному диску або пошкоджений?</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="186"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="188"/>
         <source>ffprobe could not be started (%1). It is installed together with ffmpeg; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffprobe (%1). Його встановлюють разом із ffmpeg; розташування можна вказати в налаштуваннях.</translation>
     </message>
     <message>
-        <location filename="../src/core/video/mediainfo.cpp" line="195"/>
+        <location filename="../src/core/video/mediainfo.cpp" line="197"/>
         <source>ffprobe cannot read the video: %1</source>
         <translation>ffprobe не може прочитати відео: %1</translation>
     </message>
@@ -7063,6 +7057,7 @@ Shift+перетягування позначає частину; клацанн
 <context>
     <name>VideoJoin</name>
     <message>
+        <location filename="../src/core/video/libav.cpp" line="487"/>
         <location filename="../src/core/video/videojoin.cpp" line="147"/>
         <source>Choose two or more videos.</source>
         <translation>Виберіть два або більше відео.</translation>
@@ -7082,11 +7077,21 @@ Shift+перетягування позначає частину; клацанн
         <source>The sound of %1 differs from that of the first video.</source>
         <translation>Звук %1 відрізняється від звуку першого відео.</translation>
     </message>
+    <message>
+        <location filename="../src/core/video/videojoin.cpp" line="185"/>
+        <source>%1 keeps its times otherwise than the first video (another kind of file): the ffmpeg program cannot copy them together.</source>
+        <translation>%1 зберігає час інакше, ніж перше відео (інший тип файлу): програма ffmpeg не може скопіювати їх разом.</translation>
+    </message>
 </context>
 <context>
     <name>VideoJoinJob</name>
     <message>
-        <location filename="../src/core/video/videojoinjob.cpp" line="114"/>
+        <location filename="../src/core/video/videojoinjob.cpp" line="47"/>
+        <source>A temporary file could not be written.</source>
+        <translation>Не вдалося записати тимчасовий файл.</translation>
+    </message>
+    <message>
+        <location filename="../src/core/video/videojoinjob.cpp" line="126"/>
         <source>ffmpeg could not be started; its location can be set in the settings.</source>
         <translation>Не вдалося запустити ffmpeg; його розташування можна вказати в налаштуваннях.</translation>
     </message>

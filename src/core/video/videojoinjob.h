@@ -11,6 +11,7 @@
 #include <memory>
 
 class QProcess;
+class QTemporaryDir;
 class QThread;
 
 // Runs one join (see VideoJoin) on either engine: the ffmpeg program, or FFmpeg's libraries
@@ -25,8 +26,8 @@ public:
     // A job still running is stopped and its unfinished file removed.
     ~VideoJoinJob() override;
 
-    // What VideoJoin::listFile names, copied into `output`.
-    void startCopy(const QString &listFile, const QString &output, bool cameraData);
+    // The files `paths` copied into `output` (see VideoJoin::whyNot and whyNotByProgram).
+    void startCopy(const QStringList &paths, const QString &output, bool cameraData);
     // VideoJoin::encodePlan run.
     void startEncode(const QVector<VideoJoin::Part> &parts, const QString &output, const VideoEncoder &encoder,
                      const ExportSettings &settings);
@@ -51,6 +52,7 @@ private:
     QString m_output;
     QProcess *m_process{nullptr};
     QThread *m_thread{nullptr};
+    std::unique_ptr<QTemporaryDir> m_listDir;   // the concat list of the ffmpeg program
     QTimer m_poll;
     // shared with the worker thread
     std::shared_ptr<std::atomic<bool>> m_stop;

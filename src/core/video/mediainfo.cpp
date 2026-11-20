@@ -74,6 +74,7 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
                 {
                     result.hasAudio = true;
                     result.audioCodec = stream.value("codec_name").toString();
+                    result.audioTimeBase = stream.value("time_base").toString();
                 }
             // cover art is stored as a one-frame "video" stream
             const bool coverArt = stream.value("disposition").toObject().value("attached_pic").toInt() != 0;
@@ -83,6 +84,7 @@ bool MediaProbe::parse(const QByteArray &ffprobeJson, MediaInfo *info, QString *
                 }
             haveVideo = true;
             result.videoCodec = stream.value("codec_name").toString();
+            result.videoTimeBase = stream.value("time_base").toString();
             result.size = QSize(stream.value("width").toInt(), stream.value("height").toInt());
             if (std::abs(rotationOf(stream)) % 180 == 90)
                 {

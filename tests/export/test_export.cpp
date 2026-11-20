@@ -938,6 +938,8 @@ private slots:
                 QCOMPARE(own.videoCodec, theirs.videoCodec);
                 QCOMPARE(own.hasAudio, theirs.hasAudio);
                 QCOMPARE(own.audioCodec, theirs.audioCodec);
+                QCOMPARE(own.videoTimeBase, theirs.videoTimeBase);
+                QCOMPARE(own.audioTimeBase, theirs.audioTimeBase);
                 QCOMPARE(own.created, theirs.created);
             }
         MediaInfo turned;
@@ -1346,13 +1348,8 @@ private slots:
             {
                 QSKIP("ffmpeg is not installed");
             }
-        const QString list = m_dir.filePath("join.ffconcat");
-        QFile file(list);
-        QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write(VideoJoin::listFile({m_sourceVideo, m_sourceVideo}));
-        file.close();
         const QString output = m_dir.filePath("joined.mp4");
-        QString error = join([&](VideoJoinJob &job) { job.startCopy(list, output, false); });
+        QString error = join([&](VideoJoinJob &job) { job.startCopy({m_sourceVideo, m_sourceVideo}, output, false); });
         QVERIFY2(error.isEmpty(), qPrintable(error));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
@@ -1360,9 +1357,45 @@ private slots:
         QVERIFY(joined.hasAudio);
         QCOMPARE(countFrames(output), 120);
         // asked for the camera's data where there is none, the join still works
-        error = join([&](VideoJoinJob &job) { job.startCopy(list, output, true); });
+        error = join([&](VideoJoinJob &job) { job.startCopy({m_sourceVideo, m_sourceVideo}, output, true); });
         QVERIFY2(error.isEmpty(), qPrintable(error));
         QCOMPARE(countFrames(output), 120);
+    }
+
+    // A Matroska file and an MP4 of the same video keep their times in other clocks (1/1000,
+    // 1/15360): ffmpeg's concat made the join sixteen times too long after the first part.
+    // The own engine copies them right; the ffmpeg program is told to encode them.
+    void joinMatroskaWithMp4()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        const QString mkv = m_dir.filePath("same-video.mkv");
+        const FfmpegTools::RunResult made = FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-i",
+                                                             m_sourceVideo, "-c", "copy", mkv}, 60000);
+        QVERIFY(made.started && made.exitCode == 0);
+        VideoJoin::Part a{mkv, MediaInfo()};
+        VideoJoin::Part b{m_sourceVideo, MediaInfo()};
+        QVERIFY(MediaProbe::probe("ffprobe", a.path, &a.info));
+        QVERIFY(MediaProbe::probe("ffprobe", b.path, &b.info));
+        QVERIFY(VideoJoin::whyNot({a, b}).isEmpty());
+        QCOMPARE(a.info.videoTimeBase, QString("1/1000"));
+        QVERIFY(!VideoJoin::whyNotByProgram({a, b}).isEmpty());
+        QVERIFY(VideoJoin::whyNotByProgram({b, b}).isEmpty());
+        if (m_engine != ExportJob::OwnEngine)
+            {
+                QSKIP("the ffmpeg program encodes these (joinOfDifferentKindsEncodes)");
+            }
+        for (const QString &output : {m_dir.filePath("mkv-mp4.mkv"), m_dir.filePath("mkv-mp4.mp4")})
+            {
+                const QString error = join([&](VideoJoinJob &job) { job.startCopy({a.path, b.path, a.path}, output, false); });
+                QVERIFY2(error.isEmpty(), qPrintable(error));
+                MediaInfo joined;
+                QVERIFY(MediaProbe::probe("ffprobe", output, &joined));
+                QVERIFY2(std::fabs(joined.duration - 6.0) < 0.15, qPrintable(QString("%1: %2").arg(output).arg(joined.duration)));
+                QCOMPARE(countFrames(output), 180);
+            }
     }
 
     void joinOfDifferentKindsEncodes()
@@ -1459,14 +1492,9 @@ private slots:
         VideoJoin::Part part{sample, MediaInfo()};
         QVERIFY(MediaProbe::probe("ffprobe", sample, &part.info));
         QVERIFY(part.info.hasCameraData);
-        const QString list = m_dir.filePath("gopro.ffconcat");
-        QFile file(list);
-        QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write(VideoJoin::listFile({sample, sample}));
-        file.close();
         const QString output = m_dir.filePath("gopro-joined.mp4");
         QVERIFY(VideoJoin::keepsCameraData({part, part}, output));
-        QString error = join([&](VideoJoinJob &job) { job.startCopy(list, output, true); });
+        QString error = join([&](VideoJoinJob &job) { job.startCopy({sample, sample}, output, true); });
         QVERIFY2(error.isEmpty(), qPrintable(error));
         MediaInfo joined;
         QVERIFY(MediaProbe::probe("ffprobe", output, &joined));

@@ -165,6 +165,7 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
                 {
                     result.hasAudio = true;
                     result.audioCodec = QString::fromLatin1(avcodec_get_name(codec->codec_id));
+                    result.audioTimeBase = QString("%1/%2").arg(stream->time_base.num).arg(stream->time_base.den);
                 }
             // cover art is stored as a one-frame "video" stream
             const bool coverArt = stream->disposition & AV_DISPOSITION_ATTACHED_PIC;
@@ -174,6 +175,7 @@ bool Libav::probe(const QString &videoPath, MediaInfo *info, QString *error)
                 }
             haveVideo = true;
             result.videoCodec = QString::fromLatin1(avcodec_get_name(codec->codec_id));
+            result.videoTimeBase = QString("%1/%2").arg(stream->time_base.num).arg(stream->time_base.den);
             result.size = QSize(codec->width, codec->height);
             const AVPacketSideData *matrix = av_packet_side_data_get(codec->coded_side_data, codec->nb_coded_side_data,
                                              AV_PKT_DATA_DISPLAYMATRIX);
@@ -246,7 +248,7 @@ double Libav::duration(const QString &path)
 #endif
 }
 
-bool Libav::copyJoin(const QString &listFile, const QString &output, bool cameraData,
+bool Libav::copyJoin(const QStringList &paths, const QString &output, bool cameraData,
                      const std::function<bool(double seconds)> &progress, QString *error)
 {
     auto fail = [error](const QString &message)
@@ -278,136 +280,220 @@ bool Libav::copyJoin(const QString &listFile, const QString &output, bool camera
             av_packet_free(packet);
         }
     } freeLater{&input, &out, &packet};
+    auto unreadable = [&](const QString &path, int code)
+    {
+        return fail(QCoreApplication::translate("LibavExport", "%1 cannot be read: %2").arg(path, errorText(code)));
+    };
+    const QByteArray outPath = output.toUtf8();
 
-    // -f concat -safe 0
-    AVDictionary *inputOptions = nullptr;
-    av_dict_set(&inputOptions, "safe", "0", 0);
-    int result = avformat_open_input(&input, listFile.toUtf8().constData(), av_find_input_format("concat"), &inputOptions);
-    av_dict_free(&inputOptions);
-    if (result < 0 || (result = avformat_find_stream_info(input, nullptr)) < 0)
-        {
-            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be read: %2").arg(listFile, errorText(result)));
-        }
-    const QByteArray path = output.toUtf8();
-    result = avformat_alloc_output_context2(&out, nullptr, nullptr, path.constData());
-    if (result < 0 || !out)
-        {
-            return fail(QString("The output file's type: %1").arg(errorText(result)));
-        }
-
-    // -map 0:v:0 -map 0:a? [-map 0:d? -tag:d gpmd]: where each input stream goes, -1 nowhere
-    std::vector<int> into(input->nb_streams, -1);
-    bool picture = false;
-    for (unsigned i = 0; i < input->nb_streams; ++i)
-        {
-            const AVStream *stream = input->streams[i];
-            const AVMediaType type = stream->codecpar->codec_type;
-            const bool wanted = (type == AVMEDIA_TYPE_VIDEO && !picture) || type == AVMEDIA_TYPE_AUDIO
-                                || (type == AVMEDIA_TYPE_DATA && cameraData);
-            if (!wanted)
-                {
-                    continue;
-                }
-            picture = picture || type == AVMEDIA_TYPE_VIDEO;
-            AVStream *copy = avformat_new_stream(out, nullptr);
-            avcodec_parameters_copy(copy->codecpar, stream->codecpar);
-            copy->time_base = stream->time_base;
-            copy->disposition = stream->disposition;
-            av_dict_copy(&copy->metadata, stream->metadata, 0);
-            if (type == AVMEDIA_TYPE_DATA)
-                {
-                    copy->codecpar->codec_tag = MKTAG('g', 'p', 'm', 'd');
-                }
-            else
-                {
-                    // the file's own tag (hvc1 rather than hev1) where the container takes it, as ffmpeg keeps it
-                    unsigned tag = 0;
-                    const AVCodecTag *const *tags = out->oformat->codec_tag;
-                    const bool keeps = !tags || av_codec_get_id(tags, stream->codecpar->codec_tag) == stream->codecpar->codec_id
-                                       || !av_codec_get_tag2(tags, stream->codecpar->codec_id, &tag);
-                    copy->codecpar->codec_tag = keeps ? stream->codecpar->codec_tag : 0;
-                }
-            into[i] = copy->index;
-        }
-    if (!picture)
-        {
-            return fail(QCoreApplication::translate("LibavExport", "%1 has no picture").arg(listFile));
-        }
-    // the recording's date and the like, as ffmpeg takes them from its first input
-    av_dict_copy(&out->metadata, input->metadata, 0);
-    if (!(out->oformat->flags & AVFMT_NOFILE) && (result = avio_open(&out->pb, path.constData(), AVIO_FLAG_WRITE)) < 0)
-        {
-            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be written: %2").arg(output, errorText(result)));
-        }
-    AVDictionary *muxerOptions = nullptr;
-    if (QString(out->oformat->name).contains("mp4") || QString(out->oformat->name).contains("mov"))
-        {
-            av_dict_set(&muxerOptions, "movflags", "+faststart", 0);
-        }
-    result = avformat_write_header(out, &muxerOptions);
-    av_dict_free(&muxerOptions);
-    if (result < 0)
-        {
-            return fail(QString("Starting the output file: %1").arg(errorText(result)));
-        }
-
-    std::vector<int64_t> lastDts(out->nb_streams, AV_NOPTS_VALUE);
+    // Each file is read on its own, not through ffmpeg's concat, which takes the times of
+    // every file in the clock of the first: a Matroska part (1/1000) and an MP4 (1/15360)
+    // came out sixteen times too long. A file's times are moved on by the length of those
+    // before it, as concat does.
+    int64_t offsetUs = 0;       // where the file being read starts in the output
+    std::vector<int64_t> lastDts;
     int sinceTold = 0;
-    while ((result = av_read_frame(input, packet)) >= 0)
+    for (int f = 0; f < paths.size(); ++f)
         {
-            const int to = packet->stream_index < int(into.size()) ? into[size_t(packet->stream_index)] : -1;
-            if (to < 0)
+            const QString &path = paths.at(f);
+            avformat_close_input(&input);
+            int result = avformat_open_input(&input, path.toUtf8().constData(), nullptr, nullptr);
+            if (result < 0 || (result = avformat_find_stream_info(input, nullptr)) < 0)
                 {
-                    av_packet_unref(packet);
-                    continue;
+                    return unreadable(path, result);
                 }
-            AVStream *stream = out->streams[to];
-            av_packet_rescale_ts(packet, input->streams[packet->stream_index]->time_base, stream->time_base);
-            packet->stream_index = to;
-            packet->pos = -1;
-            // where two files meet the times may step back a little: on, as ffmpeg puts them
-            int64_t &last = lastDts[size_t(to)];
-            if (packet->dts != AV_NOPTS_VALUE && last != AV_NOPTS_VALUE && packet->dts <= last)
+            // -map 0:v:0 -map 0:a? [-map 0:d? -tag:d gpmd]: each kind's streams in order, by
+            // the place they have in the first file; where each input stream goes, -1 nowhere
+            std::vector<int> into(input->nb_streams, -1);
+            int videos = 0;
+            int audios = 0;
+            int datas = 0;
+            for (unsigned i = 0; i < input->nb_streams; ++i)
                 {
-                    const int64_t moved = last + 1;
-                    if (packet->pts != AV_NOPTS_VALUE && packet->pts >= packet->dts)
+                    const AVStream *stream = input->streams[i];
+                    const AVMediaType type = stream->codecpar->codec_type;
+                    const bool coverArt = stream->disposition & AV_DISPOSITION_ATTACHED_PIC;
+                    int place = -1;
+                    if (type == AVMEDIA_TYPE_VIDEO && !coverArt && videos == 0)
                         {
-                            packet->pts = std::max(packet->pts, moved);
+                            place = videos++;
                         }
-                    packet->dts = moved;
-                }
-            if (packet->dts != AV_NOPTS_VALUE)
-                {
-                    last = packet->dts;
-                }
-            const bool isPicture = stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO;
-            const double at = packet->dts != AV_NOPTS_VALUE ? packet->dts * av_q2d(stream->time_base) : -1.0;
-            result = av_interleaved_write_frame(out, packet);
-            if (result < 0)
-                {
-                    return fail(QString("Writing the file: %1").arg(errorText(result)));
-                }
-            if (isPicture && at >= 0.0 && ++sinceTold >= 30)
-                {
-                    sinceTold = 0;
-                    if (progress && !progress(at))
+                    else if (type == AVMEDIA_TYPE_AUDIO)
                         {
-                            return fail(QString());
+                            place = audios++;
+                        }
+                    else if (type == AVMEDIA_TYPE_DATA && cameraData)
+                        {
+                            place = datas++;
+                        }
+                    if (place < 0)
+                        {
+                            continue;
+                        }
+                    if (f == 0)
+                        {
+                            if (!out)
+                                {
+                                    result = avformat_alloc_output_context2(&out, nullptr, nullptr, outPath.constData());
+                                    if (result < 0 || !out)
+                                        {
+                                            return fail(QString("The output file's type: %1").arg(errorText(result)));
+                                        }
+                                }
+                            AVStream *copy = avformat_new_stream(out, nullptr);
+                            avcodec_parameters_copy(copy->codecpar, stream->codecpar);
+                            copy->time_base = stream->time_base;
+                            copy->disposition = stream->disposition;
+                            av_dict_copy(&copy->metadata, stream->metadata, 0);
+                            if (type == AVMEDIA_TYPE_DATA)
+                                {
+                                    copy->codecpar->codec_tag = MKTAG('g', 'p', 'm', 'd');
+                                }
+                            else
+                                {
+                                    // the file's own tag (hvc1 rather than hev1) where the container takes it,
+                                    // as ffmpeg keeps it
+                                    unsigned tag = 0;
+                                    const AVCodecTag *const *tags = out->oformat->codec_tag;
+                                    const bool keeps = !tags
+                                                       || av_codec_get_id(tags, stream->codecpar->codec_tag) == stream->codecpar->codec_id
+                                                       || !av_codec_get_tag2(tags, stream->codecpar->codec_id, &tag);
+                                    copy->codecpar->codec_tag = keeps ? stream->codecpar->codec_tag : 0;
+                                }
+                            into[i] = copy->index;
+                            continue;
+                        }
+                    // the output stream of the same kind and place, if the first file had one
+                    int seen = 0;
+                    for (unsigned o = 0; o < out->nb_streams; ++o)
+                        {
+                            if (out->streams[o]->codecpar->codec_type == type && seen++ == place)
+                                {
+                                    into[i] = int(o);
+                                    break;
+                                }
                         }
                 }
+            if (f == 0)
+                {
+                    if (videos == 0)
+                        {
+                            return fail(QCoreApplication::translate("LibavExport", "%1 has no picture").arg(path));
+                        }
+                    // the recording's date and the like, as ffmpeg takes them from its first input
+                    av_dict_copy(&out->metadata, input->metadata, 0);
+                    if (!(out->oformat->flags & AVFMT_NOFILE)
+                            && (result = avio_open(&out->pb, outPath.constData(), AVIO_FLAG_WRITE)) < 0)
+                        {
+                            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be written: %2")
+                                        .arg(output, errorText(result)));
+                        }
+                    AVDictionary *muxerOptions = nullptr;
+                    const QString muxer = QString::fromLatin1(out->oformat->name);
+                    if (muxer.contains("mp4") || muxer.contains("mov"))
+                        {
+                            av_dict_set(&muxerOptions, "movflags", "+faststart", 0);
+                        }
+                    result = avformat_write_header(out, &muxerOptions);
+                    av_dict_free(&muxerOptions);
+                    if (result < 0)
+                        {
+                            return fail(QString("Starting the output file: %1").arg(errorText(result)));
+                        }
+                    lastDts.assign(out->nb_streams, AV_NOPTS_VALUE);
+                }
+
+            const int64_t fileStart = input->start_time == AV_NOPTS_VALUE ? 0 : input->start_time;
+            int64_t endUs = offsetUs;
+            while ((result = av_read_frame(input, packet)) >= 0)
+                {
+                    const int to = packet->stream_index < int(into.size()) ? into[size_t(packet->stream_index)] : -1;
+                    if (to < 0)
+                        {
+                            av_packet_unref(packet);
+                            continue;
+                        }
+                    const AVRational inBase = input->streams[packet->stream_index]->time_base;
+                    AVStream *stream = out->streams[to];
+                    // the file's own time 0 at its place in the output
+                    const int64_t shift = av_rescale_q(offsetUs - fileStart, AV_TIME_BASE_Q, inBase);
+                    if (packet->pts != AV_NOPTS_VALUE)
+                        {
+                            packet->pts += shift;
+                        }
+                    if (packet->dts != AV_NOPTS_VALUE)
+                        {
+                            packet->dts += shift;
+                        }
+                    const int64_t at = packet->pts != AV_NOPTS_VALUE ? packet->pts : packet->dts;
+                    if (at != AV_NOPTS_VALUE)
+                        {
+                            endUs = std::max(endUs, av_rescale_q(at + std::max<int64_t>(packet->duration, 0), inBase,
+                                                                 AV_TIME_BASE_Q));
+                        }
+                    av_packet_rescale_ts(packet, inBase, stream->time_base);
+                    packet->stream_index = to;
+                    packet->pos = -1;
+                    // where two files meet the times may step back a little: on, as ffmpeg puts them.
+                    // A Matroska file's first picture has no decoding time: past the first file,
+                    // the one after the last (the muxer would guess one from before it)
+                    int64_t &last = lastDts[size_t(to)];
+                    if (packet->dts == AV_NOPTS_VALUE && last != AV_NOPTS_VALUE)
+                        {
+                            packet->dts = last + 1;
+                            if (packet->pts != AV_NOPTS_VALUE)
+                                {
+                                    packet->pts = std::max(packet->pts, packet->dts);
+                                }
+                        }
+                    else if (packet->dts != AV_NOPTS_VALUE && last != AV_NOPTS_VALUE && packet->dts <= last)
+                        {
+                            const int64_t moved = last + 1;
+                            if (packet->pts != AV_NOPTS_VALUE && packet->pts >= packet->dts)
+                                {
+                                    packet->pts = std::max(packet->pts, moved);
+                                }
+                            packet->dts = moved;
+                        }
+                    if (packet->dts != AV_NOPTS_VALUE)
+                        {
+                            last = packet->dts;
+                        }
+                    const bool isPicture = stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO;
+                    const double seconds = packet->dts != AV_NOPTS_VALUE ? packet->dts * av_q2d(stream->time_base) : -1.0;
+                    result = av_interleaved_write_frame(out, packet);
+                    if (result < 0)
+                        {
+                            return fail(QString("Writing the file: %1").arg(errorText(result)));
+                        }
+                    if (isPicture && seconds >= 0.0 && ++sinceTold >= 30)
+                        {
+                            sinceTold = 0;
+                            if (progress && !progress(seconds))
+                                {
+                                    return fail(QString());
+                                }
+                        }
+                }
+            if (result != AVERROR_EOF)
+                {
+                    return unreadable(path, result);
+                }
+            // the next file follows this one's length (what the container says, as concat takes it)
+            offsetUs = input->duration != AV_NOPTS_VALUE && input->duration > 0 ? offsetUs + input->duration : endUs;
         }
-    if (result != AVERROR_EOF)
+    if (!out)
         {
-            return fail(QCoreApplication::translate("LibavExport", "%1 cannot be read: %2").arg(listFile, errorText(result)));
+            return fail(QCoreApplication::translate("VideoJoin", "Choose two or more videos."));
         }
-    result = av_write_trailer(out);
+    const int result = av_write_trailer(out);
     if (result < 0)
         {
             return fail(QString("Finishing the file: %1").arg(errorText(result)));
         }
     return true;
 #else
-    Q_UNUSED(listFile);
+    Q_UNUSED(paths);
     Q_UNUSED(output);
     Q_UNUSED(cameraData);
     Q_UNUSED(progress);

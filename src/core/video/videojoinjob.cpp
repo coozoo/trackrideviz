@@ -5,6 +5,7 @@
 #include "libavexport.h"
 
 #include <QFile>
+#include <QTemporaryDir>
 #include <QProcess>
 #include <QThread>
 
@@ -32,18 +33,29 @@ bool VideoJoinJob::isRunning() const
     return m_process || m_thread;
 }
 
-void VideoJoinJob::startCopy(const QString &listFile, const QString &output, bool cameraData)
+void VideoJoinJob::startCopy(const QStringList &paths, const QString &output, bool cameraData)
 {
     m_output = output;
     if (m_engine == ExportJob::ProgramEngine)
         {
-            startProgram(VideoJoin::arguments(listFile, output, cameraData));
+            m_listDir = std::make_unique<QTemporaryDir>();
+            const QString list = m_listDir->filePath("join.ffconcat");
+            QFile file(list);
+            if (!m_listDir->isValid() || !file.open(QIODevice::WriteOnly) || file.write(VideoJoin::listFile(paths)) < 0)
+                {
+                    // as every failure: told once the caller is listening
+                    QMetaObject::invokeMethod(this, [this]() { done(false, tr("A temporary file could not be written.")); },
+                                              Qt::QueuedConnection);
+                    return;
+                }
+            file.close();
+            startProgram(VideoJoin::arguments(list, output, cameraData));
             return;
         }
-    startOwn([listFile, output, cameraData](const std::atomic<bool> &stop, std::atomic<double> &seconds)
+    startOwn([paths, output, cameraData](const std::atomic<bool> &stop, std::atomic<double> &seconds)
     {
         QString error;
-        const bool ok = Libav::copyJoin(listFile, output, cameraData, [&](double at)
+        const bool ok = Libav::copyJoin(paths, output, cameraData, [&](double at)
         {
             seconds = at;
             return !stop;

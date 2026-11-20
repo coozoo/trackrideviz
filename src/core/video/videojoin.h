@@ -34,6 +34,10 @@ public:
 
     // Why the parts cannot be joined by copying (they can by encodeArguments); empty when they can.
     static QString whyNot(const QVector<Part> &parts);
+    // Why the ffmpeg program cannot copy parts that whyNot lets through: its concat takes the
+    // times of every file in the clock of the first, so files whose clocks differ (Matroska
+    // and MP4) come out far too long. The program's own engine copies those right.
+    static QString whyNotByProgram(const QVector<Part> &parts);
 
     // The break before each part after the first, from when each was
     // recorded (the date and time in the file name, else the file's own
