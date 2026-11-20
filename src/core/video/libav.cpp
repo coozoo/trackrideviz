@@ -585,24 +585,53 @@ bool Libav::encoderWorks(const QString &id, const QStringList &options, const QS
                             && av_hwframe_transfer_data(uploaded, picture, 0) >= 0;
                 }
         }
-    if (ready && avcodec_open2(encoder, codec, &settings) >= 0)
+    // why a test fails, for the Diagnostics panel: "graphics card's encoder missing" is
+    // otherwise all anyone sees
+    QString failed;
+    if (!ready)
+        {
+            failed = vaapiDevice.isEmpty() ? QStringLiteral("no picture for it")
+                     : QString("the graphics card %1 or its picture memory").arg(vaapiDevice);
+        }
+    const int opened = ready ? avcodec_open2(encoder, codec, &settings) : 0;
+    if (ready && opened < 0)
+        {
+            failed = "opening it: " + errorText(opened);
+        }
+    if (ready && opened >= 0)
         {
             // a few pictures and the end: some encoders give their first packet only then
             AVFrame *sent = uploaded ? uploaded : picture;
-            bool fed = true;
-            for (int i = 0; i < 3 && fed; ++i)
+            int result = 0;
+            for (int i = 0; i < 3 && result >= 0; ++i)
                 {
                     sent->pts = i;
-                    fed = avcodec_send_frame(encoder, sent) >= 0;
+                    result = avcodec_send_frame(encoder, sent);
                 }
-            if (fed && avcodec_send_frame(encoder, nullptr) >= 0)
+            if (result >= 0)
                 {
-                    while (avcodec_receive_packet(encoder, packet) >= 0)
+                    result = avcodec_send_frame(encoder, nullptr);
+                }
+            if (result < 0)
+                {
+                    failed = "sending it pictures: " + errorText(result);
+                }
+            else
+                {
+                    while ((result = avcodec_receive_packet(encoder, packet)) >= 0)
                         {
                             works = true;
                             av_packet_unref(packet);
                         }
+                    if (!works)
+                        {
+                            failed = "no packet back: " + errorText(result);
+                        }
                 }
+        }
+    if (!works)
+        {
+            qCInfo(libavLog).noquote() << QString("test encode with %1 failed, %2").arg(id, failed);
         }
     av_dict_free(&settings);
     av_packet_free(&packet);
