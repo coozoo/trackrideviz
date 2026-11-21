@@ -449,19 +449,24 @@ In order:
   its values
 - Video from data alone: no camera video needed; the gauges and a map of the route over a plain or
   transparent background (a Strava-like flyover of the route), from GPX, FIT or a project
+- 3D terrain flyover: the route over the land in 3D (the terrain heights we already fetch), the camera
+  following the rider; the same export without a camera video
 - Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up
 - Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
   table, the video cut with them; the edited data saved as GPX, CSV or another format we read
 - Fixing GPS gaps and jumps (tunnels) in the data editor
 - Graph gauges over distance as well as time (an elevation profile)
-- AppImage preview: GStreamer's VA decoders, now that libva is the system's (the preview decodes in
-  software there today)
 - Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
   database) later
 - Per-lap export: one video per lap, or per chosen lap
 
 ## M8 - Touch UI
-- QML app on `rtvcore` for tablets/phones (needs backend B)
+- QML app on `rtvcore` (backend B, the built-in video engine, is done): the only UI on Android; on the
+  desktop a second way in, by its own icon (a .desktop entry / Start menu shortcut) and a command-line
+  switch, beside the full app
+- Few screens, most things automatic: video (chapters joined), data (from the video or a file, synced
+  by the clocks), look, export with presets. Video and data adjusted by hand on a preview frame
+  (always needed). A long tap opens a menu leading to lists: gauges, templates, music
 
 ## After the simple UI: GoPro
 - GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint
@@ -469,8 +474,9 @@ In order:
 - TimeWarp: the factor read from the camera's data, a speed ramp varying within a video
 
 ## Later / maybe
-Multi-camera picture-in-picture, side-by-side lap comparison with ghost, track database with
-auto-detected start/finish, 360 video, live OBD.
+Multi-camera picture-in-picture, side-by-side lap comparison with ghost (better still: a 3D rider
+drawn over the flyover, racing the ghost; complicated), track database with auto-detected
+start/finish, 360 video, live OBD.
 
 **Command line (`trackrideviz --render project.rtvproj -o out.mp4`, and video + data + template
 without a project).** Cheap once M2 exists, because project loading and `ExportJob` live in the
