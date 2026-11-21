@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QColor>
 #include <QFileInfo>
 #include <QString>
 
@@ -29,6 +30,8 @@ struct ExportSettings
     Audio audio{CopyAudio};
     int audioKbps{192};                 // when the sound is encoded again
     Picture picture{VideoWithGauges};   // not remembered: every export starts with the video
+    // with no video (ExportPlan::make with no path): what the gauges are drawn over
+    QColor background{Qt::black};
 
     static bool needsMatroska(Audio audio) { return audio == OpusAudio || audio == VorbisAudio; }
     // MP4 and its kin, which cannot hold Opus or Vorbis.

@@ -145,6 +145,7 @@ HEADERS += \
     $$PWD/video/mediainfo.h \
     $$PWD/video/soundtrack.h \
     $$PWD/video/videoencoders.h \
+    $$PWD/video/videobackground.h \
     $$PWD/video/videojoin.h \
     $$PWD/video/videojoinjob.h
 

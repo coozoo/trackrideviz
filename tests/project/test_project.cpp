@@ -215,6 +215,10 @@ private slots:
         project.overlay[1].closeUp = 600.0;
         // ... widening to 2 km between 3 and 12 m/s
         project.overlay[1].speedZoom = {2000.0, 3.0, 12.0};
+        // the picture without a video: vertical, see-through
+        project.background.size = QSize(1080, 1920);
+        project.background.fps = 60;
+        project.background.color = QColor(10, 20, 30, 0);
         project.overlay[1].headingUp = 1;
         project.overlay[1].units = OverlayItem::ImperialUnits;
         // a part made for the heading shows the wind's direction; the scale ends at 60
@@ -244,6 +248,7 @@ private slots:
         QCOMPARE(loaded.syncOffset, 141.25);
         QVERIFY(loaded.syncIsManual);
         QCOMPARE(loaded.overlay, project.overlay);
+        QVERIFY(loaded.background == project.background);
         QCOMPARE(loaded.theme, project.theme);
         QCOMPARE(loaded.elevation, Terrain::Always);
         QCOMPARE(loaded.layoutAspect, 9.0 / 16.0);

@@ -30,6 +30,13 @@ QStringList audioEncoding(const ExportSettings &settings)
         }
     return {"-c:a", "aac", "-b:a", bitrate};
 }
+
+// With no video: a picture of the background's color, of the plan's size and rate.
+QString background(const ExportSettings &settings, const ExportPlan &plan)
+{
+    return QString("color=c=0x%1:s=%2x%3:r=%4/%5").arg(settings.background.name().mid(1))
+           .arg(plan.outputSize.width()).arg(plan.outputSize.height()).arg(plan.fpsNum).arg(plan.fpsDen);
+}
 }
 
 QSize ExportPlan::outputSizeFor(const QSize &source, int wantedHeight)
@@ -91,9 +98,14 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
     const bool mixed = plan.hasAudio && soundtrack.changesSound();
 
     const VideoEncoder encoder = VideoEncoders::byId(settings.encoder);
+    // no video: the gauges over a plain color (VideoBackground), as long as asked for
+    const bool noVideo = videoPath.isEmpty();
     if (!gaugesOnly)
         {
             plan.globalOptions << VideoEncoders::globalArguments(encoder);
+        }
+    if (!gaugesOnly && !noVideo)
+        {
             // input 0: the video, cut on the input side so nothing outside the range is decoded
             Input video{{}, videoPath};
             if (plan.startTime > 0.0)
@@ -117,8 +129,8 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                                  "-video_size", QString("%1x%2").arg(plan.stackSize.width()).arg(plan.stackSize.height()),
                                  "-framerate", QString("%1/%2").arg(plan.fpsNum).arg(plan.fpsDen)}, Pipe});
         }
-    // inputs 2, 3, ... (1, 2, ... without gauges): the music
-    const int firstMusicInput = piped ? 2 : 1;
+    // then the music: inputs 2, 3, ... (one fewer without gauges, one fewer without a video)
+    const int firstMusicInput = (noVideo ? 0 : 1) + (piped ? 1 : 0);
     if (music)
         {
             for (const MusicTrack &track : soundtrack.tracks)
@@ -154,11 +166,12 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             // Over nothing, overlay keeps the colors right only from straight alpha, which
             // the job then sends: premultiplied, it darkens every edge that is see-through.
             const QString alpha = gaugesOnly ? "straight:format=auto" : "premultiplied";
+            const bool overNothing = gaugesOnly || noVideo;
             auto overlayAt = [&alpha](const QRect &region)
             {
                 return QString("overlay=%1:%2:alpha=%3:eof_action=endall").arg(region.x()).arg(region.y()).arg(alpha);
             };
-            const QString gauges = gaugesOnly ? "[0:v]" : "[1:v]";
+            const QString gauges = overNothing ? "[0:v]" : "[1:v]";
             const QString finish = gaugesOnly ? QString() : "," + VideoEncoders::outputFilter(encoder);
             QStringList parts;
             QString video = "[0:v]";
@@ -166,6 +179,11 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                 {
                     parts << QString("color=c=black@0:s=%1x%2:r=%3/%4,format=rgba[base]")
                           .arg(plan.outputSize.width()).arg(plan.outputSize.height()).arg(plan.fpsNum).arg(plan.fpsDen);
+                    video = "[base]";
+                }
+            else if (noVideo)
+                {
+                    parts << background(settings, plan) + "[base]";
                     video = "[base]";
                 }
             else if (!chain.isEmpty())
@@ -200,6 +218,12 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                         }
                 }
             graph = parts.join(';');
+        }
+    else if (noVideo)
+        {
+            // nothing to draw: the color alone, as long as asked for
+            graph = QString("%1:d=%2,%3[v]").arg(background(settings, plan)).arg(outputLength, 0, 'f', 3)
+                    .arg(VideoEncoders::outputFilter(encoder));
         }
     else
         {
