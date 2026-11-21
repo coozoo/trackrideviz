@@ -46,6 +46,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.height = item.height / height;
             placed.streets = item.streets;
             placed.closeUp = item.closeUp;
+            placed.speedZoom = item.speedZoom;
             placed.headingUp = item.headingUp;
             placed.units = item.units;
             placed.channels = item.channels;
@@ -86,6 +87,7 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.height = rect.height();
             item.streets = placed.streets;
             item.closeUp = placed.closeUp;
+            item.speedZoom = placed.speedZoom;
             item.headingUp = placed.headingUp;
             item.units = placed.units;
             item.channels = placed.channels;
@@ -123,6 +125,10 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             if (item.closeUp >= 0.0)
                 {
                     object.insert("closeUp", item.closeUp);
+                }
+            if (item.speedZoom.isOn())
+                {
+                    object.insert("speedZoom", item.speedZoom.toJson());
                 }
             if (item.headingUp >= 0)
                 {
@@ -202,6 +208,7 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
                     item.streets = object.value("streets").toBool() ? OverlayItem::Shown : OverlayItem::Hidden;
                 }
             item.closeUp = object.value("closeUp").toDouble(-1.0);
+            item.speedZoom = GaugeComponent::SpeedZoom::fromJson(object.value("speedZoom"));
             if (object.contains("headingUp"))
                 {
                     item.headingUp = object.value("headingUp").toBool() ? 1 : 0;

@@ -1275,6 +1275,59 @@ private slots:
         QVERIFY(loaded.components.first().headingUp);
     }
 
+    void mapCloseUpWidensWithSpeed()
+    {
+        // 111 m north, then as far east, as in mapFollowsTheRider, at one speed throughout
+        auto ride = [](double metersPerSecond)
+        {
+            auto session = std::make_shared<TelemetrySession>();
+            Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+            Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+            Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+            const double north = 0.001;
+            const double east = north / std::cos(60.0 * 3.14159265358979323846 / 180.0);
+            for (int t = 0; t <= 20; ++t)
+                {
+                    lat.append(t, 60.0 + north * std::min(t, 10) / 10.0);
+                    lon.append(t, 10.0 + east * std::max(0, t - 10) / 10.0);
+                    speed.append(t, metersPerSecond);
+                }
+            return session;
+        };
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 100, 100);
+        map.lineWidth = 4;
+        map.span = 100.0;
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(map);
+        const QImage fixed = draw(gauge, 5.0, ChannelId::Speed, ride(2.0));
+
+        // 100 m across up to 5 m/s, 400 m from 10 m/s on
+        gauge.components[0].speedZoom = {400.0, 5.0, 10.0};
+        // slow: as close as without
+        QCOMPARE(draw(gauge, 5.0, ChannelId::Speed, ride(2.0)), fixed);
+        // fast: four times as much shown; the 55 m to the corner are 14 pixels now, then east
+        const QImage wide = draw(gauge, 5.0, ChannelId::Speed, ride(20.0));
+        QVERIFY(painted(wide, 50, 50));
+        QVERIFY(painted(wide, 50, 40));
+        QVERIFY(painted(wide, 60, 36));
+        QVERIFY(!painted(wide, 50, 10));
+        QVERIFY(!painted(wide, 50, 90));
+        // the line as wide as ever: 4 pixels, not a quarter of it
+        int across = 0;
+        for (int x = 40; x < 60; ++x)
+            {
+                across += painted(wide, x, 45) ? 1 : 0;
+            }
+        QVERIFY2(across >= 3, qPrintable(QString::number(across)));
+        // half way between the speeds, half way between the spans: 250 m, the corner 22 pixels up
+        const QImage between = draw(gauge, 5.0, ChannelId::Speed, ride(7.5));
+        QVERIFY(painted(between, 50, 30));
+        QVERIFY(!painted(between, 50, 22 - 6));
+    }
+
     void lapMapShowsTheCurrentLapWithItsStartLine()
     {
         // lap 1 a square in the west, lap 2 a square in the east

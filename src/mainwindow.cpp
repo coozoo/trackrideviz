@@ -1649,7 +1649,7 @@ void MainWindow::setGaugeStreets(int index, bool shown)
     changeOverlay(shown ? tr("Show the street map") : tr("Hide the street map"), after);
 }
 
-void MainWindow::setGaugeCloseUp(int index, double meters)
+void MainWindow::setGaugeCloseUp(int index, double meters, const GaugeComponent::SpeedZoom &zoom)
 {
     if (index < 0 || index >= m_project.overlay.size())
         {
@@ -1657,7 +1657,83 @@ void MainWindow::setGaugeCloseUp(int index, double meters)
         }
     OverlayState after{m_project.overlay, m_project.theme};
     after.items[index].closeUp = meters;
-    changeOverlay(meters > 0.0 ? tr("Show the route close up") : tr("Show the whole route"), after);
+    after.items[index].speedZoom = meters > 0.0 ? zoom : GaugeComponent::SpeedZoom();
+    changeOverlay(zoom.isOn() ? tr("Widen the close-up with the speed")
+                  : meters > 0.0 ? tr("Show the route close up") : tr("Show the whole route"), after);
+}
+
+void MainWindow::askGaugeCloseUp(int index, bool withSpeed)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    const OverlayItem &item = m_project.overlay.at(index);
+    const Units units = item.unitsFor(m_units);
+    const double current = m_canvas->overlay().closeUp(index);
+    QDialog dialog(this);
+    dialog.setWindowTitle(withSpeed ? tr("Close-up by speed") : tr("Close-up"));
+    QFormLayout *form = new QFormLayout(&dialog);
+    auto meters = [&dialog](double value)
+    {
+        QSpinBox *spin = new QSpinBox(&dialog);
+        spin->setRange(50, 100000);
+        spin->setSingleStep(100);
+        spin->setSuffix(tr(" m"));
+        spin->setValue(int(std::lround(value)));
+        return spin;
+    };
+    auto speed = [&dialog, &units](double metersPerSecond)
+    {
+        QSpinBox *spin = new QSpinBox(&dialog);
+        spin->setRange(0, 1000);
+        spin->setSuffix(" " + units.speedLabel());
+        spin->setValue(int(std::lround(metersPerSecond * units.speedScale())));
+        return spin;
+    };
+    // what it was, else a ride's: close in town, wide on the open road
+    const GaugeComponent::SpeedZoom was = item.speedZoom.isOn() ? item.speedZoom
+                                          : GaugeComponent::SpeedZoom{1500.0, 10.0 / 3.6, 40.0 / 3.6};
+    QSpinBox *near = meters(current > 0.0 ? current : 300.0);
+    QSpinBox *slow = speed(was.slow);
+    QSpinBox *far = meters(was.far);
+    QSpinBox *fast = speed(was.fast);
+    if (withSpeed)
+        {
+            QLabel *about = new QLabel(tr("The map shows less of the route when slow and more when fast, "
+                                          "in proportion between the two speeds."), &dialog);
+            about->setWordWrap(true);
+            form->addRow(about);
+            form->addRow(tr("At this speed or slower:"), slow);
+            form->addRow(tr("Shows across:"), near);
+            form->addRow(tr("At this speed or faster:"), fast);
+            form->addRow(tr("Shows across:"), far);
+        }
+    else
+        {
+            form->addRow(tr("Shows across:"), near);
+        }
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    form->addRow(buttons);
+    if (dialog.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+    GaugeComponent::SpeedZoom zoom;
+    if (withSpeed)
+        {
+            zoom.far = far->value();
+            zoom.slow = slow->value() / units.speedScale();
+            zoom.fast = fast->value() / units.speedScale();
+            if (!zoom.isOn())
+                {
+                    QMessageBox::information(this, dialog.windowTitle(), tr("The second speed has to be above the first."));
+                    return;
+                }
+        }
+    setGaugeCloseUp(index, near->value(), zoom);
 }
 
 QStringList MainWindow::channelChoices(const QString &current) const
@@ -1742,17 +1818,31 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                 {tr("Off: the whole route"), 0.0}, {tr("300 m"), 300.0}, {tr("600 m"), 600.0},
                 {tr("1 km"), 1000.0}, {tr("2 km"), 2000.0}, {tr("5 km"), 5000.0},
             };
+            const bool bySpeed = m_project.overlay.at(index).speedZoom.isOn();
+            bool fixedShown = false;
             for (const auto &choice : choices)
                 {
                     QAction *action = closeUp->addAction(choice.first);
                     action->setCheckable(true);
-                    action->setChecked(choice.second == current);
+                    action->setChecked(!bySpeed && choice.second == current);
+                    fixedShown = fixedShown || action->isChecked();
                     const double meters = choice.second;
                     connect(action, &QAction::triggered, this, [this, index, meters]()
                     {
                         setGaugeCloseUp(index, meters);
                     });
                 }
+            QAction *custom = closeUp->addAction(!bySpeed && !fixedShown && current > 0.0
+                                                 ? tr("Custom: %1 m...").arg(std::lround(current)) : tr("Custom..."));
+            custom->setCheckable(true);
+            custom->setChecked(!bySpeed && !fixedShown && current > 0.0);
+            connect(custom, &QAction::triggered, this, [this, index]() { askGaugeCloseUp(index, false); });
+            QAction *dynamic = closeUp->addAction(tr("Dynamic, by speed..."));
+            dynamic->setToolTip(tr("Closer when slow, wider when fast"));
+            dynamic->setCheckable(true);
+            dynamic->setChecked(bySpeed);
+            dynamic->setEnabled(m_session && m_session->channel(ChannelId::Speed));
+            connect(dynamic, &QAction::triggered, this, [this, index]() { askGaugeCloseUp(index, true); });
             closeUp->addSeparator();
             QAction *ahead = closeUp->addAction(tr("The way ahead up"));
             ahead->setToolTip(tr("Turns the close-up so that the direction of travel points up; north is up otherwise"));

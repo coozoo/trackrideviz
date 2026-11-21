@@ -29,6 +29,8 @@ const int kMaxFollowPoints = 20000;
 const int kRunLength = 64;
 // tile pixels across what such a map shows: sharp on a gauge a quarter of a 4K frame high
 const double kFollowPixels = 512.0;
+// a close-up widening with the speed takes the average of this many seconds before and after
+const int kZoomSeconds = 3;
 const double kMetersPerDegree = 111320.0;
 
 // What a map that follows the rider shows around a point, in its frame's units: the frame,
@@ -557,6 +559,7 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
             m_lat = m_session->channel(ChannelId::PositionLat);
             m_lon = m_session->channel(ChannelId::PositionLon);
             m_heading = m_session->channel(ChannelId::Heading);
+            m_speed = m_session->channel(ChannelId::Speed);
             if (!m_lat || !m_lon || m_lat->isEmpty())
                 {
                     m_lat = m_lon = nullptr;
@@ -1101,21 +1104,37 @@ void BoundGauge::prepareRoutes(Node &node) const
                         {
                             // the tiles of the whole way, so that an export needs no connection:
                             // what the frame shows around points a third of it apart
-                            const QSizeF shown = followSize(node.component);
-                            const double step = std::min(node.component.frame.width(), node.component.frame.height()) / 3.0;
-                            const QTransform toMap = route.toFrame.inverted();
-                            QVector<QRectF> areas;
-                            QPointF last;
-                            for (const QPointF &p : std::as_const(route.points))
+                            // ... at each zoom level a close-up widening with the speed passes through:
+                            // the frame shows twice as much a level out
+                            QVector<double> widths{1.0};
+                            const GaugeComponent::SpeedZoom &zoom = node.component.speedZoom;
+                            if (zoom.isOn())
                                 {
-                                    if (areas.isEmpty() || std::hypot(p.x() - last.x(), p.y() - last.y()) >= step)
+                                    const double widest = std::max(zoom.far, node.component.span) / node.component.span;
+                                    for (double w = 2.0; w < widest; w *= 2.0)
                                         {
-                                            areas.append(toMap.mapRect(QRectF(p.x() - shown.width() / 2.0, p.y() - shown.height() / 2.0,
-                                                                              shown.width(), shown.height())));
-                                            last = p;
+                                            widths.append(w);
                                         }
+                                    widths.append(widest);
                                 }
-                            TileStore::forMap(node.component.mapProvider)->want(areas, followPixels(node.component));
+                            const QTransform toMap = route.toFrame.inverted();
+                            for (const double width : std::as_const(widths))
+                                {
+                                    const QSizeF shown = followSize(node.component) * width;
+                                    const double step = std::min(node.component.frame.width(), node.component.frame.height()) * width / 3.0;
+                                    QVector<QRectF> areas;
+                                    QPointF last;
+                                    for (const QPointF &p : std::as_const(route.points))
+                                        {
+                                            if (areas.isEmpty() || std::hypot(p.x() - last.x(), p.y() - last.y()) >= step)
+                                                {
+                                                    areas.append(toMap.mapRect(QRectF(p.x() - shown.width() / 2.0, p.y() - shown.height() / 2.0,
+                                                                                      shown.width(), shown.height())));
+                                                    last = p;
+                                                }
+                                        }
+                                    TileStore::forMap(node.component.mapProvider)->want(areas, followPixels(node.component));
+                                }
                         }
                 }
             else
@@ -1606,8 +1625,9 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
     // where the rider is goes to the middle; before there is a position, the start does
     QPointF position;
     const QPointF here = positionAt(time, &position) ? route.toFrame.map(position) : route.startPoint;
-    const QPointF shift = frame.center() - here;
-    const QSizeF size = followSize(node.component);
+    // the route was laid out for `span`; a wider view at speed is that, made smaller
+    const double scale = node.component.span / spanAt(node.component, time);
+    const QSizeF size = followSize(node.component) / scale;
     const QRectF shown(here.x() - size.width() / 2.0, here.y() - size.height() / 2.0, size.width(), size.height());
     bool headingKnown = false;
     const double heading = node.component.headingUp && m_heading ? m_heading->valueAt(time, &headingKnown) : 0.0;
@@ -1623,7 +1643,10 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
             painter.rotate(-heading);
             painter.translate(-frame.center());
         }
-    painter.translate(shift);
+    painter.save();
+    painter.translate(frame.center());
+    painter.scale(scale, scale);
+    painter.translate(-here);
     bool streets = false;
     if (node.component.tiles)
         {
@@ -1640,8 +1663,9 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
                 }
         }
     painter.setBrush(Qt::NoBrush);
-    painter.setPen(QPen(node.color, node.component.lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    const double edge = node.component.lineWidth;
+    // the line as wide whatever the scale
+    painter.setPen(QPen(node.color, node.component.lineWidth / scale, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    const double edge = node.component.lineWidth / scale;
     const QRectF reach = shown.adjusted(-edge, -edge, edge, edge);
     for (int run = 0; run < route.runBounds.size(); ++run)
         {
@@ -1655,9 +1679,9 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
                                          std::min(kRunLength + 1, int(route.points.size()) - from));
                 }
         }
-    drawAt(painter, node.startLine, route.startPoint, time, context, route.startAngle);
-    // (back at the frame, still turned)
-    painter.translate(-shift);
+    painter.restore();
+    // (back at the frame, still turned) the start line at its size, where the scale puts it
+    drawAt(painter, node.startLine, frame.center() + (route.startPoint - here) * scale, time, context, route.startAngle);
     drawAt(painter, node.knobTurning, frame.center(), time, context);
     painter.restore();
     if (streets)
@@ -1665,6 +1689,35 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
             drawCredit(painter, node);
         }
     drawAt(painter, node.knob, frame.center(), time, context);
+}
+
+double BoundGauge::spanAt(const GaugeComponent &component, double time) const
+{
+    const GaugeComponent::SpeedZoom &zoom = component.speedZoom;
+    if (!zoom.isOn() || !m_speed || component.span <= 0.0)
+        {
+            return component.span;
+        }
+    // the speed of the last seconds and the next, so that the map does not breathe with every
+    // bump; the view widens with it, and narrows, over a few seconds
+    double sum = 0.0;
+    int count = 0;
+    for (int s = -kZoomSeconds; s <= kZoomSeconds; ++s)
+        {
+            bool known = false;
+            const double speed = m_speed->valueAt(time + s, &known);
+            if (known)
+                {
+                    sum += speed;
+                    ++count;
+                }
+        }
+    if (count == 0)
+        {
+            return component.span;
+        }
+    const double f = std::clamp((sum / count - zoom.slow) / (zoom.fast - zoom.slow), 0.0, 1.0);
+    return lerp(component.span, zoom.far, f);
 }
 
 void BoundGauge::drawCredit(QPainter &painter, const Node &node) const

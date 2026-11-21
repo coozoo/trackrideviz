@@ -213,6 +213,8 @@ private slots:
         project.overlay[0].streets = OverlayItem::Shown;
         project.overlay[1].streets = OverlayItem::Hidden;
         project.overlay[1].closeUp = 600.0;
+        // ... widening to 2 km between 3 and 12 m/s
+        project.overlay[1].speedZoom = {2000.0, 3.0, 12.0};
         project.overlay[1].headingUp = 1;
         project.overlay[1].units = OverlayItem::ImperialUnits;
         // a part made for the heading shows the wind's direction; the scale ends at 60

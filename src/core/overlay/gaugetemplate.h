@@ -24,6 +24,7 @@ struct TemplateItem
     double height{0.0};      // reference pixels
     OverlayItem::Streets streets{OverlayItem::AsDesigned};
     double closeUp{-1.0};    // as OverlayItem's
+    GaugeComponent::SpeedZoom speedZoom;
     int headingUp{-1};
     OverlayItem::UnitSystem units{OverlayItem::AsSettings};
     QHash<QString, QString> channels;   // as OverlayItem's
@@ -39,7 +40,7 @@ struct TemplateItem
     {
         return gaugeId == other.gaugeId && channel == other.channel && edgeX == other.edgeX && edgeY == other.edgeY
                && offsetX == other.offsetX && offsetY == other.offsetY && height == other.height
-               && streets == other.streets && closeUp == other.closeUp && headingUp == other.headingUp
+               && streets == other.streets && closeUp == other.closeUp && speedZoom == other.speedZoom && headingUp == other.headingUp
                && units == other.units && channels == other.channels && scaleMax == other.scaleMax
                && map == other.map && aspect == other.aspect && ownTheme == other.ownTheme && (!ownTheme || theme == other.theme)
                && textScale == other.textScale && opacity == other.opacity;

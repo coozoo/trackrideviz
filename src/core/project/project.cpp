@@ -72,6 +72,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {
                     object.insert("closeUp", item.closeUp);
                 }
+            if (item.speedZoom.isOn())
+                {
+                    object.insert("speedZoom", item.speedZoom.toJson());
+                }
             if (item.headingUp >= 0)
                 {
                     object.insert("headingUp", item.headingUp > 0);
@@ -345,6 +349,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
                     item.streets = object.value("streets").toBool() ? OverlayItem::Shown : OverlayItem::Hidden;
                 }
             item.closeUp = object.value("closeUp").toDouble(-1.0);
+            item.speedZoom = GaugeComponent::SpeedZoom::fromJson(object.value("speedZoom"));
             if (object.contains("headingUp"))
                 {
                     item.headingUp = object.value("headingUp").toBool() ? 1 : 0;

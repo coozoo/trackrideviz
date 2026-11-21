@@ -445,8 +445,11 @@ the automatic end of a fixed dial following the highest value held for a second,
 
 ## Next (agreed 2026-11-21, after comparing with other overlay tools)
 In order:
-- Speed-dependent map zoom: "Dynamic..." and "Custom..." in the map's close-up menu, each with a popup for
-  its values
+- ✅ Speed-dependent map zoom (2026-11-21, `GaugeComponent::SpeedZoom`): "Custom..." and "Dynamic, by
+  speed..." in the close-up menu, each asking for its values; the close-up's meters across go from the
+  slow one to the fast one in proportion to the speed averaged over ±3 s; the line keeps its width; the
+  tiles of every zoom level in between are fetched ahead, so an export needs no connection. Kept in
+  projects and templates
 - Video from data alone: no camera video needed; the gauges and a map of the route over a plain or
   transparent background (a Strava-like flyover of the route), from GPX, FIT or a project
 - 3D terrain flyover: the route over the land in 3D (the terrain heights we already fetch), the camera
