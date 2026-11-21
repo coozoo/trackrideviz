@@ -27,6 +27,7 @@
 #include <QElapsedTimer>
 #include <QEventLoop>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QTimer>
 
 #include <algorithm>
@@ -217,6 +218,35 @@ QString hms(double seconds)
     return QString("%1:%2:%3").arg(whole / 3600).arg((whole / 60) % 60, 2, 10, QChar('0')).arg(whole % 60, 2, 10, QChar('0'));
 }
 
+// "1920x1080", "1080x1920@60", "1920x1080@30,#202020", "1920x1080,transparent"
+bool parseBackground(const QString &text, VideoBackground *background)
+{
+    static const QRegularExpression form(QStringLiteral("^(\\d+)x(\\d+)(?:@(\\d+))?(?:,(.+))?$"));
+    const QRegularExpressionMatch match = form.match(text.trimmed());
+    if (!match.hasMatch())
+        {
+            return false;
+        }
+    VideoBackground made;
+    made.size = QSize(match.captured(1).toInt(), match.captured(2).toInt());
+    made.fps = match.captured(3).isEmpty() ? 30 : match.captured(3).toInt();
+    const QString color = match.captured(4);
+    if (color.compare("transparent", Qt::CaseInsensitive) == 0)
+        {
+            made.color = QColor(0, 0, 0, 0);
+        }
+    else if (!color.isEmpty())
+        {
+            made.color = QColor(color);
+        }
+    if (!made.isOn() || made.size.width() > 8192 || made.size.height() > 8192 || made.fps > 240 || !made.color.isValid())
+        {
+            return false;
+        }
+    *background = made;
+    return true;
+}
+
 int render(const QCommandLineParser &parser, bool preferOwn)
 {
     // what is drawn: a project, or a video, its data and a template
@@ -247,19 +277,40 @@ int render(const QCommandLineParser &parser, bool preferOwn)
         {
             project.telemetryPath = QFileInfo(parser.value("data")).absoluteFilePath();
         }
-    if (project.videoPath.isEmpty())
+    if (parser.isSet("background"))
         {
-            return fail(QCoreApplication::translate("CommandLine", "No video: give a project, or --video."), 2);
+            if (parser.isSet("video"))
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "--background is in place of a video: give one of them."), 2);
+                }
+            if (!parseBackground(parser.value("background"), &project.background))
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "--background wants a size, then a frame rate and a color "
+                                                            "if wanted: 1920x1080, 1080x1920@60, 1920x1080@30,#202020, "
+                                                            "1920x1080,transparent."), 2);
+                }
+            project.videoPath.clear();
         }
-    if (!QFileInfo::exists(project.videoPath))
+    // no video: the gauges over the background, as long as the data
+    const bool noVideo = project.videoPath.isEmpty();
+    if (noVideo && !project.background.isOn())
+        {
+            return fail(QCoreApplication::translate("CommandLine", "No video: give a project, --video or --background."), 2);
+        }
+    if (noVideo && project.telemetryPath.isEmpty())
+        {
+            return fail(QCoreApplication::translate("CommandLine", "Without a video the data is needed: it is as long as the data."), 2);
+        }
+    if (!noVideo && !QFileInfo::exists(project.videoPath))
         {
             return fail(QCoreApplication::translate("CommandLine", "The video %1 is not there.").arg(project.videoPath));
         }
 
     const QString ffmpeg = FfmpegTools::ffmpegProgram();
-    MediaInfo info;
+    // the background's length is the data's, once it is read
+    MediaInfo info = project.background.mediaInfo(0.0);
     QString probeError;
-    if (!MediaProbe::probe(FfmpegTools::ffprobeProgram(), project.videoPath, &info, &probeError, preferOwn))
+    if (!noVideo && !MediaProbe::probe(FfmpegTools::ffprobeProgram(), project.videoPath, &info, &probeError, preferOwn))
         {
             return fail(probeError);
         }
@@ -307,14 +358,15 @@ int render(const QCommandLineParser &parser, bool preferOwn)
         }
 
     // where it goes: given, or beside the video; known before anything slow is done
-    const bool gauges = parser.isSet("gauges-only");
+    const bool gauges = parser.isSet("gauges-only") || (noVideo && project.background.isTransparent());
     QString suffix = gauges ? QStringLiteral("mov") : profile->suffix;
     const int audioAsked = parser.isSet("audio") ? indexOfWord(ExportSettings::AudioWords, parser.value("audio")) : -1;
     if (!gauges && ExportSettings::needsMatroska(audioAsked >= 0 ? ExportSettings::Audio(audioAsked) : profile->audio))
         {
             suffix = QStringLiteral("mkv");
         }
-    const QFileInfo video(project.videoPath);
+    // the file is named after the video, else the data
+    const QFileInfo video(noVideo ? project.telemetryPath : project.videoPath);
     const QString outputPath = parser.isSet("output") ? QFileInfo(parser.value("output")).absoluteFilePath()
                                : video.absolutePath() + "/" + video.completeBaseName() + (gauges ? "_gauges." : "_overlay.") + suffix;
     const QFileInfo output(outputPath);
@@ -365,6 +417,17 @@ int render(const QCommandLineParser &parser, bool preferOwn)
         {
             say(QCoreApplication::translate("CommandLine", "No data: the gauges show none."));
         }
+    if (noVideo)
+        {
+            info = project.background.mediaInfo(session ? session->duration() : 0.0);
+            if (info.duration <= 0.0)
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "The data has no length to make a video of."));
+                }
+            // the picture runs on the data's own time
+            project.syncOffset = 0.0;
+            project.videoShifts.clear();
+        }
 
     // in step: as given; a project's as saved; otherwise by the clocks, as the window does
     if (parser.isSet("offset"))
@@ -376,7 +439,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
                     return fail(QCoreApplication::translate("CommandLine", "--offset wants seconds, as 12.5 or -3600."), 2);
                 }
         }
-    else if (adHoc && session)
+    else if (adHoc && session && !noVideo)
         {
             if (QFileInfo(project.videoPath) == QFileInfo(project.telemetryPath))
                 {
@@ -505,6 +568,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
             settings.picture = ExportSettings::GaugesOnly;
             settings.audio = ExportSettings::NoAudio;
         }
+    settings.background = project.background.color;
     if (parser.isSet("from") || parser.isSet("to"))
         {
             bool fromOk = true;
@@ -718,6 +782,9 @@ int CommandLine::run()
         {"list-templates", QCoreApplication::translate("CommandLine", "The templates of the library.")},
         {"project", QCoreApplication::translate("CommandLine", "The project to export."), "file"},
         {"video", QCoreApplication::translate("CommandLine", "The video (in place of the project's)."), "file"},
+        {"background", QCoreApplication::translate("CommandLine", "No video: the gauges over a plain color as long as the data. "
+                                        "A size, then a frame rate and a color if wanted: 1920x1080@30,#202020; "
+                                        "\"transparent\" for the gauges alone."), "picture"},
         {"data", QCoreApplication::translate("CommandLine", "The data: .fit, .gpx, .tcx, .csv, NMEA, VBO, or a GoPro video's own (in place of the project's)."), "file"},
         {"template", QCoreApplication::translate("CommandLine", "The gauges of this template of the library, placed for the video's shape (in place of the project's)."), "name"},
         {"offset", QCoreApplication::translate("CommandLine", "Data time = video time + this many seconds (in place of the synchronization)."), "seconds"},

@@ -379,7 +379,7 @@ void VideoCanvas::contextMenuEvent(QContextMenuEvent *event)
 
 void VideoCanvas::setFrame(const QVideoFrame &frame)
 {
-    if (!frame.isValid())
+    if (!frame.isValid() || m_background.isOn())
         {
             return;
         }
@@ -395,6 +395,28 @@ void VideoCanvas::setFrame(const QVideoFrame &frame)
 void VideoCanvas::setPosition(qint64 positionMs)
 {
     m_positionTime = positionMs / 1000.0;
+    if (m_background.isOn())
+        {
+            // no frames to tell the time: the clock's is the picture's
+            m_videoTime = m_positionTime;
+            update();
+        }
+}
+
+void VideoCanvas::setBackground(const VideoBackground &background)
+{
+    m_background = background;
+    m_pendingFrame = QVideoFrame();
+    m_hasPicture = background.isOn();
+    m_pictureSize = background.isOn() ? background.size : QSize();
+    m_rotation = 0;
+    const double aspect = pictureAspect();
+    if (aspect > 0.0 && std::abs(aspect - m_announcedAspect) > 0.005)
+        {
+            m_announcedAspect = aspect;
+            emit pictureAspectChanged(aspect);
+        }
+    update();
 }
 
 void VideoCanvas::setSync(const SyncMap &sync)
@@ -406,6 +428,7 @@ void VideoCanvas::setSync(const SyncMap &sync)
 void VideoCanvas::clear()
 {
     m_pendingFrame = QVideoFrame();
+    m_background = VideoBackground();
     m_hasPicture = false;
     m_announcedAspect = 0.0;   // the next video tells its shape, whatever it is
     m_videoTime = 0.0;
@@ -682,7 +705,7 @@ void VideoCanvas::paintGL()
     if (usable)
         {
             uploadPendingFrame();
-            if (m_hasPicture)
+            if (m_hasPicture && !m_background.isOn())
                 {
                     drawVideo(videoRect());
                 }
@@ -692,11 +715,30 @@ void VideoCanvas::paintGL()
     if (!m_hasPicture)
         {
             painter.setPen(Qt::gray);
-            painter.drawText(rect(), Qt::AlignCenter, usable ? tr("Open a video to start")
+            painter.drawText(rect(), Qt::AlignCenter, usable ? tr("Open a video to start, or File > Without a video")
                              : tr("The video cannot be shown: OpenGL is not available."));
             return;
         }
     const QRectF frame = videoRect();
+    if (m_background.isOn())
+        {
+            if (m_background.isTransparent())
+                {
+                    // see-through, as image editors show it
+                    const int square = 12;
+                    QImage checks(2 * square, 2 * square, QImage::Format_RGB32);
+                    checks.fill(QColor(150, 150, 150));
+                    QPainter squares(&checks);
+                    squares.fillRect(0, 0, square, square, QColor(110, 110, 110));
+                    squares.fillRect(square, square, square, square, QColor(110, 110, 110));
+                    squares.end();
+                    painter.fillRect(frame, QBrush(checks));
+                }
+            else
+                {
+                    painter.fillRect(frame, m_background.color);
+                }
+        }
     // the export has nothing outside the picture, so the preview shows nothing there either
     painter.save();
     painter.setClipRect(frame);

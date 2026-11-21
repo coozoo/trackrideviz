@@ -450,8 +450,12 @@ In order:
   slow one to the fast one in proportion to the speed averaged over ±3 s; the line keeps its width; the
   tiles of every zoom level in between are fetched ahead, so an export needs no connection. Kept in
   projects and templates
-- Video from data alone: no camera video needed; the gauges and a map of the route over a plain or
-  transparent background (a Strava-like flyover of the route), from GPX, FIT or a project
+- ✅ Video from data alone (2026-11-21, `VideoBackground`, `DataClock`/`Playback`, File > Without a video...,
+  `--background`): the gauges over a plain color or see-through, at a chosen size (landscape, upright,
+  square, 4K, 720p) and frame rate, as long as the data and on its own time (nothing to synchronize).
+  The preview plays on a clock of its own in place of the video player; the export draws over a color
+  source (the gauges input 0, music after); saved in projects. A Strava-like look comes from a big map
+  (the 3D flyover is next)
 - 3D terrain flyover: the route over the land in 3D (the terrain heights we already fetch), the camera
   following the rider; the same export without a camera video
 - Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up

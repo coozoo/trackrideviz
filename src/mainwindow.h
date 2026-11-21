@@ -15,6 +15,7 @@
 
 #include <functional>
 
+class Playback;
 class QAction;
 class QAudioOutput;
 class QCheckBox;
@@ -91,6 +92,9 @@ private slots:
     void setGaugePartChannel(int index, const QString &own, const QString &shown);
     void setGaugeScaleMax(int index, double max);
     void setGaugeStreets(int index, bool shown);
+    // No video: the gauges over a background (a color, or see-through), as long as the data.
+    void chooseBackground();
+    void useBackground(const VideoBackground &background);
     void setGaugeCloseUp(int index, double meters, const GaugeComponent::SpeedZoom &zoom = {});
     // Asks for a close-up of its own, fixed or widening with the speed, and sets it.
     void askGaugeCloseUp(int index, bool withSpeed);
@@ -181,6 +185,7 @@ private:
     void updateTimeLabel();
 
     QMediaPlayer *m_player{nullptr};
+    Playback *m_playback{nullptr};
     QAudioOutput *m_audioOutput{nullptr};
     QVideoSink *m_videoSink{nullptr};
     // the music under the video, in step with it

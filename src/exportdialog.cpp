@@ -76,6 +76,7 @@ ExportDialog::ExportDialog(const QString &videoPath, const Overlay &overlay, con
                            QWidget *parent)
     : QDialog(parent)
     , m_videoPath(videoPath)
+    , m_namedAfter(videoPath)
     , m_overlay(overlay)
     , m_sync(sync)
     , m_cuts(cuts)
@@ -544,7 +545,7 @@ void ExportDialog::onContainerChosen()
 
 QString ExportDialog::suggestedOutput() const
 {
-    const QFileInfo video(m_videoPath);
+    const QFileInfo video(m_namedAfter);
     const QString configured = AppSettings::exportFolder();
     const QString folder = !configured.isEmpty() && QDir(configured).exists() ? configured : video.absolutePath();
     // the file type chosen so far, or that of the last export
@@ -566,25 +567,46 @@ QString ExportDialog::suggestedOutput() const
     return QDir::toNativeSeparators(path);
 }
 
+void ExportDialog::setBackground(const VideoBackground &background, double length, const QString &namedAfter)
+{
+    m_background = background;
+    m_namedAfter = namedAfter;
+    m_outputEdit->setText(suggestedOutput());
+    onProbed(true, background.mediaInfo(length), QString());
+    m_sourceLabel->setText(tr("No video: %1 x %2, %3 fps, %4, over %5")
+                           .arg(background.size.width()).arg(background.size.height()).arg(background.fps)
+                           .arg(formatDuration(length),
+                                background.isTransparent() ? tr("nothing (see-through)") : background.color.name()));
+    m_pictureCombo->setItemText(0, tr("Gauges over the background"));
+    if (background.isTransparent())
+        {
+            m_pictureCombo->setCurrentIndex(m_pictureCombo->findData(ExportSettings::GaugesOnly));
+        }
+}
+
 void ExportDialog::startProbing()
 {
     const QString ffprobe = FfmpegTools::ffprobeFor(m_ffmpeg);
     const QString video = m_videoPath;
-    auto *probeWatcher = new QFutureWatcher<ProbeResult>(this);
-    connect(probeWatcher, &QFutureWatcher<ProbeResult>::finished, this, [this, probeWatcher]()
-    {
-        const ProbeResult result = probeWatcher->result();
-        probeWatcher->deleteLater();
-        onProbed(result.ok, result.info, result.error);
-    });
     // the engine of the settings, or the other one when it cannot read the video or export here
     const bool preferOwn = AppSettings::ownVideoEngine();
-    probeWatcher->setFuture(QtConcurrent::run([ffprobe, video, preferOwn]()
-    {
-        ProbeResult result;
-        result.ok = MediaProbe::probe(ffprobe, video, &result.info, &result.error, preferOwn);
-        return result;
-    }));
+    // no video: setBackground tells what there is to export
+    if (!video.isEmpty())
+        {
+            auto *probeWatcher = new QFutureWatcher<ProbeResult>(this);
+            connect(probeWatcher, &QFutureWatcher<ProbeResult>::finished, this, [this, probeWatcher]()
+            {
+                const ProbeResult result = probeWatcher->result();
+                probeWatcher->deleteLater();
+                onProbed(result.ok, result.info, result.error);
+            });
+            probeWatcher->setFuture(QtConcurrent::run([ffprobe, video, preferOwn]()
+            {
+                ProbeResult result;
+                result.ok = MediaProbe::probe(ffprobe, video, &result.info, &result.error, preferOwn);
+                return result;
+            }));
+        }
 
     const QString key = (preferOwn ? QStringLiteral("own|") : QStringLiteral("program|")) + m_ffmpeg;
     if (encoderCache().contains(key))
@@ -775,6 +797,7 @@ ExportSettings ExportDialog::currentSettings() const
     settings.height = m_sizeCombo->currentData().toInt();
     settings.audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
     settings.audioKbps = m_audioBitrateCombo->currentData().toInt();
+    settings.background = m_background.color;
     if (m_rangeCheck->isChecked())
         {
             settings.start = toSeconds(m_startEdit->time());
@@ -793,7 +816,11 @@ void ExportDialog::startExport()
             return;
         }
     // QFileInfo compares as the disk does: "Ride.MP4" is "ride.mp4" where case does not count
-    QStringList inputs{m_videoPath};
+    QStringList inputs;
+    if (!m_videoPath.isEmpty())
+        {
+            inputs << m_videoPath;
+        }
     for (const MusicTrack &track : m_soundtrack.tracks)
         {
             inputs << track.path;
