@@ -443,6 +443,26 @@ the automatic end of a fixed dial following the highest value held for a second,
   built by its own rules, without the .buildinfo (over a minute) and the debug symbols package that were never
   uploaded; the tests job builds the core and the tests only, the program being compiled by the release workflow
 
+## Next (agreed 2026-11-21, after comparing with other overlay tools)
+In order:
+- GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint
+  elsewhere: video and data out of step)
+- Speed-dependent map zoom: "Dynamic..." and "Custom..." in the map's close-up menu, each with a popup for
+  its values
+- Video from data alone: no camera video needed; the gauges and a map of the route over a plain or
+  transparent background (a Strava-like flyover of the route), from GPX, FIT or a project
+- Time factor for timelapse and TimeWarp videos (GoPro's fixed factor; a speed ramp varies within a video),
+  and runners' long slow recordings exported sped up
+- Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
+  table, the video cut with them; the edited data saved as GPX, CSV or another format we read
+- Fixing GPS gaps and jumps (tunnels) in the data editor
+- Graph gauges over distance as well as time (an elevation profile)
+- AppImage preview: GStreamer's VA decoders, now that libva is the system's (the preview decodes in
+  software there today)
+- Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
+  database) later
+- Per-lap export: one video per lap, or per chosen lap
+
 ## M8 - Touch UI
 - QML app on `rtvcore` for tablets/phones (needs backend B)
 
