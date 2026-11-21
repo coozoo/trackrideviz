@@ -332,8 +332,10 @@ bool Libav::copyJoin(const QStringList &paths, const QString &output, bool camer
                         {
                             place = audios++;
                         }
-                    else if (type == AVMEDIA_TYPE_DATA && cameraData)
+                    else if (type == AVMEDIA_TYPE_DATA && cameraData && stream->codecpar->codec_tag == MKTAG('g', 'p', 'm', 'd'))
                         {
+                            // the GPMF track alone: a GoPro file's timecode (tmcd) and its own
+                            // (fdsc) are data too, and go nowhere, as through ffmpeg's concat
                             place = datas++;
                         }
                     if (place < 0)
