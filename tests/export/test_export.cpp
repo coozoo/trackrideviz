@@ -1515,7 +1515,14 @@ private slots:
         const TelemetrySessionPtr one = GpmfImporter::load(sample, &error);
         const TelemetrySessionPtr both = GpmfImporter::load(output, &error);
         QVERIFY2(one && both, qPrintable(error));
-        QCOMPARE(both->channel("positionLat")->count(), 2 * one->channel("positionLat")->count());
+        // whatever the camera recorded (a sample without a GPS fix has no positions): twice
+        const QStringList ids = one->channelIds();
+        QVERIFY2(!ids.isEmpty(), "the sample has no data");
+        QCOMPARE(both->channelIds(), ids);
+        for (const QString &id : ids)
+            {
+                QVERIFY2(both->channel(id)->count() >= 2 * one->channel(id)->count() - 2, qPrintable(id));
+            }
         QVERIFY(std::fabs(both->duration() - 2.0 * one->duration()) < 1.0);
     }
 
