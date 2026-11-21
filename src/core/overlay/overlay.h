@@ -40,6 +40,8 @@ struct OverlayItem
     // Its route close up, the map moving under the rider: meters across;
     // 0 = the whole route, negative = as the gauge was drawn.
     double closeUp{-1.0};
+    // ... widening with the speed: `closeUp` meters across when slow, more when fast (with closeUp above 0).
+    GaugeComponent::SpeedZoom speedZoom;
     // The close-up turned so that the way ahead points up: 1, north up: 0, as the gauge was drawn: -1.
     int headingUp{-1};
     // The units this gauge shows its values in: those of the settings, or its own.
@@ -73,7 +75,7 @@ struct OverlayItem
         return gaugeId == other.gaugeId && channel == other.channel
                && x == other.x && y == other.y && height == other.height && map == other.map && aspect == other.aspect && ownTheme == other.ownTheme
                && (!ownTheme || theme == other.theme) && textScale == other.textScale && opacity == other.opacity && streets == other.streets
-               && closeUp == other.closeUp && headingUp == other.headingUp && units == other.units
+               && closeUp == other.closeUp && speedZoom == other.speedZoom && headingUp == other.headingUp && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }

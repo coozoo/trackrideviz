@@ -91,7 +91,9 @@ private slots:
     void setGaugePartChannel(int index, const QString &own, const QString &shown);
     void setGaugeScaleMax(int index, double max);
     void setGaugeStreets(int index, bool shown);
-    void setGaugeCloseUp(int index, double meters);
+    void setGaugeCloseUp(int index, double meters, const GaugeComponent::SpeedZoom &zoom = {});
+    // Asks for a close-up of its own, fixed or widening with the speed, and sets it.
+    void askGaugeCloseUp(int index, bool withSpeed);
     // Works the data out again from the file's (corrections, terrain heights, what follows from them).
     void recomputeData();
     void saveAsTemplate();

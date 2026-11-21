@@ -156,6 +156,8 @@ private:
     void preparePhases(Node &node, const GaugeManipulation &strip) const;
     double phaseAt(const Node &node, const GaugeManipulation &strip, double time) const;
     bool positionAt(double time, QPointF *projected) const;
+    // A close-up's meters across at `time`: its span, or with SpeedZoom what the speed then calls for.
+    double spanAt(const GaugeComponent &component, double time) const;
     void draw(QPainter &painter, const Node &node, double time, const Context &context) const;
     void drawAt(QPainter &painter, const QVector<Node> &nodes, const QPointF &origin, double time,
                 const Context &context, double angle = 0.0) const;
@@ -211,6 +213,7 @@ private:
     const Channel *m_lat{nullptr};
     const Channel *m_lon{nullptr};
     const Channel *m_heading{nullptr};
+    const Channel *m_speed{nullptr};
     TelemetrySessionPtr m_session;        // keeps the channels alive
     GaugeTheme m_theme;                   // its font, for texts
     QVector<Metric> m_metrics;

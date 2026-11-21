@@ -2,6 +2,7 @@
 
 #include <QColor>
 #include <QImage>
+#include <QJsonObject>
 #include <QLineF>
 #include <QPointF>
 #include <QRectF>
@@ -276,6 +277,22 @@ struct GaugeComponent
     // TrackMap, LapMap: meters across the frame's shorter side, the map moving under
     // the current position kept in the middle; 0 = the whole route, standing still
     double span{0.0};
+    // ... widening with the speed (SpeedZoom); `span` is then the one at slow speed
+    struct SpeedZoom
+    {
+        double far{0.0};        // meters across at `fast` or faster; 0 = the span stays as it is
+        double slow{0.0};       // m/s: up to this, `span`
+        double fast{0.0};       // m/s: from this on, `far`; in between in proportion
+        bool isOn() const { return far > 0.0 && fast > slow; }
+        bool operator==(const SpeedZoom &other) const { return far == other.far && slow == other.slow && fast == other.fast; }
+        QJsonObject toJson() const { return {{"far", far}, {"slow", slow}, {"fast", fast}}; }
+        static SpeedZoom fromJson(const QJsonValue &value)
+        {
+            const QJsonObject object = value.toObject();
+            return {object.value("far").toDouble(), object.value("slow").toDouble(), object.value("fast").toDouble()};
+        }
+    };
+    SpeedZoom speedZoom;
     // ... turned so that the way ahead points up, not north; parts of `knob` bound to the
     // heading turn with the map (an arrow then points up), the others stay upright
     bool headingUp{false};

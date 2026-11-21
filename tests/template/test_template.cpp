@@ -135,6 +135,7 @@ private slots:
         t.items = {item(TemplateItem::Start, 20, TemplateItem::Start, 10, 270),
                    item(TemplateItem::End, -400, TemplateItem::End, -400, 400)};
         t.items[1].closeUp = 600.0;
+        t.items[1].speedZoom = {2000.0, 3.0, 12.0};
         t.items[1].units = OverlayItem::ImperialUnits;
         t.items[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
         t.items[1].scaleMax = 60.0;
@@ -150,6 +151,7 @@ private slots:
         QCOMPARE(made.items[1].edgeY, TemplateItem::End);
         QVERIFY(qAbs(made.items[1].offsetX + 400.0) < 1e-6);
         QCOMPARE(made.items[1].closeUp, 600.0);
+        QVERIFY(made.items[1].speedZoom == t.items[1].speedZoom);
         QCOMPARE(made.items[1].units, OverlayItem::ImperialUnits);
         QCOMPARE(made.items[1].channels.value(ChannelId::Heading), QString(ChannelId::WindDirection));
         QCOMPARE(made.items[1].scaleMax, 60.0);

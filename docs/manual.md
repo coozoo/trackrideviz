@@ -134,7 +134,9 @@ The data of a GoPro video is already on the video's clock: there is nothing to s
   **Esc** deselects it.
 - **Right-click** a gauge for its menu:
   - *Show*: the measurement it shows;
-  - *Street map*, *Map*, *Close-up* (300 m to 5 km around the rider), *The way ahead up*: for
+  - *Street map*, *Map*, *Close-up* (300 m to 5 km around the rider, *Custom...* for any
+    distance, or *Dynamic, by speed...*: close when slow, wider when fast, in proportion between
+    two speeds you set, following the speed of the last few seconds), *The way ahead up*: for
     gauges with a route;
   - *Units*: as in the settings, metric or imperial, for this gauge alone;
   - *Keep the gauge's shape*: off, the handles on the right and bottom edges change only the

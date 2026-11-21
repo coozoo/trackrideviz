@@ -24,6 +24,7 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                     if (item.closeUp >= 0.0)
                         {
                             component.span = item.closeUp;
+                            component.speedZoom = item.speedZoom;
                         }
                     if (item.headingUp >= 0)
                         {
