@@ -10,6 +10,7 @@
 #include "../sync/syncmap.h"
 #include "../video/cutlist.h"
 #include "../video/soundtrack.h"
+#include "../video/videobackground.h"
 
 #include <QCoreApplication>
 #include <QString>
@@ -21,6 +22,9 @@
 struct Project
 {
     QString videoPath;        // absolute, or empty
+    // without a video: the gauges over this, as long as the data (see VideoBackground)
+    VideoBackground background;
+    bool hasPicture() const { return !videoPath.isEmpty() || background.isOn(); }
     QString telemetryPath;    // absolute, or empty
     // files whose channels are added to it, such as a heart-rate strap's
     QVector<DataSource> moreData;

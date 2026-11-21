@@ -88,6 +88,12 @@ Save the work with **File > Save project** (Ctrl+S) to come back to it later.
   encode them again into one shape and frame rate. Breaks between recordings are found from their
   times and kept, so the data stays in step after each break. GoPro data is kept in the joined
   file when every part has it.
+- **Without a video** (File menu): no camera video needed. The gauges are drawn over a plain
+  color, or over nothing (see-through, to lay over another video in an editor), at a size and
+  frame rate you choose: 1920 x 1080, upright 1080 x 1920 for phones, square, 4K or 720p. The
+  picture is as long as the data and plays on the data's own time, so there is nothing to
+  synchronize. A big map of the route makes a video of the ride by itself; music, cuts and
+  templates work as with a video. Opening a video later puts the background aside.
 - The preview decodes on the graphics card where it can; Settings > Preview turns that off or
   picks the decoder.
 - **Space** plays and pauses; the slider or the timeline moves through the video.
@@ -330,6 +336,7 @@ trackrideviz --render ride.rtvproj                       # as the project was sa
 trackrideviz --render ride.rtvproj -o ride.mp4 --profile youtube --hardware
 trackrideviz --render --video GX010042.MP4 --data ride.fit --template "Track day"
 trackrideviz --render ride.rtvproj --gauges-only -o gauges.mov
+trackrideviz --render --data ride.fit --background 1920x1080@30,#202830 --template Ride
 trackrideviz --list-encoders                             # what this computer can encode with
 trackrideviz --list-profiles
 trackrideviz --list-templates
@@ -338,6 +345,10 @@ trackrideviz --help                                      # every option
 
 - A project is exported as it was saved. Without one, the video and the data are put in step by
   their clocks, or by `--offset`.
+- `--background` in place of a video: the gauges over a color, as long as the data. A size, then
+  `@` a frame rate (30 if not given) and `,` a color (`#rrggbb`, black if not given, or
+  `transparent` for the gauges alone, written as with `--gauges-only`). The file is named after
+  the data.
 - `--engine builtin` or `--engine ffmpeg` picks the engine (otherwise as in the settings).
 - The profile and the kind of encoder are those the export dialog used last unless `--profile`,
   `--encoder`, `--hardware` or `--software` say otherwise; `--bitrate`, `--quality`, `--speed`,

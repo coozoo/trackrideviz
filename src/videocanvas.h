@@ -2,6 +2,7 @@
 
 #include "overlay/overlay.h"
 #include "sync/syncmap.h"
+#include "video/videobackground.h"
 
 #include <QMatrix4x4>
 #include <QOpenGLBuffer>
@@ -41,8 +42,12 @@ public:
 public slots:
     // Connected to QVideoSink::videoFrameChanged.
     void setFrame(const QVideoFrame &frame);
-    // Player position in ms; used for frames that carry no timestamp.
+    // Player position in ms; used for frames that carry no timestamp, and with a background
+    // as the time itself.
     void setPosition(qint64 positionMs);
+    // No video: the background's color (squares where it is see-through) at its size, the
+    // gauges over it. One that is not on goes back to waiting for video frames.
+    void setBackground(const VideoBackground &background);
     // telemetry time = video time + offset
     void setSync(const SyncMap &sync);
     void clear();
@@ -91,6 +96,7 @@ private:
     QRectF videoRect() const;
 
     QVideoFrame m_pendingFrame;     // not uploaded yet
+    VideoBackground m_background;   // shown in place of video frames when on
     bool m_hasPicture{false};       // textures hold something to show
     double m_announcedAspect{0.0};  // the shape pictureAspectChanged last told
     QSize m_pictureSize;            // as stored, before rotation

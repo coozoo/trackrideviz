@@ -33,7 +33,9 @@ SOURCES += main.cpp \
     src/joindialog.cpp \
     src/lapcomparepanel.cpp \
     src/lapspanel.cpp \
+    src/backgrounddialog.cpp \
     src/musicpanel.cpp \
+    src/playback.cpp \
     src/datasourcesdialog.cpp \
     src/dockhome.cpp \
     src/diagnostics.cpp \
@@ -56,7 +58,9 @@ HEADERS += \
     src/joindialog.h \
     src/lapcomparepanel.h \
     src/lapspanel.h \
+    src/backgrounddialog.h \
     src/musicpanel.h \
+    src/playback.h \
     src/datasourcesdialog.h \
     src/dockhome.h \
     src/diagnostics.h \

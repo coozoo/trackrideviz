@@ -11,6 +11,7 @@
 #include "video/mediainfo.h"
 #include "video/soundtrack.h"
 #include "video/videoencoders.h"
+#include "video/videobackground.h"
 #include "video/videojoin.h"
 #include "video/videojoinjob.h"
 
@@ -1066,6 +1067,64 @@ private slots:
         QVERIFY(difference(before, after, 270, 210) > 60);    // center of the bottom right one
         QVERIFY(difference(before, after, 160, 120) < 20);    // between them: untouched
         QVERIFY(difference(before, after, 280, 30) < 20);
+    }
+
+    // No video: the gauges over a plain color, as long as asked for, with music under them.
+    void exportWithoutAVideo()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        const QString song = m_dir.filePath("background-song.wav");
+        QVERIFY(FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                                            "sine=frequency=440:duration=5", song}).exitCode == 0);
+        Soundtrack music;
+        music.tracks = {{song, 5.0, 0.0, 0.0}};
+        VideoBackground background;
+        background.size = QSize(320, 240);
+        background.fps = 30;
+        background.color = QColor(0, 90, 40);
+        const MediaInfo info = background.mediaInfo(2.0);
+        const QString output = m_dir.filePath("no-video.mp4");
+        ExportSettings settings = settingsFor(output);
+        settings.background = background.color;
+        const Overlay overlay = oneGauge();
+        const ExportPlan plan = ExportPlan::make(QString(), info, settings, overlay, {}, music);
+        // the gauges are input 0, the music 1; nothing else is read
+        QCOMPARE(plan.inputs.size(), 2);
+        QCOMPARE(plan.inputs.first().source, QString(ExportPlan::Pipe));
+        QVERIFY(plan.filterGraph.startsWith("color=c=0x005a28:s=320x240:r=30/1[base]"));
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(finished.first().at(1).toString()));
+        MediaInfo result;
+        QVERIFY(MediaProbe::probe("ffprobe", output, &result));
+        QCOMPARE(result.size, background.size);
+        QCOMPARE(result.fps(), 30.0);
+        QVERIFY(result.hasAudio);
+        QCOMPARE(countFrames(output), 60);
+        const QImage frame = frameAt(output, 1.0);
+        QVERIFY(!frame.isNull());
+        // the color away from the dial, the dial below right of the middle
+        const QColor corner = frame.pixelColor(20, 20);
+        QVERIFY2(std::abs(corner.green() - 90) < 12 && corner.red() < 12, qPrintable(corner.name()));
+        QVERIFY(frame.pixelColor(190, 150) != corner);
+        // without gauges: the color alone, still two seconds
+        const QString plain = m_dir.filePath("no-video-plain.mp4");
+        settings.outputPath = plain;
+        const ExportPlan nothing = ExportPlan::make(QString(), info, settings, Overlay());
+        QVERIFY(nothing.inputs.isEmpty());
+        ExportJob plainJob("ffmpeg", nothing, Overlay(), 0.0, nullptr, m_engine);
+        QSignalSpy plainFinished(&plainJob, &ExportJob::finished);
+        plainJob.start();
+        QVERIFY(plainFinished.wait(60000));
+        QVERIFY2(plainFinished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(plainFinished.first().at(1).toString()));
+        QCOMPARE(countFrames(plain), 60);
     }
 
     void exportGaugesOnly_data()

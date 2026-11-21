@@ -101,6 +101,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
         {
             root.insert("layoutAspect", project.layoutAspect);
         }
+    if (project.background.isOn())
+        {
+            root.insert("background", project.background.toJson());
+        }
     if (!project.moreData.isEmpty())
         {
             QJsonArray sources;
@@ -238,6 +242,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
     const QDir dir(projectDir);
     Project loaded;
     loaded.videoPath = fromStored(root.value("video").toString(), dir);
+    loaded.background = VideoBackground::fromJson(root.value("background").toObject());
     loaded.telemetryPath = fromStored(root.value("data").toString(), dir);
     for (const QJsonValue &value : root.value("moreData").toArray())
         {

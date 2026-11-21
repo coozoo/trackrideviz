@@ -2,6 +2,7 @@
 
 #include "overlay/overlay.h"
 #include "video/exportjob.h"
+#include "video/videobackground.h"
 #include "video/exportprofile.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
@@ -36,6 +37,9 @@ public:
                  const QVector<TimeRange> &cuts, const Soundtrack &soundtrack, double currentPosition,
                  QWidget *parent = nullptr);
     ~ExportDialog() override;
+    // No video (an empty videoPath): the gauges over `background`, `length` seconds long; the
+    // file is named after `namedAfter` (the data's file).
+    void setBackground(const VideoBackground &background, double length, const QString &namedAfter);
 
 public slots:
     // Closing while an export runs asks first, then stops it.
@@ -81,6 +85,8 @@ private:
     QString suggestedOutput() const;
 
     QString m_videoPath;
+    VideoBackground m_background;   // with no video
+    QString m_namedAfter;           // what the file is named after: the video, else the data
     Overlay m_overlay;
     SyncMap m_sync;
     QVector<TimeRange> m_cuts;

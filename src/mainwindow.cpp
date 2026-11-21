@@ -1,5 +1,9 @@
 #include "mainwindow.h"
 
+#include "backgrounddialog.h"
+#include "playback.h"
+
+#include "backgrounddialog.h"
 #include "datapanel.h"
 #include "datasourcesdialog.h"
 #include "diagnostics.h"
@@ -10,6 +14,7 @@
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
 #include "musicpanel.h"
+#include "playback.h"
 #include "timelinepanel.h"
 
 #include "appearance.h"
@@ -214,6 +219,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_videoSink = new QVideoSink(this);
     m_player->setAudioOutput(m_audioOutput);
     m_player->setVideoSink(m_videoSink);
+    // what plays: the video, or the data's own clock when there is a background instead
+    m_playback = new Playback(m_player, this);
     m_musicPlayer = new QMediaPlayer(this);
     m_musicOutput = new QAudioOutput(this);
     m_musicPlayer->setAudioOutput(m_musicOutput);
@@ -339,10 +346,10 @@ MainWindow::MainWindow(QWidget *parent)
     updateProperties();
 
     connect(m_videoSink, &QVideoSink::videoFrameChanged, m_canvas, &VideoCanvas::setFrame);
-    connect(m_player, &QMediaPlayer::positionChanged, m_canvas, &VideoCanvas::setPosition);
-    connect(m_player, &QMediaPlayer::positionChanged, this, &MainWindow::onPositionChanged);
-    connect(m_player, &QMediaPlayer::durationChanged, this, &MainWindow::onDurationChanged);
-    connect(m_player, &QMediaPlayer::playbackStateChanged, this, &MainWindow::onPlaybackStateChanged);
+    connect(m_playback, &Playback::positionChanged, m_canvas, &VideoCanvas::setPosition);
+    connect(m_playback, &Playback::positionChanged, this, &MainWindow::onPositionChanged);
+    connect(m_playback, &Playback::durationChanged, this, &MainWindow::onDurationChanged);
+    connect(m_playback, &Playback::playbackStateChanged, this, &MainWindow::onPlaybackStateChanged);
     connect(m_player, &QMediaPlayer::errorOccurred, this, &MainWindow::onPlayerError);
     // a track just opened is put at its place once it can be
     connect(m_musicPlayer, &QMediaPlayer::mediaStatusChanged, this, &MainWindow::syncMusic);
@@ -593,7 +600,7 @@ QWidget *MainWindow::createCentralWidget()
     // covers dragging, clicks on the groove and the keyboard
     connect(m_seekSlider, &QSlider::actionTriggered, this, [this]()
     {
-        m_player->setPosition(m_seekSlider->sliderPosition());
+        m_playback->setPosition(m_seekSlider->sliderPosition());
     });
 
     m_timeLabel = new QLabel(central);
@@ -651,7 +658,7 @@ void MainWindow::createDocks()
     m_timelineDock->setWidget(m_timelinePanel);
     connect(m_timelinePanel, &TimelinePanel::seekRequested, this, [this](double seconds)
     {
-        m_player->setPosition(qint64(std::llround(seconds * 1000.0)));
+        m_playback->setPosition(qint64(std::llround(seconds * 1000.0)));
     });
     // the spin box does what typing the value would
     connect(m_timelinePanel, &TimelinePanel::offsetDragged, m_offsetSpin, &QDoubleSpinBox::setValue);
@@ -696,7 +703,7 @@ void MainWindow::createDocks()
     });
     connect(m_musicPanel, &MusicPanel::seekRequested, this, [this](double seconds)
     {
-        m_player->setPosition(qint64(std::llround(seconds * 1000.0)));
+        m_playback->setPosition(qint64(std::llround(seconds * 1000.0)));
     });
     // what goes on underneath, for finding out why something does not work on a system: hidden
     // until asked for
@@ -892,6 +899,8 @@ void MainWindow::createMenus()
     m_dataSourcesAction->setEnabled(false);
     m_dataSourcesAction->setIcon(Icons::named("list-add"));
     fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
+    QAction *backgroundAction = fileMenu->addAction(tr("&Without a video..."), this, &MainWindow::chooseBackground);
+    backgroundAction->setToolTip(tr("The gauges over a plain color, or see-through, as long as the data"));
     fileMenu->addSeparator();
     QAction *openProjectAction = fileMenu->addAction(tr("Open &project..."), this, &MainWindow::chooseProject);
     openProjectAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
@@ -1089,6 +1098,8 @@ void MainWindow::loadVideo(const QString &path)
 {
     m_project.videoPath = path;
     m_canvas->clear();
+    m_project.background = VideoBackground();
+    m_playback->setClock(false);
     m_player->setSource(QUrl::fromLocalFile(path));
     // shows the first frame without starting to play
     m_player->pause();
@@ -1096,6 +1107,47 @@ void MainWindow::loadVideo(const QString &path)
     m_exportAction->setEnabled(true);
     updateSourcesInfo();
     autoSync();
+}
+
+void MainWindow::chooseBackground()
+{
+    BackgroundDialog dialog(m_project.background, this);
+    if (dialog.exec() != QDialog::Accepted)
+        {
+            return;
+        }
+    if (!m_project.videoPath.isEmpty()
+            && QMessageBox::question(this, dialog.windowTitle(), tr("The video %1 is put aside for the background. Go on?")
+                                     .arg(QFileInfo(m_project.videoPath).fileName())) != QMessageBox::Yes)
+        {
+            return;
+        }
+    useBackground(dialog.background());
+    setModified(true);
+    if (!m_session)
+        {
+            statusBar()->showMessage(tr("Open the data now: the picture is as long as it."), 8000);
+        }
+}
+
+void MainWindow::useBackground(const VideoBackground &background)
+{
+    m_project.videoPath.clear();
+    m_project.background = background;
+    m_player->setSource(QUrl());
+    m_canvas->clear();
+    m_canvas->setBackground(background);
+    m_playback->clock()->setRate(background.fps);
+    m_playback->setClock(true);
+    m_playback->clock()->setDuration(m_session ? qint64(std::llround(m_session->duration() * 1000.0)) : 0);
+    m_playback->setPosition(0);
+    m_playButton->setEnabled(true);
+    m_exportAction->setEnabled(true);
+    // the picture runs on the data's own time: nothing to match
+    m_project.videoShifts.clear();
+    m_project.syncIsManual = false;
+    setSyncOffset(0.0, tr("No video: the gauges follow the data's own time."));
+    updateSourcesInfo();
 }
 
 void MainWindow::openTelemetry(const QString &path)
@@ -1249,6 +1301,7 @@ void MainWindow::openProject(const QString &path)
     m_dataPanel->setEdits(m_project.dataEdits);
     m_pendingTelemetryPath.clear();
     m_canvas->clear();
+    m_playback->setClock(false);
     m_player->setSource(QUrl());
     m_playButton->setEnabled(false);
     m_exportAction->setEnabled(false);
@@ -1257,6 +1310,10 @@ void MainWindow::openProject(const QString &path)
     if (!m_project.videoPath.isEmpty())
         {
             loadVideo(m_project.videoPath);
+        }
+    else if (m_project.background.isOn())
+        {
+            useBackground(m_project.background);
         }
     if (!m_project.telemetryPath.isEmpty())
         {
@@ -1328,7 +1385,7 @@ bool MainWindow::saveProjectAs()
 
 void MainWindow::exportVideo()
 {
-    if (m_project.videoPath.isEmpty())
+    if (!m_project.hasPicture())
         {
             return;
         }
@@ -1353,19 +1410,28 @@ void MainWindow::exportVideo()
                 }
         }
     // two decoders on one file only fight for the disk and the graphics card
-    m_player->pause();
+    m_playback->pause();
     Soundtrack soundtrack = m_project.soundtrack;
     soundtrack.tracks.erase(std::remove_if(soundtrack.tracks.begin(), soundtrack.tracks.end(), [](const MusicTrack &track)
     {
         return !QFileInfo::exists(track.path);
     }), soundtrack.tracks.end());
     ExportDialog dialog(m_project.videoPath, Overlay(m_project.overlay, m_session, m_units, m_project.theme),
-                        m_project.sync(), m_project.cuts, soundtrack, m_player->position() / 1000.0, this);
+                        m_project.sync(), m_project.cuts, soundtrack, m_playback->position() / 1000.0, this);
+    if (m_project.videoPath.isEmpty())
+        {
+            dialog.setBackground(m_project.background, m_playback->duration() / 1000.0, m_project.telemetryPath);
+        }
     dialog.exec();
 }
 
 void MainWindow::rebuildOverlay()
 {
+    // with a background the picture is as long as the data, whatever was done to it
+    if (m_playback->isClock())
+        {
+            m_playback->clock()->setDuration(m_session ? qint64(std::llround(m_session->duration() * 1000.0)) : 0);
+        }
     m_canvas->setOverlay(Overlay(m_project.overlay, m_session, m_units, m_project.theme));
     updateProperties();
 }
@@ -2302,17 +2368,17 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
 
 void MainWindow::togglePlayback()
 {
-    if (m_project.videoPath.isEmpty())
+    if (!m_project.hasPicture())
         {
             return;
         }
-    if (m_player->playbackState() == QMediaPlayer::PlayingState)
+    if (m_playback->playbackState() == QMediaPlayer::PlayingState)
         {
-            m_player->pause();
+            m_playback->pause();
         }
     else
         {
-            m_player->play();
+            m_playback->play();
         }
 }
 
@@ -2344,11 +2410,11 @@ void MainWindow::onPositionChanged(qint64 positionMs)
     m_musicPanel->setPosition(positionMs / 1000.0);
     syncMusic();
     // playing goes over what is cut, as the export will
-    if (m_player->playbackState() == QMediaPlayer::PlayingState)
+    if (m_playback->playbackState() == QMediaPlayer::PlayingState)
         {
             if (const TimeRange *cut = CutList::cutAt(m_project.cuts, positionMs / 1000.0))
                 {
-                    m_player->setPosition(qint64(std::ceil(cut->end * 1000.0)));
+                    m_playback->setPosition(qint64(std::ceil(cut->end * 1000.0)));
                 }
         }
     updateTimeLabel();
@@ -2387,7 +2453,7 @@ void MainWindow::autoSync()
     const QDateTime wallClock = VideoSync::wallClockFromFileName(QFileInfo(m_project.videoPath).fileName());
     // what this computer's time zone was at that date and time
     const int systemUtcOffset = wallClock.isValid() ? QDateTime(wallClock.date(), wallClock.time()).offsetFromUtc() : 0;
-    const VideoSync::Result result = VideoSync::match(*m_session, wallClock, m_player->duration() / 1000.0, systemUtcOffset);
+    const VideoSync::Result result = VideoSync::match(*m_session, wallClock, m_playback->duration() / 1000.0, systemUtcOffset);
     if (result.ok)
         {
             setSyncOffset(result.offsetSeconds, result.explanation);
@@ -2412,13 +2478,23 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
 
 void MainWindow::updateTimeLabel()
 {
-    m_timeLabel->setText(QString("%1 / %2").arg(formatTime(m_player->position()), formatTime(m_player->duration())));
+    m_timeLabel->setText(QString("%1 / %2").arg(formatTime(m_playback->position()), formatTime(m_playback->duration())));
 }
 
 void MainWindow::updateSourcesInfo()
 {
     QStringList lines;
-    lines << tr("Video: %1").arg(m_project.videoPath.isEmpty() ? tr("none") : QFileInfo(m_project.videoPath).fileName());
+    if (m_project.videoPath.isEmpty() && m_project.background.isOn())
+        {
+            const VideoBackground &background = m_project.background;
+            lines << tr("Video: none, the gauges over %1 (%2 x %3, %4 fps)")
+                  .arg(background.isTransparent() ? tr("nothing") : background.color.name())
+                  .arg(background.size.width()).arg(background.size.height()).arg(background.fps);
+        }
+    else
+        {
+            lines << tr("Video: %1").arg(m_project.videoPath.isEmpty() ? tr("none") : QFileInfo(m_project.videoPath).fileName());
+        }
     lines << QString();
     if (!m_session)
         {
@@ -2694,8 +2770,8 @@ void MainWindow::syncMusic()
     const Soundtrack &soundtrack = m_heardSoundtrack;
     // a player plays no louder than the file: a boost is heard in the export only
     m_audioOutput->setVolume(float(std::min(1.0, soundtrack.videoGain())));
-    const double videoTime = m_player->position() / 1000.0;
-    const bool video = !m_player->source().isEmpty();
+    const double videoTime = m_playback->position() / 1000.0;
+    const bool video = !m_player->source().isEmpty() || m_playback->isClock();
     const Soundtrack::Moment moment = video && soundtrack.hasMusic()
                                       ? soundtrack.at(soundtrack.musicTime(videoTime, m_project.cuts)) : Soundtrack::Moment();
     if (moment.track < 0)
@@ -2724,7 +2800,7 @@ void MainWindow::syncMusic()
             m_musicSwitching = false;
         }
     m_musicOutput->setVolume(float(std::min(1.0, moment.gain * soundtrack.musicGain())));
-    if (m_player->playbackState() != QMediaPlayer::PlayingState)
+    if (m_playback->playbackState() != QMediaPlayer::PlayingState)
         {
             if (m_musicPlayer->playbackState() == QMediaPlayer::PlayingState)
                 {
@@ -2834,16 +2910,16 @@ void MainWindow::seekTelemetryTime(double time)
 {
     // telemetry time = video time + offset
     const double videoTime = m_project.sync().videoTime(time);
-    const double videoEnd = m_player->duration() / 1000.0;
-    const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, std::max<qint64>(0, m_player->duration()));
-    if (!m_project.videoPath.isEmpty())
+    const double videoEnd = m_playback->duration() / 1000.0;
+    const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, std::max<qint64>(0, m_playback->duration()));
+    if (m_project.hasPicture())
         {
-            m_player->setPosition(position);
+            m_playback->setPosition(position);
         }
     // a moment the video has no picture for is still shown in the data's own panels
-    const bool outside = m_project.videoPath.isEmpty() || videoTime < 0.0 || (videoEnd > 0.0 && videoTime > videoEnd);
+    const bool outside = !m_project.hasPicture() || videoTime < 0.0 || (videoEnd > 0.0 && videoTime > videoEnd);
     m_heldTime = outside ? time : -1.0;
-    m_heldVideoPosition = outside ? (m_project.videoPath.isEmpty() ? -1 : position) : -1;
+    m_heldVideoPosition = outside ? (!m_project.hasPicture() ? -1 : position) : -1;
     m_dataPanel->setTime(shownTelemetryTime());
     m_lapsPanel->setTime(shownTelemetryTime());
 }
@@ -2853,7 +2929,7 @@ double MainWindow::shownTelemetryTime() const
     if (m_heldTime >= 0.0)
         {
             // held until the video is played or moved
-            if (m_project.videoPath.isEmpty() || std::llabs(m_player->position() - m_heldVideoPosition) < 50)
+            if (!m_project.hasPicture() || std::llabs(m_playback->position() - m_heldVideoPosition) < 50)
                 {
                     return m_heldTime;
                 }
