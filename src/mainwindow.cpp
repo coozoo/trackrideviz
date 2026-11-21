@@ -1695,11 +1695,15 @@ void MainWindow::askGaugeCloseUp(int index, bool withSpeed)
     const GaugeComponent::SpeedZoom was = item.speedZoom.isOn() ? item.speedZoom
                                           : GaugeComponent::SpeedZoom{1500.0, 10.0 / 3.6, 40.0 / 3.6};
     QSpinBox *near = meters(current > 0.0 ? current : 300.0);
-    QSpinBox *slow = speed(was.slow);
-    QSpinBox *far = meters(was.far);
-    QSpinBox *fast = speed(was.fast);
+    // only the popup by speed has these: made for the other, they would sit on it unplaced
+    QSpinBox *slow = nullptr;
+    QSpinBox *far = nullptr;
+    QSpinBox *fast = nullptr;
     if (withSpeed)
         {
+            slow = speed(was.slow);
+            far = meters(was.far);
+            fast = speed(was.fast);
             QLabel *about = new QLabel(tr("The map shows less of the route when slow and more when fast, "
                                           "in proportion between the two speeds."), &dialog);
             about->setWordWrap(true);
