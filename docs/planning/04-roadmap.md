@@ -445,14 +445,11 @@ the automatic end of a fixed dial following the highest value held for a second,
 
 ## Next (agreed 2026-11-21, after comparing with other overlay tools)
 In order:
-- GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint
-  elsewhere: video and data out of step)
 - Speed-dependent map zoom: "Dynamic..." and "Custom..." in the map's close-up menu, each with a popup for
   its values
 - Video from data alone: no camera video needed; the gauges and a map of the route over a plain or
   transparent background (a Strava-like flyover of the route), from GPX, FIT or a project
-- Time factor for timelapse and TimeWarp videos (GoPro's fixed factor; a speed ramp varies within a video),
-  and runners' long slow recordings exported sped up
+- Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up
 - Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
   table, the video cut with them; the edited data saved as GPX, CSV or another format we read
 - Fixing GPS gaps and jumps (tunnels) in the data editor
@@ -465,6 +462,11 @@ In order:
 
 ## M8 - Touch UI
 - QML app on `rtvcore` for tablets/phones (needs backend B)
+
+## After the simple UI: GoPro
+- GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint
+  elsewhere: video and data out of step)
+- TimeWarp: the factor read from the camera's data, a speed ramp varying within a video
 
 ## Later / maybe
 Multi-camera picture-in-picture, side-by-side lap comparison with ghost, track database with
