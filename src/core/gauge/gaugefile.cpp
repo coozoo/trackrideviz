@@ -516,6 +516,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                             object["headingUp"] = true;
                         }
                 }
+            if (c.flyover)
+                {
+                    object["flyover"] = true;
+                }
             if (c.tiles)
                 {
                     object["tiles"] = true;
@@ -635,6 +639,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.smooth = object.value("smooth").toBool();
     c.span = object.value("span").toDouble();
     c.headingUp = object.value("headingUp").toBool();
+    c.flyover = object.value("flyover").toBool();
     c.fillAlpha = object.value("fillAlpha").toInt(-1);
     if (object.contains("fillColor"))
         {

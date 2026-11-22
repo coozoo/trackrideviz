@@ -1328,6 +1328,76 @@ private slots:
         QVERIFY(!painted(between, 50, 22 - 6));
     }
 
+    // The land in 3D: without terrain or map tiles (no connection in a test) flat, in its own
+    // colors, the sky above it, the route ridden so far drawn from the rider back towards the
+    // camera, the rider's marker on them.
+    void flyoverDrawsTheLandBehindTheRider()
+    {
+        TileStore::terrain()->setFolder(m_dir.filePath("no-terrain"));
+        // 600 m north at 10 m/s
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+        for (int t = 0; t <= 60; ++t)
+            {
+                lat.append(t, 50.0 + t * 10.0 / 111320.0);
+                lon.append(t, 30.0);
+            }
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 160, 90);
+        map.lineWidth = 4;
+        map.color.role = GaugeColor::Custom;
+        map.color.custom = QColor(255, 0, 255);
+        map.flyover = true;
+        map.span = 200.0;
+        GaugeComponent knob;
+        knob.type = GaugeComponent::Shape;
+        knob.frame = QRectF(-3, -3, 6, 6);
+        knob.color.role = GaugeColor::Custom;
+        knob.color.custom = QColor(0, 255, 0);
+        map.knob.append(knob);
+        Gauge gauge;
+        gauge.size = QSizeF(160, 90);
+        gauge.components.append(map);
+        const BoundGauge bound(gauge, ChannelId::Speed, session, Units(), GaugeTheme());
+        QImage image(320, 180, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+        bound.render(painter, QRectF(0, 0, 320, 180), 30.0);
+        painter.end();
+
+        // sky at the top, blue above grey
+        const QColor sky = image.pixelColor(160, 2);
+        QVERIFY2(sky.blue() > sky.red() + 40, qPrintable(sky.name()));
+        // land at the bottom: greenish, the haze not yet over it
+        const QColor land = image.pixelColor(20, 175);
+        QVERIFY2(land.green() > land.blue() && land.green() > 90, qPrintable(land.name()));
+        // the rider in the middle, a little below; the route ridden from there down to the camera
+        int marker = 0;
+        int ridden = 0;
+        for (int y = 0; y < 180; ++y)
+            {
+                for (int x = 0; x < 320; ++x)
+                    {
+                        const QColor c = image.pixelColor(x, y);
+                        marker += (c.green() > 200 && c.red() < 60 && c.blue() < 60) ? 1 : 0;
+                        if (c.red() > 200 && c.blue() > 200 && c.green() < 80)
+                            {
+                                ++ridden;
+                                QVERIFY2(y > 60, qPrintable(QString("ridden at %1,%2").arg(x).arg(y)));
+                            }
+                    }
+            }
+        QVERIFY2(marker > 10, qPrintable(QString::number(marker)));
+        QVERIFY2(ridden > 40, qPrintable(QString::number(ridden)));
+        // the setting is kept in the gauge's file, also without a close-up
+        gauge.components[0].span = 0.0;
+        Gauge loaded;
+        QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded));
+        QVERIFY(loaded.components.first().flyover);
+    }
+
     void lapMapShowsTheCurrentLapWithItsStartLine()
     {
         // lap 1 a square in the west, lap 2 a square in the east

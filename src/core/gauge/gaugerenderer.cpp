@@ -1,5 +1,6 @@
 #include "gaugerenderer.h"
 
+#include "../maps/flyover.h"
 #include "../maps/tilestore.h"
 #include "../telemetry/channelids.h"
 #include "channelicons.h"
@@ -31,6 +32,10 @@ const int kRunLength = 64;
 const double kFollowPixels = 512.0;
 // a close-up widening with the speed takes the average of this many seconds before and after
 const int kZoomSeconds = 3;
+// a map in 3D without a close-up of its own shows this many meters across at the rider
+const double kFlyoverSpan = 1000.0;
+// ... the route given to it: a point for each second at most
+const int kMaxFlyoverPoints = 20000;
 const double kMetersPerDegree = 111320.0;
 
 // What a map that follows the rider shows around a point, in its frame's units: the frame,
@@ -1007,7 +1012,7 @@ void BoundGauge::prepareRoutes(Node &node) const
         {
             return;
         }
-    if (node.component.span > 0.0 && node.component.headingUp)
+    if (node.component.flyover || (node.component.span > 0.0 && node.component.headingUp))
         {
             // what shows the heading turns with the map
             QVector<Node> upright;
@@ -1016,6 +1021,11 @@ void BoundGauge::prepareRoutes(Node &node) const
                     (part.component.channel == QLatin1String(ChannelId::Heading) ? node.knobTurning : upright).append(part);
                 }
             node.knob = upright;
+        }
+    if (node.component.flyover)
+        {
+            prepareFlyover(node);
+            return;
         }
     // what to draw: the whole recording, or one route per lap
     QVector<QPair<double, double>> spans;
@@ -1691,6 +1701,116 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
     drawAt(painter, node.knob, frame.center(), time, context);
 }
 
+double BoundGauge::headingAt(double time) const
+{
+    // from where the rider was to where they will be, the seconds widened until they have
+    // gone some way: standing, or with the GPS wandering, the view keeps its direction
+    double heading = 0.0;
+    for (double seconds = 6.0; seconds <= 240.0; seconds *= 2.0)
+        {
+            bool ok = true;
+            bool known = false;
+            const double latitude0 = m_lat->valueAt(time - seconds, &known);
+            ok = ok && known;
+            const double longitude0 = m_lon->valueAt(time - seconds, &known);
+            ok = ok && known;
+            const double latitude1 = m_lat->valueAt(time + seconds, &known);
+            ok = ok && known;
+            const double longitude1 = m_lon->valueAt(time + seconds, &known);
+            ok = ok && known;
+            const double north = (latitude1 - latitude0) * kMetersPerDegree;
+            const double east = (longitude1 - longitude0) * kMetersPerDegree * std::cos(latitude0 * kPi / 180.0);
+            if (ok && (north != 0.0 || east != 0.0))
+                {
+                    heading = std::atan2(east, north) * 180.0 / kPi;
+                }
+            if (ok && std::hypot(north, east) > 40.0)
+                {
+                    break;
+                }
+        }
+    return heading;
+}
+
+void BoundGauge::prepareFlyover(Node &node) const
+{
+    const double start = m_lat->startTime();
+    const double end = m_lat->endTime();
+    const int count = std::clamp(int(end - start) + 1, 2, kMaxFlyoverPoints);
+    QVector<Flyover::Point> route;
+    route.reserve(count);
+    for (int i = 0; i < count; ++i)
+        {
+            const double time = lerp(start, end, double(i) / (count - 1));
+            bool latitudeKnown = false;
+            bool longitudeKnown = false;
+            const double latitude = m_lat->valueAt(time, &latitudeKnown);
+            const double longitude = m_lon->valueAt(time, &longitudeKnown);
+            if (latitudeKnown && longitudeKnown)
+                {
+                    route.append({latitude, longitude, time});
+                }
+        }
+    if (route.size() < 2)
+        {
+            return;
+        }
+    node.flyover = std::make_shared<Flyover>();
+    node.flyover->setRoute(route);
+    // the land and the map of the whole way, so that an export needs no connection: where a
+    // new piece of land is worked out, about every half kilometer
+    const double span = node.component.span > 0.0 ? node.component.span : kFlyoverSpan;
+    QVector<Flyover::Point> places{route.first()};
+    for (const Flyover::Point &point : std::as_const(route))
+        {
+            const Flyover::Point &last = places.last();
+            const double north = (point.latitude - last.latitude) * kMetersPerDegree;
+            const double east = (point.longitude - last.longitude) * kMetersPerDegree * std::cos(last.latitude * kPi / 180.0);
+            if (std::hypot(north, east) > span * 0.5)
+                {
+                    places.append(point);
+                }
+        }
+    Flyover::want(places, span, node.component.mapProvider, node.component.tiles);
+}
+
+void BoundGauge::drawFlyover(QPainter &painter, const Node &node, double time, const Context &context) const
+{
+    const QRectF frame = node.component.frame;
+    // drawn at the size it has on the screen or in the video, not in design units
+    const QRectF onDevice = painter.deviceTransform().mapRect(frame);
+    const QSize size(std::max(2, int(std::lround(onDevice.width()))), std::max(2, int(std::lround(onDevice.height()))));
+    Flyover::View view;
+    bool latitudeKnown = false;
+    bool longitudeKnown = false;
+    view.latitude = m_lat->valueAt(time, &latitudeKnown);
+    view.longitude = m_lon->valueAt(time, &longitudeKnown);
+    view.heading = headingAt(time);
+    view.span = node.component.span > 0.0 ? node.component.span : kFlyoverSpan;
+    view.mapProvider = node.component.mapProvider;
+    view.streets = node.component.tiles;
+    view.line = node.color;
+    view.lineWidth = node.component.lineWidth * onDevice.width() / std::max(1.0, frame.width());
+    view.time = time;
+    QPointF rider;
+    const QImage picture = node.flyover->render(size, view, &rider);
+
+    painter.save();
+    QPainterPath shape;
+    shape.addRoundedRect(frame, node.component.cornerRadius, node.component.cornerRadius);
+    painter.setClipPath(shape, Qt::IntersectClip);
+    painter.drawImage(frame, picture);
+    painter.restore();
+    if (node.component.tiles)
+        {
+            drawCredit(painter, node);
+        }
+    // the rider where they are on it; what shows the heading points ahead, which is up there
+    const QPointF at(frame.left() + rider.x() * frame.width() / size.width(), frame.top() + rider.y() * frame.height() / size.height());
+    drawAt(painter, node.knobTurning, at, time, context, -view.heading);
+    drawAt(painter, node.knob, at, time, context);
+}
+
 double BoundGauge::spanAt(const GaugeComponent &component, double time) const
 {
     const GaugeComponent::SpeedZoom &zoom = component.speedZoom;
@@ -1786,6 +1906,11 @@ QImage BoundGauge::linePicture(const Node &node, int route, const Context &conte
 
 void BoundGauge::drawRoute(QPainter &painter, const Node &node, double time, const Context &context) const
 {
+    if (node.flyover)
+        {
+            drawFlyover(painter, node, time, context);
+            return;
+        }
     if (node.routes.isEmpty())
         {
             return;

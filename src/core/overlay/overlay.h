@@ -44,6 +44,8 @@ struct OverlayItem
     GaugeComponent::SpeedZoom speedZoom;
     // The close-up turned so that the way ahead points up: 1, north up: 0, as the gauge was drawn: -1.
     int headingUp{-1};
+    // The route's land in 3D, seen from behind the rider (Flyover): 1, flat: 0, as the gauge was drawn: -1.
+    int flyover{-1};
     // The units this gauge shows its values in: those of the settings, or its own.
     enum UnitSystem { AsSettings, MetricUnits, ImperialUnits };
     UnitSystem units{AsSettings};
@@ -75,7 +77,8 @@ struct OverlayItem
         return gaugeId == other.gaugeId && channel == other.channel
                && x == other.x && y == other.y && height == other.height && map == other.map && aspect == other.aspect && ownTheme == other.ownTheme
                && (!ownTheme || theme == other.theme) && textScale == other.textScale && opacity == other.opacity && streets == other.streets
-               && closeUp == other.closeUp && speedZoom == other.speedZoom && headingUp == other.headingUp && units == other.units
+               && closeUp == other.closeUp && speedZoom == other.speedZoom && headingUp == other.headingUp
+               && flyover == other.flyover && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
@@ -108,6 +111,7 @@ public:
     // Meters its route shows around the rider; 0 = the whole route.
     double closeUp(int index) const { return m_placed.at(index).closeUp; }
     bool headingUp(int index) const { return m_placed.at(index).headingUp; }
+    bool flyover(int index) const { return m_placed.at(index).flyover; }
 
     // What a new project starts with: the dial in the lower left corner, showing speed.
     static QVector<OverlayItem> defaultItems();
@@ -149,6 +153,7 @@ private:
         bool streets{false};
         double closeUp{0.0};
         bool headingUp{false};
+        bool flyover{false};
     };
     QVector<Placed> m_placed;
 };

@@ -142,8 +142,15 @@ The data of a GoPro video is already on the video's clock: there is nothing to s
   - *Show*: the measurement it shows;
   - *Street map*, *Map*, *Close-up* (300 m to 5 km around the rider, *Custom...* for any
     distance, or *Dynamic, by speed...*: close when slow, wider when fast, in proportion between
-    two speeds you set, following the speed of the last few seconds), *The way ahead up*: for
-    gauges with a route;
+    two speeds you set, following the speed of the last few seconds), *The way ahead up*,
+    *3D flyover*: for gauges with a route. The flyover shows the land in 3D around the rider,
+    the camera high behind them looking ahead: the terrain's heights (hills a bit higher than
+    they are, so that they show), the gauge's map laid over them, shaded by a low sun and fading
+    into the sky far away; the route ridden so far in the gauge's color, the rest faint. The
+    close-up sets how much land is seen across at the rider (a kilometer without one). Made big
+    over a background (*Without a video*) it is a video of the ride by itself. It is drawn
+    without the graphics card, the same in the preview and the export: a full HD flyover takes
+    a few hundredths of a second a frame;
   - *Units*: as in the settings, metric or imperial, for this gauge alone;
   - *Keep the gauge's shape*: off, the handles on the right and bottom edges change only the
     width or the height - an elevation profile or a graph can then run across the picture;

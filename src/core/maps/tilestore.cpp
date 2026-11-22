@@ -115,7 +115,8 @@ void TileStore::setMapOptions(bool downloads, bool credit, const QHash<QString, 
 
 int TileStore::pendingOfAllMaps()
 {
-    int pending = instance()->pending();
+    // the terrain's too: a map in 3D stands on it
+    int pending = instance()->pending() + terrain()->pending();
     const QMutexLocker lock(&mapsMutex);
     for (const TileStore *store : std::as_const(maps))
         {

@@ -456,8 +456,16 @@ In order:
   The preview plays on a clock of its own in place of the video player; the export draws over a color
   source (the gauges input 0, music after); saved in projects. A Strava-like look comes from a big map
   (the 3D flyover is next)
-- 3D terrain flyover: the route over the land in 3D (the terrain heights we already fetch), the camera
-  following the rider; the same export without a camera video
+- ✅ 3D terrain flyover, first part (2026-11-23, `Flyover`, a route map's "3D flyover"): the land around
+  the rider from the terrain's heights (x1.5), the gauge's map draped over it, hill shading from a low
+  north-west sun, haze into a sky; the camera as route videos have it (62 degrees from straight down,
+  0.45 spans up, looking at the rider), its heading from the way over enough seconds that stops and
+  GPS wander do not turn it; the route ridden in the gauge's color, the rest faint; the gauge's
+  marker on the rider. Our own software rasterizer (depth buffer, perspective-correct texture, one
+  band of rows per processor): the same in the preview, the export, the command line, tests and
+  Wine; about 35 ms a 1080p frame on a 4-core laptop. Land worked out again every 0.6 span; its
+  terrain and map tiles fetched ahead along the route; the export waits for terrain tiles too.
+  Still to do: camera height, tilt and hill height as settings; the camera's turns eased further
 - Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up
 - Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
   table, the video cut with them; the edited data saved as GPX, CSV or another format we read

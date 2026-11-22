@@ -80,6 +80,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {
                     object.insert("headingUp", item.headingUp > 0);
                 }
+            if (item.flyover >= 0)
+                {
+                    object.insert("flyover", item.flyover > 0);
+                }
             if (item.units != OverlayItem::AsSettings)
                 {
                     object.insert("units", item.units == OverlayItem::ImperialUnits ? "imperial" : "metric");
@@ -358,6 +362,10 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             if (object.contains("headingUp"))
                 {
                     item.headingUp = object.value("headingUp").toBool() ? 1 : 0;
+                }
+            if (object.contains("flyover"))
+                {
+                    item.flyover = object.value("flyover").toBool() ? 1 : 0;
                 }
             if (object.contains("units"))
                 {

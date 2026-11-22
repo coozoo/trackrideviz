@@ -296,6 +296,9 @@ struct GaugeComponent
     // ... turned so that the way ahead points up, not north; parts of `knob` bound to the
     // heading turn with the map (an arrow then points up), the others stay upright
     bool headingUp{false};
+    // ... or the land in 3D around the rider, seen from behind and above (Flyover); `span` is
+    // then how much of it is seen across at the rider (0: a kilometer)
+    bool flyover{false};
     // Graph: only this many seconds before and after the current point; 0 = the whole recording
     double windowBefore{0.0};
     double windowAfter{0.0};
