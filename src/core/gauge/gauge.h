@@ -299,6 +299,29 @@ struct GaugeComponent
     // ... or the land in 3D around the rider, seen from behind and above (Flyover); `span` is
     // then how much of it is seen across at the rider (0: a kilometer)
     bool flyover{false};
+    // ... its camera: tilted this many degrees from looking straight down, this high above the
+    // rider (in spans: share of the land seen across), the hills this many times their height
+    struct FlyoverCamera
+    {
+        double tilt{62.0};
+        double height{0.45};
+        double hills{1.5};
+        // an overlay item's that is not set (tilt 0): the gauge's own
+        bool isSet() const { return tilt > 0.0; }
+        bool operator==(const FlyoverCamera &other) const
+        {
+            return tilt == other.tilt && height == other.height && hills == other.hills;
+        }
+        QJsonObject toJson() const { return {{"tilt", tilt}, {"height", height}, {"hills", hills}}; }
+        static FlyoverCamera fromJson(const QJsonValue &value)
+        {
+            const QJsonObject object = value.toObject();
+            const FlyoverCamera usual;
+            return {object.value("tilt").toDouble(usual.tilt), object.value("height").toDouble(usual.height),
+                    object.value("hills").toDouble(usual.hills)};
+        }
+    };
+    FlyoverCamera flyoverCamera;
     // Graph: only this many seconds before and after the current point; 0 = the whole recording
     double windowBefore{0.0};
     double windowAfter{0.0};

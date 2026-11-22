@@ -1109,6 +1109,58 @@ void MainWindow::loadVideo(const QString &path)
     autoSync();
 }
 
+void MainWindow::askFlyoverCamera(int index)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    const GaugeComponent::FlyoverCamera current = m_canvas->overlay().flyoverCamera(index);
+    // the height in meters, as the land seen across is now (a kilometer without a close-up)
+    const double closeUp = m_canvas->overlay().closeUp(index);
+    const double span = closeUp > 0.0 ? closeUp : 1000.0;
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("3D flyover camera"));
+    QFormLayout *form = new QFormLayout(&dialog);
+    QSpinBox *tilt = new QSpinBox(&dialog);
+    tilt->setRange(10, 85);
+    tilt->setSuffix(tr(" degrees"));
+    tilt->setValue(int(std::lround(current.tilt)));
+    tilt->setToolTip(tr("From looking straight down: more looks further ahead, towards the horizon"));
+    QSpinBox *height = new QSpinBox(&dialog);
+    height->setRange(10, 20000);
+    height->setSingleStep(25);
+    height->setSuffix(tr(" m"));
+    height->setValue(int(std::lround(current.height * span)));
+    height->setToolTip(tr("Above the rider; the camera is behind them as far as its tilt takes it"));
+    QDoubleSpinBox *hills = new QDoubleSpinBox(&dialog);
+    hills->setRange(1.0, 5.0);
+    hills->setSingleStep(0.5);
+    hills->setDecimals(1);
+    hills->setPrefix(tr("x "));
+    hills->setValue(current.hills);
+    hills->setToolTip(tr("Hills higher than they are: true ones look flat from above"));
+    form->addRow(tr("Tilt:"), tilt);
+    form->addRow(tr("Height:"), height);
+    form->addRow(tr("Hills:"), hills);
+    QPushButton *usual = new QPushButton(tr("As the gauge has it"), &dialog);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    buttons->addButton(usual, QDialogButtonBox::ResetRole);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    bool reset = false;
+    connect(usual, &QPushButton::clicked, &dialog, [&]() { reset = true; dialog.accept(); });
+    form->addRow(buttons);
+    if (dialog.exec() != QDialog::Accepted || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    OverlayState after{m_project.overlay, m_project.theme};
+    after.items[index].flyoverCamera = reset ? GaugeComponent::FlyoverCamera{0.0, 0.0, 0.0}
+                                       : GaugeComponent::FlyoverCamera{double(tilt->value()), height->value() / span, hills->value()};
+    changeOverlay(tr("Set the 3D flyover's camera"), after);
+}
+
 void MainWindow::chooseBackground()
 {
     BackgroundDialog dialog(m_project.background, this);
@@ -1861,6 +1913,9 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                         changeOverlay(on ? tr("Show the route in 3D") : tr("Show the route flat"), after);
                     }
             });
+            QAction *camera = menu.addAction(tr("3D flyover camera..."));
+            camera->setEnabled(overlay.flyover(index));
+            connect(camera, &QAction::triggered, this, [this, index]() { askFlyoverCamera(index); });
             // a map of its own: satellite pictures under one gauge, streets under another
             QMenu *mapMenu = menu.addMenu(tr("Map"));
             const QString ownMap = m_project.overlay.at(index).map;

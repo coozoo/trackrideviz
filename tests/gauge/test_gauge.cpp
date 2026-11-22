@@ -1391,11 +1391,37 @@ private slots:
             }
         QVERIFY2(marker > 10, qPrintable(QString::number(marker)));
         QVERIFY2(ridden > 40, qPrintable(QString::number(ridden)));
-        // the setting is kept in the gauge's file, also without a close-up
+        // looking more steeply down: less sky
+        auto skyRows = [](const QImage &picture)
+        {
+            int rows = 0;
+            while (rows < picture.height())
+                {
+                    const QColor c = picture.pixelColor(picture.width() / 2, rows);
+                    if (c.blue() <= c.red() + 15)
+                        {
+                            break;
+                        }
+                    ++rows;
+                }
+            return rows;
+        };
+        gauge.components[0].flyoverCamera.tilt = 35.0;
+        const BoundGauge steeper(gauge, ChannelId::Speed, session, Units(), GaugeTheme());
+        QImage down(320, 180, QImage::Format_ARGB32_Premultiplied);
+        down.fill(Qt::transparent);
+        QPainter downPainter(&down);
+        steeper.render(downPainter, QRectF(0, 0, 320, 180), 30.0);
+        downPainter.end();
+        QVERIFY2(skyRows(down) < skyRows(image), qPrintable(QString("%1 %2").arg(skyRows(down)).arg(skyRows(image))));
+        // the settings are kept in the gauge's file, also without a close-up
         gauge.components[0].span = 0.0;
+        gauge.components[0].flyoverCamera.height = 0.8;
+        gauge.components[0].flyoverCamera.hills = 3.0;
         Gauge loaded;
         QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded));
         QVERIFY(loaded.components.first().flyover);
+        QVERIFY(loaded.components.first().flyoverCamera == gauge.components[0].flyoverCamera);
     }
 
     void lapMapShowsTheCurrentLapWithItsStartLine()

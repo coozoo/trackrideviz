@@ -519,6 +519,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
             if (c.flyover)
                 {
                     object["flyover"] = true;
+                    if (!(c.flyoverCamera == GaugeComponent::FlyoverCamera()))
+                        {
+                            object["flyoverCamera"] = c.flyoverCamera.toJson();
+                        }
                 }
             if (c.tiles)
                 {
@@ -640,6 +644,10 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.span = object.value("span").toDouble();
     c.headingUp = object.value("headingUp").toBool();
     c.flyover = object.value("flyover").toBool();
+    if (object.contains("flyoverCamera"))
+        {
+            c.flyoverCamera = GaugeComponent::FlyoverCamera::fromJson(object.value("flyoverCamera"));
+        }
     c.fillAlpha = object.value("fillAlpha").toInt(-1);
     if (object.contains("fillColor"))
         {

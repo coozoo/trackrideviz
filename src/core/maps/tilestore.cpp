@@ -134,7 +134,16 @@ QImage TileStore::tile(int zoom, int x, int y)
             return *known;
         }
     const Tile tile{zoom, x, y};
-    const QImage read(pathOf(tile));
+    // known to be missing: on its way, or refused. Not looked for on the disk again (a 3D flyover
+    // asks for its heights some thousands of times a picture); one only asked for may have come
+    // by another way (another copy of the program filling the same folder)
+    if (m_running.contains(tile) || m_failed.contains(tile))
+        {
+            return QImage();
+        }
+    const QString path = pathOf(tile);
+    // a file that is not there costs less to find out about than an image that cannot be read
+    const QImage read = QFileInfo::exists(path) ? QImage(path) : QImage();
     if (!read.isNull())
         {
             m_tiles.insert(key, new QImage(read));

@@ -46,6 +46,8 @@ struct OverlayItem
     int headingUp{-1};
     // The route's land in 3D, seen from behind the rider (Flyover): 1, flat: 0, as the gauge was drawn: -1.
     int flyover{-1};
+    // ... its camera; not set (tilt 0): as the gauge was drawn
+    GaugeComponent::FlyoverCamera flyoverCamera{0.0, 0.0, 0.0};
     // The units this gauge shows its values in: those of the settings, or its own.
     enum UnitSystem { AsSettings, MetricUnits, ImperialUnits };
     UnitSystem units{AsSettings};
@@ -78,7 +80,7 @@ struct OverlayItem
                && x == other.x && y == other.y && height == other.height && map == other.map && aspect == other.aspect && ownTheme == other.ownTheme
                && (!ownTheme || theme == other.theme) && textScale == other.textScale && opacity == other.opacity && streets == other.streets
                && closeUp == other.closeUp && speedZoom == other.speedZoom && headingUp == other.headingUp
-               && flyover == other.flyover && units == other.units
+               && flyover == other.flyover && flyoverCamera == other.flyoverCamera && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
@@ -112,6 +114,8 @@ public:
     double closeUp(int index) const { return m_placed.at(index).closeUp; }
     bool headingUp(int index) const { return m_placed.at(index).headingUp; }
     bool flyover(int index) const { return m_placed.at(index).flyover; }
+    // The camera the flyover has: the item's, else the gauge's.
+    GaugeComponent::FlyoverCamera flyoverCamera(int index) const { return m_placed.at(index).flyoverCamera; }
 
     // What a new project starts with: the dial in the lower left corner, showing speed.
     static QVector<OverlayItem> defaultItems();
@@ -154,6 +158,7 @@ private:
         double closeUp{0.0};
         bool headingUp{false};
         bool flyover{false};
+        GaugeComponent::FlyoverCamera flyoverCamera;
     };
     QVector<Placed> m_placed;
 };
