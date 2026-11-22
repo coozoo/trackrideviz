@@ -84,6 +84,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 {
                     object.insert("flyover", item.flyover > 0);
                 }
+            if (item.flyoverCamera.isSet())
+                {
+                    object.insert("flyoverCamera", item.flyoverCamera.toJson());
+                }
             if (item.units != OverlayItem::AsSettings)
                 {
                     object.insert("units", item.units == OverlayItem::ImperialUnits ? "imperial" : "metric");
@@ -366,6 +370,10 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             if (object.contains("flyover"))
                 {
                     item.flyover = object.value("flyover").toBool() ? 1 : 0;
+                }
+            if (object.contains("flyoverCamera"))
+                {
+                    item.flyoverCamera = GaugeComponent::FlyoverCamera::fromJson(object.value("flyoverCamera"));
                 }
             if (object.contains("units"))
                 {

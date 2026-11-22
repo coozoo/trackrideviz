@@ -1794,6 +1794,9 @@ void BoundGauge::drawFlyover(QPainter &painter, const Node &node, double time, c
     view.longitude = m_lon->valueAt(time, &longitudeKnown);
     view.heading = headingAt(time);
     view.span = node.component.span > 0.0 ? node.component.span : kFlyoverSpan;
+    view.tilt = node.component.flyoverCamera.tilt;
+    view.height = node.component.flyoverCamera.height;
+    view.exaggeration = node.component.flyoverCamera.hills;
     view.mapProvider = node.component.mapProvider;
     view.streets = node.component.tiles;
     view.line = node.color;

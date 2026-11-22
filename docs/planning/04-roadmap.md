@@ -468,7 +468,10 @@ In order:
   The camera's heading summed over 15 s either way, weighted to the middle: no jumps (2026-11-23).
   Hill shading only on slopes, from slopes steepened x2.5 for the light, flat land keeping the map's
   colors; haze growing with distance to the power 1.6 (2026-11-23).
-  Still to do: camera height, tilt and hill height as settings
+  The camera's tilt, height and the hills' height as settings: "3D flyover camera..." in the menu,
+  in the gauge editor, kept in gauges, projects and templates (2026-11-23). A terrain tile on its way
+  or refused is no longer looked for on the disk, and a patch with tiles missing is worked out again
+  once a second, not for every picture: without terrain a flyover cost seconds a picture
 - Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up
 - Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
   table, the video cut with them; the edited data saved as GPX, CSV or another format we read

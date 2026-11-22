@@ -98,6 +98,8 @@ private slots:
     void setGaugeCloseUp(int index, double meters, const GaugeComponent::SpeedZoom &zoom = {});
     // Asks for a close-up of its own, fixed or widening with the speed, and sets it.
     void askGaugeCloseUp(int index, bool withSpeed);
+    // Asks how a gauge's 3D flyover is seen: the camera's tilt and height, the hills' height.
+    void askFlyoverCamera(int index);
     // Works the data out again from the file's (corrections, terrain heights, what follows from them).
     void recomputeData();
     void saveAsTemplate();

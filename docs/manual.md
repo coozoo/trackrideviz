@@ -147,7 +147,10 @@ The data of a GoPro video is already on the video's clock: there is nothing to s
     the camera high behind them looking ahead: the terrain's heights (hills a bit higher than
     they are, so that they show), the gauge's map laid over them, shaded by a low sun and fading
     into the sky far away; the route ridden so far in the gauge's color, the rest faint. The
-    close-up sets how much land is seen across at the rider (a kilometer without one). Made big
+    close-up sets how much land is seen across at the rider (a kilometer without one);
+    *3D flyover camera...* sets the camera's tilt (from looking straight down: more looks further
+    ahead), its height above the rider and how many times higher the hills are drawn, or puts
+    back the gauge's own (the gauge editor has them too). Made big
     over a background (*Without a video*) it is a video of the ride by itself. It is drawn
     without the graphics card, the same in the preview and the export: a full HD flyover takes
     a few hundredths of a second a frame;

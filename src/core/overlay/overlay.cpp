@@ -14,7 +14,7 @@ namespace
 // The item's choices for its map (streets under it, close up), put into the gauge's routes;
 // says what it found.
 void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, bool *route, bool *streets, double *closeUp,
-               bool *headingUp, bool *flyover)
+               bool *headingUp, bool *flyover, GaugeComponent::FlyoverCamera *camera)
 {
     const OverlayItem::Streets choice = item.streets;
     for (GaugeComponent &component : components)
@@ -34,6 +34,10 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                         {
                             component.flyover = item.flyover > 0;
                         }
+                    if (item.flyoverCamera.isSet())
+                        {
+                            component.flyoverCamera = item.flyoverCamera;
+                        }
                     if (!item.map.isEmpty())
                         {
                             component.mapProvider = item.map;
@@ -41,6 +45,7 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                     *closeUp = component.span;
                     *headingUp = component.headingUp;
                     *flyover = component.flyover;
+                    *camera = component.flyoverCamera;
                     if (choice == OverlayItem::Shown && !component.tiles)
                         {
                             // a gauge drawn without a map in mind: dimmed, corners taken off
@@ -58,7 +63,7 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                     *route = true;
                     *streets = *streets || component.tiles;
                 }
-            chooseMap(component.children, item, route, streets, closeUp, headingUp, flyover);
+            chooseMap(component.children, item, route, streets, closeUp, headingUp, flyover, camera);
         }
 }
 }
@@ -72,7 +77,8 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
                                                   item.textScale);
             Placed placed;
             placed.item = item;
-            chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp, &placed.flyover);
+            chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp, &placed.flyover,
+                      &placed.flyoverCamera);
             if (!gauge.isEmpty())
                 {
                     placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), item.ownTheme ? item.theme : theme,

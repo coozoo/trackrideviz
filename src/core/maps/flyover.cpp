@@ -24,10 +24,7 @@ const double kRadiusSpans = 2.5;
 const int kCells = 128;
 // It is worked out again when the rider is this far from its middle (of its radius).
 const double kMoveShare = 0.25;
-// The camera, as route videos have it: this many degrees from looking straight down, this
-// high (in spans) above the rider, and seeing this much up and down (degrees).
-const double kPitch = 62.0;
-const double kAltitudeSpans = 0.45;
+// The camera sees this much up and down (degrees); its tilt and height are the view's.
 const double kFieldOfView = 45.0;
 // the map's picture of the patch: this many pixels along its larger side at least
 const double kTexturePixels = 2048.0;
@@ -137,7 +134,9 @@ double Flyover::groundAt(double east, double north) const
 
 bool Flyover::needsPatch(const View &view) const
 {
-    if (!m_patch.isValid() || !m_patch.complete || m_patch.mapProvider != view.mapProvider || m_patch.streets != view.streets
+    // tiles still coming: tried again now and then, not for every picture
+    const bool retry = !m_patch.complete && (!m_built.isValid() || m_built.elapsed() > 1000);
+    if (!m_patch.isValid() || retry || m_patch.mapProvider != view.mapProvider || m_patch.streets != view.streets
             || std::abs(m_patch.radius - view.span * kRadiusSpans) > m_patch.radius * 0.01)
         {
             return true;
@@ -148,6 +147,7 @@ bool Flyover::needsPatch(const View &view) const
 
 void Flyover::buildPatch(const View &view)
 {
+    m_built.start();
     Patch patch;
     patch.latitude = view.latitude;
     patch.longitude = view.longitude;
@@ -279,8 +279,10 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const double heading = view.heading * kPi / 180.0;
     const QVector3D forward(float(std::sin(heading)), float(std::cos(heading)), 0.0f);
     const QVector3D target(float(here.x()), float(here.y()), float(ground));
-    const double altitude = view.span * kAltitudeSpans;
-    const double back = altitude * std::tan(kPitch * kPi / 180.0);
+    // high behind the rider, as route videos have it: its distance back is the height times
+    // the tangent of the tilt
+    const double altitude = view.span * std::clamp(view.height, 0.02, 3.0);
+    const double back = altitude * std::tan(std::clamp(view.tilt, 5.0, 85.0) * kPi / 180.0);
     const QVector3D eye = target - forward * float(back) + QVector3D(0.0f, 0.0f, float(altitude));
     const QVector3D lookAt = target + forward * float(view.span * 0.12);
     const double nearPlane = std::max(1.0, altitude * 0.05);
