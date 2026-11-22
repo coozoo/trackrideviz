@@ -141,15 +141,37 @@ make -j$(nproc)
 ./trackrideviz 20250715_074932A.mp4 ride.fit    # or name the files directly
 ```
 
-**Windows build under Wine:** export has software encoders only. Qt finds no sound device unless
-each output device has a container ID, which Wine does not store; add one per device:
+**Windows build under Wine** (for trying the Windows build on Linux; Windows itself needs none of
+this). Export has software encoders only there.
 
-```bash
-for k in $(grep -o 'MMDevices\\\\Audio\\\\Render\\\\{[^}]*}\\\\Properties' ~/.wine/system.reg | sed 's/\\\\\\\\/\\\\/g' | sort -u); do
-  wine reg add "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\$k" /v "{8C7ED206-3F8A-4827-B3AB-AE9E1FAEFC6C},2" \
-    /t REG_SZ /d "$(echo "$k" | grep -o '{[^}]*}')" /f
-done
-```
+1. Color profiles. Qt 6.12 reads each screen's color profile with `WcsCreateIccProfile`, which
+   Wine does not have: the program stops at start with "unimplemented function
+   mscms.dll.WcsCreateIccProfile". Windows' own `mscms.dll` has it. Take the 64-bit one out of
+   the Windows 7 SP1 update (winetricks keeps it in its cache once a verb has needed it; else
+   download it from Microsoft, about 900 MB), put it beside `trackrideviz.exe`, and run the
+   program with it:
+
+   ```bash
+   SP1=~/.cache/winetricks/win7sp1/windows6.1-KB976932-X64.exe
+   [ -f "$SP1" ] || { mkdir -p "$(dirname "$SP1")" && wget -O "$SP1" http://download.windowsupdate.com/msdownload/update/software/svpk/2011/02/windows6.1-kb976932-x64_74865ef2562006e51d7f9333b4a8d45b7a749dab.exe; }
+   echo "f4d1d418d91b1619688a482680ee032ffd2b65e420c6d2eaecf8aa3762aa64c8  $SP1" | sha256sum -c -
+   cabextract -q -d /tmp/mscms -F "amd64_microsoft-windows-icm-base_31bf3856ad364e35_6.1.7601.17514_none_80edefc3a002c386/mscms.dll" "$SP1"
+   cp /tmp/mscms/amd64_*/mscms.dll path/to/trackrideviz_WIN64/
+   cd path/to/trackrideviz_WIN64 && WINEDLLOVERRIDES="mscms=n,b" wine trackrideviz.exe
+   ```
+
+   Without it: move `sRGB Color Space Profile.icm` out of
+   `~/.wine/drive_c/windows/system32/spool/drivers/color/`; Qt then reads no profile and takes
+   sRGB, the same to the eye.
+2. Sound. Qt finds no sound device unless each output device has a container ID, which Wine
+   does not store; add one per device:
+
+   ```bash
+   for k in $(grep -o 'MMDevices\\\\Audio\\\\Render\\\\{[^}]*}\\\\Properties' ~/.wine/system.reg | sed 's/\\\\\\\\/\\\\/g' | sort -u); do
+     wine reg add "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\$k" /v "{8C7ED206-3F8A-4827-B3AB-AE9E1FAEFC6C},2" \
+       /t REG_SZ /d "$(echo "$k" | grep -o '{[^}]*}')" /f
+   done
+   ```
 
 Tests:
 
