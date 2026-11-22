@@ -493,7 +493,7 @@ jobs:
             # (under Wine it then recursed until the stack overflowed); ffmpeg gets it in ffmpeg/
             "libplacebo*.dll" "libdovi.dll" "libshaderc_shared.dll" "libspirv-cross-c-shared.dll"
             "libass*.dll" "libunibreak*.dll" "libvidstab.dll" "libzimg*.dll"
-            "libz-1*.dll" "libwhisper*.dll" "ggml*.dll"
+            "libz-1*.dll"
           )
           for pattern in "${DLL_PATTERNS[@]}"; do
             files=("$ROOTMSYS/bin"/$pattern)
@@ -502,6 +502,22 @@ jobs:
             fi
           done
           shopt -u nullglob
+          # and whatever those import from MSYS2, followed to the end: a list by hand misses what a
+          # new FFmpeg links (libcurl, libmpg123 came with 9.1). What is loaded only at run time
+          # (OpenSSL, plugins' backends) stays named above; vulkan-1.dll never goes here (see below)
+          while :; do
+            added=0
+            while IFS= read -r -d '' binary; do
+              for dll in $(objdump -p "$binary" | sed -n 's/^[[:space:]]*DLL Name: //p'); do
+                if [ "${dll,,}" != "vulkan-1.dll" ] && [ ! -e "release/$dll" ] && [ -e "$ROOTMSYS/bin/$dll" ]; then
+                  cp "$ROOTMSYS/bin/$dll" release/
+                  echo "also: $dll (for $(basename "$binary"))"
+                  added=1
+                fi
+              done
+            done < <(find release "$ROOTMSYS/bin/ffmpeg.exe" "$ROOTMSYS/bin/ffprobe.exe" \( -iname '*.dll' -o -iname '*.exe' \) -print0)
+            [ "$added" = 0 ] && break
+          done
           # export and the music's lengths run ffmpeg and ffprobe: in ffmpeg/ with vulkan-1.dll,
           # which their filters (libplacebo) import and Windows without a graphics driver lacks;
           # the other DLLs above they find in the program's folder, which the program puts on
