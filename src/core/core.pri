@@ -25,6 +25,7 @@ SOURCES += \
     $$PWD/gauge/veggaugeimporter.cpp \
     $$PWD/gauge/xmlgaugeimporter.cpp \
     $$PWD/laps/lapengine.cpp \
+    $$PWD/maps/flyover.cpp \
     $$PWD/maps/terrain.cpp \
     $$PWD/maps/tilestore.cpp \
     $$PWD/overlay/gaugetemplate.cpp \
@@ -92,6 +93,7 @@ HEADERS += \
     $$PWD/gauge/veggaugeimporter.h \
     $$PWD/gauge/xmlgaugeimporter.h \
     $$PWD/laps/lapengine.h \
+    $$PWD/maps/flyover.h \
     $$PWD/maps/terrain.h \
     $$PWD/maps/tilestore.h \
     $$PWD/overlay/gaugetemplate.h \

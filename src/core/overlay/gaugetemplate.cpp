@@ -48,6 +48,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.closeUp = item.closeUp;
             placed.speedZoom = item.speedZoom;
             placed.headingUp = item.headingUp;
+            placed.flyover = item.flyover;
             placed.units = item.units;
             placed.channels = item.channels;
             placed.scaleMax = item.scaleMax;
@@ -89,6 +90,7 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.closeUp = placed.closeUp;
             item.speedZoom = placed.speedZoom;
             item.headingUp = placed.headingUp;
+            item.flyover = placed.flyover;
             item.units = placed.units;
             item.channels = placed.channels;
             item.scaleMax = placed.scaleMax;
@@ -133,6 +135,10 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             if (item.headingUp >= 0)
                 {
                     object.insert("headingUp", item.headingUp > 0);
+                }
+            if (item.flyover >= 0)
+                {
+                    object.insert("flyover", item.flyover > 0);
                 }
             if (item.units != OverlayItem::AsSettings)
                 {
@@ -212,6 +218,10 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
             if (object.contains("headingUp"))
                 {
                     item.headingUp = object.value("headingUp").toBool() ? 1 : 0;
+                }
+            if (object.contains("flyover"))
+                {
+                    item.flyover = object.value("flyover").toBool() ? 1 : 0;
                 }
             if (object.contains("units"))
                 {

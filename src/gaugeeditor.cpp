@@ -2303,6 +2303,7 @@ void GaugeEditor::fillProperties()
                     addNumber(form, tr("Close-up, meters across:"), part.span, 0, 100000, 0, [](Part &p, double v) { p.span = v; },
                               tr("0: the whole route. Otherwise this much around the rider, the map moving under them."));
                     addCheck(form, tr("The way ahead up (close-up)"), part.headingUp, [](Part &p, bool on) { p.headingUp = on; });
+                    addCheck(form, tr("3D flyover"), part.flyover, [](Part &p, bool on) { p.flyover = on; });
                     addNumber(form, tr("Corners rounded by:"), part.cornerRadius, 0, far, 1, [](Part &p, double v) { p.cornerRadius = v; });
                 }
             else

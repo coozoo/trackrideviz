@@ -1847,6 +1847,20 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             {
                 setGaugeStreets(index, shown);
             });
+            // the land in 3D around the rider, the camera behind and above them
+            QAction *flyover = menu.addAction(tr("3D flyover"));
+            flyover->setToolTip(tr("The land in 3D, seen from behind the rider; the close-up sets how much of it"));
+            flyover->setCheckable(true);
+            flyover->setChecked(overlay.flyover(index));
+            connect(flyover, &QAction::triggered, this, [this, index](bool on)
+            {
+                if (index < m_project.overlay.size())
+                    {
+                        OverlayState after{m_project.overlay, m_project.theme};
+                        after.items[index].flyover = on ? 1 : 0;
+                        changeOverlay(on ? tr("Show the route in 3D") : tr("Show the route flat"), after);
+                    }
+            });
             // a map of its own: satellite pictures under one gauge, streets under another
             QMenu *mapMenu = menu.addMenu(tr("Map"));
             const QString ownMap = m_project.overlay.at(index).map;

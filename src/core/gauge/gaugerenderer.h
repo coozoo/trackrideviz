@@ -10,6 +10,9 @@
 #include <QMutex>
 #include <QPainterPath>
 
+#include <memory>
+
+class Flyover;
 class QPainter;
 
 // A gauge bound to a channel of a recording and ready to be drawn.
@@ -130,6 +133,7 @@ private:
         double graphV1{1.0};
         // TrackMap, LapMap
         QVector<Route> routes;
+        std::shared_ptr<Flyover> flyover; // in 3D (component.flyover): the land it draws, kept
         int lineSlot{-1};                 // which of the gauge's graphs and maps, for the picture cache
     };
     // How the current frame is being drawn.
@@ -156,6 +160,11 @@ private:
     void preparePhases(Node &node, const GaugeManipulation &strip) const;
     double phaseAt(const Node &node, const GaugeManipulation &strip, double time) const;
     bool positionAt(double time, QPointF *projected) const;
+    // The way the rider goes at `time`, degrees from north: over enough seconds around it that
+    // the GPS's wandering and stops do not turn it.
+    double headingAt(double time) const;
+    void prepareFlyover(Node &node) const;
+    void drawFlyover(QPainter &painter, const Node &node, double time, const Context &context) const;
     // A close-up's meters across at `time`: its span, or with SpeedZoom what the speed then calls for.
     double spanAt(const GaugeComponent &component, double time) const;
     void draw(QPainter &painter, const Node &node, double time, const Context &context) const;
