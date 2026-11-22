@@ -145,6 +145,9 @@ void ExportDialog::createWidgets()
     outputRow->addWidget(m_browseButton);
 
     m_encoderCombo = new QComboBox(m_options);
+    // as wide as the names found later: sized only for "Looking for encoders...", it cut
+    // "H.265 / HEVC (graphics card, VA-API)" after the slash
+    m_encoderCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_encoderCombo->addItem(tr("Looking for encoders..."));
     m_encoderCombo->setEnabled(false);
     connect(m_encoderCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ExportDialog::onEncoderChanged);
