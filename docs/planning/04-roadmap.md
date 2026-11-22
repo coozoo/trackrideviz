@@ -465,7 +465,10 @@ In order:
   band of rows per processor): the same in the preview, the export, the command line, tests and
   Wine; about 35 ms a 1080p frame on a 4-core laptop. Land worked out again every 0.6 span; its
   terrain and map tiles fetched ahead along the route; the export waits for terrain tiles too.
-  Still to do: camera height, tilt and hill height as settings; the camera's turns eased further
+  The camera's heading summed over 15 s either way, weighted to the middle: no jumps (2026-11-23).
+  Hill shading only on slopes, from slopes steepened x2.5 for the light, flat land keeping the map's
+  colors; haze growing with distance to the power 1.6 (2026-11-23).
+  Still to do: camera height, tilt and hill height as settings
 - Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up
 - Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
   table, the video cut with them; the edited data saved as GPX, CSV or another format we read

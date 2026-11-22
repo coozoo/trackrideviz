@@ -34,6 +34,16 @@ const double kTexturePixels = 2048.0;
 // the sun, low in the north-west as on relief maps
 const double kSunAzimuth = 315.0;
 const double kSunElevation = 40.0;
+// Hill shading: the slopes made this much steeper for the light alone, so that it shows hills
+// the drawn heights keep modest; this strong, never darker than the ambient share; and only
+// on slopes, fading out on flat land (by the slope's steepness to this power), which keeps
+// the map's own colors there
+const double kShadeSteepening = 2.5;
+const double kShadeStrength = 0.8;
+const double kShadeAmbient = 0.3;
+const double kShadeFlatFade = 4.0;
+// the haze grows with the distance to this power: the near land stays clear longer
+const double kHazePower = 1.6;
 const QColor kSkyTop(118, 163, 214);
 const QColor kHaze(214, 226, 238);
 
@@ -185,26 +195,35 @@ void Flyover::buildPatch(const View &view)
         }
     m_patch.heights = heights;
 
-    // the sun's light on each point: from the slope, with the hills as high as they are drawn
+    // the sun's light on each point, from its slope steepened for the light; on flat land none
     const double sunAzimuth = kSunAzimuth * kPi / 180.0;
     const double sunElevation = kSunElevation * kPi / 180.0;
     const QVector3D sun(float(std::cos(sunElevation) * std::sin(sunAzimuth)), float(std::cos(sunElevation) * std::cos(sunAzimuth)),
                         float(std::sin(sunElevation)));
     const double flat = std::sin(sunElevation);
     m_patch.shade.resize(heights.size());
+    auto h = [&](int a, int b)
+    {
+        return double(heights.at(std::clamp(b, 0, n) * (n + 1) + std::clamp(a, 0, n))) * kShadeSteepening;
+    };
+    // the slope between the points `reach` cells either way
+    auto normalAt = [&](int i, int j, int reach)
+    {
+        return QVector3D(float(-(h(i + reach, j) - h(i - reach, j)) / (2.0 * reach * step)),
+                         float(-(h(i, j + reach) - h(i, j - reach)) / (2.0 * reach * step)), 1.0f).normalized();
+    };
     for (int j = 0; j <= n; ++j)
         {
             for (int i = 0; i <= n; ++i)
                 {
-                    auto h = [&](int a, int b)
-                    {
-                        return double(heights.at(std::clamp(b, 0, n) * (n + 1) + std::clamp(a, 0, n))) * view.exaggeration;
-                    };
-                    const QVector3D normal = QVector3D(float(-(h(i + 1, j) - h(i - 1, j)) / (2.0 * step)),
-                                                       float(-(h(i, j + 1) - h(i, j - 1)) / (2.0 * step)), 1.0f).normalized();
-                    const double light = std::max(0.0, double(QVector3D::dotProduct(normal, sun)));
-                    // flat land as it is, slopes to the sun brighter, those away darker
-                    m_patch.shade[j * (n + 1) + i] = float(std::clamp(0.35 + 0.65 * light / flat, 0.3, 1.35));
+                    // towards the sun brighter than flat land, away from it darker
+                    const double light = std::max(0.0, double(QVector3D::dotProduct(normalAt(i, j, 1), sun))) / flat;
+                    double shading = kShadeAmbient + (1.0 - kShadeAmbient) * light;
+                    shading = 1.0 + (shading - 1.0) * kShadeStrength;
+                    // how steep the land is around it, wider than the light's slope: a bump on
+                    // flat land stays unshaded
+                    const double steepness = 1.0 - std::pow(std::max(0.0f, normalAt(i, j, 2).z()), kShadeFlatFade);
+                    m_patch.shade[j * (n + 1) + i] = float(std::clamp(1.0 + (shading - 1.0) * steepness, 0.3, 1.4));
                 }
         }
 
@@ -334,7 +353,7 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const int texelStride = textured ? m_patch.texture.bytesPerLine() / int(sizeof(QRgb)) : 0;
     const int textureWidth = m_patch.texture.width();
     const int textureHeight = m_patch.texture.height();
-    const double hazeFrom = m_patch.radius * 0.5;
+    const double hazeFrom = m_patch.radius * 0.4;
     const double hazeTo = m_patch.radius * 0.95;
     auto triangle = [&](int ia, int ib, int ic, int bandTop, int bandBottom)
     {
@@ -407,7 +426,8 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
                                 g = int(wa * qGreen(ca) + wb * qGreen(cb) + wc * qGreen(cc));
                                 bl = int(wa * qBlue(ca) + wb * qBlue(cb) + wc * qBlue(cc));
                             }
-                        const double haze = std::clamp((toValue - hazeFrom) / (hazeTo - hazeFrom), 0.0, 1.0);
+                        const double distance = std::clamp((toValue - hazeFrom) / (hazeTo - hazeFrom), 0.0, 1.0);
+                        const double haze = distance > 0.0 ? std::pow(distance, kHazePower) : 0.0;
                         const double keep = shade * (1.0 - haze);
                         row[x] = qRgb(std::clamp(int(r * keep + kHaze.red() * haze), 0, 255),
                                       std::clamp(int(g * keep + kHaze.green() * haze), 0, 255),
