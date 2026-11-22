@@ -413,24 +413,25 @@ jobs:
       - name: Setup MSYS2 env
         if: matrix.config.os == 'windows-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_win == '1')
         uses: msys2/setup-msys2@v2
+        # UCRT64: MSYS2's MINGW64 lost Qt's multimedia, image formats and translations (2026-11)
         with:
           msystem: MSYS
           install: >-
-            mingw-w64-x86_64-toolchain
+            mingw-w64-ucrt-x86_64-toolchain
             base-devel
             git
             p7zip
-            mingw-w64-x86_64-qt6-base
-            mingw-w64-x86_64-qt6-svg
-            mingw-w64-x86_64-qt6-multimedia
-            mingw-w64-x86_64-qt6-multimedia-ffmpeg
-            mingw-w64-x86_64-qt6-imageformats
-            mingw-w64-x86_64-qt6-translations
-            mingw-w64-x86_64-qt6-tools
-            mingw-w64-x86_64-ffmpeg
-            mingw-w64-x86_64-pkgconf
-            mingw-w64-x86_64-zlib
-            mingw-w64-x86_64-nsis
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-svg
+            mingw-w64-ucrt-x86_64-qt6-multimedia
+            mingw-w64-ucrt-x86_64-qt6-multimedia-ffmpeg
+            mingw-w64-ucrt-x86_64-qt6-imageformats
+            mingw-w64-ucrt-x86_64-qt6-translations
+            mingw-w64-ucrt-x86_64-qt6-tools
+            mingw-w64-ucrt-x86_64-ffmpeg
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-zlib
+            mingw-w64-ucrt-x86_64-nsis
             tar
       - name: get app version
         if: matrix.config.os == 'windows-latest' && (github.ref == 'refs/heads/main' || needs.create_release.outputs.build_win == '1')
@@ -444,8 +445,8 @@ jobs:
         run: |
           ls -l
           pwd
-          set MSYSTEM=MINGW64
-          ROOTMSYS=/d/a/_temp/msys64/mingw64
+          set MSYSTEM=UCRT64
+          ROOTMSYS=/d/a/_temp/msys64/ucrt64
           export PATH=$ROOTMSYS/bin:$PATH
           ls -l $ROOTMSYS/bin | grep qmake || echo "qmake not found"
           $ROOTMSYS/bin/qmake6 --version || echo "qmake failed to run"
@@ -460,7 +461,7 @@ jobs:
           mkdir -p release/data
           cp -r data/gauges data/templates release/data/
           windeployqt6.exe release/${{ steps.buildwin.outputs.APP_NAME }}.exe
-          # windeployqt brings Qt alone; the MinGW DLLs Qt, its plugins and FFmpeg load are named
+          # windeployqt brings Qt alone; the MinGW (UCRT) DLLs Qt, its plugins and FFmpeg load are named
           # here. FFmpeg's codec libraries above all: without them the video plugin does not
           # load and no video opens. libcrypto and libssl: map tiles come over https.
           shopt -s nullglob
