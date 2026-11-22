@@ -1703,33 +1703,40 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
 
 double BoundGauge::headingAt(double time) const
 {
-    // from where the rider was to where they will be, the seconds widened until they have
-    // gone some way: standing, or with the GPS wandering, the view keeps its direction
-    double heading = 0.0;
-    for (double seconds = 6.0; seconds <= 240.0; seconds *= 2.0)
+    // The rider's movement second by second around `time`, those nearest counting most and
+    // fading out to the edges: as time goes on the weights slide along, so the direction turns
+    // smoothly, never in a jump; standing adds nothing, and the GPS's wandering little. Only
+    // after a long stop is a wider stretch looked at.
+    for (const int reach : {15, 120})
         {
-            bool ok = true;
+            double north = 0.0;
+            double east = 0.0;
             bool known = false;
-            const double latitude0 = m_lat->valueAt(time - seconds, &known);
-            ok = ok && known;
-            const double longitude0 = m_lon->valueAt(time - seconds, &known);
-            ok = ok && known;
-            const double latitude1 = m_lat->valueAt(time + seconds, &known);
-            ok = ok && known;
-            const double longitude1 = m_lon->valueAt(time + seconds, &known);
-            ok = ok && known;
-            const double north = (latitude1 - latitude0) * kMetersPerDegree;
-            const double east = (longitude1 - longitude0) * kMetersPerDegree * std::cos(latitude0 * kPi / 180.0);
-            if (ok && (north != 0.0 || east != 0.0))
+            double latitude0 = m_lat->valueAt(time - reach, &known);
+            double longitude0 = m_lon->valueAt(time - reach, &known);
+            for (int k = -reach; k < reach; ++k)
                 {
-                    heading = std::atan2(east, north) * 180.0 / kPi;
+                    bool latitudeKnown = false;
+                    bool longitudeKnown = false;
+                    const double latitude1 = m_lat->valueAt(time + k + 1, &latitudeKnown);
+                    const double longitude1 = m_lon->valueAt(time + k + 1, &longitudeKnown);
+                    if (!latitudeKnown || !longitudeKnown)
+                        {
+                            continue;
+                        }
+                    const double weight = reach - std::abs(k + 0.5);
+                    north += weight * (latitude1 - latitude0) * kMetersPerDegree;
+                    east += weight * (longitude1 - longitude0) * kMetersPerDegree * std::cos(latitude1 * kPi / 180.0);
+                    latitude0 = latitude1;
+                    longitude0 = longitude1;
                 }
-            if (ok && std::hypot(north, east) > 40.0)
+            // a few meters of weighted way: enough to point somewhere
+            if (std::hypot(north, east) > 5.0 * reach)
                 {
-                    break;
+                    return std::atan2(east, north) * 180.0 / kPi;
                 }
         }
-    return heading;
+    return 0.0;
 }
 
 void BoundGauge::prepareFlyover(Node &node) const
