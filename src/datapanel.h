@@ -10,6 +10,7 @@
 #include <vector>
 
 class DataChart;
+class GpsProblemsDialog;
 class DataTableModel;
 class QComboBox;
 class QListWidget;
@@ -71,6 +72,8 @@ private:
     DataTableModel *m_model{nullptr};
     QToolButton *m_removeButton{nullptr};
     QToolButton *m_cutVideoButton{nullptr};
+    QToolButton *m_gpsButton{nullptr};
+    GpsProblemsDialog *m_gpsDialog{nullptr};
     bool m_canCutVideo{false};
     QToolButton *m_restoreButton{nullptr};
     QToolButton *m_tableButton{nullptr};

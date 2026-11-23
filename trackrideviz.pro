@@ -30,6 +30,7 @@ SOURCES += main.cpp \
     src/gaugeeditor.cpp \
     src/gaugelibrarypanel.cpp \
     src/datapanel.cpp \
+    src/gpsproblemsdialog.cpp \
     src/joindialog.cpp \
     src/lapcomparepanel.cpp \
     src/lapspanel.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     src/gaugelibrarypanel.h \
     src/chartsmoothing.h \
     src/datapanel.h \
+    src/gpsproblemsdialog.h \
     src/joindialog.h \
     src/lapcomparepanel.h \
     src/lapspanel.h \

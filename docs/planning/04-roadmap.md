@@ -483,7 +483,14 @@ In order:
   (track, heights, times; heart rate, cadence, power, temperature, speed in the extensions) or CSV
   (every channel, every sample, the clock; read back by the built-in "Race Track Visualizer" data
   profile, whose "*" takes every column by its name) (`TelemetryWriter`). Laps are not saved
-- Fixing GPS gaps and jumps (tunnels) in the data editor
+- ✅ GPS problems (2026-11-23, `GpsProblems`, the Data panel's **GPS problems**): gaps (no position
+  for 10 s and 4 usual intervals at least, while moving 2 m/s or more across it; not a pause),
+  jumps (positions the last good one could not reach at 3x the speed 90% of the ride is below, and
+  20 m/s at least, that go more than 30 m off the line between where they left and came back; a
+  run longer than 60 s is taken as the way), frozen positions (still under 1 m a sample for 5 s
+  while a recorded speed says over 3 m/s). Jumps and frozen stretches fixed by taking the
+  positions out (DataEdit), gaps read straight across; none found again once fixed. Filling along
+  the road (routing) later, if wanted
 - Graph gauges over distance as well as time (an elevation profile)
 - Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
   database) later

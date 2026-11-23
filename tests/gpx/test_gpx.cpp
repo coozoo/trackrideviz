@@ -6,6 +6,7 @@
 #include "telemetry/channelids.h"
 #include "telemetry/gpmfimporter.h"
 #include "telemetry/gpximporter.h"
+#include "telemetry/gpsproblems.h"
 #include "telemetry/nmeaimporter.h"
 #include "telemetry/vboimporter.h"
 #include "telemetry/tcximporter.h"
@@ -22,6 +23,7 @@ class TestGpx : public QObject
 private slots:
     void basicTrackWithExtensions();
     void savedDataReadsBack();
+    void gpsProblemsAreFoundAndFixed();
     void derivesSpeedAndDistance();
     void joinsSegmentsAndTracks();
     void utf8BomAndFractionalSeconds();
@@ -717,6 +719,76 @@ void TestGpx::savedDataReadsBack()
     noPositions->channelForWriting(ChannelId::HeartRate, "bpm").append(0.0, 100.0);
     QVERIFY(!TelemetryWriter::save(*noPositions, dir.filePath("none.gpx"), &error));
     QVERIFY(!error.isEmpty());
+}
+
+// A made-up ride at 10 m/s north, a position a second, with every kind of trouble.
+void TestGpx::gpsProblemsAreFoundAndFixed()
+{
+    const double north = 10.0 / 111195.0;   // 10 m in degrees of latitude
+    auto session = std::make_shared<TelemetrySession>();
+    Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+    Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+    Channel &speed = session->channelForWriting(ChannelId::Speed, "m/s");
+    for (int t = 0; t <= 400; ++t)
+        {
+            speed.append(t, 10.0);
+            if (t > 100 && t < 130)
+                {
+                    continue;   // a tunnel
+                }
+            if (t > 300 && t < 340)
+                {
+                    continue;   // the recording paused
+                }
+            double latitude = 50.0 + t * north;
+            double longitude = 30.0;
+            if (t == 50)
+                {
+                    longitude += 0.007;   // about 500 m off to the east, and back
+                }
+            if (t > 200 && t <= 210)
+                {
+                    latitude = 50.0 + 200 * north;   // the position stuck while the wheel turned
+                }
+            lat.append(t, latitude);
+            lon.append(t, longitude);
+        }
+    session->addPause({300.0, 340.0});
+
+    const QVector<GpsProblems::Problem> found = GpsProblems::find(*session);
+    QCOMPARE(found.size(), 3);
+    QCOMPARE(found[0].kind, GpsProblems::Problem::Jump);
+    QCOMPARE(found[0].start, 50.0);
+    QCOMPARE(found[0].end, 50.0);
+    QVERIFY2(found[0].meters > 450.0 && found[0].meters < 550.0, qPrintable(QString::number(found[0].meters)));
+    QCOMPARE(found[1].kind, GpsProblems::Problem::Gap);
+    QCOMPARE(found[1].start, 100.0);
+    QCOMPARE(found[1].end, 130.0);
+    QVERIFY(!found[1].fixable());
+    QCOMPARE(found[2].kind, GpsProblems::Problem::Frozen);
+    QCOMPARE(found[2].start, 201.0);
+    QCOMPARE(found[2].end, 210.0);
+
+    // fixed: only the gap is left, and the track goes straight on where the jump was
+    QVector<DataEdit> edits;
+    for (const GpsProblems::Problem &problem : found)
+        {
+            if (problem.fixable())
+                {
+                    edits.append(problem.fix());
+                }
+        }
+    const TelemetrySessionPtr fixed = DataEdits::apply(session, edits);
+    const QVector<GpsProblems::Problem> left = GpsProblems::find(*fixed, edits);
+    QCOMPARE(left.size(), 1);
+    QCOMPARE(left[0].kind, GpsProblems::Problem::Gap);
+    QCOMPARE(fixed->channel(ChannelId::PositionLon)->valueAt(50.0), 30.0);
+    QVERIFY(std::fabs(fixed->channel(ChannelId::PositionLat)->valueAt(205.0) - (50.0 + 205 * north)) < 1e-9);
+
+    // a speed worked out from the positions says nothing about them: nothing frozen
+    auto derived = std::make_shared<TelemetrySession>(*session);
+    derived->addDerivedChannel(ChannelId::Speed);
+    QCOMPARE(GpsProblems::find(*derived).size(), 2);
 }
 
 QTEST_APPLESS_MAIN(TestGpx)

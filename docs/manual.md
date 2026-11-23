@@ -224,6 +224,12 @@ click to go there; the **Table** selects the sample clicked.
 - A GPS jump or a spike: pick it by **dragging** over the channel on the chart (the table selects
   the same samples), or select samples in the **Table**, and press **Take out**. Latitude and longitude go together; speed, distance, grade and
   laps follow. **Put back** returns them. Corrections are kept in the project and can be undone.
+- **GPS problems** finds where the positions go wrong: **gaps** (no position for a while as you
+  went on, as in a tunnel), **jumps** (positions far off the way and back) and **frozen** stretches
+  (the position standing still while the speed sensor says you move). Select one to go there and
+  see it on the map; **Fix** or **Fix all** takes the wrong positions out, so the track goes
+  straight across (undo or **Put back** returns them). A gap needs no fix: it is read straight
+  across already. Stops, and pauses of the recording, are not problems.
 - A stretch you do not want in the video: pick it the same way and press **Cut video**. It becomes
   a cut on the Timeline (see 10); the data itself stays whole, as the video file still holds that part.
 - **File > Save data as...** saves the data with its corrections: **GPX** (the track with heights and

@@ -1,4 +1,6 @@
 #include "datapanel.h"
+
+#include "gpsproblemsdialog.h"
 #include "icons.h"
 #include "settings/appsettings.h"
 
@@ -729,6 +731,22 @@ DataPanel::DataPanel(QWidget *parent)
                 emit cutVideoRequested(start, end);
             }
     });
+    m_gpsButton = button(tr("GPS problems"), tr("Find gaps, jumps and frozen stretches in the positions, and fix them"));
+    m_gpsButton->setIcon(Icons::named("find-location", "edit-find"));
+    connect(m_gpsButton, &QToolButton::clicked, this, [this]()
+    {
+        if (!m_gpsDialog)
+            {
+                m_gpsDialog = new GpsProblemsDialog(this);
+                connect(m_gpsDialog, &GpsProblemsDialog::chosen, this, [this](double start, double end)
+                {
+                    emit seekRequested(start);
+                    emit stretchPicked(start, end);
+                });
+                connect(m_gpsDialog, &GpsProblemsDialog::fixed, this, &DataPanel::editsChanged);
+            }
+        m_gpsDialog->show(m_raw, m_edits);
+    });
     m_smoothingCombo = ChartSmoothing::makeCombo(this);
     m_smoothing = ChartSmoothing::saved();
     connect(m_smoothingCombo, QOverload<int>::of(&QComboBox::activated), this, [this]()
@@ -746,6 +764,7 @@ DataPanel::DataPanel(QWidget *parent)
     tools->addWidget(m_removeButton);
     tools->addWidget(m_restoreButton);
     tools->addWidget(m_cutVideoButton);
+    tools->addWidget(m_gpsButton);
     tools->addStretch(1);
     tools->addWidget(m_smoothingCombo);
     tools->addWidget(m_tableButton);
@@ -776,6 +795,11 @@ void DataPanel::setSessions(const TelemetrySessionPtr &raw, const TelemetrySessi
                        || session->channelIds() != m_session->channelIds();
     m_raw = raw;
     m_session = session;
+    m_gpsButton->setEnabled(raw && raw->channel(ChannelId::PositionLat));
+    if (m_gpsDialog && m_gpsDialog->isVisible())
+        {
+            m_gpsDialog->show(m_raw, m_edits);
+        }
     m_units = units;
     if (other)
         {
@@ -790,6 +814,11 @@ void DataPanel::setEdits(const QVector<DataEdit> &edits)
     m_edits = edits;
     updateCharts();
     showTableOf(m_tableChannel);
+    // what is left to fix, after a fix or an undo
+    if (m_gpsDialog && m_gpsDialog->isVisible())
+        {
+            m_gpsDialog->show(m_raw, m_edits);
+        }
 }
 
 void DataPanel::setSmoothing(double seconds)
