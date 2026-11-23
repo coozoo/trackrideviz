@@ -696,11 +696,66 @@ class Rider:
 
 
 class RiderWoman(Rider):
-    """The same rider as a woman: a slimmer, slightly more upright back with a slight curve of the
-    chest, slimmer arms, the hip a touch fuller, a rounded road helmet with a ponytail from under
-    it. Legs and bike as the rider's, so the two pedal alike."""
+    """The same rider as a woman: a slimmer, slightly more upright back, the belly side drawn in
+    to the waist and a gentle curve of the chest, slimmer arms, a rounded road helmet with a
+    ponytail from under it. Legs and bike as the rider's, so the two pedal alike."""
 
     SHOULDER = (47, -71)
+
+    CHEST = (0.55, 1.0, 2.6)    # along the torso from, to (0 hip, 1 shoulder), how far out
+    WAIST = (0.08, 0.6, 1.8)    # where the belly side is drawn in, and how much
+
+    def chest(self):
+        """A long, gentle curve of the chest along the torso's underside: the torso's lower edge
+        pushed out a little, most in the middle of the stretch, back to the edge at its ends."""
+        start, end, out = self.CHEST
+        (x0, y0), (cx, cy), (x1, y1) = self.HIP, (29, -78), self.SHOULDER
+        half = 5.5        # half the torso's width (its stroke is 11)
+        outer, inner = [], []
+        steps = 14
+        for i in range(steps + 1):
+            t = start + (end - start) * i / steps
+            px = (1 - t) ** 2 * x0 + 2 * t * (1 - t) * cx + t * t * x1
+            py = (1 - t) ** 2 * y0 + 2 * t * (1 - t) * cy + t * t * y1
+            dx = 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx)
+            dy = 2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy)
+            length = math.hypot(dx, dy)
+            # the normal towards the underside (down, away from the back)
+            nx, ny = -dy / length, dx / length
+            if ny < 0:
+                nx, ny = -nx, -ny
+            bulge = out * math.sin(math.pi * i / steps)
+            outer.append((px + nx * (half + bulge), py + ny * (half + bulge)))
+            inner.append((px + nx * (half - 2.0), py + ny * (half - 2.0)))
+        points = outer + inner[::-1]
+        d = "M" + " L".join(self.p(q) for q in points) + " Z"
+        return f"<path d='{d}' {theme(self.color)}/>"
+
+    def torso(self):
+        """The torso from the hip to the shoulder: the back's line as the rider's, the belly side
+        drawn in towards the waist, so the figure is gentler; rounded at the shoulder."""
+        start, end, dip = self.WAIST
+        (x0, y0), (cx, cy), (x1, y1) = self.HIP, (29, -78), self.SHOULDER
+        half = 5.5
+        back, belly = [], []
+        steps = 24
+        for i in range(steps + 1):
+            t = i / steps
+            px = (1 - t) ** 2 * x0 + 2 * t * (1 - t) * cx + t * t * x1
+            py = (1 - t) ** 2 * y0 + 2 * t * (1 - t) * cy + t * t * y1
+            dx = 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx)
+            dy = 2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy)
+            length = math.hypot(dx, dy)
+            nx, ny = -dy / length, dx / length
+            if ny < 0:
+                nx, ny = -nx, -ny
+            inside = dip * math.sin(math.pi * (t - start) / (end - start)) if start <= t <= end else 0.0
+            back.append((px - nx * half, py - ny * half))
+            belly.append((px + nx * (half - inside), py + ny * (half - inside)))
+        d = "M" + " L".join(self.p(q) for q in back + belly[::-1]) + " Z"
+        sx, sy = self.at(self.SHOULDER)
+        return (f"<path d='{d}' {theme(self.color)}/>"
+                f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(half * self.k)}' {theme(self.color)}/>")
 
     def body(self):
         hx, hy = self.at((56, -76))
@@ -713,13 +768,9 @@ class RiderWoman(Rider):
         ponytail = (f"M{self.p((50, -82))} Q{self.p((43, -85))} {self.p((38, -80))} Q{self.p((34, -76))} {self.p((34, -70))} "
                     f"Q{self.p((38, -74))} {self.p((42, -76))} Q{self.p((46, -77.5))} {self.p((50, -77))} Z")
         sx, sy = self.at(self.HIP)
-        # a slight curve of the chest under the torso, just behind the arm: forward of where the knee
-        # comes up at the top of the stroke, so that it shows whatever the pedals
-        cx, cy = self.at((45.5, -64.5))
-        chest = (f"<ellipse cx='{fmt(cx)}' cy='{fmt(cy)}' rx='{fmt(3.8 * self.k)}' ry='{fmt(3.2 * self.k)}' "
-                 f"transform='rotate(-20 {fmt(cx)} {fmt(cy)})' {theme(self.color)}/>")
-        return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7.5 * self.k)}' {theme(self.color)}/>"
-                f"<path d='M{self.p(self.HIP)} Q{self.p((29, -78))} {self.p(self.SHOULDER)}' {self.paint(11)}/>" + chest +
+        chest = self.chest()
+        return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7 * self.k)}' {theme(self.color)}/>"
+                + self.torso() + chest +
                 f"<path d='M{self.p(self.SHOULDER)} L{self.p((54, -57))} L{self.p((63, -50))}' {self.paint(4.5)}/>"
                 f"<path d='{ponytail}' {theme(self.color)} stroke='@background' stroke-width='{fmt(1.6 * self.k)}' "
                 f"stroke-linejoin='round'/>"
