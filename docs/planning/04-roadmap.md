@@ -458,8 +458,8 @@ In order:
   (the 3D flyover is next)
 - ✅ 3D terrain flyover, first part (2026-11-23, `Flyover`, a route map's "3D flyover"): the land around
   the rider from the terrain's heights (x1.5), the gauge's map draped over it, hill shading from a low
-  north-west sun, haze into a sky; the camera as route videos have it (62 degrees from straight down,
-  0.45 spans up, looking at the rider), its heading from the way over enough seconds that stops and
+  north-west sun, haze into a sky; the camera as route videos have it (60° from straight down,
+  100 m up, looking at the rider), its heading from the way over enough seconds that stops and
   GPS wander do not turn it; the route ridden in the gauge's color, the rest faint; the gauge's
   marker on the rider. Our own software rasterizer (depth buffer, perspective-correct texture, one
   band of rows per processor): the same in the preview, the export, the command line, tests and

@@ -221,7 +221,7 @@ private slots:
         project.background.color = QColor(10, 20, 30, 0);
         project.overlay[1].headingUp = 1;
         project.overlay[0].flyover = 1;
-        project.overlay[0].flyoverCamera = {50.0, 0.3, 2.5};
+        project.overlay[0].flyoverCamera = {50.0, 300.0, 2.5};
         project.overlay[1].units = OverlayItem::ImperialUnits;
         // a part made for the heading shows the wind's direction; the scale ends at 60
         project.overlay[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);

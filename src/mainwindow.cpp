@@ -1116,22 +1116,19 @@ void MainWindow::askFlyoverCamera(int index)
             return;
         }
     const GaugeComponent::FlyoverCamera current = m_canvas->overlay().flyoverCamera(index);
-    // the height in meters, as the land seen across is now (a kilometer without a close-up)
-    const double closeUp = m_canvas->overlay().closeUp(index);
-    const double span = closeUp > 0.0 ? closeUp : 1000.0;
     QDialog dialog(this);
     dialog.setWindowTitle(tr("3D flyover camera"));
     QFormLayout *form = new QFormLayout(&dialog);
     QSpinBox *tilt = new QSpinBox(&dialog);
     tilt->setRange(10, 85);
-    tilt->setSuffix(tr(" degrees"));
+    tilt->setSuffix(QStringLiteral("°"));
     tilt->setValue(int(std::lround(current.tilt)));
     tilt->setToolTip(tr("From looking straight down: more looks further ahead, towards the horizon"));
     QSpinBox *height = new QSpinBox(&dialog);
     height->setRange(10, 20000);
     height->setSingleStep(25);
     height->setSuffix(tr(" m"));
-    height->setValue(int(std::lround(current.height * span)));
+    height->setValue(int(std::lround(current.height)));
     height->setToolTip(tr("Above the rider; the camera is behind them as far as its tilt takes it"));
     QDoubleSpinBox *hills = new QDoubleSpinBox(&dialog);
     hills->setRange(1.0, 5.0);
@@ -1157,7 +1154,7 @@ void MainWindow::askFlyoverCamera(int index)
         }
     OverlayState after{m_project.overlay, m_project.theme};
     after.items[index].flyoverCamera = reset ? GaugeComponent::FlyoverCamera{0.0, 0.0, 0.0}
-                                       : GaugeComponent::FlyoverCamera{double(tilt->value()), height->value() / span, hills->value()};
+                                       : GaugeComponent::FlyoverCamera{double(tilt->value()), double(height->value()), hills->value()};
     changeOverlay(tr("Set the 3D flyover's camera"), after);
 }
 

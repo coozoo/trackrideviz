@@ -281,7 +281,7 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const QVector3D target(float(here.x()), float(here.y()), float(ground));
     // high behind the rider, as route videos have it: its distance back is the height times
     // the tangent of the tilt
-    const double altitude = view.span * std::clamp(view.height, 0.02, 3.0);
+    const double altitude = std::clamp(view.height, 5.0, 20000.0);
     const double back = altitude * std::tan(std::clamp(view.tilt, 5.0, 85.0) * kPi / 180.0);
     const QVector3D eye = target - forward * float(back) + QVector3D(0.0f, 0.0f, float(altitude));
     const QVector3D lookAt = target + forward * float(view.span * 0.12);

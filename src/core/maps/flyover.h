@@ -35,8 +35,8 @@ public:
         double heading{0.0};    // degrees from north, the way the camera looks
         double span{1000.0};    // meters across the land at the rider
         double exaggeration{1.5};   // hills this many times their height: true ones look flat
-        double tilt{62.0};          // the camera: degrees from looking straight down...
-        double height{0.45};        // ... this high above the rider, in spans
+        double tilt{60.0};          // the camera: degrees from looking straight down...
+        double height{100.0};       // ... this many meters above the rider
         QString mapProvider;    // the map laid on the land (TileStore::forMap)
         bool streets{true};     // false: the land in its own colors, no map
         QColor line{255, 110, 20};  // the route ridden so far

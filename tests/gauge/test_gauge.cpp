@@ -1416,7 +1416,7 @@ private slots:
         QVERIFY2(skyRows(down) < skyRows(image), qPrintable(QString("%1 %2").arg(skyRows(down)).arg(skyRows(image))));
         // the settings are kept in the gauge's file, also without a close-up
         gauge.components[0].span = 0.0;
-        gauge.components[0].flyoverCamera.height = 0.8;
+        gauge.components[0].flyoverCamera.height = 250.0;
         gauge.components[0].flyoverCamera.hills = 3.0;
         Gauge loaded;
         QVERIFY(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded));
