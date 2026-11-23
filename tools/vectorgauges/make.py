@@ -695,6 +695,33 @@ class Rider:
                 + self.leg(angle) + self.body())
 
 
+class RiderWoman(Rider):
+    """The same rider as a woman: a slimmer, slightly more upright back and slimmer arms, the
+    hip a touch fuller, a rounded road helmet with a ponytail flowing back from under it. Legs
+    and bike as the rider's, so the two pedal alike."""
+
+    SHOULDER = (47, -71)
+
+    def body(self):
+        hx, hy = self.at((56, -76))
+        r = 6.5 * self.k
+        # a rounded helmet over the head, vents suggested by its edge
+        helmet = (f"M{self.p((47, -79))} Q{self.p((51, -89))} {self.p((60, -87))} Q{self.p((66, -84))} {self.p((64, -78))} "
+                  f"L{self.p((50, -77))} Z")
+        # the ponytail: out from under the helmet's back, full at the tie and tapering as it falls
+        # over the nape; outlined in the background so it shows against the back
+        ponytail = (f"M{self.p((50, -82))} Q{self.p((43, -85))} {self.p((38, -80))} Q{self.p((34, -76))} {self.p((34, -70))} "
+                    f"Q{self.p((38, -74))} {self.p((42, -76))} Q{self.p((46, -77.5))} {self.p((50, -77))} Z")
+        sx, sy = self.at(self.HIP)
+        return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7.5 * self.k)}' {theme(self.color)}/>"
+                f"<path d='M{self.p(self.HIP)} Q{self.p((29, -78))} {self.p(self.SHOULDER)}' {self.paint(11)}/>"
+                f"<path d='M{self.p(self.SHOULDER)} L{self.p((54, -57))} L{self.p((63, -50))}' {self.paint(4.5)}/>"
+                f"<path d='{ponytail}' {theme(self.color)} stroke='@background' stroke-width='{fmt(1.6 * self.k)}' "
+                f"stroke-linejoin='round'/>"
+                f"<circle cx='{fmt(hx)}' cy='{fmt(hy)}' r='{fmt(r)}' {theme(self.color)}/>"
+                f"<path d='{helmet}' {theme(self.color)}/>")
+
+
 def strip_of(box, steps, draw):
     """`steps` pictures of what `draw(i)` draws inside `box` (x, y, w, h), side by side: an
     animation strip, (svg, image frame, frame rect)."""
@@ -910,7 +937,7 @@ def pace_readout(name):
     write(name, (w, h), components, drawings, ["pace"])
 
 
-def ride_cluster(name):
+def ride_cluster(name, rider_kind=Rider):
     """A round cluster for a ride: the heading on a strip of compass at the top, elevation and grade,
     a rider who leans with the slope, the speed, cadence and elevation as arcs on the sides, power
     and distance at the bottom."""
@@ -952,7 +979,7 @@ def ride_cluster(name):
 
     # the rider and the road under him lean with the grade; wheels and legs turn
     drawings["road.svg"] = svg(400, 400, f"<path d='M{C - 78},{C + 32} L{C + 78},{C + 32}' {stroke('foreground', 3, 0.6)}/>")
-    rider_drawings, rider_parts = moving_rider(Rider(C - 30, C + 31, 1.12), "rider")
+    rider_drawings, rider_parts = moving_rider(rider_kind(C - 30, C + 31, 1.12), "rider")
     drawings.update(rider_drawings)
 
     components = [image("face.svg", (0, 0, 400, 400)),
@@ -1145,7 +1172,7 @@ def graph_pair(name):
     write(name, (w, h), components, drawings, ["elevation", "speed", "power", "cadence"])
 
 
-def progress(name):
+def progress(name, rider_kind=Rider):
     """The ride from start to finish as a line, a rider moving along it with the distance."""
     w, h = 600, 130
     x0, x1, line_y = 34, 566, 74
@@ -1158,7 +1185,7 @@ def progress(name):
                 "done.svg": svg(w, h, f"<path d='M{x0},{line_y} L{x1},{line_y}' {stroke('accent', 5)} stroke-linecap='round'/>")}
     # the same rider as on the ride cluster, wheels and legs turning; the road line under the tires
     k = 0.72
-    rider_drawings, rider_parts = moving_rider(Rider(x0 - 28 * k, line_y - 3, k), "rider", (w, h))
+    rider_drawings, rider_parts = moving_rider(rider_kind(x0 - 28 * k, line_y - 3, k), "rider", (w, h))
     drawings.update(rider_drawings)
     along = dict(range="recording")
     rider = group(rider_parts + [
@@ -2377,10 +2404,12 @@ def main():
     tile("Tile grade", "grade", ["grade"])
     tile("Tile cadence", "arc", ["cadence", "power", "engineRpm", "heartRate"])
     ride_cluster("Ride cluster")
+    ride_cluster("Ride cluster woman", RiderWoman)
     ride_cluster_power("Ride cluster power")
     graph("Graph")
     graph_pair("Graph pair")
     progress("Progress")
+    progress("Progress woman", RiderWoman)
     climb_wedge("Climb wedge")
     column("Column glass")
     crank("Crank")
