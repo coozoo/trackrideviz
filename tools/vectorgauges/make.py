@@ -696,9 +696,9 @@ class Rider:
 
 
 class RiderWoman(Rider):
-    """The same rider as a woman: a slimmer, slightly more upright back and slimmer arms, the
-    hip a touch fuller, a rounded road helmet with a ponytail flowing back from under it. Legs
-    and bike as the rider's, so the two pedal alike."""
+    """The same rider as a woman: a slimmer, slightly more upright back with a slight curve of the
+    chest, slimmer arms, the hip a touch fuller, a rounded road helmet with a ponytail from under
+    it. Legs and bike as the rider's, so the two pedal alike."""
 
     SHOULDER = (47, -71)
 
@@ -713,8 +713,13 @@ class RiderWoman(Rider):
         ponytail = (f"M{self.p((50, -82))} Q{self.p((43, -85))} {self.p((38, -80))} Q{self.p((34, -76))} {self.p((34, -70))} "
                     f"Q{self.p((38, -74))} {self.p((42, -76))} Q{self.p((46, -77.5))} {self.p((50, -77))} Z")
         sx, sy = self.at(self.HIP)
+        # a slight curve of the chest under the torso, just behind the arm: forward of where the knee
+        # comes up at the top of the stroke, so that it shows whatever the pedals
+        cx, cy = self.at((45.5, -64.5))
+        chest = (f"<ellipse cx='{fmt(cx)}' cy='{fmt(cy)}' rx='{fmt(3.8 * self.k)}' ry='{fmt(3.2 * self.k)}' "
+                 f"transform='rotate(-20 {fmt(cx)} {fmt(cy)})' {theme(self.color)}/>")
         return (f"<circle cx='{fmt(sx)}' cy='{fmt(sy)}' r='{fmt(7.5 * self.k)}' {theme(self.color)}/>"
-                f"<path d='M{self.p(self.HIP)} Q{self.p((29, -78))} {self.p(self.SHOULDER)}' {self.paint(11)}/>"
+                f"<path d='M{self.p(self.HIP)} Q{self.p((29, -78))} {self.p(self.SHOULDER)}' {self.paint(11)}/>" + chest +
                 f"<path d='M{self.p(self.SHOULDER)} L{self.p((54, -57))} L{self.p((63, -50))}' {self.paint(4.5)}/>"
                 f"<path d='{ponytail}' {theme(self.color)} stroke='@background' stroke-width='{fmt(1.6 * self.k)}' "
                 f"stroke-linejoin='round'/>"
