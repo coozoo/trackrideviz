@@ -158,6 +158,19 @@ LapsPanel::LapsPanel(QWidget *parent)
     {
         emit lapsSelected(selectedLaps());
     });
+    m_lapTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_lapTable, &QWidget::customContextMenuRequested, this, [this](const QPoint &at)
+    {
+        QTreeWidgetItem *item = m_lapTable->itemAt(at);
+        QMenu menu(this);
+        if (item)
+            {
+                const int lap = m_lapTable->indexOfTopLevelItem(item) + 1;
+                menu.addAction(tr("Use lap %1 as the reference").arg(lap), this, [this, lap]() { emit referenceChosen(lap); });
+            }
+        menu.addAction(tr("The fastest lap as the reference"), this, [this]() { emit referenceChosen(0); });
+        menu.exec(m_lapTable->viewport()->mapToGlobal(at));
+    });
 
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addWidget(m_placeButton);
@@ -324,6 +337,13 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
                                     item->setToolTip(FirstSectorColumn + k, tr("The fastest of this sector"));
                                 }
                         }
+                }
+            // what the reference delta and the ghost measure against
+            if (m_session && m_session->referenceLap().startTime == lap.startTime
+                    && m_session->referenceLap().endTime == lap.endTime)
+                {
+                    item->setIcon(LapNumber, Icons::named("emblem-favorite", "bookmark-new"));
+                    item->setToolTip(LapNumber, tr("The reference lap; right-click to choose another"));
                 }
             if (i == bestRow)
                 {

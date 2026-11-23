@@ -7,6 +7,7 @@
 #include "gauge/metricrange.h"
 #include "gauge/veggaugeimporter.h"
 #include "gauge/xmlgaugeimporter.h"
+#include "laps/lapengine.h"
 #include "maps/tilestore.h"
 #include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
@@ -1040,6 +1041,85 @@ private slots:
         auto timeOnly = std::make_shared<TelemetrySession>(*session);
         timeOnly->removeChannel(ChannelId::Distance);
         QVERIFY(painted(draw(gauge, 150.0, ChannelId::Elevation, timeOnly), 50, 50));
+    }
+
+    void ghostOfTheReferenceLap()
+    {
+        // round a circle of 100 m: laps of 60, 40 and 60 s as the device recorded them; lap 2 the fastest
+        const double meters = 6371008.8 * 3.14159265358979323846 / 180.0;
+        auto ride = std::make_shared<TelemetrySession>();
+        Channel &lat = ride->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = ride->channelForWriting(ChannelId::PositionLon, "deg");
+        const QVector<double> starts{0.0, 60.0, 100.0, 160.0};
+        for (double t = 0.0; t <= 160.0; t += 0.5)
+            {
+                int lap = 0;
+                while (lap < 2 && t >= starts[lap + 1])
+                    {
+                        ++lap;
+                    }
+                const double angle = 2.0 * 3.14159265358979323846 * (t - starts[lap]) / (starts[lap + 1] - starts[lap]);
+                lat.append(t, 49.0 + 100.0 * std::cos(angle) / meters);
+                lon.append(t, 10.0 + 100.0 * std::sin(angle) / (meters * std::cos(49.0 * 3.14159265358979323846 / 180.0)));
+            }
+        for (int i = 0; i < 3; ++i)
+            {
+                ride->addLap({starts[i], starts[i + 1]});
+            }
+        const TelemetrySessionPtr session = LapEngine::apply(ride, StartFinishLine());
+        QVERIFY(std::fabs(session->referenceLap().startTime - 60.0) < 1e-9);
+
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 100, 100);
+        map.padding = 10;
+        GaugeComponent dot;
+        dot.type = GaugeComponent::Image;
+        dot.image = filled(Qt::red, 6);
+        dot.frame = QRectF(-3, -3, 6, 6);
+        map.knob.append(dot);
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        auto reds = [](const QImage &image)
+        {
+            int strong = 0;
+            int faint = 0;
+            for (int y = 0; y < image.height(); ++y)
+                {
+                    for (int x = 0; x < image.width(); ++x)
+                        {
+                            const QColor c = image.pixelColor(x, y);
+                            if (c.red() > 200 && c.green() < 60)
+                                {
+                                    ++strong;
+                                }
+                            // faint: red laid lightly over the white canvas
+                            else if (c.red() > 200 && c.green() > 80 && c.green() < 200 && std::abs(c.green() - c.blue()) < 20)
+                                {
+                                    ++faint;
+                                }
+                        }
+                }
+            return QPair<int, int>(strong, faint);
+        };
+        map.ghost = true;
+        gauge.components = {map};
+        // 20 s into lap 3 the rider is a third round; the ghost, 20 s into lap 2, half round
+        const QPair<int, int> both = reds(draw(gauge, 120.0, ChannelId::Speed, session));
+        QVERIFY2(both.first > 10 && both.second > 10, qPrintable(QString("%1 %2").arg(both.first).arg(both.second)));
+        // on the reference lap itself, and past its 40 s on another lap: no ghost
+        QCOMPARE(reds(draw(gauge, 80.0, ChannelId::Speed, session)).second, 0);
+        QCOMPARE(reds(draw(gauge, 150.0, ChannelId::Speed, session)).second, 0);
+        map.ghost = false;
+        gauge.components = {map};
+        QCOMPARE(reds(draw(gauge, 120.0, ChannelId::Speed, session)).second, 0);
+        // kept in the gauge file
+        map.ghost = true;
+        gauge.components = {map};
+        Gauge loaded;
+        QString error;
+        QVERIFY2(GaugeFile::fromJson(GaugeFile::toJson(gauge), &loaded, &error), qPrintable(error));
+        QVERIFY(loaded.components.first().ghost);
     }
 
     void trackMapKeepsTheShapeAndShowsWhereWeAre()

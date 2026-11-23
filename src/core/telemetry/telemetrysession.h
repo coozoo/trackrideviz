@@ -62,6 +62,9 @@ public:
     void removeChannel(const QString &id);
 
     const QVector<Lap> &laps() const { return m_laps; }
+    // The lap the others are measured against (LapEngine); none when its end is not after its start.
+    Lap referenceLap() const { return m_referenceLap; }
+    void setReferenceLap(const Lap &lap) { m_referenceLap = lap; }
     void addLap(const Lap &lap) { m_laps.append(lap); }
     void setLaps(const QVector<Lap> &laps) { m_laps = laps; }
 
@@ -97,6 +100,7 @@ private:
     std::map<QString, Channel> m_channels;
     QStringList m_order;
     QVector<Lap> m_laps;
+    Lap m_referenceLap;
     QVector<Pause> m_pauses;
     bool m_hasUtcOffset{false};
     int m_utcOffsetSeconds{0};

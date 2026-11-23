@@ -195,6 +195,7 @@ private slots:
         t.items[0].scaleMax = 180.0;
         t.items[0].aspect = 4.25;
         t.items[0].byDistance = 1;
+        t.items[0].ghost = 0;
         GaugeTemplate loaded;
         QString error;
         QVERIFY2(TemplateFile::fromJson(TemplateFile::toJson(t), &loaded, &error), qPrintable(error));

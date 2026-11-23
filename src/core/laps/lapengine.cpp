@@ -18,6 +18,7 @@ const char *const kLapChannels[] =
     ChannelId::Lap, ChannelId::LapTime, ChannelId::PreviousLapTime, ChannelId::BestLapTime,
     ChannelId::LapDelta, ChannelId::LapCount, ChannelId::Sector, ChannelId::SectorTime, ChannelId::PreviousSectorTime,
     ChannelId::SectorDelta, ChannelId::BestLapNumber, ChannelId::SpeedLapMax, ChannelId::SpeedLapAvg, ChannelId::PowerLapAvg,
+    ChannelId::ReferenceDelta, ChannelId::ReferenceLapTime,
 };
 
 // The top and the average speed and the average power of each stretch so far, starting
@@ -445,7 +446,7 @@ QVector<QPointF> LapEngine::deltaByDistance(const TelemetrySession &session, con
 }
 
 TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const StartFinishLine &line,
-                                     const QVector<StartFinishLine> &givenSectors)
+                                     const QVector<StartFinishLine> &givenSectors, int reference)
 {
     QVector<StartFinishLine> sectors = givenSectors;
     bool openCourse = false;
@@ -454,6 +455,8 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
             return base;
         }
     auto session = std::make_shared<TelemetrySession>(*base);
+    // chosen again below, from the laps as they are now
+    session->setReferenceLap({});
     double end = session->duration();
     QVector<TelemetrySession::Lap> laps = session->laps();
     if (line.isValid())
@@ -638,6 +641,54 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
                     if (delta->isEmpty())
                         {
                             session->removeChannel(ChannelId::LapDelta);
+                        }
+                }
+        }
+
+    // against the reference lap: the one chosen, or the fastest of the whole ride
+    int referenceIndex = reference >= 1 && reference <= finished ? reference - 1 : -1;
+    if (referenceIndex < 0)
+        {
+            for (int k = 0; k < finished; ++k)
+                {
+                    const double took = all.at(k).endTime - all.at(k).startTime;
+                    if (referenceIndex < 0 || took < all.at(referenceIndex).endTime - all.at(referenceIndex).startTime)
+                        {
+                            referenceIndex = k;
+                        }
+                }
+        }
+    if (referenceIndex >= 0)
+        {
+            const TelemetrySession::Lap &chosen = all.at(referenceIndex);
+            session->setReferenceLap(chosen);
+            if (Channel *took = add(ChannelId::ReferenceLapTime, "s", Channel::Step))
+                {
+                    took->append(0.0, chosen.endTime - chosen.startTime);
+                    took->append(std::max(end, 1.0), chosen.endTime - chosen.startTime);
+                }
+            const double d0 = distance ? distance->valueAt(chosen.startTime) : 0.0;
+            const double length = distance ? distance->valueAt(chosen.endTime) - d0 : 0.0;
+            Channel *against = length > 0.0 ? add(ChannelId::ReferenceDelta, "s", Channel::Linear) : nullptr;
+            if (against)
+                {
+                    const QVector<QPointF> referenceProfile = profile(*distance, chosen.startTime, chosen.endTime, length);
+                    QVector<TelemetrySession::Lap> timed = all;
+                    if (underWay)
+                        {
+                            timed.append({lastStart, end});
+                        }
+                    for (int k = 0; k < timed.size(); ++k)
+                        {
+                            const TelemetrySession::Lap &lap = timed.at(k);
+                            const double start = distance->valueAt(lap.startTime);
+                            // an unfinished lap is measured against the reference's length
+                            const double lapLength = k < finished ? distance->valueAt(lap.endTime) - start : length;
+                            for (double t = lap.startTime; t < lap.endTime && lapLength > 0.0; t += 0.5)
+                                {
+                                    const double fraction = (distance->valueAt(t) - start) / lapLength;
+                                    against->append(t, (t - lap.startTime) - timeAt(referenceProfile, fraction));
+                                }
                         }
                 }
         }

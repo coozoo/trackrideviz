@@ -62,6 +62,9 @@ inline constexpr char SectorTime[] = "sectorTime";         // s since the sector
 inline constexpr char PreviousSectorTime[] = "previousSectorTime"; // s, the last finished sector
 inline constexpr char SectorDelta[] = "sectorDelta";       // s, the last finished sector against the best of it so far
 inline constexpr char BestLapNumber[] = "bestLapNumber";   // which lap the fastest finished so far was
+// Against the reference lap (the fastest of the whole ride, or the one chosen)
+inline constexpr char ReferenceDelta[] = "referenceDelta";   // s behind (+) it at the same point of the lap
+inline constexpr char ReferenceLapTime[] = "referenceLapTime"; // s, how long it took
 // Within the lap under way, so far (the whole recording when it has no laps)
 inline constexpr char SpeedLapMax[] = "speedLapMax";       // m/s
 inline constexpr char SpeedLapAvg[] = "speedLapAvg";       // m/s

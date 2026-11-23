@@ -75,6 +75,8 @@ QVector<QPointF> deltaByDistance(const TelemetrySession &session, const Telemetr
 // (lines across the track inside the lap), each lap that crosses all of them
 // gets its splits, and the sector channels are added: sector, its running
 // time, the previous sector's time and that against the best of it so far.
+// `reference`: the lap every lap is measured against (ReferenceDelta), by its number from 1;
+// 0, or one that is not there: the fastest finished lap.
 TelemetrySessionPtr apply(const TelemetrySessionPtr &base, const StartFinishLine &line,
-                          const QVector<StartFinishLine> &sectors = {});
+                          const QVector<StartFinishLine> &sectors = {}, int reference = 0);
 }

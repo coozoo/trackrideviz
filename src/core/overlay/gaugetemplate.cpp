@@ -51,6 +51,7 @@ QVector<OverlayItem> GaugeTemplate::overlayItems(double frameAspect) const
             placed.flyover = item.flyover;
             placed.flyoverCamera = item.flyoverCamera;
             placed.byDistance = item.byDistance;
+            placed.ghost = item.ghost;
             placed.units = item.units;
             placed.channels = item.channels;
             placed.scaleMax = item.scaleMax;
@@ -95,6 +96,7 @@ GaugeTemplate GaugeTemplate::fromOverlay(const Overlay &overlay, const GaugeThem
             item.flyover = placed.flyover;
             item.flyoverCamera = placed.flyoverCamera;
             item.byDistance = placed.byDistance;
+            item.ghost = placed.ghost;
             item.units = placed.units;
             item.channels = placed.channels;
             item.scaleMax = placed.scaleMax;
@@ -162,6 +164,7 @@ QByteArray TemplateFile::toJson(const GaugeTemplate &t)
             choices.textScale = item.textScale;
             choices.opacity = item.opacity;
             choices.byDistance = item.byDistance;
+            choices.ghost = item.ghost;
             choices.writeChoices(object);
             items.append(object);
         }
@@ -252,6 +255,7 @@ bool TemplateFile::fromJson(const QByteArray &json, GaugeTemplate *t, QString *e
             item.textScale = choices.textScale;
             item.opacity = choices.opacity;
             item.byDistance = choices.byDistance;
+            item.ghost = choices.ghost;
             if (!item.gaugeId.isEmpty() && item.height > 0.0)
                 {
                     loaded.items.append(item);

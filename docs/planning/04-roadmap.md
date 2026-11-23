@@ -498,8 +498,12 @@ In order:
   distance" in its menu, kept in projects and templates); over time stays the usual, the bundled
   Profile gauge included; imported .xml charts over distance now drawn so. Without a distance in the
   data, over time
-- Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
-  database) later
+- ✅ Reference lap (2026-11-23): the fastest lap of the whole ride, or one chosen in the lap table's
+  menu (`Project::referenceLap`, kept in the project, undoable), marked there; the channels
+  `referenceDelta` (by the share of the lap done, as the delta to the best so far) and
+  `referenceLapTime`; on route maps a ghost of its rider, faint, as long into its lap as the rider is
+  into theirs ("Ghost of the reference lap" in the gauge's menu and the gauge editor; not in 3D).
+  Other rides' laps (a track database) and a 3D ghost later
 - Per-lap export: one video per lap, or per chosen lap
 
 ## M8 - Touch UI
