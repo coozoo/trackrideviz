@@ -175,20 +175,19 @@ QWidget *SettingsDialog::createAppearancePage()
     m_recentCountSpin = new QSpinBox(page);
     m_recentCountSpin->setRange(0, AppSettings::kMaxRecentFiles);
     m_recentCountSpin->setSpecialValueText(tr("None"));
-    m_recentCountSpin->setToolTip(tr("How many of the videos, data files and projects opened lately the File menu lists"));
+    m_recentCountSpin->setToolTip(tr("How many recent videos, data files and projects the File menu lists"));
 
     QFormLayout *form = new QFormLayout(page);
     form->addRow(tr("Style:"), m_styleCombo);
     form->addRow(tr("Colors:"), m_colorSchemeCombo);
-    form->addRow(QString(), note(tr("Light and dark colors look right with the Fusion style; "
-                                    "other styles may follow them only in part."), page));
+    form->addRow(QString(), note(tr("Light and dark colors suit the Fusion style best."), page));
     form->addRow(tr("Language:"), m_languageCombo);
     form->addRow(QString(), note(tr("The language changes after a restart."), page));
     form->addRow(QString(), m_saveLayoutCheck);
     form->addRow(tr("Recent files:"), m_recentCountSpin);
     m_checkUpdatesCheck = new QCheckBox(tr("Look for a newer version once a day"), page);
-    m_checkUpdatesCheck->setToolTip(tr("Asks the project's page on GitHub, quietly; a newer version is shown in the status "
-                                       "bar, nothing pops up. Help > Check for updates asks at once."));
+    m_checkUpdatesCheck->setToolTip(tr("Once a day, quietly: a newer version shows in the status bar. Help > Check for updates asks at "
+                                       "once."));
     form->addRow(QString(), m_checkUpdatesCheck);
     return page;
 }
@@ -220,8 +219,7 @@ QWidget *SettingsDialog::createPreviewPage()
     form->addRow(note(tr("Decoding changes after a restart."), page));
     if (qApp->property("decoderFromEnvironment").toBool())
         {
-            form->addRow(note(tr("These settings are overridden now: the environment variable "
-                                 "QT_FFMPEG_DECODING_HW_DEVICE_TYPES is set."), page));
+            form->addRow(note(tr("Overridden now by the environment variable QT_FFMPEG_DECODING_HW_DEVICE_TYPES."), page));
         }
     return page;
 }
@@ -309,7 +307,7 @@ QWidget *SettingsDialog::createExportPage()
     form->addRow(tr("ffmpeg program:"), ffmpegRow);
     form->addRow(QString(), m_ffmpegStatus);
     form->addRow(tr("Save videos to:"), folderRow);
-    form->addRow(note(tr("Encoder, quality and size are chosen in the export window and remembered from the last export."), page));
+    form->addRow(note(tr("Encoder, quality and size are chosen in the export window."), page));
     return page;
 }
 
@@ -355,20 +353,18 @@ QWidget *SettingsDialog::createMapsPage()
 
     QFormLayout *form = new QFormLayout(page);
     form->addRow(m_mapDownloadsCheck);
-    form->addRow(note(tr("The map pieces around a route are fetched once and kept on this computer; "
-                         "after that the gauge and the export work without a connection. "
-                         "The server learns which area the route is in."), page));
+    form->addRow(note(tr("Map pieces around a route are fetched once and kept here; then the gauges and exports work "
+                         "offline. The map server sees which area the route is in."), page));
     form->addRow(tr("Map:"), m_mapProviderCombo);
     form->addRow(new QLabel(QString("<b>%1</b>").arg(tr("Keys")), page));
-    form->addRow(note(tr("Some map services want a key of your own (most have a free allowance). "
-                         "Their maps are offered once the key is entered."), page));
+    form->addRow(note(tr("Some map services need a key of your own, most of them free. Their maps appear once it is "
+                         "entered."), page));
     form->addRow(keys);
     form->addRow(tr("Tile server:"), m_mapUrlEdit);
     form->addRow(note(tr("An address with {z}, {x} and {y} in it."), page));
     form->addRow(tr("Its credit:"), m_mapAttributionEdit);
     m_mapClearButton = new QPushButton(Icons::named("edit-clear"), QString(), page);
-    m_mapClearButton->setToolTip(tr("Deletes the map pieces and terrain heights kept on this computer. "
-                                    "They are fetched again when a gauge needs them."));
+    m_mapClearButton->setToolTip(tr("Deletes the kept map pieces and terrain heights; they are fetched again when needed."));
     connect(m_mapClearButton, &QPushButton::clicked, this, [this]()
     {
         TileStore::instance()->clearStored();
@@ -377,9 +373,8 @@ QWidget *SettingsDialog::createMapsPage()
     });
     updateStoredMaps();
     form->addRow(m_mapCreditCheck);
-    form->addRow(note(tr("The makers of these maps ask to be named wherever the map is shown. "
-                         "Switch the credit off only when the video names them elsewhere, "
-                         "in its end credits or its description."), page));
+    form->addRow(note(tr("Map makers ask to be named where their map is shown. Switch it off only if the video names them "
+                         "elsewhere."), page));
     form->addRow(m_mapClearButton);
     return page;
 }
@@ -396,16 +391,15 @@ QWidget *SettingsDialog::createBikePage()
 
     m_tireSizeEdit = new QLineEdit(page);
     m_tireSizeEdit->setPlaceholderText(tr("700x25, 29x2.25, 26x1.95, 40-622..."));
-    m_tireSizeEdit->setToolTip(tr("The size printed on the tire: it gives the wheel's circumference, and on the Power "
-                                  "page it picks road, gravel or mountain bike tires by its width"));
+    m_tireSizeEdit->setToolTip(tr("As printed on the tire: sets the wheel size, and the tire type on the Power page"));
     m_wheelSpin = new QDoubleSpinBox(page);
     m_wheelSpin->setRange(0.0, 3500.0);
     m_wheelSpin->setDecimals(0);
     m_wheelSpin->setSingleStep(5.0);
     m_wheelSpin->setSuffix(tr(" mm"));
     m_wheelSpin->setSpecialValueText(tr("from the tire size"));
-    m_wheelSpin->setToolTip(tr("How far the bike goes in one turn of the wheel. Measured by rolling it once along "
-                               "the ground with the rider on, it is more exact than from the tire size."));
+    m_wheelSpin->setToolTip(tr("Distance of one wheel turn. Rolled out once with the rider on, it is more exact than the tire "
+                               "size."));
     m_wheelNote = note(QString(), page);
     const auto showWheel = [this]()
     {
@@ -448,8 +442,8 @@ QWidget *SettingsDialog::createBikePage()
     form->addRow(QString(), m_wheelNote);
     form->addRow(tr("Chainrings:"), chainrings);
     form->addRow(tr("Sprockets:"), cassette);
-    form->addRow(note(tr("Fill in your chainrings and sprockets, and the gear is estimated from speed and cadence. "
-                         "Gears recorded by electronic shifting are used as they are."), page));
+    form->addRow(note(tr("With your chainrings and sprockets, the gear is estimated from speed and cadence. Electronic "
+                         "shifting's recorded gears are used as they are."), page));
     return page;
 }
 
@@ -474,8 +468,7 @@ QWidget *SettingsDialog::createPowerPage()
     // the tire size again: it picks the kind of tires here
     m_tireSizePowerEdit = new QLineEdit(page);
     m_tireSizePowerEdit->setPlaceholderText(m_tireSizeEdit->placeholderText());
-    m_tireSizePowerEdit->setToolTip(tr("The size printed on the tire picks road, gravel or mountain bike tires by its width. "
-                                       "The same as on the Bike page."));
+    m_tireSizePowerEdit->setToolTip(tr("Picks road, gravel or mountain bike tires by width. The same as on the Bike page."));
     for (auto [from, to] : {std::pair{m_tireSizeEdit, m_tireSizePowerEdit}, std::pair{m_tireSizePowerEdit, m_tireSizeEdit}})
         {
             connect(from, &QLineEdit::textChanged, to, [to](const QString &text)
@@ -553,9 +546,7 @@ QWidget *SettingsDialog::createPowerPage()
     });
 
     m_lossSpin = spin(0.0, 20.0, 1, 0.5, tr(" %"));
-    m_lossSpin->setToolTip(tr("What the chain and the bearings take of the power that drives the wheel: 2-3 % when clean, "
-                              "more when worn or dirty. Turning the cranks costs a few watts more even when the wheel "
-                              "needs nothing, as on a descent."));
+    m_lossSpin->setToolTip(tr("Power lost in the chain and bearings: 2-3 % when clean, more when worn or dirty."));
 
     QFormLayout *form = new QFormLayout(page);
     form->addRow(m_powerCheck);
@@ -568,9 +559,8 @@ QWidget *SettingsDialog::createPowerPage()
     form->addRow(tr("Riding position:"), m_positionCombo);
     form->addRow(tr("Drag area (CdA):"), m_cdaSpin);
     form->addRow(tr("Drivetrain loss:"), m_lossSpin);
-    form->addRow(note(tr("Worked out from the speed, the grade and the elevation. A recorded power is never replaced: "
-                         "the estimate is then listed beside it as \"Power (est.)\", to compare the two. "
-                         "Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a "
+    form->addRow(note(tr("Estimated from speed, grade and elevation. A recorded power is kept; the estimate shows beside "
+                         "it as \"Power (est.)\". Without the day's weather (Weather page) a headwind reads low and a "
                          "tailwind high."), page));
     return page;
 }
@@ -616,9 +606,8 @@ QWidget *SettingsDialog::createSurfacesPage()
     QVBoxLayout *layout = new QVBoxLayout(page);
     layout->addWidget(m_surfaceTable, 1);
     layout->addLayout(buttons);
-    layout->addWidget(note(tr("What a stretch of a ride can be marked as in the Laps panel (\"Mark surface\"). The number is "
-                              "how much harder the tires roll there than on typical asphalt: the power estimate multiplies "
-                              "their rolling resistance by it. Stretches marked already keep the number they were marked with."),
+    layout->addWidget(note(tr("Surfaces a stretch of a ride can be marked as (Laps panel, \"Mark surface\"). The number is how "
+                              "much harder tires roll there than on asphalt. Stretches already marked keep their number."),
                            page));
     return page;
 }
@@ -647,14 +636,13 @@ QWidget *SettingsDialog::createWeatherPage()
         box->setSuffix(suffix);
         return box;
     };
-    m_weatherCheck = new QCheckBox(tr("Fetch the wind and the air of the day of each ride from weather history"), page);
-    m_weatherCheck->setToolTip(tr("Asks a weather service for the wind, the temperature and the pressure at places along the ride, "
-                                  "hour by hour. Sent to it: those places and the date."));
+    m_weatherCheck = new QCheckBox(tr("Fetch each ride's wind and air from weather history"), page);
+    m_weatherCheck->setToolTip(tr("Wind, temperature and pressure along the ride, hour by hour. The service is sent those places "
+                                  "and the date."));
     m_weatherSpacingSpin = spin(1.0, 100.0, 0, 1.0, tr(" km"));
     m_weatherSpacingSpin->setToolTip(tr("The weather services know places 10-25 km apart: closer than that brings little"));
     m_windShareSpin = spin(0.0, 100.0, 0, 5.0, tr(" %"));
-    m_windShareSpin->setToolTip(tr("The wind is measured 10 m above the ground. Near it about 60 % is left in the open, "
-                                   "less between houses and trees."));
+    m_windShareSpin->setToolTip(tr("Measured 10 m up; near the ground about 60 % is left in the open, less among houses and trees."));
     connect(m_weatherCheck, &QCheckBox::toggled, m_weatherSpacingSpin, &QWidget::setEnabled);
     connect(m_weatherCheck, &QCheckBox::toggled, m_windShareSpin, &QWidget::setEnabled);
 
@@ -689,11 +677,10 @@ QWidget *SettingsDialog::createWeatherPage()
     form->addRow(tr("Key:"), m_weatherKeyEdit);
     form->addRow(tr("A place every:"), m_weatherSpacingSpin);
     form->addRow(tr("Wind reaching the rider:"), m_windShareSpin);
-    form->addRow(note(tr("The wind's speed and direction, the wind against the rider and the air's density are then "
-                         "measurements of the ride like any other: for gauges, for the data viewer, and counted in "
-                         "by the power estimate. Kept on disk: a ride asked about once needs no connection again."), page));
+    form->addRow(note(tr("Wind, headwind and air density then become measurements like any other: for gauges, the data "
+                         "viewer and the power estimate. Kept on disk once fetched."), page));
     m_weatherClearButton = new QPushButton(Icons::named("edit-clear"), QString(), page);
-    m_weatherClearButton->setToolTip(tr("Deletes the weather of rides kept on this computer. It is fetched again when a ride asks for it."));
+    m_weatherClearButton->setToolTip(tr("Deletes the kept weather of rides; it is fetched again when needed."));
     connect(m_weatherClearButton, &QPushButton::clicked, this, [this]()
     {
         WeatherStore::instance()->clearStored();
