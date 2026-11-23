@@ -219,10 +219,10 @@ The **Timeline** shows the video and the data where the offset puts them, a chos
 ## 11. Data viewer and corrections
 
 The **Data** panel charts the ticked channels on the data's own time. Hover to read values,
-click to go there.
+click to go there; the **Table** selects the sample clicked.
 
-- A GPS jump or a spike: pick it with **Shift+drag** on the chart, or select samples in the
-  **Table**, and press **Take out**. Latitude and longitude go together; speed, distance, grade and
+- A GPS jump or a spike: pick it by **dragging** over the channel on the chart (the table selects
+  the same samples), or select samples in the **Table**, and press **Take out**. Latitude and longitude go together; speed, distance, grade and
   laps follow. **Put back** returns them. Corrections are kept in the project and can be undone.
 - A stretch you do not want in the video: pick it the same way and press **Cut video**. It becomes
   a cut on the Timeline (see 10); the data itself stays whole, as the video file still holds that part.

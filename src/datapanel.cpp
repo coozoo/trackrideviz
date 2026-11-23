@@ -166,6 +166,8 @@ public:
     std::function<void(double)> seek;
     std::function<void(const QString &)> laneClicked;
     std::function<void()> selectionChanged;
+    // a click (start == end) or a stretch picked on the chart, data time: for the table to show it
+    std::function<void(double, double)> picked;
 
     void setLanes(const QVector<Lane> &lanes, double duration, const QVector<DataEdit> &edits)
     {
@@ -263,44 +265,62 @@ protected:
             {
                 laneClicked(m_lanes.at(lane).id);
             }
+        m_pressX = event->position().x();
+        m_pressLane = lane;
         if ((event->modifiers() & Qt::ShiftModifier) && lane >= 0)
             {
-                m_selecting = true;
-                m_selection = m_lanes.at(lane).id;
-                m_selectFrom = m_selectTo = t;
-                update();
+                startSelecting(t);
                 return;
             }
         if (seek)
             {
                 seek(t);
             }
+        if (picked)
+            {
+                picked(t, t);
+            }
     }
 
     void mouseMoveEvent(QMouseEvent *event) override
     {
         m_hoverX = int(event->position().x());
+        // a drag over a channel picks a stretch of it, as Shift+drag does
+        if (!m_selecting && (event->buttons() & Qt::LeftButton) && m_pressLane >= 0
+                && std::abs(event->position().x() - m_pressX) >= kDragPixels)
+            {
+                startSelecting(std::clamp(timeOf(m_pressX), 0.0, m_duration));
+            }
         if (m_selecting)
             {
                 m_selectTo = std::clamp(timeOf(event->position().x()), 0.0, m_duration);
-            }
-        else if ((event->buttons() & Qt::LeftButton) && seek)
-            {
-                seek(std::clamp(timeOf(event->position().x()), 0.0, m_duration));
             }
         update();
     }
 
     void mouseReleaseEvent(QMouseEvent *) override
     {
+        m_pressLane = -1;
         if (m_selecting)
             {
                 m_selecting = false;
+                if (picked && m_selectTo != m_selectFrom)
+                    {
+                        picked(std::min(m_selectFrom, m_selectTo), std::max(m_selectFrom, m_selectTo));
+                    }
                 if (selectionChanged)
                     {
                         selectionChanged();
                     }
             }
+    }
+
+    void startSelecting(double t)
+    {
+        m_selecting = true;
+        m_selection = m_lanes.at(m_pressLane).id;
+        m_selectFrom = m_selectTo = t;
+        update();
     }
 
     void leaveEvent(QEvent *) override
@@ -581,6 +601,9 @@ private:
     double m_time{0.0};
     int m_hoverX{-1};
     bool m_selecting{false};
+    static constexpr double kDragPixels = 4.0;  // a press that moves less is a click
+    double m_pressX{0.0};
+    int m_pressLane{-1};
     QString m_selection;     // the lane's channel
     double m_selectFrom{0.0};
     double m_selectTo{0.0};
@@ -644,10 +667,11 @@ DataPanel::DataPanel(QWidget *parent)
 
     m_chart = new DataChart(this);
     m_chart->setToolTip(tr("Click to go there, wheel to zoom (Shift+wheel: move).\n"
-                           "Shift+drag over a channel picks samples to take out."));
+                           "Drag over a channel to pick samples; the table shows them."));
     m_chart->seek = [this](double t) { emit seekRequested(t); };
     m_chart->laneClicked = [this](const QString &id) { showTableOf(id); };
     m_chart->selectionChanged = [this]() { updateButtons(); };
+    m_chart->picked = [this](double start, double end) { showInTable(start, end); };
 
     m_model = new DataTableModel(this);
     m_table = new QTableView(this);
@@ -773,6 +797,37 @@ void DataPanel::setSmoothing(double seconds)
     m_smoothing = seconds;
     ChartSmoothing::select(m_smoothingCombo, seconds);
     updateCharts();
+}
+
+void DataPanel::showInTable(double start, double end)
+{
+    const Channel *channel = m_model->channel();
+    if (!channel || channel->isEmpty())
+        {
+            return;
+        }
+    const QVector<double> times = [channel]()
+    {
+        QVector<double> result(channel->count());
+        for (int i = 0; i < channel->count(); ++i)
+            {
+                result[i] = channel->timeAt(i);
+            }
+        return result;
+    }();
+    int first = int(std::lower_bound(times.cbegin(), times.cend(), start) - times.cbegin());
+    int last = int(std::upper_bound(times.cbegin(), times.cend(), end) - times.cbegin()) - 1;
+    if (start == end || last < first)
+        {
+            // a click, or a stretch between two samples: the nearest one
+            const int after = std::min(first, int(times.size()) - 1);
+            const int before = std::max(0, after - 1);
+            first = last = std::abs(times[before] - start) < std::abs(times[after] - start) ? before : after;
+        }
+    // the chart's stretch stays what is picked; the table only shows it
+    const QItemSelection rows(m_model->index(first, 0), m_model->index(last, m_model->columnCount() - 1));
+    m_table->selectionModel()->select(rows, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    m_table->scrollTo(m_model->index(first, 0), QAbstractItemView::PositionAtCenter);
 }
 
 void DataPanel::setTime(double time)
