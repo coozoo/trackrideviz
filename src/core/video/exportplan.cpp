@@ -283,8 +283,11 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
         {
             // what the music needs at the start of the export: when it is still to come, how
             // long to wait; when it has begun before, how much of it is gone
+            // music still to come starts at the moment of the video it is put at, which sped up comes
+            // sooner; it plays as it is, sped up or not
+            const double toCome = -soundtrack.musicTime(plan.startTime, cuts);
             const QString musicGraph = music ? SoundtrackMix::music(soundtrack, firstMusicInput,
-                                       -soundtrack.musicTime(plan.startTime, cuts), outputLength, "[mus]") : QString();
+                                       toCome > 0.0 ? toCome / plan.speedUp : toCome, outputLength, "[mus]") : QString();
             if (videoSound)
                 {
                     graph += QString(";%1volume=%2,aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo%3")

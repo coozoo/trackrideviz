@@ -552,7 +552,7 @@ private slots:
                                 "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
                                 "afade=t=in:d=1.000,afade=t=out:st=9.000:d=1.000[m0]"), qPrintable(graph));
         QVERIFY2(graph.contains("[3:a]atrim=start=2.000:end=7.000"), qPrintable(graph));
-        QVERIFY2(graph.contains("[m0][m1]concat=n=2:v=0:a=1,adelay=delays=5000:all=1,volume=0.800,atrim=end=100.000[mus]"),
+        QVERIFY2(graph.contains("[m0][m1]concat=n=2:v=0:a=1,adelay=delays=5000:all=1,asetpts=N/SR/TB,volume=0.800,atrim=end=100.000[mus]"),
                  qPrintable(graph));
         QVERIFY2(graph.contains("[0:a]volume=0.500,"), qPrintable(graph));
         QVERIFY2(graph.contains("[vs][mus]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]"), qPrintable(graph));
@@ -1345,6 +1345,66 @@ private slots:
         QVERIFY(!result.hasAudio);
         // the picture half a second in is the video's at one second
         QVERIFY(difference(frameAt(output, 0.5), frameAt(m_sourceVideo, 1.0), 40, 40) < 20);
+    }
+
+    void exportMusicStartingLater_data()
+    {
+        QTest::addColumn<double>("speedUp");
+        QTest::addColumn<QString>("name");
+        // the music put at 3 s of the 2 s video: after the end, or at 1.5 s of the output at x2
+        QTest::newRow("after the end") << 1.0 << "later.mkv";
+        QTest::newRow("after the end, mp4") << 1.0 << "later.mp4";
+        QTest::newRow("x2") << 2.0 << "later-x2.mkv";
+        QTest::newRow("x2, mp4") << 2.0 << "later-x2.mp4";
+    }
+
+    void exportMusicStartingLater()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        QFETCH(double, speedUp);
+        QFETCH(QString, name);
+        const QString song = m_dir.filePath("song.mp3");
+        if (!QFileInfo::exists(song))
+            {
+                const FfmpegTools::RunResult made = FfmpegTools::run("ffmpeg",
+                {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=440:duration=5", song});
+                QVERIFY(made.started && made.exitCode == 0);
+            }
+        // only the music: the camera's is muted, or left out sped up
+        Soundtrack soundtrack;
+        soundtrack.tracks = {{song, 5.0, 0.2, 0.0}};
+        soundtrack.start = 3.0;
+        soundtrack.fade = 0.5;
+        soundtrack.videoMuted = true;
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        const Overlay overlay = oneGauge();
+        const QString output = m_dir.filePath(name);
+        ExportSettings settings = settingsFor(output);
+        settings.speedUp = speedUp;
+        const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay, {}, soundtrack);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(finished.first().at(1).toString()));
+        // a whole, playable file whose times make sense
+        const FfmpegTools::RunResult decoded = FfmpegTools::run("ffmpeg", {"-v", "error", "-i", output, "-f", "null", "-"});
+        QVERIFY2(decoded.exitCode == 0 && decoded.errorOutput.trimmed().isEmpty(), decoded.errorOutput.constData());
+        const FfmpegTools::RunResult first = FfmpegTools::run("ffprobe", {"-v", "error", "-select_streams", "v", "-show_entries",
+                                             "packet=pts_time", "-read_intervals", "%+#1", "-of", "csv=p=0", output});
+        QVERIFY2(std::fabs(QString::fromLatin1(first.output).trimmed().toDouble()) < 0.1, first.output.constData());
+        const double length = 2.0 / speedUp;
+        QVERIFY2(std::abs(countFrames(output) - int(30 * length)) <= 1, qPrintable(QString::number(countFrames(output))));
+        if (name.endsWith("mp4"))
+            {
+                const QHash<QString, double> durations = streamDurations(output);
+                QVERIFY2(std::fabs(durations.value("audio") - length) < 0.1, qPrintable(QString::number(durations.value("audio"))));
+            }
     }
 
     void exportLeavesOutCuts()
