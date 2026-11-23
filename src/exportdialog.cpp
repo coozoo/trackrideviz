@@ -760,13 +760,18 @@ void ExportDialog::onEncoderChanged()
 
 void ExportDialog::updateEstimate()
 {
+    // also called while the widgets are still being made, by the range's times
+    if (!m_probed)
+        {
+            return;
+        }
     const ExportSettings settings = currentSettings();
     const double start = m_rangeCheck->isChecked() ? settings.start : 0.0;
     const double end = m_rangeCheck->isChecked() ? settings.start + qMax(0.0, settings.duration) : m_info.duration;
     // how long the output plays
     const double length = CutList::keptLength(CutList::kept(m_cuts, start, end)) / qMax(1.0, settings.speedUp);
-    m_speedUpNote->setText(m_probed && settings.isSpedUp() ? tr("the video will be %1 long").arg(formatDuration(length)) : QString());
-    if (!m_probed || !m_bitrateSpin->isVisible() || gaugesOnly())
+    m_speedUpNote->setText(settings.isSpedUp() ? tr("the video will be %1 long").arg(formatDuration(length)) : QString());
+    if (!m_bitrateSpin->isVisible() || gaugesOnly())
         {
             m_rateNote->clear();
             return;
