@@ -42,6 +42,7 @@
             "valign": "center"
         },
         {
+            "byDistance": true,
             "color": "accent",
             "fillAlpha": 80,
             "frame": [

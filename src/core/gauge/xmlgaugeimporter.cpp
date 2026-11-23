@@ -844,9 +844,10 @@ private:
                 c.fillColor = QColor(fill.red(), fill.green(), fill.blue());
             }
         const bool byTime = e.string("xAxisType", "Time (Seconds)").startsWith("Time");
-        if (!byTime)
+        c.byDistance = !byTime;
+        if (!byTime && !e.flag("xScaleAuto", true))
             {
-                warn(XmlGaugeImporter::tr("a chart over distance is drawn over time"));
+                warn(XmlGaugeImporter::tr("a chart's stretch of the distance shows all of it"));
             }
         if (!e.flag("xScaleAuto", true) && byTime)
             {

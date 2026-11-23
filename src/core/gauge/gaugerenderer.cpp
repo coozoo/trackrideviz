@@ -565,6 +565,11 @@ BoundGauge::BoundGauge(const Gauge &gauge, const QString &channel, const Telemet
             m_lon = m_session->channel(ChannelId::PositionLon);
             m_heading = m_session->channel(ChannelId::Heading);
             m_speed = m_session->channel(ChannelId::Speed);
+            m_distance = m_session->channel(ChannelId::Distance);
+            if (m_distance && m_distance->count() < 2)
+                {
+                    m_distance = nullptr;
+                }
             if (!m_lat || !m_lon || m_lat->isEmpty())
                 {
                     m_lat = m_lon = nullptr;
@@ -948,6 +953,45 @@ BoundGauge::Node BoundGauge::bind(const GaugeComponent &component, const Units &
 
 // --- preparation, once per binding ---------------------------------------
 
+bool BoundGauge::alongDistance(const GaugeComponent &component) const
+{
+    // without a distance (no positions, no speed) the time it is
+    return component.byDistance && m_distance;
+}
+
+double BoundGauge::axisAt(const GaugeComponent &component, double time) const
+{
+    return alongDistance(component) ? m_distance->valueAt(time) : time;
+}
+
+double BoundGauge::timeOnAxis(const GaugeComponent &component, double axis) const
+{
+    if (!alongDistance(component))
+        {
+            return axis;
+        }
+    // the distance only grows: the first sample that far, and the time between it and the one before
+    int low = 0;
+    int high = m_distance->count() - 1;
+    if (axis <= m_distance->valueAtIndex(low))
+        {
+            return m_distance->timeAt(low);
+        }
+    if (axis >= m_distance->valueAtIndex(high))
+        {
+            return m_distance->timeAt(high);
+        }
+    while (high - low > 1)
+        {
+            const int middle = (low + high) / 2;
+            (m_distance->valueAtIndex(middle) < axis ? low : high) = middle;
+        }
+    const double d0 = m_distance->valueAtIndex(low);
+    const double d1 = m_distance->valueAtIndex(high);
+    const double f = d1 > d0 ? (axis - d0) / (d1 - d0) : 0.0;
+    return lerp(m_distance->timeAt(low), m_distance->timeAt(high), f);
+}
+
 void BoundGauge::prepareGraph(Node &node) const
 {
     const Metric &metric = m_metrics.at(node.metric);
@@ -956,15 +1000,22 @@ void BoundGauge::prepareGraph(Node &node) const
             return;
         }
     const QRectF frame = node.component.frame;
-    node.graphT0 = metric.channel->startTime();
-    node.graphT1 = metric.channel->endTime();
+    node.graphT0 = axisAt(node.component, metric.channel->startTime());
+    node.graphT1 = axisAt(node.component, metric.channel->endTime());
+    if (node.graphT1 <= node.graphT0)
+        {
+            // standing still all the way: along the time after all
+            node.component.byDistance = false;
+            node.graphT0 = metric.channel->startTime();
+            node.graphT1 = metric.channel->endTime();
+        }
     const int points = std::clamp(int(frame.width()), 50, kMaxPathPoints);
     QVector<double> values(points);
     double low = INFINITY;
     double high = -INFINITY;
     for (int i = 0; i < points; ++i)
         {
-            const double t = lerp(node.graphT0, node.graphT1, double(i) / (points - 1));
+            const double t = timeOnAxis(node.component, lerp(node.graphT0, node.graphT1, double(i) / (points - 1)));
             values[i] = metric.display.convert(metric.channel->valueAt(t));
             low = std::min(low, values[i]);
             high = std::max(high, values[i]);
@@ -1533,16 +1584,20 @@ void BoundGauge::drawGraph(QPainter &painter, const Node &node, bool known, doub
         {
             // a window that moves along: the line changes with every frame
             const Metric &metric = m_metrics.at(node.metric);
-            const double t0 = time - c.windowBefore;
-            const double t1 = time + c.windowAfter;
+            const double now = axisAt(c, time);
+            const double t0 = now - c.windowBefore;
+            const double t1 = now + c.windowAfter;
             const int points = std::clamp(int(frame.width()), 50, 500);
             QVector<QPointF> line;
             line.reserve(points);
             for (int i = 0; i < points; ++i)
                 {
-                    const double t = lerp(t0, t1, double(i) / (points - 1));
+                    const double a = lerp(t0, t1, double(i) / (points - 1));
+                    // along the distance: nothing before the start or past the end
+                    const bool inside = !alongDistance(c) || (a >= node.graphT0 && a <= node.graphT1);
                     bool ok = false;
-                    const double v = metric.display.convert(metric.channel->valueAt(t, &ok));
+                    const double v = metric.display.convert(metric.channel->valueAt(timeOnAxis(c, a), &ok));
+                    ok = ok && inside;
                     if (ok)
                         {
                             line.append(QPointF(lerp(frame.left(), frame.right(), double(i) / (points - 1)),
@@ -1587,7 +1642,7 @@ void BoundGauge::drawGraph(QPainter &painter, const Node &node, bool known, doub
         {
             return;
         }
-    const double x = lerp(frame.left(), frame.right(), (time - node.graphT0) / (node.graphT1 - node.graphT0));
+    const double x = lerp(frame.left(), frame.right(), (axisAt(c, time) - node.graphT0) / (node.graphT1 - node.graphT0));
     const double y = frame.bottom() - (value - node.graphV0) / (node.graphV1 - node.graphV0) * frame.height();
     drawAt(painter, node.xMarker, QPointF(x, frame.top()), time, context);
     drawAt(painter, node.yMarker, QPointF(frame.left(), y), time, context);

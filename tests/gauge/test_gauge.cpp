@@ -991,6 +991,57 @@ private slots:
         QVERIFY(painted(after, 75, 90));
     }
 
+    void graphAlongTheDistance()
+    {
+        // 10 m/s for 100 s, standing for 100 s, 10 m/s for 100 s; the elevation climbs on the move
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &distance = session->channelForWriting(ChannelId::Distance, "m");
+        Channel &elevation = session->channelForWriting(ChannelId::Elevation, "m");
+        for (int t = 0; t <= 300; ++t)
+            {
+                const double meters = 10.0 * (std::min(t, 100) + std::max(0, t - 200));
+                distance.append(t, meters);
+                elevation.append(t, meters / 20.0);
+            }
+        GaugeComponent graph;
+        graph.type = GaugeComponent::Graph;
+        graph.frame = QRectF(0, 0, 100, 100);
+        graph.lineWidth = 2;
+        graph.color.role = GaugeColor::Foreground;
+        graph.byDistance = true;
+        GaugeComponent dot;
+        dot.type = GaugeComponent::Image;
+        dot.image = filled(Qt::red, 4);
+        dot.frame = QRectF(-2, -2, 4, 4);
+        graph.knob.append(dot);
+        Gauge gauge;
+        gauge.size = QSizeF(100, 100);
+        gauge.components.append(graph);
+
+        // along the distance the climb is one straight line: the stop takes no room
+        const QImage moving = draw(gauge, 50.0, ChannelId::Elevation, session);
+        QCOMPARE(moving.pixelColor(25, 75), QColor(Qt::red));
+        // standing, the marker stands at the middle; over time it would have gone on to a third
+        QCOMPARE(draw(gauge, 100.0, ChannelId::Elevation, session).pixelColor(50, 50), QColor(Qt::red));
+        QCOMPARE(draw(gauge, 150.0, ChannelId::Elevation, session).pixelColor(50, 50), QColor(Qt::red));
+        QCOMPARE(draw(gauge, 250.0, ChannelId::Elevation, session).pixelColor(75, 25), QColor(Qt::red));
+        // a window of 400 m before and after: the point in the middle, the line on both sides
+        graph.windowBefore = 400.0;
+        graph.windowAfter = 400.0;
+        gauge.components = {graph};
+        const QImage window = draw(gauge, 150.0, ChannelId::Elevation, session);
+        QCOMPARE(window.pixelColor(50, 50), QColor(Qt::red));
+        // 800 m (40 m up) at a quarter, 1200 m (60 m up) at three quarters
+        QVERIFY(painted(window, 25, 60));
+        QVERIFY(painted(window, 75, 40));
+        // without a distance in the data: over time, as before
+        graph.windowBefore = graph.windowAfter = 0.0;
+        gauge.components = {graph};
+        auto timeOnly = std::make_shared<TelemetrySession>(*session);
+        timeOnly->removeChannel(ChannelId::Distance);
+        QVERIFY(painted(draw(gauge, 150.0, ChannelId::Elevation, timeOnly), 50, 50));
+    }
+
     void trackMapKeepsTheShapeAndShowsWhereWeAre()
     {
         // north 0..10 s, then east: an L, twice as wide as high in meters
@@ -1656,6 +1707,7 @@ private slots:
         graph.lineWidth = 3.5;
         graph.fillAlpha = 80;
         graph.fillColor = QColor(1, 2, 3);
+        graph.byDistance = true;
         GaugeComponent dot;
         dot.type = GaugeComponent::Image;
         dot.imagePath = "images/dot.png";
@@ -1707,6 +1759,7 @@ private slots:
         QCOMPARE(g.type, GaugeComponent::Graph);
         QCOMPARE(g.lineWidth, 3.5);
         QCOMPARE(g.fillAlpha, 80);
+        QVERIFY(g.byDistance);
         QCOMPARE(g.fillColor, QColor(1, 2, 3));
         QCOMPARE(g.knob.size(), 1);
         QCOMPARE(g.knob[0].imagePath, QString("images/dot.png"));
