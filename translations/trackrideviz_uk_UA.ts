@@ -1194,96 +1194,106 @@ Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped (Ctrl+C keeps a pla
 <context>
     <name>DataPanel</name>
     <message>
-        <location filename="../src/datapanel.cpp" line="121"/>
+        <location filename="../src/datapanel.cpp" line="123"/>
         <source>Taken out</source>
         <translation>Вилучено</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="132"/>
+        <location filename="../src/datapanel.cpp" line="134"/>
         <source>Time</source>
         <translation>Час</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="239"/>
+        <location filename="../src/datapanel.cpp" line="241"/>
         <source>Open data and tick channels to see them</source>
         <translation>Відкрийте дані й позначте канали, щоб їх побачити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="653"/>
+        <location filename="../src/datapanel.cpp" line="655"/>
         <source>Tick the channels to chart</source>
         <translation>Позначте канали для графіків</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="669"/>
+        <location filename="../src/datapanel.cpp" line="671"/>
         <source>Click to go there, wheel to zoom (Shift+wheel: move).
 Drag over a channel to pick samples; the table shows them.</source>
         <translation>Клацніть, щоб перейти туди, коліщатко масштабує (Shift+коліщатко: зсув).
 Протягніть по каналу, щоб вибрати зразки; таблиця їх покаже.</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="683"/>
+        <location filename="../src/datapanel.cpp" line="685"/>
         <source>Double-click a sample to go there; select samples to take them out</source>
         <translation>Двічі клацніть зразок, щоб перейти до нього; виберіть зразки, щоб їх вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="711"/>
+        <location filename="../src/datapanel.cpp" line="713"/>
         <source>Take out</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="711"/>
+        <location filename="../src/datapanel.cpp" line="713"/>
         <source>Leave the picked samples out; the channel is read across the gap</source>
         <translation>Не враховувати вибрані зразки; канал читається через проміжок</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="714"/>
+        <location filename="../src/datapanel.cpp" line="716"/>
         <source>Put back</source>
         <translation>Повернути</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="714"/>
+        <location filename="../src/datapanel.cpp" line="716"/>
         <source>Put back samples taken out in the picked stretch</source>
         <translation>Повернути вилучені зразки у вибраному відрізку</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="717"/>
+        <location filename="../src/datapanel.cpp" line="719"/>
         <source>Cut video</source>
         <translation>Вирізати відео</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="717"/>
+        <location filename="../src/datapanel.cpp" line="719"/>
         <source>Leave the video of the picked stretch out of the export, as a cut on the timeline; the data stays whole</source>
         <translation>Не брати відео вибраного відрізку в експорт, як виріз на шкалі часу; дані лишаються цілими</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="740"/>
+        <location filename="../src/datapanel.cpp" line="734"/>
+        <source>GPS problems</source>
+        <translation>Проблеми GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="734"/>
+        <source>Find gaps, jumps and frozen stretches in the positions, and fix them</source>
+        <translation>Знайти в координатах пропуски, стрибки й завислі відрізки та виправити їх</translation>
+    </message>
+    <message>
+        <location filename="../src/datapanel.cpp" line="758"/>
         <source>Table</source>
         <translation>Таблиця</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="740"/>
+        <location filename="../src/datapanel.cpp" line="758"/>
         <source>Show the samples of the channel last clicked</source>
         <translation>Показати зразки каналу, клацнутого останнім</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="875"/>
+        <location filename="../src/datapanel.cpp" line="904"/>
         <source>%1
 Worked out from the other data</source>
         <translation>%1
 Обчислено з інших даних</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="945"/>
+        <location filename="../src/datapanel.cpp" line="974"/>
         <source>Color of the line</source>
         <translation>Колір лінії</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="1089"/>
+        <location filename="../src/datapanel.cpp" line="1118"/>
         <source>Take out samples</source>
         <translation>Вилучити зразки</translation>
     </message>
     <message>
-        <location filename="../src/datapanel.cpp" line="1103"/>
+        <location filename="../src/datapanel.cpp" line="1132"/>
         <source>Put back samples</source>
         <translation>Повернути зразки</translation>
     </message>
@@ -4016,6 +4026,94 @@ Comes with the program; it cannot be deleted.</source>
             <numerusform>GoPro, %n частини від %1</numerusform>
             <numerusform>GoPro, %n частин від %1</numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>GpsProblemsDialog</name>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="25"/>
+        <source>GPS problems</source>
+        <translation>Проблеми GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="31"/>
+        <source>Time</source>
+        <translation>Час</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="31"/>
+        <source>Problem</source>
+        <translation>Проблема</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="31"/>
+        <source>What it is</source>
+        <translation>Що це</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="44"/>
+        <source>Fix</source>
+        <translation>Виправити</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="45"/>
+        <source>Take the selected wrong positions out: the track goes straight across</source>
+        <translation>Прибрати вибрані хибні координати: трек іде прямо через них</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="47"/>
+        <source>Fix all</source>
+        <translation>Виправити все</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="75"/>
+        <source>Gap</source>
+        <translation>Пропуск</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="76"/>
+        <source>No position for %1 s over %2 m: the track goes straight across</source>
+        <translation>Немає координат %1 s на %2 m: трек іде прямо</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="80"/>
+        <source>Jump</source>
+        <translation>Стрибок</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="81"/>
+        <source>Positions up to %1 m off the way</source>
+        <translation>Координати до %1 m убік від шляху</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="84"/>
+        <source>Frozen</source>
+        <translation>Зависання</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="85"/>
+        <source>The position stood still for %1 s while the speed sensor went on</source>
+        <translation>Координати стояли %1 s, хоча датчик швидкості показував рух</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="100"/>
+        <source>The positions look right: no gaps, jumps or frozen stretches.</source>
+        <translation>Координати виглядають правильно: без пропусків, стрибків і зависань.</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="101"/>
+        <source>Found: %1, to fix: %2. Select one to go there.</source>
+        <translation>Знайдено: %1, виправити: %2. Виберіть, щоб перейти туди.</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="120"/>
+        <source>Fix all GPS problems</source>
+        <translation>Виправити всі проблеми GPS</translation>
+    </message>
+    <message>
+        <location filename="../src/gpsproblemsdialog.cpp" line="120"/>
+        <source>Fix GPS problems</source>
+        <translation>Виправити проблеми GPS</translation>
     </message>
 </context>
 <context>

@@ -57,6 +57,7 @@ SOURCES += \
     $$PWD/telemetry/fit/fitimporter.cpp \
     $$PWD/telemetry/gears.cpp \
     $$PWD/telemetry/gpmfimporter.cpp \
+    $$PWD/telemetry/gpsproblems.cpp \
     $$PWD/telemetry/gpximporter.cpp \
     $$PWD/telemetry/nmeaimporter.cpp \
     $$PWD/telemetry/tcximporter.cpp \
@@ -128,6 +129,7 @@ HEADERS += \
     $$PWD/telemetry/geo.h \
     $$PWD/telemetry/gears.h \
     $$PWD/telemetry/gpmfimporter.h \
+    $$PWD/telemetry/gpsproblems.h \
     $$PWD/telemetry/gpximporter.h \
     $$PWD/telemetry/nmeaimporter.h \
     $$PWD/telemetry/tcximporter.h \
