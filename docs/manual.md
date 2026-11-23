@@ -122,7 +122,7 @@ never replaces a recorded power.
 
 The program reads the recording time from the video (its file name or its own creation time)
 and from the data, and puts them in step by itself; time zones that disagree by whole hours are
-corrected. The status next to **Data offset** says what was found.
+corrected. What was found is shown in the status bar and in the tooltip of **Data offset**.
 
 When it is off:
 
