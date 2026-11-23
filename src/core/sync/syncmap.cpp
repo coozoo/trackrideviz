@@ -18,12 +18,12 @@ double SyncMap::shiftAt(double videoTime) const
 
 double SyncMap::videoTime(double telemetryTime) const
 {
-    // part by part: [start, next start) of video shows [start + offset + shift, ...)
+    // part by part: [start, next start) of video shows [start x rate + offset + shift, ...)
     double start = -1e300;
     double shift = 0.0;
     for (const TimeShift &step : shifts)
         {
-            const double t = telemetryTime - offset - shift;
+            const double t = (telemetryTime - offset - shift) / rate;
             if (t < step.at)
                 {
                     return std::max(t, start);
@@ -31,5 +31,5 @@ double SyncMap::videoTime(double telemetryTime) const
             start = step.at;
             shift = step.shift;
         }
-    return std::max(telemetryTime - offset - shift, start);
+    return std::max((telemetryTime - offset - shift) / rate, start);
 }

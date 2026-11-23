@@ -29,14 +29,17 @@ struct Project
     // files whose channels are added to it, such as a heart-rate strap's
     QVector<DataSource> moreData;
 
-    // telemetry time = video time + syncOffset
+    // telemetry time = video time x syncRate + syncOffset
     double syncOffset{0.0};
+    // a time-lapse video: seconds of the data in one of its seconds; 1 = an ordinary video
+    double syncRate{1.0};
     // false: the offset is whatever automatic sync finds; true: the user's value
     bool syncIsManual{false};
     // a video joined from recordings with breaks between them: each part's shift
     QVector<TimeShift> videoShifts;
 
-    SyncMap sync() const { return SyncMap(syncOffset, videoShifts); }
+    // without a video the data plays on its own clock: no rate
+    SyncMap sync() const { return SyncMap(syncOffset, videoShifts, videoPath.isEmpty() ? 1.0 : syncRate); }
 
     // where laps begin; invalid = the laps the device recorded
     StartFinishLine startFinish;

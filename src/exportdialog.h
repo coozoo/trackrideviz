@@ -126,6 +126,8 @@ private:
     QComboBox *m_audioCombo{nullptr};
     QComboBox *m_audioBitrateCombo{nullptr};
     QCheckBox *m_rangeCheck{nullptr};
+    QDoubleSpinBox *m_speedUpSpin{nullptr};
+    QLabel *m_speedUpNote{nullptr};
     QTimeEdit *m_startEdit{nullptr};
     QTimeEdit *m_endEdit{nullptr};
     QWidget *m_options{nullptr};

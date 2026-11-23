@@ -43,6 +43,22 @@ private slots:
         QCOMPARE(SyncMap(-5.0).videoTime(0.0), 5.0);
     }
 
+    void syncMapOfATimeLapse()
+    {
+        // x10: each second of video is ten of the data
+        const SyncMap sync(30.0, {}, 10.0);
+        QCOMPARE(sync.telemetryTime(0.0), 30.0);
+        QCOMPARE(sync.telemetryTime(6.0), 90.0);
+        QCOMPARE(sync.videoTime(90.0), 6.0);
+        // joined, with a break of 60 s of data after 100 s of video
+        const SyncMap joined(0.0, {{100.0, 60.0}}, 10.0);
+        QCOMPARE(joined.telemetryTime(100.0), 1060.0);
+        QCOMPARE(joined.videoTime(1060.0), 100.0);
+        QCOMPARE(joined.videoTime(1030.0), 100.0);   // in the break
+        // no rate is no time-lapse
+        QCOMPARE(SyncMap(0.0, {}, 0.0).rate, 1.0);
+    }
+
     void fileNames_data()
     {
         QTest::addColumn<QString>("name");

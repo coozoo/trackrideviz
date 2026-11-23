@@ -210,6 +210,7 @@ private:
     QSlider *m_seekSlider{nullptr};
     QLabel *m_timeLabel{nullptr};
     QDoubleSpinBox *m_offsetSpin{nullptr};
+    QDoubleSpinBox *m_rateSpin{nullptr};
     QToolButton *m_autoSyncButton{nullptr};
     QLabel *m_syncLabel{nullptr};
     QLabel *m_sourcesLabel{nullptr};

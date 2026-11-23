@@ -67,6 +67,8 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
         }
     plan.fpsNum = info.fpsNum;
     plan.fpsDen = info.fpsDen;
+    plan.speedUp = settings.isSpedUp() ? settings.speedUp : 1.0;
+    const bool spedUp = plan.speedUp > 1.0;
     plan.startTime = std::clamp(settings.start, 0.0, std::max(0.0, info.duration));
     const double available = std::max(0.0, info.duration - plan.startTime);
     const double length = settings.duration > 0.0 ? std::min(settings.duration, available) : available;
@@ -77,21 +79,23 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
             plan.kept = kept;
         }
     const bool cut = !plan.kept.isEmpty();
-    const double outputLength = cut ? CutList::keptLength(plan.kept) : length;
+    // what is kept of the video, then how long that plays
+    const double keptLength = cut ? CutList::keptLength(plan.kept) : length;
+    const double outputLength = keptLength / plan.speedUp;
     const bool piped = !plan.regions.isEmpty();
     // The output is as long as the shorter of the video and the pictures.
     // The exact count is used when the container gives it; otherwise the
     // estimate is rounded down, because one picture too many would be written
     // into a pipe ffmpeg has already left.
-    const bool wholeVideo = plan.startTime <= 0.0 && settings.duration <= 0.0 && !cut;
+    const bool wholeVideo = plan.startTime <= 0.0 && settings.duration <= 0.0 && !cut && !spedUp;
     const qint64 estimated = std::max<qint64>(1, qint64(std::floor(outputLength * info.fps() + 1e-6)));
     plan.frameCount = !piped ? 0 : wholeVideo && info.frameCount > 0 ? info.frameCount : estimated;
     plan.outputPath = settings.outputPath;
     // the gauges alone: no camera picture and no sound, the gauges on nothing
     const bool gaugesOnly = settings.picture == ExportSettings::GaugesOnly;
     plan.transparent = gaugesOnly;
-    // the video's own sound, unless turned all the way down, and the music
-    const bool videoSound = !gaugesOnly && info.hasAudio && soundtrack.videoGain() > 0.0;
+    // the video's own sound, unless turned all the way down or sped up, and the music
+    const bool videoSound = !gaugesOnly && !spedUp && info.hasAudio && soundtrack.videoGain() > 0.0;
     const bool music = !gaugesOnly && soundtrack.hasMusic() && settings.audio != ExportSettings::NoAudio;
     plan.hasAudio = settings.audio != ExportSettings::NoAudio && (videoSound || music);
     // made anew from the sound and the music, at their volumes
@@ -154,6 +158,13 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
         {
             // what is left closes up: timestamps counted again from the kept frames
             chain << QString("select=%1").arg(keptExpression) << "setpts=N/FRAME_RATE/TB";
+        }
+    if (spedUp)
+        {
+            // played faster, then at the video's own rate again: the frames in between are left out
+            const QString factor = QString::number(plan.speedUp, 'g', 9);
+            chain << (cut ? QString("setpts=PTS/%1").arg(factor) : QString("setpts=(PTS-STARTPTS)/%1").arg(factor))
+                  << QString("fps=%1/%2").arg(plan.fpsNum).arg(plan.fpsDen);
         }
     if (plan.outputSize != info.size)
         {

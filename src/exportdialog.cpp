@@ -238,6 +238,20 @@ void ExportDialog::createWidgets()
     rangeRow->addWidget(m_endEdit);
     rangeRow->addStretch(1);
 
+    m_speedUpSpin = new QDoubleSpinBox(m_options);
+    m_speedUpSpin->setRange(1.0, 1000.0);
+    m_speedUpSpin->setDecimals(1);
+    m_speedUpSpin->setPrefix(QStringLiteral("x"));
+    m_speedUpSpin->setValue(1.0);
+    m_speedUpSpin->setToolTip(tr("Plays this many times faster: a long, slow recording made short. "
+                                 "The camera's sound is left out then; music plays as usual."));
+    connect(m_speedUpSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ExportDialog::updateEstimate);
+    m_speedUpNote = new QLabel(m_options);
+    m_speedUpNote->setEnabled(false); // grayed: information, not a control
+    QHBoxLayout *speedUpRow = new QHBoxLayout;
+    speedUpRow->addWidget(m_speedUpSpin);
+    speedUpRow->addWidget(m_speedUpNote, 1);
+
     QFormLayout *form = new QFormLayout(m_options);
     form->setContentsMargins(0, 0, 0, 0);
     form->addRow(tr("Picture:"), m_pictureCombo);
@@ -253,6 +267,7 @@ void ExportDialog::createWidgets()
     form->addRow(tr("Size:"), m_sizeCombo);
     form->addRow(tr("Sound:"), audioRow);
     form->addRow(tr("Range:"), rangeRow);
+    form->addRow(tr("Faster:"), speedUpRow);
 
     m_progressBar = new QProgressBar(this);
     m_progressBar->setVisible(false);
@@ -745,15 +760,17 @@ void ExportDialog::onEncoderChanged()
 
 void ExportDialog::updateEstimate()
 {
+    const ExportSettings settings = currentSettings();
+    const double start = m_rangeCheck->isChecked() ? settings.start : 0.0;
+    const double end = m_rangeCheck->isChecked() ? settings.start + qMax(0.0, settings.duration) : m_info.duration;
+    // how long the output plays
+    const double length = CutList::keptLength(CutList::kept(m_cuts, start, end)) / qMax(1.0, settings.speedUp);
+    m_speedUpNote->setText(m_probed && settings.isSpedUp() ? tr("the video will be %1 long").arg(formatDuration(length)) : QString());
     if (!m_probed || !m_bitrateSpin->isVisible() || gaugesOnly())
         {
             m_rateNote->clear();
             return;
         }
-    const ExportSettings settings = currentSettings();
-    const double start = m_rangeCheck->isChecked() ? settings.start : 0.0;
-    const double end = m_rangeCheck->isChecked() ? settings.start + qMax(0.0, settings.duration) : m_info.duration;
-    const double length = CutList::keptLength(CutList::kept(m_cuts, start, end));
     const double megabytes = m_bitrateSpin->value() * length / 8.0;
     const QString size = megabytes >= 1000.0 ? tr("about %1 GB").arg(QLocale().toString(megabytes / 1000.0, 'f', 1))
                          : tr("about %1 MB").arg(QLocale().toString(megabytes, 'f', 0));
@@ -801,6 +818,7 @@ ExportSettings ExportDialog::currentSettings() const
     settings.audio = ExportSettings::Audio(m_audioCombo->currentData().toInt());
     settings.audioKbps = m_audioBitrateCombo->currentData().toInt();
     settings.background = m_background.color;
+    settings.speedUp = m_speedUpSpin->value();
     if (m_rangeCheck->isChecked())
         {
             settings.start = toSeconds(m_startEdit->time());

@@ -101,7 +101,7 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
         {"version", kVersion},
         {"video", toStored(project.videoPath, dir)},
         {"data", toStored(project.telemetryPath, dir)},
-        {"sync", QJsonObject{{"offset", project.syncOffset}, {"manual", project.syncIsManual}}},
+        {"sync", QJsonObject{{"offset", project.syncOffset}, {"manual", project.syncIsManual}, {"rate", project.syncRate}}},
         {"overlay", overlay},
         {"theme", project.theme.toJson()},
     };
@@ -271,6 +271,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
     const QJsonObject sync = root.value("sync").toObject();
     loaded.syncOffset = sync.value("offset").toDouble();
     loaded.syncIsManual = sync.value("manual").toBool();
+    loaded.syncRate = std::max(1e-3, sync.value("rate").toDouble(1.0));
     const QJsonArray line = root.value("startFinish").toArray();
     if (line.size() == 4)
         {

@@ -209,7 +209,9 @@ QString describe(const ExportSettings &settings)
                          : QCoreApplication::translate("CommandLine", "%1 kbit/s").arg(settings.bitrateKbps);
     return QCoreApplication::translate("CommandLine", "%1, %2, %3, sound: %4").arg(settings.encoder, rate,
                                             settings.height > 0 ? QCoreApplication::translate("CommandLine", "%1 pixels high").arg(settings.height) : QCoreApplication::translate("CommandLine", "size of the video"),
-                                            word(ExportSettings::AudioWords, settings.audio));
+                                            word(ExportSettings::AudioWords, settings.audio))
+           + (settings.isSpedUp() ? QCoreApplication::translate("CommandLine", ", %1 times faster, without the camera's sound")
+              .arg(settings.speedUp) : QString());
 }
 
 QString hms(double seconds)
@@ -429,6 +431,16 @@ int render(const QCommandLineParser &parser, bool preferOwn)
             project.videoShifts.clear();
         }
 
+    if (parser.isSet("timelapse"))
+        {
+            bool ok = false;
+            project.syncRate = parser.value("timelapse").toDouble(&ok);
+            if (!ok || project.syncRate <= 0.0)
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "--timelapse wants the seconds of data in a second of video, as 10 or 30."), 2);
+                }
+        }
+
     // in step: as given; a project's as saved; otherwise by the clocks, as the window does
     if (parser.isSet("offset"))
         {
@@ -449,7 +461,8 @@ int render(const QCommandLineParser &parser, bool preferOwn)
                 {
                     const QDateTime wallClock = VideoSync::wallClockFromFileName(QFileInfo(project.videoPath).fileName());
                     const int systemUtcOffset = wallClock.isValid() ? QDateTime(wallClock.date(), wallClock.time()).offsetFromUtc() : 0;
-                    const VideoSync::Result result = VideoSync::match(*session, wallClock, info.duration, systemUtcOffset);
+                    // a time-lapse covers its length times its rate of the data
+                    const VideoSync::Result result = VideoSync::match(*session, wallClock, info.duration * project.sync().rate, systemUtcOffset);
                     if (!result.ok)
                         {
                             return fail(QCoreApplication::translate("CommandLine", "The video and the data could not be put in step: %1 Give --offset.")
@@ -569,6 +582,15 @@ int render(const QCommandLineParser &parser, bool preferOwn)
             settings.audio = ExportSettings::NoAudio;
         }
     settings.background = project.background.color;
+    if (parser.isSet("faster"))
+        {
+            bool ok = false;
+            settings.speedUp = parser.value("faster").toDouble(&ok);
+            if (!ok || settings.speedUp < 1.0)
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "--faster wants how many times faster, 1 or more, as 4."), 2);
+                }
+        }
     if (parser.isSet("from") || parser.isSet("to"))
         {
             bool fromOk = true;
@@ -788,6 +810,7 @@ int CommandLine::run()
         {"data", QCoreApplication::translate("CommandLine", "The data: .fit, .gpx, .tcx, .csv, NMEA, VBO, or a GoPro video's own (in place of the project's)."), "file"},
         {"template", QCoreApplication::translate("CommandLine", "The gauges of this template of the library, placed for the video's shape (in place of the project's)."), "name"},
         {"offset", QCoreApplication::translate("CommandLine", "Data time = video time + this many seconds (in place of the synchronization)."), "seconds"},
+        {"timelapse", QCoreApplication::translate("CommandLine", "A time-lapse video: this many seconds of the data in each second of it (10, 30...)."), "factor"},
         {QStringList{"o", "output"}, QCoreApplication::translate("CommandLine", "The file to write; its suffix (.mp4, .mkv, .mov, .webm) is the container. "
                                         "Without it: beside the video, named <video>_overlay.<suffix>."), "file"},
         {QStringList{"y", "overwrite"}, QCoreApplication::translate("CommandLine", "Replace the output file when it is there.")},
@@ -806,6 +829,7 @@ int CommandLine::run()
         {"gauges-only", QCoreApplication::translate("CommandLine", "The gauges alone on a see-through background, for another editor: .mov (ProRes 4444) or .webm.")},
         {"from", QCoreApplication::translate("CommandLine", "Start this many seconds into the video."), "seconds"},
         {"to", QCoreApplication::translate("CommandLine", "End this many seconds into the video."), "seconds"},
+        {"faster", QCoreApplication::translate("CommandLine", "The output plays this many times faster, without the camera's sound (2, 4, 10...)."), "factor"},
         {QStringList{"q", "quiet"}, QCoreApplication::translate("CommandLine", "No progress, only the outcome.")},
         {"verbose", QCoreApplication::translate("CommandLine", "Qt's own messages too, for finding out what goes wrong.")},
     };

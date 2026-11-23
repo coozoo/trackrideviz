@@ -64,6 +64,11 @@ struct ExportSettings
 
     double start{0.0};                  // seconds into the video
     double duration{0.0};               // 0 = to the end
+    // The output plays this many times faster than the video (or the data, without one): a long
+    // slow recording made short. Frames in between are left out; the camera's sound with it, as
+    // sped up it is only noise. Not remembered, like the picture.
+    double speedUp{1.0};
+    bool isSpedUp() const { return speedUp > 1.0 + 1e-9; }
 };
 
 static_assert(std::size(ExportSettings::RateControlWords) == ExportSettings::Bitrate + 1, "a word for every rate control");

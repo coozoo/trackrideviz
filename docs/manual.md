@@ -132,6 +132,11 @@ When it is off:
 
 The data of a GoPro video is already on the video's clock: there is nothing to synchronize.
 
+A **time-lapse** video (a camera's TimeLapse or a phone's hyperlapse) shows many seconds of the
+ride in each of its own. Set **Time-lapse** under the video to the camera's speed-up (x10, x30;
+x1 for an ordinary video): the gauges then run that much faster with the picture. Set it before
+pressing **Auto**, so the clocks are matched over the whole time-lapse.
+
 ## 7. Gauges on the video
 
 - **Add**: drag a gauge from the library onto the picture, or select it and press **Add to
@@ -280,6 +285,9 @@ preview and mixed into the export.
 - **Sound**: copied, converted (AAC, Opus, Vorbis) or left out; mixed with the music when there
   is any.
 - **Range**: only a part of the video.
+- **Faster**: the output plays this many times faster (x2, x4...), so a long, slow recording such as
+  a run becomes a short video; the length it will have is shown next to it. The gauges keep showing
+  the real values of each moment kept. The camera's sound is left out then; music plays as usual.
 
 Stopping an export keeps a playable video of what was done so far; a failed export leaves no
 file.
@@ -354,7 +362,8 @@ trackrideviz --help                                      # every option
 ```
 
 - A project is exported as it was saved. Without one, the video and the data are put in step by
-  their clocks, or by `--offset`.
+  their clocks, or by `--offset`. `--timelapse 10` is for a time-lapse video (ten seconds of the data
+  in each second of it); `--faster 4` makes the output play four times faster.
 - `--background` in place of a video: the gauges over a color, as long as the data. A size, then
   `@` a frame rate (30 if not given) and `,` a color (`#rrggbb`, black if not given, or
   `transparent` for the gauges alone, written as with `--gauges-only`). The file is named after
