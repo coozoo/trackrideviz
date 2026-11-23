@@ -2321,9 +2321,20 @@ void GaugeEditor::fillProperties()
                 }
             else
                 {
-                    addNumber(form, tr("Seconds before now:"), part.windowBefore, 0, 86400, 0, [](Part &p, double v) { p.windowBefore = v; },
-                              tr("Both 0: the whole recording"));
-                    addNumber(form, tr("Seconds after now:"), part.windowAfter, 0, 86400, 0, [](Part &p, double v) { p.windowAfter = v; });
+                    addCheck(form, tr("Along the distance"), part.byDistance, [](Part &p, bool on) { p.byDistance = on; },
+                             tr("Across the distance ridden, not the time: an elevation profile; stops take no room"), true);
+                    if (part.byDistance)
+                        {
+                            addNumber(form, tr("Meters before now:"), part.windowBefore, 0, 1e6, 0, [](Part &p, double v) { p.windowBefore = v; },
+                                      tr("Both 0: the whole recording"));
+                            addNumber(form, tr("Meters after now:"), part.windowAfter, 0, 1e6, 0, [](Part &p, double v) { p.windowAfter = v; });
+                        }
+                    else
+                        {
+                            addNumber(form, tr("Seconds before now:"), part.windowBefore, 0, 86400, 0, [](Part &p, double v) { p.windowBefore = v; },
+                                      tr("Both 0: the whole recording"));
+                            addNumber(form, tr("Seconds after now:"), part.windowAfter, 0, 86400, 0, [](Part &p, double v) { p.windowAfter = v; });
+                        }
                 }
             QLabel *note = new QLabel(part.type == GaugeComponent::TrackMap
                                       ? tr("The parts under it in the list are drawn at the current point, their place counted "

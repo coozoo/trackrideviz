@@ -127,7 +127,7 @@ private:
         QPainterPath line;
         QPainterPath area;
         QColor fill;
-        double graphT0{0.0};
+        double graphT0{0.0};              // the across axis: seconds, or meters along the distance
         double graphT1{1.0};
         double graphV0{0.0};
         double graphV1{1.0};
@@ -153,6 +153,11 @@ private:
     Node bind(const GaugeComponent &component, const Units &units, const GaugeTheme &theme);
     QVector<Node> bindAll(const QVector<GaugeComponent> &components, const Units &units, const GaugeTheme &theme);
     void prepareGraph(Node &node) const;
+    // A graph's across axis: the time, or the distance ridden by then (GaugeComponent::byDistance).
+    bool alongDistance(const GaugeComponent &component) const;
+    double axisAt(const GaugeComponent &component, double time) const;
+    // ... and back: the time at that point of the axis.
+    double timeOnAxis(const GaugeComponent &component, double axis) const;
     void prepareRoutes(Node &node) const;
     void drawTiles(QPainter &painter, const Node &node, int route) const;
     void drawCredit(QPainter &painter, const Node &node) const;
@@ -223,6 +228,7 @@ private:
     const Channel *m_lon{nullptr};
     const Channel *m_heading{nullptr};
     const Channel *m_speed{nullptr};
+    const Channel *m_distance{nullptr};     // for graphs along the distance
     TelemetrySessionPtr m_session;        // keeps the channels alive
     GaugeTheme m_theme;                   // its font, for texts
     QVector<Metric> m_metrics;

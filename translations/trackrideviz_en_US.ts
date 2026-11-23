@@ -3431,47 +3431,68 @@ Worked out from the other data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2324"/>
+        <location filename="../src/gaugeeditor.cpp" line="2334"/>
         <source>Seconds before now:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2325"/>
+        <location filename="../src/gaugeeditor.cpp" line="2329"/>
+        <location filename="../src/gaugeeditor.cpp" line="2335"/>
         <source>Both 0: the whole recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2326"/>
+        <location filename="../src/gaugeeditor.cpp" line="2324"/>
+        <source>Along the distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2325"/>
+        <source>Across the distance ridden, not the time: an elevation profile; stops take no room</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2328"/>
+        <source>Meters before now:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2330"/>
+        <source>Meters after now:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/gaugeeditor.cpp" line="2336"/>
         <source>Seconds after now:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2329"/>
+        <location filename="../src/gaugeeditor.cpp" line="2340"/>
         <source>The parts under it in the list are drawn at the current point, their place counted from it: X 0, Y 0 is the point itself.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2331"/>
+        <location filename="../src/gaugeeditor.cpp" line="2342"/>
         <source>The parts under its headings in the list are drawn where these say, their place counted from there: X 0, Y 0 is the point itself.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2343"/>
+        <location filename="../src/gaugeeditor.cpp" line="2354"/>
         <source>Movement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2343"/>
+        <location filename="../src/gaugeeditor.cpp" line="2354"/>
         <source>Movement %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2348"/>
+        <location filename="../src/gaugeeditor.cpp" line="2359"/>
         <source>Add another movement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/gaugeeditor.cpp" line="2349"/>
+        <location filename="../src/gaugeeditor.cpp" line="2360"/>
         <source>Applied after the ones above: a needle that turns and slides, an arc that fills and turns with the heading</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3479,42 +3500,42 @@ Worked out from the other data</source>
 <context>
     <name>GaugeFile</name>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="731"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="736"/>
         <source>This is not a gauge file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="736"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="741"/>
         <source>This is not a Race Track Visualizer gauge file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="740"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="745"/>
         <source>The gauge was saved by a newer version of the program (file version %1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="758"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="763"/>
         <source>The gauge has no size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="772"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="777"/>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="819"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="824"/>
         <source>Cannot create the folder %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="859"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="864"/>
         <source>Cannot write %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/gaugefile.cpp" line="864"/>
+        <location filename="../src/core/gauge/gaugefile.cpp" line="869"/>
         <source>Cannot write %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7718,47 +7739,47 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="849"/>
-        <source>a chart over distance is drawn over time</source>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="850"/>
+        <source>a chart&apos;s stretch of the distance shows all of it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="858"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="859"/>
         <source>a chart&apos;s fixed value scale is set from the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="862"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="863"/>
         <source>chart axis labels are not drawn</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="920"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="921"/>
         <source>This is not an XML gauge: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="925"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="926"/>
         <source>This is not an XML gauge.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="931"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="932"/>
         <source>Gauge file version %1 is not supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="939"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="940"/>
         <source>The gauge has no size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="964"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="965"/>
         <source>The gauge has nothing in it that can be shown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="979"/>
+        <location filename="../src/core/gauge/xmlgaugeimporter.cpp" line="980"/>
         <source>There is no %1 in %2.</source>
         <translation type="unfinished"></translation>
     </message>

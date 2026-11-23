@@ -273,6 +273,8 @@ Gauge profile()
     graph.lineWidth = 3;
     graph.fillAlpha = 80;
     graph.padding = 4;
+    // a profile: along the distance, stops taking no room
+    graph.byDistance = true;
     // a thin line down from the top at the current time
     const QSizeF lineSize(4, area.height());
     graph.xMarker << image(picture(lineSize, [&](QPainter &p)

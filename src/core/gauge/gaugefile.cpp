@@ -499,6 +499,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
         case GaugeComponent::TrackMap:
         case GaugeComponent::LapMap:
             object["lineWidth"] = c.lineWidth;
+            if (c.byDistance)
+                {
+                    object["byDistance"] = true;
+                }
             if (c.windowBefore > 0.0 || c.windowAfter > 0.0)
                 {
                     object["window"] = QJsonArray{c.windowBefore, c.windowAfter};
@@ -634,6 +638,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     const QJsonArray window = object.value("window").toArray();
     c.windowBefore = window.at(0).toDouble();
     c.windowAfter = window.at(1).toDouble();
+    c.byDistance = object.value("byDistance").toBool();
     c.lineWidth = object.value("lineWidth").toDouble(c.lineWidth);
     c.padding = object.value("padding").toDouble();
     c.rows = std::max(1, object.value("rows").toInt(c.rows));

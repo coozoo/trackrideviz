@@ -322,7 +322,10 @@ struct GaugeComponent
         }
     };
     FlyoverCamera flyoverCamera;
-    // Graph: only this many seconds before and after the current point; 0 = the whole recording
+    // Graph: along the distance ridden rather than the time (an elevation profile): stops take no
+    // room, and the window below is in meters
+    bool byDistance{false};
+    // Graph: only this many seconds (meters) before and after the current point; 0 = the whole recording
     double windowBefore{0.0};
     double windowAfter{0.0};
     // Drawn with their origin at the current point (graph line, map position)

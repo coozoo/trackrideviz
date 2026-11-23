@@ -493,7 +493,10 @@ In order:
   while a recorded speed says over 3 m/s). Jumps and frozen stretches fixed by taking the
   positions out (DataEdit), gaps read straight across; none found again once fixed. Filling along
   the road (routing) later, if wanted
-- Graph gauges over distance as well as time (an elevation profile)
+- ✅ Graph gauges along the distance (2026-11-23, `GaugeComponent::byDistance`, "Along the distance"
+  in the gauge editor): the line sampled along the meters ridden, the marker moving with them (still
+  while standing), a moving window in meters; the bundled Profile gauge along the distance; imported
+  .xml charts over distance now drawn so. Without a distance in the data, over time
 - Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
   database) later
 - Per-lap export: one video per lap, or per chosen lap
