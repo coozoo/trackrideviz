@@ -1,0 +1,101 @@
+{
+    "format": "rtvgauge",
+    "version": 1,
+    "name": "Pace woman",
+    "size": [
+        420,
+        200
+    ],
+    "supportedTypes": [
+        "pace"
+    ],
+    "components": [
+        {
+            "type": "image",
+            "image": "images/face.svg",
+            "frame": [
+                0,
+                0,
+                420,
+                200
+            ],
+            "color": "original"
+        },
+        {
+            "type": "image",
+            "image": "images/runner.svg",
+            "frame": [
+                13,
+                34,
+                1696,
+                140
+            ],
+            "color": "original",
+            "manipulations": [
+                {
+                    "type": "animationStrip",
+                    "frames": 16,
+                    "minFps": 0,
+                    "maxFps": 32.0,
+                    "frameRect": [
+                        13,
+                        34,
+                        106,
+                        140
+                    ],
+                    "minValue": 0,
+                    "maxValue": 240
+                }
+            ],
+            "channel": "cadence"
+        },
+        {
+            "type": "text",
+            "autoText": "label",
+            "frame": [
+                156,
+                52
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 26
+            },
+            "color": "accent2",
+            "align": "left",
+            "valign": "center",
+            "upperCase": true
+        },
+        {
+            "type": "text",
+            "autoText": "value",
+            "frame": [
+                156,
+                124
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 84,
+                "bold": true
+            },
+            "color": "foreground",
+            "align": "left",
+            "valign": "center",
+            "precision": 0
+        },
+        {
+            "type": "text",
+            "autoText": "unit",
+            "frame": [
+                396,
+                150
+            ],
+            "font": {
+                "family": "Barlow Semi Condensed",
+                "size": 28
+            },
+            "color": "foreground",
+            "align": "right",
+            "valign": "center"
+        }
+    ]
+}
