@@ -82,7 +82,9 @@ protected:
                 return false;
             }
         QToolTip::showText(static_cast<QHelpEvent *>(event)->globalPos(),
-                           QStringLiteral("<p>%1</p>").arg(text.toHtmlEscaped()), static_cast<QWidget *>(watched));
+                           // its line breaks kept
+                           QStringLiteral("<p>%1</p>").arg(text.toHtmlEscaped().replace('\n', QStringLiteral("<br>"))),
+                           static_cast<QWidget *>(watched));
         return true;
     }
 

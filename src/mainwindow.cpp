@@ -108,41 +108,6 @@ const char kRepository[] = "https://github.com/coozoo/trackrideviz";
 const char kSupportUkraine[] = "https://github.com/coozoo/trackrideviz#support-ukraine";
 const char kManual[] = "https://github.com/coozoo/trackrideviz/blob/main/docs/manual.md";
 
-// A line of text that never makes the window wider: what does not fit ends in "...", and the
-// whole of it is the tooltip.
-class ElidedLabel : public QLabel
-{
-public:
-    explicit ElidedLabel(QWidget *parent)
-        : QLabel(parent)
-    {
-        setTextFormat(Qt::PlainText);
-        setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-    }
-
-    void setFullText(const QString &text)
-    {
-        m_full = text;
-        setToolTip(text);
-        elide();
-    }
-
-protected:
-    void resizeEvent(QResizeEvent *event) override
-    {
-        QLabel::resizeEvent(event);
-        elide();
-    }
-
-private:
-    void elide()
-    {
-        setText(fontMetrics().elidedText(m_full, Qt::ElideRight, std::max(0, width())));
-    }
-
-    QString m_full;
-};
-
 // Selects all of a line edit's text when it is clicked or tabbed into.
 class SelectAllOnFocus : public QObject
 {
@@ -611,13 +576,10 @@ QWidget *MainWindow::createCentralWidget()
     m_offsetSpin->setSingleStep(0.1);
     m_offsetSpin->setSuffix(tr(" s"));
     m_offsetSpin->setKeyboardTracking(false);
-    m_offsetSpin->setToolTip(tr("Time in the data at the first frame of the video.\n"
-                                "Increase it if the gauges are late compared to the picture."));
     connect(m_offsetSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::onOffsetEdited);
 
     m_autoSyncButton = new QToolButton(central);
     m_autoSyncButton->setText(tr("Auto"));
-    m_autoSyncButton->setToolTip(tr("Set the offset from the recording time of the video and the data"));
     connect(m_autoSyncButton, &QToolButton::clicked, this, [this]()
     {
         m_project.syncIsManual = false;
@@ -640,8 +602,7 @@ QWidget *MainWindow::createCentralWidget()
         m_timelinePanel->setSync(m_project.sync());
     });
 
-    // what the offset is based on can be a long sentence: it must not hold the window wide
-    m_syncLabel = new ElidedLabel(central);
+    showSyncExplanation(QString());
 
     QHBoxLayout *transport = new QHBoxLayout;
     transport->addWidget(m_playButton);
@@ -654,7 +615,7 @@ QWidget *MainWindow::createCentralWidget()
     sync->addWidget(m_autoSyncButton);
     sync->addWidget(new QLabel(tr("Time-lapse:"), central));
     sync->addWidget(m_rateSpin);
-    sync->addWidget(m_syncLabel, 1);
+    sync->addStretch(1);
 
     QVBoxLayout *layout = new QVBoxLayout(central);
     layout->addWidget(m_canvas, 1);
@@ -2521,7 +2482,7 @@ void MainWindow::onOffsetEdited(double seconds)
     setModified(true);
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
-    static_cast<ElidedLabel *>(m_syncLabel)->setFullText(tr("Set by hand."));
+    showSyncExplanation(tr("Set by hand."));
 }
 
 void MainWindow::autoSync()
@@ -2567,7 +2528,21 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
     m_project.syncOffset = seconds;
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
-    static_cast<ElidedLabel *>(m_syncLabel)->setFullText(explanation);
+    showSyncExplanation(explanation);
+}
+
+void MainWindow::showSyncExplanation(const QString &explanation)
+{
+    // what the offset is based on can be a long sentence: in the tooltips, and for a while below
+    const QString offsetTip = tr("Time in the data at the first frame of the video.\n"
+                                 "Increase it if the gauges are late compared to the picture.");
+    const QString autoTip = tr("Set the offset from the recording time of the video and the data");
+    m_offsetSpin->setToolTip(explanation.isEmpty() ? offsetTip : offsetTip + "\n\n" + explanation);
+    m_autoSyncButton->setToolTip(explanation.isEmpty() ? autoTip : autoTip + "\n\n" + explanation);
+    if (!explanation.isEmpty())
+        {
+            statusBar()->showMessage(explanation, 10000);
+        }
 }
 
 void MainWindow::updateTimeLabel()

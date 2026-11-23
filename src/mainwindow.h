@@ -167,6 +167,7 @@ private:
     void setModified(bool modified);
     void updateWindowTitle();
     void setSyncOffset(double seconds, const QString &explanation);
+    void showSyncExplanation(const QString &explanation);
     void updateSourcesInfo();
     // Fills the "now" column of the channel table for the frame on screen.
     // Laps from the project's start/finish line on the recorded session; m_session follows.
@@ -212,7 +213,6 @@ private:
     QDoubleSpinBox *m_offsetSpin{nullptr};
     QDoubleSpinBox *m_rateSpin{nullptr};
     QToolButton *m_autoSyncButton{nullptr};
-    QLabel *m_syncLabel{nullptr};
     QLabel *m_sourcesLabel{nullptr};
     QComboBox *m_elevationCombo{nullptr};
     // heights of the terrain were missing when the data was last worked out
