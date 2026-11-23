@@ -172,9 +172,6 @@ private:
     void cutVideoOfData(double start, double end);
     // File > Save data as...: the data with its corrections, GPX or CSV
     void saveData();
-    // a time-lapse video's speed-up (Project::syncRate)
-    void askTimeLapse();
-    void showTimeLapse();
     void updateSourcesInfo();
     // Fills the "now" column of the channel table for the frame on screen.
     // Laps from the project's start/finish line on the recorded session; m_session follows.
@@ -218,7 +215,6 @@ private:
     QSlider *m_seekSlider{nullptr};
     QLabel *m_timeLabel{nullptr};
     QDoubleSpinBox *m_offsetSpin{nullptr};
-    QAction *m_timeLapseAction{nullptr};
     QToolButton *m_autoSyncButton{nullptr};
     QLabel *m_sourcesLabel{nullptr};
     QComboBox *m_elevationCombo{nullptr};

@@ -472,8 +472,10 @@ In order:
   in the gauge editor, kept in gauges, projects and templates (2026-11-23). A terrain tile on its way
   or refused is no longer looked for on the disk, and a patch with tiles missing is worked out again
   once a second, not for every picture: without terrain a flyover cost seconds a picture
-- ✅ Time factor (2026-11-23): a time-lapse video's speed-up set by hand (**File > Time-lapse video...** x10, x30, `SyncMap::rate`, `--timelapse`; data time = video time x rate + offset; the clock match
-  covers the video's length times the rate), and an export played faster (**Faster** x2, x4 in the
+- ✅ Time factor (2026-11-23): a time-lapse video's speed-up set by hand (`SyncMap::rate`, `--timelapse`
+  only: the File menu's item was taken out again the same day, the gauges racing a video that plays
+  at its own speed being of no use in the window; data time = video time x rate + offset; the clock
+  match covers the video's length times the rate), and an export played faster (**Faster** x2, x4 in the
   export dialog, `ExportSettings::speedUp`, `--faster`: `setpts` and `fps` after the cuts, the frames
   in between left out, each picture's gauges at its own moment, the camera's sound left out, music as
   usual); the same on both engines
