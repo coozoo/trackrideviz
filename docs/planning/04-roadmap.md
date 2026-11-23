@@ -472,7 +472,12 @@ In order:
   in the gauge editor, kept in gauges, projects and templates (2026-11-23). A terrain tile on its way
   or refused is no longer looked for on the disk, and a patch with tiles missing is worked out again
   once a second, not for every picture: without terrain a flyover cost seconds a picture
-- Time factor for timelapse videos, set by hand, and runners' long slow recordings exported sped up
+- ✅ Time factor (2026-11-23): a time-lapse video's speed-up set by hand (**Time-lapse** x10, x30 under
+  the video, `SyncMap::rate`, `--timelapse`; data time = video time x rate + offset; the clock match
+  covers the video's length times the rate), and an export played faster (**Faster** x2, x4 in the
+  export dialog, `ExportSettings::speedUp`, `--faster`: `setpts` and `fps` after the cuts, the frames
+  in between left out, each picture's gauges at its own moment, the camera's sound left out, music as
+  usual); the same on both engines
 - Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
   table, the video cut with them; the edited data saved as GPX, CSV or another format we read
 - Fixing GPS gaps and jumps (tunnels) in the data editor

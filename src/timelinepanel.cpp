@@ -254,7 +254,7 @@ protected:
         else if (m_dragging)
             {
                 // the data follows the mouse: later in the video means a smaller offset
-                const double shift = (event->position().x() - m_pressX) / pixelsPerSecond();
+                const double shift = (event->position().x() - m_pressX) / pixelsPerSecond() * m_sync.rate;
                 if (dragOffset)
                     {
                         dragOffset(std::round((m_pressOffset - shift) * 100.0) / 100.0);
@@ -450,7 +450,7 @@ private:
         const double high = m_traceMax > m_traceMin ? m_traceMax : m_traceMax + 1.0;
         // the line stays while only the playhead moves: worked out again when what it shows,
         // its place or the sync change
-        const TraceKey key{m_traceVersion, area, width(), m_start, m_end, m_sync.offset, m_sync.shifts};
+        const TraceKey key{m_traceVersion, area, width(), m_start, m_end, m_sync.offset, m_sync.rate, m_sync.shifts};
         if (!(key == m_traceKey))
             {
                 m_traceKey = key;
@@ -558,11 +558,12 @@ private:
         double start{0.0};
         double end{0.0};
         double offset{0.0};
+        double rate{1.0};
         QVector<TimeShift> shifts;
         bool operator==(const TraceKey &other) const
         {
             return version == other.version && area == other.area && width == other.width && start == other.start
-                   && end == other.end && offset == other.offset && shifts == other.shifts;
+                   && end == other.end && offset == other.offset && rate == other.rate && shifts == other.shifts;
         }
     };
     quint64 m_traceVersion{1};

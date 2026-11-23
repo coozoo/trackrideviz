@@ -1297,6 +1297,56 @@ private slots:
         QVERIFY(ExportPlan::make("in.mp4", fullHd60(), range, oneGauge(), {{10.0, 20.0}}).kept.isEmpty());
     }
 
+    void planSpedUp()
+    {
+        ExportSettings settings = settingsFor("out.mp4");
+        settings.speedUp = 4.0;
+        const ExportPlan plan = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge());
+        // a quarter of the frames, each four times as far into the video
+        QVERIFY(std::fabs(plan.frameTime(60) - 4.0) < 1e-9);
+        QVERIFY(std::fabs(plan.lengthOf(60) - 1.0) < 1e-9);
+        QCOMPARE(plan.frameCount, ExportPlan::make("in.mp4", fullHd60(), settingsFor("out.mp4"), oneGauge()).frameCount / 4);
+        const QString graph = valueOf(plan.arguments, "-filter_complex");
+        QVERIFY2(graph.contains("setpts=(PTS-STARTPTS)/4,fps=60/1"), qPrintable(graph));
+        // the camera's sound, sped up, is left out
+        QVERIFY(plan.audioMap.isEmpty());
+        // with cuts: what is kept, then sped up
+        const ExportPlan cut = ExportPlan::make("in.mp4", fullHd60(), settings, oneGauge(), {{10.0, 20.0}});
+        QVERIFY(std::fabs(cut.frameTime(150) - 20.0) < 1e-9);    // 2.5 s of the output: 10 s kept
+        const QString cutGraph = valueOf(cut.arguments, "-filter_complex");
+        QVERIFY2(cutGraph.contains("setpts=N/FRAME_RATE/TB,setpts=PTS/4,fps=60/1"), qPrintable(cutGraph));
+    }
+
+    void exportSpedUp()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        const QString output = m_dir.filePath("faster.mp4");
+        const Overlay overlay = oneGauge();
+        ExportSettings settings = settingsFor(output);
+        settings.speedUp = 2.0;
+        const ExportPlan plan = ExportPlan::make(m_sourceVideo, info, settings, overlay);
+        ExportJob job("ffmpeg", plan, overlay, 0.0, nullptr, m_engine);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                 qPrintable(finished.first().at(1).toString()));
+        // 2 s at 30 fps played twice as fast: 1 s, every other frame, still 30 fps, no sound
+        QVERIFY2(std::abs(countFrames(output) - 30) <= 1, qPrintable(QString::number(countFrames(output))));
+        MediaInfo result;
+        QVERIFY(MediaProbe::probe("ffprobe", output, &result));
+        QCOMPARE(result.fps(), 30.0);
+        QVERIFY2(std::fabs(result.duration - 1.0) < 0.1, qPrintable(QString::number(result.duration)));
+        QVERIFY(!result.hasAudio);
+        // the picture half a second in is the video's at one second
+        QVERIFY(difference(frameAt(output, 0.5), frameAt(m_sourceVideo, 1.0), 40, 40) < 20);
+    }
+
     void exportLeavesOutCuts()
     {
         if (m_sourceVideo.isEmpty())

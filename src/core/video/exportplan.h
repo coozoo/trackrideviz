@@ -56,6 +56,7 @@ struct ExportPlan
     // pipe earlier is how an export is stopped with a playable file.
     qint64 frameCount{0};
     double startTime{0.0};      // video time of the first one
+    double speedUp{1.0};        // video seconds in one second of the output (ExportSettings::speedUp)
     // With cuts, the parts of the video that are exported, one after another
     // (video time); empty: all from startTime on.
     QVector<TimeRange> kept;
@@ -69,10 +70,10 @@ struct ExportPlan
     double frameTime(qint64 index) const
     {
         // a video whose rate could not be read is never exported (MediaInfo::isValid); 0 all the same
-        const double into = fpsNum > 0 ? double(index) * fpsDen / fpsNum : 0.0;
+        const double into = fpsNum > 0 ? double(index) * fpsDen / fpsNum * speedUp : 0.0;
         return kept.isEmpty() ? startTime + into : CutList::sourceTime(kept, into);
     }
-    // Length of `frames` pictures in seconds.
+    // Length of `frames` pictures in seconds of the output.
     double lengthOf(qint64 frames) const { return fpsNum > 0 ? double(frames) * fpsDen / fpsNum : 0.0; }
 
     // The ffmpeg command line made of the parts (what `arguments` holds).

@@ -206,6 +206,7 @@ private slots:
         project.telemetryPath = "/rides/2025/data/ride.fit";
         project.syncOffset = 141.25;
         project.syncIsManual = true;
+        project.syncRate = 15.0;
         project.overlay = {item(0.1, 0.2, 0.3), item(0.6, 0.7, 0.15)};
         project.overlay[1].gaugeId = "library:My dial";
         project.overlay[1].channel = "heartRate";
@@ -249,6 +250,7 @@ private slots:
         QCOMPARE(loaded.telemetryPath, project.telemetryPath);
         QCOMPARE(loaded.syncOffset, 141.25);
         QVERIFY(loaded.syncIsManual);
+        QCOMPARE(loaded.syncRate, 15.0);
         QCOMPARE(loaded.overlay, project.overlay);
         QVERIFY(loaded.background == project.background);
         QCOMPARE(loaded.theme, project.theme);
