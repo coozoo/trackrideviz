@@ -896,6 +896,62 @@ class Runner:
         return (math.floor(x0), math.floor(y0), math.ceil(88 * self.k), math.ceil(116 * self.k))
 
 
+class RunnerWoman(Runner):
+    """The same runner as a woman: a slimmer torso with a gentle curve of the chest and the waist
+    drawn in, slimmer arms, a ponytail from the back of the head that swings with the steps.
+    The legs as the runner's, so the two run alike."""
+
+    def arm(self, phase, lift, opacity=None):
+        swing = -28 * math.sin(2 * math.pi * phase)
+        elbow = self.limb(self.SHOULDER, self.UPPER_ARM, swing)
+        hand = self.limb(elbow, self.FOREARM, swing + 95)
+        return f"<path d='M{self.p(self.SHOULDER, lift)} L{self.p(elbow, lift)} L{self.p(hand, lift)}' {self.paint(4.6, opacity)}/>"
+
+    def torso(self, lift):
+        """From the hip to the shoulder: the back straight, the front drawn in at the waist and
+        out at the chest, both gently."""
+        (x0, y0), (x1, y1) = self.HIP, self.SHOULDER
+        dx, dy = x1 - x0, y1 - y0
+        length = math.hypot(dx, dy)
+        # across the torso, towards the front (forwards is +x)
+        nx, ny = -dy / length, dx / length
+        if nx < 0:
+            nx, ny = -nx, -ny
+        half = 5.6
+        back, front = [], []
+        steps = 20
+        for i in range(steps + 1):
+            t = i / steps
+            px, py = x0 + dx * t, y0 + dy * t
+            waist = 1.4 * math.sin(math.pi * min(1.0, t / 0.55)) if t < 0.55 else 0.0
+            chest = 2.2 * math.sin(math.pi * (t - 0.55) / 0.4) if 0.55 <= t <= 0.95 else 0.0
+            back.append((px - nx * half, py - ny * half))
+            front.append((px + nx * (half - waist + chest), py + ny * (half - waist + chest)))
+        d = "M" + " L".join(self.p(q, lift) for q in back + front[::-1]) + " Z"
+        caps = "".join(f"<circle cx='{fmt(self.x + q[0] * self.k)}' cy='{fmt(self.y + (q[1] - lift) * self.k)}' "
+                       f"r='{fmt(half * self.k)}' {theme(self.color)}/>" for q in (self.HIP, self.SHOULDER))
+        return f"<path d='{d}' {theme(self.color)}/>" + caps
+
+    def ponytail(self, phase, lift):
+        """From the back of the head, out and down; it swings up and down with the steps."""
+        swing = 3.0 * math.sin(4 * math.pi * phase)
+        tip = (-9.5, -88 + swing)
+        d = (f"M{self.p((5, -101), lift)} Q{self.p((-4, -103), lift)} {self.p((-8, -96 + swing * 0.5), lift)} "
+             f"Q{self.p((-11, -92 + swing), lift)} {self.p(tip, lift)} "
+             f"Q{self.p((-5, -91 + swing * 0.5), lift)} {self.p((-2, -95), lift)} Q{self.p((1, -97), lift)} {self.p((5, -96), lift)} Z")
+        return (f"<path d='{d}' {theme(self.color)} stroke='@background' stroke-width='{fmt(1.4 * self.k)}' "
+                f"stroke-linejoin='round'/>")
+
+    def stride(self, phase):
+        lift = 2.5 * abs(math.sin(2 * math.pi * phase))
+        head = (11, -95)
+        return (self.leg(phase + 0.5, lift, 0.8) + self.arm(phase + 0.5, lift, 0.8)
+                + self.torso(lift) + self.ponytail(phase, lift)
+                + f"<circle cx='{fmt(self.x + head[0] * self.k)}' cy='{fmt(self.y + (head[1] - lift) * self.k)}' "
+                  f"r='{fmt(7.6 * self.k)}' {theme(self.color)}/>"
+                + self.leg(phase, lift) + self.arm(phase, lift))
+
+
 RUN_STEPS = 16       # pictures of a stride, two steps
 TOP_STEPS = 240      # steps a minute at the strip's fastest
 
@@ -916,7 +972,7 @@ def shoe_icon(gx, gy):
             f"<path d='M{fmt(gx - 13)},{fmt(gy + 8)} L{fmt(gx + 14)},{fmt(gy + 8)}' {stroke('foreground', 2.5)}/>")
 
 
-def run_cluster(name):
+def run_cluster(name, runner_kind=Runner):
     """The ride cluster for a run: the heading on a strip of compass at the top, elevation and
     grade, a runner who leans with the slope and strides with the cadence, the pace large, the
     heart rate under it, cadence and elevation as arcs on the sides, the distance at the bottom."""
@@ -952,7 +1008,7 @@ def run_cluster(name):
 
     # the runner and the road under him lean with the grade
     drawings["road.svg"] = svg(400, 400, f"<path d='M{C - 70},{C + 32} L{C + 70},{C + 32}' {stroke('foreground', 3, 0.6)}/>")
-    runner_drawings, runner_parts = running_figure(Runner(C - 4, C + 31, 0.62), "runner")
+    runner_drawings, runner_parts = running_figure(runner_kind(C - 4, C + 31, 0.62), "runner")
     drawings.update(runner_drawings)
 
     components = [image("face.svg", (0, 0, 400, 400)),
@@ -977,14 +1033,14 @@ def run_cluster(name):
     write(name, (400, 400), components, drawings, ["pace"])
 
 
-def pace_readout(name):
+def pace_readout(name, runner_kind=Runner):
     """The pace large, its name above it and a runner striding with the cadence beside it."""
     w, h = 420, 200
     body = (f"<rect x='4' y='4' width='{w - 8}' height='{h - 8}' rx='26' fill='@background' fill-opacity='0.6'/>"
             f"<rect x='4' y='4' width='{w - 8}' height='{h - 8}' rx='26' {stroke('accent2', 3, 0.6)}/>"
             f"<path d='M136,36 L136,{h - 36}' {stroke('foreground', 2, 0.25)}/>")
     drawings = {"face.svg": svg(w, h, body)}
-    runner_drawings, runner_parts = running_figure(Runner(66, 166, 1.2), "runner")
+    runner_drawings, runner_parts = running_figure(runner_kind(66, 166, 1.2), "runner")
     drawings.update(runner_drawings)
     components = [image("face.svg", (0, 0, w, h))] + runner_parts + [
         text("label", (156, 52), 26, "accent2", align="left", upperCase=True),
@@ -2482,7 +2538,9 @@ def main():
     g_plot("G-plot")
     lean_angle("Lean angle")
     run_cluster("Run cluster")
+    run_cluster("Run cluster woman", RunnerWoman)
     pace_readout("Pace")
+    pace_readout("Pace woman", RunnerWoman)
     side_arc("Side arc right", "right")
     side_arc("Side arc left", "left")
     crown_arc("Crown arc")
