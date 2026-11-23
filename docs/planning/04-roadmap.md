@@ -494,8 +494,10 @@ In order:
   the road (routing) later, if wanted
 - ✅ Graph gauges along the distance (2026-11-23, `GaugeComponent::byDistance`, "Along the distance"
   in the gauge editor): the line sampled along the meters ridden, the marker moving with them (still
-  while standing), a moving window in meters; the bundled Profile gauge along the distance; imported
-  .xml charts over distance now drawn so. Without a distance in the data, over time
+  while standing), a moving window in meters; chosen per gauge on the video too ("Graph along the
+  distance" in its menu, kept in projects and templates); over time stays the usual, the bundled
+  Profile gauge included; imported .xml charts over distance now drawn so. Without a distance in the
+  data, over time
 - Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
   database) later
 - Per-lap export: one video per lap, or per chosen lap

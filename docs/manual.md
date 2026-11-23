@@ -319,8 +319,8 @@ In the library, **New gauge...** starts an empty gauge and **Edit...** opens the
 - **Movements** make a part follow a value: turn, fill, slide, a ball moved by two values
   (g-forces, with a fading trail), a picture strip. A part can have several, applied in order.
 - Fills can fade to another color along a line; texts can sit in a box and wrap.
-- A graph runs over the time, or **along the distance** (an elevation profile: stops take no room,
-  and a moving window is in meters). The bundled **Profile** gauge goes along the distance.
+- A graph runs over the time, or **along the distance** (stops take no room, and a moving window is
+  in meters). On the video, right-click a gauge with a graph: **Graph along the distance**.
 - Pick several parts with Ctrl or Shift to move them together and line them up.
 - Undo and redo work in the editor too.
 
