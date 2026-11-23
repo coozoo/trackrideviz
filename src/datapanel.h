@@ -33,6 +33,8 @@ public:
     void setEdits(const QVector<DataEdit> &edits);
     // telemetry time on screen
     void setTime(double time);
+    // whether there is a video to cut what is picked out of
+    void setCanCutVideo(bool can);
     // seconds charts are smoothed over; 0 = not
     void setSmoothing(double seconds);
 
@@ -42,6 +44,8 @@ signals:
     void smoothingChanged(double seconds);
     // The stretch of time picked in the chart or the table; none when `end` is not after `start`.
     void stretchPicked(double start, double end);
+    // the video between these moments of the data is to be left out of the export
+    void cutVideoRequested(double start, double end);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -64,6 +68,8 @@ private:
     QTableView *m_table{nullptr};
     DataTableModel *m_model{nullptr};
     QToolButton *m_removeButton{nullptr};
+    QToolButton *m_cutVideoButton{nullptr};
+    bool m_canCutVideo{false};
     QToolButton *m_restoreButton{nullptr};
     QToolButton *m_tableButton{nullptr};
     QComboBox *m_smoothingCombo{nullptr};

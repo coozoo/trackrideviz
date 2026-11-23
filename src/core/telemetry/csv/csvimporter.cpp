@@ -953,7 +953,33 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
     const Column *lapValues = nullptr;
     const ColumnTime *timeOfDay = nullptr;
     const ColumnTime *dateOnly = nullptr;
+    // "*": every column no other mapping takes is the channel it is named after, in the unit
+    // channels store (the files this program saves)
+    QVector<DataProfile::Mapping> mappings;
     for (const DataProfile::Mapping &m : profile.mappings)
+        {
+            if (m.column != QLatin1String("*"))
+                {
+                    mappings.append(m);
+                    continue;
+                }
+            for (const QString &name : names)
+                {
+                    const bool taken = std::any_of(profile.mappings.cbegin(), profile.mappings.cend(),
+                                                   [&name](const DataProfile::Mapping &other)
+                    {
+                        return other.column != QLatin1String("*") && findColumn({name}, other) == 0;
+                    });
+                    if (!taken && !name.isEmpty())
+                        {
+                            DataProfile::Mapping own;
+                            own.column = name;
+                            own.channel = name;
+                            mappings.append(own);
+                        }
+                }
+        }
+    for (const DataProfile::Mapping &m : mappings)
         {
             const int index = findColumn(available, m);
             if (index < 0)

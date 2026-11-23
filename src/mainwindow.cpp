@@ -36,6 +36,7 @@
 #include "telemetry/gears.h"
 #include "weather/weather.h"
 #include "telemetry/telemetryimporter.h"
+#include "telemetry/telemetrywriter.h"
 #include "updater.h"
 #include "videocanvas.h"
 
@@ -642,6 +643,7 @@ void MainWindow::createDocks()
         m_lapsPanel->setHighlight(start, end);
     });
     connect(m_dataPanel, &DataPanel::editsChanged, this, &MainWindow::setDataEdits);
+    connect(m_dataPanel, &DataPanel::cutVideoRequested, this, &MainWindow::cutVideoOfData);
     // one smoothing for all charts
     connect(m_dataPanel, &DataPanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
     connect(m_dataPanel, &DataPanel::smoothingChanged, m_comparePanel, &LapComparePanel::setSmoothing);
@@ -860,6 +862,9 @@ void MainWindow::createMenus()
     m_dataSourcesAction = fileMenu->addAction(tr("Add data from other &files..."), this, &MainWindow::editDataSources);
     m_dataSourcesAction->setEnabled(false);
     m_dataSourcesAction->setIcon(Icons::named("list-add"));
+    m_saveDataAction = fileMenu->addAction(tr("Save data as..."), this, &MainWindow::saveData);
+    m_saveDataAction->setToolTip(tr("The data with its corrections, as GPX or CSV"));
+    m_saveDataAction->setEnabled(false);
     fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
     m_timeLapseAction = fileMenu->addAction(QString(), this, &MainWindow::askTimeLapse);
     m_timeLapseAction->setToolTip(tr("The video is a time-lapse: the gauges run as much faster as it does"));
@@ -1303,6 +1308,7 @@ void MainWindow::openProject(const QString &path)
     m_rawSession.reset();
     m_mainSession.reset();
     m_dataSourcesAction->setEnabled(false);
+    m_saveDataAction->setEnabled(false);
     m_dataPanel->setSessions(nullptr, nullptr, m_units);
     m_lapsPanel->setSession(nullptr, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSurfaces(m_project.surfaces);
@@ -2376,6 +2382,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
         }
     m_project.telemetryPath = path;
     m_dataSourcesAction->setEnabled(true);
+    m_saveDataAction->setEnabled(true);
     if (m_pendingRecentData)
         {
             m_pendingRecentData = false;
@@ -2565,6 +2572,7 @@ void MainWindow::updateTimeLabel()
 void MainWindow::updateSourcesInfo()
 {
     showTimeLapse();
+    m_dataPanel->setCanCutVideo(!m_project.videoPath.isEmpty());
     QStringList lines;
     if (m_project.videoPath.isEmpty() && m_project.background.isOn())
         {
@@ -2803,6 +2811,55 @@ void MainWindow::setCuts(const QVector<TimeRange> &cuts, const QString &descript
         m_timelinePanel->setCuts(m_project.cuts);
         m_musicPanel->setCuts(m_project.cuts);
     }));
+}
+
+void MainWindow::cutVideoOfData(double start, double end)
+{
+    // the moments of the data where the video shows them, within it
+    const SyncMap sync = m_project.sync();
+    const double duration = m_playback->duration() / 1000.0;
+    const TimeRange range{std::clamp(sync.videoTime(start), 0.0, duration), std::clamp(sync.videoTime(end), 0.0, duration)};
+    if (range.length() <= 0.0)
+        {
+            statusBar()->showMessage(tr("The video does not show that part of the data."), 5000);
+            return;
+        }
+    setCuts(CutList::added(m_project.cuts, range), tr("Cut the video"));
+}
+
+void MainWindow::saveData()
+{
+    if (!m_rawSession)
+        {
+            return;
+        }
+    QSettings settings;
+    const QFileInfo data(m_project.telemetryPath);
+    const QString startDir = settings.value("paths/savedData", data.absolutePath()).toString();
+    QString filter = tr("GPX track (*.gpx)");
+    const QString path = QFileDialog::getSaveFileName(this, tr("Save data"),
+                         QDir(startDir).filePath(data.completeBaseName() + "_edited.gpx"),
+                         tr("GPX track (*.gpx)") + ";;" + tr("CSV, every channel (*.csv)"), &filter);
+    if (path.isEmpty())
+        {
+            return;
+        }
+    settings.setValue("paths/savedData", QFileInfo(path).absolutePath());
+    // the chosen type when the name has no suffix of its own
+    QString target = path;
+    if (QFileInfo(path).suffix().isEmpty())
+        {
+            target += filter.contains("csv") ? ".csv" : ".gpx";
+        }
+    // as recorded, with the corrections: what is worked out from it is worked out again on reading
+    const TelemetrySessionPtr edited = DataEdits::apply(m_rawSession, m_project.dataEdits);
+    QString error;
+    if (!TelemetryWriter::save(*edited, target, &error))
+        {
+            QMessageBox::warning(this, tr("Save data"), tr("Could not save %1: %2").arg(QFileInfo(target).fileName(), error));
+            return;
+        }
+    statusBar()->showMessage(tr("Saved %1").arg(QDir::toNativeSeparators(target)), 5000);
 }
 
 void MainWindow::setSoundtrack(const Soundtrack &soundtrack, const QString &description)

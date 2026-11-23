@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/dataprofiles">
+        <file>RaceTrackVisualizer.json</file>
         <file>TrackAddict.json</file>
     </qresource>
 </RCC>

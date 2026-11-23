@@ -10,6 +10,7 @@
 #include "telemetry/vboimporter.h"
 #include "telemetry/tcximporter.h"
 #include "telemetry/telemetryimporter.h"
+#include "telemetry/telemetrywriter.h"
 #include "video/videojoin.h"
 
 #include <QTemporaryDir>
@@ -20,6 +21,7 @@ class TestGpx : public QObject
 
 private slots:
     void basicTrackWithExtensions();
+    void savedDataReadsBack();
     void derivesSpeedAndDistance();
     void joinsSegmentsAndTracks();
     void utf8BomAndFractionalSeconds();
@@ -654,6 +656,67 @@ void TestGpx::strayTimesAreLeftOut()
     QVERIFY(session->warnings().join(' ').contains("away from the rest"));
     // worked out second by second without going through 56 years
     QVERIFY(TelemetryImporter::load(file.fileName()));
+}
+
+// What is saved is what is read again: GPX with its extensions, CSV with every channel.
+void TestGpx::savedDataReadsBack()
+{
+    auto session = std::make_shared<TelemetrySession>();
+    session->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(7, 47, 10), QTimeZone::UTC));
+    Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+    Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+    Channel &ele = session->channelForWriting(ChannelId::Elevation, "m");
+    Channel &hr = session->channelForWriting(ChannelId::HeartRate, "bpm");
+    Channel &power = session->channelForWriting(ChannelId::Power, "W");
+    Channel &own = session->channelForWriting("dev.Core Temperature", "");
+    for (int i = 0; i < 10; ++i)
+        {
+            lat.append(i, 50.4501 + i * 1e-4);
+            lon.append(i, 30.5234 + i * 1e-4);
+            ele.append(i, 150.0 + i * 0.5);
+            hr.append(i, 120 + i);
+            power.append(i, 200 + 10 * i);
+        }
+    // a channel of its own rate, between the others' samples
+    own.append(0.5, 37.1);
+    own.append(4.25, 37.4);
+
+    QTemporaryDir dir;
+    QString error;
+    const QString gpxPath = dir.filePath("saved.gpx");
+    QVERIFY2(TelemetryWriter::save(*session, gpxPath, &error), qPrintable(error));
+    const TelemetrySessionPtr gpx = TelemetryImporter::loadRecorded(gpxPath, &error);
+    QVERIFY2(gpx, qPrintable(error));
+    QCOMPARE(gpx->startUtc(), session->startUtc());
+    QCOMPARE(gpx->channel(ChannelId::PositionLat)->count(), 10);
+    QCOMPARE(gpx->channel(ChannelId::PositionLat)->valueAt(3.0), 50.4504);
+    QCOMPARE(gpx->channel(ChannelId::Elevation)->valueAt(9.0), 154.5);
+    QCOMPARE(gpx->channel(ChannelId::HeartRate)->valueAt(5.0), 125.0);
+    QCOMPARE(gpx->channel(ChannelId::Power)->valueAt(2.0), 220.0);
+
+    const QString csvPath = dir.filePath("saved.csv");
+    QVERIFY2(TelemetryWriter::save(*session, csvPath, &error), qPrintable(error));
+    const TelemetrySessionPtr csv = TelemetryImporter::loadRecorded(csvPath, &error);
+    QVERIFY2(csv, qPrintable(error));
+    QCOMPARE(csv->startUtc(), session->startUtc());
+    for (const QString &id : session->channelIds())
+        {
+            const Channel *before = session->channel(id);
+            const Channel *after = csv->channel(id);
+            QVERIFY2(after, qPrintable(id));
+            QCOMPARE(after->count(), before->count());
+            for (int i = 0; i < before->count(); ++i)
+                {
+                    QCOMPARE(after->timeAt(i), before->timeAt(i));
+                    QCOMPARE(after->valueAtIndex(i), before->valueAtIndex(i));
+                }
+        }
+
+    // nothing to put on a track
+    auto noPositions = std::make_shared<TelemetrySession>();
+    noPositions->channelForWriting(ChannelId::HeartRate, "bpm").append(0.0, 100.0);
+    QVERIFY(!TelemetryWriter::save(*noPositions, dir.filePath("none.gpx"), &error));
+    QVERIFY(!error.isEmpty());
 }
 
 QTEST_APPLESS_MAIN(TestGpx)

@@ -690,6 +690,21 @@ DataPanel::DataPanel(QWidget *parent)
     m_restoreButton = button(tr("Put back"), tr("Put back samples taken out in the picked stretch"));
     m_restoreButton->setIcon(Icons::named("edit-undo"));
     connect(m_restoreButton, &QToolButton::clicked, this, &DataPanel::restoreSelected);
+    m_cutVideoButton = button(tr("Cut video"), tr("Leave the video of the picked stretch out of the export, "
+                                                  "as a cut on the timeline; the data stays whole"));
+    m_cutVideoButton->setIcon(Icons::named("media-skip-forward"));
+    connect(m_cutVideoButton, &QToolButton::clicked, this, [this]()
+    {
+        QString channel;
+        double start = 0.0;
+        double end = 0.0;
+        if (selection(&channel, &start, &end))
+            {
+                m_chart->clearSelection();
+                m_table->clearSelection();
+                emit cutVideoRequested(start, end);
+            }
+    });
     m_smoothingCombo = ChartSmoothing::makeCombo(this);
     m_smoothing = ChartSmoothing::saved();
     connect(m_smoothingCombo, QOverload<int>::of(&QComboBox::activated), this, [this]()
@@ -706,6 +721,7 @@ DataPanel::DataPanel(QWidget *parent)
     QHBoxLayout *tools = new QHBoxLayout;
     tools->addWidget(m_removeButton);
     tools->addWidget(m_restoreButton);
+    tools->addWidget(m_cutVideoButton);
     tools->addStretch(1);
     tools->addWidget(m_smoothingCombo);
     tools->addWidget(m_tableButton);
@@ -991,8 +1007,15 @@ void DataPanel::updateButtons()
     double end = 0.0;
     const bool picked = selection(&channel, &start, &end);
     m_removeButton->setEnabled(picked);
+    m_cutVideoButton->setEnabled(picked && m_canCutVideo);
     emit stretchPicked(picked ? start : 0.0, picked ? end : 0.0);
     m_restoreButton->setEnabled(picked && DataEdits::restored(m_edits, channel, start, end).size() != m_edits.size());
+}
+
+void DataPanel::setCanCutVideo(bool can)
+{
+    m_canCutVideo = can;
+    updateButtons();
 }
 
 void DataPanel::removeSelected()

@@ -224,6 +224,12 @@ click to go there.
 - A GPS jump or a spike: pick it with **Shift+drag** on the chart, or select samples in the
   **Table**, and press **Take out**. Latitude and longitude go together; speed, distance, grade and
   laps follow. **Put back** returns them. Corrections are kept in the project and can be undone.
+- A stretch you do not want in the video: pick it the same way and press **Cut video**. It becomes
+  a cut on the Timeline (see 10); the data itself stays whole, as the video file still holds that part.
+- **File > Save data as...** saves the data with its corrections: **GPX** (the track with heights and
+  times, heart rate, cadence, power, temperature and speed) for sport sites and other programs, or
+  **CSV** with every channel and every sample, which this program opens again as it was. Video cuts
+  do not change the saved data; laps are not saved.
 - One **smoothing** setting (none, 2, 5 or 15 s) applies to the Data, Timeline and Compare laps
   charts; it changes the drawing only, not the data.
 

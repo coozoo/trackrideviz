@@ -477,8 +477,12 @@ In order:
   export dialog, `ExportSettings::speedUp`, `--faster`: `setpts` and `fps` after the cuts, the frames
   in between left out, each picture's gauges at its own moment, the camera's sound left out, music as
   usual); the same on both engines
-- Data editor as a full editor: rows cut in the table, or a range picked on the graph and shown in the
-  table, the video cut with them; the edited data saved as GPX, CSV or another format we read
+- ✅ Data editor, first part (2026-11-23): **Cut video** in the Data panel makes the stretch picked on
+  the chart or in the table a cut of the video (at the video's moments, time-lapse included), the data
+  staying whole for the sync; **File > Save data as...** writes the data with its corrections as GPX
+  (track, heights, times; heart rate, cadence, power, temperature, speed in the extensions) or CSV
+  (every channel, every sample, the clock; read back by the built-in "Race Track Visualizer" data
+  profile, whose "*" takes every column by its name) (`TelemetryWriter`). Laps are not saved
 - Fixing GPS gaps and jumps (tunnels) in the data editor
 - Graph gauges over distance as well as time (an elevation profile)
 - Reference lap: a gauge of time ahead or behind the ride's best lap; other rides' laps (a track
