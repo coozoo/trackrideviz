@@ -57,6 +57,8 @@ private:
     void removeSelected();
     void restoreSelected();
     void updateButtons();
+    // selects the table's rows of start..end (data time); a single moment: the nearest row
+    void showInTable(double start, double end);
     // The color a channel's line has: the user's, or one of its own to start with.
     QColor colorOf(const QString &channelId) const;
     void chooseColor(const QString &channelId);
