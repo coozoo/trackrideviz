@@ -168,6 +168,10 @@ private:
     void updateWindowTitle();
     void setSyncOffset(double seconds, const QString &explanation);
     void showSyncExplanation(const QString &explanation);
+    // the data panel's picked stretch (data time) as a cut of the video
+    void cutVideoOfData(double start, double end);
+    // File > Save data as...: the data with its corrections, GPX or CSV
+    void saveData();
     // a time-lapse video's speed-up (Project::syncRate)
     void askTimeLapse();
     void showTimeLapse();
@@ -223,6 +227,7 @@ private:
     QTreeWidget *m_channelTree{nullptr};
     QAction *m_exportAction{nullptr};
     QAction *m_dataSourcesAction{nullptr};
+    QAction *m_saveDataAction{nullptr};
     GaugeLibraryPanel *m_libraryPanel{nullptr};
     LapsPanel *m_lapsPanel{nullptr};
     TimelinePanel *m_timelinePanel{nullptr};

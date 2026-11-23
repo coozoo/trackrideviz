@@ -1,0 +1,33 @@
+{
+    "format": "rtvdataprofile",
+    "version": 1,
+    "name": "Race Track Visualizer",
+    "matchers": [
+        {
+            "line": 0,
+            "text": "Race Track Visualizer data"
+        }
+    ],
+    "layout": "fixed",
+    "headerLines": [
+        1
+    ],
+    "dataStart": 2,
+    "separators": ",",
+    "decimalComma": false,
+    "calculators": [],
+    "mappings": [
+        {
+            "column": "time",
+            "role": "runningTime"
+        },
+        {
+            "column": "utc",
+            "role": "timeOfDay"
+        },
+        {
+            "column": "*",
+            "role": "value"
+        }
+    ]
+}

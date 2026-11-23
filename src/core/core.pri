@@ -62,6 +62,7 @@ SOURCES += \
     $$PWD/telemetry/tcximporter.cpp \
     $$PWD/telemetry/telemetryimporter.cpp \
     $$PWD/telemetry/telemetrysession.cpp \
+    $$PWD/telemetry/telemetrywriter.cpp \
     $$PWD/telemetry/vboimporter.cpp \
     $$PWD/units/units.cpp \
     $$PWD/util/gzip.cpp \
@@ -132,6 +133,7 @@ HEADERS += \
     $$PWD/telemetry/tcximporter.h \
     $$PWD/telemetry/telemetryimporter.h \
     $$PWD/telemetry/telemetrysession.h \
+    $$PWD/telemetry/telemetrywriter.h \
     $$PWD/telemetry/vboimporter.h \
     $$PWD/units/units.h \
     $$PWD/util/gzip.h \
