@@ -299,12 +299,12 @@ struct GaugeComponent
     // ... or the land in 3D around the rider, seen from behind and above (Flyover); `span` is
     // then how much of it is seen across at the rider (0: a kilometer)
     bool flyover{false};
-    // ... its camera: tilted this many degrees from looking straight down, this high above the
-    // rider (in spans: share of the land seen across), the hills this many times their height
+    // ... its camera: tilted this many degrees from looking straight down, this many meters
+    // above the rider, the hills this many times their height
     struct FlyoverCamera
     {
-        double tilt{62.0};
-        double height{0.45};
+        double tilt{60.0};
+        double height{100.0};
         double hills{1.5};
         // an overlay item's that is not set (tilt 0): the gauge's own
         bool isSet() const { return tilt > 0.0; }

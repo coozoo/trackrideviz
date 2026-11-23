@@ -2307,12 +2307,12 @@ void GaugeEditor::fillProperties()
                              tr("The land in 3D, seen from behind the rider"), true);
                     if (part.flyover)
                         {
-                            addNumber(form, tr("3D camera tilt, degrees:"), part.flyoverCamera.tilt, 10, 85, 0,
+                            addNumber(form, tr("3D camera tilt, °:"), part.flyoverCamera.tilt, 10, 85, 0,
                                       [](Part &p, double v) { p.flyoverCamera.tilt = v; },
                                       tr("From looking straight down: more looks further ahead, towards the horizon"));
-                            addNumber(form, tr("3D camera height, of the close-up:"), part.flyoverCamera.height, 0.02, 3.0, 2,
+                            addNumber(form, tr("3D camera height, m:"), part.flyoverCamera.height, 10, 20000, 0,
                                       [](Part &p, double v) { p.flyoverCamera.height = v; },
-                                      tr("Above the rider, as a share of the land seen across: 0.45 of 1000 m is 450 m"));
+                                      tr("Above the rider; the camera is behind them as far as its tilt takes it"));
                             addNumber(form, tr("3D hills, times their height:"), part.flyoverCamera.hills, 1.0, 5.0, 1,
                                       [](Part &p, double v) { p.flyoverCamera.hills = v; },
                                       tr("Hills higher than they are: true ones look flat from above"));
