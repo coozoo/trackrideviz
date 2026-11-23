@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
     GStreamerWorkaround::install();
 
     Appearance::apply();
+    Appearance::wrapToolTips();
 
     MainWindow w;
     w.show();

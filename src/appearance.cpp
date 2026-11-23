@@ -3,6 +3,9 @@
 #include "settings/appsettings.h"
 
 #include <QApplication>
+#include <QHelpEvent>
+#include <QTextDocument>
+#include <QToolTip>
 #include <QPalette>
 #include <QStyle>
 #include <QStyleFactory>
@@ -56,6 +59,46 @@ QPalette lightPalette()
     return makePalette(QColor(239, 239, 239), QColor(255, 255, 255), QColor(0, 0, 0),
                        QColor(150, 150, 150), QColor(48, 140, 198), false);
 }
+}
+
+namespace
+{
+// A tooltip of more than a line's worth, as a paragraph: rich text, which QToolTip wraps.
+class ToolTipWrapper : public QObject
+{
+public:
+    using QObject::QObject;
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() != QEvent::ToolTip || !watched->isWidgetType())
+            {
+                return false;
+            }
+        const QString text = static_cast<QWidget *>(watched)->toolTip();
+        if (text.size() < kWrapFrom || Qt::mightBeRichText(text))
+            {
+                return false;
+            }
+        QToolTip::showText(static_cast<QHelpEvent *>(event)->globalPos(),
+                           QStringLiteral("<p>%1</p>").arg(text.toHtmlEscaped()), static_cast<QWidget *>(watched));
+        return true;
+    }
+
+private:
+    static constexpr int kWrapFrom = 60;
+};
+}
+
+void Appearance::wrapToolTips()
+{
+    static ToolTipWrapper *wrapper = nullptr;
+    if (!wrapper)
+        {
+            wrapper = new ToolTipWrapper(qApp);
+            qApp->installEventFilter(wrapper);
+        }
 }
 
 void Appearance::apply()

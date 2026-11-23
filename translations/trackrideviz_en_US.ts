@@ -6066,7 +6066,7 @@ It appears among the templates in the library.</source>
     <name>SettingsDialog</name>
     <message>
         <location filename="../src/settingsdialog.cpp" line="65"/>
-        <location filename="../src/settingsdialog.cpp" line="972"/>
+        <location filename="../src/settingsdialog.cpp" line="959"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6143,11 +6143,6 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="178"/>
-        <source>How many of the videos, data files and projects opened lately the File menu lists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/settingsdialog.cpp" line="181"/>
         <source>Style:</source>
         <translation type="unfinished"></translation>
@@ -6158,645 +6153,650 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="183"/>
-        <source>Light and dark colors look right with the Fusion style; other styles may follow them only in part.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="185"/>
+        <location filename="../src/settingsdialog.cpp" line="184"/>
         <source>Language:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="186"/>
+        <location filename="../src/settingsdialog.cpp" line="185"/>
         <source>The language changes after a restart.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="188"/>
+        <location filename="../src/settingsdialog.cpp" line="187"/>
         <source>Recent files:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="189"/>
+        <location filename="../src/settingsdialog.cpp" line="188"/>
         <source>Look for a newer version once a day</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="190"/>
-        <source>Asks the project&apos;s page on GitHub, quietly; a newer version is shown in the status bar, nothing pops up. Help &gt; Check for updates asks at once.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="200"/>
+        <location filename="../src/settingsdialog.cpp" line="199"/>
         <source>Decode video on the graphics card when possible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="201"/>
+        <location filename="../src/settingsdialog.cpp" line="200"/>
         <source>Uses far less processor time. Turn it off if the picture is wrong or missing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="204"/>
+        <location filename="../src/settingsdialog.cpp" line="203"/>
         <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="209"/>
+        <location filename="../src/settingsdialog.cpp" line="208"/>
         <source>Which decoder is tried first. The others are still used if it is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="215"/>
+        <location filename="../src/settingsdialog.cpp" line="214"/>
         <source>Preferred decoder:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="220"/>
+        <location filename="../src/settingsdialog.cpp" line="219"/>
         <source>Decoding changes after a restart.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="223"/>
-        <source>These settings are overridden now: the environment variable QT_FFMPEG_DECODING_HW_DEVICE_TYPES is set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="234"/>
+        <location filename="../src/settingsdialog.cpp" line="232"/>
         <source>Kilometers per hour (km/h)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="235"/>
+        <location filename="../src/settingsdialog.cpp" line="233"/>
         <source>Miles per hour (mph)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="238"/>
+        <location filename="../src/settingsdialog.cpp" line="236"/>
         <source>Metric (m, km)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="239"/>
+        <location filename="../src/settingsdialog.cpp" line="237"/>
         <source>Imperial (ft, mi)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="242"/>
+        <location filename="../src/settingsdialog.cpp" line="240"/>
         <source>Celsius (°C)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="243"/>
+        <location filename="../src/settingsdialog.cpp" line="241"/>
         <source>Fahrenheit (°F)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="246"/>
+        <location filename="../src/settingsdialog.cpp" line="244"/>
         <source>Speed:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="247"/>
+        <location filename="../src/settingsdialog.cpp" line="245"/>
         <source>Distance and elevation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="248"/>
+        <location filename="../src/settingsdialog.cpp" line="246"/>
         <source>Temperature:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="249"/>
+        <location filename="../src/settingsdialog.cpp" line="247"/>
         <source>Used in the data tables and by the built-in gauges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="258"/>
+        <location filename="../src/settingsdialog.cpp" line="256"/>
         <source>Found automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="260"/>
-        <location filename="../src/settingsdialog.cpp" line="282"/>
+        <location filename="../src/settingsdialog.cpp" line="258"/>
+        <location filename="../src/settingsdialog.cpp" line="280"/>
         <source>Browse...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="263"/>
+        <location filename="../src/settingsdialog.cpp" line="261"/>
         <source>Locate ffmpeg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="270"/>
+        <location filename="../src/settingsdialog.cpp" line="268"/>
         <source>Check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="280"/>
+        <location filename="../src/settingsdialog.cpp" line="278"/>
         <source>Next to the source video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="285"/>
+        <location filename="../src/settingsdialog.cpp" line="283"/>
         <source>Folder for exported videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="298"/>
+        <location filename="../src/settingsdialog.cpp" line="296"/>
         <source>Built in (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="300"/>
+        <location filename="../src/settingsdialog.cpp" line="298"/>
         <source>ffmpeg program</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="304"/>
+        <location filename="../src/settingsdialog.cpp" line="302"/>
         <source>Video engine:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="306"/>
+        <location filename="../src/settingsdialog.cpp" line="304"/>
         <source>The built-in engine needs no ffmpeg program. The program is used when chosen here, or when the built-in engine has no encoder that works.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="308"/>
+        <location filename="../src/settingsdialog.cpp" line="306"/>
         <source>This build has no engine of its own: it exports with the ffmpeg program.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="309"/>
+        <location filename="../src/settingsdialog.cpp" line="307"/>
         <source>ffmpeg program:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="311"/>
+        <location filename="../src/settingsdialog.cpp" line="309"/>
         <source>Save videos to:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="312"/>
-        <source>Encoder, quality and size are chosen in the export window and remembered from the last export.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="319"/>
+        <location filename="../src/settingsdialog.cpp" line="317"/>
         <source>Download street maps for gauges that show one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="763"/>
+        <location filename="../src/settingsdialog.cpp" line="645"/>
+        <source>Measured 10 m up; near the ground about 60 % is left in the open, less among houses and trees.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="680"/>
+        <source>Wind, headwind and air density then become measurements like any other: for gauges, the data viewer and the power estimate. Kept on disk once fetched.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="683"/>
+        <source>Deletes the kept weather of rides; it is fetched again when needed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="750"/>
         <source>Own server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="353"/>
+        <location filename="../src/settingsdialog.cpp" line="351"/>
         <source>Show the map&apos;s credit on the gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="358"/>
-        <source>The map pieces around a route are fetched once and kept on this computer; after that the gauge and the export work without a connection. The server learns which area the route is in.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="361"/>
         <source>Map:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="689"/>
+        <location filename="../src/settingsdialog.cpp" line="677"/>
         <source>Key:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="366"/>
+        <location filename="../src/settingsdialog.cpp" line="363"/>
         <source>Tile server:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="367"/>
+        <location filename="../src/settingsdialog.cpp" line="364"/>
         <source>An address with {z}, {x} and {y} in it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="368"/>
+        <location filename="../src/settingsdialog.cpp" line="365"/>
         <source>Its credit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="370"/>
-        <source>Deletes the map pieces and terrain heights kept on this computer. They are fetched again when a gauge needs them.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="380"/>
-        <source>The makers of these maps ask to be named wherever the map is shown. Switch the credit off only when the video names them elsewhere, in its end credits or its description.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="395"/>
+        <location filename="../src/settingsdialog.cpp" line="390"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Power page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="398"/>
+        <location filename="../src/settingsdialog.cpp" line="393"/>
         <source>700x25, 29x2.25, 26x1.95, 40-622...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="399"/>
-        <source>The size printed on the tire: it gives the wheel&apos;s circumference, and on the Power page it picks road, gravel or mountain bike tires by its width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="405"/>
         <source> mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="406"/>
+        <location filename="../src/settingsdialog.cpp" line="400"/>
         <source>from the tire size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/settingsdialog.cpp" line="407"/>
-        <source>How far the bike goes in one turn of the wheel. Measured by rolling it once along the ground with the rider on, it is more exact than from the tire size.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="413"/>
         <source>From the tire size: %1 mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="415"/>
+        <location filename="../src/settingsdialog.cpp" line="409"/>
         <source>Without a tire size: %1 mm, a usual road wheel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="416"/>
+        <location filename="../src/settingsdialog.cpp" line="410"/>
         <source>This tire size cannot be read; a usual road wheel is taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="426"/>
+        <location filename="../src/settingsdialog.cpp" line="420"/>
         <source>Usual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="441"/>
+        <location filename="../src/settingsdialog.cpp" line="435"/>
         <source>teeth of each ring: 34 or 50, 34</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="442"/>
+        <location filename="../src/settingsdialog.cpp" line="436"/>
         <source>teeth of each sprocket: 11, 13, 15, ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="446"/>
-        <location filename="../src/settingsdialog.cpp" line="565"/>
+        <location filename="../src/settingsdialog.cpp" line="440"/>
+        <location filename="../src/settingsdialog.cpp" line="556"/>
         <source>Tire size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="447"/>
+        <location filename="../src/settingsdialog.cpp" line="441"/>
         <source>Wheel circumference:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="449"/>
+        <location filename="../src/settingsdialog.cpp" line="443"/>
         <source>Chainrings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="450"/>
+        <location filename="../src/settingsdialog.cpp" line="444"/>
         <source>Sprockets:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="459"/>
+        <location filename="../src/settingsdialog.cpp" line="453"/>
         <source>Estimate the power of rides recorded without a power meter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="394"/>
-        <location filename="../src/settingsdialog.cpp" line="470"/>
-        <location filename="../src/settingsdialog.cpp" line="472"/>
+        <location filename="../src/settingsdialog.cpp" line="389"/>
+        <location filename="../src/settingsdialog.cpp" line="464"/>
+        <location filename="../src/settingsdialog.cpp" line="466"/>
         <source> kg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="339"/>
+        <location filename="../src/settingsdialog.cpp" line="337"/>
         <source>Get a key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="362"/>
+        <location filename="../src/settingsdialog.cpp" line="359"/>
         <source>Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="363"/>
-        <source>Some map services want a key of your own (most have a free allowance). Their maps are offered once the key is entered.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="451"/>
-        <source>Fill in your chainrings and sprockets, and the gear is estimated from speed and cadence. Gears recorded by electronic shifting are used as they are.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <location filename="../src/settingsdialog.cpp" line="465"/>
         <source> cm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="477"/>
-        <source>The size printed on the tire picks road, gravel or mountain bike tires by its width. The same as on the Bike page.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="501"/>
+        <location filename="../src/settingsdialog.cpp" line="494"/>
         <source>Road, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="502"/>
+        <location filename="../src/settingsdialog.cpp" line="495"/>
         <source>Road, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="503"/>
+        <location filename="../src/settingsdialog.cpp" line="496"/>
         <source>Road, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="504"/>
+        <location filename="../src/settingsdialog.cpp" line="497"/>
         <source>Gravel, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="505"/>
+        <location filename="../src/settingsdialog.cpp" line="498"/>
         <source>Gravel, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="506"/>
+        <location filename="../src/settingsdialog.cpp" line="499"/>
         <source>Gravel, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="507"/>
+        <location filename="../src/settingsdialog.cpp" line="500"/>
         <source>Mountain bike, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="508"/>
+        <location filename="../src/settingsdialog.cpp" line="501"/>
         <source>Mountain bike, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="509"/>
+        <location filename="../src/settingsdialog.cpp" line="502"/>
         <source>Mountain bike, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="510"/>
-        <location filename="../src/settingsdialog.cpp" line="542"/>
+        <location filename="../src/settingsdialog.cpp" line="503"/>
+        <location filename="../src/settingsdialog.cpp" line="535"/>
         <source>My own value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="511"/>
+        <location filename="../src/settingsdialog.cpp" line="504"/>
         <source>Fast: racing tires, pumped hard. Slow: thick, puncture-proof or knobby ones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="537"/>
+        <location filename="../src/settingsdialog.cpp" line="530"/>
         <source>Road bike, hands on the tops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="538"/>
+        <location filename="../src/settingsdialog.cpp" line="531"/>
         <source>Road bike, hands on the hoods</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="539"/>
+        <location filename="../src/settingsdialog.cpp" line="532"/>
         <source>Road bike, in the drops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="540"/>
+        <location filename="../src/settingsdialog.cpp" line="533"/>
         <source>On aero bars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="541"/>
+        <location filename="../src/settingsdialog.cpp" line="534"/>
         <source>Upright: mountain or city bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="543"/>
+        <location filename="../src/settingsdialog.cpp" line="536"/>
         <source> m²</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="555"/>
-        <location filename="../src/settingsdialog.cpp" line="655"/>
+        <location filename="../src/settingsdialog.cpp" line="548"/>
+        <location filename="../src/settingsdialog.cpp" line="644"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="571"/>
-        <source>Worked out from the speed, the grade and the elevation. A recorded power is never replaced: the estimate is then listed beside it as &quot;Power (est.)&quot;, to compare the two. Without the weather of the day (see the Weather page) the wind is not known: a headwind reads low and a tailwind high.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="582"/>
+        <location filename="../src/settingsdialog.cpp" line="572"/>
         <source>Surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="590"/>
+        <location filename="../src/settingsdialog.cpp" line="580"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="595"/>
+        <location filename="../src/settingsdialog.cpp" line="585"/>
         <source>New surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="600"/>
+        <location filename="../src/settingsdialog.cpp" line="590"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="608"/>
+        <location filename="../src/settingsdialog.cpp" line="598"/>
         <source>Restore the usual ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="619"/>
-        <source>What a stretch of a ride can be marked as in the Laps panel (&quot;Mark surface&quot;). The number is how much harder the tires roll there than on typical asphalt: the power estimate multiplies their rolling resistance by it. Stretches marked already keep the number they were marked with.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="664"/>
+        <location filename="../src/settingsdialog.cpp" line="652"/>
         <source>%1 (with a key of your own)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="665"/>
+        <location filename="../src/settingsdialog.cpp" line="653"/>
         <source>%1 (no key needed)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="668"/>
+        <location filename="../src/settingsdialog.cpp" line="656"/>
         <source>from the service&apos;s website, after signing up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="688"/>
+        <location filename="../src/settingsdialog.cpp" line="676"/>
         <source>Service:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="692"/>
-        <source>The wind&apos;s speed and direction, the wind against the rider and the air&apos;s density are then measurements of the ride like any other: for gauges, for the data viewer, and counted in by the power estimate. Kept on disk: a ride asked about once needs no connection again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="651"/>
-        <source>Asks a weather service for the wind, the temperature and the pressure at places along the ride, hour by hour. Sent to it: those places and the date.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="473"/>
+        <location filename="../src/settingsdialog.cpp" line="467"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Bike page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="653"/>
+        <location filename="../src/settingsdialog.cpp" line="609"/>
+        <source>Surfaces a stretch of a ride can be marked as (Laps panel, &quot;Mark surface&quot;). The number is how much harder tires roll there than on asphalt. Stretches already marked keep their number.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="639"/>
+        <source>Fetch each ride&apos;s wind and air from weather history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="640"/>
+        <source>Wind, temperature and pressure along the ride, hour by hour. The service is sent those places and the date.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="642"/>
         <source> km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="654"/>
+        <location filename="../src/settingsdialog.cpp" line="643"/>
         <source>The weather services know places 10-25 km apart: closer than that brings little</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="656"/>
-        <source>The wind is measured 10 m above the ground. Near it about 60 % is left in the open, less between houses and trees.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="562"/>
+        <location filename="../src/settingsdialog.cpp" line="553"/>
         <source>Rider&apos;s weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="556"/>
-        <source>What the chain and the bearings take of the power that drives the wheel: 2-3 % when clean, more when worn or dirty. Turning the cranks costs a few watts more even when the wheel needs nothing, as on a descent.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="563"/>
+        <location filename="../src/settingsdialog.cpp" line="554"/>
         <source>Rider&apos;s height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="445"/>
-        <location filename="../src/settingsdialog.cpp" line="564"/>
+        <location filename="../src/settingsdialog.cpp" line="439"/>
+        <location filename="../src/settingsdialog.cpp" line="555"/>
         <source>Bike&apos;s weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="566"/>
+        <location filename="../src/settingsdialog.cpp" line="178"/>
+        <source>How many recent videos, data files and projects the File menu lists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="183"/>
+        <source>Light and dark colors suit the Fusion style best.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="189"/>
+        <source>Once a day, quietly: a newer version shows in the status bar. Help &gt; Check for updates asks at once.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="222"/>
+        <source>Overridden now by the environment variable QT_FFMPEG_DECODING_HW_DEVICE_TYPES.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="310"/>
+        <source>Encoder, quality and size are chosen in the export window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="356"/>
+        <source>Map pieces around a route are fetched once and kept here; then the gauges and exports work offline. The map server sees which area the route is in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <source>Some map services need a key of your own, most of them free. Their maps appear once it is entered.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="367"/>
+        <source>Deletes the kept map pieces and terrain heights; they are fetched again when needed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="376"/>
+        <source>Map makers ask to be named where their map is shown. Switch it off only if the video names them elsewhere.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="394"/>
+        <source>As printed on the tire: sets the wheel size, and the tire type on the Power page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="401"/>
+        <source>Distance of one wheel turn. Rolled out once with the rider on, it is more exact than the tire size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="445"/>
+        <source>With your chainrings and sprockets, the gear is estimated from speed and cadence. Electronic shifting&apos;s recorded gears are used as they are.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <source>Picks road, gravel or mountain bike tires by width. The same as on the Bike page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="549"/>
+        <source>Power lost in the chain and bearings: 2-3 % when clean, more when worn or dirty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="557"/>
         <source>Tires:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="567"/>
+        <location filename="../src/settingsdialog.cpp" line="558"/>
         <source>Rolling resistance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="568"/>
+        <location filename="../src/settingsdialog.cpp" line="559"/>
         <source>Riding position:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="569"/>
+        <location filename="../src/settingsdialog.cpp" line="560"/>
         <source>Drag area (CdA):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="570"/>
+        <location filename="../src/settingsdialog.cpp" line="561"/>
         <source>Drivetrain loss:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="582"/>
+        <location filename="../src/settingsdialog.cpp" line="562"/>
+        <source>Estimated from speed, grade and elevation. A recorded power is kept; the estimate shows beside it as &quot;Power (est.)&quot;. Without the day&apos;s weather (Weather page) a headwind reads low and a tailwind high.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="572"/>
         <source>Rolling resistance ×</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="650"/>
-        <source>Fetch the wind and the air of the day of each ride from weather history</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="690"/>
+        <location filename="../src/settingsdialog.cpp" line="678"/>
         <source>A place every:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="691"/>
+        <location filename="../src/settingsdialog.cpp" line="679"/>
         <source>Wind reaching the rider:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="696"/>
-        <source>Deletes the weather of rides kept on this computer. It is fetched again when a ride asks for it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/settingsdialog.cpp" line="729"/>
+        <location filename="../src/settingsdialog.cpp" line="716"/>
         <source>Delete the stored weather (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="736"/>
+        <location filename="../src/settingsdialog.cpp" line="723"/>
         <source>Delete the stored maps (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="778"/>
+        <location filename="../src/settingsdialog.cpp" line="765"/>
         <source>Not found, or it cannot be run. Videos cannot be exported without it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="828"/>
-        <location filename="../src/settingsdialog.cpp" line="831"/>
+        <location filename="../src/settingsdialog.cpp" line="815"/>
+        <location filename="../src/settingsdialog.cpp" line="818"/>
         <source> lb</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="836"/>
+        <location filename="../src/settingsdialog.cpp" line="823"/>
         <source> in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="973"/>
+        <location filename="../src/settingsdialog.cpp" line="960"/>
         <source>Language and decoding changes take effect the next time the program starts.</source>
         <translation type="unfinished"></translation>
     </message>
