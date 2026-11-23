@@ -587,6 +587,22 @@ QWidget *MainWindow::createCentralWidget()
         autoSync();
     });
 
+    m_rateSpin = new QDoubleSpinBox(central);
+    m_rateSpin->setRange(0.01, 3600.0);
+    m_rateSpin->setDecimals(2);
+    m_rateSpin->setValue(1.0);
+    m_rateSpin->setPrefix(QStringLiteral("x"));
+    m_rateSpin->setKeyboardTracking(false);
+    m_rateSpin->setToolTip(tr("Seconds of the data in one second of the video: 1 for an ordinary video,\n"
+                              "the camera's speed-up for a time-lapse (10, 30...)."));
+    connect(m_rateSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double rate)
+    {
+        m_project.syncRate = rate;
+        setModified(true);
+        m_canvas->setSync(m_project.sync());
+        m_timelinePanel->setSync(m_project.sync());
+    });
+
     showSyncExplanation(QString());
 
     QHBoxLayout *transport = new QHBoxLayout;
@@ -598,6 +614,8 @@ QWidget *MainWindow::createCentralWidget()
     sync->addWidget(new QLabel(tr("Data offset:"), central));
     sync->addWidget(m_offsetSpin);
     sync->addWidget(m_autoSyncButton);
+    sync->addWidget(new QLabel(tr("Time-lapse:"), central));
+    sync->addWidget(m_rateSpin);
     sync->addStretch(1);
 
     QVBoxLayout *layout = new QVBoxLayout(central);
@@ -1029,6 +1047,8 @@ void MainWindow::chooseTelemetry()
 void MainWindow::openVideo(const QString &path, const QVector<TimeShift> &shifts)
 {
     m_project.syncIsManual = false;
+    // a time-lapse is the video's: another one starts as an ordinary video
+    m_project.syncRate = 1.0;
     // what was cut and where breaks were belong to the video before
     m_project.videoShifts = shifts;
     m_project.cuts.clear();
@@ -2506,6 +2526,12 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
         const QSignalBlocker blocker(m_offsetSpin);
         m_offsetSpin->setValue(seconds);
     }
+    {
+        const QSignalBlocker blocker(m_rateSpin);
+        m_rateSpin->setValue(m_project.syncRate);
+    }
+    // without a video the data plays on its own clock
+    m_rateSpin->setEnabled(!m_project.videoPath.isEmpty());
     m_project.syncOffset = seconds;
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
