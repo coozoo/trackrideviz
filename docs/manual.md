@@ -133,8 +133,8 @@ When it is off:
 The data of a GoPro video is already on the video's clock: there is nothing to synchronize.
 
 A **time-lapse** video (a camera's TimeLapse or a phone's hyperlapse) shows many seconds of the
-ride in each of its own. Set **Time-lapse** under the video to the camera's speed-up (x10, x30;
-x1 for an ordinary video): the gauges then run that much faster with the picture. Set it before
+ride in each of its own. Set the camera's speed-up in **File > Time-lapse video...** (10, 30;
+1 for an ordinary video): the gauges then run that much faster with the picture. Set it before
 pressing **Auto**, so the clocks are matched over the whole time-lapse.
 
 ## 7. Gauges on the video

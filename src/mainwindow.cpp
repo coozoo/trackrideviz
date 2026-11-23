@@ -60,6 +60,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -586,22 +587,6 @@ QWidget *MainWindow::createCentralWidget()
         autoSync();
     });
 
-    m_rateSpin = new QDoubleSpinBox(central);
-    m_rateSpin->setRange(0.01, 3600.0);
-    m_rateSpin->setDecimals(2);
-    m_rateSpin->setValue(1.0);
-    m_rateSpin->setPrefix(QStringLiteral("x"));
-    m_rateSpin->setKeyboardTracking(false);
-    m_rateSpin->setToolTip(tr("Seconds of the data in one second of the video: 1 for an ordinary video,\n"
-                              "the camera's speed-up for a time-lapse (10, 30...)."));
-    connect(m_rateSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double rate)
-    {
-        m_project.syncRate = rate;
-        setModified(true);
-        m_canvas->setSync(m_project.sync());
-        m_timelinePanel->setSync(m_project.sync());
-    });
-
     showSyncExplanation(QString());
 
     QHBoxLayout *transport = new QHBoxLayout;
@@ -613,8 +598,6 @@ QWidget *MainWindow::createCentralWidget()
     sync->addWidget(new QLabel(tr("Data offset:"), central));
     sync->addWidget(m_offsetSpin);
     sync->addWidget(m_autoSyncButton);
-    sync->addWidget(new QLabel(tr("Time-lapse:"), central));
-    sync->addWidget(m_rateSpin);
     sync->addStretch(1);
 
     QVBoxLayout *layout = new QVBoxLayout(central);
@@ -878,6 +861,9 @@ void MainWindow::createMenus()
     m_dataSourcesAction->setEnabled(false);
     m_dataSourcesAction->setIcon(Icons::named("list-add"));
     fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
+    m_timeLapseAction = fileMenu->addAction(QString(), this, &MainWindow::askTimeLapse);
+    m_timeLapseAction->setToolTip(tr("The video is a time-lapse: the gauges run as much faster as it does"));
+    showTimeLapse();
     QAction *backgroundAction = fileMenu->addAction(tr("&Without a video..."), this, &MainWindow::chooseBackground);
     backgroundAction->setToolTip(tr("The gauges over a plain color, or see-through, as long as the data"));
     fileMenu->addSeparator();
@@ -2519,16 +2505,42 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
         const QSignalBlocker blocker(m_offsetSpin);
         m_offsetSpin->setValue(seconds);
     }
-    {
-        const QSignalBlocker blocker(m_rateSpin);
-        m_rateSpin->setValue(m_project.syncRate);
-    }
-    // without a video the data plays on its own clock
-    m_rateSpin->setEnabled(!m_project.videoPath.isEmpty());
+    showTimeLapse();
     m_project.syncOffset = seconds;
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
     showSyncExplanation(explanation);
+}
+
+void MainWindow::askTimeLapse()
+{
+    bool ok = false;
+    const double rate = QInputDialog::getDouble(this, tr("Time-lapse video"),
+                        tr("Seconds of the ride in one second of the video:\n"
+                           "the camera's speed-up (10, 30...); 1 for an ordinary video."),
+                        m_project.syncRate, 0.01, 3600.0, 2, &ok);
+    if (!ok || rate == m_project.syncRate)
+        {
+            return;
+        }
+    m_project.syncRate = rate;
+    setModified(true);
+    m_canvas->setSync(m_project.sync());
+    m_timelinePanel->setSync(m_project.sync());
+    showTimeLapse();
+}
+
+void MainWindow::showTimeLapse()
+{
+    if (!m_timeLapseAction)
+        {
+            return;
+        }
+    // without a video the data plays on its own clock
+    m_timeLapseAction->setEnabled(!m_project.videoPath.isEmpty());
+    m_timeLapseAction->setText(m_project.syncRate != 1.0
+                               ? tr("&Time-lapse video (x%1)...").arg(QLocale().toString(m_project.syncRate, 'g', 6))
+                               : tr("&Time-lapse video..."));
 }
 
 void MainWindow::showSyncExplanation(const QString &explanation)
@@ -2552,6 +2564,7 @@ void MainWindow::updateTimeLabel()
 
 void MainWindow::updateSourcesInfo()
 {
+    showTimeLapse();
     QStringList lines;
     if (m_project.videoPath.isEmpty() && m_project.background.isOn())
         {
