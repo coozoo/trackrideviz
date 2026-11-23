@@ -48,6 +48,8 @@ struct OverlayItem
     int flyover{-1};
     // ... its camera; not set (tilt 0): as the gauge was drawn
     GaugeComponent::FlyoverCamera flyoverCamera{0.0, 0.0, 0.0};
+    // Its graphs along the distance ridden: 1, over the time: 0, as the gauge was drawn: -1.
+    int byDistance{-1};
     // The units this gauge shows its values in: those of the settings, or its own.
     enum UnitSystem { AsSettings, MetricUnits, ImperialUnits };
     UnitSystem units{AsSettings};
@@ -70,7 +72,7 @@ struct OverlayItem
         return own;
     }
 
-    // `channels`, `scaleMax`, `aspect` and the item's own look in a project's or a template's entry of the item (nothing when unchanged).
+    // `channels`, `scaleMax`, `aspect`, `byDistance` and the item's own look in a project's or a template's entry of the item (nothing when unchanged).
     void writeChoices(QJsonObject &object) const;
     void readChoices(const QJsonObject &object);
 
@@ -80,7 +82,7 @@ struct OverlayItem
                && x == other.x && y == other.y && height == other.height && map == other.map && aspect == other.aspect && ownTheme == other.ownTheme
                && (!ownTheme || theme == other.theme) && textScale == other.textScale && opacity == other.opacity && streets == other.streets
                && closeUp == other.closeUp && speedZoom == other.speedZoom && headingUp == other.headingUp
-               && flyover == other.flyover && flyoverCamera == other.flyoverCamera && units == other.units
+               && flyover == other.flyover && flyoverCamera == other.flyoverCamera && byDistance == other.byDistance && units == other.units
                && channels == other.channels && scaleMax == other.scaleMax;
     }
     bool operator!=(const OverlayItem &other) const { return !(*this == other); }
@@ -116,6 +118,9 @@ public:
     bool flyover(int index) const { return m_placed.at(index).flyover; }
     // The camera the flyover has: the item's, else the gauge's.
     GaugeComponent::FlyoverCamera flyoverCamera(int index) const { return m_placed.at(index).flyoverCamera; }
+    // True when the item's gauge draws a graph; whether that goes along the distance.
+    bool hasGraph(int index) const { return m_placed.at(index).graph; }
+    bool byDistance(int index) const { return m_placed.at(index).byDistance; }
 
     // What a new project starts with: the dial in the lower left corner, showing speed.
     static QVector<OverlayItem> defaultItems();
@@ -159,6 +164,8 @@ private:
         bool headingUp{false};
         bool flyover{false};
         GaugeComponent::FlyoverCamera flyoverCamera;
+        bool graph{false};
+        bool byDistance{false};
     };
     QVector<Placed> m_placed;
 };

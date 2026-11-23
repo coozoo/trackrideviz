@@ -1874,6 +1874,23 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
             });
         }
     const Overlay &overlay = m_canvas->overlay();
+    if (index < overlay.count() && overlay.hasGraph(index))
+        {
+            // an elevation profile, or the values as time went
+            QAction *distance = menu.addAction(tr("Graph along the distance"));
+            distance->setToolTip(tr("Across the distance ridden, stops taking no room; otherwise across the time"));
+            distance->setCheckable(true);
+            distance->setChecked(overlay.byDistance(index));
+            connect(distance, &QAction::triggered, this, [this, index](bool on)
+            {
+                if (index < m_project.overlay.size())
+                    {
+                        OverlayState after{m_project.overlay, m_project.theme};
+                        after.items[index].byDistance = on ? 1 : 0;
+                        changeOverlay(on ? tr("Graph along the distance") : tr("Graph over the time"), after);
+                    }
+            });
+        }
     if (index < overlay.count() && overlay.hasRoute(index))
         {
             QAction *streets = menu.addAction(tr("Street map"));

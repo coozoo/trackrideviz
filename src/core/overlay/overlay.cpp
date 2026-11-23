@@ -66,6 +66,25 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
             chooseMap(component.children, item, route, streets, closeUp, headingUp, flyover, camera);
         }
 }
+
+// The item's choice for its graphs, over the time or along the distance; says what it found.
+void chooseGraphs(QVector<GaugeComponent> &components, const OverlayItem &item, bool *graph, bool *byDistance)
+{
+    for (GaugeComponent &component : components)
+        {
+            if (component.type == GaugeComponent::Graph)
+                {
+                    if (item.byDistance >= 0)
+                        {
+                            component.byDistance = item.byDistance > 0;
+                        }
+                    // the first one found tells
+                    *byDistance = *graph ? *byDistance : component.byDistance;
+                    *graph = true;
+                }
+            chooseGraphs(component.children, item, graph, byDistance);
+        }
+}
 }
 
 Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &session,
@@ -79,6 +98,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
             placed.item = item;
             chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp, &placed.flyover,
                       &placed.flyoverCamera);
+            chooseGraphs(gauge.components, item, &placed.graph, &placed.byDistance);
             if (!gauge.isEmpty())
                 {
                     placed.gauge = BoundGauge(gauge, item.channel, session, item.unitsFor(units), item.ownTheme ? item.theme : theme,
@@ -318,6 +338,10 @@ void OverlayItem::writeChoices(QJsonObject &object) const
         {
             object.insert("opacity", opacity);
         }
+    if (byDistance >= 0)
+        {
+            object.insert("byDistance", byDistance > 0);
+        }
 }
 
 void OverlayItem::readChoices(const QJsonObject &object)
@@ -339,4 +363,5 @@ void OverlayItem::readChoices(const QJsonObject &object)
     theme = ownTheme ? GaugeTheme::fromJson(object.value("ownTheme").toObject()) : GaugeTheme();
     textScale = std::clamp(object.value("textScale").toDouble(1.0), 0.2, 5.0);
     opacity = std::clamp(object.value("opacity").toDouble(1.0), 0.0, 1.0);
+    byDistance = object.contains("byDistance") ? (object.value("byDistance").toBool() ? 1 : 0) : -1;
 }

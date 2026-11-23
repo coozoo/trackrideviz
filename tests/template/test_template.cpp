@@ -139,6 +139,7 @@ private slots:
         t.items[1].units = OverlayItem::ImperialUnits;
         t.items[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
         t.items[1].scaleMax = 60.0;
+        t.items[1].byDistance = 0;
         t.items[0].aspect = 2.0;
         const QVector<OverlayItem> placed = t.overlayItems(16.0 / 9.0);
         const Overlay overlay(placed, nullptr, Units(), t.theme);
@@ -155,6 +156,8 @@ private slots:
         QCOMPARE(made.items[1].units, OverlayItem::ImperialUnits);
         QCOMPARE(made.items[1].channels.value(ChannelId::Heading), QString(ChannelId::WindDirection));
         QCOMPARE(made.items[1].scaleMax, 60.0);
+        QCOMPARE(made.items[1].byDistance, 0);
+        QCOMPARE(made.items[0].byDistance, -1);
         QCOMPARE(made.items[0].aspect, 2.0);
         QCOMPARE(made.items[1].aspect, 0.0);
         QCOMPARE(placed[1].unitsFor(Units()).speed, Units::MilesPerHour);
@@ -191,6 +194,7 @@ private slots:
         t.items[0].channels.insert(ChannelId::Cadence, ChannelId::Power);
         t.items[0].scaleMax = 180.0;
         t.items[0].aspect = 4.25;
+        t.items[0].byDistance = 1;
         GaugeTemplate loaded;
         QString error;
         QVERIFY2(TemplateFile::fromJson(TemplateFile::toJson(t), &loaded, &error), qPrintable(error));
