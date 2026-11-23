@@ -124,7 +124,9 @@ QString SoundtrackMix::music(const Soundtrack &soundtrack, int firstInput, doubl
         }
     if (offset > 0.0)
         {
-            chain << QString("adelay=delays=%1:all=1").arg(qint64(std::llround(offset * 1000.0)));
+            // the times counted again from the samples: after the trims of the tracks, the silence
+            // adelay puts in front leaves times that a trim at the end makes nonsense of (ffmpeg 8)
+            chain << QString("adelay=delays=%1:all=1").arg(qint64(std::llround(offset * 1000.0))) << "asetpts=N/SR/TB";
         }
     else if (offset < 0.0)
         {
