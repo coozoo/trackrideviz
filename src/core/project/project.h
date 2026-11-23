@@ -45,6 +45,8 @@ struct Project
     StartFinishLine startFinish;
     // lines inside the lap that split it into sectors, in any order
     QVector<StartFinishLine> sectors;
+    // the lap the others are measured against, by its number from 1; 0 = the fastest
+    int referenceLap{0};
 
     // parts of the video left out of the export, video time
     QVector<TimeRange> cuts;

@@ -225,6 +225,8 @@ private slots:
         project.overlay[0].flyoverCamera = {50.0, 300.0, 2.5};
         project.overlay[0].byDistance = 0;
         project.overlay[1].byDistance = 1;
+        project.overlay[1].ghost = 1;
+        project.referenceLap = 3;
         project.overlay[1].units = OverlayItem::ImperialUnits;
         // a part made for the heading shows the wind's direction; the scale ends at 60
         project.overlay[1].channels.insert(ChannelId::Heading, ChannelId::WindDirection);
@@ -254,6 +256,7 @@ private slots:
         QVERIFY(loaded.syncIsManual);
         QCOMPARE(loaded.syncRate, 15.0);
         QCOMPARE(loaded.overlay, project.overlay);
+        QCOMPARE(loaded.referenceLap, 3);
         QVERIFY(loaded.background == project.background);
         QCOMPARE(loaded.theme, project.theme);
         QCOMPARE(loaded.elevation, Terrain::Always);

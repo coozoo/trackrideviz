@@ -322,6 +322,9 @@ struct GaugeComponent
         }
     };
     FlyoverCamera flyoverCamera;
+    // TrackMap, LapMap: the rider of the reference lap too, faint, where they were as long into
+    // their lap as the rider is into this one (not in 3D)
+    bool ghost{false};
     // Graph: along the distance ridden rather than the time (an elevation profile): stops take no
     // room, and the window below is in meters
     bool byDistance{false};

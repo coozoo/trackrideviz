@@ -175,15 +175,21 @@ ChannelDisplay ChannelFormat::displayFor(const QString &id, const QString &store
         {
             return {tr("Laps"), QString(), 1.0, 0.0, 0};
         }
-    if (id == ChannelId::LapTime || id == ChannelId::PreviousLapTime || id == ChannelId::BestLapTime)
+    if (id == ChannelId::LapTime || id == ChannelId::PreviousLapTime || id == ChannelId::BestLapTime
+            || id == ChannelId::ReferenceLapTime)
         {
             const QString name = id == ChannelId::LapTime ? tr("Lap time")
-                                 : id == ChannelId::PreviousLapTime ? tr("Previous lap") : tr("Best lap");
+                                 : id == ChannelId::PreviousLapTime ? tr("Previous lap")
+                                 : id == ChannelId::ReferenceLapTime ? tr("Reference lap") : tr("Best lap");
             return {name, tr("s"), 1.0, 0.0, 2};
         }
     if (id == ChannelId::LapDelta)
         {
             return {tr("Delta to best lap"), tr("s"), 1.0, 0.0, 2};
+        }
+    if (id == ChannelId::ReferenceDelta)
+        {
+            return {tr("Delta to reference lap"), tr("s"), 1.0, 0.0, 2};
         }
     if (id == ChannelId::Sector)
         {

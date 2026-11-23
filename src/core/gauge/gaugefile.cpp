@@ -528,6 +528,10 @@ QJsonObject componentToJson(const GaugeComponent &c)
                             object["flyoverCamera"] = c.flyoverCamera.toJson();
                         }
                 }
+            if (c.ghost)
+                {
+                    object["ghost"] = true;
+                }
             if (c.tiles)
                 {
                     object["tiles"] = true;
@@ -649,6 +653,7 @@ GaugeComponent componentFromJson(const QJsonObject &object)
     c.span = object.value("span").toDouble();
     c.headingUp = object.value("headingUp").toBool();
     c.flyover = object.value("flyover").toBool();
+    c.ghost = object.value("ghost").toBool();
     if (object.contains("flyoverCamera"))
         {
             c.flyoverCamera = GaugeComponent::FlyoverCamera::fromJson(object.value("flyoverCamera"));

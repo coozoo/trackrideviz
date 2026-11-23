@@ -10,6 +10,7 @@
 #include <QMutex>
 #include <QPainterPath>
 
+#include <functional>
 #include <memory>
 
 class Flyover;
@@ -168,6 +169,12 @@ private:
     // The way the rider goes at `time`, degrees from north: over enough seconds around it that
     // the GPS's wandering and stops do not turn it.
     double headingAt(double time) const;
+    // The moment of the reference lap as long into it as `time` is into its own lap; false when
+    // there is none (no laps, the reference lap itself, past the reference lap's end).
+    bool ghostTime(double time, double *at) const;
+    // The knob, faint, where the ghost is (`place`: the frame's point of a projected position).
+    void drawGhost(QPainter &painter, const Node &node, double time, const Context &context,
+                   const std::function<QPointF(const QPointF &)> &place) const;
     void prepareFlyover(Node &node) const;
     void drawFlyover(QPainter &painter, const Node &node, double time, const Context &context) const;
     // A close-up's meters across at `time`: its span, or with SpeedZoom what the speed then calls for.

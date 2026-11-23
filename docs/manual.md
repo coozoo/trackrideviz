@@ -199,6 +199,11 @@ The **Laps** panel shows the route on a street map (wheel or + and − to zoom, 
   table then shows sector times, the fastest of each in purple.
 - The **lap table**: the best lap in bold; double-click a lap to go to its start; select several
   to compare them (section 12).
+- The **reference lap** (marked in the table) is the one every lap is measured against: the
+  fastest of the ride, or the one you right-click and choose (**Use lap N as the reference**). Its
+  channels are the **delta to the reference lap** (+ seconds behind it, - ahead, at the same point
+  of the lap) and the reference lap's time. On the video, right-click a route map: **Ghost of the
+  reference lap** shows its rider too, faint, as far into their lap as you are into yours.
 - **Surfaces** tab, **Mark surface**: click where a stretch begins and where it ends, and choose
   smooth, typical or rough asphalt, gravel or dirt. Used by the power estimate.
 

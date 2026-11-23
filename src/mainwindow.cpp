@@ -697,6 +697,21 @@ void MainWindow::createDocks()
     m_lapsDock->setWidget(m_lapsPanel);
     m_lapsPanel->setUnits(m_units);
     connect(m_lapsPanel, &LapsPanel::lineRequested, this, &MainWindow::placeStartFinish);
+    connect(m_lapsPanel, &LapsPanel::referenceChosen, this, [this](int lap)
+    {
+        const int before = m_project.referenceLap;
+        if (before == lap)
+            {
+                return;
+            }
+        m_undoStack->push(new OverlayCommand(lap > 0 ? tr("Use lap %1 as the reference").arg(lap) : tr("The fastest lap as the reference"),
+                                             [this, before, lap](bool forward)
+        {
+            m_project.referenceLap = forward ? lap : before;
+            setModified(true);
+            updateLaps();
+        }));
+    });
     connect(m_lapsPanel, &LapsPanel::mapChoiceChanged, this, &MainWindow::applyMapSettings);
     connect(m_lapsPanel, &LapsPanel::removeLineRequested, this, [this]()
     {
@@ -1914,6 +1929,21 @@ void MainWindow::showItemMenu(int index, const QPoint &globalPosition)
                         changeOverlay(on ? tr("Show the route in 3D") : tr("Show the route flat"), after);
                     }
             });
+            // the reference lap's rider beside this lap's
+            QAction *ghost = menu.addAction(tr("Ghost of the reference lap"));
+            ghost->setToolTip(tr("The rider of the reference lap too, faint, as far into their lap; not in 3D"));
+            ghost->setCheckable(true);
+            ghost->setChecked(overlay.ghost(index));
+            ghost->setEnabled(!overlay.flyover(index));
+            connect(ghost, &QAction::triggered, this, [this, index](bool on)
+            {
+                if (index < m_project.overlay.size())
+                    {
+                        OverlayState after{m_project.overlay, m_project.theme};
+                        after.items[index].ghost = on ? 1 : 0;
+                        changeOverlay(on ? tr("Show the ghost of the reference lap") : tr("Hide the ghost of the reference lap"), after);
+                    }
+            });
             QAction *camera = menu.addAction(tr("3D flyover camera..."));
             camera->setEnabled(overlay.flyover(index));
             connect(camera, &QAction::triggered, this, [this, index]() { askFlyoverCamera(index); });
@@ -2423,7 +2453,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
     m_rawSession = raw;
     m_recordedSession = session;
     m_dataPanel->setSessions(raw, session, m_units);
-    m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors);
+    m_session = LapEngine::apply(session, m_project.startFinish, m_project.sectors, m_project.referenceLap);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSurfaces(m_project.surfaces);
     m_timelinePanel->setSession(m_session, m_units);
@@ -2675,7 +2705,7 @@ void MainWindow::updateLaps()
             m_comparePanel->setSession(nullptr, m_units);
             return;
         }
-    m_session = LapEngine::apply(m_recordedSession, m_project.startFinish, m_project.sectors);
+    m_session = LapEngine::apply(m_recordedSession, m_project.startFinish, m_project.sectors, m_project.referenceLap);
     m_lapsPanel->setSession(m_session, m_project.startFinish, m_project.sectors);
     m_lapsPanel->setSurfaces(m_project.surfaces);
     m_timelinePanel->setSession(m_session, m_units);

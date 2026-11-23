@@ -202,6 +202,10 @@ QByteArray ProjectFile::toJson(const Project &project, const QString &projectDir
                 }
             root["sectors"] = sectors;
         }
+    if (project.referenceLap > 0)
+        {
+            root["referenceLap"] = project.referenceLap;
+        }
     if (project.wind.used)
         {
             root["wind"] = QJsonObject{{"speed", project.wind.speed}, {"from", project.wind.from}};
@@ -296,6 +300,7 @@ bool ProjectFile::fromJson(const QByteArray &json, const QString &projectDir, Pr
             loaded.cuts.append({cut.at(0).toDouble(), cut.at(1).toDouble()});
         }
     loaded.cuts = CutList::normalized(loaded.cuts);
+    loaded.referenceLap = std::max(0, root.value("referenceLap").toInt());
     for (const QJsonValue &value : root.value("sectors").toArray())
         {
             const QJsonArray sector = value.toArray();

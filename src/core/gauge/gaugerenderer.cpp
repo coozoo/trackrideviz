@@ -22,6 +22,8 @@
 
 namespace
 {
+// the reference lap's rider on a map, behind the rider of the lap under way
+const double kGhostOpacity = 0.45;
 const double kPi = 3.14159265358979323846;
 // most points a graph line or a route is drawn with
 const int kMaxPathPoints = 2000;
@@ -1747,6 +1749,10 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
     painter.restore();
     // (back at the frame, still turned) the start line at its size, where the scale puts it
     drawAt(painter, node.startLine, frame.center() + (route.startPoint - here) * scale, time, context, route.startAngle);
+    drawGhost(painter, node, time, context, [&](const QPointF &position)
+    {
+        return frame.center() + (route.toFrame.map(position) - here) * scale;
+    });
     drawAt(painter, node.knobTurning, frame.center(), time, context);
     painter.restore();
     if (streets)
@@ -1754,6 +1760,41 @@ void BoundGauge::drawFollowing(QPainter &painter, const Node &node, const Route 
             drawCredit(painter, node);
         }
     drawAt(painter, node.knob, frame.center(), time, context);
+}
+
+bool BoundGauge::ghostTime(double time, double *at) const
+{
+    if (!m_session || !m_lat)
+        {
+            return false;
+        }
+    const TelemetrySession::Lap reference = m_session->referenceLap();
+    const Channel *lapTime = m_session->channel(ChannelId::LapTime);
+    bool ok = false;
+    const double into = lapTime ? lapTime->valueAt(time, &ok) : 0.0;
+    // on the reference lap the ghost would be the rider
+    const bool itself = time >= reference.startTime && time < reference.endTime;
+    if (reference.endTime <= reference.startTime || !ok || itself || into > reference.endTime - reference.startTime)
+        {
+            return false;
+        }
+    *at = reference.startTime + into;
+    return true;
+}
+
+void BoundGauge::drawGhost(QPainter &painter, const Node &node, double time, const Context &context,
+                           const std::function<QPointF(const QPointF &)> &place) const
+{
+    double at = 0.0;
+    QPointF position;
+    if (!node.component.ghost || !ghostTime(time, &at) || !positionAt(at, &position))
+        {
+            return;
+        }
+    painter.save();
+    painter.setOpacity(painter.opacity() * kGhostOpacity);
+    drawAt(painter, node.knob, place(position), at, context);
+    painter.restore();
 }
 
 double BoundGauge::headingAt(double time) const
@@ -2005,6 +2046,7 @@ void BoundGauge::drawRoute(QPainter &painter, const Node &node, double time, con
             drawLine(painter, node, index);
         }
     drawAt(painter, node.startLine, route.startPoint, time, context, route.startAngle);
+    drawGhost(painter, node, time, context, [&route](const QPointF &position) { return route.toFrame.map(position); });
     QPointF position;
     if (positionAt(time, &position))
         {

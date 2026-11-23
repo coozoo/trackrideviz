@@ -14,7 +14,7 @@ namespace
 // The item's choices for its map (streets under it, close up), put into the gauge's routes;
 // says what it found.
 void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, bool *route, bool *streets, double *closeUp,
-               bool *headingUp, bool *flyover, GaugeComponent::FlyoverCamera *camera)
+               bool *headingUp, bool *flyover, GaugeComponent::FlyoverCamera *camera, bool *ghost)
 {
     const OverlayItem::Streets choice = item.streets;
     for (GaugeComponent &component : components)
@@ -38,6 +38,10 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                         {
                             component.flyoverCamera = item.flyoverCamera;
                         }
+                    if (item.ghost >= 0)
+                        {
+                            component.ghost = item.ghost > 0;
+                        }
                     if (!item.map.isEmpty())
                         {
                             component.mapProvider = item.map;
@@ -46,6 +50,7 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                     *headingUp = component.headingUp;
                     *flyover = component.flyover;
                     *camera = component.flyoverCamera;
+                    *ghost = component.ghost;
                     if (choice == OverlayItem::Shown && !component.tiles)
                         {
                             // a gauge drawn without a map in mind: dimmed, corners taken off
@@ -63,7 +68,7 @@ void chooseMap(QVector<GaugeComponent> &components, const OverlayItem &item, boo
                     *route = true;
                     *streets = *streets || component.tiles;
                 }
-            chooseMap(component.children, item, route, streets, closeUp, headingUp, flyover, camera);
+            chooseMap(component.children, item, route, streets, closeUp, headingUp, flyover, camera, ghost);
         }
 }
 
@@ -97,7 +102,7 @@ Overlay::Overlay(const QVector<OverlayItem> &items, const TelemetrySessionPtr &s
             Placed placed;
             placed.item = item;
             chooseMap(gauge.components, item, &placed.route, &placed.streets, &placed.closeUp, &placed.headingUp, &placed.flyover,
-                      &placed.flyoverCamera);
+                      &placed.flyoverCamera, &placed.ghost);
             chooseGraphs(gauge.components, item, &placed.graph, &placed.byDistance);
             if (!gauge.isEmpty())
                 {
@@ -342,6 +347,10 @@ void OverlayItem::writeChoices(QJsonObject &object) const
         {
             object.insert("byDistance", byDistance > 0);
         }
+    if (ghost >= 0)
+        {
+            object.insert("ghost", ghost > 0);
+        }
 }
 
 void OverlayItem::readChoices(const QJsonObject &object)
@@ -364,4 +373,5 @@ void OverlayItem::readChoices(const QJsonObject &object)
     textScale = std::clamp(object.value("textScale").toDouble(1.0), 0.2, 5.0);
     opacity = std::clamp(object.value("opacity").toDouble(1.0), 0.0, 1.0);
     byDistance = object.contains("byDistance") ? (object.value("byDistance").toBool() ? 1 : 0) : -1;
+    ghost = object.contains("ghost") ? (object.value("ghost").toBool() ? 1 : 0) : -1;
 }

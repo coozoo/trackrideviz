@@ -2303,6 +2303,8 @@ void GaugeEditor::fillProperties()
                     addNumber(form, tr("Close-up, meters across:"), part.span, 0, 100000, 0, [](Part &p, double v) { p.span = v; },
                               tr("0: the whole route. Otherwise this much around the rider, the map moving under them."));
                     addCheck(form, tr("The way ahead up (close-up)"), part.headingUp, [](Part &p, bool on) { p.headingUp = on; });
+                    addCheck(form, tr("Ghost of the reference lap"), part.ghost, [](Part &p, bool on) { p.ghost = on; },
+                             tr("The rider of the reference lap too, faint, as far into their lap; not in 3D"));
                     addCheck(form, tr("3D flyover"), part.flyover, [](Part &p, bool on) { p.flyover = on; },
                              tr("The land in 3D, seen from behind the rider"), true);
                     if (part.flyover)

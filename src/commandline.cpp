@@ -413,7 +413,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
                         return waiting || weatherWaiting;
                     }, kWaitForDownloadsMs);
                 }
-            session = LapEngine::apply(worked, project.startFinish, project.sectors);
+            session = LapEngine::apply(worked, project.startFinish, project.sectors, project.referenceLap);
         }
     else
         {

@@ -172,6 +172,29 @@ private slots:
         QVERIFY(at(s, ChannelId::SpeedLapMax, 160.0) < fast + 0.3);
     }
 
+    void referenceLap()
+    {
+        // the fastest of the whole ride when none is chosen: lap 2, 50 s, starting at 65 s
+        const TelemetrySessionPtr s = LapEngine::apply(circuit({60.0, 50.0, 55.0}), topLine());
+        QVERIFY(std::fabs(s->referenceLap().startTime - 65.0) < 0.1);
+        QVERIFY(std::fabs(at(s, ChannelId::ReferenceLapTime, 30.0) - 50.0) < 0.1);
+        // the first lap is measured too, against a lap still to come: halfway, 5 s behind
+        QVERIFY(std::fabs(at(s, ChannelId::ReferenceDelta, 5.0 + 30.0) - 5.0) < 0.3);
+        QVERIFY(std::fabs(at(s, ChannelId::ReferenceDelta, 65.0 + 25.0)) < 0.3);       // itself
+        QVERIFY(std::fabs(at(s, ChannelId::ReferenceDelta, 115.0 + 27.5) - 2.5) < 0.3);
+        // lap 3 chosen: lap 2 is 2.5 s ahead of it halfway
+        const TelemetrySessionPtr third = LapEngine::apply(circuit({60.0, 50.0, 55.0}), topLine(), {}, 3);
+        QVERIFY(std::fabs(third->referenceLap().startTime - 115.0) < 0.1);
+        QVERIFY(std::fabs(at(third, ChannelId::ReferenceDelta, 65.0 + 25.0) + 2.5) < 0.3);
+        QVERIFY(std::fabs(at(third, ChannelId::ReferenceLapTime, 30.0) - 55.0) < 0.1);
+        // a lap that is not there: the fastest
+        QVERIFY(std::fabs(LapEngine::apply(circuit({60.0, 50.0, 55.0}), topLine(), {}, 9)->referenceLap().startTime - 65.0) < 0.1);
+        // no laps, no reference
+        const TelemetrySessionPtr none = LapEngine::apply(circuit({60.0}), StartFinishLine());
+        QVERIFY(none->referenceLap().endTime <= none->referenceLap().startTime);
+        QVERIFY(!none->channel(ChannelId::ReferenceDelta));
+    }
+
     void recordedLapsWithoutALine()
     {
         auto base = std::make_shared<TelemetrySession>(*circuit({60.0, 50.0}));

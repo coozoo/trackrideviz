@@ -58,6 +58,8 @@ signals:
     void seekRequested(double time);
     // the laps selected in the table, as indexes into the session's laps
     void lapsSelected(const QVector<int> &laps);
+    // the lap others are measured against: its number from 1; 0 = the fastest
+    void referenceChosen(int lap);
 
 private:
     void placeToggled(QPushButton *button, bool checked);
