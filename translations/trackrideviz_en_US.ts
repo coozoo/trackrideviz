@@ -4590,344 +4590,339 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="559"/>
+        <location filename="../src/mainwindow.cpp" line="558"/>
         <source>Play / pause (Space)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="579"/>
+        <location filename="../src/mainwindow.cpp" line="578"/>
         <source> s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2556"/>
+        <location filename="../src/mainwindow.cpp" line="2518"/>
         <source>Time in the data at the first frame of the video.
 Increase it if the gauges are late compared to the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="584"/>
+        <location filename="../src/mainwindow.cpp" line="583"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2558"/>
+        <location filename="../src/mainwindow.cpp" line="2520"/>
         <source>Set the offset from the recording time of the video and the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="599"/>
+        <location filename="../src/mainwindow.cpp" line="598"/>
         <source>Data offset:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="613"/>
+        <location filename="../src/mainwindow.cpp" line="612"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="614"/>
+        <location filename="../src/mainwindow.cpp" line="613"/>
         <source>Gauge library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="615"/>
+        <location filename="../src/mainwindow.cpp" line="614"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="616"/>
+        <location filename="../src/mainwindow.cpp" line="615"/>
         <source>Timeline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="617"/>
+        <location filename="../src/mainwindow.cpp" line="616"/>
         <source>Laps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="629"/>
+        <location filename="../src/mainwindow.cpp" line="628"/>
         <source>Compare laps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="634"/>
+        <location filename="../src/mainwindow.cpp" line="633"/>
         <source>Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="656"/>
+        <location filename="../src/mainwindow.cpp" line="655"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="674"/>
+        <location filename="../src/mainwindow.cpp" line="673"/>
         <source>Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="686"/>
+        <location filename="../src/mainwindow.cpp" line="685"/>
         <source>Remove start/finish line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="691"/>
+        <location filename="../src/mainwindow.cpp" line="690"/>
         <source>Remove sector lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="696"/>
+        <location filename="../src/mainwindow.cpp" line="695"/>
         <source>Change surfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="700"/>
+        <location filename="../src/mainwindow.cpp" line="699"/>
         <source>Clear surfaces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="731"/>
+        <location filename="../src/mainwindow.cpp" line="730"/>
         <source>Channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="731"/>
+        <location filename="../src/mainwindow.cpp" line="730"/>
         <source>Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="731"/>
+        <location filename="../src/mainwindow.cpp" line="730"/>
         <source>Unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="731"/>
+        <location filename="../src/mainwindow.cpp" line="730"/>
         <source>Min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="731"/>
+        <location filename="../src/mainwindow.cpp" line="730"/>
         <source>Max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="737"/>
+        <location filename="../src/mainwindow.cpp" line="736"/>
         <source>&quot;Now&quot; is the value at the video frame on screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="742"/>
+        <location filename="../src/mainwindow.cpp" line="741"/>
         <source>Recorded only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="744"/>
+        <location filename="../src/mainwindow.cpp" line="743"/>
         <source>Where the elevation comes from. The terrain model gives the height of the ground under the route (%1); grade, climb and vertical speed follow it. Its pieces are fetched once, like a map&apos;s.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="758"/>
+        <location filename="../src/mainwindow.cpp" line="757"/>
         <source>Elevation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="764"/>
+        <location filename="../src/mainwindow.cpp" line="763"/>
         <source>By hand:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="767"/>
+        <location filename="../src/mainwindow.cpp" line="766"/>
         <source>Where the wind of this ride comes from. Weather history is switched on in the settings (Weather); a wind entered here by hand is the same all along the ride and kept in the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="772"/>
+        <location filename="../src/mainwindow.cpp" line="771"/>
         <source>The wind&apos;s speed as forecasts give it, 10 m above the ground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="778"/>
+        <location filename="../src/mainwindow.cpp" line="777"/>
         <source>from </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="780"/>
+        <location filename="../src/mainwindow.cpp" line="779"/>
         <source>Where the wind blows from: 0 north, 90 east, 180 south, 270 west</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="807"/>
+        <location filename="../src/mainwindow.cpp" line="806"/>
         <source>Wind:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="847"/>
+        <location filename="../src/mainwindow.cpp" line="846"/>
         <source>&amp;File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="848"/>
+        <location filename="../src/mainwindow.cpp" line="847"/>
         <source>Open &amp;video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="851"/>
+        <location filename="../src/mainwindow.cpp" line="850"/>
         <source>&amp;Recent videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="855"/>
+        <location filename="../src/mainwindow.cpp" line="854"/>
         <source>Open &amp;data...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="858"/>
+        <location filename="../src/mainwindow.cpp" line="857"/>
         <source>Recent &amp;data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="862"/>
+        <location filename="../src/mainwindow.cpp" line="861"/>
         <source>Add data from other &amp;files...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="865"/>
+        <location filename="../src/mainwindow.cpp" line="864"/>
         <source>Save data as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="866"/>
+        <location filename="../src/mainwindow.cpp" line="865"/>
         <source>The data with its corrections, as GPX or CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="868"/>
+        <location filename="../src/mainwindow.cpp" line="867"/>
         <source>&amp;Join videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="870"/>
-        <source>The video is a time-lapse: the gauges run as much faster as it does</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="872"/>
+        <location filename="../src/mainwindow.cpp" line="868"/>
         <source>&amp;Without a video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="873"/>
+        <location filename="../src/mainwindow.cpp" line="869"/>
         <source>The gauges over a plain color, or see-through, as long as the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="875"/>
+        <location filename="../src/mainwindow.cpp" line="871"/>
         <source>Open &amp;project...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="878"/>
+        <location filename="../src/mainwindow.cpp" line="874"/>
         <source>Recent pro&amp;jects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="882"/>
+        <location filename="../src/mainwindow.cpp" line="878"/>
         <source>&amp;Save project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="885"/>
+        <location filename="../src/mainwindow.cpp" line="881"/>
         <source>Save project &amp;as...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="889"/>
+        <location filename="../src/mainwindow.cpp" line="885"/>
         <source>&amp;Export video...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="894"/>
+        <location filename="../src/mainwindow.cpp" line="890"/>
         <source>Save the &amp;gauges as a template...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="896"/>
+        <location filename="../src/mainwindow.cpp" line="892"/>
         <source>&amp;Settings...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="902"/>
+        <location filename="../src/mainwindow.cpp" line="898"/>
         <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="906"/>
+        <location filename="../src/mainwindow.cpp" line="902"/>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="907"/>
+        <location filename="../src/mainwindow.cpp" line="903"/>
         <source>&amp;Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="911"/>
+        <location filename="../src/mainwindow.cpp" line="907"/>
         <source>&amp;Redo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="916"/>
+        <location filename="../src/mainwindow.cpp" line="912"/>
         <source>&amp;View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="927"/>
+        <location filename="../src/mainwindow.cpp" line="923"/>
         <source>&amp;Reset layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="938"/>
+        <location filename="../src/mainwindow.cpp" line="934"/>
         <source>&amp;Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="939"/>
+        <location filename="../src/mainwindow.cpp" line="935"/>
         <source>User &amp;manual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="941"/>
+        <location filename="../src/mainwindow.cpp" line="937"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="942"/>
+        <location filename="../src/mainwindow.cpp" line="938"/>
         <source>Check for &amp;updates...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="946"/>
+        <location filename="../src/mainwindow.cpp" line="942"/>
         <source>Support &amp;Ukraine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="948"/>
+        <location filename="../src/mainwindow.cpp" line="944"/>
         <source>About &amp;Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="954"/>
-        <location filename="../src/mainwindow.cpp" line="968"/>
+        <location filename="../src/mainwindow.cpp" line="950"/>
+        <location filename="../src/mainwindow.cpp" line="964"/>
         <source>Open video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="955"/>
+        <location filename="../src/mainwindow.cpp" line="951"/>
         <source>Video files (%1);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="969"/>
+        <location filename="../src/mainwindow.cpp" line="965"/>
         <source>%1 is the first of %n parts of one recording. Join them into one video?</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -4935,23 +4930,23 @@ Increase it if the gauges are late compared to the picture.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1008"/>
+        <location filename="../src/mainwindow.cpp" line="1004"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1012"/>
+        <location filename="../src/mainwindow.cpp" line="1008"/>
         <source>Clear the list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1025"/>
-        <location filename="../src/mainwindow.cpp" line="2379"/>
+        <location filename="../src/mainwindow.cpp" line="1021"/>
+        <location filename="../src/mainwindow.cpp" line="2373"/>
         <source>Open data</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="1064"/>
+        <location filename="../src/mainwindow.cpp" line="1058"/>
         <source>Joined; the data follows the %n break(s) between the recordings.</source>
         <translation>
             <numerusform>Joined; the data follows the break between the recordings.</numerusform>
@@ -4959,89 +4954,89 @@ Increase it if the gauges are late compared to the picture.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1092"/>
+        <location filename="../src/mainwindow.cpp" line="1086"/>
         <source>3D flyover camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1098"/>
+        <location filename="../src/mainwindow.cpp" line="1092"/>
         <source>From looking straight down: more looks further ahead, towards the horizon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1104"/>
+        <location filename="../src/mainwindow.cpp" line="1098"/>
         <source>Above the rider; the camera is behind them as far as its tilt takes it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1109"/>
+        <location filename="../src/mainwindow.cpp" line="1103"/>
         <source>x </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1111"/>
+        <location filename="../src/mainwindow.cpp" line="1105"/>
         <source>Hills higher than they are: true ones look flat from above</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1112"/>
+        <location filename="../src/mainwindow.cpp" line="1106"/>
         <source>Tilt:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1113"/>
+        <location filename="../src/mainwindow.cpp" line="1107"/>
         <source>Height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1114"/>
+        <location filename="../src/mainwindow.cpp" line="1108"/>
         <source>Hills:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1115"/>
+        <location filename="../src/mainwindow.cpp" line="1109"/>
         <source>As the gauge has it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1130"/>
+        <location filename="../src/mainwindow.cpp" line="1124"/>
         <source>Set the 3D flyover&apos;s camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1141"/>
+        <location filename="../src/mainwindow.cpp" line="1135"/>
         <source>The video %1 is put aside for the background. Go on?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1150"/>
+        <location filename="../src/mainwindow.cpp" line="1144"/>
         <source>Open the data now: the picture is as long as it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1170"/>
+        <location filename="../src/mainwindow.cpp" line="1164"/>
         <source>No video: the gauges follow the data&apos;s own time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1193"/>
+        <location filename="../src/mainwindow.cpp" line="1187"/>
         <source>Loading %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1253"/>
-        <location filename="../src/mainwindow.cpp" line="1272"/>
-        <location filename="../src/mainwindow.cpp" line="1348"/>
+        <location filename="../src/mainwindow.cpp" line="1247"/>
+        <location filename="../src/mainwindow.cpp" line="1266"/>
+        <location filename="../src/mainwindow.cpp" line="1342"/>
         <source>Open project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1254"/>
+        <location filename="../src/mainwindow.cpp" line="1248"/>
         <source>Projects (*.%1);;All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1349"/>
+        <location filename="../src/mainwindow.cpp" line="1343"/>
         <source>These files of the project were not found:
 %1
 
@@ -5049,34 +5044,34 @@ Open them again from where they are now and save the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1363"/>
-        <location filename="../src/mainwindow.cpp" line="1385"/>
+        <location filename="../src/mainwindow.cpp" line="1357"/>
+        <location filename="../src/mainwindow.cpp" line="1379"/>
         <source>Save project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1367"/>
+        <location filename="../src/mainwindow.cpp" line="1361"/>
         <source>Project saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1386"/>
+        <location filename="../src/mainwindow.cpp" line="1380"/>
         <source>Projects (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1416"/>
-        <location filename="../src/mainwindow.cpp" line="1427"/>
+        <location filename="../src/mainwindow.cpp" line="1410"/>
+        <location filename="../src/mainwindow.cpp" line="1421"/>
         <source>Export video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1417"/>
+        <location filename="../src/mainwindow.cpp" line="1411"/>
         <source>Open the data for this video first: without it there is nothing to draw.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="1424"/>
+        <location filename="../src/mainwindow.cpp" line="1418"/>
         <source>%n piece(s) of the map under the gauges are still being fetched.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -5084,789 +5079,768 @@ Open them again from where they are now and save the project.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1425"/>
+        <location filename="../src/mainwindow.cpp" line="1419"/>
         <source>The heights of the terrain are still being fetched.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1426"/>
+        <location filename="../src/mainwindow.cpp" line="1420"/>
         <source>The weather of the ride is still being fetched.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1428"/>
+        <location filename="../src/mainwindow.cpp" line="1422"/>
         <source>%1
 An export started now would be drawn without them. Export anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1482"/>
+        <location filename="../src/mainwindow.cpp" line="1476"/>
         <source>Unsaved changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1483"/>
+        <location filename="../src/mainwindow.cpp" line="1477"/>
         <source>The gauges or the synchronization were changed. Save the project?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1532"/>
+        <location filename="../src/mainwindow.cpp" line="1526"/>
         <source>Place the gauges for the video&apos;s shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1568"/>
+        <location filename="../src/mainwindow.cpp" line="1562"/>
         <source>Add gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1583"/>
+        <location filename="../src/mainwindow.cpp" line="1577"/>
         <source>Apply template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1590"/>
-        <location filename="../src/mainwindow.cpp" line="1609"/>
-        <location filename="../src/mainwindow.cpp" line="1633"/>
-        <location filename="../src/mainwindow.cpp" line="1646"/>
+        <location filename="../src/mainwindow.cpp" line="1584"/>
+        <location filename="../src/mainwindow.cpp" line="1603"/>
+        <location filename="../src/mainwindow.cpp" line="1627"/>
+        <location filename="../src/mainwindow.cpp" line="1640"/>
         <source>Save as template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1590"/>
+        <location filename="../src/mainwindow.cpp" line="1584"/>
         <source>There are no gauges on the video to save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1622"/>
+        <location filename="../src/mainwindow.cpp" line="1616"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1623"/>
+        <location filename="../src/mainwindow.cpp" line="1617"/>
         <source>Category:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1624"/>
+        <location filename="../src/mainwindow.cpp" line="1618"/>
         <source>The gauges on the video, where they are and their colors.
 It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1633"/>
+        <location filename="../src/mainwindow.cpp" line="1627"/>
         <source>There is a template &quot;%1&quot; already. Replace it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1650"/>
+        <location filename="../src/mainwindow.cpp" line="1644"/>
         <source>Template &quot;%1&quot; saved to the library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1662"/>
-        <location filename="../src/mainwindow.cpp" line="2046"/>
+        <location filename="../src/mainwindow.cpp" line="1656"/>
+        <location filename="../src/mainwindow.cpp" line="2040"/>
         <source>Remove gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1677"/>
+        <location filename="../src/mainwindow.cpp" line="1671"/>
         <source>Move gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1677"/>
+        <location filename="../src/mainwindow.cpp" line="1671"/>
         <source>Change a gauge&apos;s shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1693"/>
-        <location filename="../src/mainwindow.cpp" line="1714"/>
+        <location filename="../src/mainwindow.cpp" line="1687"/>
+        <location filename="../src/mainwindow.cpp" line="1708"/>
         <source>Change what a gauge shows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1726"/>
+        <location filename="../src/mainwindow.cpp" line="1720"/>
         <source>Change a gauge&apos;s scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1737"/>
+        <location filename="../src/mainwindow.cpp" line="1731"/>
         <source>Show the street map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1737"/>
+        <location filename="../src/mainwindow.cpp" line="1731"/>
         <source>Hide the street map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1749"/>
+        <location filename="../src/mainwindow.cpp" line="1743"/>
         <source>Widen the close-up with the speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1750"/>
+        <location filename="../src/mainwindow.cpp" line="1744"/>
         <source>Show the route close up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1750"/>
+        <location filename="../src/mainwindow.cpp" line="1744"/>
         <source>Show the whole route</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1763"/>
+        <location filename="../src/mainwindow.cpp" line="1757"/>
         <source>Close-up by speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1102"/>
-        <location filename="../src/mainwindow.cpp" line="1770"/>
+        <location filename="../src/mainwindow.cpp" line="1096"/>
+        <location filename="../src/mainwindow.cpp" line="1764"/>
         <source> m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1795"/>
+        <location filename="../src/mainwindow.cpp" line="1789"/>
         <source>The map shows less of the route when slow and more when fast, in proportion between the two speeds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1799"/>
+        <location filename="../src/mainwindow.cpp" line="1793"/>
         <source>At this speed or slower:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mainwindow.cpp" line="1794"/>
+        <location filename="../src/mainwindow.cpp" line="1796"/>
         <location filename="../src/mainwindow.cpp" line="1800"/>
-        <location filename="../src/mainwindow.cpp" line="1802"/>
-        <location filename="../src/mainwindow.cpp" line="1806"/>
         <source>Shows across:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1801"/>
+        <location filename="../src/mainwindow.cpp" line="1795"/>
         <source>At this speed or faster:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1824"/>
+        <location filename="../src/mainwindow.cpp" line="1818"/>
         <source>The second speed has to be above the first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1850"/>
+        <location filename="../src/mainwindow.cpp" line="1844"/>
         <source>Show</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1865"/>
+        <location filename="../src/mainwindow.cpp" line="1859"/>
         <source>Street map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1873"/>
+        <location filename="../src/mainwindow.cpp" line="1867"/>
         <source>3D flyover</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1874"/>
+        <location filename="../src/mainwindow.cpp" line="1868"/>
         <source>The land in 3D, seen from behind the rider; the close-up sets how much of it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1883"/>
+        <location filename="../src/mainwindow.cpp" line="1877"/>
         <source>Show the route in 3D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1883"/>
+        <location filename="../src/mainwindow.cpp" line="1877"/>
         <source>Show the route flat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1890"/>
+        <location filename="../src/mainwindow.cpp" line="1884"/>
         <source>Map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1914"/>
+        <location filename="../src/mainwindow.cpp" line="1908"/>
         <source>Choose a gauge&apos;s map</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1763"/>
-        <location filename="../src/mainwindow.cpp" line="1923"/>
+        <location filename="../src/mainwindow.cpp" line="1757"/>
+        <location filename="../src/mainwindow.cpp" line="1917"/>
         <source>Close-up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1927"/>
+        <location filename="../src/mainwindow.cpp" line="1921"/>
         <source>Off: the whole route</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1927"/>
+        <location filename="../src/mainwindow.cpp" line="1921"/>
         <source>300 m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1927"/>
+        <location filename="../src/mainwindow.cpp" line="1921"/>
         <source>600 m</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1928"/>
+        <location filename="../src/mainwindow.cpp" line="1922"/>
         <source>1 km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1928"/>
+        <location filename="../src/mainwindow.cpp" line="1922"/>
         <source>2 km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1928"/>
+        <location filename="../src/mainwindow.cpp" line="1922"/>
         <source>5 km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1956"/>
+        <location filename="../src/mainwindow.cpp" line="1950"/>
         <source>The way ahead up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1957"/>
+        <location filename="../src/mainwindow.cpp" line="1951"/>
         <source>Turns the close-up so that the direction of travel points up; north is up otherwise</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1967"/>
+        <location filename="../src/mainwindow.cpp" line="1961"/>
         <source>Turn the map to the way ahead</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1967"/>
+        <location filename="../src/mainwindow.cpp" line="1961"/>
         <source>Turn the map north up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1972"/>
+        <location filename="../src/mainwindow.cpp" line="1966"/>
         <source>Units</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1892"/>
-        <location filename="../src/mainwindow.cpp" line="1975"/>
+        <location filename="../src/mainwindow.cpp" line="1886"/>
+        <location filename="../src/mainwindow.cpp" line="1969"/>
         <source>As in the settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="270"/>
+        <location filename="../src/mainwindow.cpp" line="269"/>
         <source>Version %1 is available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="272"/>
+        <location filename="../src/mainwindow.cpp" line="271"/>
         <source>Update to version %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="284"/>
-        <location filename="../src/mainwindow.cpp" line="293"/>
-        <location filename="../src/mainwindow.cpp" line="3161"/>
+        <location filename="../src/mainwindow.cpp" line="283"/>
+        <location filename="../src/mainwindow.cpp" line="292"/>
+        <location filename="../src/mainwindow.cpp" line="3122"/>
         <source>Check for updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="285"/>
+        <location filename="../src/mainwindow.cpp" line="284"/>
         <source>This is the latest version, %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="293"/>
+        <location filename="../src/mainwindow.cpp" line="292"/>
         <source>Could not find out about newer versions: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="298"/>
+        <location filename="../src/mainwindow.cpp" line="297"/>
         <source>What is new, and how to get it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="740"/>
+        <location filename="../src/mainwindow.cpp" line="739"/>
         <source>Recorded / terrain model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="741"/>
+        <location filename="../src/mainwindow.cpp" line="740"/>
         <source>Terrain model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="763"/>
+        <location filename="../src/mainwindow.cpp" line="762"/>
         <source>Weather history</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1886"/>
+        <location filename="../src/mainwindow.cpp" line="1880"/>
         <source>3D flyover camera...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1945"/>
+        <location filename="../src/mainwindow.cpp" line="1939"/>
         <source>Custom: %1 m...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1945"/>
+        <location filename="../src/mainwindow.cpp" line="1939"/>
         <source>Custom...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1949"/>
+        <location filename="../src/mainwindow.cpp" line="1943"/>
         <source>Dynamic, by speed...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1950"/>
+        <location filename="../src/mainwindow.cpp" line="1944"/>
         <source>Closer when slow, wider when fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1975"/>
+        <location filename="../src/mainwindow.cpp" line="1969"/>
         <source>Metric (km/h, m, °C)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1976"/>
+        <location filename="../src/mainwindow.cpp" line="1970"/>
         <source>Imperial (mph, ft, °F)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1990"/>
+        <location filename="../src/mainwindow.cpp" line="1984"/>
         <source>Change a gauge&apos;s units</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1995"/>
+        <location filename="../src/mainwindow.cpp" line="1989"/>
         <source>Keep the gauge&apos;s shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1998"/>
+        <location filename="../src/mainwindow.cpp" line="1992"/>
         <source>Off: handles on the right and bottom edges change only the width or the height. Round parts become oval.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2009"/>
+        <location filename="../src/mainwindow.cpp" line="2003"/>
         <source>Keep a gauge&apos;s shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2009"/>
+        <location filename="../src/mainwindow.cpp" line="2003"/>
         <source>Free a gauge&apos;s shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2013"/>
+        <location filename="../src/mainwindow.cpp" line="2007"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2024"/>
+        <location filename="../src/mainwindow.cpp" line="2018"/>
         <source>Text and numbers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2024"/>
+        <location filename="../src/mainwindow.cpp" line="2018"/>
         <source>Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2025"/>
+        <location filename="../src/mainwindow.cpp" line="2019"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2025"/>
+        <location filename="../src/mainwindow.cpp" line="2019"/>
         <source>Plates behind the gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2027"/>
+        <location filename="../src/mainwindow.cpp" line="2021"/>
         <source>Accent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2039"/>
+        <location filename="../src/mainwindow.cpp" line="2033"/>
         <source>The measurement the selected gauge shows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2060"/>
+        <location filename="../src/mainwindow.cpp" line="2054"/>
         <source>From the data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2061"/>
+        <location filename="../src/mainwindow.cpp" line="2055"/>
         <source>Where the gauge&apos;s scale ends, in its units. From the data: a round number above the highest value of the recording.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2067"/>
+        <location filename="../src/mainwindow.cpp" line="2061"/>
         <source>Scale up to:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2082"/>
+        <location filename="../src/mainwindow.cpp" line="2076"/>
         <source>The letters and numbers of the selected gauge, larger or smaller than it was made with</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2085"/>
+        <location filename="../src/mainwindow.cpp" line="2079"/>
         <source>Change a gauge&apos;s text size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2092"/>
+        <location filename="../src/mainwindow.cpp" line="2086"/>
         <source>How much of the selected gauge shows over the video; 100 %: all of it</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2095"/>
+        <location filename="../src/mainwindow.cpp" line="2089"/>
         <source>Change a gauge&apos;s opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2097"/>
+        <location filename="../src/mainwindow.cpp" line="2091"/>
         <source>Own colors and font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2098"/>
+        <location filename="../src/mainwindow.cpp" line="2092"/>
         <source>On: the colors and the font below are this gauge&apos;s alone. Off: it looks like all the others.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2103"/>
+        <location filename="../src/mainwindow.cpp" line="2097"/>
         <source>Give a gauge its own look</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2103"/>
+        <location filename="../src/mainwindow.cpp" line="2097"/>
         <source>Give a gauge the common look</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2109"/>
+        <location filename="../src/mainwindow.cpp" line="2103"/>
         <source>Text size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2110"/>
+        <location filename="../src/mainwindow.cpp" line="2104"/>
         <source>Opacity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2158"/>
+        <location filename="../src/mainwindow.cpp" line="2152"/>
         <source>Default</source>
         <comment>font weight</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2186"/>
+        <location filename="../src/mainwindow.cpp" line="2180"/>
         <source>Type to find a font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2250"/>
+        <location filename="../src/mainwindow.cpp" line="2244"/>
         <source>Change gauge colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2305"/>
+        <location filename="../src/mainwindow.cpp" line="2299"/>
         <source>What the part of the gauge made for %1 shows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2334"/>
+        <location filename="../src/mainwindow.cpp" line="2328"/>
         <source>This gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2335"/>
+        <location filename="../src/mainwindow.cpp" line="2329"/>
         <source>Colors and font of the selected gauge alone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2467"/>
-        <location filename="../src/mainwindow.cpp" line="2586"/>
+        <location filename="../src/mainwindow.cpp" line="2461"/>
+        <location filename="../src/mainwindow.cpp" line="2547"/>
         <source>Video: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2525"/>
-        <source>Time-lapse video</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="2526"/>
-        <source>Seconds of the ride in one second of the video:
-the camera&apos;s speed-up (10, 30...); 1 for an ordinary video.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="2549"/>
-        <source>&amp;Time-lapse video (x%1)...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="2550"/>
-        <source>&amp;Time-lapse video...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="2580"/>
+        <location filename="../src/mainwindow.cpp" line="2541"/>
         <source>Video: none, the gauges over %1 (%2 x %3, %4 fps)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2581"/>
+        <location filename="../src/mainwindow.cpp" line="2542"/>
         <source>nothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2824"/>
+        <location filename="../src/mainwindow.cpp" line="2785"/>
         <source>The video does not show that part of the data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2827"/>
+        <location filename="../src/mainwindow.cpp" line="2788"/>
         <source>Cut the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2839"/>
-        <location filename="../src/mainwindow.cpp" line="2842"/>
+        <location filename="../src/mainwindow.cpp" line="2800"/>
+        <location filename="../src/mainwindow.cpp" line="2803"/>
         <source>GPX track (*.gpx)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2840"/>
-        <location filename="../src/mainwindow.cpp" line="2859"/>
+        <location filename="../src/mainwindow.cpp" line="2801"/>
+        <location filename="../src/mainwindow.cpp" line="2820"/>
         <source>Save data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2842"/>
+        <location filename="../src/mainwindow.cpp" line="2803"/>
         <source>CSV, every channel (*.csv)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2859"/>
+        <location filename="../src/mainwindow.cpp" line="2820"/>
         <source>Could not save %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2862"/>
+        <location filename="../src/mainwindow.cpp" line="2823"/>
         <source>Saved %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3162"/>
+        <location filename="../src/mainwindow.cpp" line="3123"/>
         <source>This copy was not built for a release (it is a development build or a distribution&apos;s package), so it cannot tell how new it is. The releases are &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3181"/>
+        <location filename="../src/mainwindow.cpp" line="3142"/>
         <source>Version %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3187"/>
+        <location filename="../src/mainwindow.cpp" line="3148"/>
         <source>Version %1 of %2 is out, made on %3. This one is %4, of %5.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3195"/>
+        <location filename="../src/mainwindow.cpp" line="3156"/>
         <source>No notes came with it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3201"/>
+        <location filename="../src/mainwindow.cpp" line="3162"/>
         <source>Update now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3210"/>
+        <location filename="../src/mainwindow.cpp" line="3171"/>
         <source>Open the release page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3215"/>
+        <location filename="../src/mainwindow.cpp" line="3176"/>
         <source>Skip this version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3216"/>
+        <location filename="../src/mainwindow.cpp" line="3177"/>
         <source>Later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3247"/>
+        <location filename="../src/mainwindow.cpp" line="3208"/>
         <source>Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3247"/>
+        <location filename="../src/mainwindow.cpp" line="3208"/>
         <source>Version %1 is in place. Restart now to use it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3250"/>
+        <location filename="../src/mainwindow.cpp" line="3211"/>
         <source>Version %1 starts the next time the program does.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3264"/>
+        <location filename="../src/mainwindow.cpp" line="3225"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;img src=&quot;:/images/icons/flag-ukraine.svg&quot; width=&quot;24&quot; height=&quot;16&quot;&gt; &lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1331"/>
-        <location filename="../src/mainwindow.cpp" line="2478"/>
+        <location filename="../src/mainwindow.cpp" line="1325"/>
+        <location filename="../src/mainwindow.cpp" line="2472"/>
         <source>Set by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="348"/>
+        <location filename="../src/mainwindow.cpp" line="347"/>
         <source>Music: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="532"/>
+        <location filename="../src/mainwindow.cpp" line="531"/>
         <source>Not opened, not something this program reads: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2137"/>
+        <location filename="../src/mainwindow.cpp" line="2131"/>
         <source>%1 (comes with the program)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2159"/>
+        <location filename="../src/mainwindow.cpp" line="2153"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2160"/>
+        <location filename="../src/mainwindow.cpp" line="2154"/>
         <source>Regular</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2161"/>
+        <location filename="../src/mainwindow.cpp" line="2155"/>
         <source>Medium</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2162"/>
+        <location filename="../src/mainwindow.cpp" line="2156"/>
         <source>Semibold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2163"/>
+        <location filename="../src/mainwindow.cpp" line="2157"/>
         <source>Bold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2166"/>
+        <location filename="../src/mainwindow.cpp" line="2160"/>
         <source>Imported gauges often name a font (Arial...); with this they use the one chosen here too</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2172"/>
+        <location filename="../src/mainwindow.cpp" line="2166"/>
         <source>Change gauge font</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2205"/>
+        <location filename="../src/mainwindow.cpp" line="2199"/>
         <source>Font:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2206"/>
+        <location filename="../src/mainwindow.cpp" line="2200"/>
         <source>Weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2490"/>
+        <location filename="../src/mainwindow.cpp" line="2484"/>
         <source>The data comes from this video: nothing to synchronize.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2505"/>
+        <location filename="../src/mainwindow.cpp" line="2499"/>
         <source>Not synchronized: %1 Set the offset by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2586"/>
-        <location filename="../src/mainwindow.cpp" line="2591"/>
+        <location filename="../src/mainwindow.cpp" line="2547"/>
+        <location filename="../src/mainwindow.cpp" line="2552"/>
         <source>none</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2591"/>
-        <location filename="../src/mainwindow.cpp" line="2595"/>
+        <location filename="../src/mainwindow.cpp" line="2552"/>
+        <location filename="../src/mainwindow.cpp" line="2556"/>
         <source>Data: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2598"/>
+        <location filename="../src/mainwindow.cpp" line="2559"/>
         <source>  and %1, shifted by %2 s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2604"/>
+        <location filename="../src/mainwindow.cpp" line="2565"/>
         <source>Start: %1 UTC</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2606"/>
+        <location filename="../src/mainwindow.cpp" line="2567"/>
         <source>Duration: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2607"/>
+        <location filename="../src/mainwindow.cpp" line="2568"/>
         <source>Laps: %1, pauses: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2610"/>
+        <location filename="../src/mainwindow.cpp" line="2571"/>
         <source>Fetching the heights of the terrain...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2614"/>
+        <location filename="../src/mainwindow.cpp" line="2575"/>
         <source>Fetching the weather of the ride...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2618"/>
+        <location filename="../src/mainwindow.cpp" line="2579"/>
         <source>Weather: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2623"/>
+        <location filename="../src/mainwindow.cpp" line="2584"/>
         <source>Warnings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2649"/>
+        <location filename="../src/mainwindow.cpp" line="2610"/>
         <source>Not recorded: worked out from the other measurements</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/mainwindow.cpp" line="2642"/>
+        <location filename="../src/mainwindow.cpp" line="2603"/>
         <source>%1: %n samples</source>
         <translation>
             <numerusform>%1: %n samples</numerusform>
@@ -5874,99 +5848,99 @@ the camera&apos;s speed-up (10, 30...); 1 for an ordinary video.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2709"/>
+        <location filename="../src/mainwindow.cpp" line="2670"/>
         <source>Click on the route to place the start/finish line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2702"/>
+        <location filename="../src/mainwindow.cpp" line="2663"/>
         <source>The direction of travel is not known there.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2027"/>
+        <location filename="../src/mainwindow.cpp" line="2021"/>
         <source>Needles, bars and highlights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2029"/>
+        <location filename="../src/mainwindow.cpp" line="2023"/>
         <source>2nd accent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2029"/>
+        <location filename="../src/mainwindow.cpp" line="2023"/>
         <source>Scales, units and labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2071"/>
+        <location filename="../src/mainwindow.cpp" line="2065"/>
         <source>Gauge data:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2113"/>
-        <location filename="../src/mainwindow.cpp" line="2334"/>
+        <location filename="../src/mainwindow.cpp" line="2107"/>
+        <location filename="../src/mainwindow.cpp" line="2328"/>
         <source>All gauges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2336"/>
+        <location filename="../src/mainwindow.cpp" line="2330"/>
         <source>Colors and font of every gauge on the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2135"/>
-        <location filename="../src/mainwindow.cpp" line="2154"/>
+        <location filename="../src/mainwindow.cpp" line="2129"/>
+        <location filename="../src/mainwindow.cpp" line="2148"/>
         <source>The font of the gauges&apos; texts; Default: as each gauge is designed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2136"/>
+        <location filename="../src/mainwindow.cpp" line="2130"/>
         <source>Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2164"/>
+        <location filename="../src/mainwindow.cpp" line="2158"/>
         <source>One weight for every text; Default keeps each gauge&apos;s bold values and lighter labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2165"/>
+        <location filename="../src/mainwindow.cpp" line="2159"/>
         <source>Override own fonts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2712"/>
+        <location filename="../src/mainwindow.cpp" line="2673"/>
         <source>Place start/finish line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2718"/>
+        <location filename="../src/mainwindow.cpp" line="2679"/>
         <source>Click on the route to place the sector line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2721"/>
+        <location filename="../src/mainwindow.cpp" line="2682"/>
         <source>Add sector line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2767"/>
+        <location filename="../src/mainwindow.cpp" line="2728"/>
         <source>Click on the route to mark a surface.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="2781"/>
+        <location filename="../src/mainwindow.cpp" line="2742"/>
         <source>Mark surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3014"/>
+        <location filename="../src/mainwindow.cpp" line="2975"/>
         <source>Change the data sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3263"/>
+        <location filename="../src/mainwindow.cpp" line="3224"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>

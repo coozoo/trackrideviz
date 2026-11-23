@@ -61,7 +61,6 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -866,9 +865,6 @@ void MainWindow::createMenus()
     m_saveDataAction->setToolTip(tr("The data with its corrections, as GPX or CSV"));
     m_saveDataAction->setEnabled(false);
     fileMenu->addAction(tr("&Join videos..."), this, [this]() { joinVideos(); });
-    m_timeLapseAction = fileMenu->addAction(QString(), this, &MainWindow::askTimeLapse);
-    m_timeLapseAction->setToolTip(tr("The video is a time-lapse: the gauges run as much faster as it does"));
-    showTimeLapse();
     QAction *backgroundAction = fileMenu->addAction(tr("&Without a video..."), this, &MainWindow::chooseBackground);
     backgroundAction->setToolTip(tr("The gauges over a plain color, or see-through, as long as the data"));
     fileMenu->addSeparator();
@@ -1033,8 +1029,6 @@ void MainWindow::chooseTelemetry()
 void MainWindow::openVideo(const QString &path, const QVector<TimeShift> &shifts)
 {
     m_project.syncIsManual = false;
-    // a time-lapse is the video's: another one starts as an ordinary video
-    m_project.syncRate = 1.0;
     // what was cut and where breaks were belong to the video before
     m_project.videoShifts = shifts;
     m_project.cuts.clear();
@@ -2512,42 +2506,10 @@ void MainWindow::setSyncOffset(double seconds, const QString &explanation)
         const QSignalBlocker blocker(m_offsetSpin);
         m_offsetSpin->setValue(seconds);
     }
-    showTimeLapse();
     m_project.syncOffset = seconds;
     m_canvas->setSync(m_project.sync());
     m_timelinePanel->setSync(m_project.sync());
     showSyncExplanation(explanation);
-}
-
-void MainWindow::askTimeLapse()
-{
-    bool ok = false;
-    const double rate = QInputDialog::getDouble(this, tr("Time-lapse video"),
-                        tr("Seconds of the ride in one second of the video:\n"
-                           "the camera's speed-up (10, 30...); 1 for an ordinary video."),
-                        m_project.syncRate, 0.01, 3600.0, 2, &ok);
-    if (!ok || rate == m_project.syncRate)
-        {
-            return;
-        }
-    m_project.syncRate = rate;
-    setModified(true);
-    m_canvas->setSync(m_project.sync());
-    m_timelinePanel->setSync(m_project.sync());
-    showTimeLapse();
-}
-
-void MainWindow::showTimeLapse()
-{
-    if (!m_timeLapseAction)
-        {
-            return;
-        }
-    // without a video the data plays on its own clock
-    m_timeLapseAction->setEnabled(!m_project.videoPath.isEmpty());
-    m_timeLapseAction->setText(m_project.syncRate != 1.0
-                               ? tr("&Time-lapse video (x%1)...").arg(QLocale().toString(m_project.syncRate, 'g', 6))
-                               : tr("&Time-lapse video..."));
 }
 
 void MainWindow::showSyncExplanation(const QString &explanation)
@@ -2571,7 +2533,6 @@ void MainWindow::updateTimeLabel()
 
 void MainWindow::updateSourcesInfo()
 {
-    showTimeLapse();
     m_dataPanel->setCanCutVideo(!m_project.videoPath.isEmpty());
     QStringList lines;
     if (m_project.videoPath.isEmpty() && m_project.background.isOn())
