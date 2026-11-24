@@ -46,6 +46,8 @@ signals:
     // The user clicked here on the map to place the line.
     void lineRequested(double lat, double lon);
     void removeLineRequested();
+    // a line where the route gives the most laps
+    void findLineRequested();
     void sectorRequested(double lat, double lon);
     void removeSectorsRequested();
     // The user clicked where a stretch begins and where it ends, and chose what it is ridden on.
@@ -72,6 +74,7 @@ private:
     QComboBox *m_mapCombo{nullptr};
     QPushButton *m_placeButton{nullptr};
     QPushButton *m_removeButton{nullptr};
+    QPushButton *m_findButton{nullptr};
     QPushButton *m_sectorButton{nullptr};
     QPushButton *m_clearSectorsButton{nullptr};
     QPushButton *m_surfaceButton{nullptr};

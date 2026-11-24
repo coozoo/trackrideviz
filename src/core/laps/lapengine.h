@@ -52,6 +52,17 @@ StartFinishLine lineAt(const TelemetrySession &session, double time, double widt
 QVector<double> splits(const TelemetrySession &session, const QVector<StartFinishLine> &sectors, double start,
                        double end);
 
+// How wide a line at the route's place at `time` has to be to be crossed on every pass by it:
+// the default, or wider when other passes went by farther to the side (a lap ridden a little
+// apart, GPS drift), up to MaximumLineWidth.
+double lineWidthAt(const TelemetrySession &session, double time);
+const double MaximumLineWidth = 120.0;   // meters: wider would catch a road beside it
+
+// Where a start/finish line gives the most finished laps (two at least), each line tried across
+// the route every few seconds; of those as good, the one whose laps cover the most of the ride.
+// Invalid when no place gives two.
+StartFinishLine findLine(const TelemetrySession &session, double minimumLap = DefaultMinimumLap);
+
 // Every time the route passed a place: the moment of each pass that came within `within`
 // meters of it, in order of time. A route ridden out and back, or lap after lap, has several.
 QVector<double> passes(const TelemetrySession &session, double lat, double lon, double within);

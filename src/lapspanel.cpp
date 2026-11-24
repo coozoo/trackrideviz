@@ -81,6 +81,9 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_removeButton = new QPushButton(Icons::named("list-remove"), tr("Remove"), this);
     m_removeButton->setToolTip(tr("Use the laps the device recorded instead"));
     connect(m_removeButton, &QPushButton::clicked, this, &LapsPanel::removeLineRequested);
+    m_findButton = new QPushButton(Icons::named("edit-find"), tr("Find laps"), this);
+    m_findButton->setToolTip(tr("Puts the start/finish line where the route gives the most whole laps"));
+    connect(m_findButton, &QPushButton::clicked, this, &LapsPanel::findLineRequested);
     m_sectorButton = new QPushButton(Icons::named("list-add"), tr("Add sector"), this);
     m_sectorButton->setCheckable(true);
     m_sectorButton->setToolTip(tr("Then click on the map where a sector ends: each line splits the lap once more"));
@@ -175,6 +178,7 @@ LapsPanel::LapsPanel(QWidget *parent)
     QHBoxLayout *buttons = new QHBoxLayout;
     buttons->addWidget(m_placeButton);
     buttons->addWidget(m_removeButton);
+    buttons->addWidget(m_findButton);
     buttons->addStretch(1);
     QHBoxLayout *sectorButtons = new QHBoxLayout;
     sectorButtons->addWidget(m_sectorButton);
@@ -256,6 +260,7 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
                 }
         }
     m_removeButton->setEnabled(line.isValid());
+    m_findButton->setEnabled(positions);
     m_clearSectorsButton->setEnabled(!sectors.isEmpty());
 
     const QVector<TelemetrySession::Lap> laps = session ? session->laps() : QVector<TelemetrySession::Lap>();

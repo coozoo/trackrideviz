@@ -106,6 +106,8 @@ QString enumKey(E value)
 // The arrangement of the docks a saved layout is for: an older one is not restored.
 // 2: Music beside Properties and Laps.
 const int kLayoutVersion = 2;
+// how far before its end a seek past the video stops, milliseconds
+const qint64 kEndMargin = 200;
 const char kRepository[] = "https://github.com/coozoo/trackrideviz";
 const char kSupportUkraine[] = "https://github.com/coozoo/trackrideviz#support-ukraine";
 const char kManual[] = "https://github.com/coozoo/trackrideviz/blob/main/docs/manual.md";
@@ -662,6 +664,7 @@ void MainWindow::createDocks()
     });
     connect(m_dataPanel, &DataPanel::editsChanged, this, &MainWindow::setDataEdits);
     connect(m_dataPanel, &DataPanel::cutVideoRequested, this, &MainWindow::cutVideoOfData);
+    connect(m_dataPanel, &DataPanel::surfaceMarked, this, &MainWindow::markSurfaceBetween);
     // one smoothing for all charts
     connect(m_dataPanel, &DataPanel::smoothingChanged, m_timelinePanel, &TimelinePanel::setSmoothing);
     connect(m_dataPanel, &DataPanel::smoothingChanged, m_comparePanel, &LapComparePanel::setSmoothing);
@@ -717,6 +720,22 @@ void MainWindow::createDocks()
     connect(m_lapsPanel, &LapsPanel::removeLineRequested, this, [this]()
     {
         setLapLines(StartFinishLine(), m_project.sectors, tr("Remove start/finish line"));
+    });
+    connect(m_lapsPanel, &LapsPanel::findLineRequested, this, [this]()
+    {
+        if (!m_recordedSession)
+            {
+                return;
+            }
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        const StartFinishLine line = LapEngine::findLine(*m_recordedSession);
+        QApplication::restoreOverrideCursor();
+        if (!line.isValid())
+            {
+                statusBar()->showMessage(tr("No place on the route gives two laps or more: it is not ridden round twice."), 8000);
+                return;
+            }
+        setLapLines(line, m_project.sectors, tr("Find laps"));
     });
     connect(m_lapsPanel, &LapsPanel::sectorRequested, this, &MainWindow::placeSector);
     connect(m_lapsPanel, &LapsPanel::removeSectorsRequested, this, [this]()
@@ -2732,7 +2751,8 @@ StartFinishLine MainWindow::lineNear(double lat, double lon, const QString &offR
             statusBar()->showMessage(offRoute, 5000);
             return StartFinishLine();
         }
-    const StartFinishLine line = LapEngine::lineAt(*m_recordedSession, time);
+    // as wide as the other passes there need: a lap ridden a little apart is still crossed
+    const StartFinishLine line = LapEngine::lineAt(*m_recordedSession, time, LapEngine::lineWidthAt(*m_recordedSession, time));
     if (!line.isValid())
         {
             statusBar()->showMessage(tr("The direction of travel is not known there."), 5000);
@@ -2803,13 +2823,24 @@ void MainWindow::markSurface(double fromLat, double fromLon, double toLat, doubl
             statusBar()->showMessage(tr("Click on the route to mark a surface."), 5000);
             return;
         }
+    markSurfaceBetween(std::min(fromTime, toTime), std::max(fromTime, toTime), surface, factor);
+}
+
+void MainWindow::markSurfaceBetween(double start, double end, const QString &surface, double factor)
+{
+    const Channel *distance = m_recordedSession ? m_recordedSession->channel(ChannelId::Distance) : nullptr;
+    if (!distance || distance->isEmpty())
+        {
+            return;
+        }
     SurfaceStretch stretch;
-    stretch.from = distance->valueAt(std::min(fromTime, toTime));
-    stretch.to = distance->valueAt(std::max(fromTime, toTime));
+    stretch.from = distance->valueAt(start);
+    stretch.to = distance->valueAt(end);
     stretch.surface = surface;
     stretch.factor = factor;
     if (stretch.to <= stretch.from)
         {
+            statusBar()->showMessage(tr("The rider did not move there: no road to mark."), 5000);
             return;
         }
     QVector<SurfaceStretch> surfaces = m_project.surfaces;
@@ -3086,8 +3117,12 @@ void MainWindow::seekTelemetryTime(double time)
     // telemetry time = video time + offset
     const double videoTime = m_project.sync().videoTime(time);
     const double videoEnd = m_playback->duration() / 1000.0;
-    const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, std::max<qint64>(0, m_playback->duration()));
-    if (m_project.hasPicture())
+    // not quite the end: the player's decoder sent to the very end can come back with a broken picture
+    const qint64 last = std::max<qint64>(0, m_playback->duration() - kEndMargin);
+    const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, last);
+    // data past the video's ends, picked or dragged over: the video waits at its end, sent there once
+    const bool atEdge = (position == 0 || position == last) && std::llabs(m_playback->position() - position) < 50;
+    if (m_project.hasPicture() && !atEdge)
         {
             m_playback->setPosition(position);
         }
