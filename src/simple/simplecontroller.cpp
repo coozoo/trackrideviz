@@ -1,5 +1,6 @@
 #include "simplecontroller.h"
 
+#include "gauge/gaugelibrary.h"
 #include "laps/lapengine.h"
 #include "maps/tilestore.h"
 #include "overlay/gaugetemplate.h"
@@ -9,6 +10,7 @@
 #include "sync/videosync.h"
 #include "telemetry/datasources.h"
 #include "telemetry/telemetryimporter.h"
+#include "units/units.h"
 #include "video/exportjob.h"
 #include "video/exportplan.h"
 #include "video/exportprofile.h"
@@ -158,6 +160,66 @@ QStringList SimpleController::profileNames() const
     return names;
 }
 
+QStringList SimpleController::templateIds() const
+{
+    QStringList ids;
+    for (const TemplateLibrary::Entry &entry : TemplateLibrary::entries())
+        {
+            ids << entry.id;
+        }
+    return ids;
+}
+
+QStringList SimpleController::gaugeNames() const
+{
+    QStringList names;
+    for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
+        {
+            names << entry.name;
+        }
+    return names;
+}
+
+QStringList SimpleController::gaugeIds() const
+{
+    QStringList ids;
+    for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
+        {
+            ids << entry.id;
+        }
+    return ids;
+}
+
+QStringList SimpleController::musicNames() const
+{
+    QStringList names;
+    for (const MusicTrack &track : m_project.soundtrack.tracks)
+        {
+            names << QFileInfo(track.path).fileName();
+        }
+    return names;
+}
+
+void SimpleController::setVideoVolume(int percent)
+{
+    percent = std::clamp(percent, 0, Soundtrack::kMaxVolume);
+    if (percent != m_project.soundtrack.videoVolume)
+        {
+            m_project.soundtrack.videoVolume = percent;
+            emit musicChanged();
+        }
+}
+
+void SimpleController::setMusicVolume(int percent)
+{
+    percent = std::clamp(percent, 0, Soundtrack::kMaxVolume);
+    if (percent != m_project.soundtrack.musicVolume)
+        {
+            m_project.soundtrack.musicVolume = percent;
+            emit musicChanged();
+        }
+}
+
 void SimpleController::setProfileIndex(int index)
 {
     if (index == m_profileIndex || index < 0 || index >= allProfiles().size())
@@ -234,9 +296,9 @@ void SimpleController::openVideo(const QUrl &url)
             }
         emit videoChanged();
         setMessage(QString());
-        if (m_session)
+        if (m_session || m_fileDataComing)
             {
-                // the gauges laid out for its shape, and in step by the clocks
+                // the gauges laid out for its shape, and in step by the clocks (or once the data is read)
                 rebuildOverlay();
                 syncByClocks();
             }
@@ -268,6 +330,7 @@ void SimpleController::loadData(const QString &path, bool fromVideo)
 {
     // only the last load counts
     const quint64 generation = ++m_dataGeneration;
+    m_fileDataComing = !fromVideo;
     if (!fromVideo)
         {
             setMessage(tr("Reading %1...").arg(QFileInfo(path).fileName()));
@@ -282,6 +345,7 @@ void SimpleController::loadData(const QString &path, bool fromVideo)
         setBusy(false);
         if (generation == m_dataGeneration)
             {
+                m_fileDataComing = false;
                 dataLoaded(result.raw, result.session, path, fromVideo, result.error, result.waiting);
             }
     });
@@ -410,6 +474,223 @@ void SimpleController::syncByClocks()
 void SimpleController::nudgeSync(double seconds)
 {
     setSync(m_project.syncOffset + seconds, tr("Moved by hand."));
+}
+
+void SimpleController::setSyncOffset(double seconds)
+{
+    if (std::isfinite(seconds))
+        {
+            setSync(seconds, tr("Moved by hand."));
+        }
+}
+
+int SimpleController::gaugeAt(double x, double y, double width, double height) const
+{
+    return m_overlay->itemAt(QPointF(x, y), pictureFrame(width, height));
+}
+
+QRectF SimpleController::gaugeRect(int index, double width, double height) const
+{
+    return index >= 0 && index < m_overlay->count() ? m_overlay->itemRect(index, pictureFrame(width, height)) : QRectF();
+}
+
+void SimpleController::moveGauge(int index, double x, double y, bool done)
+{
+    if (index < 0 || index >= m_project.overlay.size() || index >= m_overlay->count())
+        {
+            return;
+        }
+    OverlayItem &item = m_project.overlay[index];
+    // the whole of it on the picture
+    const QRectF unit = m_overlay->itemRect(index, pictureFrame(1000.0, 1000.0 / aspect()));
+    const double width = unit.width() / 1000.0;
+    item.x = std::clamp(x, 0.0, std::max(0.0, 1.0 - width));
+    item.y = std::clamp(y, 0.0, std::max(0.0, 1.0 - item.height));
+    if (done)
+        {
+            rebuildOverlay();
+            return;
+        }
+    // only what is drawn follows the finger: nothing bound again
+    m_overlay = std::make_shared<const Overlay>(m_overlay->withGeometry(index, item.x, item.y, item.height, item.aspect));
+    emit overlayChanged();
+}
+
+void SimpleController::resizeGauge(int index, double height)
+{
+    changeGauge(index, [height](OverlayItem &item)
+    {
+        const double wanted = std::clamp(height, 0.05, 1.0);
+        // about its middle
+        item.y += (item.height - wanted) / 2.0;
+        item.height = wanted;
+        item.y = std::clamp(item.y, 0.0, std::max(0.0, 1.0 - item.height));
+    });
+}
+
+void SimpleController::addGauge(const QString &gaugeId)
+{
+    const Gauge gauge = GaugeLibrary::gauge(gaugeId);
+    if (gauge.isEmpty())
+        {
+            return;
+        }
+    OverlayItem item;
+    item.gaugeId = gaugeId;
+    item.channel = GaugeLibrary::defaultChannel(gauge, m_session ? m_session->channelIds() : QStringList());
+    // near the middle, as the full window places one: a quarter of the picture's height, a wide
+    // one no wider than about half of it, each new one a little further down right
+    const double step = 0.03 * (m_project.overlay.size() % 8);
+    const double shape = gauge.size.width() / gauge.size.height();
+    item.height = std::min(0.25, 0.45 * aspect() / shape);
+    const double width = item.height * shape / aspect();
+    item.x = std::min(0.35 + step, 1.0 - width);
+    item.y = std::min(0.3 + step, 1.0 - item.height);
+    m_project.overlay.append(item);
+    rebuildOverlay();
+}
+
+void SimpleController::removeGauge(int index)
+{
+    if (index >= 0 && index < m_project.overlay.size())
+        {
+            m_project.overlay.removeAt(index);
+            rebuildOverlay();
+        }
+}
+
+void SimpleController::changeGauge(int index, const std::function<void(OverlayItem &)> &change)
+{
+    if (index >= 0 && index < m_project.overlay.size())
+        {
+            change(m_project.overlay[index]);
+            rebuildOverlay();
+        }
+}
+
+QVariantMap SimpleController::gaugeProperties(int index) const
+{
+    QVariantMap properties;
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return properties;
+        }
+    const OverlayItem &item = m_project.overlay.at(index);
+    const Units units = AppSettings::units();
+    QString name = item.gaugeId;
+    for (const GaugeLibrary::Entry &entry : GaugeLibrary::entries())
+        {
+            name = entry.id == item.gaugeId ? entry.name : name;
+        }
+    auto display = [this](const QString &channel, const Units &shownIn)
+    {
+        const Channel *data = m_session ? m_session->channel(channel) : nullptr;
+        return ChannelFormat::displayFor(channel, data ? data->unit() : QString(), shownIn);
+    };
+    // what the data has, and what it is bound to even when the data lacks it
+    QStringList ids = m_session ? m_session->channelIds() : QStringList();
+    if (!item.channel.isEmpty() && !ids.contains(item.channel))
+        {
+            ids.prepend(item.channel);
+        }
+    QStringList names;
+    for (const QString &id : ids)
+        {
+            names << display(id, units).name;
+        }
+    properties["name"] = name;
+    properties["channel"] = item.channel;
+    properties["channelIds"] = ids;
+    properties["channelNames"] = names;
+    properties["height"] = item.height;
+    properties["textScale"] = item.textScale;
+    properties["opacity"] = item.opacity;
+    properties["hasScale"] = GaugeLibrary::hasScale(GaugeLibrary::gauge(item.gaugeId));
+    properties["scaleMax"] = item.scaleMax;
+    properties["unit"] = display(item.channel, item.unitsFor(units)).unit;
+    return properties;
+}
+
+void SimpleController::setGaugeChannel(int index, const QString &channel)
+{
+    changeGauge(index, [channel](OverlayItem &item)
+    {
+        if (item.channel != channel)
+            {
+                // an end chosen for another measurement means nothing for this one
+                item.scaleMax = 0.0;
+            }
+        item.channel = channel;
+    });
+}
+
+void SimpleController::setGaugeTextScale(int index, double scale)
+{
+    changeGauge(index, [scale](OverlayItem &item) { item.textScale = std::clamp(scale, 0.5, 3.0); });
+}
+
+void SimpleController::setGaugeOpacity(int index, double opacity)
+{
+    changeGauge(index, [opacity](OverlayItem &item) { item.opacity = std::clamp(opacity, 0.1, 1.0); });
+}
+
+void SimpleController::setGaugeScaleMax(int index, double max)
+{
+    changeGauge(index, [max](OverlayItem &item) { item.scaleMax = std::max(0.0, max); });
+}
+
+void SimpleController::addMusic(const QUrl &url)
+{
+    const QString path = localPath(url);
+    if (path.isEmpty())
+        {
+            return;
+        }
+    // its length, for the next track to follow it; until known it plays to its end
+    m_project.soundtrack.tracks.append({path});
+    emit musicChanged();
+    auto *watcher = new QFutureWatcher<double>(this);
+    connect(watcher, &QFutureWatcher<double>::finished, this, [this, watcher, path]()
+    {
+        const double duration = watcher->result();
+        watcher->deleteLater();
+        for (MusicTrack &track : m_project.soundtrack.tracks)
+            {
+                if (track.path == path && track.duration <= 0.0)
+                    {
+                        track.duration = duration;
+                    }
+            }
+        emit musicChanged();
+    });
+    const QString ffprobe = FfmpegTools::ffprobeProgram();
+    const bool preferOwn = AppSettings::ownVideoEngine();
+    watcher->setFuture(QtConcurrent::run([ffprobe, path, preferOwn]()
+    {
+        return SoundtrackMix::probeDuration(ffprobe, path, preferOwn);
+    }));
+}
+
+void SimpleController::removeMusic(int index)
+{
+    if (index >= 0 && index < m_project.soundtrack.tracks.size())
+        {
+            m_project.soundtrack.tracks.removeAt(index);
+            emit musicChanged();
+        }
+}
+
+QVariantMap SimpleController::musicAt(qint64 videoMs) const
+{
+    const Soundtrack &soundtrack = m_project.soundtrack;
+    const Soundtrack::Moment moment = soundtrack.hasMusic() ? soundtrack.at(soundtrack.musicTime(videoMs / 1000.0, m_project.cuts))
+                                      : Soundtrack::Moment();
+    QVariantMap music;
+    music["url"] = moment.track >= 0 ? QUrl::fromLocalFile(soundtrack.tracks.at(moment.track).path) : QUrl();
+    music["position"] = qint64(std::llround(moment.position * 1000.0));
+    // a player plays no louder than the file: a boost is heard in the export only
+    music["volume"] = std::min(1.0, moment.gain * soundtrack.musicGain());
+    return music;
 }
 
 void SimpleController::startExport()

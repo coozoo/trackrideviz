@@ -10,6 +10,9 @@
 #include <QStringList>
 #include <QTimer>
 #include <QUrl>
+#include <QVariantMap>
+
+#include <functional>
 
 #include <memory>
 
@@ -32,6 +35,13 @@ class SimpleController : public QObject
     Q_PROPERTY(double syncOffset READ syncOffset NOTIFY syncChanged)
     Q_PROPERTY(QString syncText READ syncText NOTIFY syncChanged)
     Q_PROPERTY(QStringList templateNames READ templateNames CONSTANT)
+    Q_PROPERTY(QStringList templateIds READ templateIds CONSTANT)
+    Q_PROPERTY(QStringList gaugeNames READ gaugeNames CONSTANT)
+    Q_PROPERTY(QStringList gaugeIds READ gaugeIds CONSTANT)
+    Q_PROPERTY(int gaugeCount READ gaugeCount NOTIFY overlayChanged)
+    Q_PROPERTY(QStringList musicNames READ musicNames NOTIFY musicChanged)
+    Q_PROPERTY(int videoVolume READ videoVolume WRITE setVideoVolume NOTIFY musicChanged)
+    Q_PROPERTY(int musicVolume READ musicVolume WRITE setMusicVolume NOTIFY musicChanged)
     Q_PROPERTY(int templateIndex READ templateIndex NOTIFY overlayChanged)
     Q_PROPERTY(QStringList profileNames READ profileNames CONSTANT)
     Q_PROPERTY(int profileIndex READ profileIndex WRITE setProfileIndex NOTIFY profileChanged)
@@ -55,6 +65,15 @@ public:
     double syncOffset() const { return m_project.syncOffset; }
     QString syncText() const { return m_syncText; }
     QStringList templateNames() const;
+    QStringList templateIds() const;
+    QStringList gaugeNames() const;
+    QStringList gaugeIds() const;
+    int gaugeCount() const { return int(m_project.overlay.size()); }
+    QStringList musicNames() const;
+    int videoVolume() const { return m_project.soundtrack.videoVolume; }
+    void setVideoVolume(int percent);
+    int musicVolume() const { return m_project.soundtrack.musicVolume; }
+    void setMusicVolume(int percent);
     int templateIndex() const { return m_templateIndex; }
     QStringList profileNames() const;
     int profileIndex() const { return m_profileIndex; }
@@ -79,6 +98,31 @@ public:
     // In step by the clocks of the camera and the data again.
     Q_INVOKABLE void syncByClocks();
     Q_INVOKABLE void chooseTemplate(int index);
+    // The data's offset typed in: seconds, + when the gauges are late.
+    Q_INVOKABLE void setSyncOffset(double seconds);
+
+    // The gauges, on a picture `width` x `height` pixels: which is at a point (-1: none), where one is.
+    Q_INVOKABLE int gaugeAt(double x, double y, double width, double height) const;
+    Q_INVOKABLE QRectF gaugeRect(int index, double width, double height) const;
+    // Moved so that its top left is at (x, y), fractions of the picture; `done` at the end of a drag
+    // (before it, only what is drawn follows).
+    Q_INVOKABLE void moveGauge(int index, double x, double y, bool done);
+    // Its height, a fraction of the picture's, about its middle.
+    Q_INVOKABLE void resizeGauge(int index, double height);
+    Q_INVOKABLE void addGauge(const QString &gaugeId);
+    Q_INVOKABLE void removeGauge(int index);
+    // What the properties of a gauge show: name, channel, channelIds, channelNames, height,
+    // textScale, opacity, hasScale, scaleMax, unit.
+    Q_INVOKABLE QVariantMap gaugeProperties(int index) const;
+    Q_INVOKABLE void setGaugeChannel(int index, const QString &channel);
+    Q_INVOKABLE void setGaugeTextScale(int index, double scale);
+    Q_INVOKABLE void setGaugeOpacity(int index, double opacity);
+    Q_INVOKABLE void setGaugeScaleMax(int index, double max);
+
+    Q_INVOKABLE void addMusic(const QUrl &url);
+    Q_INVOKABLE void removeMusic(int index);
+    // What the music plays at a moment of the video: url (empty: nothing), position (ms), volume (0..1).
+    Q_INVOKABLE QVariantMap musicAt(qint64 videoMs) const;
     Q_INVOKABLE void startExport();
     Q_INVOKABLE void stopExport();
     // Back to the full window (only when it was left for this).
@@ -93,6 +137,7 @@ signals:
     void overlayChanged();
     void profileChanged();
     void exportChanged();
+    void musicChanged();
     void backRequested();
 
 private:
@@ -102,6 +147,9 @@ private:
     void dataLoaded(const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session, const QString &path, bool fromVideo,
                     const QString &error, bool waiting);
     void rebuildOverlay();
+    // m_project.overlay[index] changed: drawn again
+    void changeGauge(int index, const std::function<void(OverlayItem &)> &change);
+    QRectF pictureFrame(double width, double height) const { return QRectF(0.0, 0.0, width, height); }
     void setSync(double offset, const QString &text);
     void exportFinished(int outcome, const QString &message);
 
@@ -116,6 +164,7 @@ private:
     int m_profileIndex{0};
     int m_loading{0};
     quint64 m_dataGeneration{0};
+    bool m_fileDataComing{false};   // data of a file of its own being read: none is looked for in the video
     QString m_message;
     QString m_syncText;
     // the heights of the terrain and the weather, while they come

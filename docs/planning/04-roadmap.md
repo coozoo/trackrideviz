@@ -564,6 +564,18 @@ In order:
   with its profile, progress, stop keeping what is done, and playing the result
 - ✅ Packages carry Qt Quick and its QML modules (deb, rpm, AppImage checked, Windows, macOS)
 - ✅ `tests/simple`: the controller's whole flow without a window
+
+### The whole interface (2026-11-24)
+- ✅ Sync beside the timeline: - / + by 0.1 s (held: repeated), a wheel dragged for anything between,
+  the offset tapped to type it (and "By the clocks" there)
+- ✅ A long tap on a gauge: Move (drag; two fingers or - / + for its size), Properties (what it shows,
+  size, letters, opacity, the end of its scale, remove), Remove; elsewhere: Dash, Add gauge, Music
+- ✅ Dash: the templates as a grid of pictures (the demo ride, as the library draws them); Add gauge:
+  the gauges the same way, the new one straight to where it goes
+- ✅ Music: tracks one after another, the volumes of the video and of the music, heard in the preview
+- ✅ Narrow screens: the rarer buttons behind a menu, the sync under the timeline
+- ✅ `--simple video data`: files opened in it from the command line
+- ✅ The full window's video slider goes where it is pressed
 - Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the
   probe and the built-in engine have to open; the export folder), joined chapters, music, gauges
   added one by one
