@@ -295,6 +295,8 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
     const QVector<int> selected = selectedLaps();
     const int lapsBefore = m_lapTable->topLevelItemCount();
     m_lapTable->clear();
+    // marked again at the next moment shown
+    m_currentLap = -1;
     m_lapTable->setColumnCount(int(headers.size()));
     m_lapTable->setHeaderLabels(headers);
 
@@ -385,6 +387,38 @@ void LapsPanel::setSession(const TelemetrySessionPtr &session, const StartFinish
 void LapsPanel::setTime(double time)
 {
     m_track->setTime(time);
+    // the lap of the moment shown, marked in the table (not selected: that is the laps compared)
+    int current = -1;
+    if (m_session)
+        {
+            const QVector<TelemetrySession::Lap> &laps = m_session->laps();
+            for (int i = 0; i < laps.size() && i < m_lapTable->topLevelItemCount(); ++i)
+                {
+                    if (time >= laps.at(i).startTime && time < laps.at(i).endTime)
+                        {
+                            current = i;
+                        }
+                }
+        }
+    if (current == m_currentLap)
+        {
+            return;
+        }
+    for (int i : {m_currentLap, current})
+        {
+            if (QTreeWidgetItem *item = i >= 0 ? m_lapTable->topLevelItem(i) : nullptr)
+                {
+                    for (int column = 0; column < m_lapTable->columnCount(); ++column)
+                        {
+                            item->setBackground(column, i == current ? palette().alternateBase() : QBrush());
+                        }
+                }
+        }
+    m_currentLap = current;
+    if (current >= 0)
+        {
+            m_lapTable->scrollToItem(m_lapTable->topLevelItem(current));
+        }
 }
 
 void LapsPanel::placeToggled(QPushButton *button, bool checked)

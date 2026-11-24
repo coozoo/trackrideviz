@@ -419,6 +419,16 @@ void VideoCanvas::setBackground(const VideoBackground &background)
     update();
 }
 
+void VideoCanvas::setHeldTime(double telemetryTime)
+{
+    if (telemetryTime == m_heldTime)
+        {
+            return;
+        }
+    m_heldTime = telemetryTime;
+    update();
+}
+
 void VideoCanvas::setSync(const SyncMap &sync)
 {
     m_sync = sync;
@@ -705,7 +715,8 @@ void VideoCanvas::paintGL()
     if (usable)
         {
             uploadPendingFrame();
-            if (m_hasPicture && !m_background.isOn())
+            // a moment the video does not show: no picture of another moment under its gauges
+            if (m_hasPicture && !m_background.isOn() && m_heldTime < 0.0)
                 {
                     drawVideo(videoRect());
                 }
@@ -738,6 +749,11 @@ void VideoCanvas::paintGL()
                 {
                     painter.fillRect(frame, m_background.color);
                 }
+        }
+    if (m_heldTime >= 0.0 && !m_background.isOn())
+        {
+            painter.setPen(Qt::gray);
+            painter.drawText(frame, Qt::AlignCenter, tr("No video at this moment of the data"));
         }
     // the export has nothing outside the picture, so the preview shows nothing there either
     painter.save();

@@ -80,6 +80,7 @@ private:
     GpsProblemsDialog *m_gpsDialog{nullptr};
     bool m_canCutVideo{false};
     bool m_showingInTable{false};   // the table is being set to what the chart picked
+    double m_shownTime{-1.0};       // the moment the table was last made to follow
     QToolButton *m_restoreButton{nullptr};
     QToolButton *m_tableButton{nullptr};
     QComboBox *m_smoothingCombo{nullptr};
