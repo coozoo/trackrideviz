@@ -107,7 +107,9 @@ int main(int argc, char *argv[])
     // the simplified interface alone: asked for, or the only one there is (Android)
     if (SimpleUi::wanted(argc, argv))
         {
-            const std::unique_ptr<QQmlApplicationEngine> simple(SimpleUi::open());
+            QStringList files = a.arguments().mid(1);
+            files.removeAll(QStringLiteral("--simple"));
+            const std::unique_ptr<QQmlApplicationEngine> simple(SimpleUi::open(files));
             return a.exec();
         }
 

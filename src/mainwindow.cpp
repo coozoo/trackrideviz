@@ -70,12 +70,14 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSettings>
 #include <QShortcut>
 #include <QSlider>
+#include <QStyleOptionSlider>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QStyle>
@@ -99,6 +101,58 @@
 
 namespace
 {
+// A press on a slider's groove takes it there at once, as video players do (Qt's own is a page
+// step towards the press); the press then lands on the handle, so a drag goes on from there.
+class JumpToPress : public QObject
+{
+public:
+    using QObject::QObject;
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        auto *slider = qobject_cast<QSlider *>(watched);
+        if (!slider || event->type() != QEvent::MouseButtonPress || !slider->isEnabled()
+                || static_cast<QMouseEvent *>(event)->button() != Qt::LeftButton)
+            {
+                return false;
+            }
+        QStyleOptionSlider option;
+        option.initFrom(slider);
+        option.subControls = QStyle::SC_None;
+        option.activeSubControls = QStyle::SC_None;
+        option.orientation = slider->orientation();
+        option.maximum = slider->maximum();
+        option.minimum = slider->minimum();
+        option.tickPosition = slider->tickPosition();
+        option.tickInterval = slider->tickInterval();
+        option.upsideDown = slider->orientation() == Qt::Horizontal ? slider->invertedAppearance() != (option.direction == Qt::RightToLeft)
+                            : !slider->invertedAppearance();
+        option.direction = Qt::LeftToRight;
+        option.sliderPosition = slider->sliderPosition();
+        option.sliderValue = slider->value();
+        option.singleStep = slider->singleStep();
+        option.pageStep = slider->pageStep();
+        const QPoint at = static_cast<QMouseEvent *>(event)->position().toPoint();
+        QStyle *style = slider->style();
+        const QRect handle = style->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderHandle, slider);
+        if (handle.contains(at))
+            {
+                return false;
+            }
+        const QRect groove = style->subControlRect(QStyle::CC_Slider, &option, QStyle::SC_SliderGroove, slider);
+        const bool horizontal = slider->orientation() == Qt::Horizontal;
+        const int length = horizontal ? handle.width() : handle.height();
+        const int from = horizontal ? groove.x() : groove.y();
+        const int span = (horizontal ? groove.width() : groove.height()) - length;
+        const int position = (horizontal ? at.x() : at.y()) - from - length / 2;
+        slider->setSliderPosition(QStyle::sliderValueFromPosition(slider->minimum(), slider->maximum(), position, span,
+                                  option.upsideDown));
+        slider->triggerAction(QAbstractSlider::SliderMove);
+        return false;
+    }
+};
+
 // The name of a Qt enum value, for the log: "LoadedMedia".
 template <typename E>
 QString enumKey(E value)
@@ -570,6 +624,8 @@ QWidget *MainWindow::createCentralWidget()
     m_seekSlider->setEnabled(false);
     m_seekSlider->setSingleStep(1000);
     m_seekSlider->setPageStep(10000);
+    // a press anywhere goes there
+    m_seekSlider->installEventFilter(new JumpToPress(m_seekSlider));
     // covers dragging, clicks on the groove and the keyboard
     connect(m_seekSlider, &QSlider::actionTriggered, this, [this]()
     {

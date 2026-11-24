@@ -1,4 +1,5 @@
 #include "simple/simplecontroller.h"
+#include "gauge/gaugelibrary.h"
 #include "overlay/templatelibrary.h"
 #include "video/ffmpegtools.h"
 
@@ -102,6 +103,93 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(!simple.exporting(), 120000);
         QVERIFY(simple.exportedUrl().toLocalFile() != made.filePath());
         QVERIFY(made.exists());
+    }
+
+    // A video and data opened together, as from the command line: the data is not lost to a
+    // look for data in the video.
+    void videoAndDataTogether()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        SimpleController simple(false);
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        simple.openData(QUrl::fromLocalFile(m_data));
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QCOMPARE(simple.dataName(), QString("ride.gpx"));
+    }
+
+    // Gauges added, found under a finger, moved, changed and taken off.
+    void gaugesByHand()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        SimpleController simple(false);
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        simple.openData(QUrl::fromLocalFile(m_data));
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        const int before = simple.gaugeCount();
+        QVERIFY(!simple.gaugeIds().isEmpty());
+        simple.addGauge(simple.gaugeIds().first());
+        QCOMPARE(simple.gaugeCount(), before + 1);
+        const int added = before;
+
+        // on a picture of 320 x 240: under its middle it is found
+        const QRectF where = simple.gaugeRect(added, 320, 240);
+        QVERIFY(where.isValid());
+        QCOMPARE(simple.gaugeAt(where.center().x(), where.center().y(), 320, 240), added);
+
+        // moved by a finger, then let go: drawn where it was put, and kept there
+        simple.moveGauge(added, 0.05, 0.1, false);
+        QVERIFY(qAbs(simple.gaugeRect(added, 320, 240).x() - 16.0) < 0.5);
+        simple.moveGauge(added, 0.05, 0.1, true);
+        QVERIFY(qAbs(simple.gaugeRect(added, 320, 240).y() - 24.0) < 0.5);
+        // never off the picture
+        simple.moveGauge(added, 5.0, -3.0, true);
+        const QRectF held = simple.gaugeRect(added, 320, 240);
+        QVERIFY(held.right() <= 320.5 && held.top() >= -0.5);
+
+        // its properties
+        const QVariantMap properties = simple.gaugeProperties(added);
+        QVERIFY(!properties.value("name").toString().isEmpty());
+        QVERIFY(properties.value("channelIds").toStringList().contains(properties.value("channel").toString()));
+        simple.resizeGauge(added, 0.4);
+        QVERIFY(qAbs(simple.gaugeProperties(added).value("height").toDouble() - 0.4) < 1e-9);
+        simple.setGaugeOpacity(added, 0.5);
+        QCOMPARE(simple.gaugeProperties(added).value("opacity").toDouble(), 0.5);
+        simple.setGaugeTextScale(added, 9.0);
+        QCOMPARE(simple.gaugeProperties(added).value("textScale").toDouble(), 3.0);
+
+        simple.removeGauge(added);
+        QCOMPARE(simple.gaugeCount(), before);
+    }
+
+    // Music under the video: what plays when, and how loud.
+    void music()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        const QString song = m_dir.filePath("song.wav");
+        QVERIFY(FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                                            "sine=frequency=440:duration=5", song}).exitCode == 0);
+        SimpleController simple(false);
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        QVERIFY(simple.musicAt(500).value("url").toUrl().isEmpty());
+        simple.addMusic(QUrl::fromLocalFile(song));
+        QCOMPARE(simple.musicNames(), QStringList{"song.wav"});
+        const QVariantMap now = simple.musicAt(1500);
+        QCOMPARE(now.value("url").toUrl(), QUrl::fromLocalFile(song));
+        QVERIFY(qAbs(now.value("position").toLongLong() - 1500) < 5);
+        simple.setMusicVolume(50);
+        simple.setVideoVolume(500);
+        QCOMPARE(simple.videoVolume(), 200);
+        simple.removeMusic(0);
+        QVERIFY(simple.musicNames().isEmpty());
     }
 };
 
