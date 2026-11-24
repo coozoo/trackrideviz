@@ -107,9 +107,14 @@ public:
         const double t = m_channel->timeAt(index.row());
         if (role == Qt::DisplayRole)
             {
-                return index.column() == 0 ? clock(t, true)
-                       : QVariant(QString::number(m_display.convert(m_channel->valueAtIndex(index.row())), 'f',
-                                                  std::max(m_display.decimals, 1)));
+                if (index.column() == 0)
+                    {
+                        return clock(t, true);
+                    }
+                const double shown = m_display.convert(m_channel->valueAtIndex(index.row()));
+                // a pace as the chart has it, 5:18
+                return m_display.minutesSeconds ? m_display.text(shown)
+                       : QString::number(shown, 'f', std::max(m_display.decimals, 1));
             }
         if (role == Qt::TextAlignmentRole)
             {
@@ -691,7 +696,11 @@ DataPanel::DataPanel(QWidget *parent)
     m_chart->seek = [this](double t) { emit seekRequested(t); };
     m_chart->laneClicked = [this](const QString &id) { showTableOf(id); };
     m_chart->selectionChanged = [this]() { updateButtons(); };
-    m_chart->picked = [this](double start, double end) { showInTable(start, end); };
+    m_chart->picked = [this](double start, double end)
+    {
+        m_tableFollows = false;
+        showInTable(start, end);
+    };
     m_chart->menuAt = [this](const QPoint &at) { showPickMenu(at); };
 
     m_model = new DataTableModel(this);
@@ -720,6 +729,11 @@ DataPanel::DataPanel(QWidget *parent)
         if (m_table->hasFocus() && !m_showingInTable)
             {
                 m_chart->clearSelection();
+            }
+        // picked by hand, not where the table followed to
+        if (!m_showingInTable)
+            {
+                m_tableFollows = false;
             }
         updateButtons();
     });
@@ -860,15 +874,7 @@ void DataPanel::showInTable(double start, double end)
         {
             return;
         }
-    const QVector<double> times = [channel]()
-    {
-        QVector<double> result(channel->count());
-        for (int i = 0; i < channel->count(); ++i)
-            {
-                result[i] = channel->timeAt(i);
-            }
-        return result;
-    }();
+    const QVector<double> &times = channel->times();
     int first = int(std::lower_bound(times.cbegin(), times.cend(), start) - times.cbegin());
     int last = int(std::upper_bound(times.cbegin(), times.cend(), end) - times.cbegin()) - 1;
     if (start == end || last < first)
@@ -890,13 +896,17 @@ void DataPanel::setTime(double time)
 {
     m_chart->setTime(time);
     // the table follows the moment shown, wherever it was chosen, while nothing is picked there
-    if (time != m_shownTime && m_table->isVisible() && m_table->selectionModel()->selectedRows().size() <= 1)
+    // (one row is no pick: it may be where the table followed to)
+    if (time != m_shownTime && m_table->isVisible())
         {
             QString channel;
             double start = 0.0;
             double end = 0.0;
-            if (!m_chart->selected(&channel, &start, &end))
+            const QItemSelection rows = m_table->selectionModel()->selection();
+            if (!m_chart->selected(&channel, &start, &end)
+                    && (rows.isEmpty() || (rows.size() == 1 && rows.first().height() == 1)))
                 {
+                    m_tableFollows = true;
                     showInTable(time, time);
                 }
         }
@@ -1106,7 +1116,8 @@ bool DataPanel::selection(QString *channel, double *start, double *end) const
         {
             return true;
         }
-    const QModelIndexList rows = m_table->isVisible() && m_model->channel()
+    // the row the table followed to is only shown, not picked
+    const QModelIndexList rows = m_table->isVisible() && m_model->channel() && !m_tableFollows
                                  ? m_table->selectionModel()->selectedRows() : QModelIndexList();
     if (rows.isEmpty())
         {

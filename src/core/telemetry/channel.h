@@ -29,6 +29,8 @@ public:
     // The i-th sample, 0 <= i < count().
     double timeAt(int i) const { return m_times.at(i); }
     double valueAtIndex(int i) const { return m_values.at(i); }
+    // All the samples' times, rising.
+    const QVector<double> &times() const { return m_times; }
     bool isEmpty() const { return m_times.isEmpty(); }
     double startTime() const;
     double endTime() const;

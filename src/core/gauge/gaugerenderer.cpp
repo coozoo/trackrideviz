@@ -1892,7 +1892,7 @@ void BoundGauge::drawFlyover(QPainter &painter, const Node &node, double time, c
     view.span = node.component.span > 0.0 ? node.component.span : kFlyoverSpan;
     view.tilt = node.component.flyoverCamera.tilt;
     view.height = node.component.flyoverCamera.height;
-    view.exaggeration = node.component.flyoverCamera.hills;
+    view.exaggeration = std::clamp(node.component.flyoverCamera.hills, 1.0, 5.0);
     view.mapProvider = node.component.mapProvider;
     view.streets = node.component.tiles;
     view.line = node.color;
@@ -2530,7 +2530,14 @@ void BoundGauge::prepareLaps()
     const Channel *number = m_session->channel(ChannelId::Lap);
     if (number && !number->isEmpty() && int(number->valueAtIndex(number->count() - 1)) == m_laps.size() + 1)
         {
-            LapSpan open{int(m_laps.size()) + 1, number->timeAt(number->count() - 1), m_session->duration(), false, {}};
+            // where its number first shows: a lap number worked out has one reading a lap, one
+            // read from a file a reading at every row
+            int first = number->count() - 1;
+            while (first > 0 && int(number->valueAtIndex(first - 1)) == m_laps.size() + 1)
+                {
+                    --first;
+                }
+            LapSpan open{int(m_laps.size()) + 1, number->timeAt(first), m_session->duration(), false, {}};
             // its sectors so far: where the sector number went up
             if (const Channel *sector = m_session->channel(ChannelId::Sector))
                 {
