@@ -15,12 +15,28 @@ const int kZoom = 12;
 const int kTileSize = 256;
 
 // The height in one pixel of the world at kZoom; false without its tile.
-bool pixelHeight(qint64 x, qint64 y, double *meters)
+bool pixelHeight(qint64 x, qint64 y, double *meters, Terrain::Lookup *lookup)
 {
     const qint64 world = qint64(kTileSize) << kZoom;
     x = ((x % world) + world) % world;      // round the date line
     y = std::clamp<qint64>(y, 0, world - 1);
-    const QImage tile = TileStore::terrain()->tile(kZoom, int(x / kTileSize), int(y / kTileSize));
+    const int tileX = int(x / kTileSize);
+    const int tileY = int(y / kTileSize);
+    QImage tile;
+    if (lookup)
+        {
+            const quint64 key = (quint64(quint32(tileX)) << 32) | quint32(tileY);
+            auto known = lookup->tiles.constFind(key);
+            if (known == lookup->tiles.constEnd())
+                {
+                    known = lookup->tiles.insert(key, TileStore::terrain()->tile(kZoom, tileX, tileY));
+                }
+            tile = *known;
+        }
+    else
+        {
+            tile = TileStore::terrain()->tile(kZoom, tileX, tileY);
+        }
     if (tile.isNull())
         {
             return false;
@@ -32,7 +48,7 @@ bool pixelHeight(qint64 x, qint64 y, double *meters)
 }
 }
 
-bool Terrain::elevationAt(double latitude, double longitude, double *meters)
+bool Terrain::elevationAt(double latitude, double longitude, double *meters, Lookup *lookup)
 {
     const double world = double(qint64(kTileSize) << kZoom);
     // pixel centers are at half numbers
@@ -47,7 +63,7 @@ bool Terrain::elevationAt(double latitude, double longitude, double *meters)
     bool all = true;
     for (int i = 0; i < 4; ++i)
         {
-            all = pixelHeight(x0 + i % 2, y0 + i / 2, &h[i]) && all;
+            all = pixelHeight(x0 + i % 2, y0 + i / 2, &h[i], lookup) && all;
         }
     if (!all)
         {

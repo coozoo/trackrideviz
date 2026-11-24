@@ -185,93 +185,98 @@ QString TileStore::defaultAttribution()
 
 QVector<TileStore::Provider> TileStore::providers()
 {
-    const QString osm = QStringLiteral("© OpenStreetMap contributors");
-    const QString esri = QStringLiteral("Esri, HERE, Garmin, USGS, ") + osm;
-    const QString thunderforest = QStringLiteral("Maps © Thunderforest · Data ") + osm;
-    const QString stadia = QStringLiteral("© Stadia Maps · © OpenMapTiles · ") + osm;
-    const QString stamen = QStringLiteral("© Stadia Maps · © Stamen Design · © OpenMapTiles · ") + osm;
-    const QString maptiler = QStringLiteral("© MapTiler · ") + osm;
-    const QString mapbox = QStringLiteral("© Mapbox · ") + osm;
-    const QString ign = QStringLiteral("IGN-F / Géoplateforme");
-    // by concatenation: the %2F of the address would be taken for an argument of arg()
-    const auto ignLayer = [](const char *layer, const char *format)
+    // the same every time, and looked up for every picture of a map: made once (copies share it)
+    static const QVector<Provider> known = []()
     {
-        return QStringLiteral("https://data.geopf.fr/wmts?layer=") + QLatin1String(layer)
-               + QStringLiteral("&style=normal&tilematrixset=PM&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2F")
-               + QLatin1String(format) + QStringLiteral("&TileMatrix={z}&TileCol={x}&TileRow={y}");
-    };
-    return
-    {
-        // free to use, each asking for its credit
-        {"osm", "OpenStreetMap", defaultUrlTemplate(), defaultAttribution(), 19, QString()},
-        {"cyclosm", "CyclOSM", "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
-         osm + " · CyclOSM", 20, QString()},
-        {"opentopomap", "OpenTopoMap", "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-         "© OpenStreetMap, SRTM · OpenTopoMap (CC-BY-SA)", 17, QString()},
-        {"osm-hot", "OpenStreetMap Humanitarian", "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-         osm + " · Humanitarian OSM Team, OSM France", 19, QString()},
-        {"osm-france", "OpenStreetMap France", "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
-         osm + " · OSM France", 19, QString()},
-        {"opnvkarte", "ÖPNVKarte (public transport)", "https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png",
-         osm + " · ÖPNVKarte", 18, QString()},
-        {"satellite", "Satellite (Esri)",
-         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-         "Esri, Maxar, Earthstar Geographics", 19, QString()},
-        {"esri-topo", "Esri Topographic",
-         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", esri, 19, QString()},
-        {"esri-street", "Esri Streets",
-         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", esri, 19, QString()},
-        {"relief", "Relief (maps-for-free)", "https://maps-for-free.com/layer/relief/z{z}/row{y}/{z}_{x}-{y}.jpg",
-         "maps-for-free.com", 11, QString()},
-        {"ign-plan", "IGN France map", ignLayer("GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2", "png"), ign, 19, QString()},
-        {"ign-photo", "IGN France aerial photos", ignLayer("ORTHOIMAGERY.ORTHOPHOTOS", "jpeg"), ign, 19, QString()},
-        {"usgs-topo", "USGS Topo (USA)",
-         "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
-         "USGS The National Map", 16, QString()},
-        {"usgs-imagery", "USGS Imagery (USA)",
-         "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
-         "USGS The National Map", 16, QString()},
-        // with a key of the user's own
-        {"opencyclemap", "Thunderforest OpenCycleMap",
-         "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
-        {"tf-outdoors", "Thunderforest Outdoors",
-         "https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
-        {"tf-landscape", "Thunderforest Landscape",
-         "https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
-        {"tf-transport", "Thunderforest Transport",
-         "https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
-        {"stadia-smooth", "Stadia Alidade Smooth",
-         "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
-        {"stadia-dark", "Stadia Alidade Smooth Dark",
-         "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
-        {"stadia-outdoors", "Stadia Outdoors",
-         "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
-        {"stamen-terrain", "Stamen Terrain",
-         "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.png?api_key={apikey}", stamen, 18, "stadia"},
-        {"stamen-toner", "Stamen Toner",
-         "https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png?api_key={apikey}", stamen, 20, "stadia"},
-        {"stamen-watercolor", "Stamen Watercolor",
-         "https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key={apikey}", stamen, 16, "stadia"},
-        {"maptiler-streets", "MapTiler Streets",
-         "https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
-        {"maptiler-outdoor", "MapTiler Outdoor",
-         "https://api.maptiler.com/maps/outdoor-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
-        {"maptiler-topo", "MapTiler Topo",
-         "https://api.maptiler.com/maps/topo-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
-        {"maptiler-winter", "MapTiler Winter",
-         "https://api.maptiler.com/maps/winter-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
-        {"maptiler-satellite", "MapTiler Satellite",
-         "https://api.maptiler.com/maps/satellite/256/{z}/{x}/{y}.jpg?key={apikey}", maptiler, 20, "maptiler"},
-        {"mapbox-satellite", "Mapbox Satellite Streets",
-         "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
-         mapbox, 22, "mapbox"},
-        {"mapbox-outdoors", "Mapbox Outdoors",
-         "https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
-         mapbox, 22, "mapbox"},
-        {"mapbox-streets", "Mapbox Streets",
-         "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
-         mapbox, 22, "mapbox"},
-    };
+        const QString osm = QStringLiteral("© OpenStreetMap contributors");
+        const QString esri = QStringLiteral("Esri, HERE, Garmin, USGS, ") + osm;
+        const QString thunderforest = QStringLiteral("Maps © Thunderforest · Data ") + osm;
+        const QString stadia = QStringLiteral("© Stadia Maps · © OpenMapTiles · ") + osm;
+        const QString stamen = QStringLiteral("© Stadia Maps · © Stamen Design · © OpenMapTiles · ") + osm;
+        const QString maptiler = QStringLiteral("© MapTiler · ") + osm;
+        const QString mapbox = QStringLiteral("© Mapbox · ") + osm;
+        const QString ign = QStringLiteral("IGN-F / Géoplateforme");
+        // by concatenation: the %2F of the address would be taken for an argument of arg()
+        const auto ignLayer = [](const char *layer, const char *format)
+        {
+            return QStringLiteral("https://data.geopf.fr/wmts?layer=") + QLatin1String(layer)
+                   + QStringLiteral("&style=normal&tilematrixset=PM&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2F")
+                   + QLatin1String(format) + QStringLiteral("&TileMatrix={z}&TileCol={x}&TileRow={y}");
+        };
+        return QVector<Provider>
+        {
+            // free to use, each asking for its credit
+            {"osm", "OpenStreetMap", defaultUrlTemplate(), defaultAttribution(), 19, QString()},
+            {"cyclosm", "CyclOSM", "https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
+             osm + " · CyclOSM", 20, QString()},
+            {"opentopomap", "OpenTopoMap", "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+             "© OpenStreetMap, SRTM · OpenTopoMap (CC-BY-SA)", 17, QString()},
+            {"osm-hot", "OpenStreetMap Humanitarian", "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+             osm + " · Humanitarian OSM Team, OSM France", 19, QString()},
+            {"osm-france", "OpenStreetMap France", "https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
+             osm + " · OSM France", 19, QString()},
+            {"opnvkarte", "ÖPNVKarte (public transport)", "https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png",
+             osm + " · ÖPNVKarte", 18, QString()},
+            {"satellite", "Satellite (Esri)",
+             "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+             "Esri, Maxar, Earthstar Geographics", 19, QString()},
+            {"esri-topo", "Esri Topographic",
+             "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", esri, 19, QString()},
+            {"esri-street", "Esri Streets",
+             "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", esri, 19, QString()},
+            {"relief", "Relief (maps-for-free)", "https://maps-for-free.com/layer/relief/z{z}/row{y}/{z}_{x}-{y}.jpg",
+             "maps-for-free.com", 11, QString()},
+            {"ign-plan", "IGN France map", ignLayer("GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2", "png"), ign, 19, QString()},
+            {"ign-photo", "IGN France aerial photos", ignLayer("ORTHOIMAGERY.ORTHOPHOTOS", "jpeg"), ign, 19, QString()},
+            {"usgs-topo", "USGS Topo (USA)",
+             "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+             "USGS The National Map", 16, QString()},
+            {"usgs-imagery", "USGS Imagery (USA)",
+             "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
+             "USGS The National Map", 16, QString()},
+            // with a key of the user's own
+            {"opencyclemap", "Thunderforest OpenCycleMap",
+             "https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+            {"tf-outdoors", "Thunderforest Outdoors",
+             "https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+            {"tf-landscape", "Thunderforest Landscape",
+             "https://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+            {"tf-transport", "Thunderforest Transport",
+             "https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey={apikey}", thunderforest, 22, "thunderforest"},
+            {"stadia-smooth", "Stadia Alidade Smooth",
+             "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
+            {"stadia-dark", "Stadia Alidade Smooth Dark",
+             "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
+            {"stadia-outdoors", "Stadia Outdoors",
+             "https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}.png?api_key={apikey}", stadia, 20, "stadia"},
+            {"stamen-terrain", "Stamen Terrain",
+             "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}.png?api_key={apikey}", stamen, 18, "stadia"},
+            {"stamen-toner", "Stamen Toner",
+             "https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png?api_key={apikey}", stamen, 20, "stadia"},
+            {"stamen-watercolor", "Stamen Watercolor",
+             "https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg?api_key={apikey}", stamen, 16, "stadia"},
+            {"maptiler-streets", "MapTiler Streets",
+             "https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+            {"maptiler-outdoor", "MapTiler Outdoor",
+             "https://api.maptiler.com/maps/outdoor-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+            {"maptiler-topo", "MapTiler Topo",
+             "https://api.maptiler.com/maps/topo-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+            {"maptiler-winter", "MapTiler Winter",
+             "https://api.maptiler.com/maps/winter-v2/256/{z}/{x}/{y}.png?key={apikey}", maptiler, 20, "maptiler"},
+            {"maptiler-satellite", "MapTiler Satellite",
+             "https://api.maptiler.com/maps/satellite/256/{z}/{x}/{y}.jpg?key={apikey}", maptiler, 20, "maptiler"},
+            {"mapbox-satellite", "Mapbox Satellite Streets",
+             "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
+             mapbox, 22, "mapbox"},
+            {"mapbox-outdoors", "Mapbox Outdoors",
+             "https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
+             mapbox, 22, "mapbox"},
+            {"mapbox-streets", "Mapbox Streets",
+             "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/256/{z}/{x}/{y}?access_token={apikey}",
+             mapbox, 22, "mapbox"},
+        };
+    }();
+    return known;
 }
 
 QVector<TileStore::KeyService> TileStore::keyServices()
@@ -560,6 +565,9 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
     {
         QPainter painter(&image);
         painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        // a file that is not there costs less to find out about than an image that cannot be
+        // read: QImage tries it under every image suffix it knows
+        auto read = [](const QString &path) { return QFileInfo::exists(path) ? QImage(path) : QImage(); };
         int index = 0;
         for (int y = block.top; y <= block.bottom; ++y)
             {
@@ -567,7 +575,7 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                     {
                         const QRect cell((x - block.left) * kTileSize, (y - block.top) * kTileSize, kTileSize, kTileSize);
                         const QVector<QString> &up = coarser.at(index);
-                        const QImage one(paths.at(index++));
+                        const QImage one = read(paths.at(index++));
                         if (!one.isNull())
                             {
                                 painter.drawImage(cell, one);
@@ -578,7 +586,7 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                         bool drawn = false;
                         for (int k = 1; k <= up.size() && !drawn; ++k)
                             {
-                                const QImage wider(up.at(k - 1));
+                                const QImage wider = read(up.at(k - 1));
                                 if (!wider.isNull())
                                     {
                                         // the part of it this tile is
