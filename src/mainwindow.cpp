@@ -976,15 +976,25 @@ void MainWindow::createMenus()
     editMenu->addAction(redoAction);
 
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
-    viewMenu->addAction(m_sourcesDock->toggleViewAction());
-    viewMenu->addAction(m_libraryDock->toggleViewAction());
-    viewMenu->addAction(m_propertiesDock->toggleViewAction());
-    viewMenu->addAction(m_timelineDock->toggleViewAction());
-    viewMenu->addAction(m_compareDock->toggleViewAction());
-    viewMenu->addAction(m_dataDock->toggleViewAction());
-    viewMenu->addAction(m_lapsDock->toggleViewAction());
-    viewMenu->addAction(m_musicDock->toggleViewAction());
-    viewMenu->addAction(m_diagnosticsDock->toggleViewAction());
+    // the panels, each with an icon of what it holds: the theme's where it has one, the program's own
+    // where no theme has such a thing
+    const QVector<QPair<QDockWidget *, QIcon>> panels
+    {
+        {m_sourcesDock, Icons::named("folder-open")},
+        {m_libraryDock, Icons::bundled("gauge")},
+        {m_propertiesDock, Icons::named("document-properties")},
+        {m_timelineDock, Icons::bundled("timeline")},
+        {m_compareDock, Icons::bundled("compare")},
+        {m_dataDock, Icons::bundled("chart")},
+        {m_lapsDock, Icons::named("flag-checkered")},
+        {m_musicDock, Icons::named("audio-x-generic")},
+        {m_diagnosticsDock, Icons::named("utilities-system-monitor")},
+    };
+    for (const auto &[dock, icon] : panels)
+        {
+            dock->toggleViewAction()->setIcon(icon);
+            viewMenu->addAction(dock->toggleViewAction());
+        }
     viewMenu->addSeparator();
     viewMenu->addAction(Icons::named("view-refresh"), tr("&Reset layout"), this, [this]()
     {
