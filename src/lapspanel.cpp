@@ -159,7 +159,18 @@ LapsPanel::LapsPanel(QWidget *parent)
     m_lapTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(m_lapTable, &QTreeWidget::itemSelectionChanged, this, [this]()
     {
-        emit lapsSelected(selectedLaps());
+        const QVector<int> laps = selectedLaps();
+        // one lap picked: shown on the map, to see it is the lap it should be
+        if (laps.size() == 1 && m_session && laps.first() < m_session->laps().size())
+            {
+                const TelemetrySession::Lap &lap = m_session->laps().at(laps.first());
+                m_track->setHighlight(lap.startTime, lap.endTime);
+            }
+        else
+            {
+                m_track->setHighlight(0.0, 0.0);
+            }
+        emit lapsSelected(laps);
     });
     m_lapTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_lapTable, &QWidget::customContextMenuRequested, this, [this](const QPoint &at)

@@ -4516,7 +4516,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>По чому їдуть на кожному відрізку та де він починається й закінчується вздовж поїздки; де два накладаються, діє нижчий у списку</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="396"/>
+        <location filename="../src/lapspanel.cpp" line="407"/>
         <source>Click on the route where laps begin</source>
         <translation>Клацніть на маршруті там, де починаються кола</translation>
     </message>
@@ -4577,7 +4577,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>Карта тут і під приладами, які її показують</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="238"/>
+        <location filename="../src/lapspanel.cpp" line="249"/>
         <source>Own server</source>
         <translation>Власний сервер</translation>
     </message>
@@ -4597,99 +4597,99 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>Ставить лінію старту/фінішу там, де маршрут дає найбільше цілих кіл</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="172"/>
+        <location filename="../src/lapspanel.cpp" line="183"/>
         <source>Use lap %1 as the reference</source>
         <translation>Зробити коло %1 еталонним</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="174"/>
+        <location filename="../src/lapspanel.cpp" line="185"/>
         <source>The fastest lap as the reference</source>
         <translation>Найшвидше коло як еталон</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="213"/>
+        <location filename="../src/lapspanel.cpp" line="224"/>
         <source>Laps</source>
         <translation>Кола</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="214"/>
+        <location filename="../src/lapspanel.cpp" line="225"/>
         <source>Surfaces</source>
         <translation>Покриття</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="276"/>
+        <location filename="../src/lapspanel.cpp" line="287"/>
         <source>Lap</source>
         <translation>Коло</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="276"/>
+        <location filename="../src/lapspanel.cpp" line="287"/>
         <source>Time</source>
         <translation>Час</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="279"/>
+        <location filename="../src/lapspanel.cpp" line="290"/>
         <source>S%1</source>
         <translation>С%1</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="281"/>
+        <location filename="../src/lapspanel.cpp" line="292"/>
         <source>To best</source>
         <translation>До найкращого</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="327"/>
+        <location filename="../src/lapspanel.cpp" line="338"/>
         <source>best</source>
         <translation>найкраще</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="342"/>
+        <location filename="../src/lapspanel.cpp" line="353"/>
         <source>The fastest of this sector</source>
         <translation>Найшвидший у цьому секторі</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="351"/>
+        <location filename="../src/lapspanel.cpp" line="362"/>
         <source>The reference lap; right-click to choose another</source>
         <translation>Еталонне коло; клацніть правою кнопкою, щоб вибрати інше</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="397"/>
+        <location filename="../src/lapspanel.cpp" line="408"/>
         <source>Click on the route where a sector ends</source>
         <translation>Клацніть на маршруті там, де закінчується сектор</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="398"/>
+        <location filename="../src/lapspanel.cpp" line="409"/>
         <source>Click on the route where the surface begins</source>
         <translation>Клацніть на маршруті, де покриття починається</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="409"/>
+        <location filename="../src/lapspanel.cpp" line="420"/>
         <source>Click on the route where this surface ends</source>
         <translation>Клацніть на маршруті, де це покриття закінчується</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="415"/>
-        <location filename="../src/lapspanel.cpp" line="482"/>
-        <location filename="../src/lapspanel.cpp" line="487"/>
+        <location filename="../src/lapspanel.cpp" line="426"/>
+        <location filename="../src/lapspanel.cpp" line="493"/>
+        <location filename="../src/lapspanel.cpp" line="498"/>
         <source>%1 (×%2)</source>
         <translation>%1 (×%2)</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="463"/>
+        <location filename="../src/lapspanel.cpp" line="474"/>
         <source> km</source>
         <translation> km</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="463"/>
+        <location filename="../src/lapspanel.cpp" line="474"/>
         <source> mi</source>
         <translation> милі</translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="555"/>
+        <location filename="../src/lapspanel.cpp" line="566"/>
         <source>Open data to see its laps.</source>
         <translation>Відкрийте дані, щоб побачити їхні кола.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="561"/>
+        <location filename="../src/lapspanel.cpp" line="572"/>
         <source>%n lap(s) between crossings of the start/finish line.</source>
         <translation>
             <numerusform>%n коло між перетинами лінії старту/фінішу.</numerusform>
@@ -4698,12 +4698,12 @@ They can be joined by encoding them again. That takes a while; the joined video 
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="562"/>
+        <location filename="../src/lapspanel.cpp" line="573"/>
         <source>The route crosses the start/finish line only once. For a ride from one place to another add a sector line where the stretch ends: the last one is the finish.</source>
         <translation>Маршрут перетинає лінію старту/фінішу лише раз. Для поїздки з одного місця в інше додайте лінію сектора там, де відрізок закінчується: остання з них - фініш.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/lapspanel.cpp" line="567"/>
+        <location filename="../src/lapspanel.cpp" line="578"/>
         <source>%n lap(s) as the device recorded them. Place a start/finish line to time laps on a track.</source>
         <translation>
             <numerusform>%n коло, як його записав пристрій. Поставте лінію старту/фінішу, щоб засікати кола на треку.</numerusform>
@@ -4712,7 +4712,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         </translation>
     </message>
     <message>
-        <location filename="../src/lapspanel.cpp" line="569"/>
+        <location filename="../src/lapspanel.cpp" line="580"/>
         <source>No laps. Place a start/finish line to time laps on a track.</source>
         <translation>Кіл немає. Поставте лінію старту/фінішу, щоб засікати кола на треку.</translation>
     </message>
@@ -4919,11 +4919,6 @@ the camera&apos;s speed-up for a time-lapse (10, 30...).</source>
         <location filename="../src/mainwindow.cpp" line="722"/>
         <source>Remove start/finish line</source>
         <translation>Вилучити лінію старту/фінішу</translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="735"/>
-        <source>No place on the route gives two laps or more: it is not ridden round twice.</source>
-        <translation>Жодне місце маршруту не дає двох кіл чи більше: його не проїжджено двічі.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="738"/>
@@ -5636,7 +5631,7 @@ It appears among the templates in the library.</source>
     <message>
         <location filename="../src/mainwindow.cpp" line="286"/>
         <location filename="../src/mainwindow.cpp" line="295"/>
-        <location filename="../src/mainwindow.cpp" line="3235"/>
+        <location filename="../src/mainwindow.cpp" line="3233"/>
         <source>Check for updates</source>
         <translation>Перевірка оновлень</translation>
     </message>
@@ -5654,6 +5649,11 @@ It appears among the templates in the library.</source>
         <location filename="../src/mainwindow.cpp" line="300"/>
         <source>What is new, and how to get it</source>
         <translation>Що нового і як це отримати</translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="735"/>
+        <source>No place on the route gives a lap: the route does not come round to where it was.</source>
+        <translation>Жодне місце маршруту не дає кола: маршрут не повертається туди, де був.</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="792"/>
@@ -5956,62 +5956,62 @@ It appears among the templates in the library.</source>
         <translation>Збережено %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3236"/>
+        <location filename="../src/mainwindow.cpp" line="3234"/>
         <source>This copy was not built for a release (it is a development build or a distribution&apos;s package), so it cannot tell how new it is. The releases are &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
         <translation>Цю копію зібрано не для випуску (це збірка для розробки або пакет дистрибутива), тож вона не може сказати, наскільки вона нова. Випуски - &lt;a href=&quot;%1&quot;&gt;тут&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3255"/>
+        <location filename="../src/mainwindow.cpp" line="3253"/>
         <source>Version %1</source>
         <translation>Версія %1</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3261"/>
+        <location filename="../src/mainwindow.cpp" line="3259"/>
         <source>Version %1 of %2 is out, made on %3. This one is %4, of %5.</source>
         <translation>Вийшла версія %1 програми %2, зібрана %3. Ця - %4, від %5.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3269"/>
+        <location filename="../src/mainwindow.cpp" line="3267"/>
         <source>No notes came with it.</source>
         <translation>Опису змін немає.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3275"/>
+        <location filename="../src/mainwindow.cpp" line="3273"/>
         <source>Update now</source>
         <translation>Оновити зараз</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3284"/>
+        <location filename="../src/mainwindow.cpp" line="3282"/>
         <source>Open the release page</source>
         <translation>Відкрити сторінку випуску</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3289"/>
+        <location filename="../src/mainwindow.cpp" line="3287"/>
         <source>Skip this version</source>
         <translation>Пропустити цю версію</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3290"/>
+        <location filename="../src/mainwindow.cpp" line="3288"/>
         <source>Later</source>
         <translation>Пізніше</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3321"/>
+        <location filename="../src/mainwindow.cpp" line="3319"/>
         <source>Update</source>
         <translation>Оновлення</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3321"/>
+        <location filename="../src/mainwindow.cpp" line="3319"/>
         <source>Version %1 is in place. Restart now to use it?</source>
         <translation>Версію %1 встановлено. Перезапустити зараз, щоб нею користуватися?</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3324"/>
+        <location filename="../src/mainwindow.cpp" line="3322"/>
         <source>Version %1 starts the next time the program does.</source>
         <translation>Версія %1 запуститься наступного разу, коли запуститься програма.</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3338"/>
+        <location filename="../src/mainwindow.cpp" line="3336"/>
         <source>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Version %2&lt;br&gt;&lt;br&gt;Telemetry overlays for action camera video.&lt;br&gt;&lt;br&gt;Author: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Licensed under the GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;img src=&quot;:/images/icons/flag-ukraine.svg&quot; width=&quot;24&quot; height=&quot;16&quot;&gt; &lt;a href=&quot;%4&quot;&gt;Support Ukraine&lt;/a&gt; in its fight for independence against the empire.</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Версія %2&lt;br&gt;&lt;br&gt;Накладання телеметрії на відео з екшн-камер.&lt;br&gt;&lt;br&gt;Автор: coozoo&lt;br&gt;&lt;a href=&quot;%3&quot;&gt;%3&lt;/a&gt;&lt;br&gt;Ліцензія GNU GPL v3.&lt;br&gt;&lt;br&gt;&lt;img src=&quot;:/images/icons/flag-ukraine.svg&quot; width=&quot;24&quot; height=&quot;16&quot;&gt; &lt;a href=&quot;%4&quot;&gt;Підтримайте Україну&lt;/a&gt; у боротьбі за незалежність проти імперії.</translation>
     </message>
@@ -6250,7 +6250,7 @@ It appears among the templates in the library.</source>
         <translation>Змінити джерела даних</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="3337"/>
+        <location filename="../src/mainwindow.cpp" line="3335"/>
         <source>About</source>
         <translation>Про програму</translation>
     </message>
