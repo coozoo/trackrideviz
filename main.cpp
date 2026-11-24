@@ -5,12 +5,14 @@
 #include "gstreamerworkaround.h"
 #include "mainwindow.h"
 #include "settings/appsettings.h"
+#include "simple/simpleui.h"
 #include "video/libav.h"
 
 #include <QApplication>
 #include <QDir>
 #include <QIcon>
 #include <QLocale>
+#include <QQmlApplicationEngine>
 #include <QTranslator>
 #include <QtDebug>
 
@@ -101,6 +103,13 @@ int main(int argc, char *argv[])
 
     Appearance::apply();
     Appearance::wrapToolTips();
+
+    // the simplified interface alone: asked for, or the only one there is (Android)
+    if (SimpleUi::wanted(argc, argv))
+        {
+            const std::unique_ptr<QQmlApplicationEngine> simple(SimpleUi::open());
+            return a.exec();
+        }
 
     MainWindow w;
     w.show();

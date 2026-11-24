@@ -546,12 +546,27 @@ In order:
   placed by the sync; cuts inside a lap still left out
 
 ## M8 - Touch UI
-- QML app on `rtvcore` (backend B, the built-in video engine, is done): the only UI on Android; on the
-  desktop a second way in, by its own icon (a .desktop entry / Start menu shortcut) and a command-line
-  switch, beside the full app
+- QML app on `rtvcore` (backend B, the built-in video engine, is done): the only UI on Android, one
+  layout for phones and tablets; on the desktop File > Simplified interface (with a button back to
+  the full window) and `--simple` on the command line. No second desktop icon
 - Few screens, most things automatic: video (chapters joined), data (from the video or a file, synced
   by the clocks), look, export with presets. Video and data adjusted by hand on a preview frame
-  (always needed). A long tap opens a menu leading to lists: gauges, templates, music
+  (always needed). A long tap opens a menu leading to lists: gauges, templates, music. No gauge
+  editor, no data panel; a minimal timeline
+
+### First version (2026-11-24)
+- ✅ `src/simple`: `SimpleController` (the command line's steps, without blocking: video probed, data
+  read out of the video or a file and worked out as the window does, a template laid out for the
+  video's shape, in step by the clocks, an export with a profile beside the video, never over a
+  file), `GaugeOverlay` (the gauges drawn over QML's `VideoOutput`), `SimpleUi` (Material style)
+- ✅ `qml/simple/Main.qml`: start screen, preview with play/pause by a tap, a timeline, the step moved
+  by -1 / -0.1 / +0.1 / +1 s or by the clocks, a list of looks (also by a long tap), the export
+  with its profile, progress, stop keeping what is done, and playing the result
+- ✅ Packages carry Qt Quick and its QML modules (deb, rpm, AppImage checked, Windows, macOS)
+- ✅ `tests/simple`: the controller's whole flow without a window
+- Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the
+  probe and the built-in engine have to open; the export folder), joined chapters, music, gauges
+  added one by one
 
 ## After the simple UI: GoPro
 - GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint

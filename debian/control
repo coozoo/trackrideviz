@@ -2,13 +2,14 @@ Source: trackrideviz
 Section: video
 Priority: optional
 Maintainer: Yuriy Kuzin <yuriykuzin@yahoo.com>
-Build-Depends: debhelper (>= 9), qt6-base-dev, libqt6opengl6-dev, qt6-multimedia-dev, libqt6svg6-dev, zlib1g-dev, qt6-tools-dev, qt6-tools-dev-tools, qt6-l10n-tools, libgl1-mesa-dev, libgstreamer1.0-dev
+Build-Depends: debhelper (>= 9), qt6-base-dev, libqt6opengl6-dev, qt6-multimedia-dev, qt6-declarative-dev, libqt6svg6-dev, zlib1g-dev, qt6-tools-dev, qt6-tools-dev-tools, qt6-l10n-tools, libgl1-mesa-dev, libgstreamer1.0-dev
 Standards-Version: 3.9.8
 Homepage: https://github.com/coozoo/trackrideviz
 
 Package: trackrideviz
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ffmpeg, qt6-qpa-plugins,
+ qml6-module-qtquick, qml6-module-qtquick-controls, qml6-module-qtquick-dialogs, qml6-module-qtquick-layouts, qml6-module-qtquick-templates, qml6-module-qtquick-window, qml6-module-qtqml-workerscript, qml6-module-qtmultimedia,
  gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-libav, gstreamer1.0-gl
 Recommends: gstreamer1.0-plugins-bad, qt6-wayland
 Description: Race Track Visualizer - telemetry overlays for action camera video.

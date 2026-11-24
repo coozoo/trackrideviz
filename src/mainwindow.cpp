@@ -32,6 +32,7 @@
 #include "project/projectdata.h"
 #include "settings/appsettings.h"
 #include "settingsdialog.h"
+#include "simple/simpleui.h"
 #include "sync/videosync.h"
 #include "telemetry/dataedits.h"
 #include "telemetry/derivedchannels.h"
@@ -85,6 +86,7 @@
 #include <QMetaEnum>
 #include <QMimeData>
 #include <QTextBrowser>
+#include <QQmlApplicationEngine>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -955,6 +957,8 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(tr("Save the &gauges as a template..."), this, &MainWindow::saveAsTemplate);
     fileMenu->addSeparator();
+    QAction *simpleAction = fileMenu->addAction(tr("Simp&lified interface"), this, &MainWindow::openSimple);
+    simpleAction->setToolTip(tr("A video, its data, a look and an export, the rest automatic, as on a phone"));
     QAction *settingsAction = fileMenu->addAction(tr("&Settings..."), this, &MainWindow::showSettings);
     settingsAction->setShortcut(QKeySequence::Preferences);
     settingsAction->setIcon(Icons::named("preferences-system"));
@@ -3392,6 +3396,26 @@ void MainWindow::updateTo(const ReleaseCheck::Release &release)
     // saved or let go already: not asked about again
     m_modified = false;
     close();
+}
+
+void MainWindow::openSimple()
+{
+    if (m_simple)
+        {
+            return;
+        }
+    m_playback->pause();
+    hide();
+    m_simple = SimpleUi::open([this]()
+    {
+        // not inside the window's own handler, which asked for it
+        QTimer::singleShot(0, this, [this]()
+        {
+            delete m_simple;
+            m_simple = nullptr;
+            show();
+        });
+    });
 }
 
 void MainWindow::showAbout()
