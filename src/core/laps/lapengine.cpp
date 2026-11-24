@@ -13,6 +13,11 @@ namespace
 {
 const double kPi = 3.14159265358979323846;
 const double kEarthRadius = 6371008.8;
+// a lap closed where it passes by the line: coming back at most this many degrees off the way it
+// crossed, not along the way it came, ridden the other way
+const double kMostTurnedBack = 120.0;
+// ... unless it went round a loop: enclosing this much of its length squared at least (a circle 0.08)
+const double kLeastEnclosed = 0.01;
 const char *const kLapChannels[] =
 {
     ChannelId::Lap, ChannelId::LapTime, ChannelId::PreviousLapTime, ChannelId::BestLapTime,
@@ -116,54 +121,137 @@ struct Crossing
     int side;   // which way: +1 or -1
 };
 
+// Whether the route from..to goes round something: the area it encloses against its length squared,
+// as a circle's 1/4pi is; a road ridden there and back encloses next to nothing.
+bool enclosesALoop(const TelemetrySession &session, double from, double to)
+{
+    const Channel *lat = session.channel(ChannelId::PositionLat);
+    const Channel *lon = session.channel(ChannelId::PositionLon);
+    bool ok = false;
+    const double lat0 = lat->valueAt(from, &ok);
+    if (!ok)
+        {
+            return false;
+        }
+    const Plane plane(lat0, lon->valueAt(from));
+    double area = 0.0;
+    double length = 0.0;
+    QPointF previous;
+    bool first = true;
+    for (int i = 0; i < lat->count(); ++i)
+        {
+            const double t = lat->timeAt(i);
+            if (t < from || t > to)
+                {
+                    continue;
+                }
+            const QPointF at = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t));
+            if (!first)
+                {
+                    area += previous.x() * at.y() - at.x() * previous.y();
+                    length += std::hypot(at.x() - previous.x(), at.y() - previous.y());
+                }
+            previous = at;
+            first = false;
+        }
+    // closing it back to where it began adds nothing: that is the plane's origin
+    return length > 0.0 && std::abs(area) / 2.0 / (length * length) >= kLeastEnclosed;
+}
+
 // The last lap of a course left at a junction just before the line: after the last crossing the
-// route covers about a lap again and passes the line closely without crossing it, then goes
+// route goes round the course again, comes back by the line without crossing it, and goes
 // elsewhere. That lap ends where it came nearest the line; true when one was ended so.
+// With a finished lap it has to have gone about as far again; with none (a loop ridden once), it
+// has to have gone well away first. Either way it comes back the course's way, not along the way it
+// came reversed (a road ridden out and home); with `reversed`, also back the way it went in, when
+// what it rode encloses a loop (the end of a road to a loop and back).
 bool closeLeftLap(const TelemetrySession &session, const StartFinishLine &line, QVector<TelemetrySession::Lap> &laps,
-                  double minimumLap)
+                  double minimumLap, bool reversed = true)
 {
     const Channel *lat = session.channel(ChannelId::PositionLat);
     const Channel *lon = session.channel(ChannelId::PositionLon);
     const Channel *distance = session.channel(ChannelId::Distance);
-    // a finished lap tells how long one is
-    if (!lat || !lon || !distance || laps.isEmpty() || laps.last().endTime <= laps.last().startTime)
+    const Channel *heading = session.channel(ChannelId::Heading);
+    if (!lat || !lon || !distance || !heading || laps.isEmpty())
         {
             return false;
         }
-    const TelemetrySession::Lap &last = laps.last();
-    const double lapLength = distance->valueAt(last.endTime) - distance->valueAt(last.startTime);
-    const double start = last.endTime;
+    const TelemetrySession::Lap last = laps.last();
+    // the last crossing: the end of the finished lap, or the only one, which began the lap under way
+    const bool finished = last.endTime > last.startTime;
+    const double start = finished ? last.endTime : last.startTime;
+    const double lapLength = finished ? distance->valueAt(last.endTime) - distance->valueAt(last.startTime) : 0.0;
     const double from = distance->valueAt(start);
+    const double crossedHeading = heading->valueAt(start);
     const Plane plane((line.lat1 + line.lat2) / 2.0, (line.lon1 + line.lon2) / 2.0);
-    // not farther from the line's middle than the widest line: having gone a lap's distance, the
-    // route came back to it and turned off just before
+    // gone away: a lap's distance nearly, or (with none known) farther than the widest line twice
+    const double awayFirst = 2.0 * LapEngine::MaximumLineWidth;
+    bool wentAway = false;
     double nearest = LapEngine::MaximumLineWidth;
     double nearestTime = -1.0;
-    for (int i = 0; i < lat->count() && lapLength > 0.0; ++i)
+    for (int i = 0; i < lat->count(); ++i)
         {
             const double t = lat->timeAt(i);
-            const double done = distance->valueAt(t) - from;
-            if (t <= start || done < 0.9 * lapLength)
+            if (t <= start)
                 {
                     continue;
                 }
-            if (done > 1.2 * lapLength)
+            const double done = distance->valueAt(t) - from;
+            const QPointF at = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t));
+            const double away = std::hypot(at.x(), at.y());
+            if (finished ? done < 0.9 * lapLength : !wentAway)
+                {
+                    wentAway = wentAway || away > awayFirst;
+                    continue;
+                }
+            if (finished && done > 1.2 * lapLength)
                 {
                     break;
                 }
-            const QPointF at = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t));
-            const double away = std::hypot(at.x(), at.y());
             if (away < nearest)
                 {
                     nearest = away;
                     nearestTime = t;
+                }
+            else if (!finished && nearestTime >= 0.0 && away > LapEngine::MaximumLineWidth)
+                {
+                    // the first time back by the line, and gone again
+                    break;
                 }
         }
     if (nearestTime < 0.0 || nearestTime - start < minimumLap)
         {
             return false;
         }
-    laps.append({start, nearestTime});
+    // a ride that only ends where it began is a round trip, not a lap: the route has to go on elsewhere
+    bool goesOn = false;
+    for (int i = 0; i < lat->count() && !goesOn; ++i)
+        {
+            const double t = lat->timeAt(i);
+            if (t > nearestTime)
+                {
+                    const QPointF at = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t));
+                    goesOn = std::hypot(at.x(), at.y()) > LapEngine::MaximumLineWidth;
+                }
+        }
+    if (!goesOn)
+        {
+            return false;
+        }
+    double turned = std::fmod(std::abs(heading->valueAt(nearestTime) - crossedHeading), 360.0);
+    turned = std::min(turned, 360.0 - turned);
+    if (turned > kMostTurnedBack && (!reversed || !enclosesALoop(session, start, nearestTime)))
+        {
+            return false;
+        }
+    if (finished)
+        {
+            laps.append({start, nearestTime});
+        }
+    else
+        {
+            laps.last().endTime = nearestTime;
+        }
     return true;
 }
 
@@ -383,38 +471,57 @@ StartFinishLine LapEngine::findLine(const TelemetrySession &session, double mini
         {
             return StartFinishLine();
         }
+    const Channel *distance = session.channel(ChannelId::Distance);
     // every few seconds: fine enough for a lap of a minute, quick enough for a ride of hours
     const double step = 5.0;
-    StartFinishLine best;
-    int bestLaps = 1;
-    double bestCovered = 0.0;
+    QVector<StartFinishLine> lines;
     for (double t = lat->startTime(); t <= lat->endTime(); t += step)
         {
             const StartFinishLine line = lineAt(session, t, lineWidthAt(session, t));
-            if (!line.isValid())
+            if (line.isValid())
                 {
-                    continue;
-                }
-            QVector<TelemetrySession::Lap> laps = detect(session, line, minimumLap);
-            closeLeftLap(session, line, laps, minimumLap);
-            int finished = 0;
-            double covered = 0.0;
-            for (const TelemetrySession::Lap &lap : std::as_const(laps))
-                {
-                    if (lap.endTime > lap.startTime)
-                        {
-                            ++finished;
-                            covered += lap.endTime - lap.startTime;
-                        }
-                }
-            if (finished > bestLaps || (finished == bestLaps && finished >= 2 && covered > bestCovered))
-                {
-                    best = line;
-                    bestLaps = finished;
-                    bestCovered = covered;
+                    lines.append(line);
                 }
         }
-    return best;
+    // first laps that come round the course's way, the most of them covering the most; failing
+    // those, a loop come back from the way it was entered (a road to a loop and back), the
+    // shortest: the loop itself, not the road with it
+    for (const bool reversed : {false, true})
+        {
+            StartFinishLine best;
+            int bestLaps = 0;
+            double bestCovered = 0.0;
+            for (const StartFinishLine &line : std::as_const(lines))
+                {
+                    QVector<TelemetrySession::Lap> laps = detect(session, line, minimumLap);
+                    closeLeftLap(session, line, laps, minimumLap, reversed);
+                    int finished = 0;
+                    double covered = 0.0;
+                    for (const TelemetrySession::Lap &lap : std::as_const(laps))
+                        {
+                            // a "lap" hardly going anywhere is a stop the GPS wandered across the line in
+                            const bool rode = distance && distance->valueAt(lap.endTime) - distance->valueAt(lap.startTime)
+                                              >= 2.0 * MaximumLineWidth;
+                            if (lap.endTime > lap.startTime && rode)
+                                {
+                                    ++finished;
+                                    covered += lap.endTime - lap.startTime;
+                                }
+                        }
+                    const bool better = reversed ? covered < bestCovered : covered > bestCovered;
+                    if (finished > bestLaps || (finished == bestLaps && finished >= 1 && better))
+                        {
+                            best = line;
+                            bestLaps = finished;
+                            bestCovered = covered;
+                        }
+                }
+            if (best.isValid())
+                {
+                    return best;
+                }
+        }
+    return StartFinishLine();
 }
 
 double LapEngine::lineWidthAt(const TelemetrySession &session, double time)

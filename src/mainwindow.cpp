@@ -732,7 +732,7 @@ void MainWindow::createDocks()
         QApplication::restoreOverrideCursor();
         if (!line.isValid())
             {
-                statusBar()->showMessage(tr("No place on the route gives two laps or more: it is not ridden round twice."), 8000);
+                statusBar()->showMessage(tr("No place on the route gives a lap: the route does not come round to where it was."), 8000);
                 return;
             }
         setLapLines(line, m_project.sectors, tr("Find laps"));
@@ -3120,19 +3120,17 @@ void MainWindow::seekTelemetryTime(double time)
     // telemetry time = video time + offset
     const double videoTime = m_project.sync().videoTime(time);
     const double videoEnd = m_playback->duration() / 1000.0;
-    // not quite the end: the player's decoder sent to the very end can come back with a broken picture
-    const qint64 last = std::max<qint64>(0, m_playback->duration() - kEndMargin);
-    const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, last);
-    // data past the video's ends, picked or dragged over: the video waits at its end, sent there once
-    const bool atEdge = (position == 0 || position == last) && std::llabs(m_playback->position() - position) < 50;
-    if (m_project.hasPicture() && !atEdge)
-        {
-            m_playback->setPosition(position);
-        }
-    // a moment the video has no picture for is still shown in the data's own panels
+    // a moment the video has no picture for is shown in the data's own panels only: the video stays
+    // where it is (sent to its ends, the player's decoder came back with a broken picture)
     const bool outside = !m_project.hasPicture() || videoTime < 0.0 || (videoEnd > 0.0 && videoTime > videoEnd);
+    if (!outside)
+        {
+            // not quite the end either
+            const qint64 last = std::max<qint64>(0, m_playback->duration() - kEndMargin);
+            m_playback->setPosition(std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, last));
+        }
     m_heldTime = outside ? time : -1.0;
-    m_heldVideoPosition = outside ? (!m_project.hasPicture() ? -1 : position) : -1;
+    m_heldVideoPosition = outside && m_project.hasPicture() ? m_playback->position() : -1;
     m_dataPanel->setTime(shownTelemetryTime());
     m_lapsPanel->setTime(shownTelemetryTime());
 }

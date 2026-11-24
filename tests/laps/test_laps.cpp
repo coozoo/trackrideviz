@@ -241,6 +241,58 @@ private slots:
         QVERIFY(!ok || after <= 2.0);
     }
 
+    // A ride along `corners` (meters east, north) at 10 m/s, a position every half second.
+    static TelemetrySessionPtr ridden(const QVector<QPointF> &corners)
+    {
+        auto ride = std::make_shared<TelemetrySession>();
+        Channel &lat = ride->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = ride->channelForWriting(ChannelId::PositionLon, "deg");
+        const double east = kMetersPerDegree * std::cos(kLat0 * kPi / 180.0);
+        double t = 0.0;
+        for (int i = 1; i < corners.size(); ++i)
+            {
+                const QPointF from = corners.at(i - 1);
+                const QPointF to = corners.at(i);
+                const double length = std::hypot(to.x() - from.x(), to.y() - from.y());
+                for (double along = 0.0; along < length; along += 5.0, t += 0.5)
+                    {
+                        const QPointF at = from + (to - from) * (along / length);
+                        lat.append(t, kLat0 + at.y() / kMetersPerDegree);
+                        lon.append(t, 10.0 + at.x() / east);
+                    }
+            }
+        return DerivedChannels::complete(ride);
+    }
+
+    void aLoopRiddenOnceBetweenARoadThereAndBack()
+    {
+        // north up a road, east along a street to a square loop of 300 m sides, round it once, and
+        // back the same street and road
+        const TelemetrySessionPtr ride = ridden({{0, 0}, {0, 300}, {100, 300}, {100, 600}, {400, 600}, {400, 300},
+                                                 {100, 300}, {0, 300}, {0, 0}});
+        const StartFinishLine line = LapEngine::findLine(*ride);
+        QVERIFY(line.isValid());
+        const TelemetrySessionPtr s = LapEngine::apply(ride, line);
+        QCOMPARE(s->laps().size(), 1);
+        // the loop, 1200 m, not the road and the street with it
+        const double length = s->channel(ChannelId::Distance)->valueAt(s->laps().first().endTime)
+                              - s->channel(ChannelId::Distance)->valueAt(s->laps().first().startTime);
+        QVERIFY2(std::fabs(length - 1200.0) < 150.0, qPrintable(QString::number(length)));
+        // and no lap under way after it: the way home is none
+        bool ok = false;
+        s->channel(ChannelId::Lap)->valueAt(s->duration() - 1.0, &ok);
+        QVERIFY(!ok || s->channel(ChannelId::Lap)->valueAt(s->duration() - 1.0) <= 1.0);
+        // a line placed by hand on the street, gone out and come back along: the street and the loop
+        const StartFinishLine street = LapEngine::lineAt(*ride, 35.0);
+        const TelemetrySessionPtr there = LapEngine::apply(ride, street);
+        QCOMPARE(there->laps().size(), 1);
+        QVERIFY(there->laps().first().endTime - there->laps().first().startTime > 120.0);
+        // a road there and back is no lap, by hand or found
+        QVERIFY(!LapEngine::findLine(*ridden({{0, 0}, {0, 800}, {0, 0}})).isValid());
+        const TelemetrySessionPtr road = ridden({{0, 0}, {0, 800}, {0, 0}});
+        QCOMPARE(LapEngine::apply(road, LapEngine::lineAt(*road, 30.0))->laps().size(), 0);
+    }
+
     void recordedLapsWithoutALine()
     {
         auto base = std::make_shared<TelemetrySession>(*circuit({60.0, 50.0}));

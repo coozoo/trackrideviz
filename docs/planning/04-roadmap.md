@@ -515,6 +515,13 @@ In order:
   stopped player shows nothing or a broken picture: the next seek opens the video again, paused,
   and goes there once it is loaded (`Playback`). Opening other data also clears the surfaces
   marked and the reference lap chosen, as it did the corrections
+- ✅ (2026-11-24) A moment of the data outside the video leaves the video where it is (it was sent
+  to its ends, and came back broken). A lap picked in the table is shown on the map. A loop ridden
+  once between a road there and back is a lap: closed where the route comes back by the line in
+  the course's way (within 120 degrees of how it crossed), or back the way it went in when what
+  it rode encloses a loop (area over length squared 0.01 at least); a road ridden out and back,
+  or a ride ending where it began, is none. Find laps tries the course's way first, then such
+  returns, the shortest; laps under 240 m are stops the GPS wandered over the line in
 - ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
   laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
   ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps
