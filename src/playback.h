@@ -4,6 +4,7 @@
 #include <QMediaPlayer>
 #include <QObject>
 #include <QTimer>
+#include <QUrl>
 
 // The time of a project with no video (VideoBackground): played, paused and moved through as
 // a video would be, its length the data's. Speaks as QMediaPlayer does, in milliseconds.
@@ -83,5 +84,6 @@ private:
     // so the next seek opens the video again first and goes there once it is loaded.
     bool m_ended{false};
     qint64 m_reopenedAt{-1};   // where to go once opened again; -1: not opening
+    QUrl m_reopenedSource;     // the video opened again
     bool m_reopenGoingBack{false};
 };

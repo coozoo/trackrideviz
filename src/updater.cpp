@@ -134,7 +134,13 @@ Updater::Next Updater::prepare(QWidget *parent, const ReleaseCheck::Release &rel
         const qint64 size = total > 0 ? total : asset->size;
         progress.setValue(size > 0 ? int(1000 * received / size) : 0);
     });
-    QObject::connect(&progress, &QProgressDialog::canceled, reply, &QNetworkReply::abort);
+    // Qt 6.2 ends a stalled download with the same error as Stop: told apart by who stopped it
+    bool stoppedByHand = false;
+    QObject::connect(&progress, &QProgressDialog::canceled, reply, [&]()
+    {
+        stoppedByHand = true;
+        reply->abort();
+    });
     QEventLoop loop;
     QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
@@ -143,8 +149,11 @@ Updater::Next Updater::prepare(QWidget *parent, const ReleaseCheck::Release &rel
     file.write(rest);
     file.close();
     progress.reset();
-    const bool stopped = reply->error() == QNetworkReply::OperationCanceledError;
-    const QString error = reply->error() == QNetworkReply::NoError ? QString() : reply->errorString();
+    const bool stopped = stoppedByHand && reply->error() == QNetworkReply::OperationCanceledError;
+    const QString error = reply->error() == QNetworkReply::NoError ? QString()
+                          : reply->error() == QNetworkReply::OperationCanceledError
+                          ? QCoreApplication::translate("Updater", "nothing came for a minute")
+                          : reply->errorString();
     reply->deleteLater();
     if (stopped || !error.isEmpty())
         {
