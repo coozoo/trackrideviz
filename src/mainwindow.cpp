@@ -1222,10 +1222,13 @@ void MainWindow::useBackground(const VideoBackground &background)
 
 void MainWindow::openTelemetry(const QString &path)
 {
-    // corrections and added files belong to the data before
+    // corrections, added files, surfaces and the chosen reference lap belong to the data before
     m_project.dataEdits.clear();
     m_project.moreData.clear();
+    m_project.surfaces.clear();
+    m_project.referenceLap = 0;
     m_dataPanel->setEdits(m_project.dataEdits);
+    m_lapsPanel->setSurfaces(m_project.surfaces);
     loadTelemetry(path, false);
     // kept among the recent ones once it is read
     m_pendingRecentData = true;

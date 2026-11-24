@@ -57,7 +57,8 @@ public:
     bool isClock() const { return m_useClock; }
     DataClock *clock() { return m_clock; }
 
-    qint64 position() const { return m_useClock ? m_clock->position() : m_player->position(); }
+    // while the video is opened again: where it is going
+    qint64 position() const { return m_useClock ? m_clock->position() : m_reopenedAt >= 0 ? m_reopenedAt : m_player->position(); }
     qint64 duration() const { return m_useClock ? m_clock->duration() : m_player->duration(); }
     QMediaPlayer::PlaybackState playbackState() const { return m_useClock ? m_clock->playbackState() : m_player->playbackState(); }
 
@@ -75,4 +76,8 @@ private:
     QMediaPlayer *m_player;
     DataClock *m_clock;
     bool m_useClock{false};
+    // The video played to its end: the player's decoder then gives a broken picture after a seek,
+    // so the next seek opens the video again first and goes there once it is loaded.
+    bool m_ended{false};
+    qint64 m_reopenedAt{-1};   // where to go once opened again; -1: not opening
 };
