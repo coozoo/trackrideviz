@@ -1,5 +1,7 @@
 #include "playback.h"
 
+#include "diagnostics.h"
+
 #include <algorithm>
 
 DataClock::DataClock(QObject *parent)
@@ -205,6 +207,7 @@ void Playback::setPosition(qint64 positionMs)
         {
             m_ended = false;
             m_reopenedAt = positionMs;
+            DiagnosticLog::note("video", QString("played to its end: opened again for %1 ms").arg(positionMs));
             const QUrl source = m_player->source();
             m_player->setSource(QUrl());
             m_player->setSource(source);

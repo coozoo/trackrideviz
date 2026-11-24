@@ -527,6 +527,11 @@ In order:
   shown while nothing is picked; the Laps table marks the lap of it. Laps closed by passing the
   line go on: a course gone round again from a junction its line runs along gives each lap; Find
   laps prefers lines up to 60 m wide (the passes close together) among those with as many laps
+- ✅ (2026-11-24) Find laps searched the whole route and chose overlaps of paths that were no laps:
+  it works on top of the line placed now, within a radius asked for (100 m at first), the most laps
+  counted as the placed line gets them, then the nearest (the placed one, when as good). A near pass
+  ends a lap within 60 m of the line's middle. New data clears what was picked in the Data panel.
+  The Diagnostics log notes every seek of the video and the moments it was not sent to
 - ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
   laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
   ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps
