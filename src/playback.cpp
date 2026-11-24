@@ -103,8 +103,42 @@ Playback::Playback(QMediaPlayer *player, QObject *parent)
     , m_clock(new DataClock(this))
 {
     // each passes on what it says only while it is the one playing
-    connect(m_player, &QMediaPlayer::positionChanged, this, [this](qint64 at) { if (!m_useClock) emit positionChanged(at); });
-    connect(m_player, &QMediaPlayer::durationChanged, this, [this](qint64 length) { if (!m_useClock) emit durationChanged(length); });
+    // while the video is opened again (m_reopenedAt) its passing 0 and loading are not news
+    connect(m_player, &QMediaPlayer::positionChanged, this, [this](qint64 at)
+    {
+        if (!m_useClock && m_reopenedAt < 0)
+            {
+                emit positionChanged(at);
+            }
+    });
+    connect(m_player, &QMediaPlayer::durationChanged, this, [this](qint64 length)
+    {
+        if (!m_useClock && m_reopenedAt < 0)
+            {
+                emit durationChanged(length);
+            }
+    });
+    connect(m_player, &QMediaPlayer::mediaStatusChanged, this, [this](QMediaPlayer::MediaStatus status)
+    {
+        if (status == QMediaPlayer::EndOfMedia)
+            {
+                m_ended = true;
+            }
+        else if (status == QMediaPlayer::LoadedMedia && m_reopenedAt >= 0)
+            {
+                const qint64 at = m_reopenedAt;
+                m_reopenedAt = -1;
+                m_player->setPosition(at);
+            }
+    });
+    connect(m_player, &QMediaPlayer::sourceChanged, this, [this]()
+    {
+        // another video: nothing of the one before holds
+        if (m_reopenedAt < 0)
+            {
+                m_ended = false;
+            }
+    });
     connect(m_player, &QMediaPlayer::playbackStateChanged, this, [this](QMediaPlayer::PlaybackState state)
     {
         if (!m_useClock)
@@ -156,5 +190,27 @@ void Playback::pause()
 
 void Playback::setPosition(qint64 positionMs)
 {
-    m_useClock ? m_clock->setPosition(positionMs) : m_player->setPosition(positionMs);
+    if (m_useClock)
+        {
+            m_clock->setPosition(positionMs);
+            return;
+        }
+    if (m_reopenedAt >= 0)
+        {
+            // still opening: it goes to the latest place asked for
+            m_reopenedAt = positionMs;
+            return;
+        }
+    if (m_ended && positionMs < m_player->duration())
+        {
+            m_ended = false;
+            m_reopenedAt = positionMs;
+            const QUrl source = m_player->source();
+            m_player->setSource(QUrl());
+            m_player->setSource(source);
+            // paused, not stopped as a video just opened is: a seek of a stopped player shows nothing
+            m_player->pause();
+            return;
+        }
+    m_player->setPosition(positionMs);
 }

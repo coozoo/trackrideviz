@@ -511,6 +511,10 @@ In order:
   need (`lineWidthAt`, 40 to 120 m); **Find laps** (`findLine`); a last lap left at the course's
   junction just before the line ends where it passed nearest; right-click on a picked stretch:
   take out, cut the video, mark a surface
+- ✅ (2026-11-24) After the video has played to its end the player is stopped, and a seek of a
+  stopped player shows nothing or a broken picture: the next seek opens the video again, paused,
+  and goes there once it is loaded (`Playback`). Opening other data also clears the surfaces
+  marked and the reference lap chosen, as it did the corrections
 - ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
   laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
   ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps
