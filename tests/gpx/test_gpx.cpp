@@ -671,8 +671,13 @@ void TestGpx::savedDataReadsBack()
     Channel &hr = session->channelForWriting(ChannelId::HeartRate, "bpm");
     Channel &power = session->channelForWriting(ChannelId::Power, "W");
     Channel &own = session->channelForWriting("dev.Core Temperature", "");
+    // a run's steps, and a unit only the file knew
+    Channel &steps = session->channelForWriting(ChannelId::Cadence, "spm");
+    Channel &pressure = session->channelForWriting("oilPressure", "bar");
     for (int i = 0; i < 10; ++i)
         {
+            steps.append(i, 170.0);
+            pressure.append(i, 3.5);
             lat.append(i, 50.4501 + i * 1e-4);
             lon.append(i, 30.5234 + i * 1e-4);
             ele.append(i, 150.0 + i * 0.5);
@@ -695,6 +700,8 @@ void TestGpx::savedDataReadsBack()
     QCOMPARE(gpx->channel(ChannelId::Elevation)->valueAt(9.0), 154.5);
     QCOMPARE(gpx->channel(ChannelId::HeartRate)->valueAt(5.0), 125.0);
     QCOMPARE(gpx->channel(ChannelId::Power)->valueAt(2.0), 220.0);
+    // as Garmin writes a run's cadence: strides, one leg's
+    QCOMPARE(gpx->channel(ChannelId::Cadence)->valueAt(2.0), 85.0);
 
     const QString csvPath = dir.filePath("saved.csv");
     QVERIFY2(TelemetryWriter::save(*session, csvPath, &error), qPrintable(error));
@@ -706,6 +713,7 @@ void TestGpx::savedDataReadsBack()
             const Channel *before = session->channel(id);
             const Channel *after = csv->channel(id);
             QVERIFY2(after, qPrintable(id));
+            QCOMPARE(after->unit(), before->unit());
             QCOMPARE(after->count(), before->count());
             for (int i = 0; i < before->count(); ++i)
                 {

@@ -1,6 +1,7 @@
 #include "telemetrywriter.h"
 
 #include "channelids.h"
+#include "datatypes.h"
 
 #include <QFileInfo>
 #include <QSaveFile>
@@ -141,8 +142,15 @@ QByteArray TelemetryWriter::csv(const TelemetrySession &session)
         }
     for (const Channel *channel : std::as_const(channels))
         {
-            // the separator cannot be in a name
-            header << QString(channel->id()).replace(',', ' ');
+            // the separator cannot be in a name; a unit other than the one the channel usually has
+            // goes after it, "cadence (spm)", or it would be read back in that one
+            QString name = QString(channel->id()).replace(',', ' ');
+            const QString unit = QString(channel->unit()).replace(',', ' ').remove('(').remove(')').trimmed();
+            if (!unit.isEmpty() && unit != DataTypes::storedUnitOf(channel->id()))
+                {
+                    name += QString(" (%1)").arg(unit);
+                }
+            header << name;
         }
     QByteArray out = QByteArray(CsvMark) + "\n" + header.join(',').toUtf8() + "\n";
 
