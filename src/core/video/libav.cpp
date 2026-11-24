@@ -4,6 +4,7 @@
 #include <QCryptographicHash>
 #include <QDir>
 #include <QLoggingCategory>
+#include <QScopeGuard>
 #include <QFile>
 
 #include <algorithm>
@@ -27,6 +28,9 @@ static_assert(LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(60, 16, 100), "FFmpeg 6.
 namespace
 {
 Q_LOGGING_CATEGORY(libavLog, "rtv.libav")
+
+// changesSettings looks at the first picture after this many places along the file
+const int kSettingsPlaces = 24;
 
 // The libraries' messages as the program's own (the Diagnostics panel, the command line with
 // --verbose), not straight onto the terminal: trying encoders that are not there is loud.
@@ -255,6 +259,125 @@ double Libav::duration(const QString &path)
 #else
     Q_UNUSED(path);
     return 0.0;
+#endif
+}
+
+bool Libav::changesSettings(const QString &path)
+{
+#ifdef RTV_LIBAV
+    quietLibraries();
+    AVFormatContext *format = nullptr;
+    if (avformat_open_input(&format, path.toUtf8().constData(), nullptr, nullptr) < 0)
+        {
+            return false;
+        }
+    const auto closing = qScopeGuard([&format]() { avformat_close_input(&format); });
+    if (avformat_find_stream_info(format, nullptr) < 0)
+        {
+            return false;
+        }
+    const int index = av_find_best_stream(format, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    if (index < 0)
+        {
+            return false;
+        }
+    const AVCodecParameters *codec = format->streams[index]->codecpar;
+    const bool hevc = codec->codec_id == AV_CODEC_ID_HEVC;
+    const QByteArray header(reinterpret_cast<const char *>(codec->extradata), codec->extradata_size);
+    // the settings in the header, as MP4 and Matroska keep them (avcC, hvcC): each with its length
+    // in front; a stream that has its settings only inside (Annex B) has nothing to differ from
+    if ((codec->codec_id != AV_CODEC_ID_H264 && !hevc) || header.size() < (hevc ? 23 : 7) || header.at(0) != 1)
+        {
+            return false;
+        }
+    auto be16 = [](const QByteArray &bytes, int at) { return (uchar(bytes.at(at)) << 8) | uchar(bytes.at(at + 1)); };
+    QList<QByteArray> known;
+    int lengthSize = 4;
+    if (hevc)
+        {
+            lengthSize = (uchar(header.at(21)) & 3) + 1;
+            int at = 23;
+            for (int array = 0; array < uchar(header.at(22)) && at + 3 <= header.size(); ++array)
+                {
+                    const int count = be16(header, at + 1);
+                    at += 3;
+                    for (int i = 0; i < count && at + 2 <= header.size(); ++i)
+                        {
+                            const int length = be16(header, at);
+                            known << header.mid(at + 2, length);
+                            at += 2 + length;
+                        }
+                }
+        }
+    else
+        {
+            lengthSize = (uchar(header.at(4)) & 3) + 1;
+            int at = 6;
+            for (int i = 0; i < (uchar(header.at(5)) & 0x1f) && at + 2 <= header.size(); ++i)
+                {
+                    const int length = be16(header, at);
+                    known << header.mid(at + 2, length);
+                    at += 2 + length;
+                }
+        }
+    // a sequence parameter set in a picture's packet that the header does not hold
+    const int setType = hevc ? 33 : 7;
+    auto differs = [&](const AVPacket *packet)
+    {
+        const QByteArray data = QByteArray::fromRawData(reinterpret_cast<const char *>(packet->data), packet->size);
+        int at = 0;
+        while (at + lengthSize < data.size())
+            {
+                qint64 length = 0;
+                for (int i = 0; i < lengthSize; ++i)
+                    {
+                        length = (length << 8) | uchar(data.at(at + i));
+                    }
+                at += lengthSize;
+                if (length <= 0 || at + length > data.size())
+                    {
+                        break;
+                    }
+                const int type = hevc ? (uchar(data.at(at)) >> 1) & 0x3f : uchar(data.at(at)) & 0x1f;
+                if (type == setType && !known.contains(data.mid(at, int(length))))
+                    {
+                        return true;
+                    }
+                at += int(length);
+            }
+        return false;
+    };
+    // the first picture that starts afresh at some places along the file
+    const AVStream *stream = format->streams[index];
+    const qint64 length = format->duration > 0 ? format->duration : 0;
+    AVPacket *packet = av_packet_alloc();
+    const auto freeing = qScopeGuard([&packet]() { av_packet_free(&packet); });
+    for (int place = 0; place < kSettingsPlaces; ++place)
+        {
+            const qint64 at = av_rescale_q(length * place / kSettingsPlaces, AVRational{1, AV_TIME_BASE}, stream->time_base);
+            if (av_seek_frame(format, index, at, AVSEEK_FLAG_BACKWARD) < 0)
+                {
+                    continue;
+                }
+            for (int read = 0; read < 200 && av_read_frame(format, packet) >= 0; ++read)
+                {
+                    const bool start = packet->stream_index == index && (packet->flags & AV_PKT_FLAG_KEY);
+                    const bool changed = start && differs(packet);
+                    av_packet_unref(packet);
+                    if (changed)
+                        {
+                            return true;
+                        }
+                    if (start)
+                        {
+                            break;
+                        }
+                }
+        }
+    return false;
+#else
+    Q_UNUSED(path);
+    return false;
 #endif
 }
 

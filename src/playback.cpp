@@ -135,10 +135,11 @@ Playback::Playback(QMediaPlayer *player, QObject *parent)
     });
     connect(m_player, &QMediaPlayer::sourceChanged, this, [this]()
     {
-        // another video: nothing of the one before holds
+        // another video: nothing of the one before holds (its settings are looked at again)
         if (m_reopenedAt < 0)
             {
                 m_ended = false;
+                m_reopenGoingBack = false;
             }
     });
     connect(m_player, &QMediaPlayer::playbackStateChanged, this, [this](QMediaPlayer::PlaybackState state)
@@ -203,11 +204,14 @@ void Playback::setPosition(qint64 positionMs)
             m_reopenedAt = positionMs;
             return;
         }
-    if (m_ended && positionMs < m_player->duration())
+    // back in a video of changing settings: a moment's step back (a frame, a key) is no seek back
+    const bool back = m_reopenGoingBack && positionMs < m_player->position() - 1000;
+    if ((m_ended && positionMs < m_player->duration()) || back)
         {
             m_ended = false;
             m_reopenedAt = positionMs;
-            DiagnosticLog::note("video", QString("played to its end: opened again for %1 ms").arg(positionMs));
+            DiagnosticLog::note("video", QString("%1: opened again for %2 ms")
+                                .arg(back ? "back in a video of changing settings" : "played to its end").arg(positionMs));
             const QUrl source = m_player->source();
             m_player->setSource(QUrl());
             m_player->setSource(source);

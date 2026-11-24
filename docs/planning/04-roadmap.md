@@ -532,6 +532,14 @@ In order:
   counted as the placed line gets them, then the nearest (the placed one, when as good). A near pass
   ends a lap within 60 m of the line's middle. New data clears what was picked in the Data panel.
   The Diagnostics log notes every seek of the video and the moments it was not sent to
+- ✅ (2026-11-24) The broken picture after a lap picked: a video joined (by another tool) from
+  recordings of different H.264 settings, the later part restating its own inside the stream
+  (level 4.0, a longer frame number) and the earlier ones only in the header. Qt's player that has
+  shown the later part keeps its settings, and a seek back shows the earlier parts broken; a fresh
+  open shows them right. `Libav::changesSettings` looks at the first picture after 24 places along
+  the file for a sequence parameter set the header does not hold (H.264 and HEVC, in MP4 and
+  Matroska; under a second, in the background when the video opens); for such a video a seek back
+  of more than a second opens it again first (`Playback::setReopenGoingBack`)
 - ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
   laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
   ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps
