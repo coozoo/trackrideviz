@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <system_error>
 #include <thread>
 #include <vector>
 
@@ -168,12 +169,14 @@ void Flyover::buildPatch(const View &view)
     QVector<float> heights((n + 1) * (n + 1), std::numeric_limits<float>::quiet_NaN());
     double sum = 0.0;
     int known = 0;
+    // a few tiles under thousands of points
+    Terrain::Lookup lookup;
     for (int j = 0; j <= n; ++j)
         {
             for (int i = 0; i <= n; ++i)
                 {
                     double meters = 0.0;
-                    if (Terrain::elevationAt(latitudeOf(j), longitudeOf(i), &meters))
+                    if (Terrain::elevationAt(latitudeOf(j), longitudeOf(i), &meters, &lookup))
                         {
                             heights[j * (n + 1) + i] = float(meters);
                             sum += meters;
@@ -246,6 +249,33 @@ void Flyover::buildPatch(const View &view)
                     m_patch.textureBounds = picture.bounds;
                 }
         }
+
+    // what each point takes from the map, or its color: the same for every picture of the patch
+    if (!m_patch.texture.isNull())
+        {
+            const QRectF &bounds = m_patch.textureBounds;
+            m_patch.texels.resize(heights.size());
+            for (int j = 0; j <= n; ++j)
+                {
+                    const double v = (-TileStore::mercatorLatitude(latitudeOf(j)) - bounds.top()) / bounds.height()
+                                     * m_patch.texture.height();
+                    for (int i = 0; i <= n; ++i)
+                        {
+                            const double u = (longitudeOf(i) - bounds.left()) / bounds.width() * m_patch.texture.width();
+                            m_patch.texels[j * (n + 1) + i] = QPointF(u, v);
+                        }
+                }
+        }
+    else
+        {
+            const auto [lowest, highest] = std::minmax_element(heights.cbegin(), heights.cend());
+            m_patch.colors.resize(heights.size());
+            for (int k = 0; k < heights.size(); ++k)
+                {
+                    const double share = *highest > *lowest ? (heights.at(k) - *lowest) / (*highest - *lowest) : 0.3;
+                    m_patch.colors[k] = landColor(share).rgb();
+                }
+        }
 }
 
 QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
@@ -310,16 +340,8 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const int n = m_patch.cells;
     const double step = 2.0 * m_patch.radius / n;
     const bool textured = !m_patch.texture.isNull();
-    const double metersPerLongitude = kMetersPerDegree * std::cos(m_patch.latitude * kPi / 180.0);
-    float lowest = std::numeric_limits<float>::max();
-    float highest = std::numeric_limits<float>::lowest();
-    for (const float h : m_patch.heights)
-        {
-            lowest = std::min(lowest, h);
-            highest = std::max(highest, h);
-        }
     QVector<Vertex> vertices((n + 1) * (n + 1));
-    QVector<QRgb> colors(textured ? 0 : vertices.size());
+    const QVector<QRgb> &colors = m_patch.colors;
     for (int j = 0; j <= n; ++j)
         {
             for (int i = 0; i <= n; ++i)
@@ -332,23 +354,17 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
                     vertex.shade = m_patch.shade.at(k);
                     if (textured)
                         {
-                            const double longitude = m_patch.longitude + east / metersPerLongitude;
-                            const double latitude = m_patch.latitude + north / kMetersPerDegree;
-                            const QRectF &bounds = m_patch.textureBounds;
-                            vertex.u = (longitude - bounds.left()) / bounds.width() * m_patch.texture.width();
-                            vertex.v = (-TileStore::mercatorLatitude(latitude) - bounds.top()) / bounds.height() * m_patch.texture.height();
-                        }
-                    else
-                        {
-                            const double share = highest > lowest ? (m_patch.heights.at(k) - lowest) / (highest - lowest) : 0.3;
-                            colors[k] = landColor(share).rgb();
+                            vertex.u = m_patch.texels.at(k).x();
+                            vertex.v = m_patch.texels.at(k).y();
                         }
                 }
         }
 
     // the triangles, nearest kept: a depth of 1 / w for each pixel, larger is nearer. In bands
     // of rows, one for each processor: each band draws every triangle's rows inside it
-    QVector<float> depth(width * height, 0.0f);
+    m_depth.resize(width * height);
+    m_depth.fill(0.0f);
+    QVector<float> &depth = m_depth;
     QRgb *pixels = reinterpret_cast<QRgb *>(image.bits());
     const int stride = image.bytesPerLine() / int(sizeof(QRgb));
     const QRgb *texels = textured ? reinterpret_cast<const QRgb *>(m_patch.texture.constBits()) : nullptr;
@@ -453,9 +469,21 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
             }
     };
     std::vector<std::thread> workers;
-    for (int band = 1; band < bands; ++band)
+    int band = 1;
+    try
         {
-            workers.emplace_back(drawBand, band);
+            for (; band < bands; ++band)
+                {
+                    workers.emplace_back(drawBand, band);
+                }
+        }
+    catch (const std::system_error &)
+        {
+            // no more threads to be had: the rest drawn here
+            for (; band < bands; ++band)
+                {
+                    drawBand(band);
+                }
         }
     drawBand(0);
     for (std::thread &worker : workers)

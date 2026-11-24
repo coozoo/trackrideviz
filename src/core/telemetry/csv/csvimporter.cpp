@@ -1,5 +1,6 @@
 #include "csvimporter.h"
 
+#include "../channelids.h"
 #include "../datatypes.h"
 
 #include <QFile>
@@ -16,6 +17,7 @@ namespace
 {
 const double kNaN = std::numeric_limits<double>::quiet_NaN();
 const double kPi = 3.14159265358979323846;
+const double kStandardGravity = 9.80665;   // m/s2 in one g
 
 QStringList tokens(const QString &line, const QString &separators)
 {
@@ -575,7 +577,8 @@ Column aimTotalTime(const Column &lapTime, const QVector<double> &beacons)
     total[0] = lapTime.at(0);
     for (int r = 1; r < lapTime.size(); ++r)
         {
-            if (lapTime.at(r) == 0.0)
+            // a lap's clock starts again: at 0, or at the first reading after it
+            if (lapTime.at(r) < lapTime.at(r - 1))
                 {
                     ++lap;
                     if (lap < beacons.size())
@@ -1015,6 +1018,14 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
                     double offset = 0.0;
                     QString stored;
                     DataTypes::toStored(m.unit, &scale, &offset, &stored);
+                    // a camera's motion sensors are kept in m/s2, as GoPro's are: a phone logger writes g
+                    const bool accel = m.channel == QLatin1String(ChannelId::AccelX) || m.channel == QLatin1String(ChannelId::AccelY)
+                                       || m.channel == QLatin1String(ChannelId::AccelZ);
+                    if (accel && stored == QLatin1String("g"))
+                        {
+                            scale = kStandardGravity;
+                            stored = QStringLiteral("m/s2");
+                        }
                     if (stored.isEmpty())
                         {
                             stored = DataTypes::storedUnitOf(m.channel);

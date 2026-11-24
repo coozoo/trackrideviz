@@ -664,7 +664,7 @@ void TestGpx::strayTimesAreLeftOut()
 void TestGpx::savedDataReadsBack()
 {
     auto session = std::make_shared<TelemetrySession>();
-    session->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(7, 47, 10), QTimeZone::UTC));
+    session->setStartUtc(QDateTime(QDate(2025, 7, 15), QTime(7, 47, 10), QTimeZone::utc()));
     Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
     Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
     Channel &ele = session->channelForWriting(ChannelId::Elevation, "m");

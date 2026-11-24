@@ -1038,6 +1038,46 @@ private slots:
         QVERIFY(difference(before, after, 280, 200) < 20);
     }
 
+    // A phone held upright stores its picture on its side, with a note to turn it: both engines
+    // turn it as players show it.
+    void exportTurnsARotatedVideoUpright()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        // stored 320x240, blue at the top left, to be shown turned a quarter
+        const QString stored = m_dir.filePath("on-its-side-stored.mp4");
+        const QString turned = m_dir.filePath("on-its-side.mp4");
+        QVERIFY(FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                                            "color=c=red:s=320x240:r=30:d=1,drawbox=x=0:y=0:w=160:h=120:color=blue:t=fill",
+                                            "-pix_fmt", "yuv420p", stored}).exitCode == 0);
+        QVERIFY(FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-display_rotation", "90", "-i", stored,
+                                            "-c", "copy", turned}).exitCode == 0);
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", turned, &info));
+        QCOMPARE(info.size, QSize(240, 320));
+        const QString output = m_dir.filePath("upright.mp4");
+        const ExportPlan plan = ExportPlan::make(turned, info, settingsFor(output), Overlay());
+        ExportJob job("ffmpeg", plan, Overlay(), 0.0, nullptr, m_engine);
+        QSignalSpy finished(&job, &ExportJob::finished);
+        job.start();
+        QVERIFY(finished.wait(60000));
+        QCOMPARE(finished.first().at(0).value<ExportJob::Outcome>(), ExportJob::Succeeded);
+        MediaInfo result;
+        QVERIFY(MediaProbe::probe("ffprobe", output, &result));
+        QCOMPARE(result.size, QSize(240, 320));
+        // the picture as a player shows the one turned
+        const QImage shown = frameAt(turned, 0.5);
+        const QImage made = frameAt(output, 0.5);
+        QCOMPARE(made.size(), shown.size());
+        for (const QPoint &quarter : {QPoint(60, 80), QPoint(180, 80), QPoint(60, 240), QPoint(180, 240)})
+            {
+                QVERIFY2(difference(shown, made, quarter.x(), quarter.y()) < 40,
+                         qPrintable(QString("at %1,%2").arg(quarter.x()).arg(quarter.y())));
+            }
+    }
+
     void exportWithGaugesInTwoCorners()
     {
         if (m_sourceVideo.isEmpty())

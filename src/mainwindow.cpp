@@ -3377,11 +3377,21 @@ void MainWindow::updateTo(const ReleaseCheck::Release &release)
                     return;
                 }
         }
-    // the installer waits for the program to end; unsaved work is asked about first
-    if (close())
+    // the installer waits for the program to end; unsaved work is asked about first, and
+    // the window stays if the new version does not start
+    if (!maybeSave())
         {
-            QProcess::startDetached(next.program, next.arguments);
+            return;
         }
+    if (!QProcess::startDetached(next.program, next.arguments))
+        {
+            QMessageBox::warning(this, tr("Update"), tr("Could not start %1. Start it by hand, or take the new version "
+                                                        "from the release page.").arg(QDir::toNativeSeparators(next.program)));
+            return;
+        }
+    // saved or let go already: not asked about again
+    m_modified = false;
+    close();
 }
 
 void MainWindow::showAbout()

@@ -9,6 +9,10 @@
 #ifdef Q_OS_UNIX
 #include <signal.h>
 #include <sys/types.h>
+#include <unistd.h>
+#endif
+#ifdef Q_OS_WIN
+#include <windows.h>
 #endif
 #ifdef Q_OS_LINUX
 #include <fcntl.h>
@@ -112,14 +116,27 @@ void ExportJob::start()
     });
     connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &ExportJob::onProcessFinished);
     connect(m_process, &QProcess::errorOccurred, this, &ExportJob::onProcessError);
-#ifdef Q_OS_LINUX
-    // A pipe holds 64 KB; a picture of gauges is megabytes, so every frame
-    // would take dozens of write / wake-up rounds. The child enlarges its
-    // end before ffmpeg starts (a pipe has one buffer for both ends); the
-    // system may cap the size, and failing changes nothing but speed.
+    // Ctrl+C in a terminal reaches the whole group of processes in front: ffmpeg
+    // would close the file and leave with 255 before the job knows it is to stop,
+    // and what it wrote would be thrown away as broken. In a group of its own it
+    // hears of a stop only from the job.
+#ifdef Q_OS_UNIX
     m_process->setChildProcessModifier([]()
     {
+        ::setpgid(0, 0);
+#ifdef Q_OS_LINUX
+        // A pipe holds 64 KB; a picture of gauges is megabytes, so every frame
+        // would take dozens of write / wake-up rounds. The child enlarges its
+        // end before ffmpeg starts (a pipe has one buffer for both ends); the
+        // system may cap the size, and failing changes nothing but speed.
         ::fcntl(0, F_SETPIPE_SZ, 1024 * 1024);
+#endif
+    });
+#endif
+#ifdef Q_OS_WIN
+    m_process->setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *arguments)
+    {
+        arguments->flags |= CREATE_NEW_PROCESS_GROUP;
     });
 #endif
     m_clock.start();

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
+#include <deque>
 
 Channel::Channel(const QString &id, const QString &unit, Interpolation interpolation)
     : m_id(id), m_unit(unit), m_interpolation(interpolation)
@@ -26,25 +27,56 @@ double Channel::minValue() const
 
 double Channel::steadyMax(double seconds) const
 {
-    // the lowest value over each stretch of `seconds`, and the highest of those
-    double best = -std::numeric_limits<double>::infinity();
-    for (int i = 0; i < m_times.size(); ++i)
+    // The lowest value over each stretch of `seconds`, read as the channel is between its
+    // readings, and the highest of those: a lone reading is not held, nor the last few as the
+    // logger stops. Only stretches inside the recording count, each starting or ending at a
+    // reading. The lowest of the readings in each are kept rising (a sliding minimum), so the
+    // work grows with the readings, not with how many are in a stretch.
+    const int n = int(m_times.size());
+    if (n < 2 || m_times.last() - m_times.first() < seconds)
         {
-            double lowest = m_values.at(i);
-            int j = i + 1;
-            for (; j < m_times.size() && m_times.at(j) <= m_times.at(i) + seconds; ++j)
-                {
-                    lowest = std::min(lowest, m_values.at(j));
-                }
-            // a stretch reaches the next reading at least: a lone one is not held; the last
-            // has none after it
-            if (j == i + 1 && j < m_times.size())
-                {
-                    lowest = std::min(lowest, m_values.at(j));
-                }
-            best = std::max(best, lowest);
+            return maxValue();
         }
-    return std::isfinite(best) ? best : maxValue();
+    double best = -std::numeric_limits<double>::infinity();
+    std::deque<int> lows;   // indices in the stretch, their values rising
+    auto take = [&](int k)
+    {
+        while (!lows.empty() && m_values.at(lows.back()) >= m_values.at(k))
+            {
+                lows.pop_back();
+            }
+        lows.push_back(k);
+    };
+    // starting at each reading, forwards
+    int next = 0;
+    for (int i = 0; i < n && m_times.at(i) + seconds <= m_times.last(); ++i)
+        {
+            while (next < n && m_times.at(next) <= m_times.at(i) + seconds)
+                {
+                    take(next++);
+                }
+            while (lows.front() < i)
+                {
+                    lows.pop_front();
+                }
+            best = std::max(best, std::min(m_values.at(lows.front()), valueAt(m_times.at(i) + seconds)));
+        }
+    // ending at each, backwards
+    lows.clear();
+    next = n - 1;
+    for (int i = n - 1; i >= 0 && m_times.at(i) - seconds >= m_times.first(); --i)
+        {
+            while (next >= 0 && m_times.at(next) >= m_times.at(i) - seconds)
+                {
+                    take(next--);
+                }
+            while (lows.front() > i)
+                {
+                    lows.pop_front();
+                }
+            best = std::max(best, std::min(m_values.at(lows.front()), valueAt(m_times.at(i) - seconds)));
+        }
+    return best;
 }
 
 double Channel::maxValue() const

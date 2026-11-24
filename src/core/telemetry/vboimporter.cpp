@@ -89,10 +89,21 @@ TelemetrySessionPtr VboImporter::read(QIODevice *device, QString *error)
     QStringList headerNames;
     QStringList units;
     QStringList columns;
-    QVector<QStringList> rows;
+    // as read: split one by one later, a file of an hour holds millions of values
+    QVector<QByteArray> rows;
     while (!device->atEnd())
         {
-            const QString line = QString::fromLatin1(device->readLine(1 << 16)).trimmed();
+            const QByteArray read = device->readLine(1 << 16).trimmed();
+            if (section == QLatin1String("data"))
+                {
+                    if (!read.isEmpty() && !(read.startsWith('[') && read.endsWith(']')))
+                        {
+                            // a copy of its own size: what readLine gives can hold its 64 KB
+                            rows.append(QByteArray(read.constData(), read.size()));
+                            continue;
+                        }
+                }
+            const QString line = QString::fromLatin1(read);
             // a column without a unit has an empty line of its own
             if (line.isEmpty() && section != QLatin1String("channel units"))
                 {
@@ -127,10 +138,6 @@ TelemetrySessionPtr VboImporter::read(QIODevice *device, QString *error)
             else if (section == "column names")
                 {
                     columns << line.toLower().split(spaces, Qt::SkipEmptyParts);
-                }
-            else if (section == "data")
-                {
-                    rows.append(line.split(spaces, Qt::SkipEmptyParts));
                 }
         }
     const int timeColumn = int(columns.indexOf("time"));
@@ -182,8 +189,9 @@ TelemetrySessionPtr VboImporter::read(QIODevice *device, QString *error)
     double dayOffset = 0.0;
     double previous = -1.0;
     int damaged = 0;
-    for (const QStringList &row : std::as_const(rows))
+    for (const QByteArray &line : std::as_const(rows))
         {
+            const QStringList row = QString::fromLatin1(line).split(spaces, Qt::SkipEmptyParts);
             double time = 0.0;
             if (row.size() < columns.size() || !timeOfDay(row.at(timeColumn), &time))
                 {

@@ -512,6 +512,12 @@ private slots:
         unmarked.replace("\"Beacon Markers\",\"0.3\"", "\"Comment\",\"\"");
         s = read(unmarked, p);
         QCOMPARE(s->channel("speed")->timeAt(3), 0.3);
+        // a lap whose first row is a reading after its start
+        QByteArray late = csv;
+        late.replace("\"0.0\",\"72\"\n\"0.1\",\"72\"\n", "\"0.05\",\"72\"\n\"0.15\",\"72\"\n");
+        s = read(late, p);
+        QCOMPARE(s->channel("speed")->count(), 5);
+        QVERIFY(qAbs(s->channel("speed")->timeAt(3) - 0.35) < 1e-9);
         QString error;
         QVERIFY(!CsvImporter::parse("\"Format\",\"AIM CSV File\"\n1,2\n", p, &error));
         QVERIFY(error.contains("blank"));
@@ -580,7 +586,9 @@ private slots:
         QCOMPARE(s->channel("speed")->valueAtIndex(1), 20.0);
         QCOMPARE(s->channel("engineRpm")->valueAtIndex(2), 2500.0);
         QVERIFY(qAbs(s->channel("engineCoolantTemperature")->valueAtIndex(0) - 100.0) < 1e-9);
-        QCOMPARE(s->channel("accelX")->valueAtIndex(2), 0.03);
+        // g, kept in m/s2 as a camera's motion sensors are
+        QVERIFY(qAbs(s->channel("accelX")->valueAtIndex(2) - 0.03 * 9.80665) < 1e-9);
+        QCOMPARE(s->channel("accelX")->unit(), QStringLiteral("m/s2"));
         QCOMPARE(s->laps().size(), 1);
     }
 

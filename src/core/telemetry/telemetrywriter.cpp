@@ -81,9 +81,14 @@ QByteArray TelemetryWriter::gpx(const TelemetrySession &session)
             QVector<QPair<const char *, double>> values;
             for (const auto &[name, channel] : extensions)
                 {
-                    const double value = channel ? channel->valueAt(t, &ok) : 0.0;
+                    double value = channel ? channel->valueAt(t, &ok) : 0.0;
                     if (channel && ok)
                         {
+                            // Garmin's cadence of a run is one leg's: strides, not steps
+                            if (channel->id() == QLatin1String(ChannelId::Cadence) && channel->unit() == QLatin1String("spm"))
+                                {
+                                    value /= 2.0;
+                                }
                             values.append({name, value});
                         }
                 }

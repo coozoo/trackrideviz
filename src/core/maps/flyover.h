@@ -66,6 +66,8 @@ private:
         QVector<float> shade;   // the sun's light on each, 0..1
         QImage texture;         // the map over it (null: the land's own colors)
         QRectF textureBounds;   // projected (TileStore's): longitude, -Mercator latitude
+        QVector<QPointF> texels;    // with a texture: each point's pixel in it
+        QVector<QRgb> colors;       // without: each point's color, by its height
         QString mapProvider;
         bool streets{false};
         bool complete{false};
@@ -82,5 +84,6 @@ private:
     QVector<Point> m_route;
     Patch m_patch;
     QElapsedTimer m_built;      // since the patch was worked out: one with tiles missing waits a while
+    QVector<float> m_depth;     // kept from picture to picture: one the same size needs no new one
     bool m_lastComplete{true};
 };

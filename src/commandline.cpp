@@ -33,6 +33,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <csignal>
 #include <cstdio>
 #include <cstring>
@@ -63,6 +64,14 @@ void say(const QString &text)
 {
     std::fprintf(stdout, "%s\n", qPrintable(text));
     std::fflush(stdout);
+}
+
+// A number as given on the command line; "nan" and "inf" are numbers to Qt, not to an export.
+double finiteNumber(const QString &text, bool *ok)
+{
+    const double value = text.toDouble(ok);
+    *ok = *ok && std::isfinite(value);
+    return value;
 }
 
 int fail(const QString &text, int code = 1)
@@ -242,7 +251,8 @@ bool parseBackground(const QString &text, VideoBackground *background)
         {
             made.color = QColor(color);
         }
-    if (!made.isOn() || made.size.width() > 8192 || made.size.height() > 8192 || made.fps > 240 || !made.color.isValid())
+    if (!made.isOn() || made.size.width() > VideoBackground::kMaxSide || made.size.height() > VideoBackground::kMaxSide
+            || made.fps > VideoBackground::kMaxFps || !made.color.isValid())
         {
             return false;
         }
@@ -436,7 +446,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
     if (parser.isSet("timelapse"))
         {
             bool ok = false;
-            project.syncRate = parser.value("timelapse").toDouble(&ok);
+            project.syncRate = finiteNumber(parser.value("timelapse"), &ok);
             if (!ok || project.syncRate <= 0.0)
                 {
                     return fail(QCoreApplication::translate("CommandLine", "--timelapse wants the seconds of data in a second of video, as 10 or 30."), 2);
@@ -447,7 +457,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
     if (parser.isSet("offset"))
         {
             bool ok = false;
-            project.syncOffset = parser.value("offset").toDouble(&ok);
+            project.syncOffset = finiteNumber(parser.value("offset"), &ok);
             if (!ok)
                 {
                     return fail(QCoreApplication::translate("CommandLine", "--offset wants seconds, as 12.5 or -3600."), 2);
@@ -587,7 +597,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
     if (parser.isSet("faster"))
         {
             bool ok = false;
-            settings.speedUp = parser.value("faster").toDouble(&ok);
+            settings.speedUp = finiteNumber(parser.value("faster"), &ok);
             if (!ok || settings.speedUp < 1.0)
                 {
                     return fail(QCoreApplication::translate("CommandLine", "--faster wants how many times faster, 1 or more, as 4."), 2);
@@ -597,8 +607,8 @@ int render(const QCommandLineParser &parser, bool preferOwn)
         {
             bool fromOk = true;
             bool toOk = true;
-            const double from = parser.isSet("from") ? parser.value("from").toDouble(&fromOk) : 0.0;
-            const double to = parser.isSet("to") ? parser.value("to").toDouble(&toOk) : info.duration;
+            const double from = parser.isSet("from") ? finiteNumber(parser.value("from"), &fromOk) : 0.0;
+            const double to = parser.isSet("to") ? finiteNumber(parser.value("to"), &toOk) : info.duration;
             if (!fromOk || !toOk || to <= from)
                 {
                     return fail(QCoreApplication::translate("CommandLine", "--from and --to want seconds into the video, the end after the start."), 2);

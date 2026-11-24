@@ -132,10 +132,20 @@ Playback::Playback(QMediaPlayer *player, QObject *parent)
                 m_reopenedAt = -1;
                 m_player->setPosition(at);
             }
+        else if (status == QMediaPlayer::InvalidMedia && m_reopenedAt >= 0)
+            {
+                // it did not open again (the file is gone): what it says is news again
+                m_reopenedAt = -1;
+            }
     });
-    connect(m_player, &QMediaPlayer::sourceChanged, this, [this]()
+    connect(m_player, &QMediaPlayer::sourceChanged, this, [this](const QUrl &source)
     {
-        // another video: nothing of the one before holds (its settings are looked at again)
+        // another video: nothing of the one before holds (its settings are looked at again).
+        // While one is opened again its source goes empty and back; any other is another video
+        if (m_reopenedAt >= 0 && !source.isEmpty() && source != m_reopenedSource)
+            {
+                m_reopenedAt = -1;
+            }
         if (m_reopenedAt < 0)
             {
                 m_ended = false;
@@ -213,6 +223,7 @@ void Playback::setPosition(qint64 positionMs)
             DiagnosticLog::note("video", QString("%1: opened again for %2 ms")
                                 .arg(back ? "back in a video of changing settings" : "played to its end").arg(positionMs));
             const QUrl source = m_player->source();
+            m_reopenedSource = source;
             m_player->setSource(QUrl());
             m_player->setSource(source);
             // paused, not stopped as a video just opened is: a seek of a stopped player shows nothing

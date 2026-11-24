@@ -13,6 +13,9 @@ struct VideoBackground
     QSize size;                 // of the picture; empty = none
     int fps{30};
     QColor color{Qt::black};    // alpha 0 = see-through: only the gauges are exported
+    // the largest that may be asked for
+    static constexpr int kMaxSide = 8192;
+    static constexpr int kMaxFps = 240;
 
     bool isOn() const { return !size.isEmpty() && fps > 0; }
     bool isTransparent() const { return color.alpha() == 0; }
@@ -46,6 +49,11 @@ struct VideoBackground
         background.fps = object.value("fps").toInt(30);
         const QColor color(object.value("color").toString());
         background.color = color.isValid() ? color : QColor(Qt::black);
+        // as the command line allows: a file edited by hand could ask for a picture too large to make
+        if (background.size.width() > kMaxSide || background.size.height() > kMaxSide || background.fps > kMaxFps)
+            {
+                return VideoBackground();
+            }
         return background;
     }
 };

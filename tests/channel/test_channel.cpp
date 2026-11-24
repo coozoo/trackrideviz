@@ -161,6 +161,16 @@ void TestChannel::steadyMaxLeavesOutSpikes()
             sparse.append(t, t == 5 ? 80.0 : 20.0);
         }
     QCOMPARE(sparse.steadyMax(1.0), 20.0);
+    // nor one as the logger stops, the last reading or the last few
+    for (int spike : {1, 3})
+        {
+            Channel ending("speed", "m/s");
+            for (int i = 0; i <= 100; ++i)
+                {
+                    ending.append(i / 10.0, i > 100 - spike ? 90.0 : 20.0);
+                }
+            QCOMPARE(ending.steadyMax(1.0), 20.0);
+        }
     // too short to say
     Channel one("speed", "m/s");
     one.append(0.0, 12.0);
