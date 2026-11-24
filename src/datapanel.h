@@ -36,6 +36,8 @@ public:
     void setTime(double time);
     // whether there is a video to cut what is picked out of
     void setCanCutVideo(bool can);
+    // nothing picked on the chart or in the table: other data was opened
+    void clearPick();
     // seconds charts are smoothed over; 0 = not
     void setSmoothing(double seconds);
 

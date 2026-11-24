@@ -195,10 +195,11 @@ The **Laps** panel shows the route on a street map (wheel or + and − to zoom, 
 - **Place start/finish**, then click on the route where laps begin: the line is put across the
   route there, as wide as the passes there need (a lap ridden a little apart is still crossed),
   and laps are timed between crossings. Without a line the laps the device recorded are used.
-- **Find laps** puts the line where the route gives the most whole laps: a loop ridden once or
-  more between a way there and back is found by itself, the loop and not the road with it. A
-  last lap that turns off the loop just before the line ends where it passed nearest to it; a
-  road ridden out and back again, or a ride ending where it began, is no lap.
+- **Find laps**, with a line placed, looks around it (as far as you say, 100 m at first) for the
+  place giving the most whole laps and moves the line there; a line already giving as many stays.
+  A loop ridden once between a road there and back is a lap. A last lap that turns off the loop
+  just before the line ends where it passed nearest to it; a road ridden out and back again, or a
+  ride ending where it began, is no lap.
 - Select a lap in the table to see it on the map; the lap of the moment shown is marked in the
   table.
 - **Add sector**, then click where a sector ends: each line splits the lap once more. The lap

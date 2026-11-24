@@ -62,6 +62,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
@@ -723,16 +724,27 @@ void MainWindow::createDocks()
     });
     connect(m_lapsPanel, &LapsPanel::findLineRequested, this, [this]()
     {
-        if (!m_recordedSession)
+        if (!m_recordedSession || !m_project.startFinish.isValid())
             {
                 return;
             }
+        // around the line placed: the user knows where laps begin, the search where exactly
+        QSettings settings;
+        bool ok = false;
+        const int radius = QInputDialog::getInt(this, tr("Find laps"),
+                                                tr("Look for the place giving the most laps this far around the line, m:"),
+                                                settings.value("laps/findRadius", 100).toInt(), 10, 2000, 10, &ok);
+        if (!ok)
+            {
+                return;
+            }
+        settings.setValue("laps/findRadius", radius);
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        const StartFinishLine line = LapEngine::findLine(*m_recordedSession);
+        const StartFinishLine line = LapEngine::findLine(*m_recordedSession, m_project.startFinish, radius);
         QApplication::restoreOverrideCursor();
         if (!line.isValid())
             {
-                statusBar()->showMessage(tr("No place on the route gives a lap: the route does not come round to where it was."), 8000);
+                statusBar()->showMessage(tr("No place within %1 m of the line gives a lap.").arg(radius), 8000);
                 return;
             }
         setLapLines(line, m_project.sectors, tr("Find laps"));
@@ -1228,6 +1240,7 @@ void MainWindow::openTelemetry(const QString &path)
     m_project.surfaces.clear();
     m_project.referenceLap = 0;
     m_dataPanel->setEdits(m_project.dataEdits);
+    m_dataPanel->clearPick();
     m_lapsPanel->setSurfaces(m_project.surfaces);
     loadTelemetry(path, false);
     // kept among the recent ones once it is read
@@ -3134,7 +3147,16 @@ void MainWindow::seekTelemetryTime(double time)
         {
             // not quite the end either
             const qint64 last = std::max<qint64>(0, m_playback->duration() - kEndMargin);
-            m_playback->setPosition(std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, last));
+            const qint64 position = std::clamp<qint64>(qint64(std::llround(videoTime * 1000.0)), 0, last);
+            // for finding out what a broken picture came after
+            DiagnosticLog::note("video", QString("to %1 ms (data %2 s), from %3 ms, %4").arg(position).arg(time, 0, 'f', 1)
+                                .arg(m_playback->position()).arg(enumKey(m_player->mediaStatus())));
+            m_playback->setPosition(position);
+        }
+    else if (m_project.hasPicture())
+        {
+            DiagnosticLog::note("video", QString("data %1 s is not in the video: it stays at %2 ms").arg(time, 0, 'f', 1)
+                                .arg(m_playback->position()));
         }
     m_heldTime = outside ? time : -1.0;
     m_heldVideoPosition = outside && m_project.hasPicture() ? m_playback->position() : -1;

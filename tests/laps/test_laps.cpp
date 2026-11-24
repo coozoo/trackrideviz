@@ -227,13 +227,17 @@ private slots:
                 point(t + away, x0 - 10.0 * away, y0 - 2.0 * away);
             }
         const TelemetrySessionPtr worked = DerivedChannels::complete(ride);
-        const StartFinishLine line = LapEngine::findLine(*worked);
+        // placed a little into the loop; found where it gives both laps
+        const StartFinishLine line = LapEngine::findLine(*worked, LapEngine::lineAt(*worked, 30.0), 150.0);
         QVERIFY(line.isValid());
         const TelemetrySessionPtr s = LapEngine::apply(worked, line);
         QCOMPARE(s->laps().size(), 2);
         QVERIFY2(std::fabs(s->laps()[0].endTime - s->laps()[0].startTime - 60.0) < 2.0, qPrintable(QString::number(s->laps()[0].startTime)));
-        // the second ends where it came nearest the line, a moment short of a whole lap
-        QVERIFY(std::fabs(s->laps()[1].endTime - s->laps()[1].startTime - 60.0) < 4.0);
+        // the second ends where it came nearest the line, the moments short of a whole lap that the
+        // rider turned off before it
+        QVERIFY2(s->laps()[1].endTime - s->laps()[1].startTime > 50.0 && s->laps()[1].endTime - s->laps()[1].startTime <= 60.5,
+                 qPrintable(QString("%1..%2, %3..%4").arg(s->laps()[0].startTime).arg(s->laps()[0].endTime)
+                            .arg(s->laps()[1].startTime).arg(s->laps()[1].endTime)));
         // and no lap after it: the way off the loop is no lap
         QCOMPARE(at(s, ChannelId::LapCount, 10.0), 2.0);
         bool ok = false;
@@ -270,7 +274,8 @@ private slots:
         // back the same street and road
         const TelemetrySessionPtr ride = ridden({{0, 0}, {0, 300}, {100, 300}, {100, 600}, {400, 600}, {400, 300},
                                                  {100, 300}, {0, 300}, {0, 0}});
-        const StartFinishLine line = LapEngine::findLine(*ride);
+        // placed on the street to it; found at the loop
+        const StartFinishLine line = LapEngine::findLine(*ride, LapEngine::lineAt(*ride, 35.0), 150.0);
         QVERIFY(line.isValid());
         const TelemetrySessionPtr s = LapEngine::apply(ride, line);
         QCOMPARE(s->laps().size(), 1);
@@ -288,8 +293,8 @@ private slots:
         QCOMPARE(there->laps().size(), 1);
         QVERIFY(there->laps().first().endTime - there->laps().first().startTime > 120.0);
         // a road there and back is no lap, by hand or found
-        QVERIFY(!LapEngine::findLine(*ridden({{0, 0}, {0, 800}, {0, 0}})).isValid());
         const TelemetrySessionPtr road = ridden({{0, 0}, {0, 800}, {0, 0}});
+        QVERIFY(!LapEngine::findLine(*road, LapEngine::lineAt(*road, 30.0), 300.0).isValid());
         QCOMPARE(LapEngine::apply(road, LapEngine::lineAt(*road, 30.0))->laps().size(), 0);
     }
 

@@ -1163,6 +1163,12 @@ void DataPanel::showPickMenu(const QPoint &at)
     menu.exec(at);
 }
 
+void DataPanel::clearPick()
+{
+    m_chart->clearSelection();
+    m_table->clearSelection();
+}
+
 void DataPanel::setCanCutVideo(bool can)
 {
     m_canCutVideo = can;
