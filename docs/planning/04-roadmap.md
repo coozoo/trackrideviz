@@ -576,9 +576,14 @@ In order:
 - ✅ Narrow screens: the rarer buttons behind a menu, the sync under the timeline
 - ✅ `--simple video data`: files opened in it from the command line
 - ✅ The full window's video slider goes where it is pressed
+- ✅ From the full window and back: its project goes along (video, data, gauges, step, music) and
+  what was done comes back as steps to undo; other files come back as a project opened
+- ✅ Properties: all of the full window's menu of a gauge too: units, the shape set free and its
+  width, the graph along the distance, the street map and the map, the close-up (fixed, other,
+  by speed), the way ahead up, 3D flyover and its camera, the ghost
+- ✅ A moved gauge stays where it is let go (the drag's translation is 0 again at the release)
 - Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the
-  probe and the built-in engine have to open; the export folder), joined chapters, music, gauges
-  added one by one
+  probe and the built-in engine have to open; the export folder), joined chapters
 
 ## After the simple UI: GoPro
 - GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint

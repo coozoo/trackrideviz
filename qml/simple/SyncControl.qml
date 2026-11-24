@@ -58,9 +58,12 @@ RowLayout {
             yAxis.enabled: false
             property real last: 0
             onActiveChanged: last = 0
+            // only while dragged: the translation goes back to 0 at the release
             onTranslationChanged: {
-                simple.nudgeSync((translation.x - last) * 0.01)
-                last = translation.x
+                if (active) {
+                    simple.nudgeSync((translation.x - last) * 0.01)
+                    last = translation.x
+                }
             }
         }
     }

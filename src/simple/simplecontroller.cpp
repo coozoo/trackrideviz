@@ -269,7 +269,17 @@ void SimpleController::openVideo(const QUrl &url)
             return;
         }
     m_project.videoPath = path;
+    // what was cut, the breaks between joined recordings, a time-lapse's rate and the step
+    // belong to the video before
     m_project.videoShifts.clear();
+    m_project.cuts.clear();
+    m_project.syncRate = 1.0;
+    m_project.syncIsManual = false;
+    probeVideo(path);
+}
+
+void SimpleController::probeVideo(const QString &path)
+{
     m_probed = false;
     m_info = MediaInfo();
     emit videoChanged();
@@ -300,7 +310,7 @@ void SimpleController::openVideo(const QUrl &url)
             {
                 // the gauges laid out for its shape, and in step by the clocks (or once the data is read)
                 rebuildOverlay();
-                syncByClocks();
+                followClocks();
             }
         else
             {
@@ -322,7 +332,32 @@ void SimpleController::openData(const QUrl &url)
     const QString path = localPath(url);
     if (!path.isEmpty())
         {
+            // corrections, added files, surfaces, the reference lap and the step belong to the data before
+            m_project.dataEdits.clear();
+            m_project.moreData.clear();
+            m_project.surfaces.clear();
+            m_project.referenceLap = 0;
+            m_project.syncIsManual = false;
             loadData(path, false);
+        }
+}
+
+void SimpleController::openProject(const Project &project)
+{
+    m_project = project;
+    m_templateIndex = -1;
+    m_syncText = project.syncIsManual ? tr("Moved by hand.") : QString();
+    emit syncChanged();
+    emit musicChanged();
+    rebuildOverlay();
+    // the data first: the video's own is then not looked for
+    if (!m_project.telemetryPath.isEmpty())
+        {
+            loadData(m_project.telemetryPath, false);
+        }
+    if (!m_project.videoPath.isEmpty())
+        {
+            probeVideo(m_project.videoPath);
         }
 }
 
@@ -385,7 +420,8 @@ void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const Telemetr
         }
     emit dataChanged();
     setMessage(QString());
-    if (m_templateIndex < 0)
+    // a first dash, unless gauges of its own came with the project
+    if (m_templateIndex < 0 && m_project.overlay == Overlay::defaultItems())
         {
             const QVector<TemplateLibrary::Entry> entries = TemplateLibrary::entries();
             int first = entries.isEmpty() ? -1 : 0;
@@ -403,7 +439,7 @@ void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const Telemetr
                 }
         }
     rebuildOverlay();
-    syncByClocks();
+    followClocks();
 }
 
 void SimpleController::chooseTemplate(int index)
@@ -421,7 +457,7 @@ void SimpleController::chooseTemplate(int index)
     rebuildOverlay();
     if (m_session && m_probed)
         {
-            syncByClocks();
+            followClocks();
         }
 }
 
@@ -446,12 +482,21 @@ void SimpleController::setSync(double offset, const QString &text)
     emit overlayChanged();
 }
 
+void SimpleController::followClocks()
+{
+    if (!m_project.syncIsManual)
+        {
+            syncByClocks();
+        }
+}
+
 void SimpleController::syncByClocks()
 {
     if (!m_session || m_project.videoPath.isEmpty() || !m_probed)
         {
             return;
         }
+    m_project.syncIsManual = false;
     // data read out of the video itself is on the video's clock already
     if (QFileInfo(m_project.videoPath) == QFileInfo(m_project.telemetryPath))
         {
@@ -473,6 +518,7 @@ void SimpleController::syncByClocks()
 
 void SimpleController::nudgeSync(double seconds)
 {
+    m_project.syncIsManual = true;
     setSync(m_project.syncOffset + seconds, tr("Moved by hand."));
 }
 
@@ -480,6 +526,7 @@ void SimpleController::setSyncOffset(double seconds)
 {
     if (std::isfinite(seconds))
         {
+            m_project.syncIsManual = true;
             setSync(seconds, tr("Moved by hand."));
         }
 }
@@ -608,6 +655,46 @@ QVariantMap SimpleController::gaugeProperties(int index) const
     properties["hasScale"] = GaugeLibrary::hasScale(GaugeLibrary::gauge(item.gaugeId));
     properties["scaleMax"] = item.scaleMax;
     properties["unit"] = display(item.channel, item.unitsFor(units)).unit;
+    properties["units"] = int(item.units);
+    properties["keepShape"] = item.aspect <= 0.0;
+    if (index >= m_overlay->count())
+        {
+            return properties;
+        }
+    const Overlay &overlay = *m_overlay;
+    properties["width"] = overlay.itemRect(index, pictureFrame(1.0, 1.0 / aspect())).width();
+    properties["hasGraph"] = overlay.hasGraph(index);
+    properties["byDistance"] = overlay.byDistance(index);
+    properties["hasRoute"] = overlay.hasRoute(index);
+    properties["streets"] = overlay.hasStreets(index);
+    QStringList mapIds{QString()};
+    QStringList mapNames{tr("As in the settings")};
+    for (const TileStore::Provider &provider : AppSettings::usableMapProviders())
+        {
+            mapIds << provider.id;
+            mapNames << provider.name;
+        }
+    properties["mapIds"] = mapIds;
+    properties["mapNames"] = mapNames;
+    properties["map"] = item.map;
+    // the close-up, and by speed what it was, else a ride's: close in town, wide on the open road
+    const Units shownIn = item.unitsFor(units);
+    const GaugeComponent::SpeedZoom zoom = item.speedZoom.isOn() ? item.speedZoom
+                                           : GaugeComponent::SpeedZoom{1500.0, 10.0 / 3.6, 40.0 / 3.6};
+    properties["closeUp"] = overlay.closeUp(index);
+    properties["bySpeed"] = item.speedZoom.isOn();
+    properties["far"] = zoom.far;
+    properties["slow"] = std::round(zoom.slow * shownIn.speedScale());
+    properties["fast"] = std::round(zoom.fast * shownIn.speedScale());
+    properties["speedUnit"] = shownIn.speedLabel();
+    properties["canBySpeed"] = m_session && m_session->channel(ChannelId::Speed);
+    properties["headingUp"] = overlay.headingUp(index);
+    properties["flyover"] = overlay.flyover(index);
+    properties["ghost"] = overlay.ghost(index);
+    const GaugeComponent::FlyoverCamera camera = overlay.flyoverCamera(index);
+    properties["tilt"] = camera.tilt;
+    properties["cameraHeight"] = camera.height;
+    properties["hills"] = camera.hills;
     return properties;
 }
 
@@ -637,6 +724,105 @@ void SimpleController::setGaugeOpacity(int index, double opacity)
 void SimpleController::setGaugeScaleMax(int index, double max)
 {
     changeGauge(index, [max](OverlayItem &item) { item.scaleMax = std::max(0.0, max); });
+}
+
+void SimpleController::setGaugeUnits(int index, int units)
+{
+    if (units >= OverlayItem::AsSettings && units <= OverlayItem::ImperialUnits)
+        {
+            changeGauge(index, [units](OverlayItem &item) { item.units = OverlayItem::UnitSystem(units); });
+        }
+}
+
+void SimpleController::setGaugeKeepShape(int index, bool keep)
+{
+    if (index >= m_overlay->count())
+        {
+            return;
+        }
+    // freed as it is, so that nothing moves until its width is changed
+    const QRectF rect = m_overlay->itemRect(index, pictureFrame(1000.0, 1000.0));
+    changeGauge(index, [keep, rect](OverlayItem &item) { item.aspect = keep ? 0.0 : rect.width() / rect.height(); });
+}
+
+void SimpleController::setGaugeWidth(int index, double width)
+{
+    const double pictureAspect = aspect();
+    changeGauge(index, [width, pictureAspect](OverlayItem &item)
+    {
+        const double wanted = std::clamp(width, 0.02, 1.0 - item.x);
+        item.aspect = wanted * pictureAspect / item.height;
+    });
+}
+
+void SimpleController::setGaugeByDistance(int index, bool on)
+{
+    changeGauge(index, [on](OverlayItem &item) { item.byDistance = on ? 1 : 0; });
+}
+
+void SimpleController::setGaugeStreets(int index, bool shown)
+{
+    changeGauge(index, [shown](OverlayItem &item) { item.streets = shown ? OverlayItem::Shown : OverlayItem::Hidden; });
+}
+
+void SimpleController::setGaugeMap(int index, const QString &map)
+{
+    changeGauge(index, [map](OverlayItem &item)
+    {
+        item.map = map;
+        // a map chosen is a map shown
+        if (!map.isEmpty())
+            {
+                item.streets = OverlayItem::Shown;
+            }
+    });
+}
+
+bool SimpleController::setGaugeCloseUp(int index, double meters, double far, double slow, double fast)
+{
+    if (index < 0 || index >= m_project.overlay.size())
+        {
+            return false;
+        }
+    const Units units = m_project.overlay.at(index).unitsFor(AppSettings::units());
+    GaugeComponent::SpeedZoom zoom;
+    if (far > 0.0)
+        {
+            zoom = {far, slow / units.speedScale(), fast / units.speedScale()};
+            if (!zoom.isOn())
+                {
+                    return false;
+                }
+        }
+    changeGauge(index, [meters, zoom](OverlayItem &item)
+    {
+        item.closeUp = std::max(0.0, meters);
+        item.speedZoom = item.closeUp > 0.0 ? zoom : GaugeComponent::SpeedZoom();
+    });
+    return true;
+}
+
+void SimpleController::setGaugeHeadingUp(int index, bool up)
+{
+    changeGauge(index, [up](OverlayItem &item) { item.headingUp = up ? 1 : 0; });
+}
+
+void SimpleController::setGaugeFlyover(int index, bool on)
+{
+    changeGauge(index, [on](OverlayItem &item) { item.flyover = on ? 1 : 0; });
+}
+
+void SimpleController::setGaugeGhost(int index, bool on)
+{
+    changeGauge(index, [on](OverlayItem &item) { item.ghost = on ? 1 : 0; });
+}
+
+void SimpleController::setGaugeFlyoverCamera(int index, double tilt, double height, double hills)
+{
+    const GaugeComponent::FlyoverCamera camera = tilt > 0.0
+            ? GaugeComponent::FlyoverCamera{std::clamp(tilt, 10.0, 85.0), std::clamp(height, 10.0, 20000.0), std::clamp(hills, 1.0, 5.0)}
+            : GaugeComponent::FlyoverCamera{0.0, 0.0, 0.0};
+    changeGauge(index, [camera](OverlayItem &item) { item.flyoverCamera = camera; });
 }
 
 void SimpleController::addMusic(const QUrl &url)

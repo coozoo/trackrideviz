@@ -84,6 +84,11 @@ public:
     QString exportText() const { return m_exportText; }
     QUrl exportedUrl() const;
 
+    // What it works on, all of it: given to the full window when it goes back.
+    const Project &project() const { return m_project; }
+    // The full window's project: its video, data, gauges, step and music.
+    void openProject(const Project &project);
+
     // What is drawn over the picture, for GaugeOverlay; never null.
     std::shared_ptr<const Overlay> overlay() const { return m_overlay; }
     // The data's time at a moment of the video.
@@ -112,12 +117,34 @@ public:
     Q_INVOKABLE void addGauge(const QString &gaugeId);
     Q_INVOKABLE void removeGauge(int index);
     // What the properties of a gauge show: name, channel, channelIds, channelNames, height,
-    // textScale, opacity, hasScale, scaleMax, unit.
+    // width, keepShape, textScale, opacity, hasScale, scaleMax, unit, units; and as the full
+    // window's menu of a gauge has them: hasGraph, byDistance; hasRoute, streets, mapIds,
+    // mapNames, map, closeUp, bySpeed, far, slow, fast, speedUnit, canBySpeed, headingUp,
+    // flyover, ghost, tilt, cameraHeight, hills.
     Q_INVOKABLE QVariantMap gaugeProperties(int index) const;
     Q_INVOKABLE void setGaugeChannel(int index, const QString &channel);
     Q_INVOKABLE void setGaugeTextScale(int index, double scale);
     Q_INVOKABLE void setGaugeOpacity(int index, double opacity);
     Q_INVOKABLE void setGaugeScaleMax(int index, double max);
+    // 0: as in the settings, 1: metric, 2: imperial
+    Q_INVOKABLE void setGaugeUnits(int index, int units);
+    // Kept, its width follows its height; set free, `width` (a fraction of the picture's) is its own.
+    Q_INVOKABLE void setGaugeKeepShape(int index, bool keep);
+    Q_INVOKABLE void setGaugeWidth(int index, double width);
+    Q_INVOKABLE void setGaugeByDistance(int index, bool on);
+    Q_INVOKABLE void setGaugeStreets(int index, bool shown);
+    // A map provider's id; empty: as in the settings.
+    Q_INVOKABLE void setGaugeMap(int index, const QString &map);
+    // `meters` across, 0: the whole route; with `far` above 0 wider with the speed: `meters` at
+    // `slow` or slower, `far` at `fast` or faster (in the gauge's units). False when the speeds
+    // are not one above the other.
+    Q_INVOKABLE bool setGaugeCloseUp(int index, double meters, double far, double slow, double fast);
+    Q_INVOKABLE void setGaugeHeadingUp(int index, bool up);
+    Q_INVOKABLE void setGaugeFlyover(int index, bool on);
+    Q_INVOKABLE void setGaugeGhost(int index, bool on);
+    // Degrees from straight down, meters above the rider, hills this many times higher; tilt 0:
+    // as the gauge has it.
+    Q_INVOKABLE void setGaugeFlyoverCamera(int index, double tilt, double height, double hills);
 
     Q_INVOKABLE void addMusic(const QUrl &url);
     Q_INVOKABLE void removeMusic(int index);
@@ -151,6 +178,9 @@ private:
     void changeGauge(int index, const std::function<void(OverlayItem &)> &change);
     QRectF pictureFrame(double width, double height) const { return QRectF(0.0, 0.0, width, height); }
     void setSync(double offset, const QString &text);
+    // in step by the clocks, unless it was put in step by hand
+    void followClocks();
+    void probeVideo(const QString &path);
     void exportFinished(int outcome, const QString &message);
 
     const bool m_canGoBack;

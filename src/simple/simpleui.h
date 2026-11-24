@@ -1,5 +1,7 @@
 #pragma once
 
+#include "project/project.h"
+
 #include <QStringList>
 
 #include <functional>
@@ -10,9 +12,10 @@ class QQmlApplicationEngine;
 namespace SimpleUi
 {
 // Opens it. `back`: how to return to the full window, which then shows a button for it (and
-// closing the window returns too); empty when it is the program's only window. The engine
-// belongs to the caller; deleting it closes the window.
-QQmlApplicationEngine *open(const std::function<void()> &back = {});
+// closing the window returns too), with the project as it was left; empty when it is the
+// program's only window. `project`: the full window's, its files opened. The engine belongs
+// to the caller; deleting it closes the window.
+QQmlApplicationEngine *open(const std::function<void(const Project &)> &back = {}, const Project &project = {});
 // The same, with files opened in it: the first video, and data (a video with data of its own
 // needs none).
 QQmlApplicationEngine *open(const QStringList &files);

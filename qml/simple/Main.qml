@@ -215,17 +215,26 @@ ApplicationWindow {
                     enabled: window.moving >= 0
                     target: null
                     property point from
+                    // where it was taken last: at the release the translation is 0 again
+                    property point at
+                    function place(done) {
+                        simple.moveGauge(window.moving, at.x / picture.width, at.y / picture.height, done)
+                    }
                     onActiveChanged: {
                         if (active) {
                             const r = simple.gaugeRect(window.moving, picture.width, picture.height)
                             from = Qt.point(r.x, r.y)
+                            at = from
                         } else if (window.moving >= 0) {
-                            simple.moveGauge(window.moving, (from.x + translation.x) / picture.width,
-                                             (from.y + translation.y) / picture.height, true)
+                            place(true)
                         }
                     }
-                    onTranslationChanged: if (active) simple.moveGauge(window.moving, (from.x + translation.x) / picture.width,
-                                                                        (from.y + translation.y) / picture.height, false)
+                    onTranslationChanged: {
+                        if (active) {
+                            at = Qt.point(from.x + translation.x, from.y + translation.y)
+                            place(false)
+                        }
+                    }
                 }
                 PinchHandler {
                     enabled: window.moving >= 0

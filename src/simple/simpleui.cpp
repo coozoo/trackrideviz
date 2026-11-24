@@ -100,15 +100,19 @@ void registerTypes()
 }
 }
 
-QQmlApplicationEngine *SimpleUi::open(const std::function<void()> &back)
+QQmlApplicationEngine *SimpleUi::open(const std::function<void(const Project &)> &back, const Project &project)
 {
     registerTypes();
     auto *engine = new QQmlApplicationEngine;
     auto *controller = new SimpleController(bool(back), engine);
     if (back)
         {
-            QObject::connect(controller, &SimpleController::backRequested, engine, [back]() { back(); });
+            QObject::connect(controller, &SimpleController::backRequested, engine, [back, controller]()
+            {
+                back(controller->project());
+            });
         }
+    controller->openProject(project);
     engine->rootContext()->setContextProperty(QStringLiteral("simple"), controller);
     // the engine owns it
     engine->addImageProvider(QStringLiteral("previews"), new PreviewProvider);

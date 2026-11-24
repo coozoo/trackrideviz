@@ -1447,9 +1447,20 @@ void MainWindow::openProject(const QString &path)
                 }
         }
 
-    m_project = project;
     m_projectPath = path;
     AppSettings::addRecentFile(AppSettings::RecentProjects, path);
+    showProject(project);
+    if (!missing.isEmpty())
+        {
+            QMessageBox::warning(this, tr("Open project"),
+                                 tr("These files of the project were not found:\n%1\n\n"
+                                    "Open them again from where they are now and save the project.").arg(missing.join('\n')));
+        }
+}
+
+void MainWindow::showProject(const Project &project)
+{
+    m_project = project;
     m_undoStack->clear();
     setModified(false);
     m_session.reset();
@@ -1492,12 +1503,6 @@ void MainWindow::openProject(const QString &path)
         }
     updateSourcesInfo();
     updateWindowTitle();
-    if (!missing.isEmpty())
-        {
-            QMessageBox::warning(this, tr("Open project"),
-                                 tr("These files of the project were not found:\n%1\n\n"
-                                    "Open them again from where they are now and save the project.").arg(missing.join('\n')));
-        }
 }
 
 bool MainWindow::saveProject()
@@ -3462,16 +3467,38 @@ void MainWindow::openSimple()
         }
     m_playback->pause();
     hide();
-    m_simple = SimpleUi::open([this]()
+    m_simple = SimpleUi::open([this](const Project &left)
     {
         // not inside the window's own handler, which asked for it
-        QTimer::singleShot(0, this, [this]()
+        QTimer::singleShot(0, this, [this, left]()
         {
             delete m_simple;
             m_simple = nullptr;
             show();
+            takeFromSimple(left);
         });
-    });
+    }, m_project);
+}
+
+void MainWindow::takeFromSimple(const Project &left)
+{
+    if (left.videoPath != m_project.videoPath || left.telemetryPath != m_project.telemetryPath)
+        {
+            // other files: as a project opened, its own file still to be saved
+            showProject(left);
+            setModified(true);
+            return;
+        }
+    // the same files: what changed, each a step to undo
+    m_project.layoutAspect = left.layoutAspect;
+    changeOverlay(tr("Change the gauges in the simplified interface"), OverlayState{left.overlay, left.theme});
+    setSoundtrack(left.soundtrack, tr("Change the music in the simplified interface"));
+    if (left.syncOffset != m_project.syncOffset)
+        {
+            m_project.syncIsManual = left.syncIsManual;
+            setSyncOffset(left.syncOffset, left.syncIsManual ? tr("Set by hand.") : QString());
+            setModified(true);
+        }
 }
 
 void MainWindow::showAbout()
