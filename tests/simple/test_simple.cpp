@@ -167,6 +167,116 @@ private slots:
         QCOMPARE(simple.gaugeCount(), before);
     }
 
+    // The full window's project: its gauges and its step kept, not a dash and the clocks.
+    void fromTheFullWindow()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        Project project;
+        project.videoPath = m_video;
+        project.telemetryPath = m_data;
+        OverlayItem item;
+        item.gaugeId = "builtin:speedometer";
+        item.x = 0.3;
+        item.y = 0.2;
+        project.overlay = {item};
+        // laid out for this video's shape, as the full window leaves it
+        project.layoutAspect = 320.0 / 240.0;
+        project.syncOffset = 3.25;
+        project.syncIsManual = true;
+        SimpleController simple(true);
+        simple.openProject(project);
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QCOMPARE(simple.gaugeCount(), 1);
+        QCOMPARE(simple.project().overlay.first().x, 0.3);
+        QCOMPARE(simple.syncOffset(), 3.25);
+        QCOMPARE(simple.videoName(), QString("ride.mp4"));
+        // what is done here goes back
+        simple.nudgeSync(0.5);
+        QCOMPARE(simple.project().syncOffset, 3.75);
+        // the clocks asked for again: no longer by hand
+        simple.syncByClocks();
+        QVERIFY(!simple.project().syncIsManual);
+    }
+
+    // A gauge's shape set free and its width its own; a route's map, close-up and 3D.
+    void gaugeOptions()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        SimpleController simple(false);
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        simple.openData(QUrl::fromLocalFile(m_data));
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        simple.addGauge("builtin:speedometer");
+        const int dial = simple.gaugeCount() - 1;
+        simple.moveGauge(dial, 0.1, 0.1, true);
+        const QRectF kept = simple.gaugeRect(dial, 320, 240);
+        simple.setGaugeKeepShape(dial, false);
+        QVERIFY(!simple.gaugeProperties(dial).value("keepShape").toBool());
+        // freed where it is: nothing moved
+        QVERIFY(qAbs(simple.gaugeRect(dial, 320, 240).width() - kept.width()) < 0.5);
+        simple.setGaugeWidth(dial, 0.5);
+        QVERIFY(qAbs(simple.gaugeRect(dial, 320, 240).width() - 160.0) < 0.5);
+        QVERIFY(qAbs(simple.gaugeProperties(dial).value("width").toDouble() - 0.5) < 1e-6);
+        QVERIFY(qAbs(simple.gaugeRect(dial, 320, 240).height() - kept.height()) < 0.5);
+        simple.setGaugeKeepShape(dial, true);
+        QVERIFY(qAbs(simple.gaugeRect(dial, 320, 240).width() - kept.width()) < 0.5);
+        simple.setGaugeUnits(dial, OverlayItem::ImperialUnits);
+        QCOMPARE(simple.gaugeProperties(dial).value("units").toInt(), int(OverlayItem::ImperialUnits));
+
+        // a gauge with a route
+        int route = -1;
+        for (const QString &id : simple.gaugeIds())
+            {
+                simple.addGauge(id);
+                if (simple.gaugeProperties(simple.gaugeCount() - 1).value("hasRoute").toBool())
+                    {
+                        route = simple.gaugeCount() - 1;
+                        break;
+                    }
+                simple.removeGauge(simple.gaugeCount() - 1);
+            }
+        if (route < 0)
+            {
+                QSKIP("no gauge with a route");
+            }
+        QVERIFY(simple.setGaugeCloseUp(route, 600, 0, 0, 0));
+        QCOMPARE(simple.gaugeProperties(route).value("closeUp").toDouble(), 600.0);
+        QVERIFY(!simple.gaugeProperties(route).value("bySpeed").toBool());
+        // by speed: the second speed above the first, or nothing changes
+        QVERIFY(!simple.setGaugeCloseUp(route, 300, 2000, 40, 10));
+        QCOMPARE(simple.gaugeProperties(route).value("closeUp").toDouble(), 600.0);
+        QVERIFY(simple.setGaugeCloseUp(route, 300, 2000, 10, 40));
+        const QVariantMap bySpeed = simple.gaugeProperties(route);
+        QVERIFY(bySpeed.value("bySpeed").toBool());
+        QCOMPARE(bySpeed.value("far").toDouble(), 2000.0);
+        QCOMPARE(bySpeed.value("slow").toDouble(), 10.0);
+        QCOMPARE(bySpeed.value("fast").toDouble(), 40.0);
+        QVERIFY(simple.setGaugeCloseUp(route, 0, 0, 0, 0));
+        QVERIFY(!simple.gaugeProperties(route).value("bySpeed").toBool());
+        simple.setGaugeHeadingUp(route, true);
+        QCOMPARE(simple.project().overlay.at(route).headingUp, 1);
+        simple.setGaugeStreets(route, false);
+        QVERIFY(!simple.gaugeProperties(route).value("streets").toBool());
+        simple.setGaugeFlyover(route, true);
+        QVERIFY(simple.gaugeProperties(route).value("flyover").toBool());
+        simple.setGaugeFlyoverCamera(route, 45, 300, 9);
+        const QVariantMap camera = simple.gaugeProperties(route);
+        QCOMPARE(camera.value("tilt").toDouble(), 45.0);
+        QCOMPARE(camera.value("cameraHeight").toDouble(), 300.0);
+        QCOMPARE(camera.value("hills").toDouble(), 5.0);
+        simple.setGaugeFlyoverCamera(route, 0, 0, 0);
+        QVERIFY(!simple.project().overlay.at(route).flyoverCamera.isSet());
+        simple.setGaugeGhost(route, true);
+        QCOMPARE(simple.project().overlay.at(route).ghost, 1);
+        QVERIFY(simple.gaugeProperties(route).value("mapIds").toStringList().first().isEmpty());
+    }
+
     // Music under the video: what plays when, and how loud.
     void music()
     {
