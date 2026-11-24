@@ -33,7 +33,7 @@ double Channel::steadyMax(double seconds) const
     // reading. The lowest of the readings in each are kept rising (a sliding minimum), so the
     // work grows with the readings, not with how many are in a stretch.
     const int n = int(m_times.size());
-    if (n < 2 || m_times.last() - m_times.first() < seconds)
+    if (n < 2 || !(seconds > 0.0) || m_times.last() - m_times.first() < seconds)
         {
             return maxValue();
         }
