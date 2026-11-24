@@ -725,33 +725,49 @@ bool Libav::encoderWorks(const QString &id, const QStringList &options, const QS
         }
     if (ready && opened >= 0)
         {
-            // a few pictures and the end: some encoders give their first packet only then
+            // a few pictures and the end: some encoders give their first packet only then. What
+            // is ready is taken after each: one that holds a few answers EAGAIN until it is
             AVFrame *sent = uploaded ? uploaded : picture;
             int result = 0;
-            for (int i = 0; i < 3 && result >= 0; ++i)
+            auto takePackets = [&]()
+            {
+                int received = 0;
+                while ((received = avcodec_receive_packet(encoder, packet)) >= 0)
+                    {
+                        works = true;
+                        av_packet_unref(packet);
+                    }
+                return received;
+            };
+            int received = 0;
+            for (int i = 0; i <= 3 && result >= 0; ++i)
                 {
-                    sent->pts = i;
-                    result = avcodec_send_frame(encoder, sent);
-                }
-            if (result >= 0)
-                {
-                    result = avcodec_send_frame(encoder, nullptr);
+                    if (i < 3)
+                        {
+                            sent->pts = i;
+                        }
+                    // the fourth: the end
+                    result = avcodec_send_frame(encoder, i < 3 ? sent : nullptr);
+                    if (result == AVERROR(EAGAIN))
+                        {
+                            // full: emptied, then the same again
+                            received = takePackets();
+                            result = avcodec_send_frame(encoder, i < 3 ? sent : nullptr);
+                        }
+                    if (result >= 0)
+                        {
+                            received = takePackets();
+                        }
                 }
             if (result < 0)
                 {
+                    // a packet or two before it refused one is not working
+                    works = false;
                     failed = "sending it pictures: " + errorText(result);
                 }
-            else
+            else if (!works)
                 {
-                    while ((result = avcodec_receive_packet(encoder, packet)) >= 0)
-                        {
-                            works = true;
-                            av_packet_unref(packet);
-                        }
-                    if (!works)
-                        {
-                            failed = "no packet back: " + errorText(result);
-                        }
+                    failed = "no packet back: " + errorText(received);
                 }
         }
     if (!works)

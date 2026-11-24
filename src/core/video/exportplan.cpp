@@ -230,6 +230,13 @@ ExportPlan ExportPlan::make(const QString &videoPath, const MediaInfo &info,
                 }
             graph = parts.join(';');
         }
+    else if (gaugesOnly)
+        {
+            // only the gauges, and none to draw: see-through, as long as asked for
+            graph = QString("color=c=black@0:s=%1x%2:r=%3/%4:d=%5,format=rgba[v]")
+                    .arg(plan.outputSize.width()).arg(plan.outputSize.height()).arg(plan.fpsNum).arg(plan.fpsDen)
+                    .arg(outputLength, 0, 'f', 3);
+        }
     else if (noVideo)
         {
             // nothing to draw: the color alone, as long as asked for

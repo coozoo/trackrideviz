@@ -9,6 +9,8 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cmath>
+#include <utility>
 #include <vector>
 
 #ifdef RTV_LIBAV
@@ -19,6 +21,7 @@ extern "C" {
 #include <libavfilter/buffersrc.h>
 #include <libavformat/avformat.h>
 #include <libavutil/channel_layout.h>
+#include <libavutil/display.h>
 #include <libavutil/hwcontext.h>
 #include <libavutil/opt.h>
 #include <libavutil/pixdesc.h>
@@ -31,6 +34,57 @@ QString avError(int code)
     char text[AV_ERROR_MAX_STRING_SIZE] = {};
     av_strerror(code, text, sizeof(text));
     return QString::fromUtf8(text);
+}
+
+// The filters that turn a picture upright as its display matrix says (a phone held upright
+// stores it on its side), as the ffmpeg program does on its own: the plan is laid out for
+// the picture as shown. None for one shown as stored.
+std::vector<std::pair<const char *, QString>> uprightFilters(const AVStream *stream)
+{
+    const AVPacketSideData *side = av_packet_side_data_get(stream->codecpar->coded_side_data,
+                                   stream->codecpar->nb_coded_side_data, AV_PKT_DATA_DISPLAYMATRIX);
+    if (!side || side->size < 9 * sizeof(int32_t))
+        {
+            return {};
+        }
+    const int32_t *matrix = reinterpret_cast<const int32_t *>(side->data);
+    const double rotation = av_display_rotation_get(matrix);
+    if (std::isnan(rotation))
+        {
+            return {};
+        }
+    // clockwise, 0 to 360
+    double theta = -std::round(rotation);
+    theta -= 360.0 * std::floor(theta / 360.0 + 0.9 / 360.0);
+    std::vector<std::pair<const char *, QString>> filters;
+    if (std::abs(theta - 90.0) < 1.0)
+        {
+            filters.push_back({"transpose", matrix[3] > 0 ? "cclock_flip" : "clock"});
+        }
+    else if (std::abs(theta - 180.0) < 1.0)
+        {
+            if (matrix[0] < 0)
+                {
+                    filters.push_back({"hflip", QString()});
+                }
+            if (matrix[4] < 0)
+                {
+                    filters.push_back({"vflip", QString()});
+                }
+        }
+    else if (std::abs(theta - 270.0) < 1.0)
+        {
+            filters.push_back({"transpose", matrix[3] < 0 ? "clock_flip" : "cclock"});
+        }
+    else if (std::abs(theta) > 1.0)
+        {
+            filters.push_back({"rotate", QString("%1*PI/180").arg(theta, 0, 'f', 6)});
+        }
+    else if (matrix[4] < 0)
+        {
+            filters.push_back({"vflip", QString()});
+        }
+    return filters;
 }
 
 // ffmpeg's flag as libav names the option: "-b:v" -> "b", "-movflags" -> "movflags"
@@ -361,7 +415,8 @@ bool LibavExport::Private::buildGraph()
                     const AVCodecContext *decoder = feed.decoder;
                     if (isAudio)
                         {
-                            AVChannelLayout layout;
+                            // zeroed: av_channel_layout_copy frees what the target held before
+                            AVChannelLayout layout{};
                             if (decoder->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
                                 {
                                     av_channel_layout_default(&layout, decoder->ch_layout.nb_channels);
@@ -400,7 +455,30 @@ bool LibavExport::Private::buildGraph()
                 {
                     return fail("An input of the filter graph", result);
                 }
-            result = avfilter_link(source, 0, in->filter_ctx, unsigned(in->pad_idx));
+            // a video's picture turned as it is shown before the graph gets it
+            AVFilterContext *last = source;
+            if (file.format && !isAudio)
+                {
+                    int turn = 0;
+                    for (const auto &[filter, filterArgs] : uprightFilters(file.format->streams[file.video.index]))
+                        {
+                            AVFilterContext *added = nullptr;
+                            const QByteArray turnName = name + "turn" + QByteArray::number(++turn);
+                            result = avfilter_graph_create_filter(&added, avfilter_get_by_name(filter), turnName.constData(),
+                                                                  filterArgs.isEmpty() ? nullptr : filterArgs.toUtf8().constData(),
+                                                                  nullptr, graph);
+                            if (result >= 0)
+                                {
+                                    result = avfilter_link(last, 0, added, 0);
+                                }
+                            if (result < 0)
+                                {
+                                    return fail("Turning the picture upright", result);
+                                }
+                            last = added;
+                        }
+                }
+            result = avfilter_link(last, 0, in->filter_ctx, unsigned(in->pad_idx));
             if (result < 0)
                 {
                     return fail("Linking an input of the filter graph", result);

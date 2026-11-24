@@ -139,8 +139,13 @@ void VideoJoinJob::startOwn(OwnWork work)
     {
         *error = work(*stop, *seconds);
     });
-    connect(m_thread, &QThread::finished, this, [this]()
+    connect(m_thread, &QThread::finished, this, [this, thread = m_thread]()
     {
+        // posted from the worker just before a cancel let it go: not news any more
+        if (m_thread != thread)
+            {
+                return;
+            }
         const QString error = *m_error;
         m_thread->deleteLater();
         m_thread = nullptr;
