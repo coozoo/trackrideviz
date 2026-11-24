@@ -73,6 +73,7 @@ SOURCES += \
     $$PWD/video/exportplan.cpp \
     $$PWD/video/exportprofile.cpp \
     $$PWD/video/ffmpegtools.cpp \
+    $$PWD/video/lapexport.cpp \
     $$PWD/video/libav.cpp \
     $$PWD/video/libavexport.cpp \
     $$PWD/video/mediainfo.cpp \
@@ -146,6 +147,7 @@ HEADERS += \
     $$PWD/video/exportprofile.h \
     $$PWD/video/exportsettings.h \
     $$PWD/video/ffmpegtools.h \
+    $$PWD/video/lapexport.h \
     $$PWD/video/libav.h \
     $$PWD/video/libavexport.h \
     $$PWD/video/mediainfo.h \
