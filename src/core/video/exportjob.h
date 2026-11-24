@@ -55,6 +55,8 @@ public slots:
     void start();
     // Ends the export early, keeping what is done. Harmless when called twice or too late.
     void stop();
+    // Ends it at once, throwing away what was written: for a stop that takes too long.
+    void cancel();
 
 signals:
     // total is 0 when nothing is piped and the length is not known to us

@@ -362,9 +362,7 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
 
     // the triangles, nearest kept: a depth of 1 / w for each pixel, larger is nearer. In bands
     // of rows, one for each processor: each band draws every triangle's rows inside it
-    m_depth.resize(width * height);
-    m_depth.fill(0.0f);
-    QVector<float> &depth = m_depth;
+    QVector<float> depth(width * height, 0.0f);
     QRgb *pixels = reinterpret_cast<QRgb *>(image.bits());
     const int stride = image.bytesPerLine() / int(sizeof(QRgb));
     const QRgb *texels = textured ? reinterpret_cast<const QRgb *>(m_patch.texture.constBits()) : nullptr;
@@ -469,6 +467,8 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
             }
     };
     std::vector<std::thread> workers;
+    // room for all first: only starting a thread can fail, and those started are joined
+    workers.reserve(size_t(bands - 1));
     int band = 1;
     try
         {

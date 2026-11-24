@@ -698,8 +698,15 @@ DataPanel::DataPanel(QWidget *parent)
     m_chart->selectionChanged = [this]() { updateButtons(); };
     m_chart->picked = [this](double start, double end)
     {
-        m_tableFollows = false;
+        // a click on the chart goes there: its row is shown, not picked; a stretch dragged is a pick
+        const bool follows = start == end;
+        const bool changed = follows != m_tableFollows;
+        m_tableFollows = follows;
         showInTable(start, end);
+        if (changed)
+            {
+                updateButtons();
+            }
     };
     m_chart->menuAt = [this](const QPoint &at) { showPickMenu(at); };
 
@@ -715,6 +722,15 @@ DataPanel::DataPanel(QWidget *parent)
     connect(m_table, &QWidget::customContextMenuRequested, this, [this](const QPoint &at)
     {
         showPickMenu(m_table->viewport()->mapToGlobal(at));
+    });
+    // a row pressed is picked, also the one the table followed to (the selection stays the same)
+    connect(m_table, &QTableView::pressed, this, [this]()
+    {
+        if (m_tableFollows)
+            {
+                m_tableFollows = false;
+                updateButtons();
+            }
     });
     connect(m_table, &QTableView::doubleClicked, this, [this](const QModelIndex &index)
     {
@@ -906,8 +922,14 @@ void DataPanel::setTime(double time)
             if (!m_chart->selected(&channel, &start, &end)
                     && (rows.isEmpty() || (rows.size() == 1 && rows.first().height() == 1)))
                 {
+                    const bool changed = !m_tableFollows;
                     m_tableFollows = true;
                     showInTable(time, time);
+                    // the same row may stay selected: then no change of selection tells the buttons
+                    if (changed)
+                        {
+                            updateButtons();
+                        }
                 }
         }
     m_shownTime = time;

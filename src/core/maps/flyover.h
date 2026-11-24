@@ -84,6 +84,5 @@ private:
     QVector<Point> m_route;
     Patch m_patch;
     QElapsedTimer m_built;      // since the patch was worked out: one with tiles missing waits a while
-    QVector<float> m_depth;     // kept from picture to picture: one the same size needs no new one
     bool m_lastComplete{true};
 };

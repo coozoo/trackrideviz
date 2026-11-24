@@ -212,6 +212,14 @@ void ExportJob::hurryUp()
 #endif
 }
 
+void ExportJob::cancel()
+{
+    if (!m_done && !m_abandoned)
+        {
+            abandon();
+        }
+}
+
 void ExportJob::abandon()
 {
     m_abandoned = true;

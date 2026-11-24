@@ -53,11 +53,12 @@ const char *const kCommands[] = {"--render", "--list-encoders", "--list-profiles
 // how long terrain heights, the weather and map tiles are waited for before the export goes on without them
 const int kWaitForDownloadsMs = 60000;
 
-std::atomic<bool> interrupted{false};
+// Ctrl+C (or the terminal closed) once: stop with what is done; again: at once
+std::atomic<int> interrupted{0};
 
 void onInterrupt(int)
 {
-    interrupted = true;
+    ++interrupted;
 }
 
 void say(const QString &text)
@@ -609,7 +610,7 @@ int render(const QCommandLineParser &parser, bool preferOwn)
             bool toOk = true;
             const double from = parser.isSet("from") ? finiteNumber(parser.value("from"), &fromOk) : 0.0;
             const double to = parser.isSet("to") ? finiteNumber(parser.value("to"), &toOk) : info.duration;
-            if (!fromOk || !toOk || to <= from)
+            if (!fromOk || !toOk || from < 0.0 || to <= from || (info.duration > 0.0 && from >= info.duration))
                 {
                     return fail(QCoreApplication::translate("CommandLine", "--from and --to want seconds into the video, the end after the start."), 2);
                 }
@@ -700,11 +701,16 @@ int render(const QCommandLineParser &parser, bool preferOwn)
             message = why;
             loop.quit();
         });
-        // Ctrl+C ends it early with a playable file, as Stop in the window does
+        // Ctrl+C ends it early with a playable file, as Stop in the window does; a second one
+        // at once (ffmpeg is in a group of its own and does not hear it)
         QTimer watch;
         QObject::connect(&watch, &QTimer::timeout, &job, [&]()
         {
-            if (interrupted)
+            if (interrupted >= 2)
+                {
+                    job.cancel();
+                }
+            else if (interrupted)
                 {
                     job.stop();
                 }
@@ -821,6 +827,10 @@ int CommandLine::run()
 {
     std::signal(SIGINT, onInterrupt);
     std::signal(SIGTERM, onInterrupt);
+#ifdef SIGHUP
+    // the terminal closed: ffmpeg, in a group of its own, is not told
+    std::signal(SIGHUP, onInterrupt);
+#endif
     // Qt's own messages (fonts, plugins) only with --verbose: they would bury the progress
     const QStringList arguments = QCoreApplication::arguments();
     if (arguments.contains("--verbose"))

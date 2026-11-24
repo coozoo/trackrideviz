@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QSize>
 
+#include <algorithm>
+
 // A picture in place of a camera video: the gauges over a plain color, or over nothing (see
 // through), as long as the data. For a ride with no video, or a route shown on its own.
 struct VideoBackground
@@ -50,10 +52,8 @@ struct VideoBackground
         const QColor color(object.value("color").toString());
         background.color = color.isValid() ? color : QColor(Qt::black);
         // as the command line allows: a file edited by hand could ask for a picture too large to make
-        if (background.size.width() > kMaxSide || background.size.height() > kMaxSide || background.fps > kMaxFps)
-            {
-                return VideoBackground();
-            }
+        background.size = background.size.boundedTo(QSize(kMaxSide, kMaxSide));
+        background.fps = std::min(background.fps, kMaxFps);
         return background;
     }
 };
