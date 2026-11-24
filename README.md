@@ -119,7 +119,8 @@ trackrideviz --help                                      # everything else
 
 A project is exported as it was saved. Without one, the video and the data are put in step by
 their clocks, as when they are opened in the window, or by `--offset`; `--timelapse` sets a
-time-lapse video's speed-up and `--faster` makes the output play faster. The export profile and
+time-lapse video's speed-up, `--faster` makes the output play faster and `--laps` makes one video
+per lap. The export profile and
 the kind of encoder (graphics card or processor) are those the export dialog used last unless
 `--profile`, `--encoder`, `--hardware` or `--software` say otherwise. Ctrl+C stops and keeps a
 playable file. Exit codes: 0 done, 1 failed, 2 wrong arguments, 130 stopped.

@@ -4,6 +4,7 @@
 #include "settings/appsettings.h"
 #include "video/libav.h"
 #include "video/exportplan.h"
+#include "video/lapexport.h"
 #include "video/ffmpegtools.h"
 
 #include <QCheckBox>
@@ -238,6 +239,29 @@ void ExportDialog::createWidgets()
     rangeRow->addWidget(m_endEdit);
     rangeRow->addStretch(1);
 
+    m_perLapCheck = new QCheckBox(tr("One video per lap:"), m_options);
+    m_perLapCheck->setToolTip(tr("Each lap its own file, named with the lap's number"));
+    m_lapsEdit = new QLineEdit(m_options);
+    // empty is all of them ("all" is understood too, untranslated as on the command line)
+    m_lapsEdit->setPlaceholderText(tr("all laps"));
+    m_lapsEdit->setToolTip(tr("Which laps: empty for all, or numbers as 3 or 1, 4-6"));
+    m_lapsEdit->setEnabled(false);
+    connect(m_perLapCheck, &QCheckBox::toggled, m_lapsEdit, &QWidget::setEnabled);
+    connect(m_perLapCheck, &QCheckBox::toggled, this, [this](bool on)
+    {
+        // the laps are the range then
+        m_rangeCheck->setEnabled(!on);
+        m_startEdit->setEnabled(!on && m_rangeCheck->isChecked());
+        m_endEdit->setEnabled(!on && m_rangeCheck->isChecked());
+        updateEstimate();
+    });
+    connect(m_lapsEdit, &QLineEdit::textChanged, this, &ExportDialog::updateEstimate);
+    m_lapsRow = new QWidget(m_options);
+    QHBoxLayout *lapsRow = new QHBoxLayout(m_lapsRow);
+    lapsRow->setContentsMargins(0, 0, 0, 0);
+    lapsRow->addWidget(m_perLapCheck);
+    lapsRow->addWidget(m_lapsEdit, 1);
+
     m_speedUpSpin = new QDoubleSpinBox(m_options);
     m_speedUpSpin->setRange(1.0, 1000.0);
     m_speedUpSpin->setDecimals(1);
@@ -267,6 +291,11 @@ void ExportDialog::createWidgets()
     form->addRow(tr("Size:"), m_sizeCombo);
     form->addRow(tr("Sound:"), audioRow);
     form->addRow(tr("Range:"), rangeRow);
+    // shown when there are laps (setLaps); QFormLayout::setRowVisible is newer than Qt 6.2
+    m_lapsLabel = new QLabel(tr("Laps:"), m_options);
+    form->addRow(m_lapsLabel, m_lapsRow);
+    m_lapsLabel->hide();
+    m_lapsRow->hide();
     form->addRow(tr("Faster:"), speedUpRow);
 
     m_progressBar = new QProgressBar(this);
@@ -768,8 +797,17 @@ void ExportDialog::updateEstimate()
     const ExportSettings settings = currentSettings();
     const double start = m_rangeCheck->isChecked() ? settings.start : 0.0;
     const double end = m_rangeCheck->isChecked() ? settings.start + qMax(0.0, settings.duration) : m_info.duration;
-    // how long the output plays
-    const double length = CutList::keptLength(CutList::kept(m_cuts, start, end)) / qMax(1.0, settings.speedUp);
+    // how long the output plays: the range, or the laps chosen together
+    double kept = CutList::keptLength(CutList::kept(m_cuts, start, end));
+    if (m_perLapCheck->isChecked())
+        {
+            kept = 0.0;
+            for (int lap : chosenLaps())
+                {
+                    kept += CutList::keptLength(CutList::kept(m_cuts, m_laps.at(lap - 1).start, m_laps.at(lap - 1).end));
+                }
+        }
+    const double length = kept / qMax(1.0, settings.speedUp);
     m_speedUpNote->setText(settings.isSpedUp() ? tr("the video will be %1 long").arg(formatDuration(length)) : QString());
     if (!m_bitrateSpin->isVisible() || gaugesOnly())
         {
@@ -878,24 +916,69 @@ void ExportDialog::startExport()
                                  "or convert the sound to AAC.").arg(output.suffix()));
             return;
         }
-    if (m_rangeCheck->isChecked() && settings.duration <= 0.0)
+    if (m_rangeCheck->isChecked() && !m_perLapCheck->isChecked() && settings.duration <= 0.0)
         {
             QMessageBox::warning(this, windowTitle(), tr("The end of the range has to be after its start."));
             return;
         }
-    if (output.exists()
-            && QMessageBox::question(this, windowTitle(), tr("%1 already exists. Replace it?").arg(output.fileName()))
+    // one video, or one per lap chosen, each with the lap's number in its name
+    QVector<QPair<QString, ExportSettings>> runs;
+    if (m_perLapCheck->isChecked())
+        {
+            QString error;
+            const QVector<int> laps = chosenLaps(&error);
+            if (laps.isEmpty())
+                {
+                    QMessageBox::warning(this, windowTitle(), error.isEmpty() ? tr("None of these laps is in the video.") : error);
+                    return;
+                }
+            for (int lap : laps)
+                {
+                    ExportSettings one = settings;
+                    one.start = m_laps.at(lap - 1).start;
+                    one.duration = m_laps.at(lap - 1).length();
+                    one.outputPath = LapExport::outputPath(settings.outputPath, lap, int(m_laps.size()));
+                    runs.append({tr("Lap %1").arg(lap), one});
+                }
+        }
+    else
+        {
+            runs.append({QString(), settings});
+        }
+    QStringList existing;
+    for (const auto &run : std::as_const(runs))
+        {
+            if (QFileInfo::exists(run.second.outputPath))
+                {
+                    existing << QFileInfo(run.second.outputPath).fileName();
+                }
+        }
+    if (!existing.isEmpty()
+            && QMessageBox::question(this, windowTitle(), existing.size() == 1 ? tr("%1 already exists. Replace it?").arg(existing.first())
+                                     : tr("%1 files already exist (%2...). Replace them?").arg(existing.size()).arg(existing.first()))
             != QMessageBox::Yes)
         {
             return;
         }
-    const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, settings, m_overlay, m_cuts, m_soundtrack);
     // the choices of a video: those of the gauges alone would be what the next video starts with
     if (!gauges)
         {
             AppSettings::setExportDefaults(settings);
             AppSettings::setExportProfile(m_profileCombo->currentData().toString());
         }
+    m_queue = runs;
+    m_runs = int(runs.size());
+    m_saved.clear();
+    setRunning(true);
+    runNext();
+}
+
+void ExportDialog::runNext()
+{
+    const QPair<QString, ExportSettings> run = m_queue.takeFirst();
+    m_currentLabel = run.first.isEmpty() ? QString() : tr("%1 of %2").arg(run.first).arg(m_runs);
+    m_current = run.second;
+    const ExportPlan plan = ExportPlan::make(m_videoPath, m_info, m_current, m_overlay, m_cuts, m_soundtrack);
     ExportJob *job = new ExportJob(m_ffmpeg, plan, m_overlay, m_sync, nullptr,
                                    m_ownEngine ? ExportJob::OwnEngine : ExportJob::ProgramEngine);
     m_thread = new QThread(this);
@@ -908,9 +991,32 @@ void ExportDialog::startExport()
 
     m_progressBar->setRange(0, 0);
     m_progressBar->setVisible(true);
-    m_statusLabel->setText(tr("Starting..."));
-    setRunning(true);
+    m_statusLabel->setText(m_currentLabel.isEmpty() ? tr("Starting...") : tr("%1: starting...").arg(m_currentLabel));
     m_thread->start();
+}
+
+QVector<int> ExportDialog::chosenLaps(QString *error) const
+{
+    QVector<int> laps;
+    if (!m_perLapCheck->isChecked() || !LapExport::numbers(m_lapsEdit->text(), int(m_laps.size()), &laps, error))
+        {
+            return {};
+        }
+    // only those the video shows
+    laps.erase(std::remove_if(laps.begin(), laps.end(), [this](int lap) { return m_laps.at(lap - 1).length() <= 0.0; }), laps.end());
+    return laps;
+}
+
+void ExportDialog::setLaps(const QVector<TimeRange> &laps)
+{
+    m_laps = laps;
+    const bool any = std::any_of(laps.cbegin(), laps.cend(), [](const TimeRange &lap) { return lap.length() > 0.0; });
+    m_lapsLabel->setVisible(any);
+    m_lapsRow->setVisible(any);
+    if (!any)
+        {
+            m_perLapCheck->setChecked(false);
+        }
 }
 
 void ExportDialog::setRunning(bool running)
@@ -935,7 +1041,7 @@ void ExportDialog::onProgress(qint64 frame, qint64 total, double framesPerSecond
         {
             text += tr(", about %1 left").arg(formatDuration((total - frame) / framesPerSecond));
         }
-    m_statusLabel->setText(text);
+    m_statusLabel->setText(m_currentLabel.isEmpty() ? text : tr("%1: %2").arg(m_currentLabel, text));
 }
 
 void ExportDialog::onFinished(ExportJob::Outcome outcome, const QString &message)
@@ -944,18 +1050,35 @@ void ExportDialog::onFinished(ExportJob::Outcome outcome, const QString &message
     m_thread->wait();
     m_thread->deleteLater();
     m_thread = nullptr;
+    const QString output = m_current.outputPath;
+    if (outcome == ExportJob::Succeeded)
+        {
+            m_saved << output;
+            if (!m_queue.isEmpty())
+                {
+                    // the next lap
+                    runNext();
+                    return;
+                }
+        }
+    // a stop or a failure ends the laps still to come too
+    m_queue.clear();
     setRunning(false);
     m_closeButton->setEnabled(true);
     m_progressBar->setVisible(false);
 
-    const QString output = currentSettings().outputPath;
     switch (outcome)
         {
         case ExportJob::Succeeded:
         {
-            m_statusLabel->setText(tr("Saved %1").arg(QDir::toNativeSeparators(output)));
+            const bool several = m_saved.size() > 1;
+            m_statusLabel->setText(several ? tr("Saved %1 videos in %2").arg(m_saved.size())
+                                   .arg(QDir::toNativeSeparators(QFileInfo(output).absolutePath()))
+                                   : tr("Saved %1").arg(QDir::toNativeSeparators(output)));
             QMessageBox box(QMessageBox::Information, windowTitle(),
-                            tr("The video was exported to\n%1").arg(QDir::toNativeSeparators(output)),
+                            several ? tr("%1 videos, one per lap, were exported to\n%2").arg(m_saved.size())
+                            .arg(QDir::toNativeSeparators(QFileInfo(output).absolutePath()))
+                            : tr("The video was exported to\n%1").arg(QDir::toNativeSeparators(output)),
                             QMessageBox::Ok, this);
             QPushButton *openFolder = box.addButton(tr("Open folder"), QMessageBox::ActionRole);
             box.exec();
@@ -968,14 +1091,17 @@ void ExportDialog::onFinished(ExportJob::Outcome outcome, const QString &message
             break;
         }
         case ExportJob::Stopped:
-            m_statusLabel->setText(tr("Stopped. The part exported so far was saved as %1").arg(QDir::toNativeSeparators(output)));
+            m_statusLabel->setText(m_saved.isEmpty() ? tr("Stopped. The part exported so far was saved as %1").arg(QDir::toNativeSeparators(output))
+                                   : tr("Stopped. %1 videos were saved, and the part of the next one exported so far as %2")
+                                   .arg(m_saved.size()).arg(QDir::toNativeSeparators(output)));
             m_outputEdit->setText(suggestedOutput());
             break;
         case ExportJob::Canceled:
             m_statusLabel->setText(tr("Stopped before anything could be saved."));
             break;
         case ExportJob::Failed:
-            m_statusLabel->setText(tr("The export failed."));
+            m_statusLabel->setText(m_saved.isEmpty() ? tr("The export failed.")
+                                   : tr("The export of %1 failed; %2 videos were saved before it.").arg(m_currentLabel).arg(m_saved.size()));
             QMessageBox::warning(this, windowTitle(), tr("The export failed.\n\n%1").arg(message));
             break;
         }

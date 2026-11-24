@@ -5,6 +5,7 @@
 #include "video/cutlist.h"
 #include "video/exportjob.h"
 #include "video/exportplan.h"
+#include "video/lapexport.h"
 #include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
 #include "video/libav.h"
@@ -1295,6 +1296,38 @@ private slots:
         range.start = 30.0;
         range.duration = 5.0;
         QVERIFY(ExportPlan::make("in.mp4", fullHd60(), range, oneGauge(), {{10.0, 20.0}}).kept.isEmpty());
+    }
+
+    void lapsAsVideos()
+    {
+        // which laps
+        QVector<int> laps;
+        QString error;
+        QVERIFY(LapExport::numbers("all", 4, &laps));
+        QCOMPARE(laps, QVector<int>({1, 2, 3, 4}));
+        QVERIFY(LapExport::numbers("", 2, &laps));
+        QCOMPARE(laps, QVector<int>({1, 2}));
+        QVERIFY(LapExport::numbers(" 4-6, 1,5 ", 9, &laps));
+        QCOMPARE(laps, QVector<int>({1, 4, 5, 6}));
+        QVERIFY(!LapExport::numbers("7", 6, &laps, &error));
+        QVERIFY(!error.isEmpty());
+        QVERIFY(!LapExport::numbers("3-1", 6, &laps));
+        QVERIFY(!LapExport::numbers("first", 6, &laps));
+        QVERIFY(!LapExport::numbers("0", 6, &laps));
+        // named with the number, as wide as the last
+        QCOMPARE(LapExport::outputPath("/v/ride.mp4", 3, 12), QString("/v/ride_lap03.mp4"));
+        QCOMPARE(LapExport::outputPath("ride.overlay.mkv", 7, 120), QString("ride.overlay_lap007.mkv"));
+        QCOMPARE(LapExport::outputPath("out", 1, 2), QString("out_lap01"));
+        // where they are in the video: the data 30 s ahead of it, 100 s of video
+        TelemetrySession session;
+        session.addLap({40.0, 90.0});
+        session.addLap({90.0, 125.0});
+        session.addLap({140.0, 200.0});    // after the video
+        const QVector<TimeRange> ranges = LapExport::ranges(session, SyncMap(30.0), 100.0);
+        QCOMPARE(ranges.size(), 3);
+        QVERIFY(ranges[0] == (TimeRange{10.0, 60.0}));
+        QVERIFY(ranges[1] == (TimeRange{60.0, 95.0}));
+        QCOMPARE(ranges[2].length(), 0.0);
     }
 
     void planSpedUp()

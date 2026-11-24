@@ -10,6 +10,7 @@
 #include "dockhome.h"
 #include "icons.h"
 #include "joindialog.h"
+#include "video/lapexport.h"
 #include "video/videojoin.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
@@ -1473,6 +1474,7 @@ void MainWindow::exportVideo()
         {
             dialog.setBackground(m_project.background, m_playback->duration() / 1000.0, m_project.telemetryPath);
         }
+    dialog.setLaps(LapExport::ranges(*m_session, m_project.sync(), m_playback->duration() / 1000.0));
     dialog.exec();
 }
 

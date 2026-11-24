@@ -40,6 +40,8 @@ public:
     // No video (an empty videoPath): the gauges over `background`, `length` seconds long; the
     // file is named after `namedAfter` (the data's file).
     void setBackground(const VideoBackground &background, double length, const QString &namedAfter);
+    // The laps as stretches of the video (LapExport::ranges): one video each can be exported.
+    void setLaps(const QVector<TimeRange> &laps);
 
 public slots:
     // Closing while an export runs asks first, then stops it.
@@ -81,6 +83,10 @@ private:
     void applyProfile();
     void showSettings(const ExportSettings &settings);
     void setRunning(bool running);
+    // The next export of m_queue.
+    void runNext();
+    // The laps chosen to export one by one; empty when that is not chosen (or none is valid).
+    QVector<int> chosenLaps(QString *error = nullptr) const;
     ExportSettings currentSettings() const;
     QString suggestedOutput() const;
 
@@ -106,6 +112,13 @@ private:
     bool m_running{false};
     QString m_videoSuffix;      // the file type the video had before the gauges alone were chosen
     QThread *m_thread{nullptr};
+    QVector<TimeRange> m_laps;
+    // what is left to export, one video each; the one under way; what is done
+    QVector<QPair<QString, ExportSettings>> m_queue;   // what it is ("Lap 3"), the settings
+    ExportSettings m_current;
+    QString m_currentLabel;
+    int m_runs{0};
+    QStringList m_saved;
 
     QLabel *m_sourceLabel{nullptr};
     QLabel *m_engineLabel{nullptr};
@@ -130,6 +143,10 @@ private:
     QLabel *m_speedUpNote{nullptr};
     QTimeEdit *m_startEdit{nullptr};
     QTimeEdit *m_endEdit{nullptr};
+    QCheckBox *m_perLapCheck{nullptr};
+    QLineEdit *m_lapsEdit{nullptr};
+    QWidget *m_lapsRow{nullptr};
+    QLabel *m_lapsLabel{nullptr};
     QWidget *m_options{nullptr};
     QProgressBar *m_progressBar{nullptr};
     QLabel *m_statusLabel{nullptr};

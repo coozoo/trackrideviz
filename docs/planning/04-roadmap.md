@@ -504,7 +504,10 @@ In order:
   `referenceLapTime`; on route maps a ghost of its rider, faint, as long into its lap as the rider is
   into theirs ("Ghost of the reference lap" in the gauge's menu and the gauge editor; not in 3D).
   Other rides' laps (a track database) and a 3D ghost later
-- Per-lap export: one video per lap, or per chosen lap
+- ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
+  laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
+  ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps
+  placed by the sync; cuts inside a lap still left out
 
 ## M8 - Touch UI
 - QML app on `rtvcore` (backend B, the built-in video engine, is done): the only UI on Android; on the

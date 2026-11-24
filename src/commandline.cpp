@@ -13,6 +13,7 @@
 #include "telemetry/telemetryimporter.h"
 #include "video/exportjob.h"
 #include "video/exportplan.h"
+#include "video/lapexport.h"
 #include "video/exportprofile.h"
 #include "video/ffmpegtools.h"
 #include "video/libav.h"
@@ -376,7 +377,8 @@ int render(const QCommandLineParser &parser, bool preferOwn)
         {
             return fail(QCoreApplication::translate("CommandLine", "The folder %1 is not there.").arg(output.absolutePath()));
         }
-    if (output.exists() && !parser.isSet("overwrite"))
+    // with --laps each lap's own file is looked at
+    if (output.exists() && !parser.isSet("overwrite") && !parser.isSet("laps"))
         {
             return fail(QCoreApplication::translate("CommandLine", "%1 is there already; --overwrite replaces it.").arg(output.filePath()), 2);
         }
@@ -637,84 +639,143 @@ int render(const QCommandLineParser &parser, bool preferOwn)
                         .arg(output.suffix()), 2);
         }
 
-    say(QCoreApplication::translate("CommandLine", "%1 -> %2").arg(video.fileName(), output.filePath()));
-    say(QCoreApplication::translate("CommandLine", "Profile: %1; %2").arg(profile->name, gauges ? QCoreApplication::translate("CommandLine", "the gauges alone, see-through") : describe(settings)));
-    const ExportPlan plan = ExportPlan::make(project.videoPath, info, settings, overlay, project.cuts, soundtrack);
-    ExportJob job(ffmpeg, plan, overlay, project.sync(), nullptr, own ? ExportJob::OwnEngine : ExportJob::ProgramEngine);
-    const bool quiet = parser.isSet("quiet");
-    QEventLoop loop;
-    ExportJob::Outcome outcome = ExportJob::Failed;
-    QString message;
-    QElapsedTimer clockRunning;
-    clockRunning.start();
-    // in a terminal one line kept up to date a few times a second; into a file or another program
-    // a line every tenth
-#ifdef Q_OS_WIN
-    const bool terminal = _isatty(_fileno(stderr));
-#else
-    const bool terminal = isatty(fileno(stderr));
-#endif
-    QElapsedTimer sinceShown;
-    int tenthShown = -1;
-    bool doneShown = false;
-    QObject::connect(&job, &ExportJob::progress, &job, [&](qint64 frame, qint64 total, double fps)
+    // one export, `one` into `file`: the exit code
+    auto exportOne = [&](const ExportSettings &one, const QFileInfo &file) -> int
     {
-        if (quiet || total <= 0 || doneShown)
-            {
-                return;
-            }
-        const bool done = frame >= total;
-        const double part = std::min(1.0, double(frame) / total);
-        const int tenth = int(part * 10.0);
-        if (terminal ? (!done && sinceShown.isValid() && sinceShown.elapsed() < 250) : (tenth == tenthShown && !done))
-            {
-                return;
-            }
-        sinceShown.start();
-        tenthShown = tenth;
-        doneShown = done;
-        const double elapsed = clockRunning.elapsed() / 1000.0;
-        const double left = part > 0.01 ? elapsed / part - elapsed : 0.0;
-        std::fprintf(stderr, terminal ? "\r%5.1f %%  %lld / %lld  %.1f fps  %s %s   " : "%5.1f %%  %lld / %lld  %.1f fps  %s %s\n",
-                     100.0 * part, (long long)frame, (long long)total, fps, qPrintable(QCoreApplication::translate("CommandLine", "left")), qPrintable(hms(left)));
-        std::fflush(stderr);
-    });
-    QObject::connect(&job, &ExportJob::finished, &job, [&](ExportJob::Outcome how, const QString &why)
-    {
-        outcome = how;
-        message = why;
-        loop.quit();
-    });
-    // Ctrl+C ends it early with a playable file, as Stop in the window does
-    QTimer watch;
-    QObject::connect(&watch, &QTimer::timeout, &job, [&]()
-    {
-        if (interrupted)
-            {
-                job.stop();
-            }
-    });
-    watch.start(200);
-    QTimer::singleShot(0, &job, &ExportJob::start);
-    loop.exec();
-    if (!quiet && terminal)
+        say(QCoreApplication::translate("CommandLine", "%1 -> %2").arg(video.fileName(), file.filePath()));
+        say(QCoreApplication::translate("CommandLine", "Profile: %1; %2").arg(profile->name, gauges ? QCoreApplication::translate("CommandLine", "the gauges alone, see-through") : describe(one)));
+        const ExportPlan plan = ExportPlan::make(project.videoPath, info, one, overlay, project.cuts, soundtrack);
+        ExportJob job(ffmpeg, plan, overlay, project.sync(), nullptr, own ? ExportJob::OwnEngine : ExportJob::ProgramEngine);
+        const bool quiet = parser.isSet("quiet");
+        QEventLoop loop;
+        ExportJob::Outcome outcome = ExportJob::Failed;
+        QString message;
+        QElapsedTimer clockRunning;
+        clockRunning.start();
+        // in a terminal one line kept up to date a few times a second; into a file or another program
+        // a line every tenth
+    #ifdef Q_OS_WIN
+        const bool terminal = _isatty(_fileno(stderr));
+    #else
+        const bool terminal = isatty(fileno(stderr));
+    #endif
+        QElapsedTimer sinceShown;
+        int tenthShown = -1;
+        bool doneShown = false;
+        QObject::connect(&job, &ExportJob::progress, &job, [&](qint64 frame, qint64 total, double fps)
         {
-            std::fprintf(stderr, "\n");
-        }
-    switch (outcome)
+            if (quiet || total <= 0 || doneShown)
+                {
+                    return;
+                }
+            const bool done = frame >= total;
+            const double part = std::min(1.0, double(frame) / total);
+            const int tenth = int(part * 10.0);
+            if (terminal ? (!done && sinceShown.isValid() && sinceShown.elapsed() < 250) : (tenth == tenthShown && !done))
+                {
+                    return;
+                }
+            sinceShown.start();
+            tenthShown = tenth;
+            doneShown = done;
+            const double elapsed = clockRunning.elapsed() / 1000.0;
+            const double left = part > 0.01 ? elapsed / part - elapsed : 0.0;
+            std::fprintf(stderr, terminal ? "\r%5.1f %%  %lld / %lld  %.1f fps  %s %s   " : "%5.1f %%  %lld / %lld  %.1f fps  %s %s\n",
+                         100.0 * part, (long long)frame, (long long)total, fps, qPrintable(QCoreApplication::translate("CommandLine", "left")), qPrintable(hms(left)));
+            std::fflush(stderr);
+        });
+        QObject::connect(&job, &ExportJob::finished, &job, [&](ExportJob::Outcome how, const QString &why)
         {
-        case ExportJob::Succeeded:
-            say(QCoreApplication::translate("CommandLine", "Done in %1: %2").arg(hms(clockRunning.elapsed() / 1000.0), output.filePath()));
-            return 0;
-        case ExportJob::Stopped:
-            say(QCoreApplication::translate("CommandLine", "Stopped; what was done so far is in %1").arg(output.filePath()));
-            return 130;
-        case ExportJob::Canceled:
-            return 130;
-        case ExportJob::Failed:
-            break;
+            outcome = how;
+            message = why;
+            loop.quit();
+        });
+        // Ctrl+C ends it early with a playable file, as Stop in the window does
+        QTimer watch;
+        QObject::connect(&watch, &QTimer::timeout, &job, [&]()
+        {
+            if (interrupted)
+                {
+                    job.stop();
+                }
+        });
+        watch.start(200);
+        QTimer::singleShot(0, &job, &ExportJob::start);
+        loop.exec();
+        if (!quiet && terminal)
+            {
+                std::fprintf(stderr, "\n");
+            }
+        switch (outcome)
+            {
+            case ExportJob::Succeeded:
+                say(QCoreApplication::translate("CommandLine", "Done in %1: %2").arg(hms(clockRunning.elapsed() / 1000.0), file.filePath()));
+                return 0;
+            case ExportJob::Stopped:
+                say(QCoreApplication::translate("CommandLine", "Stopped; what was done so far is in %1").arg(file.filePath()));
+                return 130;
+            case ExportJob::Canceled:
+                return 130;
+            case ExportJob::Failed:
+                break;
+            }
+        return fail(message.isEmpty() ? QCoreApplication::translate("CommandLine", "The export failed.") : message);
+    };
+    if (!parser.isSet("laps"))
+        {
+            return exportOne(settings, output);
         }
-    return fail(message.isEmpty() ? QCoreApplication::translate("CommandLine", "The export failed.") : message);
+
+    // one video per lap: each in its own file, named with its number
+    if (parser.isSet("from") || parser.isSet("to"))
+        {
+            return fail(QCoreApplication::translate("CommandLine", "--laps and --from or --to do not go together: the laps are the parts."), 2);
+        }
+    const QVector<TimeRange> lapRanges = session ? LapExport::ranges(*session, project.sync(), info.duration) : QVector<TimeRange>();
+    QVector<int> laps;
+    QString error;
+    if (lapRanges.isEmpty())
+        {
+            return fail(QCoreApplication::translate("CommandLine", "The data has no laps: place a start/finish line in the window, "
+                                                    "or use data whose device recorded laps."), 2);
+        }
+    if (!LapExport::numbers(parser.value("laps"), int(lapRanges.size()), &laps, &error))
+        {
+            return fail(error, 2);
+        }
+    laps.erase(std::remove_if(laps.begin(), laps.end(), [&lapRanges](int lap) { return lapRanges.at(lap - 1).length() <= 0.0; }),
+               laps.end());
+    if (laps.isEmpty())
+        {
+            return fail(QCoreApplication::translate("CommandLine", "The video shows none of these laps."), 2);
+        }
+    for (int lap : std::as_const(laps))
+        {
+            const QFileInfo file(LapExport::outputPath(output.filePath(), lap, int(lapRanges.size())));
+            if (file.exists() && !parser.isSet("overwrite"))
+                {
+                    return fail(QCoreApplication::translate("CommandLine", "%1 is there already; --overwrite replaces it.").arg(file.filePath()), 2);
+                }
+        }
+    for (int i = 0; i < laps.size(); ++i)
+        {
+            const int lap = laps.at(i);
+            ExportSettings one = settings;
+            one.start = lapRanges.at(lap - 1).start;
+            one.duration = lapRanges.at(lap - 1).length();
+            one.outputPath = LapExport::outputPath(output.filePath(), lap, int(lapRanges.size()));
+            say(QCoreApplication::translate("CommandLine", "Lap %1 (%2 of %3)").arg(lap).arg(i + 1).arg(laps.size()));
+            const int code = exportOne(one, QFileInfo(one.outputPath));
+            if (code != 0)
+                {
+                    return code;
+                }
+        }
+    if (laps.size() > 1)
+        {
+            say(QCoreApplication::translate("CommandLine", "%1 videos, one per lap.").arg(laps.size()));
+        }
+    return 0;
 }
 }
 
@@ -829,6 +890,7 @@ int CommandLine::run()
         {"gauges-only", QCoreApplication::translate("CommandLine", "The gauges alone on a see-through background, for another editor: .mov (ProRes 4444) or .webm.")},
         {"from", QCoreApplication::translate("CommandLine", "Start this many seconds into the video."), "seconds"},
         {"to", QCoreApplication::translate("CommandLine", "End this many seconds into the video."), "seconds"},
+        {"laps", QCoreApplication::translate("CommandLine", "One video per lap, named <output>_lapNN: all, or laps as 3 or 1,4-6."), "laps"},
         {"faster", QCoreApplication::translate("CommandLine", "The output plays this many times faster, without the camera's sound (2, 4, 10...)."), "factor"},
         {QStringList{"q", "quiet"}, QCoreApplication::translate("CommandLine", "No progress, only the outcome.")},
         {"verbose", QCoreApplication::translate("CommandLine", "Qt's own messages too, for finding out what goes wrong.")},

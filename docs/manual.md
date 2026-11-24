@@ -303,6 +303,9 @@ preview and mixed into the export.
 - **Sound**: copied, converted (AAC, Opus, Vorbis) or left out; mixed with the music when there
   is any.
 - **Range**: only a part of the video.
+- **Laps** (when the data has laps): **One video per lap** exports each lap to its own file, named
+  `<name>_lap01.mp4` and so on; leave the field empty for all laps, or give some, as `3` or
+  `1, 4-6`. They are exported one after another; Stop ends the one under way and the rest.
 - **Faster**: the output plays this many times faster (x2, x4...), so a long, slow recording such as
   a run becomes a short video; the length it will have is shown next to it. The gauges keep showing
   the real values of each moment kept. The camera's sound is left out then; music plays as usual.
@@ -383,7 +386,8 @@ trackrideviz --help                                      # every option
 
 - A project is exported as it was saved. Without one, the video and the data are put in step by
   their clocks, or by `--offset`. `--timelapse 10` is for a time-lapse video (ten seconds of the data
-  in each second of it); `--faster 4` makes the output play four times faster.
+  in each second of it); `--faster 4` makes the output play four times faster; `--laps all` (or
+  `--laps 2,4-6`) makes one video per lap, named `<output>_lap02.mp4` and so on.
 - `--background` in place of a video: the gauges over a color, as long as the data. A size, then
   `@` a frame rate (30 if not given) and `,` a color (`#rrggbb`, black if not given, or
   `transparent` for the gauges alone, written as with `--gauges-only`). The file is named after
