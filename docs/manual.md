@@ -199,7 +199,8 @@ The **Laps** panel shows the route on a street map (wheel or + and − to zoom, 
   more between a way there and back is found by itself, the loop and not the road with it. A
   last lap that turns off the loop just before the line ends where it passed nearest to it; a
   road ridden out and back again, or a ride ending where it began, is no lap.
-- Select a lap in the table to see it on the map.
+- Select a lap in the table to see it on the map; the lap of the moment shown is marked in the
+  table.
 - **Add sector**, then click where a sector ends: each line splits the lap once more. The lap
   table then shows sector times, the fastest of each in purple.
 - The **lap table**: the best lap in bold; double-click a lap to go to its start; select several
@@ -232,6 +233,9 @@ The **Timeline** shows the video and the data where the offset puts them, a chos
 The **Data** panel charts the ticked channels on the data's own time. Hover to read values,
 click to go there; the **Table** selects the sample clicked.
 
+- Going to a moment of the data the video does not show (a lap before it starts) leaves the
+  video where it is: the picture shows the gauges at that moment over no video, until you play
+  or go to a moment it shows. The table follows the moment shown while nothing is picked there.
 - A GPS jump or a spike: pick it by **dragging** over the channel on the chart (the video and the
   cursor follow the end you drag; the table selects the same samples), or select samples in the
   **Table**, and press **Take out**.

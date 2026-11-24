@@ -2474,6 +2474,7 @@ void MainWindow::telemetryImported(const QString &path, const TelemetrySessionPt
             AppSettings::addRecentFile(AppSettings::RecentData, path);
         }
     m_heldTime = -1.0;
+    m_canvas->setHeldTime(-1.0);
     m_rawSession = raw;
     m_recordedSession = session;
     m_dataPanel->setSessions(raw, session, m_units);
@@ -2527,6 +2528,12 @@ void MainWindow::onDurationChanged(qint64 durationMs)
 
 void MainWindow::onPositionChanged(qint64 positionMs)
 {
+    // played or moved: the moment held outside the video is let go
+    if (m_heldTime >= 0.0 && m_heldVideoPosition >= 0 && std::llabs(positionMs - m_heldVideoPosition) >= 50)
+        {
+            m_heldTime = -1.0;
+            m_canvas->setHeldTime(-1.0);
+        }
     if (!m_seekSlider->isSliderDown())
         {
             m_seekSlider->setValue(int(positionMs));
@@ -3131,6 +3138,7 @@ void MainWindow::seekTelemetryTime(double time)
         }
     m_heldTime = outside ? time : -1.0;
     m_heldVideoPosition = outside && m_project.hasPicture() ? m_playback->position() : -1;
+    m_canvas->setHeldTime(outside && m_project.hasPicture() ? time : -1.0);
     m_dataPanel->setTime(shownTelemetryTime());
     m_lapsPanel->setTime(shownTelemetryTime());
 }

@@ -75,6 +75,7 @@ private:
     QPushButton *m_placeButton{nullptr};
     QPushButton *m_removeButton{nullptr};
     QPushButton *m_findButton{nullptr};
+    int m_currentLap{-1};   // marked in the table: the lap of the moment shown
     QPushButton *m_sectorButton{nullptr};
     QPushButton *m_clearSectorsButton{nullptr};
     QPushButton *m_surfaceButton{nullptr};

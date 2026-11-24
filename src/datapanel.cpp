@@ -889,6 +889,18 @@ void DataPanel::showInTable(double start, double end)
 void DataPanel::setTime(double time)
 {
     m_chart->setTime(time);
+    // the table follows the moment shown, wherever it was chosen, while nothing is picked there
+    if (time != m_shownTime && m_table->isVisible() && m_table->selectionModel()->selectedRows().size() <= 1)
+        {
+            QString channel;
+            double start = 0.0;
+            double end = 0.0;
+            if (!m_chart->selected(&channel, &start, &end))
+                {
+                    showInTable(time, time);
+                }
+        }
+    m_shownTime = time;
 }
 
 void DataPanel::fillChannels()

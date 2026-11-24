@@ -18,6 +18,8 @@ const double kEarthRadius = 6371008.8;
 const double kMostTurnedBack = 120.0;
 // ... unless it went round a loop: enclosing this much of its length squared at least (a circle 0.08)
 const double kLeastEnclosed = 0.01;
+// Find laps: a line this wide at most marks its place exactly, the passes there close together
+const double kNarrowLine = 60.0;
 const char *const kLapChannels[] =
 {
     ChannelId::Lap, ChannelId::LapTime, ChannelId::PreviousLapTime, ChannelId::BestLapTime,
@@ -255,6 +257,19 @@ bool closeLeftLap(const TelemetrySession &session, const StartFinishLine &line, 
     return true;
 }
 
+// closeLeftLap for as long as it ends laps: a course gone round again after a lap ended so, its
+// line passed by each time rather than crossed (the junction it is entered by). True when any was.
+bool closeLeftLaps(const TelemetrySession &session, const StartFinishLine &line, QVector<TelemetrySession::Lap> &laps,
+                   double minimumLap, bool reversed = true)
+{
+    bool closed = false;
+    while (closeLeftLap(session, line, laps, minimumLap, reversed))
+        {
+            closed = true;
+        }
+    return closed;
+}
+
 // Every time the route crosses `line`, timed between the samples either side.
 QVector<Crossing> crossingsOf(const TelemetrySession &session, const StartFinishLine &line)
 {
@@ -474,13 +489,16 @@ StartFinishLine LapEngine::findLine(const TelemetrySession &session, double mini
     const Channel *distance = session.channel(ChannelId::Distance);
     // every few seconds: fine enough for a lap of a minute, quick enough for a ride of hours
     const double step = 5.0;
-    QVector<StartFinishLine> lines;
+    // each with whether its passes go by close together: a narrow line marks the place exactly,
+    // a wide one where the passes spread (a road beside the course, a junction's corner)
+    QVector<QPair<StartFinishLine, bool>> lines;
     for (double t = lat->startTime(); t <= lat->endTime(); t += step)
         {
-            const StartFinishLine line = lineAt(session, t, lineWidthAt(session, t));
+            const double width = lineWidthAt(session, t);
+            const StartFinishLine line = lineAt(session, t, width);
             if (line.isValid())
                 {
-                    lines.append(line);
+                    lines.append({line, width <= kNarrowLine});
                 }
         }
     // first laps that come round the course's way, the most of them covering the most; failing
@@ -490,11 +508,12 @@ StartFinishLine LapEngine::findLine(const TelemetrySession &session, double mini
         {
             StartFinishLine best;
             int bestLaps = 0;
+            bool bestNarrow = false;
             double bestCovered = 0.0;
-            for (const StartFinishLine &line : std::as_const(lines))
+            for (const auto &[line, narrow] : std::as_const(lines))
                 {
                     QVector<TelemetrySession::Lap> laps = detect(session, line, minimumLap);
-                    closeLeftLap(session, line, laps, minimumLap, reversed);
+                    closeLeftLaps(session, line, laps, minimumLap, reversed);
                     int finished = 0;
                     double covered = 0.0;
                     for (const TelemetrySession::Lap &lap : std::as_const(laps))
@@ -508,11 +527,14 @@ StartFinishLine LapEngine::findLine(const TelemetrySession &session, double mini
                                     covered += lap.endTime - lap.startTime;
                                 }
                         }
-                    const bool better = reversed ? covered < bestCovered : covered > bestCovered;
+                    // the most laps; then a narrow line; then the most of the ride (or the least, for returns)
+                    const bool better = narrow != bestNarrow ? narrow
+                                        : reversed ? covered < bestCovered : covered > bestCovered;
                     if (finished > bestLaps || (finished == bestLaps && finished >= 1 && better))
                         {
                             best = line;
                             bestLaps = finished;
+                            bestNarrow = narrow;
                             bestCovered = covered;
                         }
                 }
@@ -686,7 +708,7 @@ TelemetrySessionPtr LapEngine::apply(const TelemetrySessionPtr &base, const Star
         {
             laps = detect(*session, line);
             // the course left just before the line: the last lap ends where it came nearest, no lap after it
-            openCourse = closeLeftLap(*session, line, laps, DefaultMinimumLap);
+            openCourse = closeLeftLaps(*session, line, laps, DefaultMinimumLap);
             // A ride from one place to another crosses its start line once. The last of the
             // other lines it comes to is then the finish, and the stretch between is the lap.
             if (laps.size() == 1 && laps.first().endTime <= laps.first().startTime && !sectors.isEmpty())

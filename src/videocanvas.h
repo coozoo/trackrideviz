@@ -36,8 +36,11 @@ public:
     // Width / height of the picture as shown; 0 while there is none.
     double pictureAspect() const;
 
-    // Telemetry time of the frame on screen (video time + sync offset).
-    double telemetryTime() const { return m_sync.telemetryTime(m_videoTime); }
+    // Telemetry time shown: the frame's (video time + sync offset), or one held (setHeldTime).
+    double telemetryTime() const { return m_heldTime >= 0.0 ? m_heldTime : m_sync.telemetryTime(m_videoTime); }
+    // A moment of the data the video has no picture for: the gauges show it over no picture;
+    // negative: the video's frame again.
+    void setHeldTime(double telemetryTime);
 
 public slots:
     // Connected to QVideoSink::videoFrameChanged.
@@ -114,6 +117,7 @@ private:
     int m_textureFormats[3] {0, 0, 0};
 
     double m_videoTime{0.0};
+    double m_heldTime{-1.0};
     double m_positionTime{0.0};
     SyncMap m_sync;
     QRectF resizeHandle(const QRectF &itemRect) const;

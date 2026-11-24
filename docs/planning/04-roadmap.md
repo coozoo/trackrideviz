@@ -522,6 +522,11 @@ In order:
   it rode encloses a loop (area over length squared 0.01 at least); a road ridden out and back,
   or a ride ending where it began, is none. Find laps tries the course's way first, then such
   returns, the shortest; laps under 240 m are stops the GPS wandered over the line in
+- ✅ (2026-11-24) A moment held outside the video: the gauges at it over no picture ("No video at
+  this moment of the data"), not over a frame of another moment. The Data table follows the moment
+  shown while nothing is picked; the Laps table marks the lap of it. Laps closed by passing the
+  line go on: a course gone round again from a junction its line runs along gives each lap; Find
+  laps prefers lines up to 60 m wide (the passes close together) among those with as many laps
 - ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
   laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
   ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps
