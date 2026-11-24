@@ -4,6 +4,7 @@
 #include "datatypes.h"
 
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QSaveFile>
 #include <QXmlStreamWriter>
 
@@ -143,10 +144,13 @@ QByteArray TelemetryWriter::csv(const TelemetrySession &session)
     for (const Channel *channel : std::as_const(channels))
         {
             // the separator cannot be in a name; a unit other than the one the channel usually has
-            // goes after it, "cadence (spm)", or it would be read back in that one
+            // goes after it, "cadence (spm)", or it would be read back in that one. A name that ends
+            // in brackets of its own (a device's "Power (W)") gets them always, empty if need be,
+            // or its own would be read as the unit
+            static const QRegularExpression endsInBrackets("\\S\\s+\\([^()]*\\)$");
             QString name = QString(channel->id()).replace(',', ' ');
             const QString unit = QString(channel->unit()).replace(',', ' ').remove('(').remove(')').trimmed();
-            if (!unit.isEmpty() && unit != DataTypes::storedUnitOf(channel->id()))
+            if ((!unit.isEmpty() && unit != DataTypes::storedUnitOf(channel->id())) || endsInBrackets.match(name).hasMatch())
                 {
                     name += QString(" (%1)").arg(unit);
                 }

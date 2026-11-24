@@ -958,9 +958,9 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
     const ColumnTime *dateOnly = nullptr;
     // "*": every column no other mapping takes is the channel it is named after, in the unit
     // channels store (the files this program saves), or in the one after its name in brackets
-    // when it has another: "cadence (spm)"
+    // when it has another: "cadence (spm)". A unit known is converted as for any column, one
+    // not known kept; empty brackets after a name that ends in its own: "dev.Power (W) ()"
     QVector<DataProfile::Mapping> mappings;
-    QHash<QString, QString> keptUnits;     // by column: the unit as written, values not converted
     static const QRegularExpression ownUnit("^(.*\\S)\\s+\\(([^()]*)\\)$");
     for (const DataProfile::Mapping &m : profile.mappings)
         {
@@ -985,7 +985,7 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
                             if (unit.hasMatch())
                                 {
                                     own.channel = unit.captured(1);
-                                    keptUnits.insert(name, unit.captured(2).trimmed());
+                                    own.unit = unit.captured(2).trimmed();
                                 }
                             mappings.append(own);
                         }
@@ -1025,11 +1025,8 @@ TelemetrySessionPtr CsvImporter::parse(const QByteArray &data, const DataProfile
                         }
                     double scale = 1.0;
                     double offset = 0.0;
-                    QString stored = keptUnits.value(m.column);
-                    if (stored.isEmpty())
-                        {
-                            DataTypes::toStored(m.unit, &scale, &offset, &stored);
-                        }
+                    QString stored;
+                    DataTypes::toStored(m.unit, &scale, &offset, &stored);
                     // a camera's motion sensors are kept in m/s2, as GoPro's are: a phone logger writes g
                     const bool accel = m.channel == QLatin1String(ChannelId::AccelX) || m.channel == QLatin1String(ChannelId::AccelY)
                                        || m.channel == QLatin1String(ChannelId::AccelZ);

@@ -674,10 +674,13 @@ void TestGpx::savedDataReadsBack()
     // a run's steps, and a unit only the file knew
     Channel &steps = session->channelForWriting(ChannelId::Cadence, "spm");
     Channel &pressure = session->channelForWriting("oilPressure", "bar");
+    // a device's field with brackets in its own name
+    Channel &bracketed = session->channelForWriting("dev.Power (W)", "");
     for (int i = 0; i < 10; ++i)
         {
             steps.append(i, 170.0);
             pressure.append(i, 3.5);
+            bracketed.append(i, 250.0);
             lat.append(i, 50.4501 + i * 1e-4);
             lon.append(i, 30.5234 + i * 1e-4);
             ele.append(i, 150.0 + i * 0.5);
