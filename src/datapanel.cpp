@@ -7,14 +7,17 @@
 #include "chartsmoothing.h"
 #include "telemetry/channelids.h"
 #include "telemetry/smoothing.h"
+#include "telemetry/surfaces.h"
 
 #include <QAbstractTableModel>
 #include <QColorDialog>
+#include <QContextMenuEvent>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QListWidget>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -170,6 +173,8 @@ public:
     std::function<void()> selectionChanged;
     // a click (start == end) or a stretch picked on the chart, data time: for the table to show it
     std::function<void(double, double)> picked;
+    // a right click, where on the screen
+    std::function<void(const QPoint &)> menuAt;
 
     void setLanes(const QVector<Lane> &lanes, double duration, const QVector<DataEdit> &edits)
     {
@@ -296,6 +301,11 @@ protected:
         if (m_selecting)
             {
                 m_selectTo = std::clamp(timeOf(event->position().x()), 0.0, m_duration);
+                // the video and the data go along with the end being dragged: what is picked is seen
+                if (seek)
+                    {
+                        seek(m_selectTo);
+                    }
             }
         update();
     }
@@ -323,6 +333,14 @@ protected:
         m_selection = m_lanes.at(m_pressLane).id;
         m_selectFrom = m_selectTo = t;
         update();
+    }
+
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        if (menuAt)
+            {
+                menuAt(event->globalPos());
+            }
     }
 
     void leaveEvent(QEvent *) override
@@ -674,6 +692,7 @@ DataPanel::DataPanel(QWidget *parent)
     m_chart->laneClicked = [this](const QString &id) { showTableOf(id); };
     m_chart->selectionChanged = [this]() { updateButtons(); };
     m_chart->picked = [this](double start, double end) { showInTable(start, end); };
+    m_chart->menuAt = [this](const QPoint &at) { showPickMenu(at); };
 
     m_model = new DataTableModel(this);
     m_table = new QTableView(this);
@@ -683,6 +702,11 @@ DataPanel::DataPanel(QWidget *parent)
     m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->setToolTip(tr("Double-click a sample to go there; select samples to take them out"));
+    m_table->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_table, &QWidget::customContextMenuRequested, this, [this](const QPoint &at)
+    {
+        showPickMenu(m_table->viewport()->mapToGlobal(at));
+    });
     connect(m_table, &QTableView::doubleClicked, this, [this](const QModelIndex &index)
     {
         if (m_model->channel())
@@ -692,7 +716,8 @@ DataPanel::DataPanel(QWidget *parent)
     });
     connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this]()
     {
-        if (m_table->hasFocus())
+        // picked in the table by hand: that is the pick now; shown there for the chart: it stays the chart's
+        if (m_table->hasFocus() && !m_showingInTable)
             {
                 m_chart->clearSelection();
             }
@@ -855,7 +880,9 @@ void DataPanel::showInTable(double start, double end)
         }
     // the chart's stretch stays what is picked; the table only shows it
     const QItemSelection rows(m_model->index(first, 0), m_model->index(last, m_model->columnCount() - 1));
+    m_showingInTable = true;
     m_table->selectionModel()->select(rows, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    m_showingInTable = false;
     m_table->scrollTo(m_model->index(first, 0), QAbstractItemView::PositionAtCenter);
 }
 
@@ -1094,6 +1121,34 @@ void DataPanel::updateButtons()
     m_cutVideoButton->setEnabled(picked && m_canCutVideo);
     emit stretchPicked(picked ? start : 0.0, picked ? end : 0.0);
     m_restoreButton->setEnabled(picked && DataEdits::restored(m_edits, channel, start, end).size() != m_edits.size());
+}
+
+void DataPanel::showPickMenu(const QPoint &at)
+{
+    QString channel;
+    double start = 0.0;
+    double end = 0.0;
+    if (!selection(&channel, &start, &end))
+        {
+            return;
+        }
+    QMenu menu(this);
+    menu.addAction(m_removeButton->icon(), m_removeButton->text(), this, &DataPanel::removeSelected);
+    if (m_cutVideoButton->isEnabled())
+        {
+            menu.addAction(m_cutVideoButton->icon(), m_cutVideoButton->text(), m_cutVideoButton, &QToolButton::click);
+        }
+    // the road picked: what it is ridden on, for the power estimate
+    QMenu *surfaces = menu.addMenu(tr("Mark as surface"));
+    surfaces->setEnabled(m_session && m_session->channel(ChannelId::Distance));
+    for (const SurfaceType &type : AppSettings::surfaceTypes())
+        {
+            surfaces->addAction(type.name, this, [this, start, end, type]()
+            {
+                emit surfaceMarked(start, end, type.name, type.factor);
+            });
+        }
+    menu.exec(at);
 }
 
 void DataPanel::setCanCutVideo(bool can)

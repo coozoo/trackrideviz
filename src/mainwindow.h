@@ -181,6 +181,8 @@ private:
     void placeStartFinish(double lat, double lon);
     void placeSector(double lat, double lon);
     void markSurface(double fromLat, double fromLon, double toLat, double toLon, const QString &surface, double factor);
+    // the stretch start..end (data time) ridden on `surface`
+    void markSurfaceBetween(double start, double end, const QString &surface, double factor);
     void setSurfaces(const QVector<SurfaceStretch> &surfaces, const QString &description);
     void setCuts(const QVector<TimeRange> &cuts, const QString &description);
     void setSoundtrack(const Soundtrack &soundtrack, const QString &description);

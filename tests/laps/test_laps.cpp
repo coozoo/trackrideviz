@@ -195,6 +195,52 @@ private slots:
         QVERIFY(!none->channel(ChannelId::ReferenceDelta));
     }
 
+    void lapsOfALoopLeftAtItsJunction()
+    {
+        // up a road to a loop of 100 m radius, round it twice in 60 s each, and off it to the west
+        // 20 m before getting back the second time, never crossing the line there again
+        auto ride = std::make_shared<TelemetrySession>();
+        Channel &lat = ride->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = ride->channelForWriting(ChannelId::PositionLon, "deg");
+        const double east = kMetersPerDegree * std::cos(kLat0 * kPi / 180.0);
+        auto point = [&](double t, double x, double y)
+        {
+            lat.append(t, kLat0 + y / kMetersPerDegree);
+            lon.append(t, 10.0 + x / east);
+        };
+        for (double t = 0.0; t < 20.0; t += 0.5)
+            {
+                point(t, 0.0, -200.0 + 10.0 * t);          // the road, northwards
+            }
+        // the loop from its bottom (0, 0), anticlockwise as seen from above, centre (0, 100)
+        double t = 20.0;
+        for (; t < 20.0 + 120.0 - 2.0; t += 0.5)
+            {
+                const double angle = 2.0 * kPi * (t - 20.0) / 60.0;
+                point(t, 100.0 * std::sin(angle), 100.0 - 100.0 * std::cos(angle));
+            }
+        // just short of the bottom the second time: west, away
+        const double x0 = (lon.valueAtIndex(lon.count() - 1) - 10.0) * east;
+        const double y0 = (lat.valueAtIndex(lat.count() - 1) - kLat0) * kMetersPerDegree;
+        for (double away = 0.5; away <= 30.0; away += 0.5)
+            {
+                point(t + away, x0 - 10.0 * away, y0 - 2.0 * away);
+            }
+        const TelemetrySessionPtr worked = DerivedChannels::complete(ride);
+        const StartFinishLine line = LapEngine::findLine(*worked);
+        QVERIFY(line.isValid());
+        const TelemetrySessionPtr s = LapEngine::apply(worked, line);
+        QCOMPARE(s->laps().size(), 2);
+        QVERIFY2(std::fabs(s->laps()[0].endTime - s->laps()[0].startTime - 60.0) < 2.0, qPrintable(QString::number(s->laps()[0].startTime)));
+        // the second ends where it came nearest the line, a moment short of a whole lap
+        QVERIFY(std::fabs(s->laps()[1].endTime - s->laps()[1].startTime - 60.0) < 4.0);
+        // and no lap after it: the way off the loop is no lap
+        QCOMPARE(at(s, ChannelId::LapCount, 10.0), 2.0);
+        bool ok = false;
+        const double after = s->channel(ChannelId::Lap)->valueAt(t + 20.0, &ok);
+        QVERIFY(!ok || after <= 2.0);
+    }
+
     void recordedLapsWithoutALine()
     {
         auto base = std::make_shared<TelemetrySession>(*circuit({60.0, 50.0}));

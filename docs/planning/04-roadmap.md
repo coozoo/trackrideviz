@@ -504,6 +504,13 @@ In order:
   `referenceLapTime`; on route maps a ghost of its rider, faint, as long into its lap as the rider is
   into theirs ("Ghost of the reference lap" in the gauge's menu and the gauge editor; not in 3D).
   Other rides' laps (a track database) and a 3D ghost later
+- ✅ Fixes from trying it (2026-11-24): the cursor and the video follow a stretch being dragged on the
+  Data chart; a stretch picked on the chart stays picked with the table open; the video waits
+  200 ms before its end when the data goes past it, sent there once (it came back broken after
+  being sent to its very end over and over); a start/finish line as wide as the other passes there
+  need (`lineWidthAt`, 40 to 120 m); **Find laps** (`findLine`); a last lap left at the course's
+  junction just before the line ends where it passed nearest; right-click on a picked stretch:
+  take out, cut the video, mark a surface
 - ✅ Per-lap export (2026-11-24, `LapExport`): **One video per lap** in the export dialog (all, or
   laps as `3` or `1, 4-6`), exported one after another into `<name>_lapNN`, a stop or a failure
   ending the rest; `--laps` on the command line. Each lap's stretch of the video from the laps

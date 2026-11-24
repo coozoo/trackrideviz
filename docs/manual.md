@@ -193,8 +193,11 @@ laid out for the video's shape.
 The **Laps** panel shows the route on a street map (wheel or + and − to zoom, drag to move).
 
 - **Place start/finish**, then click on the route where laps begin: the line is put across the
-  route there and laps are timed between crossings. Without a line the laps the device recorded
-  are used.
+  route there, as wide as the passes there need (a lap ridden a little apart is still crossed),
+  and laps are timed between crossings. Without a line the laps the device recorded are used.
+- **Find laps** puts the line where the route gives the most whole laps: a loop ridden twice
+  between a way there and back is found by itself. A last lap that turns off the loop just
+  before the line ends where it passed nearest to it.
 - **Add sector**, then click where a sector ends: each line splits the lap once more. The lap
   table then shows sector times, the fastest of each in purple.
 - The **lap table**: the best lap in bold; double-click a lap to go to its start; select several
@@ -227,8 +230,11 @@ The **Timeline** shows the video and the data where the offset puts them, a chos
 The **Data** panel charts the ticked channels on the data's own time. Hover to read values,
 click to go there; the **Table** selects the sample clicked.
 
-- A GPS jump or a spike: pick it by **dragging** over the channel on the chart (the table selects
-  the same samples), or select samples in the **Table**, and press **Take out**. Latitude and longitude go together; speed, distance, grade and
+- A GPS jump or a spike: pick it by **dragging** over the channel on the chart (the video and the
+  cursor follow the end you drag; the table selects the same samples), or select samples in the
+  **Table**, and press **Take out**.
+- **Right-click** what is picked: **Take out**, **Cut video**, or **Mark as surface** (smooth or rough
+  asphalt, gravel, dirt...) for the power estimate. Latitude and longitude go together; speed, distance, grade and
   laps follow. **Put back** returns them. Corrections are kept in the project and can be undone.
 - **GPS problems** finds where the positions go wrong: **gaps** (no position for a while as you
   went on, as in a tunnel), **jumps** (positions far off the way and back) and **frozen** stretches

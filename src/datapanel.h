@@ -47,6 +47,8 @@ signals:
     void stretchPicked(double start, double end);
     // the video between these moments of the data is to be left out of the export
     void cutVideoRequested(double start, double end);
+    // the stretch from..to (data time) is ridden on this surface
+    void surfaceMarked(double start, double end, const QString &surface, double factor);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -60,6 +62,8 @@ private:
     void updateButtons();
     // selects the table's rows of start..end (data time); a single moment: the nearest row
     void showInTable(double start, double end);
+    // what can be done with the stretch picked, at a right click
+    void showPickMenu(const QPoint &at);
     // The color a channel's line has: the user's, or one of its own to start with.
     QColor colorOf(const QString &channelId) const;
     void chooseColor(const QString &channelId);
@@ -75,6 +79,7 @@ private:
     QToolButton *m_gpsButton{nullptr};
     GpsProblemsDialog *m_gpsDialog{nullptr};
     bool m_canCutVideo{false};
+    bool m_showingInTable{false};   // the table is being set to what the chart picked
     QToolButton *m_restoreButton{nullptr};
     QToolButton *m_tableButton{nullptr};
     QComboBox *m_smoothingCombo{nullptr};
