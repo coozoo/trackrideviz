@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui multimedia concurrent openglwidgets svg
+# the simplified interface (src/simple, qml/simple)
+QT       += qml quick quickcontrols2
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -47,6 +49,9 @@ SOURCES += main.cpp \
     src/updater.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
+    src/simple/gaugeoverlay.cpp \
+    src/simple/simplecontroller.cpp \
+    src/simple/simpleui.cpp \
     src/videocanvas.cpp
 
 HEADERS += \
@@ -74,6 +79,9 @@ HEADERS += \
     src/updater.h \
     src/mainwindow.h \
     src/settingsdialog.h \
+    src/simple/gaugeoverlay.h \
+    src/simple/simplecontroller.h \
+    src/simple/simpleui.h \
     src/videocanvas.h
 
 # Linux: to work around Qt 6.2's GStreamer playback (see gstreamerworkaround.h)
@@ -90,7 +98,13 @@ RELEASE_TAG = $$(RTV_RELEASE_TAG)
 win32:RC_FILE = trackrideviz.rc
 macx:ICON = trackrideviz.icns
 
+# for lupdate: the texts of the QML
+lupdate_only {
+    SOURCES += qml/simple/*.qml
+}
+
 RESOURCES += \
+    qml.qrc \
     resources.qrc
 
 binary.files += $$TARGET
@@ -136,7 +150,8 @@ tests {
         QT_QPA_PLATFORM=offscreen ./template/tst_template && \
         QT_QPA_PLATFORM=offscreen ./csv/tst_csv && \
         QT_QPA_PLATFORM=offscreen ./derived/tst_derived && \
-        QT_QPA_PLATFORM=offscreen ./laps/tst_laps
+        QT_QPA_PLATFORM=offscreen ./laps/tst_laps && \
+        QT_QPA_PLATFORM=offscreen ./simple/tst_simple
 
     QMAKE_EXTRA_TARGETS += check
 }

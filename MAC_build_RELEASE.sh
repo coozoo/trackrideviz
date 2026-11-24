@@ -90,7 +90,8 @@ prepareBundle(){
 
     # Translations are embedded in the binary (embed_translations), nothing to copy.
     # Add QtFramework libraries and required plugins into .app bundle. Update dependencies of binary files.
-    $MAC_DEPLOY_TOOL $BUNDLE_NAME -verbose=2
+    # -qmldir: the QML modules the simplified interface imports
+    $MAC_DEPLOY_TOOL $BUNDLE_NAME -verbose=2 -qmldir="$(pwd)/qml"
 
     RESULT=$?
     if [ $RESULT -ne 0 ] ; then

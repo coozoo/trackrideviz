@@ -17,4 +17,5 @@ SUBDIRS = \
     template \
     csv \
     derived \
-    laps
+    laps \
+    simple

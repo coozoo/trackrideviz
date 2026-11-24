@@ -173,6 +173,7 @@ jobs:
           # the runner's own libunwind-14-dev blocks libunwind-dev, which libgstreamer1.0-dev needs
           sudo apt-get -y remove libunwind-14-dev || true
           sudo apt-get -y install debhelper dput devscripts fakeroot zsync qt6-base-dev libqt6opengl6-dev qt6-multimedia-dev libqt6svg6-dev zlib1g-dev qt6-tools-dev qt6-tools-dev-tools qt6-l10n-tools libgl1-mesa-dev libfuse2 qt6-image-formats-plugins \
+            qt6-declarative-dev qml6-module-qtquick qml6-module-qtquick-controls qml6-module-qtquick-dialogs qml6-module-qtquick-layouts qml6-module-qtquick-templates qml6-module-qtquick-window qml6-module-qtqml-workerscript qml6-module-qtmultimedia \
             libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl
           # what the AppImage's own FFmpeg is built with (tools/appimage/ffmpeg-libraries.sh) and bundles
           sudo apt-get -y install nasm libx264-dev libx265-dev libvpx-dev libaom-dev libsvtav1enc-dev \
@@ -266,6 +267,8 @@ jobs:
           echo "GStreamer plugins bundled: $plugins"
           find appdir -maxdepth 6 -type d -name plugins -exec ls {} \;
           if [ "$plugins" -eq 0 ]; then echo "::error::No GStreamer plugins in the AppImage"; exit 1; fi
+          # the simplified interface is QML: without its modules it opens no window
+          find appdir -type d -path '*/qml/QtQuick/Controls' | grep -q . || { echo "::error::No QML modules in the AppImage"; exit 1; }
           # Plugins that load modules of the system crash the bundled GStreamer as it looks them
           # over (LADSPA did, then waited forever): effects and synthesizers, and the bridges to
           # the graphics card's decoders. Pictures are decoded by the bundled FFmpeg (libav).
@@ -424,6 +427,7 @@ jobs:
             mingw-w64-ucrt-x86_64-qt6-base
             mingw-w64-ucrt-x86_64-qt6-svg
             mingw-w64-ucrt-x86_64-qt6-multimedia
+            mingw-w64-ucrt-x86_64-qt6-declarative
             mingw-w64-ucrt-x86_64-qt6-multimedia-ffmpeg
             mingw-w64-ucrt-x86_64-qt6-imageformats
             mingw-w64-ucrt-x86_64-qt6-translations
@@ -460,7 +464,8 @@ jobs:
           # gauges and templates that come with the program, next to the .exe
           mkdir -p release/data
           cp -r data/gauges data/templates release/data/
-          windeployqt6.exe release/${{ steps.buildwin.outputs.APP_NAME }}.exe
+          # --qmldir: the QML modules the simplified interface imports
+          windeployqt6.exe --qmldir qml release/${{ steps.buildwin.outputs.APP_NAME }}.exe
           # windeployqt brings Qt alone; the MinGW (UCRT) DLLs Qt, its plugins and FFmpeg load are named
           # here. FFmpeg's codec libraries above all: without them the video plugin does not
           # load and no video opens. libcrypto and libssl: map tiles come over https.

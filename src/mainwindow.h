@@ -24,6 +24,7 @@ class QDockWidget;
 class QDoubleSpinBox;
 class QLabel;
 class QMenu;
+class QQmlApplicationEngine;
 class QSlider;
 class QSpinBox;
 class QTimer;
@@ -124,6 +125,8 @@ private slots:
     void applySettings();
     void applyMapSettings();
     void showAbout();
+    // The simplified interface in place of this window, with a way back.
+    void openSimple();
     // Newer releases: looked for quietly once a day, or at once from the Help menu.
     void checkForUpdates(bool asked);
     void showNewRelease();
@@ -301,4 +304,5 @@ private:
     QDoubleSpinBox *m_windFromSpin{nullptr};
     // Shows the project's wind in the Sources dock, in the units of the settings.
     void showWind();
+    QQmlApplicationEngine *m_simple{nullptr};   // while the simplified interface is shown instead
 };
