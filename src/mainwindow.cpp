@@ -11,6 +11,7 @@
 #include "icons.h"
 #include "joindialog.h"
 #include "video/lapexport.h"
+#include "video/libav.h"
 #include "video/videojoin.h"
 #include "lapcomparepanel.h"
 #include "lapspanel.h"
@@ -1140,6 +1141,19 @@ void MainWindow::loadVideo(const QString &path)
     m_exportAction->setEnabled(true);
     updateSourcesInfo();
     autoSync();
+    // recordings of different settings joined without encoding again: seeks back open it again,
+    // or the player shows them broken (looked at in the background: a second or so)
+    auto *watcher = new QFutureWatcher<bool>(this);
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher, path]()
+    {
+        watcher->deleteLater();
+        if (watcher->result() && m_project.videoPath == path)
+            {
+                DiagnosticLog::note("video", "its pictures change their settings: seeks back open it again");
+                m_playback->setReopenGoingBack(true);
+            }
+    });
+    watcher->setFuture(QtConcurrent::run([path]() { return Libav::changesSettings(path); }));
 }
 
 void MainWindow::askFlyoverCamera(int index)

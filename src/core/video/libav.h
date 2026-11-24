@@ -27,6 +27,13 @@ bool probe(const QString &videoPath, MediaInfo *info, QString *error = nullptr);
 // cannot be read or without the libraries.
 double duration(const QString &path);
 
+// Whether the video's pictures change their H.264 or HEVC settings inside the stream, away from
+// those in the file's header: recordings of two cameras or two modes joined into one file without
+// encoding again. A player that has shown such a part keeps its settings, and the parts before it,
+// which never restate theirs, come out broken after a seek back. Some places along the file are
+// looked at, not all of it; false without the libraries.
+bool changesSettings(const QString &path);
+
 // What VideoJoin::arguments has ffmpeg do, done in-process: the files `paths` copied one
 // after another into `output`, the first picture, all sound and, with `cameraData`, the
 // camera's data. Unlike ffmpeg's concat, files whose clocks differ (Matroska and MP4) are

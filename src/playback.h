@@ -55,6 +55,9 @@ public:
     // true: the clock plays, the player is left alone
     void setClock(bool clock);
     bool isClock() const { return m_useClock; }
+    // A video whose pictures change their settings inside the stream (Libav::changesSettings):
+    // a seek back opens it again first, which is the one way the player shows it right then.
+    void setReopenGoingBack(bool reopen) { m_reopenGoingBack = reopen; }
     DataClock *clock() { return m_clock; }
 
     // while the video is opened again: where it is going
@@ -80,4 +83,5 @@ private:
     // so the next seek opens the video again first and goes there once it is loaded.
     bool m_ended{false};
     qint64 m_reopenedAt{-1};   // where to go once opened again; -1: not opening
+    bool m_reopenGoingBack{false};
 };
