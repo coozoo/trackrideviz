@@ -33,6 +33,15 @@ ApplicationWindow {
     property int revision: 0
     // a corner of it dragged
     property bool resizing: false
+    // the graph under the video, and what it shows
+    property bool graphShown: true
+    property string graphChannel: ""
+    function graphDefault() {
+        const ids = simple.channelIds
+        if (ids.indexOf(graphChannel) >= 0)
+            return
+        graphChannel = ids.indexOf("speed") >= 0 ? "speed" : (ids.length > 0 ? ids[0] : "")
+    }
     // what the gauge being moved is like
     readonly property var movingProps: revision, moving >= 0 ? simple.gaugeProperties(moving) : ({})
 
@@ -195,6 +204,27 @@ ApplicationWindow {
                     id: moreMenu
                     MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Save"); enabled: window.unsaved; onTriggered: window.saveThen(null) }
                     MenuItem { text: qsTr("Save as..."); enabled: simple.canSave; onTriggered: saveDialog.open() }
+                    Menu {
+                        id: recentMenu
+                        title: qsTr("Recent")
+                        enabled: simple.recentFiles.length > 0
+                        Instantiator {
+                            model: simple.recentFiles
+                            delegate: MenuItem {
+                                required property var modelData
+                                text: modelData.name
+                                onTriggered: window.openChosen([modelData.url])
+                            }
+                            onObjectAdded: (index, object) => recentMenu.insertItem(index, object)
+                            onObjectRemoved: (index, object) => recentMenu.removeItem(object)
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Graph under the video")
+                        checkable: true
+                        checked: window.graphShown
+                        onTriggered: window.graphShown = checked
+                    }
                     MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Add gauge"); enabled: simple.hasData; onTriggered: gauges.open() }
                     MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Laps"); enabled: simple.hasData; onTriggered: lapsSheet.open() }
                     MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Music"); enabled: window.hasVideo; onTriggered: musicSheet.open() }
@@ -301,6 +331,44 @@ ApplicationWindow {
             wrapMode: Text.WordWrap
             visible: text !== ""
             text: simple.message
+        }
+        // opened lately: projects, videos, data
+        Label {
+            Layout.topMargin: 8
+            visible: simple.recentFiles.length > 0
+            font.bold: true
+            text: qsTr("Recent")
+        }
+        ListView {
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.min(contentHeight, window.height * 0.4)
+            visible: count > 0
+            clip: true
+            model: simple.recentFiles
+            ScrollIndicator.vertical: ScrollIndicator {}
+            delegate: ItemDelegate {
+                id: recent
+                required property var modelData
+                width: ListView.view.width
+                height: window.touch
+                onClicked: window.openChosen([modelData.url])
+                contentItem: ColumnLayout {
+                    spacing: 0
+                    Label {
+                        Layout.fillWidth: true
+                        elide: Text.ElideMiddle
+                        text: (recent.modelData.kind === "project" ? qsTr("Project") : recent.modelData.kind === "video" ? qsTr("Video") : qsTr("Data"))
+                              + ": " + recent.modelData.name
+                    }
+                    Label {
+                        Layout.fillWidth: true
+                        elide: Text.ElideMiddle
+                        opacity: 0.6
+                        font.pixelSize: 11
+                        text: recent.modelData.folder
+                    }
+                }
+            }
         }
     }
 
@@ -555,6 +623,48 @@ ApplicationWindow {
             }
         }
 
+        // one channel along the video: tapped or dragged, the video goes there
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 64
+            Layout.leftMargin: 8
+            Layout.rightMargin: 8
+            visible: window.graphShown && simple.hasData
+            spacing: 4
+            ComboBox {
+                Layout.preferredWidth: window.wide ? 150 : 110
+                flat: true
+                font.pixelSize: 12
+                model: simple.channelNames
+                currentIndex: simple.channelIds.indexOf(window.graphChannel)
+                onActivated: (index) => window.graphChannel = simple.channelIds[index]
+                Connections {
+                    target: simple
+                    function onDataChanged() { window.graphDefault() }
+                }
+                Component.onCompleted: window.graphDefault()
+            }
+            ChannelGraph {
+                id: graph
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                controller: simple
+                channel: window.graphChannel
+                position: playback.position
+                duration: playback.duration
+                lineColor: window.palette.highlight
+                textColor: window.palette.text
+                MouseArea {
+                    anchors.fill: parent
+                    function seekTo(x) {
+                        playback.seek(Math.max(0, Math.min(1, x / width)) * playback.duration)
+                    }
+                    onPressed: (mouse) => seekTo(mouse.x)
+                    onPositionChanged: (mouse) => seekTo(mouse.x)
+                }
+            }
+        }
+
         // the timeline, and the step beside it (under it where there is no room)
         GridLayout {
             Layout.fillWidth: true
@@ -684,7 +794,7 @@ ApplicationWindow {
     LapsSheet {
         id: lapsSheet
         touch: window.touch
-        width: Math.min(window.width * 0.95, 440)
+        width: Math.min(window.width, 600)
         height: window.height
         moment: playback.position
         onJump: (ms) => playback.seek(ms)
@@ -723,6 +833,43 @@ ApplicationWindow {
                 enabled: !simple.exporting
                 onActivated: (index) => simple.profileIndex = index
             }
+            // only a part: from where to where in the video
+            Switch {
+                id: partOnly
+                enabled: !simple.exporting
+                text: qsTr("Only a part")
+                onToggled: if (checked && range.second.value <= range.first.value) {
+                    range.setValues(0, playback.duration / 1000)
+                }
+            }
+            GridLayout {
+                Layout.fillWidth: true
+                visible: partOnly.checked
+                enabled: !simple.exporting
+                columns: 3
+                RangeSlider {
+                    id: range
+                    Layout.columnSpan: 3
+                    Layout.fillWidth: true
+                    from: 0
+                    to: Math.max(1, playback.duration / 1000)
+                    stepSize: 0.1
+                    first.value: 0
+                    second.value: to
+                }
+                Label { text: qsTr("From %1").arg(window.timeText(range.first.value * 1000)) }
+                Item { Layout.fillWidth: true }
+                Label { text: qsTr("to %1").arg(window.timeText(range.second.value * 1000)) }
+                Button {
+                    text: qsTr("From here")
+                    onClicked: range.first.value = Math.min(playback.position / 1000, range.second.value)
+                }
+                Item { Layout.fillWidth: true }
+                Button {
+                    text: qsTr("To here")
+                    onClicked: range.second.value = Math.max(playback.position / 1000, range.first.value)
+                }
+            }
             ProgressBar {
                 Layout.fillWidth: true
                 visible: simple.exporting
@@ -742,7 +889,8 @@ ApplicationWindow {
                     visible: !simple.exporting
                     highlighted: true
                     text: qsTr("Export")
-                    onClicked: simple.startExport()
+                    onClicked: partOnly.checked ? simple.startExportRange(range.first.value, range.second.value)
+                                                : simple.startExport()
                 }
                 Button {
                     Layout.fillWidth: true

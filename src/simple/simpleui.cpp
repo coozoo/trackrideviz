@@ -1,6 +1,8 @@
 #include "simpleui.h"
 
+#include "channelgraph.h"
 #include "gaugeoverlay.h"
+#include "routeview.h"
 #include "simplecontroller.h"
 
 #include "gauge/gaugelibrary.h"
@@ -95,6 +97,8 @@ void registerTypes()
             QQuickStyle::setStyle(QStringLiteral("Material"));
         }
     qmlRegisterType<GaugeOverlay>("TrackRideViz", 1, 0, "GaugeOverlay");
+    qmlRegisterType<RouteView>("TrackRideViz", 1, 0, "RouteView");
+    qmlRegisterType<ChannelGraph>("TrackRideViz", 1, 0, "ChannelGraph");
     qmlRegisterUncreatableType<SimpleController>("TrackRideViz", 1, 0, "SimpleController",
             QStringLiteral("the window's own, as `simple`"));
 }

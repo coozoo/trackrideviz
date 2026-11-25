@@ -1,5 +1,8 @@
+#include "simple/channelgraph.h"
+#include "simple/routeview.h"
 #include "simple/simplecontroller.h"
 #include "gauge/gaugelibrary.h"
+#include "telemetry/channelids.h"
 #include "overlay/templatelibrary.h"
 #include "video/ffmpegtools.h"
 
@@ -8,6 +11,7 @@
 #include <QPainter>
 #include <QSignalSpy>
 #include <QTemporaryDir>
+#include <QGuiApplication>
 #include <QTest>
 
 class TestSimple : public QObject
@@ -468,6 +472,118 @@ private slots:
         QVERIFY(qAbs(now.width() - 192.0) < 0.5);
         QVERIFY(qAbs(now.height() - 72.0) < 0.5);
         QVERIFY(qAbs(now.x() - 32.0) < 0.5);
+    }
+
+    // The laps map and the graph under the video, painted on their own: something drawn, a tap
+    // on the map put on the route, recent files, colors and a part of the video exported.
+    void drawnAndTheRest()
+    {
+        SimpleController simple(false);
+        simple.openDemo();
+        QVERIFY(simple.channelIds().contains("speed"));
+        QCOMPARE(simple.channelIds().size(), simple.channelNames().size());
+        QVERIFY(simple.lineHere(20000));
+
+        RouteView map;
+        map.setSize(QSizeF(400, 300));
+        map.setStreets(false);
+        map.setController(&simple);
+        map.setHighlightLap(1);
+        map.setPosition(100000);
+        QImage mapPicture(400, 300, QImage::Format_ARGB32_Premultiplied);
+        mapPicture.fill(Qt::transparent);
+        {
+            QPainter painter(&mapPicture);
+            map.paint(&painter);
+        }
+        QVERIFY(mapPicture.pixelColor(200, 150) != QColor() );
+        // red of the lap drawn somewhere
+        bool red = false;
+        for (int y = 0; y < 300 && !red; y += 2)
+            {
+                for (int x = 0; x < 400 && !red; x += 2)
+                    {
+                        const QColor c = mapPicture.pixelColor(x, y);
+                        red = c.red() > 180 && c.green() < 90 && c.blue() < 90;
+                    }
+            }
+        QVERIFY(red);
+        // where the rider is on the map: the line put there
+        simple.clearLine();
+        double lat = 0.0;
+        double lon = 0.0;
+        {
+            const TelemetrySessionPtr session = simple.session();
+            lat = session->channel(ChannelId::PositionLat)->valueAt(100.0);
+            lon = session->channel(ChannelId::PositionLon)->valueAt(100.0);
+        }
+        QVERIFY(simple.placeLine(lat, lon));
+        QVERIFY(simple.hasLine());
+        QVERIFY(!simple.placeLine(lat + 1.0, lon));   // far off the route
+
+        ChannelGraph graph;
+        graph.setSize(QSizeF(600, 64));
+        graph.setController(&simple);
+        graph.setChannel("speed");
+        graph.setDuration(simple.dataDuration());
+        graph.setPosition(simple.dataDuration() / 2);
+        QImage graphPicture(600, 64, QImage::Format_ARGB32_Premultiplied);
+        graphPicture.fill(Qt::black);
+        {
+            QPainter painter(&graphPicture);
+            graph.paint(&painter);
+        }
+        int lit = 0;
+        for (int x = 0; x < 600; ++x)
+            {
+                for (int y = 0; y < 64; ++y)
+                    {
+                        lit += graphPicture.pixelColor(x, y).blue() > 150 ? 1 : 0;
+                    }
+            }
+        QVERIFY(lit > 300);
+        if (!qEnvironmentVariableIsEmpty("SIMPLE_DRAWN_PNG"))
+            {
+                mapPicture.save(qEnvironmentVariable("SIMPLE_DRAWN_PNG") + "-map.png");
+                graphPicture.save(qEnvironmentVariable("SIMPLE_DRAWN_PNG") + "-graph.png");
+            }
+
+        // colors: of all gauges, then of one alone
+        const QColor red50(255, 0, 0, 128);
+        simple.setGaugeColor(0, 2, red50);
+        QCOMPARE(simple.project().theme.accent, red50);
+        QVERIFY(!simple.gaugeProperties(0).value("ownColors").toBool());
+        simple.setGaugeOwnColors(0, true);
+        simple.setGaugeColor(0, 0, Qt::green);
+        QCOMPARE(simple.project().overlay.first().theme.foreground, QColor(Qt::green));
+        QCOMPARE(simple.project().theme.foreground, GaugeTheme().foreground);
+        QCOMPARE(simple.gaugeProperties(0).value("colors").toList().at(0).value<QColor>(), QColor(Qt::green));
+
+        if (m_video.isEmpty())
+            {
+                return;
+            }
+        // opened: among the recent ones
+        simple.openFiles({QUrl::fromLocalFile(m_video), QUrl::fromLocalFile(m_data)});
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.isDemo() && simple.hasData() && !simple.busy(), 20000);
+        bool video = false;
+        for (const QVariant &file : simple.recentFiles())
+            {
+                video = video || file.toMap().value("name").toString() == "ride.mp4";
+            }
+        QVERIFY(video);
+        // a part of it exported
+        simple.startExportRange(0.5, 1.5);
+        QTRY_VERIFY_WITH_TIMEOUT(simple.exporting(), 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.exporting(), 120000);
+        QVERIFY2(simple.exportedUrl().isValid(), qPrintable(simple.exportText()));
+        MediaInfo part;
+        QString error;
+        QVERIFY2(MediaProbe::probe(FfmpegTools::ffprobeProgram(), simple.exportedUrl().toLocalFile(), &part, &error, false),
+                 qPrintable(error));
+        QVERIFY(part.duration > 0.8 && part.duration < 1.3);
+        simple.startExportRange(1.5, 0.5);
+        QVERIFY(!simple.exporting());
     }
 
     // Music under the video: what plays when, and how loud.

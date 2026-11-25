@@ -592,6 +592,14 @@ In order:
   over it; a video takes the 3D away (and puts a dash there when nothing else is left). Demo beside Open on the first screen: the made-up ride, for a first look
 - ✅ Laps: the start/finish line where the picture is, the best place nearby, no line; each lap
   against the reference, tapped to go there, chosen as the ghost, exported on its own
+- ✅ Laps with a map, as the full window's (one drawing for both, RoutePainter): zoomed with two
+  fingers or the wheel, moved with one, made bigger or smaller with the bar under it; the line
+  placed with a tap on the route; a lap tapped is shown on it and gone to
+- ✅ Colors of a gauge, or of all gauges, in its properties: text, plates, accents, picked with a
+  finger (swatches, opacity, #hex)
+- ✅ Recent projects, videos and data: on the first screen and under ⋮
+- ✅ Export of a part: from and to on a range slider, or from where the picture is
+- ✅ A graph under the video: one channel along it, the laps in bands, tapped or dragged to seek
 - Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the
   probe and the built-in engine have to open; the export folder), joined chapters
 

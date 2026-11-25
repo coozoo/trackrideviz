@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>qml/simple/ColorPicker.qml</file>
         <file>qml/simple/GaugeSheet.qml</file>
         <file>qml/simple/Main.qml</file>
         <file>qml/simple/MusicSheet.qml</file>
