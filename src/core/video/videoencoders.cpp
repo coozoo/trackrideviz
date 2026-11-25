@@ -3,6 +3,9 @@
 #include "ffmpegtools.h"
 #include "libav.h"
 
+#include <QHash>
+#include <QMutex>
+
 #include <future>
 #include <vector>
 
@@ -271,6 +274,16 @@ QVector<VideoEncoder> VideoEncoders::detectOwn()
 
 VideoEncoders::ForEngine VideoEncoders::detectFor(bool preferOwn, const QString &ffmpegProgram)
 {
+    // the graphics card does not change while the program runs: tried once for each engine
+    static QMutex mutex;
+    static QHash<QString, ForEngine> detected;
+    const QString key = (preferOwn ? QStringLiteral("own:") : QStringLiteral("program:")) + ffmpegProgram;
+    const QMutexLocker lock(&mutex);
+    const auto known = detected.constFind(key);
+    if (known != detected.constEnd())
+        {
+            return *known;
+        }
     ForEngine result;
     result.own = preferOwn && Libav::available();
     result.encoders = result.own ? detectOwn() : detect(ffmpegProgram);
@@ -288,5 +301,6 @@ VideoEncoders::ForEngine VideoEncoders::detectFor(bool preferOwn, const QString 
                         }
                 }
         }
+    detected.insert(key, result);
     return result;
 }
