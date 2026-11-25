@@ -1,6 +1,7 @@
 #include "laps/lapengine.h"
 #include "project/project.h"
 #include "telemetry/channelids.h"
+#include "telemetry/demosession.h"
 #include "telemetry/derivedchannels.h"
 
 #include <QtTest>
@@ -60,9 +61,10 @@ private:
     // across the top of the circle
     static StartFinishLine topLine()
     {
-        const double north = (kRadius) / kMetersPerDegree;
-        const double halfWidth = 20.0 / (kMetersPerDegree * std::cos(kLat0 * kPi / 180.0));
-        return {kLat0 + north, 28.0 - halfWidth, kLat0 + north, 28.0 + halfWidth};
+        // north to south, as the way there goes east: 20 m either side of it
+        const double north = kRadius / kMetersPerDegree;
+        const double halfWidth = 20.0 / kMetersPerDegree;
+        return {kLat0 + north + halfWidth, 28.0, kLat0 + north - halfWidth, 28.0};
     }
 
     // 40 m across the circle's edge where it is `north`, `east` of the center, pointing at the center
@@ -103,6 +105,21 @@ private slots:
         away.lat2 += 0.01;
         QVERIFY(LapEngine::detect(*s, away).isEmpty());
         QVERIFY(LapEngine::detect(*s, StartFinishLine()).isEmpty());
+    }
+
+    void lineThroughASample()
+    {
+        // put where the rider is at a whole second, of data a sample a second: the line goes
+        // right through a sample, which the laps after cross just as exactly
+        const TelemetrySessionPtr s = DemoSession::create();
+        for (int t = 5; t < 300; t += 7)
+            {
+                const StartFinishLine line = LapEngine::lineAt(*s, t, LapEngine::lineWidthAt(*s, t));
+                QVERIFY(line.isValid());
+                const QVector<TelemetrySession::Lap> laps = LapEngine::detect(*s, line);
+                QVERIFY2(!laps.isEmpty(), qPrintable(QString::number(t)));
+                QVERIFY2(std::fabs(laps.first().startTime - t) < 1e-6, qPrintable(QString::number(t)));
+            }
     }
 
     void onlyOneDirectionAndNoJitter()

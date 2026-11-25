@@ -282,26 +282,31 @@ QVector<Crossing> crossingsOf(const TelemetrySession &session, const StartFinish
     const Plane plane((line.lat1 + line.lat2) / 2.0, (line.lon1 + line.lon2) / 2.0);
     const QPointF a = plane.toPlane(line.lat1, line.lon1);
     const QPointF ab = plane.toPlane(line.lat2, line.lon2) - a;
+    // Which side of the line each place is on, worked out once for it: a place right on the
+    // line (the line put at a sample) is then on the same side for the step to it and the one
+    // from it, and counted once, however the rounding goes. On the line counts as ahead of it.
     QPointF previous = plane.toPlane(lat->valueAtIndex(0), lon->valueAt(lat->timeAt(0)));
+    double previousSide = cross(previous - a, ab);
     for (int i = 1; i < lat->count(); ++i)
         {
             const double t0 = lat->timeAt(i - 1);
             const double t1 = lat->timeAt(i);
             const QPointF p = plane.toPlane(lat->valueAtIndex(i), lon->valueAt(t1));
-            const QPointF step = p - previous;
-            const double denominator = cross(step, ab);
-            if (denominator != 0.0)
+            const double side = cross(p - a, ab);
+            if ((previousSide < 0.0) != (side < 0.0))
                 {
+                    const QPointF step = p - previous;
+                    const double denominator = side - previousSide;
                     // where along the step (u) and along the line (v) the two meet
-                    const QPointF ap = a - previous;
-                    const double u = cross(ap, ab) / denominator;
-                    const double v = cross(ap, step) / denominator;
-                    if (u >= 0.0 && u < 1.0 && v >= 0.0 && v <= 1.0)
+                    const double u = -previousSide / denominator;
+                    const double v = cross(a - previous, step) / denominator;
+                    if (v >= 0.0 && v <= 1.0)
                         {
                             crossings.append({t0 + u * (t1 - t0), denominator > 0.0 ? 1 : -1});
                         }
                 }
             previous = p;
+            previousSide = side;
         }
     return crossings;
 }
