@@ -31,6 +31,8 @@ ApplicationWindow {
     property int moving: -1
     // drawn again: where the gauges are has changed
     property int revision: 0
+    // a corner of it dragged
+    property bool resizing: false
     // what the gauge being moved is like
     readonly property var movingProps: revision, moving >= 0 ? simple.gaugeProperties(moving) : ({})
 
@@ -365,7 +367,8 @@ ApplicationWindow {
                 // moving: the gauge follows the finger, two fingers make it bigger or smaller
                 DragHandler {
                     id: mover
-                    enabled: window.moving >= 0
+                    // not while a corner is dragged, which it would take over
+                    enabled: window.moving >= 0 && !window.resizing
                     target: null
                     property point from
                     // where it was taken last: at the release the translation is 0 again
@@ -419,6 +422,8 @@ ApplicationWindow {
                         }
                         DragHandler {
                             target: null
+                            // the drag is the corner's to the end: the move under it does not take it
+                            grabPermissions: PointerHandler.TakeOverForbidden
                             property rect start
                             // where it was taken last: at the release the translation is 0 again
                             property rect at
@@ -427,6 +432,7 @@ ApplicationWindow {
                                                     at.width / picture.width, at.height / picture.height, done)
                             }
                             onActiveChanged: {
+                                window.resizing = active
                                 if (active) {
                                     start = simple.gaugeRect(window.moving, picture.width, picture.height)
                                     at = start
