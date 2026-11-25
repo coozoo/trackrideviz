@@ -53,9 +53,13 @@ ApplicationWindow {
         function onOverlayChanged() { window.revision++ }
     }
 
-    // opened from the full window: closing it goes back there; otherwise the changes are asked about
+    // opened from the full window: closing it goes back there; otherwise the changes are asked about.
+    // Android's Back comes here too: a gauge being moved or resized is done with first, as with Done.
     onClosing: (close) => {
-        if (simple.canGoBack) {
+        if (window.moving >= 0) {
+            close.accepted = false
+            window.moving = -1
+        } else if (simple.canGoBack) {
             close.accepted = false
             window.leave()
         } else if (window.unsaved && !window.leaving) {
