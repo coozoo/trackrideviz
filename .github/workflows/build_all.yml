@@ -609,6 +609,9 @@ jobs:
       QT_ANDROID: "6.9"
       # the NDK that Qt was built with
       NDK_VERSION: 27.2.12479018
+      # the Android that Qt 6.9 is made for (its target): the newest on the build machine can be
+      # a preview that Gradle does not take
+      ANDROID_PLATFORM: android-35
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -646,8 +649,11 @@ jobs:
           if [ ! -d "$ANDROID_SDK_ROOT/ndk/$NDK_VERSION" ]; then
             yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" > /dev/null
           fi
+          if [ ! -d "$ANDROID_SDK_ROOT/platforms/$ANDROID_PLATFORM" ]; then
+            yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "platforms;$ANDROID_PLATFORM" > /dev/null
+          fi
           export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/$NDK_VERSION"
-          PLATFORM=$(ls "$ANDROID_SDK_ROOT/platforms" | sort -V | tail -n 1)
+          PLATFORM=$ANDROID_PLATFORM
           QT_ROOT_DIR=/usr/lib/aarch64-linux-gnu/qt-android-$QT_ANDROID-arm64-v8a
           HOST_BIN=/usr/lib/qt-android-$QT_ANDROID-host/bin
           echo "Qt: $QT_ROOT_DIR, NDK: $ANDROID_NDK_ROOT, platform: $PLATFORM"
