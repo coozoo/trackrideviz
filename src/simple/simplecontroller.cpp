@@ -389,16 +389,6 @@ void SimpleController::openVideo(const QUrl &url)
         {
             return;
         }
-    if (m_demo)
-        {
-            // the made-up ride is no data for one's own video
-            m_demo = false;
-            m_raw.reset();
-            m_worked.reset();
-            m_session.reset();
-            emit dataChanged();
-            emit lapsChanged();
-        }
     m_project.videoPath = path;
     setModified();
     // what was cut, the breaks between joined recordings, a time-lapse's rate and the step
@@ -440,19 +430,17 @@ void SimpleController::probeVideo(const QString &path)
         m_project.background = VideoBackground();
         emit videoChanged();
         setMessage(QString());
-        if (m_session || m_fileDataComing)
+        if (m_session)
             {
-                // the gauges laid out for its shape, and in step by the clocks (or once the data is read)
-                if (m_session)
-                    {
-                        firstGauges();
-                    }
+                // the gauges laid out for its shape, and in step by the clocks
+                firstGauges();
                 rebuildOverlay();
                 followClocks();
             }
-        else
+        // a camera that records its own data (GoPro): read out of the video, in place of the demo
+        // too (until then the demo stays over it)
+        if (!m_fileDataComing && (!m_session || m_demo))
             {
-                // a camera that records its own data (GoPro): read out of the video
                 loadData(path, true);
             }
     });
@@ -846,8 +834,9 @@ void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const Telemetr
 {
     if (!session)
         {
-            // a video without data of its own is no error: the data is asked for
-            setMessage(fromVideo ? tr("This video has no data of its own: open the file of the ride.")
+            // a video without data of its own is no error: the data is asked for (over the demo, not yet)
+            setMessage(fromVideo && m_demo ? QString()
+                       : fromVideo ? tr("This video has no data of its own: open the file of the ride.")
                        : (error.isEmpty() ? tr("%1 could not be read.").arg(QFileInfo(path).fileName()) : error));
             return;
         }
@@ -941,6 +930,12 @@ void SimpleController::syncByClocks()
             return;
         }
     m_project.syncIsManual = false;
+    // the made-up ride has no clock of the camera's to meet
+    if (m_demo)
+        {
+            setSync(0.0, tr("The demo ride: open the data of your own to put it in step."));
+            return;
+        }
     // data read out of the video itself is on the video's clock already
     if (QFileInfo(m_project.videoPath) == QFileInfo(m_project.telemetryPath))
         {

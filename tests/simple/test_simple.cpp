@@ -356,10 +356,19 @@ private slots:
         // one's own video: the demo is gone, the dash chosen over the video without the 3D under it
         const int dash = simple.gaugeCount() - 1;
         simple.openVideo(QUrl::fromLocalFile(m_video));
-        QVERIFY(!simple.isDemo());
-        QVERIFY(!simple.hasData());
+        // a video without data of its own: the demo stays over it, no complaint, not out of step
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.busy() && simple.aspect() < 1.5, 20000);
+        QVERIFY(simple.isDemo());
+        QVERIFY(simple.hasData());
+        QVERIFY(simple.message().isEmpty());
+        QCOMPARE(simple.syncOffset(), 0.0);
+        if (!simple.templateNames().isEmpty())
+            {
+                QCOMPARE(simple.gaugeCount(), dash);
+            }
         simple.openData(QUrl::fromLocalFile(m_data));
-        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.isDemo() && simple.hasData() && !simple.busy(), 20000);
+        QCOMPARE(simple.dataName(), QString("ride.gpx"));
         QVERIFY(simple.gaugeCount() > 0);
         if (!simple.templateNames().isEmpty())
             {
