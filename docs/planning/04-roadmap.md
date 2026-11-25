@@ -605,8 +605,14 @@ In order:
   with the breaks between the recordings kept for the data
 - ✅ Faster exports: a built-in Fast profile (H.264 on the graphics card where there is one, the
   video's own bitrate), and only the gauges on a see-through .webm, the video left as it is
-- Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the
-  probe and the built-in engine have to open; the export folder)
+- Android, an APK from CI (`[build android]`): 64-bit ARM, Android 9 and later, no Google Play
+  - Step 1: the simplified interface alone, without widgets; the gauges and templates in the
+    APK's assets; signed with a debug key (preview and gauges, no export yet)
+  - Step 2: FFmpeg built for Android (cached in CI) for the built-in engine and export; one
+    copy beside the one Qt Multimedia brings
+  - Step 3: files as content:// URLs (data through QFile, videos through an opened file); the
+    export saved to Movies or a place chosen
+  - Step 4: a release key from the repository's secrets, so each APK installs over the last
 
 ## After the simple UI: GoPro
 - GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint

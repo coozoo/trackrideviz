@@ -42,6 +42,13 @@ QString search()
 #ifdef RTV_SOURCE_DATA
     candidates << QStringLiteral(RTV_SOURCE_DATA);
 #endif
+#ifdef Q_OS_ANDROID
+    // in the APK (trackrideviz.pro): a path of Qt's own, not one QDir cleans
+    if (holdsData(QStringLiteral("assets:/data")))
+        {
+            return QStringLiteral("assets:/data");
+        }
+#endif
     for (const QString &candidate : candidates)
         {
             if (holdsData(candidate))

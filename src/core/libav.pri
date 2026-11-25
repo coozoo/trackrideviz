@@ -4,7 +4,8 @@
 # Included by core.pri, and by whatever links the core as a library (the tests).
 
 RTV_PKG_CONFIG = $$pkgConfigExecutable()
-!no_libav:packagesExist(libavformat libavcodec libavfilter libavutil libswresample) {
+# Android: not yet (the build machine's pkg-config would name its own FFmpeg)
+!no_libav:!android:packagesExist(libavformat libavcodec libavfilter libavutil libswresample) {
     system($$RTV_PKG_CONFIG --atleast-version=60.16.100 libavformat) {
         CONFIG += link_pkgconfig
         PKGCONFIG += libavformat libavcodec libavfilter libavutil libswresample

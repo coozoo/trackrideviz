@@ -18,7 +18,7 @@ permissions:
 #   * push to main          -> build everything, create a GitHub release, upload assets
 #   * push to slave / PR    -> build only, results are kept as workflow artifacts
 #   * [skip ci] in the commit message skips the run
-#   * [build linux] [build win] [build mac] [build mac dmg] [build mac zip]
+#   * [build linux] [build win] [build mac] [build mac dmg] [build mac zip] [build android]
 #     in the commit message (or PR title/body) limit the non-main build to those targets
 #
 # main uploads the source package to ppa:coozoo/trackrideviz, signed with the
@@ -46,6 +46,7 @@ jobs:
       build_mac_zip: ${{ steps.set_flags.outputs.build_mac_zip }}
       build_win: ${{ steps.set_flags.outputs.build_win }}
       build_lin: ${{ steps.set_flags.outputs.build_lin }}
+      build_and: ${{ steps.set_flags.outputs.build_and }}
       # the release's tag as GitHub names it, for the program to know which release it is
       release_tag: ${{ steps.build.outputs.VER_TAG_NAME }}_${{ github.ref }}
     steps:
@@ -105,24 +106,28 @@ jobs:
           BUILD_MAC_ZIP=0
           BUILD_WIN=0
           BUILD_LIN=0
+          BUILD_AND=0
 
           if echo "$SRC" | grep -iq '\[build mac dmg\]'; then BUILD_MAC_DMG=1; fi
           if echo "$SRC" | grep -iq '\[build mac\]'; then BUILD_MAC_DMG=1; fi
           if echo "$SRC" | grep -iq '\[build mac zip\]'; then BUILD_MAC_ZIP=1; fi
           if echo "$SRC" | grep -iq '\[build win\]'; then BUILD_WIN=1; fi
           if echo "$SRC" | grep -iq '\[build linux\]'; then BUILD_LIN=1; fi
+          if echo "$SRC" | grep -iq '\[build android\]'; then BUILD_AND=1; fi
 
-          if [[ "$BUILD_MAC_DMG" -eq 0 && "$BUILD_MAC_ZIP" -eq 0 && "$BUILD_WIN" -eq 0 && "$BUILD_LIN" -eq 0 ]]; then
+          if [[ "$BUILD_MAC_DMG" -eq 0 && "$BUILD_MAC_ZIP" -eq 0 && "$BUILD_WIN" -eq 0 && "$BUILD_LIN" -eq 0 && "$BUILD_AND" -eq 0 ]]; then
             BUILD_MAC_DMG=1
             BUILD_MAC_ZIP=1
             BUILD_WIN=1
             BUILD_LIN=1
+            BUILD_AND=1
           fi
 
           echo "build_mac_dmg=$BUILD_MAC_DMG" >> $GITHUB_OUTPUT
           echo "build_mac_zip=$BUILD_MAC_ZIP" >> $GITHUB_OUTPUT
           echo "build_win=$BUILD_WIN" >> $GITHUB_OUTPUT
           echo "build_lin=$BUILD_LIN" >> $GITHUB_OUTPUT
+          echo "build_and=$BUILD_AND" >> $GITHUB_OUTPUT
   build_release:
     name: Build release
     needs: create_release
@@ -587,4 +592,101 @@ jobs:
         with:
           name: ${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
           path: ./${{ steps.buildwin.outputs.APP_NAME }}_${{ steps.buildwin.outputs.VER_TAG_NAME }}_WIN64_setup.exe
+          overwrite: true
+
+  # ---------------------------------------------------------------- Android
+  # The simplified interface as an APK for 64-bit ARM. Qt for Android from Qt's own builds (with
+  # the desktop Qt of the same version, whose tools build it); the SDK and the NDK are those of
+  # the runner image. Signed with a debug key for now: each build's own, so an APK installs
+  # over another only once the release key is in place.
+  build_android:
+    name: Build Android
+    needs: create_release
+    if: github.ref == 'refs/heads/main' || needs.create_release.outputs.build_and == '1'
+    runs-on: ubuntu-24.04
+    env:
+      QT_VERSION: 6.10.1
+      # the NDK this Qt was built with
+      NDK_VERSION: 27.2.12479018
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: get app version
+        id: build
+        run: |
+          VERSION=$(cat main.cpp |grep 'const QString APP'|awk -F\" '{print $2;}')
+          echo "VER_TAG_NAME=$VERSION-$(date +'%Y%m%d%H%M')" >> $GITHUB_OUTPUT
+          echo "APP_NAME=$(cat *.pro |grep 'TARGET ='|awk -F\= '{print $2;}'| tr -d ' ')" >> $GITHUB_OUTPUT
+          echo "RTV_ANDROID_VERSION=$VERSION" >> $GITHUB_ENV
+          # grows with every build: Android installs an update only over a lower number
+          echo "RTV_ANDROID_VERSION_CODE=$(( $(date +%s) / 60 ))" >> $GITHUB_ENV
+      - name: Java for Gradle
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Qt for the desktop (its tools build for Android)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+          set-env: false
+      - name: Qt for Android
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: android
+          arch: android_arm64_v8a
+          modules: qtmultimedia
+          cache: true
+      - name: Gradle downloads (kept between runs)
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-qt${{ env.QT_VERSION }}
+      - name: Build APK
+        id: buildandroid
+        run: |
+          export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          if [ ! -d "$ANDROID_SDK_ROOT/ndk/$NDK_VERSION" ]; then
+            yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" > /dev/null
+          fi
+          export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/$NDK_VERSION"
+          PLATFORM=$(ls "$ANDROID_SDK_ROOT/platforms" | sort -V | tail -n 1)
+          echo "Qt: $QT_ROOT_DIR, NDK: $ANDROID_NDK_ROOT, platform: $PLATFORM"
+          HOST_BIN=$(dirname "$QT_ROOT_DIR")/gcc_64/bin
+          mkdir -p build-android && cd build-android
+          "$QT_ROOT_DIR/bin/qmake" ../trackrideviz.pro CONFIG+=release
+          make -j$(nproc)
+          make INSTALL_ROOT="$PWD/android-build" install
+          "$HOST_BIN/androiddeployqt" --input android-trackrideviz-deployment-settings.json \
+            --output android-build --android-platform "$PLATFORM" --gradle
+          APK=$(find android-build/build/outputs/apk -name '*.apk' | head -n 1)
+          [ -n "$APK" ] || { echo "::error::No APK built"; exit 1; }
+          NAME=${{ steps.build.outputs.APP_NAME }}_${{ steps.build.outputs.VER_TAG_NAME }}_arm64.apk
+          mv "$APK" "../$NAME"
+          ls -l "../$NAME"
+          echo "APK_NAME=$NAME" >> $GITHUB_OUTPUT
+      - name: Upload Release Asset Android APK
+        if: github.ref == 'refs/heads/main'
+        uses: shogo82148/actions-upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./${{ steps.buildandroid.outputs.APK_NAME }}
+          asset_name: ${{ steps.buildandroid.outputs.APK_NAME }}
+          asset_content_type: application/vnd.android.package-archive
+      - name: Archive Android APK
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.buildandroid.outputs.APK_NAME }}
+          path: ./${{ steps.buildandroid.outputs.APK_NAME }}
           overwrite: true
