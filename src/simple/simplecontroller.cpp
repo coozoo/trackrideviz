@@ -21,6 +21,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QStandardPaths>
@@ -63,6 +64,12 @@ struct Probed
 QString localPath(const QUrl &url)
 {
     return url.isLocalFile() ? url.toLocalFile() : url.toString();
+}
+
+// The other way: a file's path, or an address Android handed over (content://), as a URL.
+QUrl urlOf(const QString &path)
+{
+    return path.startsWith(QLatin1String("content:")) ? QUrl(path) : QUrl::fromLocalFile(path);
 }
 
 QVector<ExportProfile> allProfiles()
@@ -116,6 +123,15 @@ FileKind kindOf(const QString &path)
     static const QStringList videos{"mp4", "mov", "mkv", "avi", "insv", "lrv", "m4v", "webm"};
     static const QStringList music{"mp3", "m4a", "aac", "ogg", "opus", "flac", "wav"};
     const QString suffix = QFileInfo(path).suffix().toLower();
+    // an address with no name in it (Android's content://): a video by its first bytes
+    if (!videos.contains(suffix) && !music.contains(suffix) && suffix != QLatin1String(ProjectFile::Suffix))
+        {
+            QFile file(path);
+            if (file.open(QIODevice::ReadOnly) && file.read(8).mid(4, 4) == "ftyp")
+                {
+                    return FileKind::Video;
+                }
+        }
     if (suffix == QLatin1String(ProjectFile::Suffix))
         {
             return FileKind::Project;
@@ -198,7 +214,7 @@ SimpleController::~SimpleController()
 
 QUrl SimpleController::videoUrl() const
 {
-    return m_project.videoPath.isEmpty() ? QUrl() : QUrl::fromLocalFile(m_project.videoPath);
+    return m_project.videoPath.isEmpty() ? QUrl() : urlOf(m_project.videoPath);
 }
 
 QString SimpleController::videoName() const
@@ -574,17 +590,17 @@ void SimpleController::openFiles(const QList<QUrl> &urls)
     else if (!videos.isEmpty())
         {
             // the video first: data of its own is then not looked for when a file of it comes too
-            openVideo(QUrl::fromLocalFile(videos.first()));
+            openVideo(urlOf(videos.first()));
         }
     for (const QString &path : std::as_const(paths))
         {
             switch (kindOf(path))
                 {
                 case FileKind::Data:
-                    openData(QUrl::fromLocalFile(path));
+                    openData(urlOf(path));
                     break;
                 case FileKind::Music:
-                    addMusic(QUrl::fromLocalFile(path));
+                    addMusic(urlOf(path));
                     break;
                 case FileKind::Project:
                 case FileKind::Video:

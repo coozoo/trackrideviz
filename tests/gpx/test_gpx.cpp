@@ -43,6 +43,7 @@ private slots:
     void vboFile();
     void cameraNestingIsLimited();
     void strayTimesAreLeftOut();
+    void knownByContent();
 
 private:
     static TelemetrySessionPtr parse(const QByteArray &gpx, QString *error = nullptr);
@@ -658,6 +659,31 @@ void TestGpx::strayTimesAreLeftOut()
     QVERIFY(session->warnings().join(' ').contains("away from the rest"));
     // worked out second by second without going through 56 years
     QVERIFY(TelemetryImporter::load(file.fileName()));
+}
+
+// A file whose name does not tell what it is (Android hands files over as content:// addresses)
+// is known by what it holds.
+void TestGpx::knownByContent()
+{
+    QTemporaryDir dir;
+    QFile gpx(dir.filePath("document_1234"));
+    QVERIFY(gpx.open(QIODevice::WriteOnly));
+    gpx.write(R"(<?xml version="1.0"?><gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg>
+        <trkpt lat="49.0" lon="28.0"><time>2026-06-25T10:00:00Z</time></trkpt>
+        <trkpt lat="49.0001" lon="28.0"><time>2026-06-25T10:00:01Z</time></trkpt>
+        </trkseg></trk></gpx>)");
+    gpx.close();
+    QString error;
+    const TelemetrySessionPtr session = TelemetryImporter::loadRecorded(gpx.fileName(), &error);
+    QVERIFY2(session, qPrintable(error));
+    QCOMPARE(session->channel(ChannelId::PositionLat)->count(), 2);
+    // and one that is nothing known still says so
+    QFile other(dir.filePath("document_5678"));
+    QVERIFY(other.open(QIODevice::WriteOnly));
+    other.write("nothing of a ride");
+    other.close();
+    QVERIFY(!TelemetryImporter::loadRecorded(other.fileName(), &error));
+    QVERIFY(error.contains("unsupported"));
 }
 
 // What is saved is what is read again: GPX with its extensions, CSV with every channel.

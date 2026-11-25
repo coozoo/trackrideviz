@@ -605,13 +605,14 @@ jobs:
     if: github.ref == 'refs/heads/main' || needs.create_release.outputs.build_and == '1'
     runs-on: ubuntu-24.04
     env:
-      # Qt for Android as Ubuntu packages: https://launchpad.net/~bastif/+archive/ubuntu/qt-android
-      QT_ANDROID: "6.9"
+      QT_VERSION: 6.10.1
       # the NDK that Qt was built with
       NDK_VERSION: 27.2.12479018
-      # the Android that Qt 6.9 is made for (its target): the newest on the build machine can be
+      # the Android that Qt 6.10 is made for (its target): the newest on the build machine can be
       # a preview that Gradle does not take
-      ANDROID_PLATFORM: android-35
+      ANDROID_PLATFORM: android-36
+      # for HTTPS (map tiles, weather): Qt for Android loads it but does not come with it
+      OPENSSL_VERSION: 3.5.9
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -629,19 +630,38 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      # its own tools (qmake, androiddeployqt) and arm64 libraries, with Android's own media
-      # backend rather than Qt's FFmpeg
+      - name: Qt for the desktop (its tools build for Android)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          cache: true
+          set-env: false
+      # Qt's own Android builds: since Qt 6.7 under the host all_os, the same for every build machine
       - name: Qt for Android
-        run: |
-          sudo add-apt-repository -y ppa:bastif/qt-android
-          sudo apt-get install -y --no-install-recommends qt-android-$QT_ANDROID-arm64-v8a
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: all_os
+          target: android
+          arch: android_arm64_v8a
+          modules: qtmultimedia
+          cache: true
+      - name: OpenSSL for Android (kept between runs)
+        id: openssl
+        uses: actions/cache@v6
+        with:
+          path: openssl-android
+          key: openssl-${{ env.OPENSSL_VERSION }}-arm64-ndk${{ env.NDK_VERSION }}
       - name: Gradle downloads (kept between runs)
         uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-qt${{ env.QT_ANDROID }}
+          key: gradle-${{ runner.os }}-qt${{ env.QT_VERSION }}
       - name: Build APK
         id: buildandroid
         run: |
@@ -654,8 +674,27 @@ jobs:
           fi
           export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/$NDK_VERSION"
           PLATFORM=$ANDROID_PLATFORM
-          QT_ROOT_DIR=/usr/lib/aarch64-linux-gnu/qt-android-$QT_ANDROID-arm64-v8a
-          HOST_BIN=/usr/lib/qt-android-$QT_ANDROID-host/bin
+          HOST_BIN=$(dirname "$QT_ROOT_DIR")/gcc_64/bin
+          # OpenSSL from its source, as Qt's Android notes build it: named with _3 so that
+          # Android's own libssl is not taken for it
+          export RTV_ANDROID_OPENSSL="$PWD/openssl-android"
+          if [ "${{ steps.openssl.outputs.cache-hit }}" != "true" ]; then
+            curl -sSfL "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz" | tar xz
+            (
+              cd "openssl-$OPENSSL_VERSION"
+              export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
+              ./Configure shared android-arm64 -D__ANDROID_API__=28 no-tests no-docs > /dev/null
+              make -j$(nproc) SHLIB_VERSION_NUMBER= build_libs > /dev/null
+              mkdir -p "$RTV_ANDROID_OPENSSL"
+              cp libcrypto.so "$RTV_ANDROID_OPENSSL/libcrypto_3.so"
+              cp libssl.so "$RTV_ANDROID_OPENSSL/libssl_3.so"
+            )
+            sudo apt-get install -y --no-install-recommends patchelf > /dev/null
+            patchelf --set-soname libcrypto_3.so "$RTV_ANDROID_OPENSSL/libcrypto_3.so"
+            patchelf --set-soname libssl_3.so "$RTV_ANDROID_OPENSSL/libssl_3.so"
+            patchelf --replace-needed libcrypto.so libcrypto_3.so "$RTV_ANDROID_OPENSSL/libssl_3.so"
+          fi
+          ls -l "$RTV_ANDROID_OPENSSL"
           echo "Qt: $QT_ROOT_DIR, NDK: $ANDROID_NDK_ROOT, platform: $PLATFORM"
           mkdir -p build-android && cd build-android
           "$QT_ROOT_DIR/bin/qmake" ../trackrideviz.pro CONFIG+=release

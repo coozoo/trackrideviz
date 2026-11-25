@@ -29,6 +29,8 @@ const QString APP_VERSION = "0.05";
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_ANDROID
+    // the OpenSSL packed in the APK (libssl_3.so), not one Android may have of its own
+    qputenv("ANDROID_OPENSSL_SUFFIX", "_3");
     const std::unique_ptr<QGuiApplication> application(new QGuiApplication(argc, argv));
 #else
     // everything Qt says from the very start, for View > Diagnostics
