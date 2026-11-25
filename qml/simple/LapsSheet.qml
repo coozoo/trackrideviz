@@ -23,8 +23,6 @@ Drawer {
     property bool placing: false
     property real mapHeight: height * 0.45
     edge: Qt.RightEdge
-    // a drag across it moves the map: it closes with a tap beside it, not with a swipe
-    interactive: false
     onOpened: {
         note = ""
         placing = false
@@ -69,6 +67,8 @@ Drawer {
             }
             DragHandler {
                 target: null
+                // the drag is the map's: the drawer does not take it to close
+                grabPermissions: PointerHandler.TakeOverForbidden
                 property point last
                 onActiveChanged: last = Qt.point(0, 0)
                 // only while dragged: the translation goes back to 0 at the release
