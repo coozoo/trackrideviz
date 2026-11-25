@@ -146,6 +146,8 @@ private:
     QString pathOf(const Tile &tile) const;
     Q_INVOKABLE void fetchWanted();
     void startNext();
+    // A tile's download over: `data` kept when it is a picture.
+    void fetched(const Tile &tile, const QString &path, const QByteArray &data, bool ok);
 
     mutable QMutex m_mutex;
     QString m_urlTemplate;
