@@ -1,15 +1,21 @@
-#include "appearance.h"
-#include "commandline.h"
-#include "diagnostics.h"
 #include "gauge/gaugefonts.h"
-#include "gstreamerworkaround.h"
-#include "mainwindow.h"
 #include "settings/appsettings.h"
 #include "simple/simpleui.h"
 #include "video/libav.h"
 
+// Android has the simplified interface alone: none of the widgets, the command line or GStreamer
+#ifndef Q_OS_ANDROID
+#include "appearance.h"
+#include "commandline.h"
+#include "diagnostics.h"
+#include "gstreamerworkaround.h"
+#include "mainwindow.h"
+
 #include <QApplication>
+#endif
+
 #include <QDir>
+#include <QGuiApplication>
 #include <QIcon>
 #include <QLocale>
 #include <QQmlApplicationEngine>
@@ -22,6 +28,9 @@ const QString APP_VERSION = "0.05";
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_ANDROID
+    const std::unique_ptr<QGuiApplication> application(new QGuiApplication(argc, argv));
+#else
     // everything Qt says from the very start, for View > Diagnostics
     DiagnosticLog::install();
     // exporting from a terminal or a script: no window, nothing of the desktop needed
@@ -35,6 +44,7 @@ int main(int argc, char *argv[])
                 }
         }
     const std::unique_ptr<QGuiApplication> application(commandLine ? new QGuiApplication(argc, argv) : new QApplication(argc, argv));
+#endif
     QGuiApplication &a = *application;
     a.setApplicationName("trackrideviz");
     a.setApplicationDisplayName("Race Track Visualizer");
@@ -78,10 +88,12 @@ int main(int argc, char *argv[])
 #endif
     a.setProperty("appversion", APP_VERSION + platform + " (QTbuild:" + QString(QT_VERSION_STR) + ")");
     a.setProperty("appname", "Race Track Visualizer");
+#ifndef Q_OS_ANDROID
     if (commandLine)
         {
             return CommandLine::run();
         }
+#endif
 
 #ifdef Q_OS_LINUX
     a.setWindowIcon(QIcon(":/images/trackrideviz.png"));
@@ -98,11 +110,13 @@ int main(int argc, char *argv[])
         }
     a.setProperty("decoderFromEnvironment", decoderFromEnvironment);
 
+#ifndef Q_OS_ANDROID
     // before the players are made
     GStreamerWorkaround::install();
 
     Appearance::apply();
     Appearance::wrapToolTips();
+#endif
 
     // the simplified interface alone: asked for, or the only one there is (Android)
     if (SimpleUi::wanted(argc, argv))
@@ -113,6 +127,9 @@ int main(int argc, char *argv[])
             return a.exec();
         }
 
+#ifdef Q_OS_ANDROID
+    return 0;
+#else
     MainWindow w;
     w.show();
 
@@ -125,4 +142,5 @@ int main(int argc, char *argv[])
         }
 
     return a.exec();
+#endif
 }

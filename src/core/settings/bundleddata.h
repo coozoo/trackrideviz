@@ -6,6 +6,7 @@
 // holding `gauges/` and `templates/`, read-only. In the sources it is `data/`.
 //
 // Looked for, first found wins:
+//   assets:/data                              Android: in the APK
 //   $TRACKRIDEVIZ_DATA                        anything, for trying out new artwork
 //   <program folder>/data                     Windows zip
 //   <program folder>/../share/trackrideviz    Linux packages, AppImage, `make install` to any prefix
