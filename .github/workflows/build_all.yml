@@ -260,6 +260,15 @@ jobs:
           # display (go-appimage issue #301)
           wget -c -nv https://github.com/$(wget -q https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous -O - | grep "appimagetool-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2)
           chmod +x appimagetool-*.AppImage
+          # The QML modules the simplified interface imports, copied in at the place Qt looks for
+          # them (its prefix, patched to inside the AppDir); the deploy then brings what their
+          # plugins link to. go-appimage would look for qmlimportscanner only under QTDIR, and
+          # 22.04 has it in /usr/lib/qt6/libexec.
+          scanner=$(ls /usr/lib/qt6/libexec/qmlimportscanner /usr/lib/qt6/bin/qmlimportscanner 2>/dev/null | head -n 1)
+          [ -n "$scanner" ] || { echo "::error::No qmlimportscanner"; exit 1; }
+          "$scanner" -rootPath qml -importPath /usr/lib/x86_64-linux-gnu/qt6/qml \
+            | python3 -c 'import json, sys; print("\n".join(sorted({i["path"] for i in json.load(sys.stdin) if i.get("type") == "module" and i.get("path")})))' \
+            | while read -r module; do echo "QML module: $module"; cp -a --parents "$module" appdir/; done
           # the folder holding Qt's plugins/; not whatever QTDIR the machine has
           QTDIR=/usr/lib/x86_64-linux-gnu/qt6 ./appimagetool-*.AppImage deploy appdir/usr/share/applications/*.desktop
           # the preview plays through GStreamer: an AppImage without its plugins crashes at start
