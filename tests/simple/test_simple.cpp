@@ -306,6 +306,19 @@ private slots:
                 painter.end();
                 picture.save(qEnvironmentVariable("SIMPLE_FLYOVER_PNG"));
             }
+        // more than the picture, it is moved about covering it: never in from the edges
+        const QRectF whole = simple.gaugeRect(0, 960, 540);
+        QVERIFY(whole.x() < 0.0 && whole.y() < 0.0);
+        simple.moveGauge(0, whole.x() / 960.0 + 0.01, whole.y() / 540.0, true);
+        QVERIFY(qAbs(simple.gaugeRect(0, 960, 540).x() - (whole.x() + 9.6)) < 0.5);
+        simple.moveGauge(0, 0.3, 0.3, true);
+        QRectF moved = simple.gaugeRect(0, 960, 540);
+        QVERIFY(qAbs(moved.x()) < 1e-6 && qAbs(moved.y()) < 1e-6);
+        simple.moveGauge(0, -5.0, -5.0, true);
+        moved = simple.gaugeRect(0, 960, 540);
+        QVERIFY(moved.right() >= 960.0 - 0.5 && moved.bottom() >= 540.0 - 0.5);
+        simple.moveGauge(0, whole.x() / 960.0, whole.y() / 540.0, true);
+
         // its laps, the line put where the rider is
         QVERIFY(simple.lineHere(20000));
         QVERIFY(simple.hasLine());

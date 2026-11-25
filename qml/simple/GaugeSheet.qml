@@ -111,7 +111,8 @@ Drawer {
             Caption { text: sheet.props.keepShape === false ? qsTr("Height") : qsTr("Size") }
             Wide {
                 from: 0.05
-                to: 0.8
+                // the route in 3D under a dash is more than the picture
+                to: Math.max(0.8, sheet.props.height || 0)
                 value: sheet.props.height || 0.25
                 onMoved: simple.resizeGauge(sheet.index, value)
             }
@@ -129,7 +130,7 @@ Drawer {
             Wide {
                 visible: sheet.props.keepShape === false
                 from: 0.02
-                to: 1
+                to: Math.max(1, sheet.props.width || 0)
                 value: sheet.props.width || 0.25
                 onMoved: simple.setGaugeWidth(sheet.index, value)
             }
