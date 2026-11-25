@@ -588,8 +588,8 @@ In order:
 - ✅ Corners on the gauge being moved; Ratio: kept, it grows as a whole (− / + too), off, the
   corners change its width and height each; on again, its own shape
 - ✅ Data without a video: the route in 3D the whole picture (300 m close-up, the way ahead up,
-  satellite), on the data's own clock, exported over a plain picture; a video puts a dash in
-  its place. Demo beside Open on the first screen: the made-up ride, for a first look
+  satellite), on the data's own clock, exported over a plain picture; a dash chosen rides
+  over it; a video takes the 3D away (and puts a dash there when nothing else is left). Demo beside Open on the first screen: the made-up ride, for a first look
 - ✅ Laps: the start/finish line where the picture is, the best place nearby, no line; each lap
   against the reference, tapped to go there, chosen as the ghost, exported on its own
 - Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the

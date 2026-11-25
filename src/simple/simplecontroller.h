@@ -227,7 +227,7 @@ private:
     // in step by the clocks, unless it was put in step by hand
     void followClocks();
     void setModified(bool modified = true);
-    // the gauges changed by the user: theirs from now on, and to be saved
+    // the gauges changed by the user: to be saved
     void byHand();
     void applyTemplate(int index);
     // the laps found again, after their line or the reference changed
@@ -236,7 +236,8 @@ private:
     void useBackground();
     // the gauges a ride without a video starts with: the route in 3D, the whole picture
     QVector<OverlayItem> flyoverItems() const;
-    // the first gauges for the picture there is, unless the user's own are there
+    // the first gauges for the picture there is, unless the user's own are there; with a video,
+    // the route in 3D under them taken away
     void firstGauges();
     // the export of m_exportStart for m_exportLength (0: to the end)
     void runExport();
@@ -253,7 +254,6 @@ private:
     bool m_demo{false};
     QString m_projectPath;
     bool m_modified{false};
-    bool m_flyoverShown{false};     // the gauges are those a ride without a video starts with
     std::shared_ptr<const Overlay> m_overlay;
     int m_templateIndex{-1};
     int m_profileIndex{0};
