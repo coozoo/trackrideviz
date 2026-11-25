@@ -634,45 +634,7 @@ void SimpleController::prepareJoin(const QStringList &paths, bool chapters)
                 return;
             }
         m_joinParts = probed.first;
-        m_joinShifts = VideoJoin::shifts(m_joinParts);
-        m_joinLength = 0.0;
-        for (const VideoJoin::Part &part : std::as_const(m_joinParts))
-            {
-                m_joinLength += part.info.duration;
-            }
-        // beside the first, named after it; never over a file that is there
-        const QFileInfo first(m_joinParts.first().path);
-        m_joinOutput = first.dir().filePath(first.completeBaseName() + "_joined." + first.suffix());
-        for (int n = 2; QFileInfo::exists(m_joinOutput); ++n)
-            {
-                m_joinOutput = first.dir().filePath(QString("%1_joined_%2.%3").arg(first.completeBaseName()).arg(n).arg(first.suffix()));
-            }
-        QString why = VideoJoin::whyNot(m_joinParts);
-        if (why.isEmpty() && !(AppSettings::ownVideoEngine() && Libav::available()))
-            {
-                why = VideoJoin::whyNotByProgram(m_joinParts);
-            }
-        m_joinCopies = why.isEmpty();
-        const QString length = QString("%1:%2").arg(int(m_joinLength) / 60).arg(int(m_joinLength) % 60, 2, 10, QChar('0'));
-        if (m_joinCopies)
-            {
-                m_joinText = tr("%n videos, %1 long, copied one after another into %2: quick, and nothing is lost.",
-                                nullptr, int(m_joinParts.size())).arg(length, QFileInfo(m_joinOutput).fileName());
-            }
-        else
-            {
-                const MediaInfo &size = m_joinParts.first().info;
-                m_joinText = why + "\n\n" + tr("They can be joined by encoding them again into %1. That takes a while; the "
-                                               "joined video gets the size and frame rate of the first one (%2×%3), the others "
-                                               "scaled into it.").arg(QFileInfo(m_joinOutput).fileName())
-                             .arg(size.size.width()).arg(size.size.height());
-                const bool cameraData = std::any_of(m_joinParts.cbegin(), m_joinParts.cend(),
-                                                    [](const VideoJoin::Part &part) { return part.info.hasCameraData; });
-                if (cameraData)
-                    {
-                        m_joinText += " " + tr("The camera's data in them does not come along.");
-                    }
-            }
+        describeJoin();
         m_joinReady = true;
         emit joinChanged();
     });
@@ -694,6 +656,63 @@ void SimpleController::prepareJoin(const QStringList &paths, bool chapters)
             }
         return probed;
     }));
+}
+
+// What joining the parts in their order means: the breaks between them, the joined file, copied or
+// encoded again.
+void SimpleController::describeJoin()
+{
+    m_joinShifts = VideoJoin::shifts(m_joinParts);
+    m_joinLength = 0.0;
+    for (const VideoJoin::Part &part : std::as_const(m_joinParts))
+        {
+            m_joinLength += part.info.duration;
+        }
+    // beside the first, named after it; never over a file that is there
+    const QFileInfo first(m_joinParts.first().path);
+    m_joinOutput = first.dir().filePath(first.completeBaseName() + "_joined." + first.suffix());
+    for (int n = 2; QFileInfo::exists(m_joinOutput); ++n)
+        {
+            m_joinOutput = first.dir().filePath(QString("%1_joined_%2.%3").arg(first.completeBaseName()).arg(n).arg(first.suffix()));
+        }
+    QString why = VideoJoin::whyNot(m_joinParts);
+    if (why.isEmpty() && !(AppSettings::ownVideoEngine() && Libav::available()))
+        {
+            why = VideoJoin::whyNotByProgram(m_joinParts);
+        }
+    m_joinCopies = why.isEmpty();
+    const QString length = QString("%1:%2").arg(int(m_joinLength) / 60).arg(int(m_joinLength) % 60, 2, 10, QChar('0'));
+    if (m_joinCopies)
+        {
+            m_joinText = tr("%n videos, %1 long, copied one after another into %2: quick, and nothing is lost.",
+                            nullptr, int(m_joinParts.size())).arg(length, QFileInfo(m_joinOutput).fileName());
+        }
+    else
+        {
+            const MediaInfo &size = m_joinParts.first().info;
+            m_joinText = why + "\n\n" + tr("They can be joined by encoding them again into %1. That takes a while; the "
+                                           "joined video gets the size and frame rate of the first one (%2×%3), the others "
+                                           "scaled into it.").arg(QFileInfo(m_joinOutput).fileName())
+                         .arg(size.size.width()).arg(size.size.height());
+            const bool cameraData = std::any_of(m_joinParts.cbegin(), m_joinParts.cend(),
+                                                [](const VideoJoin::Part &part) { return part.info.hasCameraData; });
+            if (cameraData)
+                {
+                    m_joinText += " " + tr("The camera's data in them does not come along.");
+                }
+        }
+}
+
+void SimpleController::moveJoinPart(int index, int by)
+{
+    const int to = index + by;
+    if (m_joinJob || !m_joinReady || index < 0 || index >= m_joinParts.size() || to < 0 || to >= m_joinParts.size())
+        {
+            return;
+        }
+    m_joinParts.move(index, to);
+    describeJoin();
+    emit joinChanged();
 }
 
 void SimpleController::startJoin()

@@ -5192,7 +5192,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="197"/>
-        <location filename="../qml/simple/Main.qml" line="1007"/>
+        <location filename="../qml/simple/Main.qml" line="1040"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5318,72 +5318,77 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="888"/>
-        <source>Join</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/simple/Main.qml" line="894"/>
-        <source>Only this one</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/simple/Main.qml" line="905"/>
-        <source>Stop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/simple/Main.qml" line="905"/>
-        <source>Cancel</source>
+        <location filename="../qml/simple/Main.qml" line="901"/>
+        <source>In order of their names. The breaks between them come from when each was recorded (the time in its name, or the file&apos;s own); if the data does not follow after joining, move it with Sync.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="921"/>
+        <source>Join</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="927"/>
+        <source>Only this one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="938"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="938"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="954"/>
         <source>Export the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="942"/>
+        <location filename="../qml/simple/Main.qml" line="975"/>
         <source>Only the gauges, see-through (.webm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="950"/>
+        <location filename="../qml/simple/Main.qml" line="983"/>
         <source>For laying over the video in an editor: only the gauges are made, the video is left as it is.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="956"/>
+        <location filename="../qml/simple/Main.qml" line="989"/>
         <source>Only a part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="976"/>
+        <location filename="../qml/simple/Main.qml" line="1009"/>
         <source>From %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="978"/>
+        <location filename="../qml/simple/Main.qml" line="1011"/>
         <source>to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="980"/>
+        <location filename="../qml/simple/Main.qml" line="1013"/>
         <source>From here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="985"/>
+        <location filename="../qml/simple/Main.qml" line="1018"/>
         <source>To here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1015"/>
+        <location filename="../qml/simple/Main.qml" line="1048"/>
         <source>Stop, keep what is done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1022"/>
+        <location filename="../qml/simple/Main.qml" line="1055"/>
         <source>Play it</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7958,39 +7963,39 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1093"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1112"/>
         <source>Reading %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1132"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1151"/>
         <source>This video has no data of its own: open the file of the ride.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1133"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1152"/>
         <source>%1 could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1240"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1259"/>
         <source>The data comes from this video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1248"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1267"/>
         <source>In step by the clocks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1252"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1271"/>
         <source>Not in step: move the data until the gauges match the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1070"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1260"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1269"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1089"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1279"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1288"/>
         <source>Moved by hand.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8005,7 +8010,7 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/simple/simplecontroller.cpp" line="659"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="687"/>
         <source>%n videos, %1 long, copied one after another into %2: quick, and nothing is lost.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -8013,97 +8018,97 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="665"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="693"/>
         <source>They can be joined by encoding them again into %1. That takes a while; the joined video gets the size and frame rate of the first one (%2×%3), the others scaled into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="673"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="701"/>
         <source>The camera&apos;s data in them does not come along.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="718"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="737"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="734"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="753"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="734"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="753"/>
         <source>Encoding...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="905"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="924"/>
         <source>No video: the gauges follow the data&apos;s own time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1234"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1253"/>
         <source>The demo ride: open the data of your own to put it in step.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1453"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1472"/>
         <source>As in the settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1717"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1736"/>
         <source>The end has to be after the start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1739"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1758"/>
         <source>This lap is not in the video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1745"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1764"/>
         <source>lap%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1759"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1778"/>
         <source>Finding the encoders this device can use...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1783"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1802"/>
         <source>No encoder works on this device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1836"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1855"/>
         <source>Exporting... %1 %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1844"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1863"/>
         <source>Starting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1875"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1894"/>
         <source>Saved %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1879"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1898"/>
         <source>Stopped: what was done is in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1882"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1901"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1885"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1904"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>

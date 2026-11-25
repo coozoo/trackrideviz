@@ -146,6 +146,9 @@ public:
     // The videos offered for joining, made one beside the first and opened, the breaks between
     // them kept for the data; stopped (its file removed); or not wanted.
     Q_INVOKABLE void startJoin();
+    // The part at `index` moved `by` places (-1: up, 1: down): the order is the user's when the
+    // names do not tell it.
+    Q_INVOKABLE void moveJoinPart(int index, int by);
     Q_INVOKABLE void cancelJoin();
     // The made-up ride, for a look before one's own is there.
     Q_INVOKABLE void openDemo();
@@ -294,6 +297,7 @@ private:
     void runExport();
     // `paths` read, to be offered for joining; `chapters`: of one recording, the first opened
     void prepareJoin(const QStringList &paths, bool chapters);
+    void describeJoin();
     void probeVideo(const QString &path);
     void exportFinished(int outcome, const QString &message);
 

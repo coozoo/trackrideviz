@@ -858,14 +858,47 @@ ApplicationWindow {
         ColumnLayout {
             anchors.fill: parent
             spacing: 12
+            // in the order they are joined: moved up or down where the names tell it wrong
+            ListView {
+                Layout.fillWidth: true
+                Layout.preferredHeight: Math.min(contentHeight, window.height * 0.35)
+                clip: true
+                interactive: contentHeight > height
+                model: simple.joinNames
+                ScrollIndicator.vertical: ScrollIndicator {}
+                delegate: RowLayout {
+                    id: part
+                    required property string modelData
+                    required property int index
+                    width: ListView.view.width
+                    spacing: 0
+                    Label {
+                        Layout.fillWidth: true
+                        elide: Text.ElideMiddle
+                        font.family: "monospace"
+                        font.pixelSize: 12
+                        text: (part.index + 1) + ". " + part.modelData
+                    }
+                    ToolButton {
+                        Layout.preferredWidth: window.touch
+                        enabled: part.index > 0 && simple.joinReady && !simple.joining
+                        text: "↑"
+                        onClicked: simple.moveJoinPart(part.index, -1)
+                    }
+                    ToolButton {
+                        Layout.preferredWidth: window.touch
+                        enabled: part.index < simple.joinNames.length - 1 && simple.joinReady && !simple.joining
+                        text: "↓"
+                        onClicked: simple.moveJoinPart(part.index, 1)
+                    }
+                }
+            }
             Label {
                 Layout.fillWidth: true
-                elide: Text.ElideMiddle
-                maximumLineCount: 6
-                opacity: 0.8
-                font.family: "monospace"
+                wrapMode: Text.WordWrap
+                opacity: 0.7
                 font.pixelSize: 12
-                text: simple.joinNames.join("\n")
+                text: qsTr("In order of their names. The breaks between them come from when each was recorded (the time in its name, or the file's own); if the data does not follow after joining, move it with Sync.")
             }
             Label {
                 Layout.fillWidth: true

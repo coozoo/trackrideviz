@@ -603,9 +603,15 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(simple.joinReady(), 20000);
         QCOMPARE(simple.joinNames(), (QStringList{"ride.mp4", "ride2.mp4"}));
         QVERIFY(!simple.joinText().isEmpty());
+        // put the other way round by hand: joined in that order, named after the first
+        simple.moveJoinPart(1, -1);
+        QCOMPARE(simple.joinNames(), (QStringList{"ride2.mp4", "ride.mp4"}));
+        QVERIFY(simple.joinText().contains("ride2_joined"));
+        simple.moveJoinPart(0, -1);   // nowhere to go
+        QCOMPARE(simple.joinNames().first(), QString("ride2.mp4"));
         simple.startJoin();
         QVERIFY(simple.joining());
-        QTRY_VERIFY_WITH_TIMEOUT(!simple.joining() && simple.videoName().startsWith("ride_joined"), 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.joining() && simple.videoName().startsWith("ride2_joined"), 60000);
         QTRY_VERIFY_WITH_TIMEOUT(!simple.busy(), 20000);
         QVERIFY(simple.joinNames().isEmpty());
         QVERIFY(QFileInfo::exists(m_dir.filePath(simple.videoName())));
