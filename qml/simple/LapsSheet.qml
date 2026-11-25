@@ -98,7 +98,12 @@ Drawer {
                 anchors.margins: 6
                 spacing: 4
                 RoundButton { text: "+"; onClicked: map.zoomAround(map.width / 2, map.height / 2, 1.5) }
-                RoundButton { text: "⤢"; onClicked: map.fit() }
+                RoundButton {
+                    icon.source: "icons/fit.svg"
+                    display: AbstractButton.IconOnly
+                    text: qsTr("Whole route")
+                    onClicked: map.fit()
+                }
                 RoundButton { text: "−"; onClicked: map.zoomAround(map.width / 2, map.height / 2, 1 / 1.5) }
             }
             RoundButton {

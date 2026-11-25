@@ -7,5 +7,13 @@
         <file>qml/simple/LapsSheet.qml</file>
         <file>qml/simple/PreviewGrid.qml</file>
         <file>qml/simple/SyncControl.qml</file>
+        <file>qml/simple/icons/back.svg</file>
+        <file>qml/simple/icons/close.svg</file>
+        <file>qml/simple/icons/down.svg</file>
+        <file>qml/simple/icons/fit.svg</file>
+        <file>qml/simple/icons/more.svg</file>
+        <file>qml/simple/icons/pause.svg</file>
+        <file>qml/simple/icons/play.svg</file>
+        <file>qml/simple/icons/up.svg</file>
     </qresource>
 </RCC>
