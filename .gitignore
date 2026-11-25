@@ -66,3 +66,4 @@ debian/*.debhelper.log
 # local CI/AppImage leftovers
 appdir/
 *.AppImage
+__pycache__/
