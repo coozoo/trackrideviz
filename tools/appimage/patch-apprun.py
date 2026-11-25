@@ -25,6 +25,13 @@ if [ -z "$QT_PLUGIN_PATH" ] ; then
     export QT_PLUGIN_PATH="$(dirname "$PLATFORMS")"
   fi
 fi
+# and its QML modules (the simplified interface): not found there, a module falls back to
+# the copy in its library's resources, whose plugin is then looked for beside the program
+CONTROLS=$(find "${HERE}" -type d -path '*/qml/QtQuick/Controls' | head -n 1)
+if [ -n "$CONTROLS" ] ; then
+  QML_MODULES="$(dirname "$(dirname "$CONTROLS")")"
+  export QML_IMPORT_PATH="${QML_MODULES}${QML_IMPORT_PATH:+:$QML_IMPORT_PATH}"
+fi
 
 if [ -n "$GST_PLUGIN_PATH" ] ; then
   # the plugins are checked in the program: the helper cannot be started in this bundle
