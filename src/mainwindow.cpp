@@ -3467,32 +3467,41 @@ void MainWindow::openSimple()
         }
     m_playback->pause();
     hide();
-    m_simple = SimpleUi::open([this](const Project &left)
+    m_simple = SimpleUi::open([this](const Project &left, const QString &leftPath, bool unsaved)
     {
         // not inside the window's own handler, which asked for it
-        QTimer::singleShot(0, this, [this, left]()
+        QTimer::singleShot(0, this, [this, left, leftPath, unsaved]()
         {
             delete m_simple;
             m_simple = nullptr;
             show();
-            takeFromSimple(left);
+            takeFromSimple(left, leftPath, unsaved);
         });
-    }, m_project);
+    }, m_project, m_projectPath);
 }
 
-void MainWindow::takeFromSimple(const Project &left)
+void MainWindow::takeFromSimple(const Project &left, const QString &leftPath, bool unsaved)
 {
-    if (left.videoPath != m_project.videoPath || left.telemetryPath != m_project.telemetryPath)
+    if (left.videoPath != m_project.videoPath || left.telemetryPath != m_project.telemetryPath
+            || left.background != m_project.background || leftPath != m_projectPath)
         {
-            // other files: as a project opened, its own file still to be saved
+            // other files: as a project opened (saved there, or still to be)
+            m_projectPath = leftPath;
             showProject(left);
-            setModified(true);
+            setModified(unsaved || leftPath.isEmpty());
             return;
         }
     // the same files: what changed, each a step to undo
     m_project.layoutAspect = left.layoutAspect;
     changeOverlay(tr("Change the gauges in the simplified interface"), OverlayState{left.overlay, left.theme});
     setSoundtrack(left.soundtrack, tr("Change the music in the simplified interface"));
+    setLapLines(left.startFinish, left.sectors, tr("Change the laps in the simplified interface"));
+    if (left.referenceLap != m_project.referenceLap)
+        {
+            m_project.referenceLap = left.referenceLap;
+            setModified(true);
+            updateLaps();
+        }
     if (left.syncOffset != m_project.syncOffset)
         {
             m_project.syncIsManual = left.syncIsManual;

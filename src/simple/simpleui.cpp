@@ -100,7 +100,8 @@ void registerTypes()
 }
 }
 
-QQmlApplicationEngine *SimpleUi::open(const std::function<void(const Project &)> &back, const Project &project)
+QQmlApplicationEngine *SimpleUi::open(const std::function<void(const Project &, const QString &, bool)> &back, const Project &project,
+                                      const QString &projectPath)
 {
     registerTypes();
     auto *engine = new QQmlApplicationEngine;
@@ -109,10 +110,10 @@ QQmlApplicationEngine *SimpleUi::open(const std::function<void(const Project &)>
         {
             QObject::connect(controller, &SimpleController::backRequested, engine, [back, controller]()
             {
-                back(controller->project());
+                back(controller->project(), controller->projectPath(), controller->modified());
             });
         }
-    controller->openProject(project);
+    controller->openProject(project, projectPath);
     engine->rootContext()->setContextProperty(QStringLiteral("simple"), controller);
     // the engine owns it
     engine->addImageProvider(QStringLiteral("previews"), new PreviewProvider);
@@ -124,26 +125,16 @@ QQmlApplicationEngine *SimpleUi::open(const QStringList &files)
 {
     QQmlApplicationEngine *engine = open();
     auto *controller = engine->rootContext()->contextProperty(QStringLiteral("simple")).value<SimpleController *>();
-    static const QStringList videos{"mp4", "mov", "mkv", "avi", "insv", "lrv", "m4v", "webm"};
-    bool video = false;
+    QList<QUrl> urls;
     for (const QString &file : files)
         {
             const QFileInfo info(file);
-            if (!info.isFile())
+            if (info.isFile())
                 {
-                    continue;
-                }
-            const QUrl url = QUrl::fromLocalFile(info.absoluteFilePath());
-            if (!video && videos.contains(info.suffix().toLower()))
-                {
-                    video = true;
-                    controller->openVideo(url);
-                }
-            else
-                {
-                    controller->openData(url);
+                    urls << QUrl::fromLocalFile(info.absoluteFilePath());
                 }
         }
+    controller->openFiles(urls);
     return engine;
 }
 

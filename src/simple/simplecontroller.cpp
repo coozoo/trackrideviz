@@ -9,6 +9,7 @@
 #include "settings/appsettings.h"
 #include "sync/videosync.h"
 #include "telemetry/datasources.h"
+#include "telemetry/demosession.h"
 #include "telemetry/telemetryimporter.h"
 #include "units/units.h"
 #include "video/exportjob.h"
@@ -22,6 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFutureWatcher>
+#include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
 
@@ -29,6 +31,15 @@ namespace
 {
 // the template a first video gets: the shipped one for any ride
 const char kFirstTemplate[] = "Ride";
+// the gauge a ride without a video is shown with, the whole picture: its route in 3D
+const char kFlyoverGauge[] = "bundled:Route map arrow";
+const char kFlyoverMap[] = "satellite";
+const double kFlyoverCloseUp = 300.0;   // meters across
+// a ride without a video: a picture this big and fast over the data
+const QSize kBackgroundSize(1920, 1080);
+const int kBackgroundFps = 30;
+// how far around the line placed the best place for it is looked for, meters
+const double kLineSearchRadius = 100.0;
 // how long the heights of the terrain and the weather are waited for, a look every two seconds
 const int kArrivalLookMs = 2000;
 const int kArrivalTries = 30;
@@ -36,6 +47,7 @@ const int kArrivalTries = 30;
 struct Loaded
 {
     TelemetrySessionPtr raw;
+    TelemetrySessionPtr worked;     // before its laps
     TelemetrySessionPtr session;
     QString error;
     bool waiting{false};
@@ -68,8 +80,41 @@ Loaded workOut(const TelemetrySessionPtr &raw, const Project &project)
                                        project.surfaces, AppSettings::weather(), project.wind,
                                        AppSettings::drivetrain(), &result.waiting, &weatherWaiting);
     result.waiting = result.waiting || weatherWaiting;
+    result.worked = worked;
     result.session = worked ? LapEngine::apply(worked, project.startFinish, project.sectors, project.referenceLap) : worked;
     return result;
+}
+
+// What a file is, by its name.
+enum class FileKind
+{
+    Project,
+    Video,
+    Music,
+    Data,
+};
+
+FileKind kindOf(const QString &path)
+{
+    static const QStringList videos{"mp4", "mov", "mkv", "avi", "insv", "lrv", "m4v", "webm"};
+    static const QStringList music{"mp3", "m4a", "aac", "ogg", "opus", "flac", "wav"};
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    if (suffix == QLatin1String(ProjectFile::Suffix))
+        {
+            return FileKind::Project;
+        }
+    if (videos.contains(suffix))
+        {
+            return FileKind::Video;
+        }
+    return music.contains(suffix) ? FileKind::Music : FileKind::Data;
+}
+
+QString lapTimeText(double seconds)
+{
+    const int hundredths = int(std::lround(std::max(0.0, seconds) * 100.0));
+    return QString("%1:%2.%3").arg(hundredths / 6000).arg(hundredths / 100 % 60, 2, 10, QChar('0'))
+           .arg(hundredths % 100, 2, 10, QChar('0'));
 }
 }
 
@@ -100,6 +145,7 @@ SimpleController::SimpleController(bool canGoBack, QObject *parent)
         const Loaded result = workOut(m_raw, m_project);
         if (result.session)
             {
+                m_worked = result.worked;
                 m_session = result.session;
                 rebuildOverlay();
             }
@@ -137,7 +183,63 @@ QString SimpleController::videoName() const
 
 QString SimpleController::dataName() const
 {
-    return m_session ? QFileInfo(m_project.telemetryPath).fileName() : QString();
+    return m_demo ? tr("Demo ride") : m_session ? QFileInfo(m_project.telemetryPath).fileName() : QString();
+}
+
+qint64 SimpleController::dataDuration() const
+{
+    return m_session ? qint64(std::llround(m_session->duration() * 1000.0)) : 0;
+}
+
+QString SimpleController::projectName() const
+{
+    return m_projectPath.isEmpty() ? QString() : QFileInfo(m_projectPath).completeBaseName();
+}
+
+QUrl SimpleController::projectFolder() const
+{
+    for (const QString &path : {m_projectPath, m_project.videoPath, m_project.telemetryPath})
+        {
+            if (!path.isEmpty())
+                {
+                    return QUrl::fromLocalFile(QFileInfo(path).absolutePath());
+                }
+        }
+    return QUrl::fromLocalFile(QDir::homePath());
+}
+
+QVariantList SimpleController::laps() const
+{
+    QVariantList laps;
+    if (!m_session)
+        {
+            return laps;
+        }
+    const QVector<TelemetrySession::Lap> &all = m_session->laps();
+    double best = -1.0;
+    for (const TelemetrySession::Lap &lap : all)
+        {
+            const double time = lap.endTime - lap.startTime;
+            best = best < 0.0 || time < best ? time : best;
+        }
+    const TelemetrySession::Lap reference = m_session->referenceLap();
+    const double referenceTime = reference.endTime > reference.startTime ? reference.endTime - reference.startTime : best;
+    const SyncMap sync = m_project.sync();
+    for (int i = 0; i < all.size(); ++i)
+        {
+            const TelemetrySession::Lap &lap = all.at(i);
+            const double time = lap.endTime - lap.startTime;
+            const double delta = time - referenceTime;
+            QVariantMap row;
+            row["number"] = i + 1;
+            row["start"] = qint64(std::llround(std::max(0.0, sync.videoTime(lap.startTime)) * 1000.0));
+            row["time"] = lapTimeText(time);
+            row["delta"] = std::abs(delta) < 0.005 ? QString() : (delta > 0.0 ? "+" : "−") + QString::number(std::abs(delta), 'f', 2);
+            row["best"] = time == best;
+            row["reference"] = m_project.referenceLap > 0 ? m_project.referenceLap == i + 1 : time == best;
+            laps << row;
+        }
+    return laps;
 }
 
 QStringList SimpleController::templateNames() const
@@ -206,6 +308,7 @@ void SimpleController::setVideoVolume(int percent)
     if (percent != m_project.soundtrack.videoVolume)
         {
             m_project.soundtrack.videoVolume = percent;
+            setModified();
             emit musicChanged();
         }
 }
@@ -216,6 +319,7 @@ void SimpleController::setMusicVolume(int percent)
     if (percent != m_project.soundtrack.musicVolume)
         {
             m_project.soundtrack.musicVolume = percent;
+            setModified();
             emit musicChanged();
         }
 }
@@ -268,7 +372,18 @@ void SimpleController::openVideo(const QUrl &url)
         {
             return;
         }
+    if (m_demo)
+        {
+            // the made-up ride is no data for one's own video
+            m_demo = false;
+            m_raw.reset();
+            m_worked.reset();
+            m_session.reset();
+            emit dataChanged();
+            emit lapsChanged();
+        }
     m_project.videoPath = path;
+    setModified();
     // what was cut, the breaks between joined recordings, a time-lapse's rate and the step
     // belong to the video before
     m_project.videoShifts.clear();
@@ -304,11 +419,17 @@ void SimpleController::probeVideo(const QString &path)
                 setMessage(probed.error);
                 return;
             }
+        // the picture is the video's now
+        m_project.background = VideoBackground();
         emit videoChanged();
         setMessage(QString());
         if (m_session || m_fileDataComing)
             {
                 // the gauges laid out for its shape, and in step by the clocks (or once the data is read)
+                if (m_session)
+                    {
+                        firstGauges();
+                    }
                 rebuildOverlay();
                 followClocks();
             }
@@ -338,13 +459,312 @@ void SimpleController::openData(const QUrl &url)
             m_project.surfaces.clear();
             m_project.referenceLap = 0;
             m_project.syncIsManual = false;
+            setModified();
             loadData(path, false);
         }
 }
 
-void SimpleController::openProject(const Project &project)
+void SimpleController::openFiles(const QList<QUrl> &urls)
 {
+    QStringList paths;
+    for (const QUrl &url : urls)
+        {
+            const QString path = localPath(url);
+            if (!path.isEmpty())
+                {
+                    paths << path;
+                }
+        }
+    // a project is all of it: the rest is not mixed in
+    for (const QString &path : std::as_const(paths))
+        {
+            if (kindOf(path) == FileKind::Project)
+                {
+                    Project project;
+                    QString error;
+                    if (!ProjectFile::load(path, &project, &error))
+                        {
+                            setMessage(error);
+                            return;
+                        }
+                    openProject(project, path);
+                    return;
+                }
+        }
+    // the video first: data of its own is then not looked for when a file of it comes too
+    bool video = false;
+    for (const QString &path : std::as_const(paths))
+        {
+            if (!video && kindOf(path) == FileKind::Video)
+                {
+                    video = true;
+                    openVideo(QUrl::fromLocalFile(path));
+                }
+        }
+    for (const QString &path : std::as_const(paths))
+        {
+            switch (kindOf(path))
+                {
+                case FileKind::Data:
+                    openData(QUrl::fromLocalFile(path));
+                    break;
+                case FileKind::Music:
+                    addMusic(QUrl::fromLocalFile(path));
+                    break;
+                case FileKind::Project:
+                case FileKind::Video:
+                    break;
+                }
+        }
+}
+
+void SimpleController::openDemo()
+{
+    if (m_thread)
+        {
+            return;
+        }
+    ++m_dataGeneration;
+    m_fileDataComing = false;
+    m_arrivals.stop();
+    m_demo = true;
+    m_project.telemetryPath.clear();
+    m_project.dataEdits.clear();
+    m_project.moreData.clear();
+    m_project.surfaces.clear();
+    m_project.startFinish = StartFinishLine();
+    m_project.sectors.clear();
+    m_project.referenceLap = 0;
+    m_raw = DemoSession::create();
+    m_worked = m_raw;
+    m_session = LapEngine::apply(m_worked, m_project.startFinish, m_project.sectors, m_project.referenceLap);
+    useBackground();
+    emit dataChanged();
+    emit lapsChanged();
+    emit projectChanged();
+    setMessage(QString());
+    firstGauges();
+    rebuildOverlay();
+}
+
+bool SimpleController::save()
+{
+    if (m_projectPath.isEmpty() || !canSave())
+        {
+            return false;
+        }
+    QString error;
+    if (!ProjectFile::save(m_projectPath, m_project, &error))
+        {
+            setMessage(error);
+            return false;
+        }
+    setModified(false);
+    return true;
+}
+
+bool SimpleController::saveAs(const QUrl &url)
+{
+    QString path = localPath(url);
+    if (path.isEmpty())
+        {
+            return false;
+        }
+    if (QFileInfo(path).suffix().compare(QLatin1String(ProjectFile::Suffix), Qt::CaseInsensitive) != 0)
+        {
+            path += QLatin1Char('.') + QLatin1String(ProjectFile::Suffix);
+        }
+    m_projectPath = path;
+    return save();
+}
+
+void SimpleController::newProject()
+{
+    if (m_thread)
+        {
+            return;
+        }
+    ++m_dataGeneration;
+    m_fileDataComing = false;
+    m_arrivals.stop();
+    m_project = Project();
+    m_info = MediaInfo();
+    m_probed = false;
+    m_raw.reset();
+    m_worked.reset();
+    m_session.reset();
+    m_demo = false;
+    m_flyoverShown = false;
+    m_templateIndex = -1;
+    m_projectPath.clear();
+    m_modified = false;
+    m_syncText.clear();
+    m_exportText.clear();
+    m_exportedPath.clear();
+    m_message.clear();
+    rebuildOverlay();
+    emit videoChanged();
+    emit dataChanged();
+    emit syncChanged();
+    emit musicChanged();
+    emit lapsChanged();
+    emit exportChanged();
+    emit messageChanged();
+    emit projectChanged();
+}
+
+void SimpleController::setModified(bool modified)
+{
+    m_modified = modified;
+    emit projectChanged();
+}
+
+void SimpleController::useBackground()
+{
+    if (!m_project.videoPath.isEmpty() || !m_session)
+        {
+            return;
+        }
+    // the picture runs on the data's own time: nothing to match
+    m_project.background.size = kBackgroundSize;
+    m_project.background.fps = kBackgroundFps;
+    m_project.background.color = Qt::black;
+    m_info = m_project.background.mediaInfo(m_session->duration());
+    m_probed = true;
+    m_project.videoShifts.clear();
+    m_project.syncRate = 1.0;
+    m_project.syncIsManual = false;
+    setSync(0.0, tr("No video: the gauges follow the data's own time."));
+    emit videoChanged();
+}
+
+QVector<OverlayItem> SimpleController::flyoverItems() const
+{
+    OverlayItem item;
+    item.gaugeId = QLatin1String(kFlyoverGauge);
+    item.height = 1.0;
+    item.aspect = aspect();
+    // its map the whole picture, the margin around it off the edges
+    const Gauge gauge = GaugeLibrary::gauge(item.gaugeId);
+    if (!gauge.components.isEmpty() && gauge.size.width() > 0.0 && gauge.size.height() > 0.0)
+        {
+            const QRectF map = gauge.components.first().frame;
+            const double across = map.width() / gauge.size.width();
+            const double down = map.height() / gauge.size.height();
+            if (across > 0.0 && down > 0.0)
+                {
+                    item.height = 1.0 / down;
+                    item.y = -map.top() / gauge.size.height() * item.height;
+                    item.x = -map.left() / gauge.size.width() / across;
+                    item.aspect = aspect() * down / across;
+                }
+        }
+    item.flyover = 1;
+    item.closeUp = kFlyoverCloseUp;
+    item.headingUp = 1;
+    item.streets = OverlayItem::Shown;
+    for (const TileStore::Provider &provider : AppSettings::usableMapProviders())
+        {
+            item.map = provider.id == QLatin1String(kFlyoverMap) ? provider.id : item.map;
+        }
+    return {item};
+}
+
+void SimpleController::firstGauges()
+{
+    const bool own = m_project.overlay != Overlay::defaultItems() && !m_flyoverShown;
+    if (own)
+        {
+            return;
+        }
+    if (m_project.videoPath.isEmpty())
+        {
+            m_project.overlay = flyoverItems();
+            m_project.layoutAspect = aspect();
+            m_templateIndex = -1;
+            m_flyoverShown = true;
+            return;
+        }
+    // over a video: a dash
+    m_flyoverShown = false;
+    const QVector<TemplateLibrary::Entry> entries = TemplateLibrary::entries();
+    int first = entries.isEmpty() ? -1 : 0;
+    for (int i = 0; i < entries.size(); ++i)
+        {
+            if (entries.at(i).name.compare(QLatin1String(kFirstTemplate), Qt::CaseInsensitive) == 0)
+                {
+                    first = i;
+                }
+        }
+    if (first >= 0)
+        {
+            applyTemplate(first);
+        }
+}
+
+void SimpleController::applyLaps()
+{
+    if (!m_worked)
+        {
+            return;
+        }
+    m_session = LapEngine::apply(m_worked, m_project.startFinish, m_project.sectors, m_project.referenceLap);
+    setModified();
+    rebuildOverlay();
+    emit lapsChanged();
+}
+
+bool SimpleController::lineHere(qint64 videoMs)
+{
+    if (!m_worked)
+        {
+            return false;
+        }
+    const double time = telemetryTime(videoMs);
+    // as wide as the other passes there need: a lap ridden a little apart is still crossed
+    const StartFinishLine line = LapEngine::lineAt(*m_worked, time, LapEngine::lineWidthAt(*m_worked, time));
+    if (!line.isValid())
+        {
+            return false;
+        }
+    m_project.startFinish = line;
+    applyLaps();
+    return true;
+}
+
+bool SimpleController::findBestLine()
+{
+    if (!m_worked || !m_project.startFinish.isValid())
+        {
+            return false;
+        }
+    const StartFinishLine line = LapEngine::findLine(*m_worked, m_project.startFinish, kLineSearchRadius);
+    if (!line.isValid())
+        {
+            return false;
+        }
+    m_project.startFinish = line;
+    applyLaps();
+    return true;
+}
+
+void SimpleController::clearLine()
+{
+    m_project.startFinish = StartFinishLine();
+    applyLaps();
+}
+
+void SimpleController::setReferenceLap(int number)
+{
+    m_project.referenceLap = std::max(0, number);
+    applyLaps();
+}
+
+void SimpleController::openProject(const Project &project, const QString &path)
+{
+    newProject();
     m_project = project;
+    m_projectPath = path;
     m_templateIndex = -1;
     m_syncText = project.syncIsManual ? tr("Moved by hand.") : QString();
     emit syncChanged();
@@ -359,6 +779,7 @@ void SimpleController::openProject(const Project &project)
         {
             probeVideo(m_project.videoPath);
         }
+    emit projectChanged();
 }
 
 void SimpleController::loadData(const QString &path, bool fromVideo)
@@ -381,7 +802,7 @@ void SimpleController::loadData(const QString &path, bool fromVideo)
         if (generation == m_dataGeneration)
             {
                 m_fileDataComing = false;
-                dataLoaded(result.raw, result.session, path, fromVideo, result.error, result.waiting);
+                dataLoaded(result.raw, result.worked, result.session, path, fromVideo, result.error, result.waiting);
             }
     });
     watcher->setFuture(QtConcurrent::run([path, project]()
@@ -400,8 +821,8 @@ void SimpleController::loadData(const QString &path, bool fromVideo)
     }));
 }
 
-void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session, const QString &path,
-                                  bool fromVideo, const QString &error, bool waiting)
+void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const TelemetrySessionPtr &worked,
+                                  const TelemetrySessionPtr &session, const QString &path, bool fromVideo, const QString &error, bool waiting)
 {
     if (!session)
         {
@@ -411,38 +832,36 @@ void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const Telemetr
             return;
         }
     m_raw = raw;
+    m_worked = worked;
     m_session = session;
+    m_demo = false;
     m_project.telemetryPath = path;
     m_arrivalTries = 0;
     if (waiting)
         {
             m_arrivals.start();
         }
+    useBackground();
     emit dataChanged();
+    emit lapsChanged();
+    emit projectChanged();
     setMessage(QString());
-    // a first dash, unless gauges of its own came with the project
-    if (m_templateIndex < 0 && m_project.overlay == Overlay::defaultItems())
-        {
-            const QVector<TemplateLibrary::Entry> entries = TemplateLibrary::entries();
-            int first = entries.isEmpty() ? -1 : 0;
-            for (int i = 0; i < entries.size(); ++i)
-                {
-                    if (entries.at(i).name.compare(QLatin1String(kFirstTemplate), Qt::CaseInsensitive) == 0)
-                        {
-                            first = i;
-                        }
-                }
-            if (first >= 0)
-                {
-                    chooseTemplate(first);
-                    return;
-                }
-        }
+    // the first gauges, unless the project came with its own
+    firstGauges();
     rebuildOverlay();
     followClocks();
 }
 
 void SimpleController::chooseTemplate(int index)
+{
+    if (index >= 0 && index < TemplateLibrary::entries().size())
+        {
+            byHand();
+            applyTemplate(index);
+        }
+}
+
+void SimpleController::applyTemplate(int index)
 {
     const QVector<TemplateLibrary::Entry> entries = TemplateLibrary::entries();
     if (index < 0 || index >= entries.size())
@@ -519,6 +938,7 @@ void SimpleController::syncByClocks()
 void SimpleController::nudgeSync(double seconds)
 {
     m_project.syncIsManual = true;
+    setModified();
     setSync(m_project.syncOffset + seconds, tr("Moved by hand."));
 }
 
@@ -527,6 +947,7 @@ void SimpleController::setSyncOffset(double seconds)
     if (std::isfinite(seconds))
         {
             m_project.syncIsManual = true;
+            setModified();
             setSync(seconds, tr("Moved by hand."));
         }
 }
@@ -555,6 +976,7 @@ void SimpleController::moveGauge(int index, double x, double y, bool done)
     item.y = std::clamp(y, 0.0, std::max(0.0, 1.0 - item.height));
     if (done)
         {
+            byHand();
             rebuildOverlay();
             return;
         }
@@ -594,6 +1016,7 @@ void SimpleController::addGauge(const QString &gaugeId)
     item.x = std::min(0.35 + step, 1.0 - width);
     item.y = std::min(0.3 + step, 1.0 - item.height);
     m_project.overlay.append(item);
+    byHand();
     rebuildOverlay();
 }
 
@@ -602,6 +1025,7 @@ void SimpleController::removeGauge(int index)
     if (index >= 0 && index < m_project.overlay.size())
         {
             m_project.overlay.removeAt(index);
+            byHand();
             rebuildOverlay();
         }
 }
@@ -611,8 +1035,42 @@ void SimpleController::changeGauge(int index, const std::function<void(OverlayIt
     if (index >= 0 && index < m_project.overlay.size())
         {
             change(m_project.overlay[index]);
+            byHand();
             rebuildOverlay();
         }
+}
+
+void SimpleController::byHand()
+{
+    m_flyoverShown = false;
+    setModified();
+}
+
+void SimpleController::setGaugeRect(int index, double x, double y, double width, double height, bool done)
+{
+    if (index < 0 || index >= m_project.overlay.size() || index >= m_overlay->count() || !(width > 0.0) || !(height > 0.0))
+        {
+            return;
+        }
+    OverlayItem &item = m_project.overlay[index];
+    item.height = std::clamp(height, 0.03, 1.0);
+    if (item.aspect > 0.0)
+        {
+            // set free: the width its own
+            item.aspect = std::clamp(width, 0.02, 1.0) * aspect() / item.height;
+        }
+    const QRectF unit = m_overlay->withGeometry(index, item.x, item.y, item.height, item.aspect)
+                        .itemRect(index, pictureFrame(1.0, 1.0 / aspect()));
+    item.x = std::clamp(x, 0.0, std::max(0.0, 1.0 - unit.width()));
+    item.y = std::clamp(y, 0.0, std::max(0.0, 1.0 - item.height));
+    if (done)
+        {
+            byHand();
+            rebuildOverlay();
+            return;
+        }
+    m_overlay = std::make_shared<const Overlay>(m_overlay->withGeometry(index, item.x, item.y, item.height, item.aspect));
+    emit overlayChanged();
 }
 
 QVariantMap SimpleController::gaugeProperties(int index) const
@@ -834,6 +1292,7 @@ void SimpleController::addMusic(const QUrl &url)
         }
     // its length, for the next track to follow it; until known it plays to its end
     m_project.soundtrack.tracks.append({path});
+    setModified();
     emit musicChanged();
     auto *watcher = new QFutureWatcher<double>(this);
     connect(watcher, &QFutureWatcher<double>::finished, this, [this, watcher, path]()
@@ -862,6 +1321,7 @@ void SimpleController::removeMusic(int index)
     if (index >= 0 && index < m_project.soundtrack.tracks.size())
         {
             m_project.soundtrack.tracks.removeAt(index);
+            setModified();
             emit musicChanged();
         }
 }
@@ -880,6 +1340,40 @@ QVariantMap SimpleController::musicAt(qint64 videoMs) const
 }
 
 void SimpleController::startExport()
+{
+    if (m_thread || m_exportWaitsForEncoders)
+        {
+            return;
+        }
+    m_exportStart = 0.0;
+    m_exportLength = 0.0;
+    m_exportName.clear();
+    runExport();
+}
+
+void SimpleController::exportLap(int number)
+{
+    if (m_thread || m_exportWaitsForEncoders || !m_session || number < 1 || number > m_session->laps().size())
+        {
+            return;
+        }
+    const TelemetrySession::Lap &lap = m_session->laps().at(number - 1);
+    const SyncMap sync = m_project.sync();
+    const double start = std::max(0.0, sync.videoTime(lap.startTime));
+    const double end = std::min(m_info.duration, sync.videoTime(lap.endTime));
+    if (end <= start)
+        {
+            m_exportText = tr("This lap is not in the video.");
+            emit exportChanged();
+            return;
+        }
+    m_exportStart = start;
+    m_exportLength = end - start;
+    m_exportName = tr("lap%1").arg(number);
+    runExport();
+}
+
+void SimpleController::runExport()
 {
     if (m_thread || !m_session || !m_probed)
         {
@@ -900,7 +1394,7 @@ void SimpleController::startExport()
                 if (m_exportWaitsForEncoders)
                     {
                         m_exportWaitsForEncoders = false;
-                        startExport();
+                        runExport();
                     }
             });
             const bool preferOwn = AppSettings::ownVideoEngine();
@@ -925,13 +1419,24 @@ void SimpleController::startExport()
         {
             suffix = QStringLiteral("mkv");
         }
-    // beside the video, or in the folder of the settings; never over a file that is there
-    const QFileInfo video(m_project.videoPath);
-    const QString folder = !AppSettings::exportFolder().isEmpty() ? AppSettings::exportFolder() : video.absolutePath();
-    QString path = QDir(folder).filePath(video.completeBaseName() + "_overlay." + suffix);
+    settings.start = m_exportStart;
+    settings.duration = m_exportLength;
+    // without a video: the gauges over the background's color
+    settings.background = m_project.background.color;
+    // beside the video (or the data), or in the folder of the settings; never over a file that is there
+    const QFileInfo source(!m_project.videoPath.isEmpty() ? m_project.videoPath : m_project.telemetryPath);
+    QString folder = !AppSettings::exportFolder().isEmpty() ? AppSettings::exportFolder()
+                     : m_demo ? QStandardPaths::writableLocation(QStandardPaths::MoviesLocation) : source.absolutePath();
+    if (folder.isEmpty() || !QDir(folder).exists())
+        {
+            folder = QDir::homePath();
+        }
+    const QString base = (m_demo ? QStringLiteral("demo") : source.completeBaseName()) + "_overlay"
+                         + (m_exportName.isEmpty() ? QString() : "_" + m_exportName);
+    QString path = QDir(folder).filePath(base + "." + suffix);
     for (int n = 2; QFileInfo::exists(path); ++n)
         {
-            path = QDir(folder).filePath(QString("%1_overlay_%2.%3").arg(video.completeBaseName()).arg(n).arg(suffix));
+            path = QDir(folder).filePath(QString("%1_%2.%3").arg(base).arg(n).arg(suffix));
         }
     settings.outputPath = path;
     m_runningPath = path;
