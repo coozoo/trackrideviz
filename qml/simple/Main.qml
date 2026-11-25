@@ -169,7 +169,10 @@ ApplicationWindow {
             spacing: 0
             ToolButton {
                 visible: simple.canGoBack
-                text: window.wide ? qsTr("Full interface") : "←"
+                // drawn, not a character: a phone's fonts may not have it
+                icon.source: window.wide ? "" : "icons/back.svg"
+                display: window.wide ? AbstractButton.TextOnly : AbstractButton.IconOnly
+                text: qsTr("Full interface")
                 onClicked: window.leave()
             }
             Label {
@@ -201,7 +204,9 @@ ApplicationWindow {
             }
             // the rarer ones; on a phone all but the first few
             ToolButton {
-                text: "⋮"
+                icon.source: "icons/more.svg"
+                display: AbstractButton.IconOnly
+                text: qsTr("More")
                 onClicked: moreMenu.popup()
                 Menu {
                     id: moreMenu
@@ -703,7 +708,9 @@ ApplicationWindow {
             RoundButton {
                 Layout.preferredWidth: window.touch
                 Layout.preferredHeight: window.touch
-                text: window.playing ? "❚❚" : "▶"
+                icon.source: window.playing ? "icons/pause.svg" : "icons/play.svg"
+                display: AbstractButton.IconOnly
+                text: window.playing ? qsTr("Pause") : qsTr("Play")
                 onClicked: window.togglePlay()
             }
             // a press anywhere on it goes there at once
@@ -882,13 +889,17 @@ ApplicationWindow {
                     ToolButton {
                         Layout.preferredWidth: window.touch
                         enabled: part.index > 0 && simple.joinReady && !simple.joining
-                        text: "↑"
+                        icon.source: "icons/up.svg"
+                        display: AbstractButton.IconOnly
+                        text: qsTr("Move up")
                         onClicked: simple.moveJoinPart(part.index, -1)
                     }
                     ToolButton {
                         Layout.preferredWidth: window.touch
                         enabled: part.index < simple.joinNames.length - 1 && simple.joinReady && !simple.joining
-                        text: "↓"
+                        icon.source: "icons/down.svg"
+                        display: AbstractButton.IconOnly
+                        text: qsTr("Move down")
                         onClicked: simple.moveJoinPart(part.index, 1)
                     }
                 }

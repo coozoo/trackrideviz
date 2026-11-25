@@ -41,7 +41,9 @@ Drawer {
                     anchors.verticalCenter: parent.verticalCenter
                     width: sheet.touch
                     height: sheet.touch
-                    text: "✕"
+                    icon.source: "icons/close.svg"
+                    display: AbstractButton.IconOnly
+                    text: qsTr("Remove")
                     onClicked: simple.removeMusic(index)
                 }
             }
