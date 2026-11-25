@@ -677,7 +677,8 @@ jobs:
           HOST_BIN=$(dirname "$QT_ROOT_DIR")/gcc_64/bin
           # OpenSSL from its source, named with _3 (what Qt looks for) so that Android's own
           # libssl is not taken for it. The names come from OpenSSL's own build (shlib_variant):
-          # renamed afterwards with patchelf, the libraries' version tables broke.
+          # renamed afterwards with patchelf, the libraries' version tables broke. The target's name
+          # ends in the processor: OpenSSL takes the compiler from that part.
           export RTV_ANDROID_OPENSSL="$PWD/openssl-android"
           if [ "${{ steps.openssl.outputs.cache-hit }}" != "true" ]; then
             curl -sSfL "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz" | tar xz
@@ -685,9 +686,9 @@ jobs:
               cd "openssl-$OPENSSL_VERSION"
               export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
               printf '%s\n' 'my %targets = (' \
-                '    "android-arm64-qt" => { inherit_from => [ "android-arm64" ], shlib_variant => "_3" },' \
+                '    "android-qt-arm64" => { inherit_from => [ "android-arm64" ], shlib_variant => "_3" },' \
                 ');' > qt-android.conf
-              ./Configure --config=qt-android.conf android-arm64-qt shared -D__ANDROID_API__=28 no-tests no-docs > /dev/null
+              ./Configure --config=qt-android.conf android-qt-arm64 shared -D__ANDROID_API__=28 no-tests no-docs > /dev/null
               make -j$(nproc) build_libs > /dev/null
               mkdir -p "$RTV_ANDROID_OPENSSL"
               cp libcrypto_3.so libssl_3.so "$RTV_ANDROID_OPENSSL/"
