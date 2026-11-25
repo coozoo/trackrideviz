@@ -605,8 +605,9 @@ jobs:
     if: github.ref == 'refs/heads/main' || needs.create_release.outputs.build_and == '1'
     runs-on: ubuntu-24.04
     env:
-      QT_VERSION: 6.10.1
-      # the NDK this Qt was built with
+      # Qt for Android as Ubuntu packages: https://launchpad.net/~bastif/+archive/ubuntu/qt-android
+      QT_ANDROID: "6.9"
+      # the NDK that Qt was built with
       NDK_VERSION: 27.2.12479018
     steps:
       - name: Checkout code
@@ -625,33 +626,19 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Qt for the desktop (its tools build for Android)
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
-          host: linux
-          target: desktop
-          arch: linux_gcc_64
-          cache: true
-          set-env: false
-      # Qt's own Android builds (no distribution packages Qt for Android): since Qt 6.7 under
-      # the host all_os, the same for every build machine
+      # its own tools (qmake, androiddeployqt) and arm64 libraries, with Android's own media
+      # backend rather than Qt's FFmpeg
       - name: Qt for Android
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: ${{ env.QT_VERSION }}
-          host: all_os
-          target: android
-          arch: android_arm64_v8a
-          modules: qtmultimedia
-          cache: true
+        run: |
+          sudo add-apt-repository -y ppa:bastif/qt-android
+          sudo apt-get install -y --no-install-recommends qt-android-$QT_ANDROID-arm64-v8a
       - name: Gradle downloads (kept between runs)
         uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-qt${{ env.QT_VERSION }}
+          key: gradle-${{ runner.os }}-qt${{ env.QT_ANDROID }}
       - name: Build APK
         id: buildandroid
         run: |
@@ -661,8 +648,9 @@ jobs:
           fi
           export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/$NDK_VERSION"
           PLATFORM=$(ls "$ANDROID_SDK_ROOT/platforms" | sort -V | tail -n 1)
+          QT_ROOT_DIR=/usr/lib/aarch64-linux-gnu/qt-android-$QT_ANDROID-arm64-v8a
+          HOST_BIN=/usr/lib/qt-android-$QT_ANDROID-host/bin
           echo "Qt: $QT_ROOT_DIR, NDK: $ANDROID_NDK_ROOT, platform: $PLATFORM"
-          HOST_BIN=$(dirname "$QT_ROOT_DIR")/gcc_64/bin
           mkdir -p build-android && cd build-android
           "$QT_ROOT_DIR/bin/qmake" ../trackrideviz.pro CONFIG+=release
           make -j$(nproc)
