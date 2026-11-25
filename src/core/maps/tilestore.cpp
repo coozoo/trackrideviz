@@ -12,6 +12,11 @@
 #include <QSaveFile>
 #include <QStandardPaths>
 #include <QTimer>
+#ifdef Q_OS_ANDROID
+#include <QJniEnvironment>
+#include <QJniObject>
+#include <QThreadPool>
+#endif
 
 #include <cmath>
 
@@ -26,6 +31,29 @@ const int kCoarserLevels = 8;
 const int kParallel = 2;
 // Mercator maps end here
 const double kMaxLatitude = 85.0511;
+// a tile not come by then is given up
+const int kTimeout = 20000;
+
+#ifdef Q_OS_ANDROID
+// Qt for Android comes without a TLS backend of its own: the tiles come over Android's own
+// HTTPS instead (android/src/.../Http.java). Waits for the answer; empty when it failed.
+QByteArray androidGet(const QString &address, const QString &userAgent)
+{
+    const QJniObject body = QJniObject::callStaticObjectMethod(
+        "io/github/coozoo/trackrideviz/Http", "get", "(Ljava/lang/String;Ljava/lang/String;I)[B",
+        QJniObject::fromString(address).object<jstring>(), QJniObject::fromString(userAgent).object<jstring>(),
+        jint(kTimeout));
+    if (!body.isValid())
+        {
+            return QByteArray();
+        }
+    QJniEnvironment env;
+    const auto bytes = body.object<jbyteArray>();
+    QByteArray data(env->GetArrayLength(bytes), Qt::Uninitialized);
+    env->GetByteArrayRegion(bytes, 0, jsize(data.size()), reinterpret_cast<jbyte *>(data.data()));
+    return data;
+}
+#endif
 }
 
 size_t qHash(const TileStore::Tile &tile, size_t seed)
@@ -690,42 +718,57 @@ void TileStore::startNext()
             .replace("{y}", QString::number(tile.y))
             // servers a, b and c share the work
             .replace("{s}", QString(QChar('a' + (tile.x + tile.y) % 3)));
-            QNetworkRequest request{QUrl(address)};
             // tile servers ask every program to say who it is
-            request.setHeader(QNetworkRequest::UserAgentHeader,
-                              QString("%1/%2 (+https://github.com/coozoo/trackrideviz)")
-                              .arg(QCoreApplication::applicationName(), QCoreApplication::applicationVersion()));
-            request.setTransferTimeout(20000);
+            const QString agent = QString("%1/%2 (+https://github.com/coozoo/trackrideviz)")
+                                  .arg(QCoreApplication::applicationName(), QCoreApplication::applicationVersion());
+#ifdef Q_OS_ANDROID
+            QThreadPool::globalInstance()->start([this, tile, path, address, agent]()
+            {
+                const QByteArray data = androidGet(address, agent);
+                QMetaObject::invokeMethod(this, [this, tile, path, data]()
+                {
+                    fetched(tile, path, data, !data.isEmpty());
+                }, Qt::QueuedConnection);
+            });
+#else
+            QNetworkRequest request{QUrl(address)};
+            request.setHeader(QNetworkRequest::UserAgentHeader, agent);
+            request.setTransferTimeout(kTimeout);
             QNetworkReply *reply = m_network->get(request);
             connect(reply, &QNetworkReply::finished, this, [this, reply, tile, path]()
             {
                 reply->deleteLater();
-                const QByteArray data = reply->readAll();
-                bool kept = false;
-                if (reply->error() == QNetworkReply::NoError && !QImage::fromData(data).isNull())
-                    {
-                        QDir().mkpath(QFileInfo(path).path());
-                        QSaveFile file(path);
-                        kept = file.open(QIODevice::WriteOnly) && file.write(data) == data.size() && file.commit();
-                    }
-                {
-                    const QMutexLocker lock(&m_mutex);
-                    m_running.remove(tile);
-                    if (kept)
-                        {
-                            m_pictures.clear();
-                            ++m_picturesCleared;
-                        }
-                    if (!kept)
-                        {
-                            m_failed.insert(tile);
-                        }
-                }
-                if (kept)
-                    {
-                        m_announce->start();
-                    }
-                startNext();
+                fetched(tile, path, reply->readAll(), reply->error() == QNetworkReply::NoError);
             });
+#endif
         }
+}
+
+void TileStore::fetched(const Tile &tile, const QString &path, const QByteArray &data, bool ok)
+{
+    bool kept = false;
+    if (ok && !QImage::fromData(data).isNull())
+        {
+            QDir().mkpath(QFileInfo(path).path());
+            QSaveFile file(path);
+            kept = file.open(QIODevice::WriteOnly) && file.write(data) == data.size() && file.commit();
+        }
+    {
+        const QMutexLocker lock(&m_mutex);
+        m_running.remove(tile);
+        if (kept)
+            {
+                m_pictures.clear();
+                ++m_picturesCleared;
+            }
+        if (!kept)
+            {
+                m_failed.insert(tile);
+            }
+    }
+    if (kept)
+        {
+            m_announce->start();
+        }
+    startNext();
 }
