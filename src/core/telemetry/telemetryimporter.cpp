@@ -10,12 +10,46 @@
 #include "tcximporter.h"
 #include "vboimporter.h"
 
+#include <QFile>
 #include <QFileInfo>
 
 #include <algorithm>
 
 namespace
 {
+// What a file is by its first bytes, as the suffix it would have, for one whose name does not
+// tell (Android hands files over as content:// addresses). Empty: none of the known kinds.
+QString suffixByContent(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        {
+            return QString();
+        }
+    const QByteArray head = file.read(4096);
+    if (head.mid(8, 4) == ".FIT")
+        {
+            return "fit";
+        }
+    if (head.mid(4, 4) == "ftyp")
+        {
+            return "mp4";
+        }
+    if (head.contains("<gpx"))
+        {
+            return "gpx";
+        }
+    if (head.contains("<TrainingCenterDatabase"))
+        {
+            return "tcx";
+        }
+    if (head.contains("[header]") && head.contains("[column names]"))
+        {
+            return "vbo";
+        }
+    return NmeaImporter::looksLikeNmea(path) ? "nmea" : QString();
+}
+
 // A few samples stamped a day or more away from the rest of the recording (a clock not set yet,
 // 1970, a GPS week counted wrong) would stretch the ride over years: everything worked out
 // second by second would then run for ages. Such stray bits are left out; parts of a ride
@@ -133,7 +167,12 @@ TelemetrySessionPtr TelemetryImporter::loadRecorded(const QString &path, QString
 
 TelemetrySessionPtr TelemetryImporter::loadFile(const QString &path, QString *error)
 {
-    const QString suffix = QFileInfo(path).suffix().toLower();
+    QString suffix = QFileInfo(path).suffix().toLower();
+    if (!suffixes().contains(suffix))
+        {
+            const QString found = suffixByContent(path);
+            suffix = found.isEmpty() ? suffix : found;
+        }
     if (suffix == "fit")
         {
             return FitImporter::load(path, error);
