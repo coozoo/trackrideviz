@@ -33,6 +33,9 @@ ApplicationWindow {
     property int revision: 0
     // a corner of it dragged
     property bool resizing: false
+    // a sheet or a dialog over the picture: taps are theirs
+    readonly property bool covered: dashes.visible || gauges.visible || properties.visible || musicSheet.visible
+                                    || lapsSheet.visible || exporter.visible || discardDialog.visible
     // the graph under the video, and what it shows
     property bool graphShown: true
     property string graphChannel: ""
@@ -542,7 +545,8 @@ ApplicationWindow {
 
             // a tap plays or pauses; a long one on a gauge offers what to do with it, elsewhere what to add
             TapHandler {
-                enabled: window.moving < 0
+                // not through a sheet or a dialog over it
+                enabled: window.moving < 0 && !window.covered
                 onTapped: window.togglePlay()
                 onLongPressed: {
                     const p = point.position
