@@ -654,7 +654,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: openssl-android
-          key: openssl-${{ env.OPENSSL_VERSION }}-arm64-ndk${{ env.NDK_VERSION }}
+          key: openssl-${{ env.OPENSSL_VERSION }}-arm64-ndk${{ env.NDK_VERSION }}-variant
       - name: Gradle downloads (kept between runs)
         uses: actions/cache@v6
         with:
@@ -675,25 +675,25 @@ jobs:
           export ANDROID_NDK_ROOT="$ANDROID_SDK_ROOT/ndk/$NDK_VERSION"
           PLATFORM=$ANDROID_PLATFORM
           HOST_BIN=$(dirname "$QT_ROOT_DIR")/gcc_64/bin
-          # OpenSSL from its source, as Qt's Android notes build it: named with _3 so that
-          # Android's own libssl is not taken for it
+          # OpenSSL from its source, named with _3 (what Qt looks for) so that Android's own
+          # libssl is not taken for it. The names come from OpenSSL's own build (shlib_variant):
+          # renamed afterwards with patchelf, the libraries' version tables broke.
           export RTV_ANDROID_OPENSSL="$PWD/openssl-android"
           if [ "${{ steps.openssl.outputs.cache-hit }}" != "true" ]; then
             curl -sSfL "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz" | tar xz
             (
               cd "openssl-$OPENSSL_VERSION"
               export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
-              ./Configure shared android-arm64 -D__ANDROID_API__=28 no-tests no-docs > /dev/null
-              make -j$(nproc) SHLIB_VERSION_NUMBER= build_libs > /dev/null
+              printf '%s\n' 'my %targets = (' \
+                '    "android-arm64-qt" => { inherit_from => [ "android-arm64" ], shlib_variant => "_3" },' \
+                ');' > qt-android.conf
+              ./Configure --config=qt-android.conf android-arm64-qt shared -D__ANDROID_API__=28 no-tests no-docs > /dev/null
+              make -j$(nproc) build_libs > /dev/null
               mkdir -p "$RTV_ANDROID_OPENSSL"
-              cp libcrypto.so "$RTV_ANDROID_OPENSSL/libcrypto_3.so"
-              cp libssl.so "$RTV_ANDROID_OPENSSL/libssl_3.so"
+              cp libcrypto_3.so libssl_3.so "$RTV_ANDROID_OPENSSL/"
             )
-            sudo apt-get install -y --no-install-recommends patchelf > /dev/null
-            patchelf --set-soname libcrypto_3.so "$RTV_ANDROID_OPENSSL/libcrypto_3.so"
-            patchelf --set-soname libssl_3.so "$RTV_ANDROID_OPENSSL/libssl_3.so"
-            patchelf --replace-needed libcrypto.so libcrypto_3.so "$RTV_ANDROID_OPENSSL/libssl_3.so"
           fi
+          "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -d "$RTV_ANDROID_OPENSSL/libssl_3.so" | grep -E 'NEEDED|SONAME'
           ls -l "$RTV_ANDROID_OPENSSL"
           echo "Qt: $QT_ROOT_DIR, NDK: $ANDROID_NDK_ROOT, platform: $PLATFORM"
           mkdir -p build-android && cd build-android
