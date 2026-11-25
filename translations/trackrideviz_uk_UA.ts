@@ -5232,7 +5232,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="197"/>
-        <location filename="../qml/simple/Main.qml" line="1007"/>
+        <location filename="../qml/simple/Main.qml" line="1040"/>
         <source>Export</source>
         <translation>Експорт</translation>
     </message>
@@ -5358,72 +5358,77 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>Об’єднати відео?</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="888"/>
+        <location filename="../qml/simple/Main.qml" line="901"/>
+        <source>In order of their names. The breaks between them come from when each was recorded (the time in its name, or the file&apos;s own); if the data does not follow after joining, move it with Sync.</source>
+        <translation>За порядком назв. Перерви між ними беруться з часу запису кожного (час у назві або дата самого файлу); якщо після об’єднання дані не збігаються, зсуньте їх через Синхр.</translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="921"/>
         <source>Join</source>
         <translation>Об’єднати</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="894"/>
+        <location filename="../qml/simple/Main.qml" line="927"/>
         <source>Only this one</source>
         <translation>Лише це</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="905"/>
+        <location filename="../qml/simple/Main.qml" line="938"/>
         <source>Stop</source>
         <translation>Зупинити</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="905"/>
+        <location filename="../qml/simple/Main.qml" line="938"/>
         <source>Cancel</source>
         <translation>Скасувати</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="921"/>
+        <location filename="../qml/simple/Main.qml" line="954"/>
         <source>Export the video</source>
         <translation>Експорт відео</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="942"/>
+        <location filename="../qml/simple/Main.qml" line="975"/>
         <source>Only the gauges, see-through (.webm)</source>
         <translation>Лише прилади, на прозорому (.webm)</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="950"/>
+        <location filename="../qml/simple/Main.qml" line="983"/>
         <source>For laying over the video in an editor: only the gauges are made, the video is left as it is.</source>
         <translation>Щоб накласти на відео в редакторі: створюються лише прилади, саме відео лишається як є.</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="956"/>
+        <location filename="../qml/simple/Main.qml" line="989"/>
         <source>Only a part</source>
         <translation>Лише частину</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="976"/>
+        <location filename="../qml/simple/Main.qml" line="1009"/>
         <source>From %1</source>
         <translation>Від %1</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="978"/>
+        <location filename="../qml/simple/Main.qml" line="1011"/>
         <source>to %1</source>
         <translation>до %1</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="980"/>
+        <location filename="../qml/simple/Main.qml" line="1013"/>
         <source>From here</source>
         <translation>Звідси</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="985"/>
+        <location filename="../qml/simple/Main.qml" line="1018"/>
         <source>To here</source>
         <translation>Досюди</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1015"/>
+        <location filename="../qml/simple/Main.qml" line="1048"/>
         <source>Stop, keep what is done</source>
         <translation>Зупинити, зберегти зроблене</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1022"/>
+        <location filename="../qml/simple/Main.qml" line="1055"/>
         <source>Play it</source>
         <translation>Відтворити</translation>
     </message>
@@ -8011,39 +8016,39 @@ It appears among the templates in the library.</source>
         <translation>Відкриття %1...</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1093"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1112"/>
         <source>Reading %1...</source>
         <translation>Читання %1...</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1132"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1151"/>
         <source>This video has no data of its own: open the file of the ride.</source>
         <translation>У цьому відео немає власних даних: відкрийте файл поїздки.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1133"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1152"/>
         <source>%1 could not be read.</source>
         <translation>Не вдалося прочитати %1.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1240"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1259"/>
         <source>The data comes from this video.</source>
         <translation>Дані взято з цього відео.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1248"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1267"/>
         <source>In step by the clocks.</source>
         <translation>Синхронізовано за годинниками.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1252"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1271"/>
         <source>Not in step: move the data until the gauges match the picture.</source>
         <translation>Не синхронізовано: зсувайте дані, доки прилади не збігатимуться із зображенням.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1070"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1260"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1269"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1089"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1279"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1288"/>
         <source>Moved by hand.</source>
         <translation>Зсунуто вручну.</translation>
     </message>
@@ -8058,7 +8063,7 @@ It appears among the templates in the library.</source>
         <translation>Читання відео...</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/simple/simplecontroller.cpp" line="659"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="687"/>
         <source>%n videos, %1 long, copied one after another into %2: quick, and nothing is lost.</source>
         <translation>
             <numerusform>%n відео, %1 завдовжки, скопійовано одне за одним у %2: швидко і без втрат.</numerusform>
@@ -8067,97 +8072,97 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="665"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="693"/>
         <source>They can be joined by encoding them again into %1. That takes a while; the joined video gets the size and frame rate of the first one (%2×%3), the others scaled into it.</source>
         <translation>Їх можна об’єднати, закодувавши заново в %1. Це займе час; об’єднане відео отримає розмір і частоту кадрів першого (%2×%3), інші масштабуються до нього.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="673"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="701"/>
         <source>The camera&apos;s data in them does not come along.</source>
         <translation>Дані камери з них не переносяться.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="718"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="737"/>
         <source>Joining failed: %1</source>
         <translation>Об’єднати не вдалося: %1</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="734"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="753"/>
         <source>Joining...</source>
         <translation>Об’єднання...</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="734"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="753"/>
         <source>Encoding...</source>
         <translation>Кодування...</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="905"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="924"/>
         <source>No video: the gauges follow the data&apos;s own time.</source>
         <translation>Без відео: прилади йдуть за власним часом даних.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1234"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1253"/>
         <source>The demo ride: open the data of your own to put it in step.</source>
         <translation>Демо-поїздка: відкрийте власні дані, щоб узгодити їх із відео.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1453"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1472"/>
         <source>As in the settings</source>
         <translation>Як у налаштуваннях</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1717"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1736"/>
         <source>The end has to be after the start.</source>
         <translation>Кінець має бути після початку.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1739"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1758"/>
         <source>This lap is not in the video.</source>
         <translation>Цього кола немає у відео.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1745"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1764"/>
         <source>lap%1</source>
         <translation>lap%1</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1759"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1778"/>
         <source>Finding the encoders this device can use...</source>
         <translation>Пошук кодувальників, доступних на цьому пристрої...</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1783"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1802"/>
         <source>No encoder works on this device.</source>
         <translation>На цьому пристрої не працює жоден кодувальник.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1836"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1855"/>
         <source>Exporting... %1 %</source>
         <translation>Експорт... %1 %</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1844"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1863"/>
         <source>Starting...</source>
         <translation>Запуск...</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1875"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1894"/>
         <source>Saved %1</source>
         <translation>Збережено %1</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1879"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1898"/>
         <source>Stopped: what was done is in %1</source>
         <translation>Зупинено: зроблене збережено в %1</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1882"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1901"/>
         <source>Canceled.</source>
         <translation>Скасовано.</translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1885"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1904"/>
         <source>The export failed.</source>
         <translation>Експорт не вдався.</translation>
     </message>
