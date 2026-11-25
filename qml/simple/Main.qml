@@ -492,7 +492,7 @@ ApplicationWindow {
                 id: gaugeMenu
                 property int index: -1
                 MenuItem {
-                    text: qsTr("Move")
+                    text: qsTr("Move/resize")
                     onTriggered: {
                         playback.pause()
                         window.moving = gaugeMenu.index

@@ -85,6 +85,17 @@ Loaded workOut(const TelemetrySessionPtr &raw, const Project &project)
     return result;
 }
 
+// the largest a gauge gets, a fraction of the picture's height: a little more than the picture, as
+// the route in 3D under a dash is
+const double kMaxGaugeHeight = 1.5;
+
+// Where a gauge `size` long (a fraction of the picture) starts so that it stays on the picture;
+// one longer than the picture covers it instead.
+double onPicture(double start, double size)
+{
+    return std::clamp(start, std::min(0.0, 1.0 - size), std::max(0.0, 1.0 - size));
+}
+
 // The route in 3D under the gauges of a ride without a video: the whole picture and more.
 bool isBackdrop(const OverlayItem &item)
 {
@@ -986,8 +997,8 @@ void SimpleController::moveGauge(int index, double x, double y, bool done)
     // the whole of it on the picture
     const QRectF unit = m_overlay->itemRect(index, pictureFrame(1000.0, 1000.0 / aspect()));
     const double width = unit.width() / 1000.0;
-    item.x = std::clamp(x, 0.0, std::max(0.0, 1.0 - width));
-    item.y = std::clamp(y, 0.0, std::max(0.0, 1.0 - item.height));
+    item.x = onPicture(x, width);
+    item.y = onPicture(y, item.height);
     if (done)
         {
             byHand();
@@ -1003,11 +1014,11 @@ void SimpleController::resizeGauge(int index, double height)
 {
     changeGauge(index, [height](OverlayItem &item)
     {
-        const double wanted = std::clamp(height, 0.05, 1.0);
+        const double wanted = std::clamp(height, 0.05, kMaxGaugeHeight);
         // about its middle
         item.y += (item.height - wanted) / 2.0;
         item.height = wanted;
-        item.y = std::clamp(item.y, 0.0, std::max(0.0, 1.0 - item.height));
+        item.y = onPicture(item.y, item.height);
     });
 }
 
@@ -1066,16 +1077,16 @@ void SimpleController::setGaugeRect(int index, double x, double y, double width,
             return;
         }
     OverlayItem &item = m_project.overlay[index];
-    item.height = std::clamp(height, 0.03, 1.0);
+    item.height = std::clamp(height, 0.03, kMaxGaugeHeight);
     if (item.aspect > 0.0)
         {
             // set free: the width its own
-            item.aspect = std::clamp(width, 0.02, 1.0) * aspect() / item.height;
+            item.aspect = std::clamp(width, 0.02, kMaxGaugeHeight) * aspect() / item.height;
         }
     const QRectF unit = m_overlay->withGeometry(index, item.x, item.y, item.height, item.aspect)
                         .itemRect(index, pictureFrame(1.0, 1.0 / aspect()));
-    item.x = std::clamp(x, 0.0, std::max(0.0, 1.0 - unit.width()));
-    item.y = std::clamp(y, 0.0, std::max(0.0, 1.0 - item.height));
+    item.x = onPicture(x, unit.width());
+    item.y = onPicture(y, item.height);
     if (done)
         {
             byHand();
@@ -1221,7 +1232,7 @@ void SimpleController::setGaugeWidth(int index, double width)
     const double pictureAspect = aspect();
     changeGauge(index, [width, pictureAspect](OverlayItem &item)
     {
-        const double wanted = std::clamp(width, 0.02, 1.0 - item.x);
+        const double wanted = std::clamp(width, 0.02, std::max(1.0 - item.x, 0.02));
         item.aspect = wanted * pictureAspect / item.height;
     });
 }
