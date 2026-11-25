@@ -4,6 +4,8 @@
 #include "video/ffmpegtools.h"
 
 #include <QFileInfo>
+#include <QImage>
+#include <QPainter>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
@@ -275,6 +277,148 @@ private slots:
         simple.setGaugeGhost(route, true);
         QCOMPARE(simple.project().overlay.at(route).ghost, 1);
         QVERIFY(simple.gaugeProperties(route).value("mapIds").toStringList().first().isEmpty());
+    }
+
+    // No video: the demo ride, its route in 3D the whole picture; a video put in place of it.
+    void demoFlyover()
+    {
+        SimpleController simple(false);
+        simple.openDemo();
+        QVERIFY(simple.isDemo());
+        QVERIFY(simple.hasData());
+        QVERIFY(simple.dataDuration() > 60000);
+        QVERIFY(!simple.canSave());
+        QCOMPARE(simple.gaugeCount(), 1);
+        QVERIFY(qAbs(simple.aspect() - 16.0 / 9.0) < 1e-9);
+        const QVariantMap flyover = simple.gaugeProperties(0);
+        QVERIFY(flyover.value("flyover").toBool());
+        QVERIFY(flyover.value("headingUp").toBool());
+        QCOMPARE(flyover.value("closeUp").toDouble(), 300.0);
+        // its map the whole picture: the gauge a little more
+        QVERIFY(flyover.value("width").toDouble() >= 1.0);
+        // a look at it, when asked for
+        if (!qEnvironmentVariableIsEmpty("SIMPLE_FLYOVER_PNG"))
+            {
+                QImage picture(960, 540, QImage::Format_ARGB32_Premultiplied);
+                picture.fill(Qt::black);
+                QPainter painter(&picture);
+                simple.overlay()->render(painter, QRectF(0, 0, 960, 540), 205.0);
+                painter.end();
+                picture.save(qEnvironmentVariable("SIMPLE_FLYOVER_PNG"));
+            }
+        // its laps, the line put where the rider is
+        QVERIFY(simple.lineHere(20000));
+        QVERIFY(simple.hasLine());
+        QVERIFY(!simple.laps().isEmpty());
+        const QVariantMap first = simple.laps().first().toMap();
+        QCOMPARE(first.value("number").toInt(), 1);
+        QVERIFY(!first.value("time").toString().isEmpty());
+        simple.setReferenceLap(1);
+        QVERIFY(simple.laps().first().toMap().value("reference").toBool());
+        simple.clearLine();
+        QVERIFY(!simple.hasLine());
+
+        if (m_video.isEmpty())
+            {
+                return;
+            }
+        // one's own video: the demo is gone, a dash over the video
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        QVERIFY(!simple.isDemo());
+        QVERIFY(!simple.hasData());
+        simple.openData(QUrl::fromLocalFile(m_data));
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QVERIFY(simple.templateIndex() >= 0 || simple.templateNames().isEmpty());
+    }
+
+    // Data without a video: the flyover, as long as the data, then a video and a dash.
+    void dataFirst()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        SimpleController simple(false);
+        simple.openData(QUrl::fromLocalFile(m_data));
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QCOMPARE(simple.gaugeCount(), 1);
+        QVERIFY(simple.gaugeProperties(0).value("flyover").toBool());
+        QCOMPARE(simple.dataDuration(), qint64(10000));
+        QCOMPARE(simple.syncOffset(), 0.0);
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.busy() && simple.aspect() < 1.5, 20000);
+        QVERIFY(!simple.gaugeProperties(0).value("flyover").toBool() || simple.templateNames().isEmpty());
+    }
+
+    // One Open for everything, Save, New; a project opened again as it was saved.
+    void openSaveNew()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        const QString song = m_dir.filePath("open.wav");
+        QVERIFY(FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
+                                            "sine=frequency=440:duration=3", song}).exitCode == 0);
+        SimpleController simple(false);
+        QVERIFY(!simple.modified());
+        simple.openFiles({QUrl::fromLocalFile(m_data), QUrl::fromLocalFile(song), QUrl::fromLocalFile(m_video)});
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QCOMPARE(simple.videoName(), QString("ride.mp4"));
+        QCOMPARE(simple.dataName(), QString("ride.gpx"));
+        QCOMPARE(simple.musicNames(), QStringList{"open.wav"});
+        QVERIFY(simple.modified());
+        QVERIFY(simple.canSave());
+        QVERIFY(!simple.save());   // no file yet
+        simple.setSyncOffset(1.5);
+        simple.addGauge("builtin:speedometer");
+        const int gauges = simple.gaugeCount();
+        QVERIFY(simple.saveAs(QUrl::fromLocalFile(m_dir.filePath("saved"))));
+        QVERIFY(!simple.modified());
+        QCOMPARE(simple.projectName(), QString("saved"));
+        const QString saved = m_dir.filePath("saved.rtvproj");
+        QVERIFY(QFileInfo::exists(saved));
+
+        simple.newProject();
+        QVERIFY(!simple.hasData());
+        QVERIFY(simple.videoName().isEmpty());
+        QVERIFY(simple.musicNames().isEmpty());
+        QVERIFY(simple.projectName().isEmpty());
+
+        simple.openFiles({QUrl::fromLocalFile(saved)});
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        QCOMPARE(simple.gaugeCount(), gauges);
+        QCOMPARE(simple.syncOffset(), 1.5);
+        QCOMPARE(simple.musicNames(), QStringList{"open.wav"});
+        QCOMPARE(simple.projectName(), QString("saved"));
+        QVERIFY(!simple.modified());
+    }
+
+    // A corner dragged: a gauge that keeps its shape takes the height, a free one both.
+    void corners()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        SimpleController simple(false);
+        simple.openVideo(QUrl::fromLocalFile(m_video));
+        simple.openData(QUrl::fromLocalFile(m_data));
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        simple.addGauge("builtin:speedometer");
+        const int dial = simple.gaugeCount() - 1;
+        const QRectF before = simple.gaugeRect(dial, 320, 240);
+        simple.setGaugeRect(dial, 0.1, 0.1, 0.9, 0.5, true);
+        QRectF now = simple.gaugeRect(dial, 320, 240);
+        QVERIFY(qAbs(now.height() - 120.0) < 0.5);
+        // its own shape: the width follows
+        QVERIFY(qAbs(now.width() / now.height() - before.width() / before.height()) < 1e-6);
+        simple.setGaugeKeepShape(dial, false);
+        simple.setGaugeRect(dial, 0.1, 0.1, 0.6, 0.3, true);
+        now = simple.gaugeRect(dial, 320, 240);
+        QVERIFY(qAbs(now.width() - 192.0) < 0.5);
+        QVERIFY(qAbs(now.height() - 72.0) < 0.5);
+        QVERIFY(qAbs(now.x() - 32.0) < 0.5);
     }
 
     // Music under the video: what plays when, and how loud.

@@ -5,8 +5,9 @@ import QtQuick.Layouts
 import QtMultimedia
 import TrackRideViz
 
-// The simplified interface: a video, its data, a dash of gauges, music, an export. Made for
-// fingers first; the same layout on a phone, a tablet and the desktop.
+// The simplified interface: a video, its data, a dash of gauges, laps, music, an export; without
+// a video the route in 3D. Made for fingers first; the same layout on a phone, a tablet and the
+// desktop.
 ApplicationWindow {
     id: window
     width: 1100
@@ -15,7 +16,13 @@ ApplicationWindow {
     title: qsTr("Race Track Visualizer")
 
     readonly property bool hasVideo: simple.videoUrl.toString() !== ""
-    readonly property bool playing: player.playbackState === MediaPlayer.PlayingState
+    // something to show: a video, or data drawn over a plain picture
+    readonly property bool hasPicture: hasVideo || simple.hasData
+    readonly property bool playing: playback.playing
+    // changes that would be lost
+    readonly property bool unsaved: simple.modified && simple.canSave
+    // closing asked once, and answered
+    property bool leaving: false
     // a finger is about this wide
     readonly property int touch: 48
     // room for every button in the bar, and for the step beside the timeline
@@ -24,17 +31,25 @@ ApplicationWindow {
     property int moving: -1
     // drawn again: where the gauges are has changed
     property int revision: 0
+    // what the gauge being moved is like
+    readonly property var movingProps: revision, moving >= 0 ? simple.gaugeProperties(moving) : ({})
 
     Connections {
         target: simple
         function onOverlayChanged() { window.revision++ }
     }
 
-    // opened from the full window: closing it goes back there
+    // opened from the full window: closing it goes back there; otherwise the changes are asked about
     onClosing: (close) => {
         if (simple.canGoBack) {
             close.accepted = false
             window.leave()
+        } else if (window.unsaved && !window.leaving) {
+            close.accepted = false
+            window.whenSaved(() => {
+                window.leaving = true
+                window.close()
+            })
         }
     }
     function leave() {
@@ -51,7 +66,87 @@ ApplicationWindow {
         return h > 0 ? h + ":" + two(m % 60) + ":" + two(s % 60) : m + ":" + two(s % 60)
     }
     function togglePlay() {
-        playing ? player.pause() : player.play()
+        playing ? playback.pause() : playback.play()
+    }
+
+    // `action` once the changes are saved or let go, or at once when there are none
+    property var afterSaving: null
+    function whenSaved(action) {
+        if (!unsaved) {
+            action()
+            return
+        }
+        afterSaving = action
+        discardDialog.open()
+    }
+    function saveThen(action) {
+        if (simple.save()) {
+            if (action)
+                action()
+            return
+        }
+        afterSaving = action
+        saveDialog.open()
+    }
+    function openChosen(urls) {
+        const project = urls.some((url) => url.toString().toLowerCase().endsWith(".rtvproj"))
+        const open = () => {
+            moving = -1
+            simple.openFiles(urls)
+        }
+        project ? whenSaved(open) : open()
+    }
+
+    // where the picture is: the video's player, or a clock over the data
+    QtObject {
+        id: playback
+        property real clock: 0
+        property bool clockRuns: false
+        readonly property real position: window.hasVideo ? player.position : clock
+        readonly property real duration: window.hasVideo ? player.duration : simple.dataDuration
+        readonly property bool playing: window.hasVideo ? player.playbackState === MediaPlayer.PlayingState : clockRuns
+        function play() {
+            if (window.hasVideo) {
+                player.play()
+            } else {
+                if (clock >= duration)
+                    clock = 0
+                clockRuns = true
+            }
+        }
+        function pause() {
+            if (window.hasVideo)
+                player.pause()
+            else
+                clockRuns = false
+        }
+        function seek(ms) {
+            if (window.hasVideo)
+                player.position = ms
+            else
+                clock = Math.max(0, Math.min(duration, ms))
+        }
+    }
+    Timer {
+        interval: 33
+        repeat: true
+        running: playback.clockRuns && !window.hasVideo
+        property real last: 0
+        onRunningChanged: last = Date.now()
+        onTriggered: {
+            const now = Date.now()
+            playback.clock = Math.min(playback.duration, playback.clock + now - last)
+            last = now
+            if (playback.clock >= playback.duration)
+                playback.clockRuns = false
+        }
+    }
+    Connections {
+        target: simple
+        function onDataChanged() {
+            playback.clockRuns = false
+            playback.clock = Math.min(playback.clock, simple.dataDuration)
+        }
     }
 
     header: ToolBar {
@@ -67,8 +162,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.leftMargin: 12
                 elide: Label.ElideRight
-                text: window.hasVideo ? simple.videoName + (simple.hasData ? "  +  " + simple.dataName : "")
-                                      : qsTr("Race Track Visualizer")
+                text: (window.unsaved ? "• " : "")
+                      + (simple.projectName !== "" ? simple.projectName
+                         : window.hasVideo ? simple.videoName + (simple.hasData ? "  +  " + simple.dataName : "")
+                         : simple.hasData ? simple.dataName : qsTr("Race Track Visualizer"))
             }
             BusyIndicator {
                 running: simple.busy
@@ -76,51 +173,94 @@ ApplicationWindow {
                 Layout.preferredHeight: 32
                 Layout.preferredWidth: 32
             }
-            ToolButton { visible: window.wide; text: qsTr("Video"); onClicked: videoDialog.open() }
-            ToolButton { visible: window.wide; text: qsTr("Data"); onClicked: dataDialog.open() }
+            ToolButton { text: qsTr("Open"); onClicked: openDialog.open() }
+            ToolButton { visible: window.wide; text: qsTr("Save"); enabled: window.unsaved; onClicked: window.saveThen(null) }
             ToolButton { text: qsTr("Dash"); enabled: simple.hasData; onClicked: dashes.open() }
             ToolButton { visible: window.wide; text: qsTr("Add gauge"); enabled: simple.hasData; onClicked: gauges.open() }
+            ToolButton { visible: window.wide; text: qsTr("Laps"); enabled: simple.hasData; onClicked: lapsSheet.open() }
             ToolButton { visible: window.wide; text: qsTr("Music"); enabled: window.hasVideo; onClicked: musicSheet.open() }
             ToolButton {
                 text: qsTr("Export")
-                enabled: simple.hasData && window.hasVideo
+                enabled: simple.hasData
                 highlighted: enabled
                 onClicked: exporter.open()
             }
-            // on a phone the rest is behind this
+            // the rarer ones; on a phone all but the first few
             ToolButton {
-                visible: !window.wide
                 text: "⋮"
                 onClicked: moreMenu.popup()
                 Menu {
                     id: moreMenu
-                    MenuItem { text: qsTr("Video"); onTriggered: videoDialog.open() }
-                    MenuItem { text: qsTr("Data"); onTriggered: dataDialog.open() }
-                    MenuItem { text: qsTr("Add gauge"); enabled: simple.hasData; onTriggered: gauges.open() }
-                    MenuItem { text: qsTr("Music"); enabled: window.hasVideo; onTriggered: musicSheet.open() }
+                    MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Save"); enabled: window.unsaved; onTriggered: window.saveThen(null) }
+                    MenuItem { text: qsTr("Save as..."); enabled: simple.canSave; onTriggered: saveDialog.open() }
+                    MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Add gauge"); enabled: simple.hasData; onTriggered: gauges.open() }
+                    MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Laps"); enabled: simple.hasData; onTriggered: lapsSheet.open() }
+                    MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Music"); enabled: window.hasVideo; onTriggered: musicSheet.open() }
+                    MenuSeparator {}
+                    MenuItem {
+                        text: qsTr("New")
+                        enabled: window.hasPicture && !simple.exporting
+                        onTriggered: window.whenSaved(() => {
+                            window.moving = -1
+                            playback.pause()
+                            simple.newProject()
+                        })
+                    }
                 }
             }
         }
     }
 
+    // one for all: a video, the ride's data, music, a project; several at once
     FileDialog {
-        id: videoDialog
-        title: qsTr("Choose the video")
-        nameFilters: [qsTr("Videos (*.mp4 *.MP4 *.mov *.MOV *.mkv *.avi *.insv *.lrv)"), qsTr("All files (*)")]
-        onAccepted: simple.openVideo(selectedFile)
+        id: openDialog
+        title: qsTr("Open")
+        fileMode: FileDialog.OpenFiles
+        currentFolder: simple.projectFolder
+        nameFilters: [qsTr("Videos, ride data, music, projects (*.mp4 *.MP4 *.mov *.MOV *.mkv *.avi *.insv *.lrv *.fit *.FIT *.gpx *.tcx *.csv *.nmea *.vbo *.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav *.rtvproj)"),
+                      qsTr("All files (*)")]
+        onAccepted: window.openChosen(selectedFiles)
     }
     FileDialog {
-        id: dataDialog
-        title: qsTr("Choose the data of the ride")
-        nameFilters: [qsTr("Ride data (*.fit *.FIT *.gpx *.tcx *.csv *.nmea *.vbo *.mp4 *.MP4)"), qsTr("All files (*)")]
-        onAccepted: simple.openData(selectedFile)
+        id: saveDialog
+        title: qsTr("Save the project")
+        fileMode: FileDialog.SaveFile
+        currentFolder: simple.projectFolder
+        nameFilters: [qsTr("Projects (*.rtvproj)")]
+        onAccepted: {
+            if (simple.saveAs(selectedFile) && window.afterSaving)
+                window.afterSaving()
+            window.afterSaving = null
+        }
+        onRejected: window.afterSaving = null
+    }
+    Dialog {
+        id: discardDialog
+        anchors.centerIn: parent
+        modal: true
+        title: qsTr("Save the changes?")
+        standardButtons: Dialog.Save | Dialog.Discard | Dialog.Cancel
+        Label {
+            width: Math.min(window.width - 96, 360)
+            wrapMode: Text.WordWrap
+            text: qsTr("The project has changes that are not saved yet.")
+        }
+        onAccepted: window.saveThen(window.afterSaving)
+        onDiscarded: {
+            close()
+            const action = window.afterSaving
+            window.afterSaving = null
+            if (action)
+                action()
+        }
+        onRejected: window.afterSaving = null
     }
 
-    // the start: what to open
+    // the start: what to open, or a look at the demo
     ColumnLayout {
         anchors.centerIn: parent
         width: Math.min(parent.width - 32, 420)
-        visible: !window.hasVideo
+        visible: !window.hasPicture
         spacing: 16
         Label {
             Layout.fillWidth: true
@@ -129,19 +269,29 @@ ApplicationWindow {
             font.pixelSize: 20
             text: qsTr("Gauges over your ride video")
         }
-        Button {
+        RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: window.touch * 1.3
-            text: qsTr("Choose a video")
-            highlighted: true
-            onClicked: videoDialog.open()
+            spacing: 8
+            Button {
+                Layout.fillWidth: true
+                Layout.preferredHeight: window.touch * 1.3
+                text: qsTr("Open")
+                highlighted: true
+                onClicked: openDialog.open()
+            }
+            Button {
+                Layout.preferredHeight: window.touch * 1.3
+                flat: true
+                text: qsTr("Demo")
+                onClicked: simple.openDemo()
+            }
         }
         Label {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             opacity: 0.7
-            text: qsTr("A GoPro keeps its data in the video; for other cameras open the file of the ride too (FIT, GPX...).")
+            text: qsTr("A video, the ride's data (FIT, GPX...), or both at once; a GoPro keeps its data in the video. With data alone the route is shown in 3D.")
         }
         Label {
             Layout.fillWidth: true
@@ -155,7 +305,7 @@ ApplicationWindow {
     // the preview, and under it the timeline with the step beside it
     ColumnLayout {
         anchors.fill: parent
-        visible: window.hasVideo
+        visible: window.hasPicture
         spacing: 0
 
         Rectangle {
@@ -179,23 +329,26 @@ ApplicationWindow {
             VideoOutput {
                 id: video
                 anchors.fill: parent
+                visible: window.hasVideo
             }
-            // the picture's own rectangle: the gauges are placed in it
+            // the picture's own rectangle: the gauges are placed in it (without a video, its shape fitted)
             Item {
                 id: picture
-                x: video.contentRect.x
-                y: video.contentRect.y
-                width: video.contentRect.width
-                height: video.contentRect.height
+                readonly property real fitted: Math.min(stage.width, stage.height * simple.aspect)
+                x: window.hasVideo ? video.contentRect.x : (stage.width - fitted) / 2
+                y: window.hasVideo ? video.contentRect.y : (stage.height - fitted / simple.aspect) / 2
+                width: window.hasVideo ? video.contentRect.width : fitted
+                height: window.hasVideo ? video.contentRect.height : fitted / simple.aspect
 
                 GaugeOverlay {
                     anchors.fill: parent
                     controller: simple
-                    position: player.position
+                    position: playback.position
                 }
 
                 // the gauge being moved, outlined
                 Rectangle {
+                    id: outline
                     readonly property rect area: window.revision, window.moving >= 0
                                                  ? simple.gaugeRect(window.moving, picture.width, picture.height) : Qt.rect(0, 0, 0, 0)
                     visible: window.moving >= 0
@@ -243,6 +396,61 @@ ApplicationWindow {
                     onActiveChanged: if (active) from = simple.gaugeProperties(window.moving).height
                     onActiveScaleChanged: if (active) simple.resizeGauge(window.moving, from * activeScale)
                 }
+
+                // its corners: dragged, the opposite one stays; with its ratio kept it grows as a whole
+                Repeater {
+                    model: window.moving >= 0 ? 4 : 0
+                    Item {
+                        id: corner
+                        required property int index
+                        readonly property bool atRight: index % 2 === 1
+                        readonly property bool atBottom: index >= 2
+                        width: window.touch
+                        height: window.touch
+                        x: outline.area.x + (atRight ? outline.area.width : 0) - width / 2
+                        y: outline.area.y + (atBottom ? outline.area.height : 0) - height / 2
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 18
+                            height: 18
+                            radius: 9
+                            color: "#ffb300"
+                            border.color: "black"
+                        }
+                        DragHandler {
+                            target: null
+                            property rect start
+                            // where it was taken last: at the release the translation is 0 again
+                            property rect at
+                            function place(done) {
+                                simple.setGaugeRect(window.moving, at.x / picture.width, at.y / picture.height,
+                                                    at.width / picture.width, at.height / picture.height, done)
+                            }
+                            onActiveChanged: {
+                                if (active) {
+                                    start = simple.gaugeRect(window.moving, picture.width, picture.height)
+                                    at = start
+                                } else if (window.moving >= 0) {
+                                    place(true)
+                                }
+                            }
+                            onTranslationChanged: {
+                                if (!active)
+                                    return
+                                let w = Math.max(16, start.width + (corner.atRight ? translation.x : -translation.x))
+                                let h = Math.max(16, start.height + (corner.atBottom ? translation.y : -translation.y))
+                                if (window.movingProps.keepShape !== false) {
+                                    const scale = (w / start.width + h / start.height) / 2
+                                    w = start.width * scale
+                                    h = start.height * scale
+                                }
+                                at = Qt.rect(corner.atRight ? start.x : start.x + start.width - w,
+                                             corner.atBottom ? start.y : start.y + start.height - h, w, h)
+                                place(false)
+                            }
+                        }
+                    }
+                }
             }
 
             Label {
@@ -280,7 +488,7 @@ ApplicationWindow {
                 MenuItem {
                     text: qsTr("Move")
                     onTriggered: {
-                        player.pause()
+                        playback.pause()
                         window.moving = gaugeMenu.index
                     }
                 }
@@ -297,10 +505,11 @@ ApplicationWindow {
                 id: stageMenu
                 MenuItem { text: qsTr("Dash"); onTriggered: dashes.open() }
                 MenuItem { text: qsTr("Add gauge"); onTriggered: gauges.open() }
-                MenuItem { text: qsTr("Music"); onTriggered: musicSheet.open() }
+                MenuItem { text: qsTr("Laps"); onTriggered: lapsSheet.open() }
+                MenuItem { text: qsTr("Music"); enabled: window.hasVideo; onTriggered: musicSheet.open() }
             }
 
-            // while one is moved: bigger, smaller, done
+            // while one is moved: its ratio kept or not, bigger, smaller, done
             Pane {
                 visible: window.moving >= 0
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -308,18 +517,28 @@ ApplicationWindow {
                 anchors.bottomMargin: 12
                 padding: 4
                 RowLayout {
-                    Label { Layout.leftMargin: 8; text: qsTr("Drag it where it goes") }
+                    // off: the corners change the width and the height each; on: back to its own shape
                     ToolButton {
-                        Layout.preferredWidth: window.touch
-                        text: "−"
-                        font.pixelSize: 20
-                        onClicked: simple.resizeGauge(window.moving, simple.gaugeProperties(window.moving).height / 1.1)
+                        checkable: true
+                        checked: window.movingProps.keepShape !== false
+                        text: qsTr("Ratio")
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Kept: the gauge grows and shrinks as a whole. Off: the corners change its width and height each.")
+                        onToggled: simple.setGaugeKeepShape(window.moving, checked)
                     }
                     ToolButton {
                         Layout.preferredWidth: window.touch
+                        enabled: window.movingProps.keepShape !== false
+                        text: "−"
+                        font.pixelSize: 20
+                        onClicked: simple.resizeGauge(window.moving, window.movingProps.height / 1.1)
+                    }
+                    ToolButton {
+                        Layout.preferredWidth: window.touch
+                        enabled: window.movingProps.keepShape !== false
                         text: "+"
                         font.pixelSize: 20
-                        onClicked: simple.resizeGauge(window.moving, simple.gaugeProperties(window.moving).height * 1.1)
+                        onClicked: simple.resizeGauge(window.moving, window.movingProps.height * 1.1)
                     }
                     Button {
                         text: qsTr("Done")
@@ -349,15 +568,16 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.preferredHeight: window.touch
                 from: 0
-                to: Math.max(1, player.duration)
-                value: player.position
-                onMoved: player.position = value
+                to: Math.max(1, playback.duration)
+                value: playback.position
+                onMoved: playback.seek(value)
             }
             Label {
-                text: window.timeText(player.position) + " / " + window.timeText(player.duration)
+                text: window.timeText(playback.position) + " / " + window.timeText(playback.duration)
             }
+            // without a video the data runs on its own time: nothing to put in step
             SyncControl {
-                visible: simple.hasData
+                visible: simple.hasData && window.hasVideo
                 touch: window.touch
                 Layout.columnSpan: window.wide ? 1 : 3
                 Layout.alignment: Qt.AlignHCenter
@@ -376,7 +596,7 @@ ApplicationWindow {
         running: window.hasVideo && simple.musicNames.length > 0
         onRunningChanged: if (!running) music.pause()
         onTriggered: {
-            const now = simple.musicAt(player.position)
+            const now = simple.musicAt(playback.position)
             if (now.url.toString() === "") {
                 music.pause()
                 return
@@ -441,7 +661,7 @@ ApplicationWindow {
                     simple.addGauge(simple.gaugeIds[index])
                     gauges.close()
                     // straight to where it goes
-                    player.pause()
+                    playback.pause()
                     window.moving = simple.gaugeCount - 1
                 }
             }
@@ -453,6 +673,19 @@ ApplicationWindow {
         touch: window.touch
         width: Math.min(window.width * 0.9, 380)
         height: window.height
+    }
+
+    LapsSheet {
+        id: lapsSheet
+        touch: window.touch
+        width: Math.min(window.width * 0.95, 440)
+        height: window.height
+        moment: playback.position
+        onJump: (ms) => playback.seek(ms)
+        onExportStarted: {
+            close()
+            exporter.open()
+        }
     }
 
     MusicSheet {
@@ -470,7 +703,7 @@ ApplicationWindow {
         modal: true
         title: qsTr("Export the video")
         onOpened: {
-            player.pause()
+            playback.pause()
             window.moving = -1
         }
         ColumnLayout {

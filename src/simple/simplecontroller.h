@@ -50,6 +50,16 @@ class SimpleController : public QObject
     Q_PROPERTY(double exportProgress READ exportProgress NOTIFY exportChanged)
     Q_PROPERTY(QString exportText READ exportText NOTIFY exportChanged)
     Q_PROPERTY(QUrl exportedUrl READ exportedUrl NOTIFY exportChanged)
+    Q_PROPERTY(bool isDemo READ isDemo NOTIFY dataChanged)
+    // without a video: how long the picture over the data runs, ms
+    Q_PROPERTY(qint64 dataDuration READ dataDuration NOTIFY dataChanged)
+    Q_PROPERTY(QString projectName READ projectName NOTIFY projectChanged)
+    Q_PROPERTY(bool modified READ modified NOTIFY projectChanged)
+    Q_PROPERTY(bool canSave READ canSave NOTIFY projectChanged)
+    Q_PROPERTY(QUrl projectFolder READ projectFolder NOTIFY projectChanged)
+    // the laps: number, start (video ms), time, delta (text), best, reference
+    Q_PROPERTY(QVariantList laps READ laps NOTIFY lapsChanged)
+    Q_PROPERTY(bool hasLine READ hasLine NOTIFY lapsChanged)
 
 public:
     explicit SimpleController(bool canGoBack, QObject *parent = nullptr);
@@ -83,11 +93,30 @@ public:
     double exportProgress() const { return m_exportProgress; }
     QString exportText() const { return m_exportText; }
     QUrl exportedUrl() const;
+    bool isDemo() const { return m_demo; }
+    qint64 dataDuration() const;
+    QString projectName() const;
+    bool modified() const { return m_modified; }
+    bool canSave() const { return !m_demo && (!m_project.videoPath.isEmpty() || !m_project.telemetryPath.isEmpty()); }
+    QUrl projectFolder() const;
+    QVariantList laps() const;
+    bool hasLine() const { return m_project.startFinish.isValid(); }
 
     // What it works on, all of it: given to the full window when it goes back.
     const Project &project() const { return m_project; }
-    // The full window's project: its video, data, gauges, step and music.
-    void openProject(const Project &project);
+    // The full window's project: its video, data, gauges, step and music; `path` its file, if saved.
+    void openProject(const Project &project, const QString &path = QString());
+    QString projectPath() const { return m_projectPath; }
+
+    // Whatever they are: a project (then only it), a video, data, music.
+    Q_INVOKABLE void openFiles(const QList<QUrl> &urls);
+    // The made-up ride, for a look before one's own is there.
+    Q_INVOKABLE void openDemo();
+    // Into its file (false: none yet, or it could not be written), or into this one.
+    Q_INVOKABLE bool save();
+    Q_INVOKABLE bool saveAs(const QUrl &url);
+    // Everything closed: the start again.
+    Q_INVOKABLE void newProject();
 
     // What is drawn over the picture, for GaugeOverlay; never null.
     std::shared_ptr<const Overlay> overlay() const { return m_overlay; }
@@ -112,6 +141,9 @@ public:
     // Moved so that its top left is at (x, y), fractions of the picture; `done` at the end of a drag
     // (before it, only what is drawn follows).
     Q_INVOKABLE void moveGauge(int index, double x, double y, bool done);
+    // Its rectangle, fractions of the picture, as a corner is dragged; a gauge that keeps its shape
+    // takes the height and its own width.
+    Q_INVOKABLE void setGaugeRect(int index, double x, double y, double width, double height, bool done);
     // Its height, a fraction of the picture's, about its middle.
     Q_INVOKABLE void resizeGauge(int index, double height);
     Q_INVOKABLE void addGauge(const QString &gaugeId);
@@ -150,7 +182,18 @@ public:
     Q_INVOKABLE void removeMusic(int index);
     // What the music plays at a moment of the video: url (empty: nothing), position (ms), volume (0..1).
     Q_INVOKABLE QVariantMap musicAt(qint64 videoMs) const;
+    // The start/finish line where the route is at this moment of the video; false without a
+    // direction of travel there.
+    Q_INVOKABLE bool lineHere(qint64 videoMs);
+    // ... moved to where nearby it gives the most laps; false when no place does.
+    Q_INVOKABLE bool findBestLine();
+    // No line: the laps the device recorded.
+    Q_INVOKABLE void clearLine();
+    // The lap the others are measured against and the ghost rides, by its number; 0: the fastest.
+    Q_INVOKABLE void setReferenceLap(int number);
     Q_INVOKABLE void startExport();
+    // Only that lap of the video.
+    Q_INVOKABLE void exportLap(int number);
     Q_INVOKABLE void stopExport();
     // Back to the full window (only when it was left for this).
     Q_INVOKABLE void goBack();
@@ -166,12 +209,15 @@ signals:
     void exportChanged();
     void musicChanged();
     void backRequested();
+    void projectChanged();
+    void lapsChanged();
 
 private:
     void setMessage(const QString &message);
     void setBusy(bool more);
     void loadData(const QString &path, bool fromVideo);
-    void dataLoaded(const TelemetrySessionPtr &raw, const TelemetrySessionPtr &session, const QString &path, bool fromVideo,
+    void dataLoaded(const TelemetrySessionPtr &raw, const TelemetrySessionPtr &worked, const TelemetrySessionPtr &session,
+                    const QString &path, bool fromVideo,
                     const QString &error, bool waiting);
     void rebuildOverlay();
     // m_project.overlay[index] changed: drawn again
@@ -180,6 +226,20 @@ private:
     void setSync(double offset, const QString &text);
     // in step by the clocks, unless it was put in step by hand
     void followClocks();
+    void setModified(bool modified = true);
+    // the gauges changed by the user: theirs from now on, and to be saved
+    void byHand();
+    void applyTemplate(int index);
+    // the laps found again, after their line or the reference changed
+    void applyLaps();
+    // without a video: the picture over the data, as long as it; with one, none
+    void useBackground();
+    // the gauges a ride without a video starts with: the route in 3D, the whole picture
+    QVector<OverlayItem> flyoverItems() const;
+    // the first gauges for the picture there is, unless the user's own are there
+    void firstGauges();
+    // the export of m_exportStart for m_exportLength (0: to the end)
+    void runExport();
     void probeVideo(const QString &path);
     void exportFinished(int outcome, const QString &message);
 
@@ -188,7 +248,12 @@ private:
     MediaInfo m_info;
     bool m_probed{false};
     TelemetrySessionPtr m_raw;
+    TelemetrySessionPtr m_worked;   // m_raw worked out, before its laps
     TelemetrySessionPtr m_session;
+    bool m_demo{false};
+    QString m_projectPath;
+    bool m_modified{false};
+    bool m_flyoverShown{false};     // the gauges are those a ride without a video starts with
     std::shared_ptr<const Overlay> m_overlay;
     int m_templateIndex{-1};
     int m_profileIndex{0};
@@ -207,6 +272,9 @@ private:
     QThread *m_thread{nullptr};
     QPointer<ExportJob> m_job;     // on m_thread
     bool m_exportWaitsForEncoders{false};
+    double m_exportStart{0.0};
+    double m_exportLength{0.0};
+    QString m_exportName;           // put after the video's name in the file's: a lap's
     double m_exportProgress{0.0};
     QString m_exportText;
     QString m_exportedPath;

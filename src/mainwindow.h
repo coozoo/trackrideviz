@@ -128,7 +128,7 @@ private slots:
     // The simplified interface in place of this window, with a way back.
     void openSimple();
     // back from the simplified interface: what was done there, kept
-    void takeFromSimple(const Project &left);
+    void takeFromSimple(const Project &left, const QString &leftPath, bool unsaved);
     // a project shown as it is, its files read again
     void showProject(const Project &project);
     // Newer releases: looked for quietly once a day, or at once from the Help menu.
