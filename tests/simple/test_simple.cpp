@@ -586,6 +586,60 @@ private slots:
         QVERIFY(!simple.exporting());
     }
 
+    // Two videos opened together: joining them offered, done by copying, the joined one opened.
+    void joinVideos()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        const QString second = m_dir.filePath("ride2.mp4");
+        QVERIFY(QFile::copy(m_video, second));
+        SimpleController simple(false);
+        QSignalSpy offered(&simple, &SimpleController::joinOffered);
+        simple.openFiles({QUrl::fromLocalFile(second), QUrl::fromLocalFile(m_video)});
+        QCOMPARE(offered.count(), 1);
+        QVERIFY(simple.videoName().isEmpty());
+        QTRY_VERIFY_WITH_TIMEOUT(simple.joinReady(), 20000);
+        QCOMPARE(simple.joinNames(), (QStringList{"ride.mp4", "ride2.mp4"}));
+        QVERIFY(!simple.joinText().isEmpty());
+        simple.startJoin();
+        QVERIFY(simple.joining());
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.joining() && simple.videoName().startsWith("ride_joined"), 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.busy(), 20000);
+        QVERIFY(simple.joinNames().isEmpty());
+        QVERIFY(QFileInfo::exists(m_dir.filePath(simple.videoName())));
+
+        // cancelled before it begins: nothing opened
+        SimpleController other(false);
+        other.openFiles({QUrl::fromLocalFile(second), QUrl::fromLocalFile(m_video)});
+        other.cancelJoin();
+        QVERIFY(other.joinNames().isEmpty());
+        QVERIFY(other.videoName().isEmpty());
+    }
+
+    // Only the gauges, on a see-through picture: a .webm beside the video.
+    void gaugesOnlyExport()
+    {
+        if (m_video.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        if (!FfmpegTools::run("ffmpeg", {"-hide_banner", "-encoders"}).output.contains("libvpx-vp9"))
+            {
+                QSKIP("ffmpeg has no VP9 encoder");
+            }
+        SimpleController simple(false);
+        simple.openFiles({QUrl::fromLocalFile(m_video), QUrl::fromLocalFile(m_data)});
+        QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
+        simple.setGaugesOnly(true);
+        simple.startExport();
+        QTRY_VERIFY_WITH_TIMEOUT(simple.exporting(), 60000);
+        QTRY_VERIFY_WITH_TIMEOUT(!simple.exporting(), 120000);
+        QVERIFY2(simple.exportedUrl().isValid(), qPrintable(simple.exportText()));
+        QVERIFY(simple.exportedUrl().toLocalFile().endsWith("_gauges.webm"));
+    }
+
     // Music under the video: what plays when, and how loud.
     void music()
     {

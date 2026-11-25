@@ -20,9 +20,11 @@ struct ExportProfile
         SourceRate     // sourcePercent of the video's own bitrate
     };
 
-    QString id;                 // built-in: "youtube", "small", "source"; the user's own: their name
+    QString id;                 // built-in: "youtube", "small", "source", "fast"; the user's own: their name
     QString name;
     bool builtIn{false};
+    // built-in: an encoder on the graphics card when there is one, whatever was chosen before
+    bool preferHardware{false};
     // built-in: the codecs, the one wanted first; the encoder is one of those found here
     QVector<VideoEncoder::Codec> codecs{VideoEncoder::H264};
     QString encoder;            // the user's own: the exact encoder

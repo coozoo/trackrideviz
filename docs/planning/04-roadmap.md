@@ -600,8 +600,13 @@ In order:
 - ✅ Recent projects, videos and data: on the first screen and under ⋮
 - ✅ Export of a part: from and to on a range slider, or from where the picture is
 - ✅ A graph under the video: one channel along it, the laps in bands, tapped or dragged to seek
+- ✅ Join: several videos opened together, or a camera chapter with more after it, are offered
+  for joining (copied when they can be, else encoded again after asking), the joined one opened
+  with the breaks between the recordings kept for the data
+- ✅ Faster exports: a built-in Fast profile (H.264 on the graphics card where there is one, the
+  video's own bitrate), and only the gauges on a see-through .webm, the video left as it is
 - Next: Android (an APK from CI with Qt for Android; files come as content:// URLs, which the
-  probe and the built-in engine have to open; the export folder), joined chapters
+  probe and the built-in engine have to open; the export folder)
 
 ## After the simple UI: GoPro
 - GoPro GPS clock sync: the camera's GPS time matched to the data's by itself (the most common complaint

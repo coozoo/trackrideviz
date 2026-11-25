@@ -35,7 +35,7 @@ ApplicationWindow {
     property bool resizing: false
     // a sheet or a dialog over the picture: taps are theirs
     readonly property bool covered: dashes.visible || gauges.visible || properties.visible || musicSheet.visible
-                                    || lapsSheet.visible || exporter.visible || discardDialog.visible
+                                    || lapsSheet.visible || exporter.visible || discardDialog.visible || joinDialog.visible
     // the graph under the video, and what it shows
     property bool graphShown: true
     property string graphChannel: ""
@@ -838,6 +838,80 @@ ApplicationWindow {
         height: window.height
     }
 
+    // several videos, or a camera's chapters, made one before they are opened
+    Dialog {
+        id: joinDialog
+        anchors.centerIn: parent
+        width: Math.min(window.width - 32, 480)
+        modal: true
+        closePolicy: simple.joining ? Popup.NoAutoClose : Popup.CloseOnEscape
+        title: simple.joinChapters ? qsTr("Join the chapters of the recording?") : qsTr("Join the videos?")
+        Connections {
+            target: simple
+            function onJoinOffered() { joinDialog.open() }
+            // joined and opened: done
+            function onJoinChanged() {
+                if (joinDialog.opened && simple.joinNames.length === 0 && !simple.joining)
+                    joinDialog.close()
+            }
+        }
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 12
+            Label {
+                Layout.fillWidth: true
+                elide: Text.ElideMiddle
+                maximumLineCount: 6
+                opacity: 0.8
+                font.family: "monospace"
+                font.pixelSize: 12
+                text: simple.joinNames.join("\n")
+            }
+            Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: simple.joinText
+            }
+            ProgressBar {
+                Layout.fillWidth: true
+                visible: simple.joining
+                value: simple.joinProgress
+            }
+            Flow {
+                Layout.fillWidth: true
+                spacing: 8
+                Button {
+                    height: window.touch
+                    visible: !simple.joining
+                    enabled: simple.joinReady
+                    highlighted: true
+                    text: qsTr("Join")
+                    onClicked: simple.startJoin()
+                }
+                Button {
+                    height: window.touch
+                    visible: simple.joinChapters && !simple.joining
+                    text: qsTr("Only this one")
+                    onClicked: {
+                        const first = simple.joinFirst
+                        simple.cancelJoin()
+                        joinDialog.close()
+                        simple.openVideo(first)
+                    }
+                }
+                Button {
+                    height: window.touch
+                    flat: true
+                    text: simple.joining ? qsTr("Stop") : qsTr("Cancel")
+                    onClicked: {
+                        simple.cancelJoin()
+                        joinDialog.close()
+                    }
+                }
+            }
+        }
+    }
+
     // the export: a profile, then go
     Dialog {
         id: exporter
@@ -857,8 +931,23 @@ ApplicationWindow {
                 Layout.preferredHeight: window.touch
                 model: simple.profileNames
                 currentIndex: simple.profileIndex
-                enabled: !simple.exporting
+                enabled: !simple.exporting && !simple.gaugesOnly
                 onActivated: (index) => simple.profileIndex = index
+            }
+            // the quickest of all: the video is not encoded again, only the gauges are
+            Switch {
+                Layout.fillWidth: true
+                enabled: !simple.exporting
+                checked: simple.gaugesOnly
+                text: qsTr("Only the gauges, see-through (.webm)")
+                onToggled: simple.gaugesOnly = checked
+            }
+            Label {
+                Layout.fillWidth: true
+                visible: simple.gaugesOnly
+                wrapMode: Text.WordWrap
+                opacity: 0.7
+                text: qsTr("For laying over the video in an editor: only the gauges are made, the video is left as it is.")
             }
             // only a part: from where to where in the video
             Switch {

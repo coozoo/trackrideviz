@@ -4,6 +4,8 @@
 #include "project/project.h"
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
+#include "video/videojoin.h"
+#include "video/videojoinjob.h"
 
 #include <QColor>
 #include <QObject>
@@ -66,6 +68,17 @@ class SimpleController : public QObject
     Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY dataChanged)
     // opened lately, files that are still there: url, name, folder, kind ("project", "video", "data")
     Q_PROPERTY(QVariantList recentFiles READ recentFiles NOTIFY recentChanged)
+    // the export: only the gauges, on a see-through picture (.webm), for laying over the video elsewhere
+    Q_PROPERTY(bool gaugesOnly READ gaugesOnly WRITE setGaugesOnly NOTIFY profileChanged)
+    // videos made one (offered by joinOffered): their names in order, what joining them means, how far
+    Q_PROPERTY(QStringList joinNames READ joinNames NOTIFY joinChanged)
+    Q_PROPERTY(QString joinText READ joinText NOTIFY joinChanged)
+    Q_PROPERTY(bool joinReady READ joinReady NOTIFY joinChanged)
+    Q_PROPERTY(bool joining READ joining NOTIFY joinChanged)
+    Q_PROPERTY(double joinProgress READ joinProgress NOTIFY joinChanged)
+    // offered for a camera's chapters: the one opened, which may also be opened alone
+    Q_PROPERTY(QUrl joinFirst READ joinFirst NOTIFY joinChanged)
+    Q_PROPERTY(bool joinChapters READ joinChapters NOTIFY joinChanged)
 
 public:
     explicit SimpleController(bool canGoBack, QObject *parent = nullptr);
@@ -110,6 +123,15 @@ public:
     QStringList channelIds() const;
     QStringList channelNames() const;
     QVariantList recentFiles() const;
+    bool gaugesOnly() const { return m_gaugesOnly; }
+    void setGaugesOnly(bool only);
+    QStringList joinNames() const;
+    QString joinText() const { return m_joinText; }
+    bool joinReady() const { return m_joinReady; }
+    bool joining() const { return m_joinJob != nullptr; }
+    double joinProgress() const { return m_joinProgress; }
+    QUrl joinFirst() const { return m_joinParts.isEmpty() ? QUrl() : QUrl::fromLocalFile(m_joinParts.first().path); }
+    bool joinChapters() const { return m_joinChapters; }
     // The data as worked out, its laps found; null without any.
     TelemetrySessionPtr session() const { return m_session; }
 
@@ -121,6 +143,10 @@ public:
 
     // Whatever they are: a project (then only it), a video, data, music.
     Q_INVOKABLE void openFiles(const QList<QUrl> &urls);
+    // The videos offered for joining, made one beside the first and opened, the breaks between
+    // them kept for the data; stopped (its file removed); or not wanted.
+    Q_INVOKABLE void startJoin();
+    Q_INVOKABLE void cancelJoin();
     // The made-up ride, for a look before one's own is there.
     Q_INVOKABLE void openDemo();
     // Into its file (false: none yet, or it could not be written), or into this one.
@@ -233,6 +259,9 @@ signals:
     void projectChanged();
     void lapsChanged();
     void recentChanged();
+    void joinChanged();
+    // Several videos opened, or a camera chapter with more after it: joining them is asked about.
+    void joinOffered();
 
 private:
     void setMessage(const QString &message);
@@ -263,6 +292,8 @@ private:
     void firstGauges();
     // the export of m_exportStart for m_exportLength (0: to the end)
     void runExport();
+    // `paths` read, to be offered for joining; `chapters`: of one recording, the first opened
+    void prepareJoin(const QStringList &paths, bool chapters);
     void probeVideo(const QString &path);
     void exportFinished(int outcome, const QString &message);
 
@@ -294,6 +325,18 @@ private:
     QThread *m_thread{nullptr};
     QPointer<ExportJob> m_job;     // on m_thread
     bool m_exportWaitsForEncoders{false};
+    bool m_gaugesOnly{false};
+    QVector<VideoJoin::Part> m_joinParts;
+    QVector<TimeShift> m_joinShifts;
+    QString m_joinOutput;
+    QString m_joinText;
+    bool m_joinReady{false};
+    bool m_joinCopies{false};       // copied as they are; otherwise encoded again
+    bool m_joinChapters{false};
+    double m_joinLength{0.0};
+    double m_joinProgress{0.0};
+    quint64 m_joinGeneration{0};
+    QPointer<VideoJoinJob> m_joinJob;
     double m_exportStart{0.0};
     double m_exportLength{0.0};
     QString m_exportName;           // put after the video's name in the file's: a lap's
