@@ -634,11 +634,13 @@ jobs:
           arch: linux_gcc_64
           cache: true
           set-env: false
+      # Qt's own Android builds (no distribution packages Qt for Android): since Qt 6.7 under
+      # the host all_os, the same for every build machine
       - name: Qt for Android
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-          host: linux
+          host: all_os
           target: android
           arch: android_arm64_v8a
           modules: qtmultimedia
