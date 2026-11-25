@@ -11,6 +11,8 @@ TARGET = tst_simple
 
 include(../rtvcore.pri)
 INCLUDEPATH += $$PWD/../../src
+# the gauges and templates of the source tree, not whatever the machine has installed
+DEFINES += RTV_TEST_DATA=\\\"$$clean_path($$PWD/../../data)\\\"
 
 SOURCES += \
     test_simple.cpp \

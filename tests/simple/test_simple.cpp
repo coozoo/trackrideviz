@@ -4,6 +4,7 @@
 #include "gauge/gaugelibrary.h"
 #include "telemetry/channelids.h"
 #include "overlay/templatelibrary.h"
+#include "settings/bundleddata.h"
 #include "video/ffmpegtools.h"
 
 #include <QFileInfo>
@@ -30,6 +31,7 @@ private slots:
         QCoreApplication::setApplicationName("tst_simple");
         QVERIFY(m_dir.isValid());
         TemplateLibrary::setUserFolder(m_dir.filePath("templates"));
+        BundledData::setFolder(QStringLiteral(RTV_TEST_DATA));
         // a ride of 10 s, a point a second
         m_data = m_dir.filePath("ride.gpx");
         QFile gpx(m_data);
