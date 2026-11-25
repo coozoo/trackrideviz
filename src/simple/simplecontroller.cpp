@@ -85,6 +85,12 @@ Loaded workOut(const TelemetrySessionPtr &raw, const Project &project)
     return result;
 }
 
+// The route in 3D under the gauges of a ride without a video: the whole picture and more.
+bool isBackdrop(const OverlayItem &item)
+{
+    return item.gaugeId == QLatin1String(kFlyoverGauge) && item.flyover == 1 && item.height > 1.0;
+}
+
 // What a file is, by its name.
 enum class FileKind
 {
@@ -594,7 +600,6 @@ void SimpleController::newProject()
     m_worked.reset();
     m_session.reset();
     m_demo = false;
-    m_flyoverShown = false;
     m_templateIndex = -1;
     m_projectPath.clear();
     m_modified = false;
@@ -672,21 +677,25 @@ QVector<OverlayItem> SimpleController::flyoverItems() const
 
 void SimpleController::firstGauges()
 {
-    const bool own = m_project.overlay != Overlay::defaultItems() && !m_flyoverShown;
-    if (own)
-        {
-            return;
-        }
+    const bool usual = m_project.overlay == Overlay::defaultItems();
     if (m_project.videoPath.isEmpty())
         {
-            m_project.overlay = flyoverItems();
-            m_project.layoutAspect = aspect();
-            m_templateIndex = -1;
-            m_flyoverShown = true;
+            if (usual)
+                {
+                    m_project.overlay = flyoverItems();
+                    m_project.layoutAspect = aspect();
+                    m_templateIndex = -1;
+                }
             return;
         }
-    // over a video: a dash
-    m_flyoverShown = false;
+    // over a video the picture is the video's: the route in 3D under the gauges goes
+    m_project.overlay.erase(std::remove_if(m_project.overlay.begin(), m_project.overlay.end(), isBackdrop),
+                            m_project.overlay.end());
+    if (!usual && !m_project.overlay.isEmpty())
+        {
+            return;
+        }
+    // nothing of the user's: a dash
     const QVector<TemplateLibrary::Entry> entries = TemplateLibrary::entries();
     int first = entries.isEmpty() ? -1 : 0;
     for (int i = 0; i < entries.size(); ++i)
@@ -871,6 +880,11 @@ void SimpleController::applyTemplate(int index)
     m_templateIndex = index;
     const GaugeTemplate chosen = TemplateLibrary::get(entries.at(index).id);
     m_project.overlay = chosen.overlayItems(aspect());
+    // without a video the dash rides over the route in 3D
+    if (m_project.videoPath.isEmpty())
+        {
+            m_project.overlay = flyoverItems() + m_project.overlay;
+        }
     m_project.theme = chosen.theme;
     m_project.layoutAspect = aspect();
     rebuildOverlay();
@@ -1042,7 +1056,6 @@ void SimpleController::changeGauge(int index, const std::function<void(OverlayIt
 
 void SimpleController::byHand()
 {
-    m_flyoverShown = false;
     setModified();
 }
 

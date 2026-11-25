@@ -318,17 +318,44 @@ private slots:
         simple.clearLine();
         QVERIFY(!simple.hasLine());
 
+        // a dash over it: the route in 3D stays under its gauges
+        if (!simple.templateNames().isEmpty())
+            {
+                simple.chooseTemplate(0);
+                QVERIFY(simple.gaugeCount() > 1);
+                QVERIFY(simple.gaugeProperties(0).value("flyover").toBool());
+                QVERIFY(!simple.gaugeProperties(1).value("flyover").toBool());
+                if (!qEnvironmentVariableIsEmpty("SIMPLE_DASH_PNG"))
+                    {
+                        QImage picture(960, 540, QImage::Format_ARGB32_Premultiplied);
+                        picture.fill(Qt::black);
+                        QPainter painter(&picture);
+                        simple.overlay()->render(painter, QRectF(0, 0, 960, 540), 205.0);
+                        painter.end();
+                        picture.save(qEnvironmentVariable("SIMPLE_DASH_PNG"));
+                    }
+            }
+
         if (m_video.isEmpty())
             {
                 return;
             }
-        // one's own video: the demo is gone, a dash over the video
+        // one's own video: the demo is gone, the dash chosen over the video without the 3D under it
+        const int dash = simple.gaugeCount() - 1;
         simple.openVideo(QUrl::fromLocalFile(m_video));
         QVERIFY(!simple.isDemo());
         QVERIFY(!simple.hasData());
         simple.openData(QUrl::fromLocalFile(m_data));
         QTRY_VERIFY_WITH_TIMEOUT(simple.hasData() && !simple.busy(), 20000);
-        QVERIFY(simple.templateIndex() >= 0 || simple.templateNames().isEmpty());
+        QVERIFY(simple.gaugeCount() > 0);
+        if (!simple.templateNames().isEmpty())
+            {
+                QCOMPARE(simple.gaugeCount(), dash);
+            }
+        for (int i = 0; i < simple.gaugeCount(); ++i)
+            {
+                QVERIFY(simple.gaugeProperties(i).value("width").toDouble() <= 1.0 + 1e-9);
+            }
     }
 
     // Data without a video: the flyover, as long as the data, then a video and a dash.
