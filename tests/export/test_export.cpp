@@ -673,7 +673,7 @@ private slots:
     void profilesFillTheChoices()
     {
         const QVector<ExportProfile> builtIn = ExportProfiles::builtIn();
-        QCOMPARE(builtIn.size(), 3);
+        QCOMPARE(builtIn.size(), 4);
         const ExportProfile youTube = builtIn.at(0);
         const ExportProfile small = builtIn.at(1);
         QCOMPARE(youTube.id, QString("youtube"));
@@ -694,6 +694,19 @@ private slots:
         QCOMPARE(settings.audio, ExportSettings::AacAudio);
         QCOMPARE(settings.audioKbps, 384);
         QCOMPARE(settings.outputPath, QString("/v/out.mp4"));
+
+        // fast: the graphics card even when the encoder before was not on it, the video's bitrate
+        const ExportProfile fast = builtIn.at(3);
+        QCOMPARE(fast.id, QString("fast"));
+        ExportSettings before = current;
+        before.encoder = "libx264";
+        ExportSettings quick = ExportProfiles::apply(fast, before, info, available);
+        QCOMPARE(quick.encoder, QString("h264_vaapi"));
+        QCOMPARE(quick.speed, ExportSettings::Fast);
+        QCOMPARE(quick.bitrateKbps, 30000);
+        // without a graphics card: the program's own
+        quick = ExportProfiles::apply(fast, before, info, {VideoEncoders::byId("libx264")});
+        QCOMPARE(quick.encoder, QString("libx264"));
 
         settings = ExportProfiles::apply(small, current, info, available);
         QCOMPARE(settings.encoder, QString("hevc_vaapi"));

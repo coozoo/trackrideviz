@@ -102,7 +102,15 @@ QVector<ExportProfile> ExportProfiles::builtIn()
     source.name = tr("Like the video");
     source.rate = ExportProfile::SourceRate;
 
-    QVector<ExportProfile> list{youTube, small, source};
+    // the quickest: the graphics card where there is one, the video's own bitrate
+    ExportProfile fast;
+    fast.id = "fast";
+    fast.name = tr("Fast");
+    fast.preferHardware = true;
+    fast.rate = ExportProfile::SourceRate;
+    fast.speed = ExportSettings::Fast;
+
+    QVector<ExportProfile> list{youTube, small, source, fast};
     for (ExportProfile &profile : list)
         {
             profile.builtIn = true;
@@ -147,8 +155,11 @@ ExportSettings ExportProfiles::apply(const ExportProfile &profile, const ExportS
     ExportSettings settings = current;
     if (profile.builtIn)
         {
-            // the first codec there is an encoder for; the kind of encoder chosen so far, when it has it
-            const bool hardware = VideoEncoders::byId(current.encoder).hardware;
+            // the first codec there is an encoder for; the kind of encoder chosen so far (or the graphics
+            // card, asked for and there), when it has it
+            const bool anyHardware = std::any_of(available.cbegin(), available.cend(),
+                                                 [](const VideoEncoder &encoder) { return encoder.hardware; });
+            const bool hardware = profile.preferHardware ? anyHardware : VideoEncoders::byId(current.encoder).hardware;
             const VideoEncoder *pick = nullptr;
             for (const VideoEncoder::Codec codec : profile.codecs)
                 {
