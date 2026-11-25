@@ -7784,44 +7784,44 @@ It appears among the templates in the library.</source>
 <context>
     <name>SimpleController</name>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="418"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="408"/>
         <source>Opening %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="812"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="800"/>
         <source>Reading %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="850"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="839"/>
         <source>This video has no data of its own: open the file of the ride.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="851"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="840"/>
         <source>%1 could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="947"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="942"/>
         <source>The data comes from this video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="955"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="950"/>
         <source>In step by the clocks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="959"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="954"/>
         <source>Not in step: move the data until the gauges match the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="789"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="967"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="976"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="777"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="962"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="971"/>
         <source>Moved by hand.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7831,62 +7831,67 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="653"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="641"/>
         <source>No video: the gauges follow the data&apos;s own time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1153"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="936"/>
+        <source>The demo ride: open the data of your own to put it in step.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/simple/simplecontroller.cpp" line="1148"/>
         <source>As in the settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1390"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1385"/>
         <source>This lap is not in the video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1396"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1391"/>
         <source>lap%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1410"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1405"/>
         <source>Finding the encoders this device can use...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1434"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1429"/>
         <source>No encoder works on this device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1480"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1475"/>
         <source>Exporting... %1 %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1488"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1483"/>
         <source>Starting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1519"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1514"/>
         <source>Saved %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1523"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1518"/>
         <source>Stopped: what was done is in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1526"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1521"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1529"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1524"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
