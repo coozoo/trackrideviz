@@ -145,6 +145,9 @@ android {
     ANDROID_VERSION_CODE = $$(RTV_ANDROID_VERSION_CODE)
     isEmpty(ANDROID_VERSION_CODE): ANDROID_VERSION_CODE = 1
     # the gauges and templates that come with the program, in the APK's assets (see BundledData)
+    # OpenSSL for HTTPS (map tiles, weather), built by CI: Qt loads it, without it no HTTPS
+    OPENSSL_LIBS = $$(RTV_ANDROID_OPENSSL)
+    !isEmpty(OPENSSL_LIBS): ANDROID_EXTRA_LIBS += $$OPENSSL_LIBS/libcrypto_3.so $$OPENSSL_LIBS/libssl_3.so
     androiddata.files = data/gauges data/templates
     androiddata.path = /assets/data
     INSTALLS += androiddata

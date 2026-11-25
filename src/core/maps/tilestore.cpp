@@ -12,11 +12,6 @@
 #include <QSaveFile>
 #include <QStandardPaths>
 #include <QTimer>
-#ifdef Q_OS_ANDROID
-#include <QJniEnvironment>
-#include <QJniObject>
-#include <QThreadPool>
-#endif
 
 #include <cmath>
 
@@ -33,27 +28,6 @@ const int kParallel = 2;
 const double kMaxLatitude = 85.0511;
 // a tile not come by then is given up
 const int kTimeout = 20000;
-
-#ifdef Q_OS_ANDROID
-// Qt for Android comes without a TLS backend of its own: the tiles come over Android's own
-// HTTPS instead (android/src/.../Http.java). Waits for the answer; empty when it failed.
-QByteArray androidGet(const QString &address, const QString &userAgent)
-{
-    const QJniObject body = QJniObject::callStaticObjectMethod(
-        "io/github/coozoo/trackrideviz/Http", "get", "(Ljava/lang/String;Ljava/lang/String;I)[B",
-        QJniObject::fromString(address).object<jstring>(), QJniObject::fromString(userAgent).object<jstring>(),
-        jint(kTimeout));
-    if (!body.isValid())
-        {
-            return QByteArray();
-        }
-    QJniEnvironment env;
-    const auto bytes = body.object<jbyteArray>();
-    QByteArray data(env->GetArrayLength(bytes), Qt::Uninitialized);
-    env->GetByteArrayRegion(bytes, 0, jsize(data.size()), reinterpret_cast<jbyte *>(data.data()));
-    return data;
-}
-#endif
 }
 
 size_t qHash(const TileStore::Tile &tile, size_t seed)
@@ -721,16 +695,6 @@ void TileStore::startNext()
             // tile servers ask every program to say who it is
             const QString agent = QString("%1/%2 (+https://github.com/coozoo/trackrideviz)")
                                   .arg(QCoreApplication::applicationName(), QCoreApplication::applicationVersion());
-#ifdef Q_OS_ANDROID
-            QThreadPool::globalInstance()->start([this, tile, path, address, agent]()
-            {
-                const QByteArray data = androidGet(address, agent);
-                QMetaObject::invokeMethod(this, [this, tile, path, data]()
-                {
-                    fetched(tile, path, data, !data.isEmpty());
-                }, Qt::QueuedConnection);
-            });
-#else
             QNetworkRequest request{QUrl(address)};
             request.setHeader(QNetworkRequest::UserAgentHeader, agent);
             request.setTransferTimeout(kTimeout);
@@ -740,7 +704,6 @@ void TileStore::startNext()
                 reply->deleteLater();
                 fetched(tile, path, reply->readAll(), reply->error() == QNetworkReply::NoError);
             });
-#endif
         }
 }
 
