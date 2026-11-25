@@ -623,21 +623,43 @@ ApplicationWindow {
             }
         }
 
-        // one channel along the video: tapped or dragged, the video goes there
+        // one channel along the video, a thin strip: tapped or dragged, the video goes there
         RowLayout {
             Layout.fillWidth: true
-            Layout.preferredHeight: 64
+            // a layout in a layout fills by default: this one stays thin
+            Layout.fillHeight: false
+            Layout.preferredHeight: 36
+            Layout.maximumHeight: 36
             Layout.leftMargin: 8
             Layout.rightMargin: 8
             visible: window.graphShown && simple.hasData
             spacing: 4
-            ComboBox {
-                Layout.preferredWidth: window.wide ? 150 : 110
-                flat: true
+            // what it shows, tapped to choose another
+            Label {
+                Layout.preferredWidth: window.wide ? 120 : 84
+                Layout.fillHeight: true
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
                 font.pixelSize: 12
-                model: simple.channelNames
-                currentIndex: simple.channelIds.indexOf(window.graphChannel)
-                onActivated: (index) => window.graphChannel = simple.channelIds[index]
+                font.underline: true
+                text: simple.channelNames[simple.channelIds.indexOf(window.graphChannel)] || ""
+                TapHandler { onTapped: channelMenu.popup() }
+                Menu {
+                    id: channelMenu
+                    Instantiator {
+                        model: simple.channelNames
+                        delegate: MenuItem {
+                            required property string modelData
+                            required property int index
+                            text: modelData
+                            checkable: true
+                            checked: simple.channelIds[index] === window.graphChannel
+                            onTriggered: window.graphChannel = simple.channelIds[index]
+                        }
+                        onObjectAdded: (index, object) => channelMenu.insertItem(index, object)
+                        onObjectRemoved: (index, object) => channelMenu.removeItem(object)
+                    }
+                }
                 Connections {
                     target: simple
                     function onDataChanged() { window.graphDefault() }
@@ -668,6 +690,7 @@ ApplicationWindow {
         // the timeline, and the step beside it (under it where there is no room)
         GridLayout {
             Layout.fillWidth: true
+            Layout.fillHeight: false
             Layout.leftMargin: 8
             Layout.rightMargin: 8
             columns: window.wide ? 4 : 3

@@ -5159,7 +5159,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     <message>
         <location filename="../qml/simple/Main.qml" line="189"/>
         <location filename="../qml/simple/Main.qml" line="580"/>
-        <location filename="../qml/simple/Main.qml" line="745"/>
+        <location filename="../qml/simple/Main.qml" line="768"/>
         <source>Dash</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5167,7 +5167,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <location filename="../qml/simple/Main.qml" line="190"/>
         <location filename="../qml/simple/Main.qml" line="228"/>
         <location filename="../qml/simple/Main.qml" line="581"/>
-        <location filename="../qml/simple/Main.qml" line="769"/>
+        <location filename="../qml/simple/Main.qml" line="792"/>
         <source>Add gauge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5187,7 +5187,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="194"/>
-        <location filename="../qml/simple/Main.qml" line="891"/>
+        <location filename="../qml/simple/Main.qml" line="914"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5303,42 +5303,42 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="820"/>
+        <location filename="../qml/simple/Main.qml" line="843"/>
         <source>Export the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="840"/>
+        <location filename="../qml/simple/Main.qml" line="863"/>
         <source>Only a part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="860"/>
+        <location filename="../qml/simple/Main.qml" line="883"/>
         <source>From %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="862"/>
+        <location filename="../qml/simple/Main.qml" line="885"/>
         <source>to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="864"/>
+        <location filename="../qml/simple/Main.qml" line="887"/>
         <source>From here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="869"/>
+        <location filename="../qml/simple/Main.qml" line="892"/>
         <source>To here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="899"/>
+        <location filename="../qml/simple/Main.qml" line="922"/>
         <source>Stop, keep what is done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="906"/>
+        <location filename="../qml/simple/Main.qml" line="929"/>
         <source>Play it</source>
         <translation type="unfinished"></translation>
     </message>
