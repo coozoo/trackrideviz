@@ -5,6 +5,7 @@
 #include "video/mediainfo.h"
 #include "video/videoencoders.h"
 
+#include <QColor>
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
@@ -60,6 +61,11 @@ class SimpleController : public QObject
     // the laps: number, start (video ms), time, delta (text), best, reference
     Q_PROPERTY(QVariantList laps READ laps NOTIFY lapsChanged)
     Q_PROPERTY(bool hasLine READ hasLine NOTIFY lapsChanged)
+    // what the data has, for the graph under the video
+    Q_PROPERTY(QStringList channelIds READ channelIds NOTIFY dataChanged)
+    Q_PROPERTY(QStringList channelNames READ channelNames NOTIFY dataChanged)
+    // opened lately, files that are still there: url, name, folder, kind ("project", "video", "data")
+    Q_PROPERTY(QVariantList recentFiles READ recentFiles NOTIFY recentChanged)
 
 public:
     explicit SimpleController(bool canGoBack, QObject *parent = nullptr);
@@ -101,6 +107,11 @@ public:
     QUrl projectFolder() const;
     QVariantList laps() const;
     bool hasLine() const { return m_project.startFinish.isValid(); }
+    QStringList channelIds() const;
+    QStringList channelNames() const;
+    QVariantList recentFiles() const;
+    // The data as worked out, its laps found; null without any.
+    TelemetrySessionPtr session() const { return m_session; }
 
     // What it works on, all of it: given to the full window when it goes back.
     const Project &project() const { return m_project; }
@@ -149,7 +160,8 @@ public:
     Q_INVOKABLE void addGauge(const QString &gaugeId);
     Q_INVOKABLE void removeGauge(int index);
     // What the properties of a gauge show: name, channel, channelIds, channelNames, height,
-    // width, keepShape, textScale, opacity, hasScale, scaleMax, unit, units; and as the full
+    // width, keepShape, textScale, opacity, hasScale, scaleMax, unit, units, ownColors, colors
+    // (text, background, accent, 2nd accent, as shown); and as the full
     // window's menu of a gauge has them: hasGraph, byDistance; hasRoute, streets, mapIds,
     // mapNames, map, closeUp, bySpeed, far, slow, fast, speedUnit, canBySpeed, headingUp,
     // flyover, ghost, tilt, cameraHeight, hills.
@@ -160,6 +172,10 @@ public:
     Q_INVOKABLE void setGaugeScaleMax(int index, double max);
     // 0: as in the settings, 1: metric, 2: imperial
     Q_INVOKABLE void setGaugeUnits(int index, int units);
+    // Its colors its own, starting from those of all gauges; or as all the others.
+    Q_INVOKABLE void setGaugeOwnColors(int index, bool own);
+    // A color of its own (with them on) or of all gauges: 0 text, 1 background, 2 accent, 3 2nd accent.
+    Q_INVOKABLE void setGaugeColor(int index, int role, const QColor &color);
     // Kept, its width follows its height; set free, `width` (a fraction of the picture's) is its own.
     Q_INVOKABLE void setGaugeKeepShape(int index, bool keep);
     Q_INVOKABLE void setGaugeWidth(int index, double width);
@@ -185,6 +201,9 @@ public:
     // The start/finish line where the route is at this moment of the video; false without a
     // direction of travel there.
     Q_INVOKABLE bool lineHere(qint64 videoMs);
+    // ... where the route passes nearest to a place on the map; false when it is well off the route
+    // or the direction of travel is not known there.
+    Q_INVOKABLE bool placeLine(double lat, double lon);
     // ... moved to where nearby it gives the most laps; false when no place does.
     Q_INVOKABLE bool findBestLine();
     // No line: the laps the device recorded.
@@ -192,6 +211,8 @@ public:
     // The lap the others are measured against and the ghost rides, by its number; 0: the fastest.
     Q_INVOKABLE void setReferenceLap(int number);
     Q_INVOKABLE void startExport();
+    // Only from `from` to `to`, seconds into the video.
+    Q_INVOKABLE void startExportRange(double from, double to);
     // Only that lap of the video.
     Q_INVOKABLE void exportLap(int number);
     Q_INVOKABLE void stopExport();
@@ -211,6 +232,7 @@ signals:
     void backRequested();
     void projectChanged();
     void lapsChanged();
+    void recentChanged();
 
 private:
     void setMessage(const QString &message);

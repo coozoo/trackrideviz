@@ -127,6 +127,14 @@ FileKind kindOf(const QString &path)
     return music.contains(suffix) ? FileKind::Music : FileKind::Data;
 }
 
+// The colors of a theme, in the order the properties show them.
+QColor GaugeTheme::*const kColorRoles[] = {&GaugeTheme::foreground, &GaugeTheme::background, &GaugeTheme::accent,
+                                            &GaugeTheme::accent2};
+// how far off the route a tap on the map may be and still mean it, meters
+const double kTapOffRoute = 60.0;
+// how many of each kind the first screen and the menu offer
+const int kRecentShown = 6;
+
 QString lapTimeText(double seconds)
 {
     const int hundredths = int(std::lround(std::max(0.0, seconds) * 100.0));
@@ -223,6 +231,53 @@ QUrl SimpleController::projectFolder() const
                 }
         }
     return QUrl::fromLocalFile(QDir::homePath());
+}
+
+QStringList SimpleController::channelIds() const
+{
+    return m_session ? m_session->channelIds() : QStringList();
+}
+
+QStringList SimpleController::channelNames() const
+{
+    QStringList names;
+    const Units units = AppSettings::units();
+    for (const QString &id : channelIds())
+        {
+            const Channel *data = m_session->channel(id);
+            names << ChannelFormat::displayFor(id, data ? data->unit() : QString(), units).name;
+        }
+    return names;
+}
+
+QVariantList SimpleController::recentFiles() const
+{
+    QVariantList files;
+    const QVector<QPair<AppSettings::RecentKind, QString>> kinds
+    {
+        {AppSettings::RecentProjects, QStringLiteral("project")}, {AppSettings::RecentVideos, QStringLiteral("video")},
+        {AppSettings::RecentData, QStringLiteral("data")},
+    };
+    for (const auto &kind : kinds)
+        {
+            int shown = 0;
+            for (const QString &path : AppSettings::recentFiles(kind.first))
+                {
+                    if (shown >= kRecentShown || !QFileInfo::exists(path))
+                        {
+                            continue;
+                        }
+                    const QFileInfo info(path);
+                    QVariantMap file;
+                    file["url"] = QUrl::fromLocalFile(info.absoluteFilePath());
+                    file["name"] = info.fileName();
+                    file["folder"] = QDir::toNativeSeparators(info.absolutePath());
+                    file["kind"] = kind.second;
+                    files << file;
+                    ++shown;
+                }
+        }
+    return files;
 }
 
 QVariantList SimpleController::laps() const
@@ -390,6 +445,8 @@ void SimpleController::openVideo(const QUrl &url)
             return;
         }
     m_project.videoPath = path;
+    AppSettings::addRecentFile(AppSettings::RecentVideos, path);
+    emit recentChanged();
     setModified();
     // what was cut, the breaks between joined recordings, a time-lapse's rate and the step
     // belong to the video before
@@ -580,7 +637,14 @@ bool SimpleController::saveAs(const QUrl &url)
             path += QLatin1Char('.') + QLatin1String(ProjectFile::Suffix);
         }
     m_projectPath = path;
-    return save();
+    if (!save())
+        {
+            return false;
+        }
+    AppSettings::addRecentFile(AppSettings::RecentProjects, path);
+    emit recentChanged();
+    emit projectChanged();
+    return true;
 }
 
 void SimpleController::newProject()
@@ -740,6 +804,30 @@ bool SimpleController::lineHere(qint64 videoMs)
     return true;
 }
 
+bool SimpleController::placeLine(double lat, double lon)
+{
+    if (!m_worked)
+        {
+            return false;
+        }
+    double distance = 0.0;
+    const double time = LapEngine::nearestTime(*m_worked, lat, lon, &distance);
+    // a tap well off the route is not meant for it
+    if (time < 0.0 || distance > kTapOffRoute)
+        {
+            return false;
+        }
+    // as wide as the other passes there need: a lap ridden a little apart is still crossed
+    const StartFinishLine line = LapEngine::lineAt(*m_worked, time, LapEngine::lineWidthAt(*m_worked, time));
+    if (!line.isValid())
+        {
+            return false;
+        }
+    m_project.startFinish = line;
+    applyLaps();
+    return true;
+}
+
 bool SimpleController::findBestLine()
 {
     if (!m_worked || !m_project.startFinish.isValid())
@@ -773,6 +861,11 @@ void SimpleController::openProject(const Project &project, const QString &path)
     newProject();
     m_project = project;
     m_projectPath = path;
+    if (!path.isEmpty())
+        {
+            AppSettings::addRecentFile(AppSettings::RecentProjects, path);
+            emit recentChanged();
+        }
     m_templateIndex = -1;
     m_syncText = project.syncIsManual ? tr("Moved by hand.") : QString();
     emit syncChanged();
@@ -845,6 +938,11 @@ void SimpleController::dataLoaded(const TelemetrySessionPtr &raw, const Telemetr
     m_session = session;
     m_demo = false;
     m_project.telemetryPath = path;
+    if (!fromVideo)
+        {
+            AppSettings::addRecentFile(AppSettings::RecentData, path);
+            emit recentChanged();
+        }
     m_arrivalTries = 0;
     if (waiting)
         {
@@ -1133,6 +1231,13 @@ QVariantMap SimpleController::gaugeProperties(int index) const
     properties["scaleMax"] = item.scaleMax;
     properties["unit"] = display(item.channel, item.unitsFor(units)).unit;
     properties["units"] = int(item.units);
+    properties["ownColors"] = item.ownTheme;
+    QVariantList colors;
+    for (QColor GaugeTheme::*role : kColorRoles)
+        {
+            colors << (item.ownTheme ? item.theme : m_project.theme).*role;
+        }
+    properties["colors"] = colors;
     properties["keepShape"] = item.aspect <= 0.0;
     if (index >= m_overlay->count())
         {
@@ -1209,6 +1314,35 @@ void SimpleController::setGaugeUnits(int index, int units)
         {
             changeGauge(index, [units](OverlayItem &item) { item.units = OverlayItem::UnitSystem(units); });
         }
+}
+
+void SimpleController::setGaugeOwnColors(int index, bool own)
+{
+    const GaugeTheme common = m_project.theme;
+    changeGauge(index, [own, common](OverlayItem &item)
+    {
+        // starting from the look of all gauges
+        item.ownTheme = own;
+        item.theme = own ? common : GaugeTheme();
+    });
+}
+
+void SimpleController::setGaugeColor(int index, int role, const QColor &color)
+{
+    if (role < 0 || role >= int(std::size(kColorRoles)) || !color.isValid()
+            || index < 0 || index >= m_project.overlay.size())
+        {
+            return;
+        }
+    if (m_project.overlay.at(index).ownTheme)
+        {
+            changeGauge(index, [role, color](OverlayItem &item) { item.theme.*kColorRoles[role] = color; });
+            return;
+        }
+    // all gauges
+    m_project.theme.*kColorRoles[role] = color;
+    byHand();
+    rebuildOverlay();
 }
 
 void SimpleController::setGaugeKeepShape(int index, bool keep)
@@ -1366,6 +1500,26 @@ void SimpleController::startExport()
         }
     m_exportStart = 0.0;
     m_exportLength = 0.0;
+    m_exportName.clear();
+    runExport();
+}
+
+void SimpleController::startExportRange(double from, double to)
+{
+    if (m_thread || m_exportWaitsForEncoders || !std::isfinite(from) || !std::isfinite(to))
+        {
+            return;
+        }
+    const double start = std::clamp(from, 0.0, std::max(0.0, m_info.duration));
+    const double end = std::clamp(to, 0.0, std::max(0.0, m_info.duration));
+    if (end <= start)
+        {
+            m_exportText = tr("The end has to be after the start.");
+            emit exportChanged();
+            return;
+        }
+    m_exportStart = start;
+    m_exportLength = end - start;
     m_exportName.clear();
     runExport();
 }

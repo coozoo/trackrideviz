@@ -80,6 +80,15 @@ Drawer {
         Layout.rightMargin: 8
     }
 
+    ColorPicker {
+        id: colorPicker
+        property int role: 0
+        parent: Overlay.overlay
+        touch: sheet.touch
+        title: qsTr("Color")
+        onPicked: (color) => simple.setGaugeColor(sheet.index, role, color)
+    }
+
     ScrollView {
         anchors.fill: parent
         contentWidth: availableWidth
@@ -148,6 +157,79 @@ Drawer {
                 value: sheet.props.opacity || 1
                 onMoved: simple.setGaugeOpacity(sheet.index, value)
             }
+            // its colors, or those of all gauges
+            Heading { text: qsTr("Colors") }
+            Toggle {
+                text: qsTr("Own colors")
+                checked: sheet.props.ownColors === true
+                onToggled: simple.setGaugeOwnColors(sheet.index, checked)
+            }
+            Caption {
+                opacity: 0.7
+                text: sheet.props.ownColors === true ? qsTr("These colors are this gauge's alone.")
+                                                     : qsTr("These colors are those of all gauges.")
+            }
+            GridLayout {
+                Layout.leftMargin: 16
+                Layout.rightMargin: 16
+                columns: 2
+                rowSpacing: 4
+                Repeater {
+                    model: [qsTr("Text and numbers"), qsTr("Plates behind the gauges"), qsTr("Needles, bars and highlights"),
+                            qsTr("Scales, units and labels")]
+                    Label {
+                        required property string modelData
+                        required property int index
+                        Layout.row: index
+                        Layout.column: 0
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: modelData
+                    }
+                }
+                Repeater {
+                    model: 4
+                    // over a checkered ground: a see-through color shows as such
+                    Rectangle {
+                        required property int index
+                        readonly property color shown: (sheet.props.colors || [])[index] || "transparent"
+                        Layout.row: index
+                        Layout.column: 1
+                        Layout.preferredWidth: sheet.touch * 1.2
+                        Layout.preferredHeight: sheet.touch * 0.75
+                        radius: 6
+                        color: "#9e9e9e"
+                        border.color: "#808080"
+                        clip: true
+                        Grid {
+                            anchors.fill: parent
+                            columns: 6
+                            Repeater {
+                                model: 12
+                                Rectangle {
+                                    required property int index
+                                    width: parent.width / 6
+                                    height: parent.height / 2
+                                    color: (index + Math.floor(index / 6)) % 2 ? "#e0e0e0" : "#9e9e9e"
+                                }
+                            }
+                        }
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 6
+                            color: parent.shown
+                        }
+                        TapHandler {
+                            onTapped: {
+                                colorPicker.role = parent.index
+                                colorPicker.color = parent.shown
+                                colorPicker.open()
+                            }
+                        }
+                    }
+                }
+            }
+
             Caption {
                 visible: sheet.props.hasScale === true
                 text: qsTr("Scale ends at (0: by the ride)") + (sheet.props.unit ? ", " + sheet.props.unit : "")

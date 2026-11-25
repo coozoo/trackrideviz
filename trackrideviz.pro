@@ -49,7 +49,9 @@ SOURCES += main.cpp \
     src/updater.cpp \
     src/mainwindow.cpp \
     src/settingsdialog.cpp \
+    src/simple/channelgraph.cpp \
     src/simple/gaugeoverlay.cpp \
+    src/simple/routeview.cpp \
     src/simple/simplecontroller.cpp \
     src/simple/simpleui.cpp \
     src/videocanvas.cpp
@@ -79,7 +81,9 @@ HEADERS += \
     src/updater.h \
     src/mainwindow.h \
     src/settingsdialog.h \
+    src/simple/channelgraph.h \
     src/simple/gaugeoverlay.h \
+    src/simple/routeview.h \
     src/simple/simplecontroller.h \
     src/simple/simpleui.h \
     src/videocanvas.h
