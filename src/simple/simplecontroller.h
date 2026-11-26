@@ -152,6 +152,8 @@ public:
     Q_INVOKABLE void cancelJoin();
     // The made-up ride, for a look before one's own is there.
     Q_INVOKABLE void openDemo();
+    // How long painting and downloading took lately (Android only; empty elsewhere).
+    Q_INVOKABLE QString timings() const;
     // Into its file (false: none yet, or it could not be written), or into this one.
     Q_INVOKABLE bool save();
     Q_INVOKABLE bool saveAs(const QUrl &url);

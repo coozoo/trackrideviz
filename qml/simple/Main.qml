@@ -231,6 +231,16 @@ ApplicationWindow {
                             onObjectRemoved: (index, object) => recentMenu.removeItem(object)
                         }
                     }
+                    // how long painting and downloading take, over the picture (on Android, where
+                    // they are measured)
+                    MenuItem {
+                        visible: Qt.platform.os === "android"
+                        height: visible ? implicitHeight : 0
+                        text: qsTr("Timings")
+                        checkable: true
+                        checked: timingsLabel.visible
+                        onTriggered: timingsLabel.visible = checked
+                    }
                     MenuItem {
                         text: qsTr("Graph under the video")
                         checkable: true
@@ -426,6 +436,25 @@ ApplicationWindow {
                     anchors.fill: parent
                     controller: simple
                     position: playback.position
+                }
+
+                Label {
+                    id: timingsLabel
+                    visible: false
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.margins: 4
+                    padding: 4
+                    font.pixelSize: 11
+                    color: "white"
+                    background: Rectangle { color: "#a0000000" }
+                    Timer {
+                        interval: 1000
+                        repeat: true
+                        running: timingsLabel.visible
+                        triggeredOnStart: true
+                        onTriggered: timingsLabel.text = simple.timings() || qsTr("Nothing measured yet.")
+                    }
                 }
 
                 // the gauge being moved, outlined

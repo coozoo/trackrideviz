@@ -5,6 +5,7 @@
 #include "maps/tilestore.h"
 #include "overlay/gaugetemplate.h"
 #include "overlay/templatelibrary.h"
+#include "perfmeter.h"
 #include "project/projectdata.h"
 #include "settings/appsettings.h"
 #include "sync/videosync.h"
@@ -813,6 +814,11 @@ void SimpleController::setGaugesOnly(bool only)
             m_gaugesOnly = only;
             emit profileChanged();
         }
+}
+
+QString SimpleController::timings() const
+{
+    return PerfMeter::summary();
 }
 
 void SimpleController::openDemo()
