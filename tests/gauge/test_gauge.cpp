@@ -1312,6 +1312,68 @@ private slots:
         store->setFolder(m_dir.filePath("no-tiles"));
     }
 
+    // The tiles a picture needs now come before those asked for the places to come (a ride's
+    // whole route): a map waited behind them for half a minute.
+    void tilesNeededNowComeFirst()
+    {
+        TileStore *store = TileStore::instance();
+        store->setFolder(m_dir.filePath("queue-cache"));
+        // a server in a folder: Qt reads file:// addresses as it downloads
+        const QString server = m_dir.filePath("queue-server");
+        store->setSource(QUrl::fromLocalFile(server).toString() + "/{z}/{x}/{y}.png", QString());
+        QImage tile(8, 8, QImage::Format_RGB32);
+        tile.fill(Qt::gray);
+        auto serve = [&](const QRectF &area)
+        {
+            QStringList kept;
+            const TileStore::Block block = TileStore::blockFor(area);
+            for (int y = block.top; y <= block.bottom; ++y)
+                {
+                    for (int x = block.left; x <= block.right; ++x)
+                        {
+                            const QString path = QString("%1/%2/%3/%4.png").arg(server).arg(block.zoom).arg(x).arg(y);
+                            QDir().mkpath(QFileInfo(path).path());
+                            tile.save(path);
+                            kept.append(store->tilePath(block.zoom, x, y));
+                        }
+                }
+            return kept;
+        };
+        const auto there = [](const QStringList &paths)
+        {
+            return int(std::count_if(paths.cbegin(), paths.cend(), [](const QString &path) { return QFileInfo::exists(path); }));
+        };
+        // the places to come along a line, then the picture's own place away from them
+        QVector<QRectF> later;
+        QStringList laterTiles;
+        for (int i = 0; i < 12; ++i)
+            {
+                later.append(QRectF(10.0 + i * 0.05, -40.0, 0.02, 0.02));
+                laterTiles += serve(later.last());
+            }
+        const QRectF view(20.0, -40.0, 0.02, 0.02);
+        const QStringList viewTiles = serve(view);
+        QVERIFY(laterTiles.size() > 4 * viewTiles.size());
+        store->setDownloads(true);
+        store->want(later, 1024.0);
+        QVERIFY(store->picture(view, 1024.0).image.isNull());
+        QTRY_VERIFY_WITH_TIMEOUT(there(viewTiles) == viewTiles.size() && there(laterTiles) == laterTiles.size(), 30000);
+        // in the order they were kept: the picture's all before nearly any of the rest (two at a
+        // time are downloaded)
+        QDateTime viewDone;
+        for (const QString &path : viewTiles)
+            {
+                viewDone = std::max(viewDone, QFileInfo(path).lastModified());
+            }
+        const int before = int(std::count_if(laterTiles.cbegin(), laterTiles.cend(), [&](const QString &path)
+        {
+            return QFileInfo(path).lastModified() < viewDone;
+        }));
+        QVERIFY2(before <= 2, qPrintable(QString::number(before)));
+        store->setDownloads(false);
+        store->setSource(QString(), QString());
+    }
+
     void mapStandsInWithCoarserTiles()
     {
         // a server with nothing so close here (a map of one country, away from it): the tile a zoom
