@@ -2,12 +2,14 @@
 
 #include "../perfmeter.h"
 
+#include <QBuffer>
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QPainter>
@@ -620,6 +622,7 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
         {
             const double size = 360.0 / (1 << block.zoom);
             result.image = image;
+            result.complete = std::count(stoodIn.cbegin(), stoodIn.cend(), false) == 0;
             result.bounds = QRectF(block.left * size - 180.0, block.top * size - 180.0, columns * size, rows * size);
         }
     bool asked = false;
@@ -732,7 +735,11 @@ void TileStore::startNext()
 void TileStore::fetched(const Tile &tile, const QString &path, const QByteArray &data, bool ok)
 {
     bool kept = false;
-    if (ok && !QImage::fromData(data).isNull())
+    // a picture by its header: decoding it all here, for every tile, held up the program's thread
+    QBuffer buffer;
+    buffer.setData(data);
+    QImageReader reader(&buffer);
+    if (ok && reader.canRead() && reader.size().isValid())
         {
             QDir().mkpath(QFileInfo(path).path());
             QSaveFile file(path);

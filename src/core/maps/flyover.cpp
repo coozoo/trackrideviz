@@ -251,13 +251,18 @@ void Flyover::buildPatch(const View &view)
             const double north = latitudeOf(n);
             const QRectF area(QPointF(west, -TileStore::mercatorLatitude(north)), QPointF(east, -TileStore::mercatorLatitude(south)));
             const TileStore::Picture picture = TileStore::forMap(view.mapProvider)->picture(area, kTexturePixels);
-            if (picture.image.isNull())
+            if (picture.image.isNull() || !picture.complete)
                 {
                     m_patch.complete = false;
                 }
-            else
+            if (!picture.image.isNull())
                 {
-                    m_patch.texture = picture.image.convertToFormat(QImage::Format_RGB32);
+                    // where tiles are still missing, plain land rather than black
+                    m_patch.texture = QImage(picture.image.size(), QImage::Format_RGB32);
+                    m_patch.texture.fill(landColor(0.3));
+                    QPainter painter(&m_patch.texture);
+                    painter.drawImage(0, 0, picture.image);
+                    painter.end();
                     m_patch.textureBounds = picture.bounds;
                 }
         }

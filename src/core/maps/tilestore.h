@@ -33,6 +33,7 @@ public:
     {
         QImage image;      // null: no tile of the area is there yet
         QRectF bounds;     // what the image covers, projected
+        bool complete{false};   // every tile there, or a coarser one in its place
     };
 
     static TileStore *instance();
