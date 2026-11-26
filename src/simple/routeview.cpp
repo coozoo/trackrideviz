@@ -1,6 +1,7 @@
 #include "routeview.h"
 
 #include "maps/tilestore.h"
+#include "perfmeter.h"
 #include "settings/appsettings.h"
 
 #include <QPainter>
@@ -120,6 +121,8 @@ QPointF RouteView::placeAt(double x, double y) const
 
 void RouteView::paint(QPainter *painter)
 {
+    static PerfMeter meter("map painted");
+    const PerfMeter::Scope timed(meter);
     RoutePainter::Colors colors;
     colors.base = m_baseColor;
     colors.text = m_textColor;
