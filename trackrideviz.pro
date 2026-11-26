@@ -138,6 +138,8 @@ bundled.path = /usr/share/$${TARGET}
 # (RTV_ANDROID_VERSION_CODE): Android installs an update only over a lower one.
 android {
     ANDROID_ABIS = arm64-v8a
+    # logcat, written to directly (main.cpp)
+    LIBS += -llog
     ANDROID_MIN_SDK_VERSION = 28
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
     ANDROID_VERSION_NAME = $$(RTV_ANDROID_VERSION)

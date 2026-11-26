@@ -1,12 +1,15 @@
 #include "flyover.h"
 
+#include "../perfmeter.h"
 #include "terrain.h"
 #include "tilestore.h"
 
+#include <QCoreApplication>
 #include <QMatrix4x4>
 #include <QMutexLocker>
 #include <QPainter>
 #include <QPainterPath>
+#include <QThread>
 #include <QVector4D>
 
 #include <algorithm>
@@ -149,6 +152,11 @@ bool Flyover::needsPatch(const View &view) const
 void Flyover::buildPatch(const View &view)
 {
     m_built.start();
+    QElapsedTimer part;
+    part.start();
+    qint64 heightsMs = 0;
+    qint64 shadeMs = 0;
+    qint64 mapMs = 0;
     Patch patch;
     patch.latitude = view.latitude;
     patch.longitude = view.longitude;
@@ -197,6 +205,7 @@ void Flyover::buildPatch(const View &view)
                 }
         }
     m_patch.heights = heights;
+    heightsMs = part.restart();
 
     // the sun's light on each point, from its slope steepened for the light; on flat land none
     const double sunAzimuth = kSunAzimuth * kPi / 180.0;
@@ -230,6 +239,7 @@ void Flyover::buildPatch(const View &view)
                 }
         }
 
+    shadeMs = part.restart();
     // the map laid over it
     if (view.streets)
         {
@@ -250,6 +260,7 @@ void Flyover::buildPatch(const View &view)
                 }
         }
 
+    mapMs = part.restart();
     // what each point takes from the map, or its color: the same for every picture of the patch
     if (!m_patch.texture.isNull())
         {
@@ -276,6 +287,9 @@ void Flyover::buildPatch(const View &view)
                     m_patch.colors[k] = landColor(share).rgb();
                 }
         }
+    qCInfo(perfLog()).noquote() << QString("flyover land built: %1 ms (heights %2, light %3, map %4, the rest %5)%6")
+                                   .arg(m_built.elapsed()).arg(heightsMs).arg(shadeMs).arg(mapMs).arg(part.elapsed())
+                                   .arg(m_patch.complete ? QString() : QStringLiteral(", tiles still missing"));
 }
 
 QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
@@ -286,10 +300,15 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
         {
             return image;
         }
+    // the preview's pictures timed, not an export's (made in other threads)
+    static PerfMeter meter("flyover drawn (land building left out)");
+    const bool timed = QThread::currentThread() == QCoreApplication::instance()->thread();
     if (needsPatch(view))
         {
             buildPatch(view);
         }
+    QElapsedTimer took;
+    took.start();
     m_lastComplete = m_patch.complete;
     const int width = size.width();
     const int height = size.height();
@@ -552,6 +571,10 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
             Vertex vertex;
             project(QVector3D(target.x(), target.y(), target.z() + float(view.span * 0.004)), &vertex);
             *rider = vertex.usable ? QPointF(vertex.x, vertex.y) : QPointF(width / 2.0, height * 0.6);
+        }
+    if (timed)
+        {
+            meter.add(took.nsecsElapsed() / 1e6);
         }
     return image;
 }

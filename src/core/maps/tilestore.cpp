@@ -558,6 +558,8 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                     }
             }
     }
+    QElapsedTimer took;
+    took.start();
     const int columns = block.right - block.left + 1;
     const int rows = block.bottom - block.top + 1;
     Picture result;
@@ -605,6 +607,9 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                     }
             }
     }
+    qCInfo(perfLog()).noquote() << QString("map picture made: %1 x %2 tiles at zoom %3, %4 found, %5 missing, %6 ms")
+                                   .arg(columns).arg(rows).arg(block.zoom).arg(found).arg(missing.size())
+                                   .arg(took.elapsed());
     if (found > 0)
         {
             const double size = 360.0 / (1 << block.zoom);
