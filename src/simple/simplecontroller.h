@@ -70,6 +70,9 @@ class SimpleController : public QObject
     Q_PROPERTY(QVariantList recentFiles READ recentFiles NOTIFY recentChanged)
     // the export: only the gauges, on a see-through picture (.webm), for laying over the video elsewhere
     Q_PROPERTY(bool gaugesOnly READ gaugesOnly WRITE setGaugesOnly NOTIFY profileChanged)
+    // the wind and the air of the ride fetched from a weather service (the full window's
+    // settings have the same choice)
+    Q_PROPERTY(bool weather READ weather WRITE setWeather NOTIFY weatherChanged)
     // videos made one (offered by joinOffered): their names in order, what joining them means, how far
     Q_PROPERTY(QStringList joinNames READ joinNames NOTIFY joinChanged)
     Q_PROPERTY(QString joinText READ joinText NOTIFY joinChanged)
@@ -125,6 +128,8 @@ public:
     QVariantList recentFiles() const;
     bool gaugesOnly() const { return m_gaugesOnly; }
     void setGaugesOnly(bool only);
+    bool weather() const;
+    void setWeather(bool fetched);
     QStringList joinNames() const;
     QString joinText() const { return m_joinText; }
     bool joinReady() const { return m_joinReady; }
@@ -260,6 +265,7 @@ signals:
     void syncChanged();
     void overlayChanged();
     void profileChanged();
+    void weatherChanged();
     void exportChanged();
     void musicChanged();
     void backRequested();

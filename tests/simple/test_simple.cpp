@@ -4,6 +4,7 @@
 #include "gauge/gaugelibrary.h"
 #include "telemetry/channelids.h"
 #include "overlay/templatelibrary.h"
+#include "settings/appsettings.h"
 #include "settings/bundleddata.h"
 #include "video/ffmpegtools.h"
 
@@ -286,6 +287,23 @@ private slots:
     }
 
     // No video: the demo ride, its route in 3D the whole picture; a video put in place of it.
+    // the weather switch of the menu is the full window's setting
+    void weatherSwitch()
+    {
+        SimpleController simple(false);
+        QSignalSpy changed(&simple, &SimpleController::weatherChanged);
+        simple.setWeather(false);
+        changed.clear();
+        simple.setWeather(true);
+        QVERIFY(simple.weather());
+        QVERIFY(AppSettings::weather().enabled);
+        simple.setWeather(true);
+        QCOMPARE(changed.count(), 1);
+        simple.setWeather(false);
+        QVERIFY(!AppSettings::weather().enabled);
+        QCOMPARE(changed.count(), 2);
+    }
+
     void demoFlyover()
     {
         SimpleController simple(false);
