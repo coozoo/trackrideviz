@@ -5155,8 +5155,8 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="197"/>
-        <location filename="../qml/simple/Main.qml" line="284"/>
-        <location filename="../qml/simple/Main.qml" line="345"/>
+        <location filename="../qml/simple/Main.qml" line="288"/>
+        <location filename="../qml/simple/Main.qml" line="349"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5168,36 +5168,36 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="199"/>
-        <location filename="../qml/simple/Main.qml" line="635"/>
-        <location filename="../qml/simple/Main.qml" line="825"/>
+        <location filename="../qml/simple/Main.qml" line="639"/>
+        <location filename="../qml/simple/Main.qml" line="829"/>
         <source>Dash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="200"/>
-        <location filename="../qml/simple/Main.qml" line="263"/>
-        <location filename="../qml/simple/Main.qml" line="636"/>
-        <location filename="../qml/simple/Main.qml" line="849"/>
+        <location filename="../qml/simple/Main.qml" line="267"/>
+        <location filename="../qml/simple/Main.qml" line="640"/>
+        <location filename="../qml/simple/Main.qml" line="853"/>
         <source>Add gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="201"/>
-        <location filename="../qml/simple/Main.qml" line="264"/>
-        <location filename="../qml/simple/Main.qml" line="637"/>
+        <location filename="../qml/simple/Main.qml" line="268"/>
+        <location filename="../qml/simple/Main.qml" line="641"/>
         <source>Laps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="202"/>
-        <location filename="../qml/simple/Main.qml" line="265"/>
-        <location filename="../qml/simple/Main.qml" line="638"/>
+        <location filename="../qml/simple/Main.qml" line="269"/>
+        <location filename="../qml/simple/Main.qml" line="642"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="204"/>
-        <location filename="../qml/simple/Main.qml" line="1098"/>
+        <location filename="../qml/simple/Main.qml" line="1109"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5213,7 +5213,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="221"/>
-        <location filename="../qml/simple/Main.qml" line="375"/>
+        <location filename="../qml/simple/Main.qml" line="379"/>
         <source>Recent</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5228,217 +5228,222 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="252"/>
+        <location filename="../qml/simple/Main.qml" line="251"/>
+        <source>Rider and power...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="256"/>
         <source>Weather from the internet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="258"/>
+        <location filename="../qml/simple/Main.qml" line="262"/>
         <source>Graph under the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="268"/>
+        <location filename="../qml/simple/Main.qml" line="272"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="287"/>
+        <location filename="../qml/simple/Main.qml" line="291"/>
         <source>Videos, ride data, music, projects (*.mp4 *.MP4 *.mov *.MOV *.mkv *.avi *.insv *.lrv *.fit *.FIT *.gpx *.tcx *.csv *.nmea *.vbo *.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav *.rtvproj)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="293"/>
+        <location filename="../qml/simple/Main.qml" line="297"/>
         <source>Save the project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="296"/>
+        <location filename="../qml/simple/Main.qml" line="300"/>
         <source>Projects (*.rtvproj)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="308"/>
+        <location filename="../qml/simple/Main.qml" line="312"/>
         <source>Save the changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="313"/>
+        <location filename="../qml/simple/Main.qml" line="317"/>
         <source>The project has changes that are not saved yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="352"/>
+        <location filename="../qml/simple/Main.qml" line="356"/>
         <source>Demo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="361"/>
+        <location filename="../qml/simple/Main.qml" line="365"/>
         <source>A video, the ride&apos;s data (FIT, GPX...), or both at once; a GoPro keeps its data in the video. With data alone the route is shown in 3D.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="395"/>
+        <location filename="../qml/simple/Main.qml" line="399"/>
         <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="395"/>
+        <location filename="../qml/simple/Main.qml" line="399"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="395"/>
+        <location filename="../qml/simple/Main.qml" line="399"/>
         <source>Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="469"/>
+        <location filename="../qml/simple/Main.qml" line="473"/>
         <source>Nothing measured yet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="618"/>
+        <location filename="../qml/simple/Main.qml" line="622"/>
         <source>Move/resize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="653"/>
+        <location filename="../qml/simple/Main.qml" line="657"/>
         <source>Ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="655"/>
+        <location filename="../qml/simple/Main.qml" line="659"/>
         <source>Kept: the gauge grows and shrinks as a whole. Off: the corners change its width and height each.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="288"/>
+        <location filename="../qml/simple/Main.qml" line="292"/>
         <source>All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="337"/>
+        <location filename="../qml/simple/Main.qml" line="341"/>
         <source>Gauges over your ride video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="625"/>
+        <location filename="../qml/simple/Main.qml" line="629"/>
         <source>Properties</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="631"/>
+        <location filename="../qml/simple/Main.qml" line="635"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="673"/>
+        <location filename="../qml/simple/Main.qml" line="677"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="759"/>
+        <location filename="../qml/simple/Main.qml" line="763"/>
         <source>Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="759"/>
+        <location filename="../qml/simple/Main.qml" line="763"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="902"/>
+        <location filename="../qml/simple/Main.qml" line="913"/>
         <source>Join the chapters of the recording?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="902"/>
+        <location filename="../qml/simple/Main.qml" line="913"/>
         <source>Join the videos?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="941"/>
+        <location filename="../qml/simple/Main.qml" line="952"/>
         <source>Move up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="949"/>
+        <location filename="../qml/simple/Main.qml" line="960"/>
         <source>Move down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="959"/>
+        <location filename="../qml/simple/Main.qml" line="970"/>
         <source>In order of their names. The breaks between them come from when each was recorded (the time in its name, or the file&apos;s own); if the data does not follow after joining, move it with Sync.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="979"/>
+        <location filename="../qml/simple/Main.qml" line="990"/>
         <source>Join</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="985"/>
+        <location filename="../qml/simple/Main.qml" line="996"/>
         <source>Only this one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="996"/>
+        <location filename="../qml/simple/Main.qml" line="1007"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="996"/>
+        <location filename="../qml/simple/Main.qml" line="1007"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1012"/>
+        <location filename="../qml/simple/Main.qml" line="1023"/>
         <source>Export the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1033"/>
+        <location filename="../qml/simple/Main.qml" line="1044"/>
         <source>Only the gauges, see-through (.webm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1041"/>
+        <location filename="../qml/simple/Main.qml" line="1052"/>
         <source>For laying over the video in an editor: only the gauges are made, the video is left as it is.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1047"/>
+        <location filename="../qml/simple/Main.qml" line="1058"/>
         <source>Only a part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1067"/>
+        <location filename="../qml/simple/Main.qml" line="1078"/>
         <source>From %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1069"/>
+        <location filename="../qml/simple/Main.qml" line="1080"/>
         <source>to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1071"/>
+        <location filename="../qml/simple/Main.qml" line="1082"/>
         <source>From here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1076"/>
+        <location filename="../qml/simple/Main.qml" line="1087"/>
         <source>To here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1106"/>
+        <location filename="../qml/simple/Main.qml" line="1117"/>
         <source>Stop, keep what is done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1113"/>
+        <location filename="../qml/simple/Main.qml" line="1124"/>
         <source>Play it</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7277,6 +7282,124 @@ It appears among the templates in the library.</source>
     </message>
 </context>
 <context>
+    <name>RiderSheet</name>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="15"/>
+        <source>Road, fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="16"/>
+        <source>Road, typical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="17"/>
+        <source>Road, slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="18"/>
+        <source>Gravel, fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="19"/>
+        <source>Gravel, typical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="20"/>
+        <source>Gravel, slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="21"/>
+        <source>Mountain bike, fast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="22"/>
+        <source>Mountain bike, typical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="23"/>
+        <source>Mountain bike, slow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="26"/>
+        <source>Road bike, hands on the tops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="27"/>
+        <source>Road bike, hands on the hoods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="28"/>
+        <source>Road bike, in the drops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="29"/>
+        <source>On aero bars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="30"/>
+        <source>Upright: mountain or city bike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="34"/>
+        <source>My own value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="55"/>
+        <source>Rider and power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="63"/>
+        <source>For rides without a power meter: the power is worked out from the speed, the climb and who rides what. With the weather on, the wind is counted too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="67"/>
+        <source>Estimate the power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="72"/>
+        <source>Rider&apos;s weight, kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="82"/>
+        <source>Rider&apos;s height, cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="92"/>
+        <source>Bike&apos;s weight, kg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="103"/>
+        <source>Tires</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/RiderSheet.qml" line="115"/>
+        <source>Riding position</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SettingsDialog</name>
     <message>
         <location filename="../src/settingsdialog.cpp" line="65"/>
@@ -8018,59 +8141,59 @@ It appears among the templates in the library.</source>
 <context>
     <name>SimpleController</name>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="485"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="486"/>
         <source>Opening %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1165"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1204"/>
         <source>Reading %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1204"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1243"/>
         <source>This video has no data of its own: open the file of the ride.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1205"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1244"/>
         <source>%1 could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1312"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1351"/>
         <source>The data comes from this video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1320"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1359"/>
         <source>In step by the clocks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1324"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1363"/>
         <source>Not in step: move the data until the gauges match the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1142"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1332"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1341"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1181"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1371"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1380"/>
         <source>Moved by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="231"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="232"/>
         <source>Demo ride</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="638"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="639"/>
         <source>Reading the videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/simple/simplecontroller.cpp" line="707"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="708"/>
         <source>%n videos, %1 long, copied one after another into %2: quick, and nothing is lost.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -8078,97 +8201,97 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="713"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="714"/>
         <source>They can be joined by encoding them again into %1. That takes a while; the joined video gets the size and frame rate of the first one (%2×%3), the others scaled into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="721"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="722"/>
         <source>The camera&apos;s data in them does not come along.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="757"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="758"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="773"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="774"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="773"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="774"/>
         <source>Encoding...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="977"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1016"/>
         <source>No video: the gauges follow the data&apos;s own time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1306"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1345"/>
         <source>The demo ride: open the data of your own to put it in step.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1525"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1564"/>
         <source>As in the settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1789"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1828"/>
         <source>The end has to be after the start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1811"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1850"/>
         <source>This lap is not in the video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1817"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1856"/>
         <source>lap%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1831"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1870"/>
         <source>Finding the encoders this device can use...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1855"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1894"/>
         <source>No encoder works on this device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1908"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1947"/>
         <source>Exporting... %1 %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1916"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1955"/>
         <source>Starting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1947"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1986"/>
         <source>Saved %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1951"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1990"/>
         <source>Stopped: what was done is in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1954"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1993"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1957"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1996"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>

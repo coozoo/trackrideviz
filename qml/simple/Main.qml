@@ -247,6 +247,10 @@ ApplicationWindow {
                         text: qsTr("Copy log")
                         onTriggered: simple.copyLog()
                     }
+                    MenuItem {
+                        text: qsTr("Rider and power...")
+                        onTriggered: riderSheet.open()
+                    }
                     // the wind and the air: a weather service is asked about the ride's places
                     MenuItem {
                         text: qsTr("Weather from the internet")
@@ -882,6 +886,13 @@ ApplicationWindow {
             close()
             exporter.open()
         }
+    }
+
+    RiderSheet {
+        id: riderSheet
+        touch: window.touch
+        width: Math.min(window.width * 0.9, 380)
+        height: window.height
     }
 
     MusicSheet {

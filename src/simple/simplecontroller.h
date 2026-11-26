@@ -73,6 +73,9 @@ class SimpleController : public QObject
     // the wind and the air of the ride fetched from a weather service (the full window's
     // settings have the same choice)
     Q_PROPERTY(bool weather READ weather WRITE setWeather NOTIFY weatherChanged)
+    // the power estimated for rides without a power meter, and who rides what (the full window's
+    // settings): enabled, riderKg, heightCm, bikeKg, tires, position
+    Q_PROPERTY(QVariantMap rider READ rider NOTIFY riderChanged)
     // videos made one (offered by joinOffered): their names in order, what joining them means, how far
     Q_PROPERTY(QStringList joinNames READ joinNames NOTIFY joinChanged)
     Q_PROPERTY(QString joinText READ joinText NOTIFY joinChanged)
@@ -130,6 +133,9 @@ public:
     void setGaugesOnly(bool only);
     bool weather() const;
     void setWeather(bool fetched);
+    QVariantMap rider() const;
+    // Any of rider's keys; the rest stay as they are. The data is worked out again with it.
+    Q_INVOKABLE void setRider(const QVariantMap &changes);
     QStringList joinNames() const;
     QString joinText() const { return m_joinText; }
     bool joinReady() const { return m_joinReady; }
@@ -266,6 +272,7 @@ signals:
     void overlayChanged();
     void profileChanged();
     void weatherChanged();
+    void riderChanged();
     void exportChanged();
     void musicChanged();
     void backRequested();
