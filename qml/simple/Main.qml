@@ -242,6 +242,12 @@ ApplicationWindow {
                         onTriggered: timingsLabel.visible = checked
                     }
                     MenuItem {
+                        visible: Qt.platform.os === "android"
+                        height: visible ? implicitHeight : 0
+                        text: qsTr("Copy log")
+                        onTriggered: simple.copyLog()
+                    }
+                    MenuItem {
                         text: qsTr("Graph under the video")
                         checkable: true
                         checked: window.graphShown

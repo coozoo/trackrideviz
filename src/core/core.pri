@@ -84,6 +84,7 @@ SOURCES += \
     $$PWD/video/videojoinjob.cpp
 
 HEADERS += \
+    $$PWD/applog.h \
     $$PWD/perfmeter.h \
     $$PWD/gauge/builtingauges.h \
     $$PWD/gauge/channelicons.h \

@@ -1,5 +1,6 @@
 #include "simplecontroller.h"
 
+#include "applog.h"
 #include "gauge/gaugelibrary.h"
 #include "laps/lapengine.h"
 #include "maps/tilestore.h"
@@ -20,11 +21,13 @@
 #include "video/libav.h"
 #include "weather/weather.h"
 
+#include <QClipboard>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QFutureWatcher>
+#include <QGuiApplication>
 #include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
@@ -819,6 +822,11 @@ void SimpleController::setGaugesOnly(bool only)
 QString SimpleController::timings() const
 {
     return PerfMeter::summary();
+}
+
+void SimpleController::copyLog() const
+{
+    QGuiApplication::clipboard()->setText(AppLog::text());
 }
 
 void SimpleController::openDemo()
