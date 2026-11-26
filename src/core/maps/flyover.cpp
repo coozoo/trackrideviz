@@ -13,6 +13,7 @@
 #include <QVector4D>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <system_error>
@@ -45,6 +46,7 @@ const double kShadeAmbient = 0.3;
 const double kShadeFlatFade = 4.0;
 // the haze grows with the distance to this power: the near land stays clear longer
 const double kHazePower = 1.6;
+const int kHazeSteps = 256;   // the haze looked up in this many steps
 const QColor kSkyTop(118, 163, 214);
 const QColor kHaze(214, 226, 238);
 
@@ -390,6 +392,20 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const int textureHeight = m_patch.texture.height();
     const double hazeFrom = m_patch.radius * 0.4;
     const double hazeTo = m_patch.radius * 0.95;
+    // the haze by the share of the way from where it begins to where it is whole, worked out
+    // once rather than for every pixel; and its color as numbers
+    static const std::array<double, kHazeSteps + 1> hazeAt = []()
+    {
+        std::array<double, kHazeSteps + 1> table{};
+        for (int k = 0; k <= kHazeSteps; ++k)
+            {
+                table[size_t(k)] = std::pow(double(k) / kHazeSteps, kHazePower);
+            }
+        return table;
+    }();
+    const int hazeRed = kHaze.red();
+    const int hazeGreen = kHaze.green();
+    const int hazeBlue = kHaze.blue();
     auto triangle = [&](int ia, int ib, int ic, int bandTop, int bandBottom)
     {
         const Vertex &a = vertices.at(ia);
@@ -462,11 +478,11 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
                                 bl = int(wa * qBlue(ca) + wb * qBlue(cb) + wc * qBlue(cc));
                             }
                         const double distance = std::clamp((toValue - hazeFrom) / (hazeTo - hazeFrom), 0.0, 1.0);
-                        const double haze = distance > 0.0 ? std::pow(distance, kHazePower) : 0.0;
+                        const double haze = hazeAt[int(distance * kHazeSteps + 0.5)];
                         const double keep = shade * (1.0 - haze);
-                        row[x] = qRgb(std::clamp(int(r * keep + kHaze.red() * haze), 0, 255),
-                                      std::clamp(int(g * keep + kHaze.green() * haze), 0, 255),
-                                      std::clamp(int(bl * keep + kHaze.blue() * haze), 0, 255));
+                        row[x] = qRgb(std::clamp(int(r * keep + hazeRed * haze), 0, 255),
+                                      std::clamp(int(g * keep + hazeGreen * haze), 0, 255),
+                                      std::clamp(int(bl * keep + hazeBlue * haze), 0, 255));
                     }
             }
     };
