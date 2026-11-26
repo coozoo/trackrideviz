@@ -247,6 +247,13 @@ ApplicationWindow {
                         text: qsTr("Copy log")
                         onTriggered: simple.copyLog()
                     }
+                    // the wind and the air: a weather service is asked about the ride's places
+                    MenuItem {
+                        text: qsTr("Weather from the internet")
+                        checkable: true
+                        checked: simple.weather
+                        onTriggered: simple.weather = checked
+                    }
                     MenuItem {
                         text: qsTr("Graph under the video")
                         checkable: true

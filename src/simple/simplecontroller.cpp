@@ -810,6 +810,29 @@ void SimpleController::cancelJoin()
     emit joinChanged();
 }
 
+bool SimpleController::weather() const
+{
+    return AppSettings::weather().enabled;
+}
+
+void SimpleController::setWeather(bool fetched)
+{
+    WeatherChoice choice = AppSettings::weather();
+    if (choice.enabled == fetched)
+        {
+            return;
+        }
+    choice.enabled = fetched;
+    AppSettings::setWeather(choice);
+    emit weatherChanged();
+    // the data worked out again with it, or without it, as the weather comes
+    if (m_raw)
+        {
+            m_arrivalTries = 0;
+            m_arrivals.start();
+        }
+}
+
 void SimpleController::setGaugesOnly(bool only)
 {
     if (only != m_gaugesOnly)
