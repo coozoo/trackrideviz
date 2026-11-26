@@ -1336,6 +1336,8 @@ private slots:
             }
         const TileStore::Picture picture = store->picture(area);
         QVERIFY(!picture.image.isNull());
+        // every tile missing has a coarser one in its place: nothing left to wait for
+        QVERIFY(picture.complete);
         for (int y = block.top; y <= block.bottom; ++y)
             {
                 for (int x = block.left; x <= block.right; ++x)

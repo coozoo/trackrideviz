@@ -69,8 +69,9 @@ QSGNode *GaugeOverlay::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
     const PerfMeter::Scope timed(meter);
     const qreal screen = window()->effectiveDevicePixelRatio();
     const qreal density = kMostDensity > 0.0 ? std::min(screen, kMostDensity) : screen;
-    // a picture of gauges is mostly see-through
-    QImage picture((size() * density).toSize(), QImage::Format_ARGB32_Premultiplied);
+    // a picture of gauges is mostly see-through; in the order of bytes the graphics card takes,
+    // so that it is not converted on the way there
+    QImage picture((size() * density).toSize(), QImage::Format_RGBA8888_Premultiplied);
     picture.setDevicePixelRatio(density);
     picture.fill(Qt::transparent);
     {
