@@ -1,3 +1,4 @@
+#include "applog.h"
 #include "gauge/gaugefonts.h"
 #include "settings/appsettings.h"
 #include "simple/simpleui.h"
@@ -34,10 +35,10 @@ const QString APP_VERSION = "0.05";
 namespace
 {
 // What Qt and the program say, to logcat under the program's name with the category at the end
-// ("trackrideviz: gauges painted: ... (rtv.perf)"), so that a log viewer filtered by the name
-// shows it whole.
+// ("trackrideviz: gauges painted: ... (rtv.perf)"), and kept for Copy log in the menu.
 void toLogcat(QtMsgType type, const QMessageLogContext &context, const QString &text)
 {
+    AppLog::add(QString("%1 (%2)").arg(text, QLatin1String(context.category ? context.category : "default")));
     const int priority = type == QtDebugMsg     ? ANDROID_LOG_DEBUG
                          : type == QtInfoMsg    ? ANDROID_LOG_INFO
                          : type == QtWarningMsg ? ANDROID_LOG_WARN

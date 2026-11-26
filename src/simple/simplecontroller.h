@@ -154,6 +154,8 @@ public:
     Q_INVOKABLE void openDemo();
     // How long painting and downloading took lately (Android only; empty elsewhere).
     Q_INVOKABLE QString timings() const;
+    // The last things the program said, to the clipboard (Android only; nothing elsewhere).
+    Q_INVOKABLE void copyLog() const;
     // Into its file (false: none yet, or it could not be written), or into this one.
     Q_INVOKABLE bool save();
     Q_INVOKABLE bool saveAs(const QUrl &url);
