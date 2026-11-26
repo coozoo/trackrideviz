@@ -161,9 +161,8 @@ QImage TileStore::tile(int zoom, int x, int y)
             m_tiles.insert(key, new QImage(read));
             return read;
         }
-    if (!m_wanted.contains(tile) && !m_failed.contains(tile) && !m_running.contains(tile))
+    if (ask(tile, true))
         {
-            m_wanted.insert(tile);
             if (m_downloads)
                 {
                     QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
@@ -358,6 +357,8 @@ void TileStore::setSource(const QString &urlTemplate, const QString &attribution
             m_pictures.clear();
             ++m_picturesCleared;
             m_wanted.clear();
+            m_now.clear();
+            m_later.clear();
             m_failed.clear();
         }
     m_attribution = attribution.trimmed();
@@ -476,7 +477,9 @@ void TileStore::want(const QVector<QRectF> &areas, double pixels)
 {
     // which tiles, under the lock; whether they are on disk, without it: the preview and an
     // export draw maps meanwhile
-    QHash<Tile, QString> candidates;
+    // in the order of the places: the nearest ones to come are downloaded first
+    QVector<std::pair<Tile, QString>> candidates;
+    QSet<Tile> seen;
     {
         const QMutexLocker lock(&m_mutex);
         for (const QRectF &area : areas)
@@ -487,21 +490,22 @@ void TileStore::want(const QVector<QRectF> &areas, double pixels)
                         for (int x = block.left; x <= block.right; ++x)
                             {
                                 const Tile tile{block.zoom, x, y};
-                                if (!candidates.contains(tile) && !m_wanted.contains(tile) && !m_failed.contains(tile)
+                                if (!seen.contains(tile) && !m_wanted.contains(tile) && !m_failed.contains(tile)
                                         && !m_running.contains(tile))
                                     {
-                                        candidates.insert(tile, pathOf(tile));
+                                        seen.insert(tile);
+                                        candidates.append({tile, pathOf(tile)});
                                     }
                             }
                     }
             }
     }
     QVector<Tile> missing;
-    for (auto it = candidates.cbegin(); it != candidates.cend(); ++it)
+    for (const auto &[tile, path] : std::as_const(candidates))
         {
-            if (!QFile::exists(it.value()))
+            if (!QFile::exists(path))
                 {
-                    missing.append(it.key());
+                    missing.append(tile);
                 }
         }
     if (missing.isEmpty())
@@ -513,11 +517,7 @@ void TileStore::want(const QVector<QRectF> &areas, double pixels)
         const QMutexLocker lock(&m_mutex);
         for (const Tile &tile : std::as_const(missing))
             {
-                if (!m_wanted.contains(tile) && !m_failed.contains(tile) && !m_running.contains(tile))
-                    {
-                        m_wanted.insert(tile);
-                        asked = true;
-                    }
+                asked = ask(tile, false) || asked;
             }
         asked = asked && m_downloads;
     }
@@ -640,11 +640,7 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                 const Tile &tile = missing.at(i);
                 if (!m_failed.contains(tile))
                     {
-                        if (!m_running.contains(tile))
-                            {
-                                m_wanted.insert(tile);
-                                asked = true;
-                            }
+                        asked = ask(tile, true) || asked;
                         continue;
                     }
                 // the server has none so close here: the nearest coarser one it may have, unless one stands in
@@ -655,11 +651,7 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
                             {
                                 continue;
                             }
-                        if (!m_running.contains(wider))
-                            {
-                                m_wanted.insert(wider);
-                                asked = true;
-                            }
+                        asked = ask(wider, true) || asked;
                         break;
                     }
             }
@@ -670,6 +662,30 @@ TileStore::Picture TileStore::picture(const QRectF &area, double pixels)
             QMetaObject::invokeMethod(this, "fetchWanted", Qt::QueuedConnection);
         }
     return result;
+}
+
+bool TileStore::ask(const Tile &tile, bool now)
+{
+    if (m_failed.contains(tile) || m_running.contains(tile))
+        {
+            return false;
+        }
+    const bool fresh = !m_wanted.contains(tile);
+    if (fresh)
+        {
+            m_wanted.insert(tile);
+            if (!now)
+                {
+                    m_later.push_back(tile);
+                }
+        }
+    // one waiting among the places to come, needed now: moved up
+    if (now && !m_now.contains(tile))
+        {
+            m_now.insert(tile);
+            return true;
+        }
+    return fresh;
 }
 
 void TileStore::fetchWanted()
@@ -698,7 +714,27 @@ void TileStore::startNext()
                     {
                         return;
                     }
-                tile = *m_wanted.constBegin();
+                // what a picture needs now, then the places to come in their order (skipping those
+                // already taken for a picture)
+                if (!m_now.isEmpty())
+                    {
+                        tile = *m_now.constBegin();
+                        m_now.remove(tile);
+                    }
+                else
+                    {
+                        while (!m_later.empty() && !m_wanted.contains(m_later.front()))
+                            {
+                                m_later.pop_front();
+                            }
+                        if (m_later.empty())
+                            {
+                                m_wanted.clear();
+                                return;
+                            }
+                        tile = m_later.front();
+                        m_later.pop_front();
+                    }
                 m_wanted.remove(tile);
                 m_running.insert(tile);
                 address = m_urlTemplate;

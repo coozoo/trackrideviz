@@ -9,6 +9,8 @@
 #include <QSet>
 #include <QVector>
 
+#include <deque>
+
 class QNetworkAccessManager;
 class QTimer;
 
@@ -161,7 +163,12 @@ private:
     QCache<quint64, QImage> m_tiles;       // single tiles read by tile()
     QCache<QString, Picture> m_pictures;   // whole blocks, by source and tile numbers; costs in MB
     quint64 m_picturesCleared{0};          // how often m_pictures was emptied
-    QSet<Tile> m_wanted;                   // missing, not asked for yet
+    QSet<Tile> m_wanted;                   // missing, not asked for yet: those of ...
+    QSet<Tile> m_now;                      // ... a picture drawn now, first; then those of ...
+    std::deque<Tile> m_later;              // ... places to come (want()), in their order
+    // Under the lock: `tile` to be downloaded, now (a picture needs it) or later; false when it
+    // is already, or cannot be.
+    bool ask(const Tile &tile, bool now);
     QSet<Tile> m_failed;                   // not asked for again in this run
     QSet<Tile> m_running;
     QNetworkAccessManager *m_network{nullptr};
