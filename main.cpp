@@ -24,13 +24,37 @@
 
 #include <memory>
 
+#ifdef Q_OS_ANDROID
+#include <android/log.h>
+#endif
+
 const QString APP_VERSION = "0.05";
+
+#ifdef Q_OS_ANDROID
+namespace
+{
+// What Qt and the program say, to logcat under the program's name with the category at the end
+// ("trackrideviz: gauges painted: ... (rtv.perf)"), so that a log viewer filtered by the name
+// shows it whole.
+void toLogcat(QtMsgType type, const QMessageLogContext &context, const QString &text)
+{
+    const int priority = type == QtDebugMsg     ? ANDROID_LOG_DEBUG
+                         : type == QtInfoMsg    ? ANDROID_LOG_INFO
+                         : type == QtWarningMsg ? ANDROID_LOG_WARN
+                         : type == QtFatalMsg   ? ANDROID_LOG_FATAL
+                                                : ANDROID_LOG_ERROR;
+    __android_log_print(priority, "trackrideviz", "%s (%s)", qUtf8Printable(text),
+                        context.category ? context.category : "default");
+}
+}
+#endif
 
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_ANDROID
     // the OpenSSL packed in the APK (libssl_3.so), not one Android may have of its own
     qputenv("ANDROID_OPENSSL_SUFFIX", "_3");
+    qInstallMessageHandler(toLogcat);
     const std::unique_ptr<QGuiApplication> application(new QGuiApplication(argc, argv));
 #else
     // everything Qt says from the very start, for View > Diagnostics
