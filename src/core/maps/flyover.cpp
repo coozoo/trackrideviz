@@ -9,16 +9,16 @@
 #include <QMutexLocker>
 #include <QPainter>
 #include <QPainterPath>
+#include <QSemaphore>
 #include <QThread>
+#include <QThreadPool>
 #include <QVector4D>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <limits>
-#include <system_error>
 #include <thread>
-#include <vector>
 
 namespace
 {
@@ -47,6 +47,26 @@ const double kShadeFlatFade = 4.0;
 // the haze grows with the distance to this power: the near land stays clear longer
 const double kHazePower = 1.6;
 const int kHazeSteps = 256;   // the haze looked up in this many steps
+// the land is worked out anew in the background while the rider is no farther than this share
+// of its radius from its middle; beyond it, at once
+const double kWaitShare = 0.6;
+
+// on this thread the land may be made in the background (Flyover::Patience)
+thread_local bool t_patient = false;
+
+// the threads that draw the bands of the land, kept
+QThreadPool &bandPool()
+{
+    static QThreadPool pool;
+    static const bool set = []()
+    {
+        pool.setMaxThreadCount(std::clamp(int(std::thread::hardware_concurrency()), 1, 16));
+        pool.setExpiryTimeout(-1);
+        return true;
+    }();
+    Q_UNUSED(set);
+    return pool;
+}
 const QColor kSkyTop(118, 163, 214);
 const QColor kHaze(214, 226, 238);
 
@@ -105,6 +125,17 @@ inline QRgb sampleBilinear(const QRgb *texels, int stride, int width, int height
 }
 }
 
+Flyover::Patience::Patience()
+    : m_was(t_patient)
+{
+    t_patient = true;
+}
+
+Flyover::Patience::~Patience()
+{
+    t_patient = m_was;
+}
+
 void Flyover::setRoute(const QVector<Point> &route)
 {
     const QMutexLocker lock(&m_mutex);
@@ -151,9 +182,10 @@ bool Flyover::needsPatch(const View &view) const
     return std::hypot(away.x(), away.y()) > m_patch.radius * kMoveShare;
 }
 
-void Flyover::buildPatch(const View &view)
+Flyover::Patch Flyover::makePatch(const View &view)
 {
-    m_built.start();
+    QElapsedTimer total;
+    total.start();
     QElapsedTimer part;
     part.start();
     qint64 heightsMs = 0;
@@ -167,7 +199,6 @@ void Flyover::buildPatch(const View &view)
     patch.mapProvider = view.mapProvider;
     patch.streets = view.streets;
     patch.complete = true;
-    m_patch = patch;
 
     const int n = kCells;
     const double step = 2.0 * patch.radius / n;
@@ -194,7 +225,7 @@ void Flyover::buildPatch(const View &view)
                         }
                     else
                         {
-                            m_patch.complete = false;
+                            patch.complete = false;
                         }
                 }
         }
@@ -206,7 +237,7 @@ void Flyover::buildPatch(const View &view)
                     h = fallback;
                 }
         }
-    m_patch.heights = heights;
+    patch.heights = heights;
     heightsMs = part.restart();
 
     // the sun's light on each point, from its slope steepened for the light; on flat land none
@@ -215,7 +246,7 @@ void Flyover::buildPatch(const View &view)
     const QVector3D sun(float(std::cos(sunElevation) * std::sin(sunAzimuth)), float(std::cos(sunElevation) * std::cos(sunAzimuth)),
                         float(std::sin(sunElevation)));
     const double flat = std::sin(sunElevation);
-    m_patch.shade.resize(heights.size());
+    patch.shade.resize(heights.size());
     auto h = [&](int a, int b)
     {
         return double(heights.at(std::clamp(b, 0, n) * (n + 1) + std::clamp(a, 0, n))) * kShadeSteepening;
@@ -237,7 +268,7 @@ void Flyover::buildPatch(const View &view)
                     // how steep the land is around it, wider than the light's slope: a bump on
                     // flat land stays unshaded
                     const double steepness = 1.0 - std::pow(std::max(0.0f, normalAt(i, j, 2).z()), kShadeFlatFade);
-                    m_patch.shade[j * (n + 1) + i] = float(std::clamp(1.0 + (shading - 1.0) * steepness, 0.3, 1.4));
+                    patch.shade[j * (n + 1) + i] = float(std::clamp(1.0 + (shading - 1.0) * steepness, 0.3, 1.4));
                 }
         }
 
@@ -253,50 +284,51 @@ void Flyover::buildPatch(const View &view)
             const TileStore::Picture picture = TileStore::forMap(view.mapProvider)->picture(area, kTexturePixels);
             if (picture.image.isNull() || !picture.complete)
                 {
-                    m_patch.complete = false;
+                    patch.complete = false;
                 }
             if (!picture.image.isNull())
                 {
                     // where tiles are still missing, plain land rather than black
-                    m_patch.texture = QImage(picture.image.size(), QImage::Format_RGB32);
-                    m_patch.texture.fill(landColor(0.3));
-                    QPainter painter(&m_patch.texture);
+                    patch.texture = QImage(picture.image.size(), QImage::Format_RGB32);
+                    patch.texture.fill(landColor(0.3));
+                    QPainter painter(&patch.texture);
                     painter.drawImage(0, 0, picture.image);
                     painter.end();
-                    m_patch.textureBounds = picture.bounds;
+                    patch.textureBounds = picture.bounds;
                 }
         }
 
     mapMs = part.restart();
     // what each point takes from the map, or its color: the same for every picture of the patch
-    if (!m_patch.texture.isNull())
+    if (!patch.texture.isNull())
         {
-            const QRectF &bounds = m_patch.textureBounds;
-            m_patch.texels.resize(heights.size());
+            const QRectF &bounds = patch.textureBounds;
+            patch.texels.resize(heights.size());
             for (int j = 0; j <= n; ++j)
                 {
                     const double v = (-TileStore::mercatorLatitude(latitudeOf(j)) - bounds.top()) / bounds.height()
-                                     * m_patch.texture.height();
+                                     * patch.texture.height();
                     for (int i = 0; i <= n; ++i)
                         {
-                            const double u = (longitudeOf(i) - bounds.left()) / bounds.width() * m_patch.texture.width();
-                            m_patch.texels[j * (n + 1) + i] = QPointF(u, v);
+                            const double u = (longitudeOf(i) - bounds.left()) / bounds.width() * patch.texture.width();
+                            patch.texels[j * (n + 1) + i] = QPointF(u, v);
                         }
                 }
         }
     else
         {
             const auto [lowest, highest] = std::minmax_element(heights.cbegin(), heights.cend());
-            m_patch.colors.resize(heights.size());
+            patch.colors.resize(heights.size());
             for (int k = 0; k < heights.size(); ++k)
                 {
                     const double share = *highest > *lowest ? (heights.at(k) - *lowest) / (*highest - *lowest) : 0.3;
-                    m_patch.colors[k] = landColor(share).rgb();
+                    patch.colors[k] = landColor(share).rgb();
                 }
         }
     qCInfo(perfLog()).noquote() << QString("flyover land built: %1 ms (heights %2, light %3, map %4, the rest %5)%6")
-                                   .arg(m_built.elapsed()).arg(heightsMs).arg(shadeMs).arg(mapMs).arg(part.elapsed())
-                                   .arg(m_patch.complete ? QString() : QStringLiteral(", tiles still missing"));
+                                   .arg(total.elapsed()).arg(heightsMs).arg(shadeMs).arg(mapMs).arg(part.elapsed())
+                                   .arg(patch.complete ? QString() : QStringLiteral(", tiles still missing"));
+    return patch;
 }
 
 QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
@@ -310,9 +342,46 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     // the preview's pictures timed, not an export's (made in other threads)
     static PerfMeter meter("flyover drawn (land building left out)");
     const bool timed = QThread::currentThread() == QCoreApplication::instance()->thread();
+    // a land made in the background, ready now
+    {
+        const QMutexLocker lock(&m_pending->mutex);
+        if (m_pending->ready)
+            {
+                m_patch = std::move(m_pending->patch);
+                m_pending->patch = Patch();
+                m_pending->ready = false;
+            }
+    }
     if (needsPatch(view))
         {
-            buildPatch(view);
+            m_built.start();
+            // the old land drawn meanwhile, where it will do: the same map and size, the rider
+            // still well inside it
+            const QPointF away = m_patch.isValid() ? local(view.latitude, view.longitude) : QPointF();
+            const bool oldWillDo = m_patch.isValid() && m_patch.mapProvider == view.mapProvider
+                                   && m_patch.streets == view.streets
+                                   && std::abs(m_patch.radius - view.span * kRadiusSpans) <= m_patch.radius * 0.01
+                                   && std::hypot(away.x(), away.y()) < m_patch.radius * kWaitShare;
+            if (oldWillDo && t_patient)
+                {
+                    const QMutexLocker lock(&m_pending->mutex);
+                    if (!m_pending->running)
+                        {
+                            m_pending->running = true;
+                            QThreadPool::globalInstance()->start([pending = m_pending, view]()
+                            {
+                                Patch patch = makePatch(view);
+                                const QMutexLocker lock(&pending->mutex);
+                                pending->patch = std::move(patch);
+                                pending->ready = true;
+                                pending->running = false;
+                            });
+                        }
+                }
+            else
+                {
+                    m_patch = makePatch(view);
+                }
         }
     QElapsedTimer took;
     took.start();
@@ -506,30 +575,19 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
                     }
             }
     };
-    std::vector<std::thread> workers;
-    // room for all first: only starting a thread can fail, and those started are joined
-    workers.reserve(size_t(bands - 1));
-    int band = 1;
-    try
+    // the other bands by threads kept for it (started once, not for every picture); they wait
+    // for nothing, so drawing from several threads at once cannot hold them all up
+    QSemaphore done;
+    for (int band = 1; band < bands; ++band)
         {
-            for (; band < bands; ++band)
-                {
-                    workers.emplace_back(drawBand, band);
-                }
-        }
-    catch (const std::system_error &)
-        {
-            // no more threads to be had: the rest drawn here
-            for (; band < bands; ++band)
-                {
-                    drawBand(band);
-                }
+            bandPool().start([&drawBand, &done, band]()
+            {
+                drawBand(band);
+                done.release();
+            });
         }
     drawBand(0);
-    for (std::thread &worker : workers)
-        {
-            worker.join();
-        }
+    done.acquire(bands - 1);
 
     // the route on the land where it shows: ridden in its color, the rest faint
     QPainter painter(&image);

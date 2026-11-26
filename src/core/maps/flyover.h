@@ -10,6 +10,8 @@
 #include <QString>
 #include <QVector>
 
+#include <memory>
+
 // The land around the rider in 3D, seen from behind and above: heights from the terrain model
 // (Terrain), a map's picture laid over them (TileStore), shaded by a low sun, fading into the sky
 // far away, the route on it. Drawn in software, so the preview, an export and the command line
@@ -18,6 +20,10 @@
 // The camera is set as route videos usually are: high behind the rider and looking down at
 // them; the land around them is worked out once and kept until they have gone a good way.
 // Thread-safe: the preview and an export may draw with one at the same time.
+//
+// The next land is worked out while the last is drawn where a Patience lives on the drawing
+// thread (the preview, which should not stop for it); elsewhere at once (an export, whose
+// pictures are then the same however fast the machine is).
 class Flyover
 {
 public:
@@ -42,6 +48,18 @@ public:
         QColor line{255, 110, 20};  // the route ridden so far
         double lineWidth{4.0};      // pixels
         double time{0.0};       // the route up to here is ridden
+    };
+
+    // While one lives, the land on this thread may be made in the background.
+    class Patience
+    {
+    public:
+        Patience();
+        ~Patience();
+        Q_DISABLE_COPY_MOVE(Patience)
+
+    private:
+        bool m_was;
     };
 
     void setRoute(const QVector<Point> &route);
@@ -74,8 +92,18 @@ private:
         bool isValid() const { return cells > 0; }
     };
 
+    // A land worked out in the background, taken over when it is ready.
+    struct Pending
+    {
+        QMutex mutex;
+        bool running{false};
+        bool ready{false};
+        Patch patch;
+    };
+
     bool needsPatch(const View &view) const;
-    void buildPatch(const View &view);
+    // The land around `view`; reads nothing of the flyover, so it may be made in any thread.
+    static Patch makePatch(const View &view);
     // Meters east and north of the patch's middle.
     QPointF local(double latitude, double longitude) const;
     double groundAt(double east, double north) const;
@@ -83,6 +111,7 @@ private:
     mutable QMutex m_mutex;
     QVector<Point> m_route;
     Patch m_patch;
+    std::shared_ptr<Pending> m_pending{std::make_shared<Pending>()};
     QElapsedTimer m_built;      // since the patch was worked out: one with tiles missing waits a while
     bool m_lastComplete{true};
 };
