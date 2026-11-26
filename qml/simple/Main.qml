@@ -199,7 +199,7 @@ ApplicationWindow {
             ToolButton { text: qsTr("Dash"); enabled: simple.hasData; onClicked: dashes.open() }
             ToolButton { visible: window.wide; text: qsTr("Add gauge"); enabled: simple.hasData; onClicked: gauges.open() }
             ToolButton { visible: window.wide; text: qsTr("Laps"); enabled: simple.hasData; onClicked: lapsSheet.open() }
-            ToolButton { visible: window.wide; text: qsTr("Music"); enabled: window.hasVideo; onClicked: musicSheet.open() }
+            ToolButton { visible: window.wide; text: qsTr("Music"); enabled: window.hasPicture; onClicked: musicSheet.open() }
             ToolButton {
                 text: qsTr("Export")
                 enabled: simple.hasData
@@ -262,7 +262,7 @@ ApplicationWindow {
                     }
                     MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Add gauge"); enabled: simple.hasData; onTriggered: gauges.open() }
                     MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Laps"); enabled: simple.hasData; onTriggered: lapsSheet.open() }
-                    MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Music"); enabled: window.hasVideo; onTriggered: musicSheet.open() }
+                    MenuItem { visible: !window.wide; height: visible ? implicitHeight : 0; text: qsTr("Music"); enabled: window.hasPicture; onTriggered: musicSheet.open() }
                     MenuSeparator {}
                     MenuItem {
                         text: qsTr("New")
@@ -635,7 +635,7 @@ ApplicationWindow {
                 MenuItem { text: qsTr("Dash"); onTriggered: dashes.open() }
                 MenuItem { text: qsTr("Add gauge"); onTriggered: gauges.open() }
                 MenuItem { text: qsTr("Laps"); onTriggered: lapsSheet.open() }
-                MenuItem { text: qsTr("Music"); enabled: window.hasVideo; onTriggered: musicSheet.open() }
+                MenuItem { text: qsTr("Music"); enabled: window.hasPicture; onTriggered: musicSheet.open() }
             }
 
             // while one is moved: its ratio kept or not, bigger, smaller, done
@@ -781,7 +781,7 @@ ApplicationWindow {
         }
     }
 
-    // the music in the preview, following the video as the export will have it
+    // the music in the preview, following the video (or the data's clock) as the export will have it
     MediaPlayer {
         id: music
         audioOutput: AudioOutput { id: musicOutput }
@@ -789,7 +789,7 @@ ApplicationWindow {
     Timer {
         interval: 250
         repeat: true
-        running: window.hasVideo && simple.musicNames.length > 0
+        running: window.hasPicture && simple.musicNames.length > 0
         onRunningChanged: if (!running) music.pause()
         onTriggered: {
             const now = simple.musicAt(playback.position)
@@ -887,6 +887,7 @@ ApplicationWindow {
     MusicSheet {
         id: musicSheet
         touch: window.touch
+        hasVideo: window.hasVideo
         width: Math.min(window.width * 0.9, 380)
         height: window.height
     }

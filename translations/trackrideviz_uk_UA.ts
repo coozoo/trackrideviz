@@ -5237,7 +5237,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="204"/>
-        <location filename="../qml/simple/Main.qml" line="1097"/>
+        <location filename="../qml/simple/Main.qml" line="1098"/>
         <source>Export</source>
         <translation>Експорт</translation>
     </message>
@@ -5388,97 +5388,97 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation>Відтворити</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="901"/>
+        <location filename="../qml/simple/Main.qml" line="902"/>
         <source>Join the chapters of the recording?</source>
         <translation>Об’єднати частини запису?</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="901"/>
+        <location filename="../qml/simple/Main.qml" line="902"/>
         <source>Join the videos?</source>
         <translation>Об’єднати відео?</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="940"/>
+        <location filename="../qml/simple/Main.qml" line="941"/>
         <source>Move up</source>
         <translation>Вище</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="948"/>
+        <location filename="../qml/simple/Main.qml" line="949"/>
         <source>Move down</source>
         <translation>Нижче</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="958"/>
+        <location filename="../qml/simple/Main.qml" line="959"/>
         <source>In order of their names. The breaks between them come from when each was recorded (the time in its name, or the file&apos;s own); if the data does not follow after joining, move it with Sync.</source>
         <translation>За порядком назв. Перерви між ними беруться з часу запису кожного (час у назві або дата самого файлу); якщо після об’єднання дані не збігаються, зсуньте їх через Синхр.</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="978"/>
+        <location filename="../qml/simple/Main.qml" line="979"/>
         <source>Join</source>
         <translation>Об’єднати</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="984"/>
+        <location filename="../qml/simple/Main.qml" line="985"/>
         <source>Only this one</source>
         <translation>Лише це</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="995"/>
+        <location filename="../qml/simple/Main.qml" line="996"/>
         <source>Stop</source>
         <translation>Зупинити</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="995"/>
+        <location filename="../qml/simple/Main.qml" line="996"/>
         <source>Cancel</source>
         <translation>Скасувати</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1011"/>
+        <location filename="../qml/simple/Main.qml" line="1012"/>
         <source>Export the video</source>
         <translation>Експорт відео</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1032"/>
+        <location filename="../qml/simple/Main.qml" line="1033"/>
         <source>Only the gauges, see-through (.webm)</source>
         <translation>Лише прилади, на прозорому (.webm)</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1040"/>
+        <location filename="../qml/simple/Main.qml" line="1041"/>
         <source>For laying over the video in an editor: only the gauges are made, the video is left as it is.</source>
         <translation>Щоб накласти на відео в редакторі: створюються лише прилади, саме відео лишається як є.</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1046"/>
+        <location filename="../qml/simple/Main.qml" line="1047"/>
         <source>Only a part</source>
         <translation>Лише частину</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1066"/>
+        <location filename="../qml/simple/Main.qml" line="1067"/>
         <source>From %1</source>
         <translation>Від %1</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1068"/>
+        <location filename="../qml/simple/Main.qml" line="1069"/>
         <source>to %1</source>
         <translation>до %1</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1070"/>
+        <location filename="../qml/simple/Main.qml" line="1071"/>
         <source>From here</source>
         <translation>Звідси</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1075"/>
+        <location filename="../qml/simple/Main.qml" line="1076"/>
         <source>To here</source>
         <translation>Досюди</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1105"/>
+        <location filename="../qml/simple/Main.qml" line="1106"/>
         <source>Stop, keep what is done</source>
         <translation>Зупинити, зберегти зроблене</translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1112"/>
+        <location filename="../qml/simple/Main.qml" line="1113"/>
         <source>Play it</source>
         <translation>Відтворити</translation>
     </message>
@@ -7221,47 +7221,52 @@ It appears among the templates in the library.</source>
 <context>
     <name>MusicSheet</name>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="15"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="17"/>
         <source>Choose music</source>
         <translation>Виберіть музику</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="16"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="18"/>
         <source>Music (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav)</source>
         <translation>Музика (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav)</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="16"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="18"/>
         <source>All files (*)</source>
         <translation>Усі файли (*)</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="26"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="28"/>
         <source>Music</source>
         <translation>Музика</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="46"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="48"/>
         <source>Remove</source>
         <translation>Вилучити</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="57"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="59"/>
         <source>No music: the video keeps its own sound.</source>
         <translation>Без музики: у відео лишається власний звук.</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="65"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="59"/>
+        <source>No music: the export is silent.</source>
+        <translation>Без музики: експорт буде без звуку.</translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/MusicSheet.qml" line="67"/>
         <source>Add music</source>
         <translation>Додати музику</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="68"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="70"/>
         <source>The video&apos;s sound: %1 %</source>
         <translation>Звук відео: %1 %</translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="79"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="82"/>
         <source>The music: %1 %</source>
         <translation>Музика: %1 %</translation>
     </message>
