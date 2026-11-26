@@ -26,6 +26,12 @@ const int kMaxZoom = 19;
 const int kCoarserLevels = 8;
 // servers ask for no more than two requests at a time
 const int kParallel = 2;
+#ifdef Q_OS_ANDROID
+// the map pictures kept, megabytes: a phone keeps only those around where the rider is
+const int kPicturesMegabytes = 64;
+#else
+const int kPicturesMegabytes = 256;
+#endif
 // Mercator maps end here
 const double kMaxLatitude = 85.0511;
 // a tile not come by then is given up
@@ -169,7 +175,7 @@ TileStore::TileStore()
     , m_attribution(defaultAttribution())
     , m_folder(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/tiles")
     , m_tiles(64)
-    , m_pictures(256)   // megabytes
+    , m_pictures(kPicturesMegabytes)
 {
     if (QCoreApplication::instance())
         {

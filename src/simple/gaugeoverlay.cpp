@@ -3,12 +3,17 @@
 #include "perfmeter.h"
 
 #include <QPainter>
+#include <QQuickWindow>
+#include <QSGImageNode>
+
+#include <algorithm>
 
 namespace
 {
 #ifdef Q_OS_ANDROID
 // A phone's screen has about three pixels to a point, and the gauges are drawn by the processor:
-// drawn at 1.5 and stretched, they take about a quarter of the time and stay sharp enough.
+// drawn at 1.5 and stretched by the graphics card, they take about a quarter of the time and
+// stay sharp enough.
 const qreal kMostDensity = 1.5;
 #else
 const qreal kMostDensity = 0.0;   // as the screen has it
@@ -16,11 +21,9 @@ const qreal kMostDensity = 0.0;   // as the screen has it
 }
 
 GaugeOverlay::GaugeOverlay(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+    : QQuickItem(parent)
 {
-    // a picture of gauges is mostly see-through
-    setOpaquePainting(false);
-    setAntialiasing(true);
+    setFlag(ItemHasContents);
 }
 
 void GaugeOverlay::setController(SimpleController *controller)
@@ -54,35 +57,35 @@ void GaugeOverlay::setPosition(qint64 positionMs)
     update();
 }
 
-void GaugeOverlay::paint(QPainter *painter)
+QSGNode *GaugeOverlay::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
 {
-    if (!m_controller || width() <= 0.0 || height() <= 0.0)
+    auto *node = static_cast<QSGImageNode *>(old);
+    if (!m_controller || !window() || width() <= 0.0 || height() <= 0.0)
         {
-            return;
+            delete node;
+            return nullptr;
         }
     static PerfMeter meter("gauges painted");
     const PerfMeter::Scope timed(meter);
-    const double time = m_controller->telemetryTime(m_position);
-    const qreal density = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
-    if (kMostDensity > 0.0 && density > kMostDensity)
+    const qreal screen = window()->effectiveDevicePixelRatio();
+    const qreal density = kMostDensity > 0.0 ? std::min(screen, kMostDensity) : screen;
+    // a picture of gauges is mostly see-through
+    QImage picture((size() * density).toSize(), QImage::Format_ARGB32_Premultiplied);
+    picture.setDevicePixelRatio(density);
+    picture.fill(Qt::transparent);
+    {
+        QPainter painter(&picture);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform);
+        m_controller->overlay()->render(painter, QRectF(0.0, 0.0, width(), height()), m_controller->telemetryTime(m_position));
+    }
+    if (!node)
         {
-            const QSize pixels = (size() * kMostDensity).toSize();
-            if (m_picture.size() != pixels)
-                {
-                    m_picture = QImage(pixels, QImage::Format_ARGB32_Premultiplied);
-                    m_picture.setDevicePixelRatio(kMostDensity);
-                }
-            m_picture.fill(Qt::transparent);
-            QPainter picture(&m_picture);
-            picture.setRenderHint(QPainter::Antialiasing);
-            picture.setRenderHint(QPainter::SmoothPixmapTransform);
-            m_controller->overlay()->render(picture, QRectF(0.0, 0.0, width(), height()), time);
-            picture.end();
-            painter->setRenderHint(QPainter::SmoothPixmapTransform);
-            painter->drawImage(QRectF(0.0, 0.0, width(), height()), m_picture);
-            return;
+            node = window()->createImageNode();
+            node->setOwnsTexture(true);
+            node->setFiltering(QSGTexture::Linear);
         }
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->setRenderHint(QPainter::SmoothPixmapTransform);
-    m_controller->overlay()->render(*painter, QRectF(0.0, 0.0, width(), height()), time);
+    node->setTexture(window()->createTextureFromImage(picture));
+    node->setRect(boundingRect());
+    return node;
 }

@@ -2,13 +2,13 @@
 
 #include "simplecontroller.h"
 
-#include <QImage>
 #include <QPointer>
-#include <QQuickPaintedItem>
+#include <QQuickItem>
 
 // The gauges of a SimpleController drawn over the picture: placed over the video's own
-// rectangle (VideoOutput's contentRect) and drawn for the player's position.
-class GaugeOverlay : public QQuickPaintedItem
+// rectangle (VideoOutput's contentRect) and drawn for the player's position. Drawn by the
+// processor into a picture that the graphics card shows, stretched to the item.
+class GaugeOverlay : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(SimpleController *controller READ controller WRITE setController NOTIFY controllerChanged)
@@ -22,15 +22,14 @@ public:
     qint64 position() const { return m_position; }
     void setPosition(qint64 positionMs);
 
-    void paint(QPainter *painter) override;
-
 signals:
     void controllerChanged();
     void positionChanged();
 
+protected:
+    QSGNode *updatePaintNode(QSGNode *old, UpdatePaintNodeData *data) override;
+
 private:
     QPointer<SimpleController> m_controller;
     qint64 m_position{0};
-    // on a phone: the gauges drawn at a lower density first, then stretched over the item
-    QImage m_picture;
 };
