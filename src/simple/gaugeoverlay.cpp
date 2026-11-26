@@ -1,5 +1,7 @@
 #include "gaugeoverlay.h"
 
+#include "perfmeter.h"
+
 #include <QPainter>
 
 GaugeOverlay::GaugeOverlay(QQuickItem *parent)
@@ -47,6 +49,8 @@ void GaugeOverlay::paint(QPainter *painter)
         {
             return;
         }
+    static PerfMeter meter("gauges painted");
+    const PerfMeter::Scope timed(meter);
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
     m_controller->overlay()->render(*painter, QRectF(0.0, 0.0, width(), height()), m_controller->telemetryTime(m_position));

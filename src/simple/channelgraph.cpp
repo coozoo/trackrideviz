@@ -1,5 +1,6 @@
 #include "channelgraph.h"
 
+#include "perfmeter.h"
 #include "settings/appsettings.h"
 #include "units/units.h"
 
@@ -112,6 +113,8 @@ void ChannelGraph::sample(int columns)
 
 void ChannelGraph::paint(QPainter *painter)
 {
+    static PerfMeter meter("graph painted");
+    const PerfMeter::Scope timed(meter);
     const int columns = int(std::floor(width()));
     if (!m_controller || columns <= 0 || height() <= 0.0 || m_duration <= 0)
         {

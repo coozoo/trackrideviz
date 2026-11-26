@@ -1,5 +1,7 @@
 #include "tilestore.h"
 
+#include "../perfmeter.h"
+
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
@@ -699,10 +701,19 @@ void TileStore::startNext()
             request.setHeader(QNetworkRequest::UserAgentHeader, agent);
             request.setTransferTimeout(kTimeout);
             QNetworkReply *reply = m_network->get(request);
-            connect(reply, &QNetworkReply::finished, this, [this, reply, tile, path]()
+            QElapsedTimer took;
+            took.start();
+            connect(reply, &QNetworkReply::finished, this, [this, reply, tile, path, took]()
             {
+                static PerfMeter meter("tile downloaded");
                 reply->deleteLater();
-                fetched(tile, path, reply->readAll(), reply->error() == QNetworkReply::NoError);
+                const bool ok = reply->error() == QNetworkReply::NoError;
+                meter.add(took.nsecsElapsed() / 1e6, !ok);
+                if (!ok)
+                    {
+                        qCInfo(perfLog()) << "tile failed:" << reply->error() << reply->errorString();
+                    }
+                fetched(tile, path, reply->readAll(), ok);
             });
         }
 }
