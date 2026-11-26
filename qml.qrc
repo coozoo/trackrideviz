@@ -4,6 +4,7 @@
         <file>qml/simple/GaugeSheet.qml</file>
         <file>qml/simple/Main.qml</file>
         <file>qml/simple/MusicSheet.qml</file>
+        <file>qml/simple/RiderSheet.qml</file>
         <file>qml/simple/LapsSheet.qml</file>
         <file>qml/simple/PreviewGrid.qml</file>
         <file>qml/simple/SyncControl.qml</file>

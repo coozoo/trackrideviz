@@ -12,6 +12,7 @@
 #include "sync/videosync.h"
 #include "telemetry/datasources.h"
 #include "telemetry/demosession.h"
+#include "telemetry/powerestimate.h"
 #include "telemetry/telemetryimporter.h"
 #include "units/units.h"
 #include "video/exportjob.h"
@@ -826,6 +827,44 @@ void SimpleController::setWeather(bool fetched)
     AppSettings::setWeather(choice);
     emit weatherChanged();
     // the data worked out again with it, or without it, as the weather comes
+    if (m_raw)
+        {
+            m_arrivalTries = 0;
+            m_arrivals.start();
+        }
+}
+
+QVariantMap SimpleController::rider() const
+{
+    const PowerEstimate::Rider rider = AppSettings::powerRider();
+    return {{"enabled", rider.enabled}, {"riderKg", rider.riderKg}, {"heightCm", rider.heightCm},
+        {"bikeKg", rider.bikeKg}, {"tires", rider.tires}, {"position", rider.position}};
+}
+
+void SimpleController::setRider(const QVariantMap &changes)
+{
+    PowerEstimate::Rider rider = AppSettings::powerRider();
+    const PowerEstimate::Rider before = rider;
+    rider.enabled = changes.value("enabled", rider.enabled).toBool();
+    rider.riderKg = std::clamp(changes.value("riderKg", rider.riderKg).toDouble(), 20.0, 250.0);
+    rider.heightCm = std::clamp(changes.value("heightCm", rider.heightCm).toDouble(), 100.0, 230.0);
+    rider.bikeKg = std::clamp(changes.value("bikeKg", rider.bikeKg).toDouble(), 1.0, 60.0);
+    const QString tires = changes.value("tires", rider.tires).toString();
+    if (tires == PowerEstimate::OwnValue || PowerEstimate::tires().contains(tires))
+        {
+            rider.tires = tires;
+        }
+    const QString position = changes.value("position", rider.position).toString();
+    if (position == PowerEstimate::OwnValue || PowerEstimate::positions().contains(position))
+        {
+            rider.position = position;
+        }
+    if (rider == before)
+        {
+            return;
+        }
+    AppSettings::setPowerRider(rider);
+    emit riderChanged();
     if (m_raw)
         {
             m_arrivalTries = 0;
