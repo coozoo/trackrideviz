@@ -8,6 +8,7 @@
 #include "gauge/veggaugeimporter.h"
 #include "gauge/xmlgaugeimporter.h"
 #include "laps/lapengine.h"
+#include "maps/flyover.h"
 #include "maps/tilestore.h"
 #include "settings/bundleddata.h"
 #include "telemetry/channelids.h"
@@ -19,6 +20,7 @@
 #include <QJsonObject>
 #include <QPainter>
 #include <QTemporaryDir>
+#include <QThreadPool>
 #include <QtTest>
 
 // A moment in UTC, built the same way on every Qt version.
@@ -1464,6 +1466,30 @@ private slots:
     // The land in 3D: without terrain or map tiles (no connection in a test) flat, in its own
     // colors, the sky above it, the route ridden so far drawn from the rider back towards the
     // camera, the rider's marker on them.
+    // Where a Patience lives, the next land is made in the background and the old one drawn
+    // meanwhile; taken over, it is the land made at once.
+    void flyoverLandMadeInTheBackground()
+    {
+        TileStore::terrain()->setFolder(m_dir.filePath("no-terrain"));
+        Flyover::View view;
+        view.latitude = 50.0;
+        view.longitude = 30.0;
+        view.span = 200.0;      // land 500 m to each side: new after 125 m, at once beyond 300 m
+        view.streets = false;
+        const QSize size(160, 90);
+        Flyover patient;
+        Flyover direct;
+        patient.render(size, view);
+        direct.render(size, view);
+        view.latitude += 200.0 / 111320.0;
+        {
+            const Flyover::Patience patience;
+            QVERIFY(!patient.render(size, view).isNull());   // the old land, the new asked for
+        }
+        QThreadPool::globalInstance()->waitForDone();
+        QCOMPARE(patient.render(size, view), direct.render(size, view));
+    }
+
     void flyoverDrawsTheLandBehindTheRider()
     {
         TileStore::terrain()->setFolder(m_dir.filePath("no-terrain"));

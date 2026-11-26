@@ -1,5 +1,6 @@
 #include "gaugeoverlay.h"
 
+#include "maps/flyover.h"
 #include "perfmeter.h"
 
 #include <QPainter>
@@ -75,6 +76,8 @@ QSGNode *GaugeOverlay::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
     picture.setDevicePixelRatio(density);
     picture.fill(Qt::transparent);
     {
+        // a flyover's next land is made in the background: the preview goes on meanwhile
+        const Flyover::Patience patience;
         QPainter painter(&picture);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setRenderHint(QPainter::SmoothPixmapTransform);
