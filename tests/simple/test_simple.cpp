@@ -3,6 +3,7 @@
 #include "simple/simplecontroller.h"
 #include "gauge/gaugelibrary.h"
 #include "telemetry/channelids.h"
+#include "telemetry/powerestimate.h"
 #include "overlay/templatelibrary.h"
 #include "settings/appsettings.h"
 #include "settings/bundleddata.h"
@@ -302,6 +303,30 @@ private slots:
         simple.setWeather(false);
         QVERIFY(!AppSettings::weather().enabled);
         QCOMPARE(changed.count(), 2);
+    }
+
+    // the rider's sheet is the full window's setting: kept as chosen, nothing unknown taken
+    void riderSettings()
+    {
+        SimpleController simple(false);
+        QSignalSpy changed(&simple, &SimpleController::riderChanged);
+        simple.setRider({{"enabled", true}, {"riderKg", 68}, {"tires", "gravel-fast"}, {"position", "drops"}});
+        QCOMPARE(changed.count(), 1);
+        const PowerEstimate::Rider rider = AppSettings::powerRider();
+        QVERIFY(rider.enabled);
+        QCOMPARE(rider.riderKg, 68.0);
+        QCOMPARE(rider.tires, QString("gravel-fast"));
+        QCOMPARE(rider.position, QString("drops"));
+        QCOMPARE(simple.rider().value("riderKg").toDouble(), 68.0);
+        // no such tires, a weight out of reach, nothing else: the tires stay, the weight held in
+        simple.setRider({{"tires", "slicks"}, {"riderKg", 900}});
+        QCOMPARE(AppSettings::powerRider().tires, QString("gravel-fast"));
+        QCOMPARE(AppSettings::powerRider().riderKg, 250.0);
+        // the same again: nothing changes
+        changed.clear();
+        simple.setRider({{"riderKg", 250}});
+        QCOMPARE(changed.count(), 0);
+        simple.setRider({{"enabled", false}});
     }
 
     void demoFlyover()
