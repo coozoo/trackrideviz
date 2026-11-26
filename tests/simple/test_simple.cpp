@@ -544,6 +544,31 @@ private slots:
                     }
             }
         QVERIFY(lit > 300);
+        // painted again further on: the line comes from what was kept, only the cursor moves
+        graph.setPosition(simple.dataDuration() / 4);
+        QImage again(600, 64, QImage::Format_ARGB32_Premultiplied);
+        again.fill(Qt::black);
+        {
+            QPainter painter(&again);
+            graph.paint(&painter);
+        }
+        int litAgain = 0;
+        for (int x = 0; x < 600; ++x)
+            {
+                for (int y = 0; y < 64; ++y)
+                    {
+                        litAgain += again.pixelColor(x, y).blue() > 150 ? 1 : 0;
+                    }
+            }
+        QVERIFY(std::abs(litAgain - lit) < lit / 10);
+        // the cursor (amber: much red, little blue) at a quarter now, not at the middle
+        auto amber = [](const QImage &picture, int x)
+        {
+            const QColor c = picture.pixelColor(x, 40);
+            return c.red() > 200 && c.blue() < 100;
+        };
+        QVERIFY(amber(again, 150) && !amber(again, 300));
+        QVERIFY(amber(graphPicture, 300));
         if (!qEnvironmentVariableIsEmpty("SIMPLE_DRAWN_PNG"))
             {
                 mapPicture.save(qEnvironmentVariable("SIMPLE_DRAWN_PNG") + "-map.png");

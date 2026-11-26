@@ -2,6 +2,7 @@
 
 #include "simplecontroller.h"
 
+#include <QImage>
 #include <QPointer>
 #include <QQuickPaintedItem>
 
@@ -30,4 +31,6 @@ signals:
 private:
     QPointer<SimpleController> m_controller;
     qint64 m_position{0};
+    // on a phone: the gauges drawn at a lower density first, then stretched over the item
+    QImage m_picture;
 };

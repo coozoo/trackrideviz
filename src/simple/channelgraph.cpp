@@ -20,7 +20,7 @@ ChannelGraph::ChannelGraph(QQuickItem *parent)
 {
     setOpaquePainting(false);
     setAntialiasing(true);
-    connect(this, &ChannelGraph::colorsChanged, this, [this]() { update(); });
+    connect(this, &ChannelGraph::colorsChanged, this, &ChannelGraph::stale);
     connect(this, &QQuickItem::widthChanged, this, &ChannelGraph::stale);
 }
 
@@ -82,6 +82,7 @@ void ChannelGraph::setDuration(qint64 durationMs)
 void ChannelGraph::stale()
 {
     m_sampledColumns = 0;
+    m_background = QImage();
     update();
 }
 
@@ -111,21 +112,9 @@ void ChannelGraph::sample(int columns)
         }
 }
 
-void ChannelGraph::paint(QPainter *painter)
+void ChannelGraph::paintBackground(QPainter &painter, double msPerPixel)
 {
-    static PerfMeter meter("graph painted");
-    const PerfMeter::Scope timed(meter);
-    const int columns = int(std::floor(width()));
-    if (!m_controller || columns <= 0 || height() <= 0.0 || m_duration <= 0)
-        {
-            return;
-        }
-    if (m_sampledColumns != columns)
-        {
-            sample(columns);
-        }
-    painter->setRenderHint(QPainter::Antialiasing);
-    const double msPerPixel = double(m_duration) / width();
+    painter.setRenderHint(QPainter::Antialiasing);
     const TelemetrySessionPtr session = m_controller->session();
 
     // the laps: every other one in a faint band
@@ -139,7 +128,7 @@ void ChannelGraph::paint(QPainter *painter)
                 {
                     const double from = sync.videoTime(laps.at(i).startTime) * 1000.0 / msPerPixel;
                     const double to = sync.videoTime(laps.at(i).endTime) * 1000.0 / msPerPixel;
-                    painter->fillRect(QRectF(from, 0.0, std::max(1.0, to - from), height()), band);
+                    painter.fillRect(QRectF(from, 0.0, std::max(1.0, to - from), height()), band);
                 }
         }
 
@@ -163,10 +152,39 @@ void ChannelGraph::paint(QPainter *painter)
                     drawing ? line.lineTo(point) : line.moveTo(point);
                     drawing = true;
                 }
-            painter->setPen(QPen(m_lineColor, 1.5));
-            painter->setBrush(Qt::NoBrush);
-            painter->drawPath(line);
+            painter.setPen(QPen(m_lineColor, 1.5));
+            painter.setBrush(Qt::NoBrush);
+            painter.drawPath(line);
         }
+}
+
+void ChannelGraph::paint(QPainter *painter)
+{
+    static PerfMeter meter("graph painted");
+    const PerfMeter::Scope timed(meter);
+    const int columns = int(std::floor(width()));
+    if (!m_controller || columns <= 0 || height() <= 0.0 || m_duration <= 0)
+        {
+            return;
+        }
+    if (m_sampledColumns != columns)
+        {
+            sample(columns);
+        }
+    const double msPerPixel = double(m_duration) / width();
+    const TelemetrySessionPtr session = m_controller->session();
+    const qreal ratio = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+    const QSize pixels = (size() * ratio).toSize();
+    if (m_background.size() != pixels || m_background.devicePixelRatio() != ratio)
+        {
+            m_background = QImage(pixels, QImage::Format_ARGB32_Premultiplied);
+            m_background.setDevicePixelRatio(ratio);
+            m_background.fill(Qt::transparent);
+            QPainter background(&m_background);
+            paintBackground(background, msPerPixel);
+        }
+    painter->drawImage(QPointF(0.0, 0.0), m_background);
+    painter->setRenderHint(QPainter::Antialiasing);
 
     // where the video is, and the value there
     const double x = m_position / msPerPixel;
