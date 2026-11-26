@@ -4,10 +4,12 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 
 // The music under the video, as the full window's dock has it: tracks one after another from
-// the start, and how loud they and the camera's own sound are.
+// the start, and how loud they and the camera's own sound are. With the data alone, the music
+// is the only sound.
 Drawer {
     id: sheet
     property int touch: 48
+    property bool hasVideo: true
     edge: Qt.RightEdge
 
     FileDialog {
@@ -54,7 +56,7 @@ Drawer {
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
                 opacity: 0.7
-                text: qsTr("No music: the video keeps its own sound.")
+                text: sheet.hasVideo ? qsTr("No music: the video keeps its own sound.") : qsTr("No music: the export is silent.")
             }
         }
         Button {
@@ -65,8 +67,9 @@ Drawer {
             text: qsTr("Add music")
             onClicked: musicDialog.open()
         }
-        Label { Layout.leftMargin: 16; text: qsTr("The video's sound: %1 %").arg(simple.videoVolume) }
+        Label { Layout.leftMargin: 16; visible: sheet.hasVideo; text: qsTr("The video's sound: %1 %").arg(simple.videoVolume) }
         Slider {
+            visible: sheet.hasVideo
             Layout.fillWidth: true
             Layout.leftMargin: 8
             Layout.rightMargin: 8

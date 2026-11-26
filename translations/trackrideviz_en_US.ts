@@ -5197,7 +5197,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="204"/>
-        <location filename="../qml/simple/Main.qml" line="1097"/>
+        <location filename="../qml/simple/Main.qml" line="1098"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5348,97 +5348,97 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="901"/>
+        <location filename="../qml/simple/Main.qml" line="902"/>
         <source>Join the chapters of the recording?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="901"/>
+        <location filename="../qml/simple/Main.qml" line="902"/>
         <source>Join the videos?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="940"/>
+        <location filename="../qml/simple/Main.qml" line="941"/>
         <source>Move up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="948"/>
+        <location filename="../qml/simple/Main.qml" line="949"/>
         <source>Move down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="958"/>
+        <location filename="../qml/simple/Main.qml" line="959"/>
         <source>In order of their names. The breaks between them come from when each was recorded (the time in its name, or the file&apos;s own); if the data does not follow after joining, move it with Sync.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="978"/>
+        <location filename="../qml/simple/Main.qml" line="979"/>
         <source>Join</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="984"/>
+        <location filename="../qml/simple/Main.qml" line="985"/>
         <source>Only this one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="995"/>
+        <location filename="../qml/simple/Main.qml" line="996"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="995"/>
+        <location filename="../qml/simple/Main.qml" line="996"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1011"/>
+        <location filename="../qml/simple/Main.qml" line="1012"/>
         <source>Export the video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1032"/>
+        <location filename="../qml/simple/Main.qml" line="1033"/>
         <source>Only the gauges, see-through (.webm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1040"/>
+        <location filename="../qml/simple/Main.qml" line="1041"/>
         <source>For laying over the video in an editor: only the gauges are made, the video is left as it is.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1046"/>
+        <location filename="../qml/simple/Main.qml" line="1047"/>
         <source>Only a part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1066"/>
+        <location filename="../qml/simple/Main.qml" line="1067"/>
         <source>From %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1068"/>
+        <location filename="../qml/simple/Main.qml" line="1069"/>
         <source>to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1070"/>
+        <location filename="../qml/simple/Main.qml" line="1071"/>
         <source>From here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1075"/>
+        <location filename="../qml/simple/Main.qml" line="1076"/>
         <source>To here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1105"/>
+        <location filename="../qml/simple/Main.qml" line="1106"/>
         <source>Stop, keep what is done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1112"/>
+        <location filename="../qml/simple/Main.qml" line="1113"/>
         <source>Play it</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7169,47 +7169,52 @@ It appears among the templates in the library.</source>
 <context>
     <name>MusicSheet</name>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="15"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="17"/>
         <source>Choose music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="16"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="18"/>
         <source>Music (*.mp3 *.m4a *.aac *.ogg *.opus *.flac *.wav)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="16"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="18"/>
         <source>All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="26"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="28"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="46"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="48"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="57"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="59"/>
         <source>No music: the video keeps its own sound.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="65"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="59"/>
+        <source>No music: the export is silent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/MusicSheet.qml" line="67"/>
         <source>Add music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="68"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="70"/>
         <source>The video&apos;s sound: %1 %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/MusicSheet.qml" line="79"/>
+        <location filename="../qml/simple/MusicSheet.qml" line="82"/>
         <source>The music: %1 %</source>
         <translation type="unfinished"></translation>
     </message>
