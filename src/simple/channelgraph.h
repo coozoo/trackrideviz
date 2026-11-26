@@ -3,6 +3,7 @@
 #include "simplecontroller.h"
 
 #include <QColor>
+#include <QImage>
 #include <QPointer>
 #include <QQuickPaintedItem>
 #include <QVector>
@@ -48,6 +49,8 @@ private:
     void stale();
     // the value of each column of pixels; NaN where the data has none
     void sample(int columns);
+    // the laps' bands and the line, what does not move with the video
+    void paintBackground(QPainter &painter, double msPerPixel);
 
     QPointer<SimpleController> m_controller;
     QString m_channel;
@@ -61,4 +64,6 @@ private:
     int m_sampledColumns{0};
     double m_low{0.0};
     double m_high{0.0};
+    // the bands and the line, drawn once: only the cursor moves with the video
+    QImage m_background;
 };
