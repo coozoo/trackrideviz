@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <thread>
 
@@ -45,6 +46,9 @@ const double kShadeFlatFade = 4.0;
 // the haze grows with the distance to this power: the near land stays clear longer
 const double kHazePower = 1.6;
 const int kHazeSteps = 256;   // the haze looked up in this many steps
+// the haze begins this share of the land's radius from the camera, and is whole here
+const double kHazeFrom = 0.4;
+const double kHazeTo = 0.95;
 // the land is worked out anew in the background while the rider is no farther than this share
 // of its radius from its middle; beyond it, at once
 const double kWaitShare = 0.6;
@@ -79,6 +83,21 @@ struct Vertex
     double shade{1.0};
     bool usable{false};
 };
+
+// Where `point` (meters around the land's middle) is on a picture of `size` seen through `toClip`.
+void projectWith(const QMatrix4x4 &toClip, double nearPlane, const QSize &size, const QVector3D &point, Vertex *vertex)
+{
+    const QVector4D clip = toClip * QVector4D(point, 1.0f);
+    vertex->w = clip.w();
+    vertex->usable = clip.w() > nearPlane;
+    if (!vertex->usable)
+        {
+            return;
+        }
+    vertex->inverseW = 1.0 / clip.w();
+    vertex->x = (clip.x() * vertex->inverseW + 1.0) * 0.5 * size.width();
+    vertex->y = (1.0 - clip.y() * vertex->inverseW) * 0.5 * size.height();
+}
 
 inline double edge(const Vertex &a, const Vertex &b, double x, double y)
 {
@@ -329,17 +348,8 @@ Flyover::Patch Flyover::makePatch(const View &view)
     return patch;
 }
 
-QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
+void Flyover::takePatch(const View &view)
 {
-    const QMutexLocker lock(&m_mutex);
-    QImage image(size, QImage::Format_RGB32);
-    if (size.isEmpty())
-        {
-            return image;
-        }
-    // the preview's pictures timed (drawn where a Patience lives), not an export's
-    static PerfMeter meter("flyover drawn (land building left out)");
-    const bool timed = t_patient;
     // a land made in the background, ready now
     {
         const QMutexLocker lock(&m_pending->mutex);
@@ -381,21 +391,10 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
                     m_patch = makePatch(view);
                 }
         }
-    QElapsedTimer took;
-    took.start();
-    m_lastComplete = m_patch.complete;
-    const int width = size.width();
-    const int height = size.height();
+}
 
-    // the sky, darker up high
-    {
-        QPainter painter(&image);
-        QLinearGradient sky(0, 0, 0, height);
-        sky.setColorAt(0.0, kSkyTop);
-        sky.setColorAt(0.55, kHaze);
-        painter.fillRect(image.rect(), sky);
-    }
-
+Flyover::Camera Flyover::cameraFor(const QSize &size, const View &view) const
+{
     // the camera: behind the rider and above, looking down at them
     const QPointF here = local(view.latitude, view.longitude);
     const double ground = groundAt(here.x(), here.y()) * view.exaggeration;
@@ -411,22 +410,109 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const double nearPlane = std::max(1.0, altitude * 0.05);
     const double farPlane = m_patch.radius * 2.0;
     QMatrix4x4 projection;
-    projection.perspective(float(kFieldOfView), float(width) / height, float(nearPlane), float(farPlane));
+    projection.perspective(float(kFieldOfView), float(size.width()) / size.height(), float(nearPlane), float(farPlane));
     QMatrix4x4 camera;
     camera.lookAt(eye, lookAt, QVector3D(0.0f, 0.0f, 1.0f));
-    const QMatrix4x4 toClip = projection * camera;
+    return {projection * camera, nearPlane, target};
+}
+
+void Flyover::drawRoute(QImage &image, const Camera &camera, const View &view,
+                        const std::function<bool(const QPointF &, double)> &hidden) const
+{
+    // ridden in its color, the rest faint
+    const int width = image.width();
+    const int height = image.height();
+    const double hazeFrom = m_patch.radius * kHazeFrom;
+    const double hazeTo = m_patch.radius * kHazeTo;
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    auto visible = [&](const Vertex &vertex)
+    {
+        return vertex.usable && vertex.x >= 0.0 && vertex.y >= 0.0 && vertex.x < width && vertex.y < height
+               && !hidden(QPointF(vertex.x, vertex.y), vertex.inverseW);
+    };
+    const double reach = m_patch.radius * 0.95;
+    QPainterPath ridden;
+    QPainterPath ahead;
+    bool riddenOpen = false;
+    bool aheadOpen = false;
+    for (const Point &point : std::as_const(m_route))
+        {
+            const QPointF at = local(point.latitude, point.longitude);
+            Vertex vertex;
+            const bool near = std::abs(at.x()) < reach && std::abs(at.y()) < reach;
+            if (near)
+                {
+                    // a little above the ground, so that the land does not swallow it
+                    projectWith(camera.toClip, camera.nearPlane, image.size(), QVector3D(float(at.x()), float(at.y()),
+                                float(groundAt(at.x(), at.y()) * view.exaggeration + view.span * 0.004)), &vertex);
+                }
+            // not into the haze, where the land it lies on has faded
+            const bool shown = near && visible(vertex) && vertex.w < (hazeFrom + hazeTo) / 2.0;
+            const bool isRidden = point.time <= view.time;
+            QPainterPath &path = isRidden ? ridden : ahead;
+            bool &open = isRidden ? riddenOpen : aheadOpen;
+            if (!shown)
+                {
+                    riddenOpen = aheadOpen = false;
+                    continue;
+                }
+            if (open)
+                {
+                    path.lineTo(vertex.x, vertex.y);
+                }
+            else
+                {
+                    path.moveTo(vertex.x, vertex.y);
+                    open = true;
+                }
+            // the other part starts where this one is, so that the two meet
+            (isRidden ? aheadOpen : riddenOpen) = false;
+        }
+    painter.setBrush(Qt::NoBrush);
+    QColor faint = view.line;
+    faint.setAlpha(110);
+    painter.setPen(QPen(faint, view.lineWidth * 0.8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.drawPath(ahead);
+    painter.setPen(QPen(view.line, view.lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.drawPath(ridden);
+    painter.end();
+}
+
+QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
+{
+    const QMutexLocker lock(&m_mutex);
+    QImage image(size, QImage::Format_RGB32);
+    if (size.isEmpty())
+        {
+            return image;
+        }
+    // the preview's pictures timed (drawn where a Patience lives), not an export's
+    static PerfMeter meter("flyover drawn (land building left out)");
+    const bool timed = t_patient;
+    takePatch(view);
+    QElapsedTimer took;
+    took.start();
+    m_lastComplete = m_patch.complete;
+    const int width = size.width();
+    const int height = size.height();
+
+    // the sky, darker up high
+    {
+        QPainter painter(&image);
+        QLinearGradient sky(0, 0, 0, height);
+        sky.setColorAt(0.0, kSkyTop);
+        sky.setColorAt(0.55, kHaze);
+        painter.fillRect(image.rect(), sky);
+    }
+
+    const Camera camera = cameraFor(size, view);
+    const QMatrix4x4 &toClip = camera.toClip;
+    const double nearPlane = camera.nearPlane;
+    const QVector3D &target = camera.target;
     auto project = [&](const QVector3D &point, Vertex *vertex)
     {
-        const QVector4D clip = toClip * QVector4D(point, 1.0f);
-        vertex->w = clip.w();
-        vertex->usable = clip.w() > nearPlane;
-        if (!vertex->usable)
-            {
-                return;
-            }
-        vertex->inverseW = 1.0 / clip.w();
-        vertex->x = (clip.x() * vertex->inverseW + 1.0) * 0.5 * width;
-        vertex->y = (1.0 - clip.y() * vertex->inverseW) * 0.5 * height;
+        projectWith(toClip, nearPlane, size, point, vertex);
     };
 
     // the land's points: where they are on the picture, their map pixel, their light
@@ -462,8 +548,8 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     const int texelStride = textured ? m_patch.texture.bytesPerLine() / int(sizeof(QRgb)) : 0;
     const int textureWidth = m_patch.texture.width();
     const int textureHeight = m_patch.texture.height();
-    const double hazeFrom = m_patch.radius * 0.4;
-    const double hazeTo = m_patch.radius * 0.95;
+    const double hazeFrom = m_patch.radius * kHazeFrom;
+    const double hazeTo = m_patch.radius * kHazeTo;
     // the haze by the share of the way from where it begins to where it is whole, worked out
     // once rather than for every pixel; and its color as numbers
     static const std::array<double, kHazeSteps + 1> hazeAt = []()
@@ -587,61 +673,11 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     drawBand(0);
     done.acquire(bands - 1);
 
-    // the route on the land where it shows: ridden in its color, the rest faint
-    QPainter painter(&image);
-    painter.setRenderHint(QPainter::Antialiasing);
-    auto visible = [&](const Vertex &vertex)
+    // the route on the land where it shows: the land in front of a point hides it
+    drawRoute(image, camera, view, [&](const QPointF &at, double inverseW)
     {
-        const int x = int(vertex.x);
-        const int y = int(vertex.y);
-        return vertex.usable && x >= 0 && y >= 0 && x < width && y < height && vertex.inverseW >= depth.at(y * width + x) * 0.985;
-    };
-    const double reach = m_patch.radius * 0.95;
-    QPainterPath ridden;
-    QPainterPath ahead;
-    bool riddenOpen = false;
-    bool aheadOpen = false;
-    for (const Point &point : std::as_const(m_route))
-        {
-            const QPointF at = local(point.latitude, point.longitude);
-            Vertex vertex;
-            const bool near = std::abs(at.x()) < reach && std::abs(at.y()) < reach;
-            if (near)
-                {
-                    // a little above the ground, so that the land does not swallow it
-                    project(QVector3D(float(at.x()), float(at.y()),
-                                      float(groundAt(at.x(), at.y()) * view.exaggeration + view.span * 0.004)), &vertex);
-                }
-            // not into the haze, where the land it lies on has faded
-            const bool shown = near && visible(vertex) && vertex.w < (hazeFrom + hazeTo) / 2.0;
-            const bool isRidden = point.time <= view.time;
-            QPainterPath &path = isRidden ? ridden : ahead;
-            bool &open = isRidden ? riddenOpen : aheadOpen;
-            if (!shown)
-                {
-                    riddenOpen = aheadOpen = false;
-                    continue;
-                }
-            if (open)
-                {
-                    path.lineTo(vertex.x, vertex.y);
-                }
-            else
-                {
-                    path.moveTo(vertex.x, vertex.y);
-                    open = true;
-                }
-            // the other part starts where this one is, so that the two meet
-            (isRidden ? aheadOpen : riddenOpen) = false;
-        }
-    painter.setBrush(Qt::NoBrush);
-    QColor faint = view.line;
-    faint.setAlpha(110);
-    painter.setPen(QPen(faint, view.lineWidth * 0.8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter.drawPath(ahead);
-    painter.setPen(QPen(view.line, view.lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter.drawPath(ridden);
-    painter.end();
+        return inverseW < depth.at(int(at.y()) * width + int(at.x())) * 0.985;
+    });
 
     if (rider)
         {

@@ -3,13 +3,16 @@
 #include <QColor>
 #include <QElapsedTimer>
 #include <QImage>
+#include <QMatrix4x4>
 #include <QMutex>
 #include <QPointF>
 #include <QRectF>
 #include <QSize>
 #include <QString>
+#include <QVector3D>
 #include <QVector>
 
+#include <functional>
 #include <memory>
 
 // The land around the rider in 3D, seen from behind and above: heights from the terrain model
@@ -101,6 +104,20 @@ private:
         Patch patch;
     };
 
+    // Where the camera is for a picture of `size`.
+    struct Camera
+    {
+        QMatrix4x4 toClip;      // meters around the land's middle to the picture's clip space
+        double nearPlane{1.0};
+        QVector3D target;       // the rider, in those meters
+    };
+
+    // The land taken over from the background, or made anew when it no longer will do.
+    void takePatch(const View &view);
+    Camera cameraFor(const QSize &size, const View &view) const;
+    // The route over `image`; `hidden` says whether the land in front hides a point (pixels, 1 / w).
+    void drawRoute(QImage &image, const Camera &camera, const View &view,
+                   const std::function<bool(const QPointF &, double)> &hidden) const;
     bool needsPatch(const View &view) const;
     // The land around `view`; reads nothing of the flyover, so it may be made in any thread.
     static Patch makePatch(const View &view);
