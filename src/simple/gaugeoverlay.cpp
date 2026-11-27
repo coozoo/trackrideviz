@@ -1,5 +1,6 @@
 #include "gaugeoverlay.h"
 
+#include "flyovernode.h"
 #include "maps/flyover.h"
 #include "perfmeter.h"
 
@@ -8,6 +9,7 @@
 #include <QSGImageNode>
 
 #include <algorithm>
+#include <optional>
 
 namespace
 {
@@ -60,10 +62,11 @@ void GaugeOverlay::setPosition(qint64 positionMs)
 
 QSGNode *GaugeOverlay::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
 {
-    auto *node = static_cast<QSGImageNode *>(old);
+    // the flyovers' land (FlyoverNode), then the picture of the gauges over it, last
+    QSGNode *root = old;
     if (!m_controller || !window() || width() <= 0.0 || height() <= 0.0)
         {
-            delete node;
+            delete root;
             return nullptr;
         }
     static PerfMeter meter("gauges painted");
@@ -75,21 +78,59 @@ QSGNode *GaugeOverlay::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
     QImage picture((size() * density).toSize(), QImage::Format_RGBA8888_Premultiplied);
     picture.setDevicePixelRatio(density);
     picture.fill(Qt::transparent);
+    // a flyover's land on the graphics card where it can: the shader packs need Qt 6.4
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    const bool onCard = FlyoverNode::available(window());
+#else
+    const bool onCard = false;
+#endif
+    QVector<Flyover::Capture::Item> flyovers;
     {
         // a flyover's next land is made in the background: the preview goes on meanwhile
         const Flyover::Patience patience;
+        std::optional<Flyover::Capture> capture;
+        if (onCard)
+            {
+                capture.emplace();
+            }
         QPainter painter(&picture);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setRenderHint(QPainter::SmoothPixmapTransform);
         m_controller->overlay()->render(painter, QRectF(0.0, 0.0, width(), height()), m_controller->telemetryTime(m_position));
+        painter.end();
+        if (capture)
+            {
+                flyovers = capture->items;
+            }
     }
-    if (!node)
+    if (!root)
         {
-            node = window()->createImageNode();
-            node->setOwnsTexture(true);
-            node->setFiltering(QSGTexture::Linear);
+            root = new QSGNode;
+            QSGImageNode *image = window()->createImageNode();
+            image->setOwnsTexture(true);
+            image->setFiltering(QSGTexture::Linear);
+            root->appendChildNode(image);
         }
-    node->setTexture(window()->createTextureFromImage(picture));
-    node->setRect(boundingRect());
-    return node;
+    auto *image = static_cast<QSGImageNode *>(root->lastChild());
+    image->setTexture(window()->createTextureFromImage(picture));
+    image->setRect(boundingRect());
+    // one FlyoverNode for each flyover, before the picture; the picture's pixels to the item's
+    while (root->childCount() - 1 > flyovers.size())
+        {
+            QSGNode *gone = root->firstChild();
+            root->removeChildNode(gone);
+            delete gone;
+        }
+    while (root->childCount() - 1 < flyovers.size())
+        {
+            root->prependChildNode(new FlyoverNode);
+        }
+    QSGNode *child = root->firstChild();
+    for (const Flyover::Capture::Item &flyover : std::as_const(flyovers))
+        {
+            const QRectF rect(flyover.rect.topLeft() / density, flyover.rect.size() / density);
+            static_cast<FlyoverNode *>(child)->update(window(), flyover.scene, rect, flyover.radius / density);
+            child = child->nextSibling();
+        }
+    return root;
 }

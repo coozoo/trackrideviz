@@ -1,4 +1,5 @@
 #include "simple/channelgraph.h"
+#include "simple/gaugeoverlay.h"
 #include "simple/routeview.h"
 #include "simple/simplecontroller.h"
 #include "gauge/gaugelibrary.h"
@@ -12,6 +13,7 @@
 #include <QFileInfo>
 #include <QImage>
 #include <QPainter>
+#include <QQuickWindow>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QGuiApplication>
@@ -327,6 +329,42 @@ private slots:
         simple.setRider({{"riderKg", 250}});
         QCOMPARE(changed.count(), 0);
         simple.setRider({{"enabled", false}});
+    }
+
+    // The preview's gauges in a window: the flyover's land drawn by the graphics card where
+    // there is one (its own node under the picture), by the processor otherwise; either way the
+    // land is there, under the rest of the gauges.
+    void previewDrawsTheFlyover()
+    {
+        SimpleController simple(false);
+        simple.openDemo();
+        QQuickWindow window;
+        window.resize(480, 270);
+        GaugeOverlay overlay(window.contentItem());
+        overlay.setSize(QSizeF(480, 270));
+        overlay.setController(&simple);
+        overlay.setPosition(20000);
+        window.show();
+        const QImage shot = window.grabWindow();
+        if (shot.isNull())
+            {
+                QSKIP("no picture of a window here");
+            }
+        qInfo() << "graphics API" << window.rendererInterface()->graphicsApi();
+        // the flyover is the whole picture: sky at the top, land low down, nothing see-through
+        const QColor sky = shot.pixelColor(240, 4);
+        QVERIFY2(sky.blue() > sky.red() + 30, qPrintable(sky.name()));
+        int land = 0;
+        for (int x = 20; x < 460; x += 20)
+            {
+                const QColor c = shot.pixelColor(x, 250);
+                land += (c.alpha() == 255 && c.green() >= c.blue() && c.blue() < 200) ? 1 : 0;
+            }
+        QVERIFY2(land > 15, qPrintable(QString::number(land)));
+        if (!qEnvironmentVariableIsEmpty("SIMPLE_PREVIEW_PNG"))
+            {
+                shot.save(qEnvironmentVariable("SIMPLE_PREVIEW_PNG"));
+            }
     }
 
     void demoFlyover()

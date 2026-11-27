@@ -17,10 +17,16 @@ DEFINES += RTV_TEST_DATA=\\\"$$clean_path($$PWD/../../data)\\\"
 SOURCES += \
     test_simple.cpp \
     ../../src/simple/channelgraph.cpp \
+    ../../src/simple/flyovernode.cpp \
+    ../../src/simple/gaugeoverlay.cpp \
     ../../src/simple/routeview.cpp \
     ../../src/simple/simplecontroller.cpp
 
 HEADERS += \
     ../../src/simple/channelgraph.h \
+    ../../src/simple/flyovernode.h \
+    ../../src/simple/gaugeoverlay.h \
     ../../src/simple/routeview.h \
     ../../src/simple/simplecontroller.h
+
+RESOURCES += ../../src/simple/shaders/shaders.qrc
