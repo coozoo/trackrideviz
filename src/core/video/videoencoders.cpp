@@ -92,6 +92,14 @@ QVector<VideoEncoder> VideoEncoders::known()
     list.append(make("hevc_amf", tr("H.265 / HEVC (graphics card, AMD)"), true, VideoEncoder::Hevc));
     list.append(make("av1_amf", tr("AV1 (graphics card, AMD)"), true, VideoEncoder::Av1));
 
+    // a phone's or tablet's own (Android's MediaCodec): a bitrate is what every one of them takes
+    VideoEncoder h264Phone = make("h264_mediacodec", tr("H.264 (the device's own encoder)"), true, VideoEncoder::H264);
+    h264Phone.hasQuality = false;
+    list.append(h264Phone);
+    VideoEncoder hevcPhone = make("hevc_mediacodec", tr("H.265 / HEVC (the device's own encoder)"), true, VideoEncoder::Hevc);
+    hevcPhone.hasQuality = false;
+    list.append(hevcPhone);
+
     // VideoToolbox has constant quality only on some Macs; bitrate works on all
     VideoEncoder h264Vt = make("h264_videotoolbox", tr("H.264 (Apple VideoToolbox)"), true, VideoEncoder::H264);
     h264Vt.hasQuality = false;

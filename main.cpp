@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
     a.setOrganizationName("trackrideviz");
     // the video engine's messages into the program's log, before anything opens the graphics card
     Libav::quiet();
+    Libav::useAndroid();
 #ifdef Q_OS_WIN
     // ffmpeg.exe and ffprobe.exe are in ffmpeg\ beside the program, with the Vulkan loader only
     // they need (their filters import it; Windows without a graphics driver has none). The rest

@@ -55,7 +55,7 @@ jobs:
             libgl1-mesa-dev \
             ffmpeg \
             pkg-config \
-            libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswresample-dev
+            libavformat-dev libavcodec-dev libavfilter-dev libavutil-dev libswresample-dev libswscale-dev
           # versions no longer on the mirror go; the rest readable for the cache to be saved
           sudo apt-get autoclean -qq
           sudo chown -R "$(id -u):$(id -g)" ~/apt-cache

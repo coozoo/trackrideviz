@@ -25,6 +25,7 @@ extern "C" {
 #include <libavutil/hwcontext.h>
 #include <libavutil/opt.h>
 #include <libavutil/pixdesc.h>
+#include <libswscale/swscale.h>
 }
 
 namespace
@@ -127,6 +128,13 @@ struct Feed
     AVCodecContext *decoder{nullptr};
     AVFilterContext *source{nullptr};
     bool ended{false};          // its source has been told so
+    // pictures as the graph's source was told they come: a phone's decoder knows its own form
+    // only once it gives one, and what comes otherwise is converted on the way
+    AVPixelFormat format{AV_PIX_FMT_NONE};
+    int width{0};
+    int height{0};
+    SwsContext *convert{nullptr};
+    AVFrame *converted{nullptr};
 };
 
 // A file among the inputs: the video, a piece of music.
@@ -210,6 +218,8 @@ LibavExport::Private::~Private()
         {
             avcodec_free_context(&file.video.decoder);
             avcodec_free_context(&file.audio.decoder);
+            sws_freeContext(file.video.convert);
+            av_frame_free(&file.video.converted);
             avformat_close_input(&file.format);
         }
     avfilter_graph_free(&graph);
@@ -281,17 +291,54 @@ bool LibavExport::Private::openInputs()
 bool LibavExport::Private::openDecoder(FileInput &file, Feed &feed)
 {
     const AVStream *stream = file.format->streams[feed.index];
-    const AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
-    if (!codec)
+    auto open = [&](const AVCodec *codec)
+    {
+        feed.decoder = avcodec_alloc_context3(codec);
+        avcodec_parameters_to_context(feed.decoder, stream->codecpar);
+        feed.decoder->pkt_timebase = stream->time_base;
+        feed.decoder->thread_count = 0;
+        const int opened = avcodec_open2(feed.decoder, codec, nullptr);
+        if (opened < 0)
+            {
+                avcodec_free_context(&feed.decoder);
+            }
+        return opened;
+    };
+    const AVCodec *codec = nullptr;
+#ifdef Q_OS_ANDROID
+    // the phone's own decoder where it has one for the picture: many times quicker
+    if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
         {
-            return fail(QCoreApplication::translate("LibavExport", "No decoder for %1").arg(QLatin1String(avcodec_get_name(stream->codecpar->codec_id))));
+            const QByteArray own = QByteArray(avcodec_get_name(stream->codecpar->codec_id)) + "_mediacodec";
+            codec = avcodec_find_decoder_by_name(own.constData());
+            if (codec && open(codec) < 0)
+                {
+                    codec = nullptr;
+                }
         }
-    feed.decoder = avcodec_alloc_context3(codec);
-    avcodec_parameters_to_context(feed.decoder, stream->codecpar);
-    feed.decoder->pkt_timebase = stream->time_base;
-    feed.decoder->thread_count = 0;
-    const int opened = avcodec_open2(feed.decoder, codec, nullptr);
-    return opened < 0 ? fail("Opening a decoder", opened) : true;
+#endif
+    if (!feed.decoder)
+        {
+            codec = avcodec_find_decoder(stream->codecpar->codec_id);
+            if (!codec)
+                {
+                    return fail(QCoreApplication::translate("LibavExport", "No decoder for %1").arg(QLatin1String(avcodec_get_name(stream->codecpar->codec_id))));
+                }
+            const int opened = open(codec);
+            if (opened < 0)
+                {
+                    return fail("Opening a decoder", opened);
+                }
+        }
+    if (feed.decoder->codec_type == AVMEDIA_TYPE_VIDEO)
+        {
+            qInfo().noquote() << "export: the picture decoded by" << codec->name;
+            // the form most phones' decoders give, where it is not known yet
+            feed.format = feed.decoder->pix_fmt != AV_PIX_FMT_NONE ? feed.decoder->pix_fmt : AV_PIX_FMT_NV12;
+            feed.width = feed.decoder->width;
+            feed.height = feed.decoder->height;
+        }
+    return true;
 }
 
 bool LibavExport::Private::buildGraph()
@@ -440,7 +487,7 @@ bool LibavExport::Private::buildGraph()
                                                       : AVRational{1, 1};
                             const AVRational rate = stream->avg_frame_rate.num > 0 ? stream->avg_frame_rate : stream->r_frame_rate;
                             args = QString("video_size=%1x%2:pix_fmt=%3:time_base=%4/%5:pixel_aspect=%6/%7")
-                                   .arg(decoder->width).arg(decoder->height).arg(int(decoder->pix_fmt))
+                                   .arg(feed.width).arg(feed.height).arg(int(feed.format))
                                    .arg(stream->time_base.num).arg(stream->time_base.den).arg(aspect.num).arg(aspect.den);
                             if (rate.num > 0 && rate.den > 0)
                                 {
@@ -735,9 +782,34 @@ bool LibavExport::Private::pushDecoded(FileInput &file, Feed &feed, const AVPack
                         }
                     continue;
                 }
-            frame->pts = pts;
-            result = av_buffersrc_add_frame(feed.source, frame);
+            AVFrame *pushed = frame;
+            if (feed.format != AV_PIX_FMT_NONE
+                && (frame->format != feed.format || frame->width != feed.width || frame->height != feed.height))
+                {
+                    feed.convert = sws_getCachedContext(feed.convert, frame->width, frame->height, AVPixelFormat(frame->format),
+                                                        feed.width, feed.height, feed.format, SWS_BILINEAR,
+                                                        nullptr, nullptr, nullptr);
+                    if (!feed.converted)
+                        {
+                            feed.converted = av_frame_alloc();
+                        }
+                    feed.converted->format = feed.format;
+                    feed.converted->width = feed.width;
+                    feed.converted->height = feed.height;
+                    result = feed.convert ? sws_scale_frame(feed.convert, feed.converted, frame) : AVERROR(EINVAL);
+                    if (result < 0)
+                        {
+                            av_frame_unref(frame);
+                            av_frame_unref(feed.converted);
+                            return fail("Converting a decoded picture", result);
+                        }
+                    av_frame_copy_props(feed.converted, frame);
+                    pushed = feed.converted;
+                }
+            pushed->pts = pts;
+            result = av_buffersrc_add_frame(feed.source, pushed);
             av_frame_unref(frame);
+            av_frame_unref(feed.converted);
             if (result < 0 && result != AVERROR_EOF)
                 {
                     return fail("Feeding the filter graph", result);

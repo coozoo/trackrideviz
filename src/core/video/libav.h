@@ -16,6 +16,9 @@ bool available();
 // The libraries' messages through Qt's (category rtv.libav), errors only; libva's errors only.
 // Done by every use here; main() calls it early, before anything opens the graphics card.
 void quiet();
+// On Android: the libraries given Java, which the phone's encoders and decoders (MediaCodec) and
+// files by address (content://) need. main() calls it once the application is there.
+void useAndroid();
 // "FFmpeg 8.1.2 (libavformat 62.12, libavcodec 62.28, libavfilter 11.14)"; empty without them.
 QString version();
 
