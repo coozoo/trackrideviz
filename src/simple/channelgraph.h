@@ -5,13 +5,14 @@
 #include <QColor>
 #include <QImage>
 #include <QPointer>
-#include <QQuickPaintedItem>
+#include <QQuickItem>
 #include <QVector>
 
 // One channel of a SimpleController's data along the video, as the full window's timeline has
 // it: its line over the whole length, the laps in bands under it, where the video is and the
-// value there. Its QML seeks where it is tapped.
-class ChannelGraph : public QQuickPaintedItem
+// value there (valueText, for a label of its QML). Its QML seeks where it is tapped. The line is
+// drawn once into a picture; the graphics card moves the cursor over it.
+class ChannelGraph : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(SimpleController *controller READ controller WRITE setController NOTIFY controllerChanged)
@@ -19,6 +20,9 @@ class ChannelGraph : public QQuickPaintedItem
     // ms of the video: where it is, how long it is
     Q_PROPERTY(qint64 position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(qint64 duration READ duration WRITE setDuration NOTIFY durationChanged)
+    // where the cursor is, from the left; the value there with its unit, "--" where none
+    Q_PROPERTY(qreal cursorX READ cursorX NOTIFY positionChanged)
+    Q_PROPERTY(QString valueText READ valueText NOTIFY valueTextChanged)
     Q_PROPERTY(QColor lineColor MEMBER m_lineColor NOTIFY colorsChanged)
     Q_PROPERTY(QColor textColor MEMBER m_textColor NOTIFY colorsChanged)
     Q_PROPERTY(QColor cursorColor MEMBER m_cursorColor NOTIFY colorsChanged)
@@ -34,8 +38,11 @@ public:
     void setPosition(qint64 positionMs);
     qint64 duration() const { return m_duration; }
     void setDuration(qint64 durationMs);
+    qreal cursorX() const;
+    QString valueText() const { return m_valueText; }
 
-    void paint(QPainter *painter) override;
+    // The laps' bands and the line at `ratio` pixels to a point: what the cursor moves over.
+    QImage background(qreal ratio);
 
 signals:
     void controllerChanged();
@@ -43,10 +50,16 @@ signals:
     void positionChanged();
     void durationChanged();
     void colorsChanged();
+    void valueTextChanged();
+
+protected:
+    QSGNode *updatePaintNode(QSGNode *old, UpdatePaintNodeData *data) override;
 
 private:
     // the line drawn again before the next picture
     void stale();
+    // the value at the position, for valueText
+    void updateValueText();
     // the value of each column of pixels; NaN where the data has none
     void sample(int columns);
     // the laps' bands and the line, what does not move with the video
@@ -66,4 +79,6 @@ private:
     double m_high{0.0};
     // the bands and the line, drawn once: only the cursor moves with the video
     QImage m_background;
+    bool m_backgroundShown{false};  // the graphics card has m_background
+    QString m_valueText;
 };

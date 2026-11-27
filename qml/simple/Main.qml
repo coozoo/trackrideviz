@@ -735,6 +735,14 @@ ApplicationWindow {
                 duration: playback.duration
                 lineColor: window.palette.highlight
                 textColor: window.palette.text
+                // the value where the video is, beside the cursor (before it near the right end)
+                Label {
+                    readonly property bool before: graph.cursorX + width + 4 > graph.width
+                    x: before ? graph.cursorX - width - 4 : graph.cursorX + 4
+                    visible: graph.valueText !== ""
+                    color: graph.textColor
+                    text: graph.valueText
+                }
                 MouseArea {
                     anchors.fill: parent
                     function seekTo(x) {

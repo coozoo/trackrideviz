@@ -14,6 +14,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QQuickWindow>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QGuiApplication>
@@ -614,7 +615,7 @@ private slots:
         graphPicture.fill(Qt::black);
         {
             QPainter painter(&graphPicture);
-            graph.paint(&painter);
+            painter.drawImage(0, 0, graph.background(1.0));
         }
         int lit = 0;
         for (int x = 0; x < 600; ++x)
@@ -625,31 +626,16 @@ private slots:
                     }
             }
         QVERIFY(lit > 300);
-        // painted again further on: the line comes from what was kept, only the cursor moves
+        QVERIFY(qAbs(graph.cursorX() - 300.0) < 1.0);
+        QVERIFY(graph.valueText().contains(QRegularExpression("\\d")));
+        // further on: the line is the picture kept, only the cursor and the value move
+        const qint64 drawn = graph.background(1.0).cacheKey();
         graph.setPosition(simple.dataDuration() / 4);
-        QImage again(600, 64, QImage::Format_ARGB32_Premultiplied);
-        again.fill(Qt::black);
-        {
-            QPainter painter(&again);
-            graph.paint(&painter);
-        }
-        int litAgain = 0;
-        for (int x = 0; x < 600; ++x)
-            {
-                for (int y = 0; y < 64; ++y)
-                    {
-                        litAgain += again.pixelColor(x, y).blue() > 150 ? 1 : 0;
-                    }
-            }
-        QVERIFY(std::abs(litAgain - lit) < lit / 10);
-        // the cursor (amber: much red, little blue) at a quarter now, not at the middle
-        auto amber = [](const QImage &picture, int x)
-        {
-            const QColor c = picture.pixelColor(x, 40);
-            return c.red() > 200 && c.blue() < 100;
-        };
-        QVERIFY(amber(again, 150) && !amber(again, 300));
-        QVERIFY(amber(graphPicture, 300));
+        QCOMPARE(graph.background(1.0).cacheKey(), drawn);
+        QVERIFY(qAbs(graph.cursorX() - 150.0) < 1.0);
+        // another channel: drawn again
+        graph.setChannel(ChannelId::Elevation);
+        QVERIFY(graph.background(1.0).cacheKey() != drawn);
         if (!qEnvironmentVariableIsEmpty("SIMPLE_DRAWN_PNG"))
             {
                 mapPicture.save(qEnvironmentVariable("SIMPLE_DRAWN_PNG") + "-map.png");
