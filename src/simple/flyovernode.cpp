@@ -127,7 +127,10 @@ FlyoverNode::FlyoverNode()
     m_clip->appendChildNode(m_sky);
 
     m_land = new QSGGeometryNode;
-    m_land->setGeometry(new QSGGeometry(landAttributes(), 0, 0, QSGGeometry::UnsignedShortType));
+    auto *landGeometry = new QSGGeometry(landAttributes(), 0, 0, QSGGeometry::UnsignedShortType);
+    // three indices a triangle (a geometry draws a strip unless told)
+    landGeometry->setDrawingMode(QSGGeometry::DrawTriangles);
+    m_land->setGeometry(landGeometry);
     m_material = new FlyoverLandMaterial;
     m_land->setMaterial(m_material);
     m_land->setFlags(QSGNode::OwnsGeometry | QSGNode::OwnsMaterial);
