@@ -4,13 +4,11 @@
 #include "terrain.h"
 #include "tilestore.h"
 
-#include <QCoreApplication>
 #include <QMatrix4x4>
 #include <QMutexLocker>
 #include <QPainter>
 #include <QPainterPath>
 #include <QSemaphore>
-#include <QThread>
 #include <QThreadPool>
 #include <QVector4D>
 
@@ -339,9 +337,9 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
         {
             return image;
         }
-    // the preview's pictures timed, not an export's (made in other threads)
+    // the preview's pictures timed (drawn where a Patience lives), not an export's
     static PerfMeter meter("flyover drawn (land building left out)");
-    const bool timed = QThread::currentThread() == QCoreApplication::instance()->thread();
+    const bool timed = t_patient;
     // a land made in the background, ready now
     {
         const QMutexLocker lock(&m_pending->mutex);
