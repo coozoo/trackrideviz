@@ -53,6 +53,8 @@ class SimpleController : public QObject
     Q_PROPERTY(double exportProgress READ exportProgress NOTIFY exportChanged)
     Q_PROPERTY(QString exportText READ exportText NOTIFY exportChanged)
     Q_PROPERTY(QUrl exportedUrl READ exportedUrl NOTIFY exportChanged)
+    // an export draws on all the processor's cores, not on half (AppSettings::exportAllCores)
+    Q_PROPERTY(bool exportAllCores READ exportAllCores WRITE setExportAllCores NOTIFY exportChanged)
     Q_PROPERTY(bool isDemo READ isDemo NOTIFY dataChanged)
     // without a video: how long the picture over the data runs, ms
     Q_PROPERTY(qint64 dataDuration READ dataDuration NOTIFY dataChanged)
@@ -130,6 +132,8 @@ public:
     QStringList channelNames() const;
     QVariantList recentFiles() const;
     bool gaugesOnly() const { return m_gaugesOnly; }
+    bool exportAllCores() const;
+    void setExportAllCores(bool all);
     void setGaugesOnly(bool only);
     bool weather() const;
     void setWeather(bool fetched);

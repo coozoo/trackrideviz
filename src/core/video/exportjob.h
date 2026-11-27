@@ -8,7 +8,10 @@
 #include <QElapsedTimer>
 #include <QImage>
 #include <QObject>
+#include <QThreadPool>
 
+#include <future>
+#include <map>
 #include <memory>
 
 class QProcess;
@@ -51,6 +54,11 @@ public:
     // Destroying a job that is still running stops ffmpeg and removes the unfinished file.
     ~ExportJob() override;
 
+    // How many frames are drawn at once: on half of the processor's cores, or on all of them.
+    static int drawersFor(bool allCores);
+    // Frames drawn at once, before start(); otherwise as the settings say (AppSettings::exportAllCores).
+    void setDrawers(int drawers) { m_drawers = drawers; }
+
 public slots:
     void start();
     // Ends the export early, keeping what is done. Harmless when called twice or too late.
@@ -72,7 +80,10 @@ private slots:
 
 private:
     void stepOwn();
-    void renderFrame(qint64 index);
+    // The picture of frame `index` (straight alpha where the plan is see-through): drawn in the
+    // background with the next ones, which are asked for in order.
+    QImage drawn(qint64 index);
+    QImage draw(qint64 index) const;
     void abandon();
     void hurryUp();
     void startTrim();
@@ -89,7 +100,7 @@ private:
 
     QProcess *m_process{nullptr};
     QProcess *m_trimProcess{nullptr};
-    QImage m_frame;
+    qint64 m_frameBytes{0};
     qint64 m_nextFrame{0};
     bool m_inputClosed{false};
     bool m_stopping{false};     // pipe closed on request, ffmpeg is finishing the file
@@ -99,4 +110,8 @@ private:
     QByteArray m_errorOutput;
     QElapsedTimer m_clock;
     qint64 m_lastReportMs{0};
+    // frames being drawn, by index; last, so that the drawing ends before what it reads goes
+    int m_drawers{0};
+    std::map<qint64, std::future<QImage>> m_ahead;
+    QThreadPool m_drawPool;
 };

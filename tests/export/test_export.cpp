@@ -1295,6 +1295,43 @@ private slots:
         QVERIFY(!result.hasAudio);
     }
 
+    // Frames drawn on several cores at once come out as one after another: the same video.
+    void exportSameOnManyCores()
+    {
+        if (m_sourceVideo.isEmpty())
+            {
+                QSKIP("ffmpeg is not installed");
+            }
+        MediaInfo info;
+        QVERIFY(MediaProbe::probe("ffprobe", m_sourceVideo, &info));
+        const Overlay overlay = oneGauge();
+        QStringList sums;
+        for (int drawers : {1, 4})
+            {
+                ExportSettings settings = settingsFor(m_dir.filePath(QString("drawers%1.mkv").arg(drawers)));
+                settings.duration = 1.0;
+                settings.height = 120;
+                settings.audio = ExportSettings::NoAudio;
+                ExportJob job("ffmpeg", ExportPlan::make(m_sourceVideo, info, settings, overlay), overlay, 0.0, nullptr, m_engine);
+                job.setDrawers(drawers);
+                QSignalSpy finished(&job, &ExportJob::finished);
+                job.start();
+                QVERIFY(finished.wait(60000));
+                QVERIFY2(finished.first().at(0).value<ExportJob::Outcome>() == ExportJob::Succeeded,
+                         qPrintable(finished.first().at(1).toString()));
+                // the pictures, not the file: a Matroska file has an id of its own
+                const FfmpegTools::RunResult decoded = FfmpegTools::run("ffmpeg", {"-hide_banner", "-loglevel", "error",
+                                                                                   "-i", settings.outputPath, "-map", "0:v",
+                                                                                   "-f", "md5", "-"});
+                QCOMPARE(decoded.exitCode, 0);
+                sums.append(QString::fromLatin1(decoded.output).trimmed());
+            }
+        QVERIFY(sums.first().startsWith("MD5="));
+        QCOMPARE(sums.last(), sums.first());
+        QVERIFY(ExportJob::drawersFor(true) >= ExportJob::drawersFor(false));
+        QVERIFY(ExportJob::drawersFor(false) >= 1);
+    }
+
     void cutList()
     {
         const QVector<TimeRange> cuts = CutList::normalized({{5.0, 8.0}, {1.0, 2.0}, {7.0, 9.0}, {-3.0, -1.0}}, 20.0);

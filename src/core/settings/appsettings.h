@@ -79,6 +79,10 @@ public:
     // ffmpeg program; true unless chosen otherwise. A build without the libraries uses ffmpeg anyway.
     static bool ownVideoEngine();
     static void setOwnVideoEngine(bool own);
+    // An export draws its frames on all the processor's cores rather than on half of them, which
+    // leaves the rest of the computer (or phone) room to work; false unless chosen.
+    static bool exportAllCores();
+    static void setExportAllCores(bool all);
     static QString ffmpegPath();
     static void setFfmpegPath(const QString &path);
     // Where exported videos go; empty = next to the source video.

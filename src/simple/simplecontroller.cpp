@@ -509,6 +509,21 @@ double SimpleController::aspect() const
     return m_info.size.height() > 0 ? double(m_info.size.width()) / m_info.size.height() : 16.0 / 9.0;
 }
 
+bool SimpleController::exportAllCores() const
+{
+    return AppSettings::exportAllCores();
+}
+
+void SimpleController::setExportAllCores(bool all)
+{
+    if (all == AppSettings::exportAllCores())
+        {
+            return;
+        }
+    AppSettings::setExportAllCores(all);
+    emit exportChanged();
+}
+
 QUrl SimpleController::exportedUrl() const
 {
     return m_exportedPath.isEmpty() ? QUrl() : urlOf(m_exportedPath);

@@ -1022,6 +1022,29 @@ ApplicationWindow {
         }
     }
 
+    // an export goes on with its window closed: shown under the toolbar, a tap opens the window again
+    ItemDelegate {
+        parent: Overlay.overlay
+        visible: simple.exporting && !exporter.visible
+        x: (parent.width - width) / 2
+        y: window.header.height + 8
+        width: Math.min(parent.width - 32, 360)
+        background: Rectangle {
+            radius: 8
+            color: window.palette.window
+            border.color: window.palette.highlight
+        }
+        contentItem: ColumnLayout {
+            spacing: 4
+            Label { text: qsTr("Exporting the video: %1%").arg(Math.round(simple.exportProgress * 100)) }
+            ProgressBar {
+                Layout.fillWidth: true
+                value: simple.exportProgress
+            }
+        }
+        onClicked: exporter.open()
+    }
+
     // the export: a profile, then go
     Dialog {
         id: exporter
@@ -1097,6 +1120,14 @@ ApplicationWindow {
                     text: qsTr("To here")
                     onClicked: range.second.value = Math.max(playback.position / 1000, range.first.value)
                 }
+            }
+            // half of them leave the device room for the rest: a little slower, cooler, no stutter
+            Switch {
+                Layout.fillWidth: true
+                enabled: !simple.exporting
+                checked: simple.exportAllCores
+                text: qsTr("Use all processor cores")
+                onToggled: simple.exportAllCores = checked
             }
             ProgressBar {
                 Layout.fillWidth: true

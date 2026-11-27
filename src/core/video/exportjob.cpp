@@ -1,10 +1,15 @@
 #include "exportjob.h"
 
+#include "../settings/appsettings.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QPainter>
 #include <QProcess>
+#include <QThread>
 #include <QTimer>
+
+#include <algorithm>
 
 #ifdef Q_OS_UNIX
 #include <signal.h>
@@ -44,6 +49,9 @@ ExportJob::ExportJob(const QString &ffmpegProgram, const ExportPlan &plan, const
 
 ExportJob::~ExportJob()
 {
+    // what is drawn ahead is not needed any more
+    m_drawPool.clear();
+    m_drawPool.waitForDone();
     if (m_own)
         {
             if (!m_done)
@@ -72,21 +80,23 @@ ExportJob::~ExportJob()
     QFile::remove(partPath());
 }
 
+int ExportJob::drawersFor(bool allCores)
+{
+    const int cores = std::max(1, QThread::idealThreadCount());
+    return allCores ? cores : std::max(1, cores / 2);
+}
+
 void ExportJob::start()
 {
-    if (!m_plan.regions.isEmpty())
+    if (m_drawers <= 0)
         {
-            // Qt's own format: drawing into anything else converts at every step
-            m_frame = QImage(m_plan.stackSize, QImage::Format_ARGB32_Premultiplied);
+            m_drawers = drawersFor(AppSettings::exportAllCores());
         }
+    m_drawPool.setMaxThreadCount(m_drawers);
+    m_frameBytes = qint64(m_plan.stackSize.width()) * m_plan.stackSize.height() * 4;
     if (m_engine == OwnEngine)
         {
-            m_own = std::make_unique<LibavExport>(m_plan, [this](qint64 index)
-            {
-                renderFrame(index);
-                // over nothing the colors go with straight alpha (see ExportPlan)
-                return m_plan.transparent ? m_frame.convertToFormat(QImage::Format_ARGB32) : m_frame;
-            });
+            m_own = std::make_unique<LibavExport>(m_plan, [this](qint64 index) { return drawn(index); });
             m_clock.start();
             QString error;
             if (!m_own->start(&error))
@@ -267,10 +277,37 @@ void ExportJob::stepOwn()
         }
 }
 
-void ExportJob::renderFrame(qint64 index)
+QImage ExportJob::drawn(qint64 index)
 {
-    m_frame.fill(Qt::transparent);
-    QPainter painter(&m_frame);
+    // the frames up to as many ahead as there are drawers, each started once; those before
+    // `index` are not wanted any more (a stop, a skip)
+    m_ahead.erase(m_ahead.begin(), m_ahead.lower_bound(index));
+    const qint64 last = std::min(index + m_drawers, std::max(m_plan.frameCount, index + 1));
+    for (qint64 next = index; next < last; ++next)
+        {
+            if (m_ahead.count(next) == 0)
+                {
+                    auto task = std::make_shared<std::packaged_task<QImage()>>([this, next]() { return draw(next); });
+                    m_ahead.emplace(next, task->get_future());
+                    m_drawPool.start([task]() { (*task)(); });
+                }
+        }
+    const auto at = m_ahead.find(index);
+    const QImage picture = at->second.get();
+    m_ahead.erase(at);
+    return picture;
+}
+
+QImage ExportJob::draw(qint64 index) const
+{
+    if (m_plan.regions.isEmpty())
+        {
+            return QImage();
+        }
+    // Qt's own format: drawing into anything else converts at every step
+    QImage picture(m_plan.stackSize, QImage::Format_ARGB32_Premultiplied);
+    picture.fill(Qt::transparent);
+    QPainter painter(&picture);
     const QRectF frame(QPointF(0, 0), QSizeF(m_plan.outputSize));
     const double time = m_sync.telemetryTime(m_plan.frameTime(index));
     for (int i = 0; i < m_plan.regions.size(); ++i)
@@ -283,6 +320,9 @@ void ExportJob::renderFrame(qint64 index)
             m_overlay.render(painter, frame, time, region);
             painter.restore();
         }
+    painter.end();
+    // over nothing the colors go with straight alpha (see ExportPlan)
+    return m_plan.transparent ? picture.convertToFormat(QImage::Format_ARGB32) : picture;
 }
 
 void ExportJob::pump()
@@ -300,20 +340,11 @@ void ExportJob::pump()
                 }
             return;
         }
-    const qint64 frameBytes = m_frame.sizeInBytes();
+    const qint64 frameBytes = m_frameBytes;
     while (m_nextFrame < m_plan.frameCount && m_process->bytesToWrite() < kFramesAhead * frameBytes)
         {
-            renderFrame(m_nextFrame);
-            if (m_plan.transparent)
-                {
-                    // the same bytes per pixel, the colors no longer multiplied by their alpha
-                    const QImage straight = m_frame.convertToFormat(QImage::Format_ARGB32);
-                    m_process->write(reinterpret_cast<const char *>(straight.constBits()), frameBytes);
-                }
-            else
-                {
-                    m_process->write(reinterpret_cast<const char *>(m_frame.constBits()), frameBytes);
-                }
+            const QImage picture = drawn(m_nextFrame);
+            m_process->write(reinterpret_cast<const char *>(picture.constBits()), frameBytes);
             ++m_nextFrame;
         }
     if (m_nextFrame >= m_plan.frameCount && !m_inputClosed)
