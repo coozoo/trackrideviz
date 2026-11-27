@@ -794,7 +794,10 @@ void TileStore::fetched(const Tile &tile, const QString &path, const QByteArray 
                 m_failed.insert(tile);
             }
     }
-    if (kept)
+    // said a little after the first that came, not restarted by each one after it: tiles that
+    // keep coming (a whole ride's) would have kept it from ever being said, and a paused
+    // preview from being drawn again with them
+    if (kept && !m_announce->isActive())
         {
             m_announce->start();
         }
