@@ -307,6 +307,10 @@ QWidget *SettingsDialog::createExportPage()
     form->addRow(tr("ffmpeg program:"), ffmpegRow);
     form->addRow(QString(), m_ffmpegStatus);
     form->addRow(tr("Save videos to:"), folderRow);
+    m_allCoresCheck = new QCheckBox(tr("Draw on all processor cores"), page);
+    form->addRow(QString(), m_allCoresCheck);
+    form->addRow(note(tr("An export draws its frames on half of the cores unless chosen here: a little slower, "
+                         "and the computer stays usable meanwhile."), page));
     form->addRow(note(tr("Encoder, quality and size are chosen in the export window."), page));
     return page;
 }
@@ -782,6 +786,7 @@ void SettingsDialog::load()
     select(m_engineCombo, AppSettings::ownVideoEngine() && Libav::available());
     m_ffmpegEdit->setText(QDir::toNativeSeparators(AppSettings::ffmpegPath()));
     m_exportFolderEdit->setText(QDir::toNativeSeparators(AppSettings::exportFolder()));
+    m_allCoresCheck->setChecked(AppSettings::exportAllCores());
     checkFfmpeg();
 
     m_mapDownloadsCheck->setChecked(AppSettings::mapDownloads());
@@ -899,6 +904,7 @@ void SettingsDialog::accept()
         }
     AppSettings::setFfmpegPath(QDir::fromNativeSeparators(m_ffmpegEdit->text().trimmed()));
     AppSettings::setExportFolder(QDir::fromNativeSeparators(m_exportFolderEdit->text().trimmed()));
+    AppSettings::setExportAllCores(m_allCoresCheck->isChecked());
 
     AppSettings::setMapDownloads(m_mapDownloadsCheck->isChecked());
     AppSettings::setMapProvider(m_mapProviderCombo->currentData().toString());

@@ -20,6 +20,7 @@ const char kHardwareDecoding[] = "preview/hardwareDecoding";
 const char kPreferredDecoder[] = "preview/preferredDecoder";
 const char kFfmpegPath[] = "export/ffmpegPath";
 const char kVideoEngine[] = "export/engine";   // "own" or "program"
+const char kExportAllCores[] = "export/allCores";
 const char kExportFolder[] = "export/folder";
 const char kMapDownloads[] = "maps/downloads";
 const char kMapTileUrl[] = "maps/tileUrl";
@@ -291,6 +292,16 @@ bool AppSettings::ownVideoEngine()
 void AppSettings::setOwnVideoEngine(bool own)
 {
     QSettings().setValue(kVideoEngine, own ? "own" : "program");
+}
+
+bool AppSettings::exportAllCores()
+{
+    return QSettings().value(kExportAllCores, false).toBool();
+}
+
+void AppSettings::setExportAllCores(bool all)
+{
+    QSettings().setValue(kExportAllCores, all);
 }
 
 QString AppSettings::ffmpegPath()

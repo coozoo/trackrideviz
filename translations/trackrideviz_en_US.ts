@@ -2090,29 +2090,29 @@ Worked out from the other data</source>
 <context>
     <name>ExportJob</name>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="98"/>
+        <location filename="../src/core/video/exportjob.cpp" line="108"/>
         <source>The video engine could not start: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="264"/>
+        <location filename="../src/core/video/exportjob.cpp" line="274"/>
         <source>The video engine reported:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="371"/>
+        <location filename="../src/core/video/exportjob.cpp" line="402"/>
         <source>ffmpeg stopped with an error and gave no explanation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="372"/>
+        <location filename="../src/core/video/exportjob.cpp" line="403"/>
         <source>ffmpeg reported:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/exportjob.cpp" line="438"/>
+        <location filename="../src/core/video/exportjob.cpp" line="469"/>
         <source>ffmpeg could not be started (%1). Install it, or set its location in the settings.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5046,7 +5046,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
 <context>
     <name>LibavExport</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="442"/>
+        <location filename="../src/core/video/libav.cpp" line="443"/>
         <location filename="../src/core/video/libavexport.cpp" line="255"/>
         <location filename="../src/core/video/libavexport.cpp" line="262"/>
         <source>%1 cannot be read: %2</source>
@@ -5063,7 +5063,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="540"/>
+        <location filename="../src/core/video/libav.cpp" line="541"/>
         <location filename="../src/core/video/libavexport.cpp" line="455"/>
         <source>%1 has no picture</source>
         <translation type="unfinished"></translation>
@@ -5079,13 +5079,13 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="547"/>
+        <location filename="../src/core/video/libav.cpp" line="548"/>
         <location filename="../src/core/video/libavexport.cpp" line="726"/>
         <source>%1 cannot be written: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="659"/>
+        <location filename="../src/core/video/libav.cpp" line="660"/>
         <location filename="../src/core/video/libavexport.cpp" line="1100"/>
         <source>Built without FFmpeg&apos;s libraries</source>
         <translation type="unfinished"></translation>
@@ -5197,7 +5197,7 @@ They can be joined by encoding them again. That takes a while; the joined video 
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="204"/>
-        <location filename="../qml/simple/Main.qml" line="1119"/>
+        <location filename="../qml/simple/Main.qml" line="1150"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5398,52 +5398,62 @@ They can be joined by encoding them again. That takes a while; the joined video 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1031"/>
-        <source>Export the video</source>
+        <location filename="../qml/simple/Main.qml" line="1039"/>
+        <source>Exporting the video: %1%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/simple/Main.qml" line="1054"/>
+        <source>Export the video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="1077"/>
         <source>Only the gauges, see-through (.webm)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1062"/>
+        <location filename="../qml/simple/Main.qml" line="1085"/>
         <source>For laying over the video in an editor: only the gauges are made, the video is left as it is.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1068"/>
+        <location filename="../qml/simple/Main.qml" line="1091"/>
         <source>Only a part</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1088"/>
+        <location filename="../qml/simple/Main.qml" line="1111"/>
         <source>From %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1090"/>
+        <location filename="../qml/simple/Main.qml" line="1113"/>
         <source>to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1092"/>
+        <location filename="../qml/simple/Main.qml" line="1115"/>
         <source>From here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1097"/>
+        <location filename="../qml/simple/Main.qml" line="1120"/>
         <source>To here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1127"/>
+        <location filename="../qml/simple/Main.qml" line="1129"/>
+        <source>Use all processor cores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/simple/Main.qml" line="1158"/>
         <source>Stop, keep what is done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/simple/Main.qml" line="1134"/>
+        <location filename="../qml/simple/Main.qml" line="1165"/>
         <source>Play it</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6919,19 +6929,19 @@ It appears among the templates in the library.</source>
 <context>
     <name>MediaProbe</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="167"/>
-        <location filename="../src/core/video/libav.cpp" line="179"/>
+        <location filename="../src/core/video/libav.cpp" line="168"/>
+        <location filename="../src/core/video/libav.cpp" line="180"/>
         <source>The video cannot be read (%1): %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="242"/>
+        <location filename="../src/core/video/libav.cpp" line="243"/>
         <location filename="../src/core/video/mediainfo.cpp" line="109"/>
         <source>The file has no video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="256"/>
+        <location filename="../src/core/video/libav.cpp" line="257"/>
         <location filename="../src/core/video/mediainfo.cpp" line="124"/>
         <source>The size or the frame rate of the video could not be read.</source>
         <translation type="unfinished"></translation>
@@ -7403,7 +7413,7 @@ It appears among the templates in the library.</source>
     <name>SettingsDialog</name>
     <message>
         <location filename="../src/settingsdialog.cpp" line="65"/>
-        <location filename="../src/settingsdialog.cpp" line="959"/>
+        <location filename="../src/settingsdialog.cpp" line="965"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7656,338 +7666,348 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="317"/>
+        <location filename="../src/settingsdialog.cpp" line="310"/>
+        <source>Draw on all processor cores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="312"/>
+        <source>An export draws its frames on half of the cores unless chosen here: a little slower, and the computer stays usable meanwhile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/settingsdialog.cpp" line="321"/>
         <source>Download street maps for gauges that show one</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="645"/>
+        <location filename="../src/settingsdialog.cpp" line="649"/>
         <source>Measured 10 m up; near the ground about 60 % is left in the open, less among houses and trees.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="680"/>
+        <location filename="../src/settingsdialog.cpp" line="684"/>
         <source>Wind, headwind and air density then become measurements like any other: for gauges, the data viewer and the power estimate. Kept on disk once fetched.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="683"/>
+        <location filename="../src/settingsdialog.cpp" line="687"/>
         <source>Deletes the kept weather of rides; it is fetched again when needed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="750"/>
+        <location filename="../src/settingsdialog.cpp" line="754"/>
         <source>Own server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="351"/>
+        <location filename="../src/settingsdialog.cpp" line="355"/>
         <source>Show the map&apos;s credit on the gauge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="358"/>
+        <location filename="../src/settingsdialog.cpp" line="362"/>
         <source>Map:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="677"/>
+        <location filename="../src/settingsdialog.cpp" line="681"/>
         <source>Key:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="363"/>
+        <location filename="../src/settingsdialog.cpp" line="367"/>
         <source>Tile server:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="364"/>
+        <location filename="../src/settingsdialog.cpp" line="368"/>
         <source>An address with {z}, {x} and {y} in it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="365"/>
+        <location filename="../src/settingsdialog.cpp" line="369"/>
         <source>Its credit:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="390"/>
+        <location filename="../src/settingsdialog.cpp" line="394"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Power page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="393"/>
+        <location filename="../src/settingsdialog.cpp" line="397"/>
         <source>700x25, 29x2.25, 26x1.95, 40-622...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="399"/>
+        <location filename="../src/settingsdialog.cpp" line="403"/>
         <source> mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="400"/>
+        <location filename="../src/settingsdialog.cpp" line="404"/>
         <source>from the tire size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="407"/>
+        <location filename="../src/settingsdialog.cpp" line="411"/>
         <source>From the tire size: %1 mm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="409"/>
+        <location filename="../src/settingsdialog.cpp" line="413"/>
         <source>Without a tire size: %1 mm, a usual road wheel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="410"/>
+        <location filename="../src/settingsdialog.cpp" line="414"/>
         <source>This tire size cannot be read; a usual road wheel is taken</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="420"/>
+        <location filename="../src/settingsdialog.cpp" line="424"/>
         <source>Usual</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="435"/>
+        <location filename="../src/settingsdialog.cpp" line="439"/>
         <source>teeth of each ring: 34 or 50, 34</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="436"/>
+        <location filename="../src/settingsdialog.cpp" line="440"/>
         <source>teeth of each sprocket: 11, 13, 15, ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="440"/>
-        <location filename="../src/settingsdialog.cpp" line="556"/>
+        <location filename="../src/settingsdialog.cpp" line="444"/>
+        <location filename="../src/settingsdialog.cpp" line="560"/>
         <source>Tire size:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="441"/>
+        <location filename="../src/settingsdialog.cpp" line="445"/>
         <source>Wheel circumference:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="443"/>
+        <location filename="../src/settingsdialog.cpp" line="447"/>
         <source>Chainrings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="444"/>
+        <location filename="../src/settingsdialog.cpp" line="448"/>
         <source>Sprockets:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="453"/>
+        <location filename="../src/settingsdialog.cpp" line="457"/>
         <source>Estimate the power of rides recorded without a power meter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="389"/>
-        <location filename="../src/settingsdialog.cpp" line="464"/>
-        <location filename="../src/settingsdialog.cpp" line="466"/>
+        <location filename="../src/settingsdialog.cpp" line="393"/>
+        <location filename="../src/settingsdialog.cpp" line="468"/>
+        <location filename="../src/settingsdialog.cpp" line="470"/>
         <source> kg</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="337"/>
+        <location filename="../src/settingsdialog.cpp" line="341"/>
         <source>Get a key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="359"/>
+        <location filename="../src/settingsdialog.cpp" line="363"/>
         <source>Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="465"/>
+        <location filename="../src/settingsdialog.cpp" line="469"/>
         <source> cm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="494"/>
+        <location filename="../src/settingsdialog.cpp" line="498"/>
         <source>Road, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="495"/>
+        <location filename="../src/settingsdialog.cpp" line="499"/>
         <source>Road, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="496"/>
+        <location filename="../src/settingsdialog.cpp" line="500"/>
         <source>Road, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="497"/>
+        <location filename="../src/settingsdialog.cpp" line="501"/>
         <source>Gravel, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="498"/>
+        <location filename="../src/settingsdialog.cpp" line="502"/>
         <source>Gravel, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="499"/>
+        <location filename="../src/settingsdialog.cpp" line="503"/>
         <source>Gravel, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="500"/>
+        <location filename="../src/settingsdialog.cpp" line="504"/>
         <source>Mountain bike, fast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="501"/>
+        <location filename="../src/settingsdialog.cpp" line="505"/>
         <source>Mountain bike, typical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="502"/>
+        <location filename="../src/settingsdialog.cpp" line="506"/>
         <source>Mountain bike, slow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="503"/>
-        <location filename="../src/settingsdialog.cpp" line="535"/>
+        <location filename="../src/settingsdialog.cpp" line="507"/>
+        <location filename="../src/settingsdialog.cpp" line="539"/>
         <source>My own value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="504"/>
+        <location filename="../src/settingsdialog.cpp" line="508"/>
         <source>Fast: racing tires, pumped hard. Slow: thick, puncture-proof or knobby ones.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="530"/>
+        <location filename="../src/settingsdialog.cpp" line="534"/>
         <source>Road bike, hands on the tops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="531"/>
+        <location filename="../src/settingsdialog.cpp" line="535"/>
         <source>Road bike, hands on the hoods</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="532"/>
+        <location filename="../src/settingsdialog.cpp" line="536"/>
         <source>Road bike, in the drops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="533"/>
+        <location filename="../src/settingsdialog.cpp" line="537"/>
         <source>On aero bars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="534"/>
+        <location filename="../src/settingsdialog.cpp" line="538"/>
         <source>Upright: mountain or city bike</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="536"/>
+        <location filename="../src/settingsdialog.cpp" line="540"/>
         <source> m²</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="548"/>
-        <location filename="../src/settingsdialog.cpp" line="644"/>
+        <location filename="../src/settingsdialog.cpp" line="552"/>
+        <location filename="../src/settingsdialog.cpp" line="648"/>
         <source> %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="572"/>
+        <location filename="../src/settingsdialog.cpp" line="576"/>
         <source>Surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="580"/>
+        <location filename="../src/settingsdialog.cpp" line="584"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="585"/>
+        <location filename="../src/settingsdialog.cpp" line="589"/>
         <source>New surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="590"/>
+        <location filename="../src/settingsdialog.cpp" line="594"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="598"/>
+        <location filename="../src/settingsdialog.cpp" line="602"/>
         <source>Restore the usual ones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="652"/>
+        <location filename="../src/settingsdialog.cpp" line="656"/>
         <source>%1 (with a key of your own)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="653"/>
+        <location filename="../src/settingsdialog.cpp" line="657"/>
         <source>%1 (no key needed)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="656"/>
+        <location filename="../src/settingsdialog.cpp" line="660"/>
         <source>from the service&apos;s website, after signing up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="676"/>
+        <location filename="../src/settingsdialog.cpp" line="680"/>
         <source>Service:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="467"/>
+        <location filename="../src/settingsdialog.cpp" line="471"/>
         <source>With everything on it: bottles, bags, tools. The same as on the Bike page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="609"/>
+        <location filename="../src/settingsdialog.cpp" line="613"/>
         <source>Surfaces a stretch of a ride can be marked as (Laps panel, &quot;Mark surface&quot;). The number is how much harder tires roll there than on asphalt. Stretches already marked keep their number.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="639"/>
+        <location filename="../src/settingsdialog.cpp" line="643"/>
         <source>Fetch each ride&apos;s wind and air from weather history</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="640"/>
+        <location filename="../src/settingsdialog.cpp" line="644"/>
         <source>Wind, temperature and pressure along the ride, hour by hour. The service is sent those places and the date.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="642"/>
+        <location filename="../src/settingsdialog.cpp" line="646"/>
         <source> km</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="643"/>
+        <location filename="../src/settingsdialog.cpp" line="647"/>
         <source>The weather services know places 10-25 km apart: closer than that brings little</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="553"/>
+        <location filename="../src/settingsdialog.cpp" line="557"/>
         <source>Rider&apos;s weight:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="554"/>
+        <location filename="../src/settingsdialog.cpp" line="558"/>
         <source>Rider&apos;s height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="439"/>
-        <location filename="../src/settingsdialog.cpp" line="555"/>
+        <location filename="../src/settingsdialog.cpp" line="443"/>
+        <location filename="../src/settingsdialog.cpp" line="559"/>
         <source>Bike&apos;s weight:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8012,128 +8032,128 @@ It appears among the templates in the library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="310"/>
+        <location filename="../src/settingsdialog.cpp" line="314"/>
         <source>Encoder, quality and size are chosen in the export window.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="356"/>
+        <location filename="../src/settingsdialog.cpp" line="360"/>
         <source>Map pieces around a route are fetched once and kept here; then the gauges and exports work offline. The map server sees which area the route is in.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="360"/>
+        <location filename="../src/settingsdialog.cpp" line="364"/>
         <source>Some map services need a key of your own, most of them free. Their maps appear once it is entered.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="367"/>
+        <location filename="../src/settingsdialog.cpp" line="371"/>
         <source>Deletes the kept map pieces and terrain heights; they are fetched again when needed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="376"/>
+        <location filename="../src/settingsdialog.cpp" line="380"/>
         <source>Map makers ask to be named where their map is shown. Switch it off only if the video names them elsewhere.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="394"/>
+        <location filename="../src/settingsdialog.cpp" line="398"/>
         <source>As printed on the tire: sets the wheel size, and the tire type on the Power page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="401"/>
+        <location filename="../src/settingsdialog.cpp" line="405"/>
         <source>Distance of one wheel turn. Rolled out once with the rider on, it is more exact than the tire size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="445"/>
+        <location filename="../src/settingsdialog.cpp" line="449"/>
         <source>With your chainrings and sprockets, the gear is estimated from speed and cadence. Electronic shifting&apos;s recorded gears are used as they are.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="471"/>
+        <location filename="../src/settingsdialog.cpp" line="475"/>
         <source>Picks road, gravel or mountain bike tires by width. The same as on the Bike page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="549"/>
+        <location filename="../src/settingsdialog.cpp" line="553"/>
         <source>Power lost in the chain and bearings: 2-3 % when clean, more when worn or dirty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="557"/>
+        <location filename="../src/settingsdialog.cpp" line="561"/>
         <source>Tires:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="558"/>
+        <location filename="../src/settingsdialog.cpp" line="562"/>
         <source>Rolling resistance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="559"/>
+        <location filename="../src/settingsdialog.cpp" line="563"/>
         <source>Riding position:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="560"/>
+        <location filename="../src/settingsdialog.cpp" line="564"/>
         <source>Drag area (CdA):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="561"/>
+        <location filename="../src/settingsdialog.cpp" line="565"/>
         <source>Drivetrain loss:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="562"/>
+        <location filename="../src/settingsdialog.cpp" line="566"/>
         <source>Estimated from speed, grade and elevation. A recorded power is kept; the estimate shows beside it as &quot;Power (est.)&quot;. Without the day&apos;s weather (Weather page) a headwind reads low and a tailwind high.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="572"/>
+        <location filename="../src/settingsdialog.cpp" line="576"/>
         <source>Rolling resistance ×</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="678"/>
+        <location filename="../src/settingsdialog.cpp" line="682"/>
         <source>A place every:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="679"/>
+        <location filename="../src/settingsdialog.cpp" line="683"/>
         <source>Wind reaching the rider:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="716"/>
+        <location filename="../src/settingsdialog.cpp" line="720"/>
         <source>Delete the stored weather (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="723"/>
+        <location filename="../src/settingsdialog.cpp" line="727"/>
         <source>Delete the stored maps (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="765"/>
+        <location filename="../src/settingsdialog.cpp" line="769"/>
         <source>Not found, or it cannot be run. Videos cannot be exported without it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="815"/>
-        <location filename="../src/settingsdialog.cpp" line="818"/>
+        <location filename="../src/settingsdialog.cpp" line="820"/>
+        <location filename="../src/settingsdialog.cpp" line="823"/>
         <source> lb</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="823"/>
+        <location filename="../src/settingsdialog.cpp" line="828"/>
         <source> in</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/settingsdialog.cpp" line="960"/>
+        <location filename="../src/settingsdialog.cpp" line="966"/>
         <source>Language and decoding changes take effect the next time the program starts.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8141,59 +8161,59 @@ It appears among the templates in the library.</source>
 <context>
     <name>SimpleController</name>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="560"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="577"/>
         <source>Opening %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1278"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1295"/>
         <source>Reading %1...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1317"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1334"/>
         <source>This video has no data of its own: open the file of the ride.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1318"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1335"/>
         <source>%1 could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1425"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1442"/>
         <source>The data comes from this video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1433"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1450"/>
         <source>In step by the clocks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1437"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1454"/>
         <source>Not in step: move the data until the gauges match the picture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1255"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1445"/>
-        <location filename="../src/simple/simplecontroller.cpp" line="1454"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1272"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1462"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1471"/>
         <source>Moved by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="306"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="308"/>
         <source>Demo ride</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="713"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="730"/>
         <source>Reading the videos...</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/simple/simplecontroller.cpp" line="782"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="799"/>
         <source>%n videos, %1 long, copied one after another into %2: quick, and nothing is lost.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -8201,97 +8221,97 @@ It appears among the templates in the library.</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="788"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="805"/>
         <source>They can be joined by encoding them again into %1. That takes a while; the joined video gets the size and frame rate of the first one (%2×%3), the others scaled into it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="796"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="813"/>
         <source>The camera&apos;s data in them does not come along.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="832"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="849"/>
         <source>Joining failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="848"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="865"/>
         <source>Joining...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="848"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="865"/>
         <source>Encoding...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1090"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1107"/>
         <source>No video: the gauges follow the data&apos;s own time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1419"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1436"/>
         <source>The demo ride: open the data of your own to put it in step.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1638"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1655"/>
         <source>As in the settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1902"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1919"/>
         <source>The end has to be after the start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1924"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1941"/>
         <source>This lap is not in the video.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1930"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1947"/>
         <source>lap%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1944"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1961"/>
         <source>Finding the encoders this device can use...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="1968"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="1985"/>
         <source>No encoder works on this device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="2024"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="2041"/>
         <source>Exporting... %1 %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="2032"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="2049"/>
         <source>Starting...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="2063"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="2080"/>
         <source>Saved %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="2067"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="2084"/>
         <source>Stopped: what was done is in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="2070"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="2087"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/simple/simplecontroller.cpp" line="2073"/>
+        <location filename="../src/simple/simplecontroller.cpp" line="2090"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8875,7 +8895,7 @@ Shift+drag marks a part; right-click a cut part to keep it again.</source>
 <context>
     <name>VideoJoin</name>
     <message>
-        <location filename="../src/core/video/libav.cpp" line="646"/>
+        <location filename="../src/core/video/libav.cpp" line="647"/>
         <location filename="../src/core/video/videojoin.cpp" line="147"/>
         <source>Choose two or more videos.</source>
         <translation type="unfinished"></translation>
