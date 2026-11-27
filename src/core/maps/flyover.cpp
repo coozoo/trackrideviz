@@ -444,15 +444,15 @@ Flyover::Camera Flyover::cameraFor(const QSize &size, const View &view) const
     return {projection * camera, nearPlane, target};
 }
 
-void Flyover::drawRoute(QImage &image, const Camera &camera, const View &view,
+void Flyover::drawRoute(QPainter &painter, const QSize &size, const Camera &camera, const View &view,
                         const std::function<bool(const QPointF &, double)> &hidden) const
 {
     // ridden in its color, the rest faint
-    const int width = image.width();
-    const int height = image.height();
+    const int width = size.width();
+    const int height = size.height();
     const double hazeFrom = m_patch.radius * kHazeFrom;
     const double hazeTo = m_patch.radius * kHazeTo;
-    QPainter painter(&image);
+    painter.save();
     painter.setRenderHint(QPainter::Antialiasing);
     auto visible = [&](const Vertex &vertex)
     {
@@ -472,7 +472,7 @@ void Flyover::drawRoute(QImage &image, const Camera &camera, const View &view,
             if (near)
                 {
                     // a little above the ground, so that the land does not swallow it
-                    projectWith(camera.toClip, camera.nearPlane, image.size(), QVector3D(float(at.x()), float(at.y()),
+                    projectWith(camera.toClip, camera.nearPlane, size, QVector3D(float(at.x()), float(at.y()),
                                 float(groundAt(at.x(), at.y()) * view.exaggeration + view.span * 0.004)), &vertex);
                 }
             // not into the haze, where the land it lies on has faded
@@ -504,7 +504,7 @@ void Flyover::drawRoute(QImage &image, const Camera &camera, const View &view,
     painter.drawPath(ahead);
     painter.setPen(QPen(view.line, view.lineWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter.drawPath(ridden);
-    painter.end();
+    painter.restore();
 }
 
 std::shared_ptr<const Flyover::Land> Flyover::makeLand(const Patch &patch)
@@ -537,7 +537,7 @@ std::shared_ptr<const Flyover::Land> Flyover::makeLand(const Patch &patch)
     return land;
 }
 
-Flyover::Scene Flyover::scene(const QSize &size, const View &view, QImage *route, QPointF *rider)
+Flyover::Scene Flyover::scene(const QSize &size, const View &view, QPainter *route, QPointF *rider)
 {
     const QMutexLocker lock(&m_mutex);
     Scene result;
@@ -639,7 +639,7 @@ Flyover::Scene Flyover::scene(const QSize &size, const View &view, QImage *route
     if (route)
         {
             // over the land the graphics card draws: nothing of it known here to hide a point
-            drawRoute(*route, camera, view, [](const QPointF &, double) { return false; });
+            drawRoute(*route, size, camera, view, [](const QPointF &, double) { return false; });
         }
     if (rider)
         {
@@ -850,10 +850,13 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
     done.acquire(bands - 1);
 
     // the route on the land where it shows: the land in front of a point hides it
-    drawRoute(image, camera, view, [&](const QPointF &at, double inverseW)
     {
-        return inverseW < depth.at(int(at.y()) * width + int(at.x())) * 0.985;
-    });
+        QPainter painter(&image);
+        drawRoute(painter, image.size(), camera, view, [&](const QPointF &at, double inverseW)
+        {
+            return inverseW < depth.at(int(at.y()) * width + int(at.x())) * 0.985;
+        });
+    }
 
     if (rider)
         {

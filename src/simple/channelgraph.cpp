@@ -6,6 +6,9 @@
 
 #include <QPainter>
 #include <QPainterPath>
+#include <QQuickWindow>
+#include <QSGImageNode>
+#include <QSGRectangleNode>
 
 #include <cmath>
 #include <limits>
@@ -13,15 +16,16 @@
 namespace
 {
 const double kMargin = 4.0;     // above and below the line, pixels
+const double kCursorWidth = 2.0;
 }
 
 ChannelGraph::ChannelGraph(QQuickItem *parent)
-    : QQuickPaintedItem(parent)
+    : QQuickItem(parent)
 {
-    setOpaquePainting(false);
-    setAntialiasing(true);
+    setFlag(ItemHasContents);
     connect(this, &ChannelGraph::colorsChanged, this, &ChannelGraph::stale);
     connect(this, &QQuickItem::widthChanged, this, &ChannelGraph::stale);
+    connect(this, &QQuickItem::heightChanged, this, &ChannelGraph::stale);
 }
 
 void ChannelGraph::setController(SimpleController *controller)
@@ -64,6 +68,7 @@ void ChannelGraph::setPosition(qint64 positionMs)
             return;
         }
     m_position = positionMs;
+    updateValueText();
     emit positionChanged();
     update();
 }
@@ -79,11 +84,37 @@ void ChannelGraph::setDuration(qint64 durationMs)
     emit durationChanged();
 }
 
+qreal ChannelGraph::cursorX() const
+{
+    return m_duration > 0 ? m_position * width() / double(m_duration) : 0.0;
+}
+
 void ChannelGraph::stale()
 {
     m_sampledColumns = 0;
     m_background = QImage();
+    updateValueText();
     update();
+}
+
+void ChannelGraph::updateValueText()
+{
+    const TelemetrySessionPtr session = m_controller ? m_controller->session() : TelemetrySessionPtr();
+    const Channel *channel = session && !m_channel.isEmpty() ? session->channel(m_channel) : nullptr;
+    QString text;
+    if (channel)
+        {
+            bool ok = false;
+            const double value = channel->valueAt(m_controller->telemetryTime(m_position), &ok);
+            const ChannelDisplay display = ChannelFormat::displayFor(m_channel, channel->unit(), AppSettings::units());
+            text = ok ? QString("%1 %2").arg(display.text(display.convert(value)), display.unit).trimmed()
+                      : QStringLiteral("--");
+        }
+    if (text != m_valueText)
+        {
+            m_valueText = text;
+            emit valueTextChanged();
+        }
 }
 
 void ChannelGraph::sample(int columns)
@@ -158,51 +189,62 @@ void ChannelGraph::paintBackground(QPainter &painter, double msPerPixel)
         }
 }
 
-void ChannelGraph::paint(QPainter *painter)
+QImage ChannelGraph::background(qreal ratio)
 {
-    static PerfMeter meter("graph painted");
-    const PerfMeter::Scope timed(meter);
     const int columns = int(std::floor(width()));
     if (!m_controller || columns <= 0 || height() <= 0.0 || m_duration <= 0)
         {
-            return;
+            return QImage();
         }
     if (m_sampledColumns != columns)
         {
             sample(columns);
+            m_background = QImage();
         }
-    const double msPerPixel = double(m_duration) / width();
-    const TelemetrySessionPtr session = m_controller->session();
-    const qreal ratio = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
     const QSize pixels = (size() * ratio).toSize();
     if (m_background.size() != pixels || m_background.devicePixelRatio() != ratio)
         {
-            m_background = QImage(pixels, QImage::Format_ARGB32_Premultiplied);
+            static PerfMeter meter("graph line drawn");
+            const PerfMeter::Scope timed(meter);
+            m_background = QImage(pixels, QImage::Format_RGBA8888_Premultiplied);
             m_background.setDevicePixelRatio(ratio);
             m_background.fill(Qt::transparent);
-            QPainter background(&m_background);
-            paintBackground(background, msPerPixel);
+            QPainter painter(&m_background);
+            paintBackground(painter, double(m_duration) / width());
+            m_backgroundShown = false;
         }
-    painter->drawImage(QPointF(0.0, 0.0), m_background);
-    painter->setRenderHint(QPainter::Antialiasing);
+    return m_background;
+}
 
-    // where the video is, and the value there
-    const double x = m_position / msPerPixel;
-    painter->setPen(QPen(m_cursorColor, 2.0));
-    painter->drawLine(QPointF(x, 0.0), QPointF(x, height()));
-    const Channel *channel = session && !m_channel.isEmpty() ? session->channel(m_channel) : nullptr;
-    if (channel)
+QSGNode *ChannelGraph::updatePaintNode(QSGNode *old, UpdatePaintNodeData *)
+{
+    // the line's picture, then the cursor over it
+    QSGNode *root = old;
+    const QImage line = window() ? background(window()->effectiveDevicePixelRatio()) : QImage();
+    if (line.isNull())
         {
-            bool ok = false;
-            const double value = channel->valueAt(m_controller->telemetryTime(m_position), &ok);
-            const ChannelDisplay display = ChannelFormat::displayFor(m_channel, channel->unit(), AppSettings::units());
-            const double shown = display.convert(value);
-            const QString text = ok ? QString("%1 %2").arg(display.text(shown), display.unit).trimmed() : QStringLiteral("--");
-            const QFontMetricsF metrics(painter->font());
-            const double w = metrics.horizontalAdvance(text) + 8.0;
-            const bool left = x + w > width();
-            painter->setPen(m_textColor);
-            painter->drawText(QRectF(left ? x - w : x + 4.0, 0.0, w - 4.0, metrics.height()),
-                              left ? Qt::AlignRight : Qt::AlignLeft, text);
+            delete root;
+            return nullptr;
         }
+    if (!root)
+        {
+            root = new QSGNode;
+            QSGImageNode *image = window()->createImageNode();
+            image->setOwnsTexture(true);
+            image->setFiltering(QSGTexture::Linear);
+            root->appendChildNode(image);
+            root->appendChildNode(window()->createRectangleNode());
+            m_backgroundShown = false;
+        }
+    auto *image = static_cast<QSGImageNode *>(root->firstChild());
+    if (!m_backgroundShown)
+        {
+            image->setTexture(window()->createTextureFromImage(line));
+            m_backgroundShown = true;
+        }
+    image->setRect(boundingRect());
+    auto *cursor = static_cast<QSGRectangleNode *>(root->lastChild());
+    cursor->setColor(m_cursorColor);
+    cursor->setRect(QRectF(cursorX() - kCursorWidth / 2.0, 0.0, kCursorWidth, height()));
+    return root;
 }

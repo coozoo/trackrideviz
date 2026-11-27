@@ -1899,26 +1899,24 @@ void BoundGauge::drawFlyover(QPainter &painter, const Node &node, double time, c
     view.lineWidth = node.component.lineWidth * onDevice.width() / std::max(1.0, frame.width());
     view.time = time;
     QPointF rider;
-    QImage picture;
-    if (Flyover::Capture *capture = Flyover::Capture::current())
-        {
-            // the land drawn by the graphics card under the picture: here the route alone
-            picture = QImage(size, QImage::Format_ARGB32_Premultiplied);
-            picture.fill(Qt::transparent);
-            const double scale = onDevice.width() / std::max(1.0, frame.width());
-            capture->items.append({node.flyover->scene(size, view, &picture, &rider), onDevice,
-                                   node.component.cornerRadius * scale});
-        }
-    else
-        {
-            picture = node.flyover->render(size, view, &rider);
-        }
-
     painter.save();
     QPainterPath shape;
     shape.addRoundedRect(frame, node.component.cornerRadius, node.component.cornerRadius);
     painter.setClipPath(shape, Qt::IntersectClip);
-    painter.drawImage(frame, picture);
+    if (Flyover::Capture *capture = Flyover::Capture::current())
+        {
+            // the land drawn by the graphics card under the picture: here the route alone, drawn
+            // straight into it in the flyover's pixels
+            const double scale = onDevice.width() / std::max(1.0, frame.width());
+            painter.translate(frame.topLeft());
+            painter.scale(frame.width() / size.width(), frame.height() / size.height());
+            capture->items.append({node.flyover->scene(size, view, &painter, &rider), onDevice,
+                                   node.component.cornerRadius * scale});
+        }
+    else
+        {
+            painter.drawImage(frame, node.flyover->render(size, view, &rider));
+        }
     painter.restore();
     if (node.component.tiles)
         {
