@@ -1568,7 +1568,9 @@ private slots:
         QImage route(size, QImage::Format_ARGB32_Premultiplied);
         route.fill(Qt::transparent);
         QPointF rider;
-        const Flyover::Scene scene = flyover.scene(size, view, &route, &rider);
+        QPainter painter(&route);
+        const Flyover::Scene scene = flyover.scene(size, view, &painter, &rider);
+        painter.end();
         QVERIFY(scene.land);
         const int n = scene.land->cells;
         QCOMPARE(scene.land->vertices.size(), (n + 1) * (n + 1) * Flyover::LandStride);

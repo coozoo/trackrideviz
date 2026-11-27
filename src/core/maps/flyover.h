@@ -122,9 +122,9 @@ public:
 
     // The picture, and where the rider is on it (pixels).
     QImage render(const QSize &size, const View &view, QPointF *rider = nullptr);
-    // As render(), the land for a graphics card instead: the route drawn over `route` (a picture
-    // of `size`, see-through where nothing is drawn), and where the rider is.
-    Scene scene(const QSize &size, const View &view, QImage *route, QPointF *rider = nullptr);
+    // As render(), the land for a graphics card instead: the route drawn with `route` (a painter
+    // whose units are the pixels of `size`, clipped to it), and where the rider is.
+    Scene scene(const QSize &size, const View &view, QPainter *route, QPointF *rider = nullptr);
     // Everything was there for the last picture: terrain and map; otherwise they have been asked for.
     bool wasComplete() const;
 
@@ -173,7 +173,7 @@ private:
     void takePatch(const View &view);
     Camera cameraFor(const QSize &size, const View &view) const;
     // The route over `image`; `hidden` says whether the land in front hides a point (pixels, 1 / w).
-    void drawRoute(QImage &image, const Camera &camera, const View &view,
+    void drawRoute(QPainter &painter, const QSize &size, const Camera &camera, const View &view,
                    const std::function<bool(const QPointF &, double)> &hidden) const;
     bool needsPatch(const View &view) const;
     // The land around `view`; reads nothing of the flyover, so it may be made in any thread.
