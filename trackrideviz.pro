@@ -28,6 +28,7 @@ include(src/core/core.pri)
 
 SOURCES += main.cpp \
     src/simple/channelgraph.cpp \
+    src/simple/flyovernode.cpp \
     src/simple/gaugeoverlay.cpp \
     src/simple/routeview.cpp \
     src/simple/simplecontroller.cpp \
@@ -35,6 +36,7 @@ SOURCES += main.cpp \
 
 HEADERS += \
     src/simple/channelgraph.h \
+    src/simple/flyovernode.h \
     src/simple/gaugeoverlay.h \
     src/simple/routeview.h \
     src/simple/simplecontroller.h \
@@ -115,6 +117,7 @@ lupdate_only {
 }
 
 RESOURCES += \
+    src/simple/shaders/shaders.qrc \
     qml.qrc \
     resources.qrc
 

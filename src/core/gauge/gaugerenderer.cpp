@@ -1899,7 +1899,20 @@ void BoundGauge::drawFlyover(QPainter &painter, const Node &node, double time, c
     view.lineWidth = node.component.lineWidth * onDevice.width() / std::max(1.0, frame.width());
     view.time = time;
     QPointF rider;
-    const QImage picture = node.flyover->render(size, view, &rider);
+    QImage picture;
+    if (Flyover::Capture *capture = Flyover::Capture::current())
+        {
+            // the land drawn by the graphics card under the picture: here the route alone
+            picture = QImage(size, QImage::Format_ARGB32_Premultiplied);
+            picture.fill(Qt::transparent);
+            const double scale = onDevice.width() / std::max(1.0, frame.width());
+            capture->items.append({node.flyover->scene(size, view, &picture, &rider), onDevice,
+                                   node.component.cornerRadius * scale});
+        }
+    else
+        {
+            picture = node.flyover->render(size, view, &rider);
+        }
 
     painter.save();
     QPainterPath shape;

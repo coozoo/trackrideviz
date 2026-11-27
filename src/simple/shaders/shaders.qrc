@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>flyoverland.vert.qsb</file>
+        <file>flyoverland.frag.qsb</file>
+    </qresource>
+</RCC>

@@ -3,13 +3,16 @@
 #include <QColor>
 #include <QElapsedTimer>
 #include <QImage>
+#include <QMatrix4x4>
 #include <QMutex>
 #include <QPointF>
 #include <QRectF>
 #include <QSize>
 #include <QString>
+#include <QVector3D>
 #include <QVector>
 
+#include <functional>
 #include <memory>
 
 // The land around the rider in 3D, seen from behind and above: heights from the terrain model
@@ -62,10 +65,66 @@ public:
         bool m_was;
     };
 
+    // The land as a graphics card draws it, made once for each land.
+    struct Land
+    {
+        int cells{0};           // along a side: (cells + 1)^2 points
+        // for each point, west to east, then south to north: east, north, height (meters around
+        // the middle), the map's u and v (0..1), red, green and blue (0..1, the land's own colors
+        // without a map) and the sun's light on it
+        QVector<float> vertices;
+        QImage texture;         // the map over it; null: the points' colors
+    };
+    static constexpr int LandStride = 9;    // floats for each point of Land::vertices
+
+    // What a graphics card needs for one picture of the land.
+    struct Scene
+    {
+        std::shared_ptr<const Land> land;   // null: nothing to draw
+        // the triangles, the farthest first: drawn in this order they need no depth buffer
+        QVector<quint16> indices;
+        QMatrix4x4 toClip;      // meters (the height times the exaggeration) to clip space
+        float exaggeration{1.0f};
+        float hazeFrom{0.0f};   // meters along the view where the haze begins ...
+        float hazeTo{1.0f};     // ... and where it is whole
+    };
+
+    // While one lives on a thread, flyovers that gauges draw there leave the land out of their
+    // picture and put it here instead, with where it goes on the painter's device (a preview
+    // that draws it on the graphics card).
+    class Capture
+    {
+    public:
+        struct Item
+        {
+            Scene scene;
+            QRectF rect;        // device pixels of the painter
+            double radius{0.0}; // of its corners, the same pixels
+        };
+
+        Capture();
+        ~Capture();
+        Q_DISABLE_COPY_MOVE(Capture)
+
+        static Capture *current();
+        QVector<Item> items;
+
+    private:
+        Capture *m_was;
+    };
+
+    // The sky behind the land: this color at the top, the haze's from this share of the height down.
+    static QColor skyColor();
+    static QColor hazeColor();
+    static constexpr double SkyHazeFrom = 0.55;
+
     void setRoute(const QVector<Point> &route);
 
     // The picture, and where the rider is on it (pixels).
     QImage render(const QSize &size, const View &view, QPointF *rider = nullptr);
+    // As render(), the land for a graphics card instead: the route drawn over `route` (a picture
+    // of `size`, see-through where nothing is drawn), and where the rider is.
+    Scene scene(const QSize &size, const View &view, QImage *route, QPointF *rider = nullptr);
     // Everything was there for the last picture: terrain and map; otherwise they have been asked for.
     bool wasComplete() const;
 
@@ -89,6 +148,7 @@ private:
         QString mapProvider;
         bool streets{false};
         bool complete{false};
+        std::shared_ptr<const Land> land;   // made when a graphics card first draws it
         bool isValid() const { return cells > 0; }
     };
 
@@ -101,9 +161,24 @@ private:
         Patch patch;
     };
 
+    // Where the camera is for a picture of `size`.
+    struct Camera
+    {
+        QMatrix4x4 toClip;      // meters around the land's middle to the picture's clip space
+        double nearPlane{1.0};
+        QVector3D target;       // the rider, in those meters
+    };
+
+    // The land taken over from the background, or made anew when it no longer will do.
+    void takePatch(const View &view);
+    Camera cameraFor(const QSize &size, const View &view) const;
+    // The route over `image`; `hidden` says whether the land in front hides a point (pixels, 1 / w).
+    void drawRoute(QImage &image, const Camera &camera, const View &view,
+                   const std::function<bool(const QPointF &, double)> &hidden) const;
     bool needsPatch(const View &view) const;
     // The land around `view`; reads nothing of the flyover, so it may be made in any thread.
     static Patch makePatch(const View &view);
+    static std::shared_ptr<const Land> makeLand(const Patch &patch);
     // Meters east and north of the patch's middle.
     QPointF local(double latitude, double longitude) const;
     double groundAt(double east, double north) const;
