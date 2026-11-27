@@ -1552,6 +1552,90 @@ private slots:
         QCOMPARE(patient.render(size, view), direct.render(size, view));
     }
 
+    // For a graphics card: every point of the land, its triangles the farthest first; under a
+    // Capture a flyover gauge leaves the land out of its picture and says where it goes.
+    void flyoverSceneForTheGraphicsCard()
+    {
+        TileStore::terrain()->setFolder(m_dir.filePath("no-terrain"));
+        Flyover flyover;
+        Flyover::View view;
+        view.latitude = 50.0;
+        view.longitude = 30.0;
+        view.span = 200.0;
+        view.streets = false;
+        view.heading = 30.0;
+        const QSize size(320, 180);
+        QImage route(size, QImage::Format_ARGB32_Premultiplied);
+        route.fill(Qt::transparent);
+        QPointF rider;
+        const Flyover::Scene scene = flyover.scene(size, view, &route, &rider);
+        QVERIFY(scene.land);
+        const int n = scene.land->cells;
+        QCOMPARE(scene.land->vertices.size(), (n + 1) * (n + 1) * Flyover::LandStride);
+        QVERIFY(scene.land->texture.isNull());     // no map: the land's own colors
+        QVERIFY(!scene.indices.isEmpty() && scene.indices.size() % 6 == 0);
+        QVERIFY(scene.indices.size() <= n * n * 6);
+        QVERIFY(scene.hazeFrom > 0.0f && scene.hazeTo > scene.hazeFrom);
+        // the rider in the picture, a little below the middle
+        QVERIFY(rider.x() > 100 && rider.x() < 220 && rider.y() > 90 && rider.y() < 180);
+        // the cells by how far along the view their middle is, never one nearer first by more
+        // than the sorting's step (a thousandth of the farthest: about a meter, a cell is eight)
+        auto depthOf = [&](int cell)
+        {
+            float sum = 0.0f;
+            for (int corner : {0, 1, 2, 5})
+                {
+                    const float *p = scene.land->vertices.constData() + scene.indices.at(cell * 6 + corner) * Flyover::LandStride;
+                    sum += (scene.toClip * QVector4D(p[0], p[1], p[2] * scene.exaggeration, 1.0f)).w();
+                }
+            return sum / 4.0f;
+        };
+        const int cells = int(scene.indices.size() / 6);
+        QVERIFY(depthOf(0) > depthOf(cells - 1) * 2.0f);
+        const float step = depthOf(0) / 1000.0f;
+        int backwards = 0;
+        for (int cell = 1; cell < cells; ++cell)
+            {
+                backwards += depthOf(cell) > depthOf(cell - 1) + step ? 1 : 0;
+            }
+        QVERIFY2(backwards == 0, qPrintable(QString::number(backwards)));
+
+        // a gauge with the flyover in a Capture: its land not in the picture, but there
+        auto session = std::make_shared<TelemetrySession>();
+        Channel &lat = session->channelForWriting(ChannelId::PositionLat, "deg");
+        Channel &lon = session->channelForWriting(ChannelId::PositionLon, "deg");
+        for (int t = 0; t <= 60; ++t)
+            {
+                lat.append(t, 50.0 + t * 10.0 / 111320.0);
+                lon.append(t, 30.0);
+            }
+        GaugeComponent map;
+        map.type = GaugeComponent::TrackMap;
+        map.frame = QRectF(0, 0, 160, 90);
+        map.flyover = true;
+        map.span = 200.0;
+        map.tiles = false;
+        map.cornerRadius = 8;
+        Gauge gauge;
+        gauge.size = QSizeF(160, 90);
+        gauge.components.append(map);
+        const BoundGauge bound(gauge, ChannelId::Speed, session, Units(), GaugeTheme());
+        QImage image(320, 180, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        Flyover::Capture capture;
+        {
+            QPainter painter(&image);
+            bound.render(painter, QRectF(0, 0, 320, 180), 30.0);
+        }
+        QCOMPARE(capture.items.size(), 1);
+        QCOMPARE(capture.items.first().rect, QRectF(0, 0, 320, 180));
+        QCOMPARE(capture.items.first().radius, 16.0);
+        QVERIFY(capture.items.first().scene.land);
+        // sky and land left to the graphics card: see-through there
+        QCOMPARE(image.pixelColor(160, 2).alpha(), 0);
+        QCOMPARE(image.pixelColor(20, 175).alpha(), 0);
+    }
+
     void flyoverDrawsTheLandBehindTheRider()
     {
         TileStore::terrain()->setFolder(m_dir.filePath("no-terrain"));

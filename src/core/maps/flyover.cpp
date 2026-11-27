@@ -55,6 +55,8 @@ const double kWaitShare = 0.6;
 
 // on this thread the land may be made in the background (Flyover::Patience)
 thread_local bool t_patient = false;
+// where flyovers drawn on this thread put their land (Flyover::Capture)
+thread_local Flyover::Capture *t_capture = nullptr;
 
 // the threads that draw the bands of the land, kept
 QThreadPool &bandPool()
@@ -140,6 +142,32 @@ inline QRgb sampleBilinear(const QRgb *texels, int stride, int width, int height
     };
     return 0xff000000u | mix(mix(row0[x0], row0[x1], fx), mix(row1[x0], row1[x1], fx), fy);
 }
+}
+
+Flyover::Capture::Capture()
+    : m_was(t_capture)
+{
+    t_capture = this;
+}
+
+Flyover::Capture::~Capture()
+{
+    t_capture = m_was;
+}
+
+Flyover::Capture *Flyover::Capture::current()
+{
+    return t_capture;
+}
+
+QColor Flyover::skyColor()
+{
+    return kSkyTop;
+}
+
+QColor Flyover::hazeColor()
+{
+    return kHaze;
 }
 
 Flyover::Patience::Patience()
@@ -479,6 +507,154 @@ void Flyover::drawRoute(QImage &image, const Camera &camera, const View &view,
     painter.end();
 }
 
+std::shared_ptr<const Flyover::Land> Flyover::makeLand(const Patch &patch)
+{
+    auto land = std::make_shared<Land>();
+    const int n = patch.cells;
+    const double step = 2.0 * patch.radius / n;
+    const bool textured = !patch.texture.isNull();
+    land->cells = n;
+    land->texture = patch.texture;
+    land->vertices.resize((n + 1) * (n + 1) * LandStride);
+    float *at = land->vertices.data();
+    for (int j = 0; j <= n; ++j)
+        {
+            for (int i = 0; i <= n; ++i)
+                {
+                    const int k = j * (n + 1) + i;
+                    const QColor color = textured ? QColor(Qt::white) : QColor::fromRgb(patch.colors.at(k));
+                    *at++ = float(-patch.radius + i * step);
+                    *at++ = float(-patch.radius + j * step);
+                    *at++ = patch.heights.at(k);
+                    *at++ = textured ? float(patch.texels.at(k).x() / patch.texture.width()) : 0.0f;
+                    *at++ = textured ? float(patch.texels.at(k).y() / patch.texture.height()) : 0.0f;
+                    *at++ = float(color.redF());
+                    *at++ = float(color.greenF());
+                    *at++ = float(color.blueF());
+                    *at++ = patch.shade.at(k);
+                }
+        }
+    return land;
+}
+
+Flyover::Scene Flyover::scene(const QSize &size, const View &view, QImage *route, QPointF *rider)
+{
+    const QMutexLocker lock(&m_mutex);
+    Scene result;
+    if (size.isEmpty())
+        {
+            return result;
+        }
+    static PerfMeter meter("flyover made ready for the graphics card (land building left out)");
+    takePatch(view);
+    QElapsedTimer took;
+    took.start();
+    m_lastComplete = m_patch.complete;
+    const Camera camera = cameraFor(size, view);
+    if (m_patch.isValid())
+        {
+            if (!m_patch.land)
+                {
+                    m_patch.land = makeLand(m_patch);
+                }
+            result.land = m_patch.land;
+            result.toClip = camera.toClip;
+            result.exaggeration = float(view.exaggeration);
+            result.hazeFrom = float(m_patch.radius * kHazeFrom);
+            result.hazeTo = float(m_patch.radius * kHazeTo);
+
+            // how far along the view each point is (w); the cells, the farthest first: in buckets
+            // of their middle's distance, which is order enough for land seen from above
+            const int n = m_patch.cells;
+            const QVector4D row = camera.toClip.row(3);
+            const float *points = m_patch.land->vertices.constData();
+            QVector<float> w((n + 1) * (n + 1));
+            for (int k = 0; k < w.size(); ++k)
+                {
+                    const float *p = points + k * LandStride;
+                    w[k] = row.x() * p[0] + row.y() * p[1] + row.z() * p[2] * result.exaggeration + row.w();
+                }
+            constexpr int kBuckets = 1024;
+            QVector<int> bucketOf(n * n, -1);
+            float farthest = 0.0f;
+            for (int j = 0; j < n; ++j)
+                {
+                    for (int i = 0; i < n; ++i)
+                        {
+                            const int k = j * (n + 1) + i;
+                            const float a = w[k], b = w[k + 1], c = w[k + n + 1], d = w[k + n + 2];
+                            // a point behind the camera: left out, as the software picture does
+                            if (std::min({a, b, c, d}) > camera.nearPlane)
+                                {
+                                    farthest = std::max(farthest, (a + b + c + d) * 0.25f);
+                                }
+                        }
+                }
+            QVector<int> counts(kBuckets, 0);
+            for (int j = 0; j < n; ++j)
+                {
+                    for (int i = 0; i < n; ++i)
+                        {
+                            const int k = j * (n + 1) + i;
+                            const float a = w[k], b = w[k + 1], c = w[k + n + 1], d = w[k + n + 2];
+                            if (std::min({a, b, c, d}) > camera.nearPlane && farthest > 0.0f)
+                                {
+                                    const int bucket = std::clamp(int((a + b + c + d) * 0.25f / farthest * (kBuckets - 1)), 0,
+                                                                  kBuckets - 1);
+                                    bucketOf[j * n + i] = bucket;
+                                    ++counts[bucket];
+                                }
+                        }
+                }
+            // where each bucket starts, the farthest bucket first
+            QVector<int> start(kBuckets, 0);
+            int cells = 0;
+            for (int bucket = kBuckets - 1; bucket >= 0; --bucket)
+                {
+                    start[bucket] = cells;
+                    cells += counts[bucket];
+                }
+            result.indices.resize(cells * 6);
+            quint16 *index = result.indices.data();
+            for (int j = 0; j < n; ++j)
+                {
+                    for (int i = 0; i < n; ++i)
+                        {
+                            const int bucket = bucketOf[j * n + i];
+                            if (bucket < 0)
+                                {
+                                    continue;
+                                }
+                            const int k = j * (n + 1) + i;
+                            quint16 *cell = index + 6 * start[bucket]++;
+                            cell[0] = quint16(k);
+                            cell[1] = quint16(k + 1);
+                            cell[2] = quint16(k + n + 2);
+                            cell[3] = quint16(k);
+                            cell[4] = quint16(k + n + 2);
+                            cell[5] = quint16(k + n + 1);
+                        }
+                }
+        }
+    if (route)
+        {
+            // over the land the graphics card draws: nothing of it known here to hide a point
+            drawRoute(*route, camera, view, [](const QPointF &, double) { return false; });
+        }
+    if (rider)
+        {
+            Vertex vertex;
+            projectWith(camera.toClip, camera.nearPlane, size,
+                        QVector3D(camera.target.x(), camera.target.y(), camera.target.z() + float(view.span * 0.004)), &vertex);
+            *rider = vertex.usable ? QPointF(vertex.x, vertex.y) : QPointF(size.width() / 2.0, size.height() * 0.6);
+        }
+    if (t_patient)
+        {
+            meter.add(took.nsecsElapsed() / 1e6);
+        }
+    return result;
+}
+
 QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
 {
     const QMutexLocker lock(&m_mutex);
@@ -502,7 +678,7 @@ QImage Flyover::render(const QSize &size, const View &view, QPointF *rider)
         QPainter painter(&image);
         QLinearGradient sky(0, 0, 0, height);
         sky.setColorAt(0.0, kSkyTop);
-        sky.setColorAt(0.55, kHaze);
+        sky.setColorAt(SkyHazeFrom, kHaze);
         painter.fillRect(image.rect(), sky);
     }
 
