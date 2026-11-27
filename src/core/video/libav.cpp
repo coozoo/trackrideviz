@@ -20,7 +20,16 @@ extern "C" {
 #include <libavutil/display.h>
 #include <libavutil/ffversion.h>
 #include <libavutil/hwcontext.h>
+#ifdef Q_OS_ANDROID
+#include <libavcodec/jni.h>
+#endif
 }
+
+#ifdef Q_OS_ANDROID
+#include <QtCore/qcoreapplication_platform.h>
+#include <QJniEnvironment>
+#include <QJniObject>
+#endif
 
 // the oldest the program is written for: FFmpeg 6.1 (stream side data in the codec parameters)
 static_assert(LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(60, 16, 100), "FFmpeg 6.1 or later is needed");
@@ -96,6 +105,22 @@ void Libav::quiet()
 {
 #ifdef RTV_LIBAV
     quietLibraries();
+#endif
+}
+
+void Libav::useAndroid()
+{
+#if defined(RTV_LIBAV) && defined(Q_OS_ANDROID)
+    // the phone's own encoders and decoders (MediaCodec) and the files Android hands over by
+    // address (content://) are reached through Java
+    QJniEnvironment env;
+    av_jni_set_java_vm(env.javaVM(), nullptr);
+    const QJniObject context = QNativeInterface::QAndroidApplication::context();
+    if (context.isValid())
+        {
+            // kept for as long as the program runs
+            av_jni_set_android_app_ctx(env->NewGlobalRef(context.object()), nullptr);
+        }
 #endif
 }
 

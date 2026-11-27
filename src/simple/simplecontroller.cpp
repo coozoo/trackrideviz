@@ -32,6 +32,11 @@
 #include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
+#ifdef Q_OS_ANDROID
+#include <QtCore/qcoreapplication_platform.h>
+#include <QJniEnvironment>
+#include <QJniObject>
+#endif
 
 namespace
 {
@@ -75,6 +80,77 @@ QString localPath(const QUrl &url)
 QUrl urlOf(const QString &path)
 {
     return path.startsWith(QLatin1String("content:")) ? QUrl(path) : QUrl::fromLocalFile(path);
+}
+
+// Where a phone's export goes: Movies/TrackRideViz on its shared storage, which the gallery and
+// any file manager show (the app's own Movies folder where that cannot be written: Android 9 and
+// 10 ask for a permission first). Empty elsewhere: there the video goes beside its source.
+QString sharedMoviesFolder()
+{
+#ifdef Q_OS_ANDROID
+    const QJniObject movies = QJniObject::getStaticObjectField("android/os/Environment", "DIRECTORY_MOVIES", "Ljava/lang/String;");
+    const QJniObject folder = QJniObject::callStaticObjectMethod("android/os/Environment", "getExternalStoragePublicDirectory",
+                                                                "(Ljava/lang/String;)Ljava/io/File;", movies.object<jstring>());
+    if (folder.isValid())
+        {
+            const QString path = folder.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;").toString() + "/TrackRideViz";
+            // Movies takes videos only: the test file is named as one
+            QFile probe(path + "/.probe.mp4");
+            if (QDir().mkpath(path) && probe.open(QIODevice::WriteOnly))
+                {
+                    probe.remove();
+                    return path;
+                }
+        }
+    return QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+#else
+    return QString();
+#endif
+}
+
+// A finished video put in the system's index of media, so that the gallery shows it, and its
+// address there (content://), which other apps can open; the path itself where it has none.
+QString announcedVideo(const QString &path)
+{
+#ifdef Q_OS_ANDROID
+    QJniEnvironment env;
+    const QJniObject context = QNativeInterface::QAndroidApplication::context();
+    const jclass text = env.findClass("java/lang/String");
+    auto strings = [&](const QString &value)
+    {
+        return env->NewObjectArray(1, text, QJniObject::fromString(value).object<jstring>());
+    };
+    jobjectArray paths = strings(path);
+    QJniObject::callStaticMethod<void>("android/media/MediaScannerConnection", "scanFile",
+                                       "(Landroid/content/Context;[Ljava/lang/String;[Ljava/lang/String;"
+                                       "Landroid/media/MediaScannerConnection$OnScanCompletedListener;)V",
+                                       context.object(), paths, jobjectArray(nullptr), jobject(nullptr));
+    // a file written into shared storage is in the index from the start (Android 11 and later)
+    const QJniObject videos = QJniObject::getStaticObjectField("android/provider/MediaStore$Video$Media", "EXTERNAL_CONTENT_URI",
+                                                               "Landroid/net/Uri;");
+    const QJniObject resolver = context.callObjectMethod("getContentResolver", "()Landroid/content/ContentResolver;");
+    jobjectArray columns = strings(QStringLiteral("_id"));
+    const QJniObject cursor = resolver.callObjectMethod("query", "(Landroid/net/Uri;[Ljava/lang/String;Ljava/lang/String;"
+                                                        "[Ljava/lang/String;Ljava/lang/String;)Landroid/database/Cursor;",
+                                                        videos.object(), columns,
+                                                        QJniObject::fromString(QStringLiteral("_data=?")).object<jstring>(),
+                                                        paths, jstring(nullptr));
+    QString address;
+    if (cursor.isValid())
+        {
+            if (cursor.callMethod<jboolean>("moveToFirst"))
+                {
+                    address = videos.toString() + "/" + QString::number(cursor.callMethod<jlong>("getLong", "(I)J", 0));
+                }
+            cursor.callMethod<void>("close");
+        }
+    env->DeleteLocalRef(columns);
+    env->DeleteLocalRef(paths);
+    env.checkAndClearExceptions();
+    return address.isEmpty() ? path : address;
+#else
+    return path;
+#endif
 }
 
 QVector<ExportProfile> allProfiles()
@@ -435,7 +511,7 @@ double SimpleController::aspect() const
 
 QUrl SimpleController::exportedUrl() const
 {
-    return m_exportedPath.isEmpty() ? QUrl() : QUrl::fromLocalFile(m_exportedPath);
+    return m_exportedPath.isEmpty() ? QUrl() : urlOf(m_exportedPath);
 }
 
 double SimpleController::telemetryTime(qint64 videoMs) const
@@ -1916,7 +1992,10 @@ void SimpleController::runExport()
     settings.background = m_project.background.color;
     // beside the video (or the data), or in the folder of the settings; never over a file that is there
     const QFileInfo source(!m_project.videoPath.isEmpty() ? m_project.videoPath : m_project.telemetryPath);
+    // on a phone: where its videos are
+    const QString shared = AppSettings::exportFolder().isEmpty() ? sharedMoviesFolder() : QString();
     QString folder = !AppSettings::exportFolder().isEmpty() ? AppSettings::exportFolder()
+                     : !shared.isEmpty() ? shared
                      : m_demo ? QStandardPaths::writableLocation(QStandardPaths::MoviesLocation) : source.absolutePath();
     if (folder.isEmpty() || !QDir(folder).exists())
         {
@@ -1982,11 +2061,11 @@ void SimpleController::exportFinished(int outcome, const QString &message)
     switch (ExportJob::Outcome(outcome))
         {
         case ExportJob::Succeeded:
-            m_exportedPath = m_runningPath;
+            m_exportedPath = announcedVideo(m_runningPath);
             m_exportText = tr("Saved %1").arg(QFileInfo(m_runningPath).fileName());
             break;
         case ExportJob::Stopped:
-            m_exportedPath = m_runningPath;
+            m_exportedPath = announcedVideo(m_runningPath);
             m_exportText = tr("Stopped: what was done is in %1").arg(QFileInfo(m_runningPath).fileName());
             break;
         case ExportJob::Canceled:

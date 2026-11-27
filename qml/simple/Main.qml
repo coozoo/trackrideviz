@@ -1044,9 +1044,11 @@ ApplicationWindow {
                 enabled: !simple.exporting && !simple.gaugesOnly
                 onActivated: (index) => simple.profileIndex = index
             }
-            // the quickest of all: the video is not encoded again, only the gauges are
+            // the quickest of all: the video is not encoded again, only the gauges are. Not on
+            // Android: its FFmpeg has no encoder for see-through VP9
             Switch {
                 Layout.fillWidth: true
+                visible: Qt.platform.os !== "android"
                 enabled: !simple.exporting
                 checked: simple.gaugesOnly
                 text: qsTr("Only the gauges, see-through (.webm)")

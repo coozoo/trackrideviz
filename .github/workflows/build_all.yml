@@ -655,6 +655,13 @@ jobs:
         with:
           path: openssl-android
           key: openssl-${{ env.OPENSSL_VERSION }}-arm64-ndk${{ env.NDK_VERSION }}-variant
+      # the program's own video engine, which exports (tools/android/ffmpeg-libraries.sh)
+      - name: FFmpeg for Android (kept between runs)
+        id: ffmpeg
+        uses: actions/cache@v6
+        with:
+          path: ffmpeg-android
+          key: ffmpeg-arm64-ndk${{ env.NDK_VERSION }}-${{ hashFiles('tools/android/ffmpeg-libraries.sh') }}
       - name: Gradle downloads (kept between runs)
         uses: actions/cache@v6
         with:
@@ -696,6 +703,12 @@ jobs:
           fi
           "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -d "$RTV_ANDROID_OPENSSL/libssl_3.so" | grep -E 'NEEDED|SONAME'
           ls -l "$RTV_ANDROID_OPENSSL"
+          export RTV_ANDROID_FFMPEG="$PWD/ffmpeg-android"
+          if [ "${{ steps.ffmpeg.outputs.cache-hit }}" != "true" ]; then
+            tools/android/ffmpeg-libraries.sh "$ANDROID_NDK_ROOT" "$RTV_ANDROID_FFMPEG"
+          fi
+          "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -d "$RTV_ANDROID_FFMPEG/lib/libavcodec_rtv.so" | grep -E 'NEEDED|SONAME'
+          ls -l "$RTV_ANDROID_FFMPEG/lib"/*.so
           echo "Qt: $QT_ROOT_DIR, NDK: $ANDROID_NDK_ROOT, platform: $PLATFORM"
           mkdir -p build-android && cd build-android
           "$QT_ROOT_DIR/bin/qmake" ../trackrideviz.pro CONFIG+=release
